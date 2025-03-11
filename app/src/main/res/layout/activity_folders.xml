@@ -29,6 +29,8 @@
             android:layout_margin="@dimen/activity_vertical_margin" />
 
         <com.google.android.material.button.MaterialButton
+            app:backgroundTint="@color/colorTertiary"
+            android:textColor="@color/colorBackground"
             android:id="@+id/bt_view_archived"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
