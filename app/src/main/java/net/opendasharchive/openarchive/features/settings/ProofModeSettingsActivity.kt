@@ -190,7 +190,7 @@ class ProofModeSettingsActivity : BaseActivity() {
 
 
         val learnModeInfo =
-            getString(R.string.prefs_use_proofmode_description, "https://www.google.com")
+            getString(R.string.prefs_use_proofmode_description, getString(R.string.intro_link_verify))
 
 
         val spannedText: Spanned =

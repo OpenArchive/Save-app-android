@@ -182,7 +182,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        view.setPadding(0, 16.dpToPx(), 0, 0)
+        //view.setPadding(0, 16.dpToPx(), 0, 0)
     }
 
     fun Int.dpToPx(): Int = (this * resources.displayMetrics.density).toInt()

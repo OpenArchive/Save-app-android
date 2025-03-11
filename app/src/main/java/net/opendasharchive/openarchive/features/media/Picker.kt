@@ -110,17 +110,7 @@ object Picker {
         )
     }
 
-    fun pickMedia(activity: Activity, launcher: ImagePickerLauncher) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (needAskForPermission(
-                    activity,
-                    arrayOf(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO),
-                MainActivity.REQUEST_FILE_MEDIA
-            )
-            ) {
-                return
-            }
-        }
+    fun pickMedia(launcher: ImagePickerLauncher) {
 
         val config = ImagePickerConfig {
             mode = ImagePickerMode.MULTIPLE
@@ -147,26 +137,6 @@ object Picker {
     private val mFilePickerIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
         addCategory(Intent.CATEGORY_OPENABLE)
         type = "application/*"
-    }
-
-    private fun needAskForPermission(activity: Activity, permissions: Array<String>, requestCode: Int): Boolean {
-        var needAsk = false
-
-        for (permission in permissions) {
-            needAsk = ContextCompat.checkSelfPermission(
-                activity,
-                permission
-            ) != PackageManager.PERMISSION_GRANTED
-                    && ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)
-
-            if (needAsk) break
-        }
-
-        if (!needAsk) return false
-
-        ActivityCompat.requestPermissions(activity, permissions, requestCode)
-
-        return true
     }
 
     private fun import(context: Context, project: Project?, uris: List<Uri>): ArrayList<Media> {
@@ -228,12 +198,6 @@ object Picker {
     }
 
     fun takePhoto(activity: Activity, launcher: ActivityResultLauncher<Intent>) {
-
-        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            // Request permission
-            ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
-            return
-        }
 
         val file = Utility.getOutputMediaFileByCache(activity, "IMG_${System.currentTimeMillis()}.jpg")
 

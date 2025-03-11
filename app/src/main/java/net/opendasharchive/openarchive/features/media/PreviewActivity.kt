@@ -19,6 +19,7 @@ import net.opendasharchive.openarchive.features.core.asUiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.main.MainActivity
+import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show
@@ -61,11 +62,15 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
             }
         }
 
+    private lateinit var permissionManager: PermissionManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         mBinding = ActivityPreviewBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
+
+        permissionManager = PermissionManager(this, dialogManager)
 
         mProject = Project.getById(intent.getLongExtra(PROJECT_ID_EXTRA, -1))
 
@@ -128,7 +133,12 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
         if (Picker.canPickFiles(this)) {
             val modalBottomSheet = ContentPickerFragment { action ->
                 when (action) {
-                    AddMediaType.CAMERA -> Picker.takePhoto(this@PreviewActivity, mediaLaunchers.cameraLauncher)
+                    AddMediaType.CAMERA -> {
+                        permissionManager.checkCameraPermission {
+                            Picker.takePhoto(this@PreviewActivity, mediaLaunchers.cameraLauncher)
+                        }
+
+                    }
                     AddMediaType.FILES -> Picker.pickFiles(mediaLaunchers.filePickerLauncher)
                     AddMediaType.GALLERY -> onClick(mBinding.btAddMore)
                 }
@@ -162,7 +172,9 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
     override fun onClick(view: View?) {
         when (view) {
             mBinding.btAddMore -> {
-                Picker.pickMedia(this, mediaLaunchers.imagePickerLauncher)
+                permissionManager.checkMediaPermissions {
+                    Picker.pickMedia(mediaLaunchers.imagePickerLauncher)
+                }
             }
 
             mBinding.btBatchEdit -> {
@@ -268,7 +280,7 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
                 type = DialogType.Warning
                 message = R.string.once_uploaded_you_will_not_be_able_to_edit_media.asUiText()
                 showCheckbox = true
-                checkboxText = UiText.DynamicString("Do not show me this again")
+                checkboxText = UiText.StringResource(R.string.do_not_show_me_this_again)
                 onCheckboxChanged = { isChecked ->
                     doNotShowAgain = isChecked
                 }
@@ -283,41 +295,6 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
                     text = UiText.DynamicString("Actually, let me edit")
                 }
             }
-
-//            val d = AlertDialog.Builder(ContextThemeWrapper(this, R.style.AlertDialogTheme))
-//                .setTitle(R.string.once_uploaded_you_will_not_be_able_to_edit_media)
-//                .setIcon(R.drawable.baseline_cloud_upload_black_48)
-//                .setPositiveButton(
-//                    R.string.lbl_got_it
-//                ) { _: DialogInterface, _: Int ->
-//                    Prefs.dontShowUploadHint = doNotShowAgain
-//                    queue()
-//                }
-//                .setNegativeButton(R.string.lbl_Cancel) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-//                .setMultiChoiceItems(
-//                    arrayOf(getString(R.string.do_not_show_me_this_again)),
-//                    booleanArrayOf(false)
-//                )
-//                { _, _, isChecked ->
-//                    doNotShowAgain = isChecked
-//                }.show()
-//
-//            // hack for making sure this dialog always shows all lines of the pretty long title, even on small screens
-//            d.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)?.maxLines = 99
-
-        }
-    }
-
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            MainActivity.REQUEST_FILE_MEDIA -> Picker.pickMedia(this, mediaLaunchers.imagePickerLauncher)
-            MainActivity.REQUEST_CAMERA_PERMISSION -> Picker.takePhoto(this, mediaLaunchers.cameraLauncher)
         }
     }
 }

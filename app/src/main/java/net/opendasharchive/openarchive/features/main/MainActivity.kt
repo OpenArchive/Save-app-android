@@ -1,9 +1,7 @@
 package net.opendasharchive.openarchive.features.main
 
-import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Point
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -18,7 +16,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.PopupWindow
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -62,7 +59,6 @@ import net.opendasharchive.openarchive.features.media.ContentPickerFragment
 import net.opendasharchive.openarchive.features.media.MediaLaunchers
 import net.opendasharchive.openarchive.features.media.Picker
 import net.opendasharchive.openarchive.features.media.PreviewActivity
-import net.opendasharchive.openarchive.features.onboarding.Onboarding23Activity
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
@@ -70,6 +66,7 @@ import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import net.opendasharchive.openarchive.upload.UploadManagerFragment
 import net.opendasharchive.openarchive.upload.UploadService
+import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.ProofModeHelper
 import net.opendasharchive.openarchive.util.extensions.Position
@@ -79,7 +76,6 @@ import net.opendasharchive.openarchive.util.extensions.scaleAndTintDrawable
 import net.opendasharchive.openarchive.util.extensions.show
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import timber.log.Timber
 import java.text.NumberFormat
 
 
@@ -122,7 +118,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             updateBottomNavbar(value)
         }
 
-    // ----- Activity Result Launchers & Permission Launcher -----
+    // ----- Activity Result Launchers -----
     private val mNewFolderResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
@@ -130,16 +126,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             }
         }
 
-
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            Timber.d("Able to post notifications")
-        } else {
-            Timber.d("Need to explain")
-        }
-    }
+    private lateinit var permissionManager: PermissionManager
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -174,7 +161,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel.log("MainActivity onCreate called")
+        // Initialize the permission manager with this activity and its dialogManager.
+        permissionManager = PermissionManager(this, dialogManager)
 
         initMediaLaunchers()
         setupToolbarAndPager()
@@ -185,7 +173,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
 
         if (appConfig.isDwebEnabled) {
-            checkNotificationPermissions()
+            permissionManager.checkNotificationPermission {
+                AppLogger.i("Notification permission granted")
+            }
             SnowbirdBridge.getInstance().initialize()
             startForegroundService(Intent(this, SnowbirdService::class.java))
             handleIntent(intent)
@@ -212,9 +202,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         AppLogger.i("MainActivity onResume is called.......")
         refreshSpace()
         mCurrentPagerItem = mSelectedPageIndex
-        if (!Prefs.didCompleteOnboarding) {
-            startActivity(Intent(this, Onboarding23Activity::class.java))
-        }
         importSharedMedia(intent)
         if (serverListOffset == 0F) {
             val dims = binding.spaces.getMeasurments()
@@ -770,11 +757,17 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             getSelectedProject() != null -> {
                 if (Prefs.addMediaHint) {
                     when (mediaType) {
-                        AddMediaType.CAMERA -> Picker.takePhoto(this@MainActivity, mediaLaunchers.cameraLauncher)
-                        AddMediaType.GALLERY -> Picker.pickMedia(
-                            this,
-                            mediaLaunchers.imagePickerLauncher
-                        )
+                        AddMediaType.CAMERA -> {
+                            permissionManager.checkCameraPermission {
+                                Picker.takePhoto(this@MainActivity, mediaLaunchers.cameraLauncher)
+                            }
+                        }
+
+                        AddMediaType.GALLERY -> {
+                            permissionManager.checkMediaPermissions {
+                                Picker.pickMedia(mediaLaunchers.imagePickerLauncher)
+                            }
+                        }
 
                         AddMediaType.FILES -> Picker.pickFiles(mediaLaunchers.filePickerLauncher)
                     }
@@ -824,29 +817,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     }
 
     // ----- Permissions & Intent Handling -----
-    private fun checkNotificationPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            when {
-                ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED -> Timber.d("We have notifications permissions")
-                shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> showNotificationPermissionRationale()
-                else -> requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
-    }
-
-    private fun showNotificationPermissionRationale() {
-        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-            title = UiText.DynamicString("Notification Permission")
-            message = UiText.DynamicString("We need permission to post notifications")
-            positiveButton {
-                text = UiText.DynamicString("Accept")
-                action = {
-                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
-            }
-        }
-    }
-
     private fun handleIntent(intent: Intent) {
         if (intent.action == Intent.ACTION_VIEW) {
             intent.data?.takeIf { it.scheme == "save-veilid" }?.let { processUri(it) }
@@ -885,28 +855,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            REQUEST_FILE_MEDIA -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Picker.pickMedia(this, mediaLaunchers.imagePickerLauncher)
-                }
-            }
-            REQUEST_CAMERA_PERMISSION -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Picker.takePhoto(this, mediaLaunchers.cameraLauncher)
-                } else {
-                    Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-
     // ----- Adapter Listeners -----
     override fun onProjectSelected(project: Project) {
         binding.root.closeDrawer(binding.drawerContent)
@@ -936,14 +884,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         val currentSpace = Space.current
         AppLogger.i("current space requested by adapter... = $currentSpace")
         return Space.current
-    }
-
-
-    fun updateAfterDelete(done: Boolean) {
-        mMenuDelete?.isVisible = !done
-        if (done) {
-            refreshCurrentFolderCount()
-        }
     }
 
     /**

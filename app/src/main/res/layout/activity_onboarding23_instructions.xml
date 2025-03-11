@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top|center_horizontal"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="8dp"
             android:text="@string/skip"
             android:textFontWeight="600"
             android:textColor="@color/colorOnBackground" />
@@ -49,13 +49,13 @@
         <View
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_weight="10" />
+            android:layout_weight="8" />
 
         <ImageView
             android:id="@+id/coverImage"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_gravity="end"
+            android:layout_gravity="start"
             android:layout_weight="65"
             android:paddingEnd="40dp"
             tools:src="@drawable/onboarding_encrypt_png"
@@ -64,7 +64,7 @@
         <View
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_weight="35" />
+            android:layout_weight="37" />
 
         <FrameLayout
             android:layout_width="match_parent"
