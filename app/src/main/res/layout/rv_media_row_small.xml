@@ -8,12 +8,31 @@
     android:filterTouchesWhenObscured="true"
     android:orientation="vertical">
 
+    <LinearLayout
+        android:id="@+id/btn_delete_layout"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btn_delete"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_trash" />
+    </LinearLayout>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/container"
         android:layout_width="80dp"
         android:layout_height="80dp"
+        android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btn_delete_layout"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
@@ -42,19 +61,19 @@
 
             <com.google.android.material.progressindicator.CircularProgressIndicator
                 android:id="@+id/progress"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:indeterminate="true"
                 android:indeterminateBehavior="cycle"
                 android:indeterminateTint="@color/colorPrimary"
                 android:max="100"
                 app:indicatorColor="@color/colorPrimary"
-                app:indicatorSize="48dp"
+                app:indicatorSize="32dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:trackThickness="3dp" />
+                app:trackThickness="4dp" />
 
             <ImageView
                 android:id="@+id/error"
@@ -85,40 +104,51 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <TextView
-        android:id="@+id/title"
+    <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:singleLine="true"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@+id/handle"
-        app:layout_constraintStart_toEndOf="@id/container"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="This is the title" />
-
-    <TextView
-        android:id="@+id/file_info"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:singleLine="true"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/handle"
         app:layout_constraintStart_toEndOf="@+id/container"
-        app:layout_constraintTop_toBottomOf="@id/title"
-        tools:text="This is the date" />
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:singleLine="true"
+            android:textFontWeight="500"
+            android:textSize="14sp"
+            tools:text="This is the title" />
+
+        <TextView
+            android:id="@+id/file_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textSize="11sp"
+            android:singleLine="true"
+            tools:text="This is the date" />
+
+    </LinearLayout>
+
 
     <ImageView
         android:id="@+id/handle"
-        android:layout_width="?listPreferredItemHeight"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_gravity="center_vertical|end"
+        android:importantForAccessibility="no"
         android:scaleType="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_reorder_black_24dp"
-        android:importantForAccessibility="no" />
+        app:srcCompat="@drawable/ic_reorder_black_24dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,15 +9,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import net.opendasharchive.openarchive.core.presentation.theme.Theme
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.features.core.dialog.DialogHost
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.internetarchive.presentation.components.IAResult
 import net.opendasharchive.openarchive.features.internetarchive.presentation.components.getSpace
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.ComposeAppBar
 import net.opendasharchive.openarchive.features.main.MainActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 @Deprecated("use jetpack compose")
 class InternetArchiveActivity : AppCompatActivity() {
+
+    val dialogManager: DialogStateManager by viewModel()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -25,12 +31,15 @@ class InternetArchiveActivity : AppCompatActivity() {
 
         setContent {
 
-            Theme {
+            SaveAppTheme {
+
+                DialogHost(dialogManager)
+
                 Scaffold(
                     topBar = {
                         ComposeAppBar(
-                            title = if (isNewSpace) "Add Internet Archive" else "Edit Internet Archive",
-                            onNavigationAction = { finish(IAResult.Cancelled) }
+                            title = if (isNewSpace) "Internet Archive" else "Internet Archive",
+                            onNavigationAction = { onComplete(IAResult.Cancelled) }
                         )
                     }
                 ) { paddingValues ->
@@ -38,7 +47,7 @@ class InternetArchiveActivity : AppCompatActivity() {
                         .fillMaxSize()
                         .padding(paddingValues)) {
                         InternetArchiveScreen(space, isNewSpace) {
-                            finish(it)
+                            onComplete(it)
                         }
                     }
                 }
@@ -48,7 +57,7 @@ class InternetArchiveActivity : AppCompatActivity() {
         }
     }
 
-    private fun finish(result: IAResult) {
+    private fun onComplete(result: IAResult) {
         when (result) {
             IAResult.Saved -> {
                 startActivity(Intent(this, MainActivity::class.java))

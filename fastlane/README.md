@@ -15,6 +15,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## Android
 
+### android detekt
+
+```sh
+[bundle exec] fastlane android detekt
+```
+
+Run Detekt for code analysis
+
 ### android test
 
 ```sh

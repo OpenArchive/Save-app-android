@@ -11,13 +11,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingBottom="@dimen/activity_vertical_margin">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="80dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
@@ -27,10 +27,11 @@
                 android:id="@+id/success_message"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:layout_margin="48dp"
                 android:text="@string/you_have_successfully_connected_to_a_private_server"
                 android:textAlignment="center"
-                android:textSize="22sp"
+                android:textFontWeight="600"
+                android:textSize="18sp"
                 app:layout_constraintBottom_toTopOf="@id/success_illustration"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -40,8 +41,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:importantForAccessibility="no"
+                android:scaleType="centerInside"
                 android:src="@drawable/hands_mobile_updated"
-                android:paddingVertical="32dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
@@ -49,19 +50,35 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/bt_authenticate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
-            android:padding="@dimen/activity_row_padding"
-            android:text="@string/action_continue"
-            android:textColor="@color/white"
-            app:backgroundTint="@color/colorTertiary"
+        <LinearLayout
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="ButtonStyle" />
+            android:layout_width="match_parent"
+            android:weightSum="5"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/bt_authenticate"
+                android:layout_weight="3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                android:padding="@dimen/activity_row_padding"
+                android:text="@string/action_done"
+                android:textColor="@color/colorOnBackground"
+                android:textStyle="bold"
+                app:backgroundTint="@color/colorTertiary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:ignore="ButtonStyle" />
+
+        </LinearLayout>
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

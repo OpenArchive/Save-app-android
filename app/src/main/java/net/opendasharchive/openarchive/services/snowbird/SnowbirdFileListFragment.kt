@@ -21,9 +21,11 @@ import net.opendasharchive.openarchive.db.FileUploadResult
 import net.opendasharchive.openarchive.db.SnowbirdError
 import net.opendasharchive.openarchive.db.SnowbirdFileItem
 import net.opendasharchive.openarchive.extensions.androidViewModel
-import net.opendasharchive.openarchive.features.onboarding.BaseFragment
+import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.util.SpacingItemDecoration
-import net.opendasharchive.openarchive.util.Utility
 import timber.log.Timber
 
 class SnowbirdFileListFragment : BaseFragment() {
@@ -136,16 +138,20 @@ class SnowbirdFileListFragment : BaseFragment() {
 
     private fun onClick(item: SnowbirdFileItem) {
 //        if (!item.isDownloaded) {
-            Utility.showMaterialPrompt(
-                requireContext(),
-                title = "Download Media?",
-                message = "Are you sure you want to download this media?",
-                positiveButtonText = "Yes",
-                negativeButtonText = "No") { affirm ->
-                if (affirm) {
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Warning
+            title = UiText.DynamicString("Download Media?")
+            message = UiText.DynamicString("Are you sure you want to download this media?")
+            positiveButton {
+                text = UiText.DynamicString("Yes")
+                action = {
                     snowbirdFileViewModel.downloadFile(groupKey, repoKey, item.name)
                 }
             }
+            neutralButton {
+                text = UiText.DynamicString("No")
+            }
+        }
 //        }
     }
 
@@ -188,10 +194,14 @@ class SnowbirdFileListFragment : BaseFragment() {
     private fun onFileDownloaded(uri: Uri) {
         handleLoadingStatus(false)
         Timber.d("File successfully downloaded: $uri")
-        Utility.showMaterialMessage(
-            requireContext(),
-            title = "Success",
-            message = "File successfully downloaded")
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Success
+            title = UiText.StringResource(R.string.label_success_title)
+            message = UiText.DynamicString("File successfully downloaded")
+            positiveButton {
+                text = UiText.StringResource(R.string.label_got_it)
+            }
+        }
     }
 
     private fun onFileUploaded(result: FileUploadResult) {
@@ -239,9 +249,8 @@ class SnowbirdFileListFragment : BaseFragment() {
     }
 
     companion object {
-        const val RESULT_REQUEST_KEY = "raven_fragment_file_list_result"
-        const val RESULT_VAL_RAVEN_GROUP_KEY = "raven_fragment_file_list_group_key"
-        const val RESULT_VAL_RAVEN_REPO_KEY = "raven_fragment_file_list_repo_key"
+        const val RESULT_VAL_RAVEN_GROUP_KEY = "dweb_group_key"
+        const val RESULT_VAL_RAVEN_REPO_KEY = "dweb_repo_key"
 
         @JvmStatic
         fun newInstance(groupKey: String, repoKey: String) =

@@ -15,9 +15,11 @@ import timber.log.Timber
 import java.io.IOException
 import java.util.Date
 
+
+
 data class Folder(val name: String, val modified: Date)
 
-class BrowseFoldersViewModel : ViewModel() {
+class BrowseFoldersViewModel(private val context: Context) : ViewModel() {
 
     private val mFolders = MutableLiveData<List<Folder>>()
 
@@ -26,7 +28,7 @@ class BrowseFoldersViewModel : ViewModel() {
 
     val progressBarFlag = MutableLiveData(false)
 
-    fun getFiles(context: Context, space: Space) {
+    fun getFiles(space: Space) {
         viewModelScope.launch {
             progressBarFlag.value = true
 

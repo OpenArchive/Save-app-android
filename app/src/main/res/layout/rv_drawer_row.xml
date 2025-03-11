@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingHorizontal="24dp"
+    android:filterTouchesWhenObscured="true"
+    android:orientation="horizontal"
+    android:paddingVertical="16dp">
+
+    <ImageView
+        android:id="@+id/rv_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:contentDescription="@string/folder_name"
+        tools:src="@drawable/ic_private_server" />
+
+    <TextView
+        android:id="@+id/rv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginHorizontal="10dp"
+        android:gravity="center_vertical"
+        android:textColor="@color/colorOnBackground"
+        tools:text="Text FPO" />
+
+</LinearLayout>

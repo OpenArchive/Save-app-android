@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
-import net.opendasharchive.openarchive.core.presentation.theme.Theme
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
@@ -40,7 +40,7 @@ class PasscodeEntryActivity : BaseActivity() {
         }
 
         setContent {
-            Theme {
+            SaveAppTheme {
                 DefaultScaffold {
                     PasscodeEntryScreen(
                         onPasscodeSuccess = {

@@ -47,5 +47,13 @@ enum class Theme(val mode: Int) {
         fun get(name: String?): Theme {
             return entries.firstOrNull { it.name.uppercase() == name?.uppercase() } ?: SYSTEM
         }
+
+        var darkModeEnabled: Boolean
+            get() {
+              return  AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
+            }
+            set(value) {
+                AppCompatDelegate.setDefaultNightMode(if (value) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
+            }
     }
 }

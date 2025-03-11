@@ -8,7 +8,7 @@ import net.opendasharchive.openarchive.db.Space
 private const val ARG_VAL_NEW_SPACE = -1L
 
 @Deprecated("only for use with fragments and activities")
-private const val ARG_SPACE = "space"
+private const val ARG_SPACE = "space_id"
 
 @Deprecated("only for use with fragments and activities")
 enum class IAResult(
@@ -25,7 +25,7 @@ fun bundleWithNewSpace() = bundleOf(ARG_SPACE to ARG_VAL_NEW_SPACE)
 
 @Deprecated("only for use with fragments and activities")
 fun Bundle?.getSpace(type: Space.Type): Pair<Space, Boolean> {
-    val mSpaceId = this?.getLong(ARG_SPACE, ARG_VAL_NEW_SPACE) ?: ARG_VAL_NEW_SPACE
+    val mSpaceId = this?.getLong(ARG_SPACE) ?: ARG_VAL_NEW_SPACE
 
     val isNewSpace = ARG_VAL_NEW_SPACE == mSpaceId
 

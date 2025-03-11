@@ -185,7 +185,7 @@
                     android:textFontWeight="700"
                     android:textSize="14sp"
                     app:layout_constraintWidth_percent="0.8"
-                    tools:targetApi="p" />
+                     />
 
 
             </LinearLayout>

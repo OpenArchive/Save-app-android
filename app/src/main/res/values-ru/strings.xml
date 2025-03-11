@@ -81,7 +81,7 @@
     <string name="get_started">Начало работы</string>
     <string name="refresh">Обновить</string>
     <string name="select_all">Выбрать все</string>
-    <string name="got_it">ОК</string>
+    <string name="lbl_got_it">ОК</string>
     <string name="skip">Пропустить</string>
     <string name="retry">Повторить</string>
 

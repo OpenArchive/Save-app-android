@@ -1,23 +1,24 @@
 package net.opendasharchive.openarchive.features.media
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.GridLayoutManager
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivityPreviewBinding
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.features.core.BaseActivity
-import net.opendasharchive.openarchive.util.AlertHelper
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.asUiImage
+import net.opendasharchive.openarchive.features.core.asUiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
+import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show
@@ -227,10 +228,19 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
     private fun showFirstTimeBatch() {
         if (Prefs.batchHintShown) return
 
-        AlertHelper.show(
-            this, R.string.press_and_hold_to_select_and_edit_multiple_media,
-            R.string.edit_multiple, R.drawable.ic_batchedit
-        )
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            icon = R.drawable.perm_media_24px.asUiImage()
+            title = R.string.edit_multiple.asUiText()
+            message = R.string.press_and_hold_to_select_and_edit_multiple_media.asUiText()
+            positiveButton {
+                text = UiText.StringResource(R.string.lbl_got_it)
+                action = {
+                    dialogManager.dismissDialog()
+                }
+            }
+        }
+
+
 
         Prefs.batchHintShown = true
     }
@@ -247,31 +257,67 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
         }
 
         if (Prefs.dontShowUploadHint) {
+
             queue()
+
         } else {
+
             var doNotShowAgain = false
 
-            val d = AlertDialog.Builder(ContextThemeWrapper(this, R.style.AlertDialogTheme))
-                .setTitle(R.string.once_uploaded_you_will_not_be_able_to_edit_media)
-                .setIcon(R.drawable.baseline_cloud_upload_black_48)
-                .setPositiveButton(
-                    R.string.got_it
-                ) { _: DialogInterface, _: Int ->
-                    Prefs.dontShowUploadHint = doNotShowAgain
-                    queue()
-                }
-                .setNegativeButton(R.string.lbl_Cancel) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-                .setMultiChoiceItems(
-                    arrayOf(getString(R.string.do_not_show_me_this_again)),
-                    booleanArrayOf(false)
-                )
-                { _, _, isChecked ->
+            dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+                type = DialogType.Warning
+                message = R.string.once_uploaded_you_will_not_be_able_to_edit_media.asUiText()
+                showCheckbox = true
+                checkboxText = UiText.DynamicString("Do not show me this again")
+                onCheckboxChanged = { isChecked ->
                     doNotShowAgain = isChecked
-                }.show()
+                }
+                positiveButton {
+                    text = UiText.DynamicString("Proceed to upload")
+                    action = {
+                        Prefs.dontShowUploadHint = doNotShowAgain
+                        queue()
+                    }
+                }
+                neutralButton {
+                    text = UiText.DynamicString("Actually, let me edit")
+                }
+            }
 
-            // hack for making sure this dialog always shows all lines of the pretty long title, even on small screens
-            d.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)?.maxLines = 99
+//            val d = AlertDialog.Builder(ContextThemeWrapper(this, R.style.AlertDialogTheme))
+//                .setTitle(R.string.once_uploaded_you_will_not_be_able_to_edit_media)
+//                .setIcon(R.drawable.baseline_cloud_upload_black_48)
+//                .setPositiveButton(
+//                    R.string.lbl_got_it
+//                ) { _: DialogInterface, _: Int ->
+//                    Prefs.dontShowUploadHint = doNotShowAgain
+//                    queue()
+//                }
+//                .setNegativeButton(R.string.lbl_Cancel) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+//                .setMultiChoiceItems(
+//                    arrayOf(getString(R.string.do_not_show_me_this_again)),
+//                    booleanArrayOf(false)
+//                )
+//                { _, _, isChecked ->
+//                    doNotShowAgain = isChecked
+//                }.show()
+//
+//            // hack for making sure this dialog always shows all lines of the pretty long title, even on small screens
+//            d.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)?.maxLines = 99
 
+        }
+    }
+
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            MainActivity.REQUEST_FILE_MEDIA -> Picker.pickMedia(this, mediaLaunchers.imagePickerLauncher)
+            MainActivity.REQUEST_CAMERA_PERMISSION -> Picker.takePhoto(this, mediaLaunchers.cameraLauncher)
         }
     }
 }

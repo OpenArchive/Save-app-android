@@ -126,7 +126,7 @@
     <string name="use_upload_chunking_nextcloud_only">Upload stückeln (nur Nextcloud)</string>
     <string name="chunking_explanation">\"Stückeln\" lädt Medien in Stücken hoch, damit nicht der komplette Upload von vorne begonnen werden muß, wenn die Verbindung unterbrochen wurde.</string>
     <string name="select_all">Alles auswählen</string>
-    <string name="got_it">Verstanden</string>
+    <string name="lbl_got_it">Verstanden</string>
     <string name="edit_multiple">Mehrere editieren</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">Gedrückt halten, um mehrere Elemente auszuwählen.</string>
     <string name="edit_media_info">Editieren</string>

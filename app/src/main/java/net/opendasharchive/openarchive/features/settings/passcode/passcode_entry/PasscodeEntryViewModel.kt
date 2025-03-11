@@ -38,6 +38,7 @@ class PasscodeEntryViewModel(
         when (action) {
             is PasscodeEntryScreenAction.OnNumberClick -> onNumberClick(action.number)
             PasscodeEntryScreenAction.OnBackspaceClick -> onBackspaceClick()
+            PasscodeEntryScreenAction.OnSubmit -> onSubmit()
         }
     }
 
@@ -69,6 +70,10 @@ class PasscodeEntryViewModel(
             if (state.isProcessing || state.passcode.isEmpty()) state
             else state.copy(passcode = state.passcode.dropLast(1))
         }
+    }
+
+    private fun onSubmit() {
+
     }
 
     private fun checkPasscode() = viewModelScope.launch {
@@ -126,6 +131,7 @@ data class PasscodeEntryScreenState(
 sealed class PasscodeEntryScreenAction {
     data class OnNumberClick(val number: String) : PasscodeEntryScreenAction()
     data object OnBackspaceClick : PasscodeEntryScreenAction()
+    data object OnSubmit: PasscodeEntryScreenAction()
 }
 
 sealed class PasscodeEntryUiEvent {

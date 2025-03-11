@@ -6,7 +6,7 @@
 
     <item
         android:id="@+id/menu_delete"
-        android:iconTint="@color/red"
+        android:iconTint="@color/colorOnBackground"
         android:orderInCategory="200"
         android:title="@string/menu_delete"
         android:visible="false"
@@ -16,16 +16,11 @@
     <item
         android:id="@+id/menu_folders"
         android:icon="@drawable/ic_menu"
-        android:iconTint="@color/red"
+        app:iconTint="@color/colorOnBackground"
+        android:iconTint="@color/colorOnBackground"
         android:orderInCategory="300"
         android:title="@string/folders"
-        android:visible="false"
+        android:visible="true"
         app:showAsAction="always" />
-
-<!--    <item-->
-<!--        android:id="@+id/snowbird_menu"-->
-<!--        android:icon="@drawable/snowbird"-->
-<!--        android:title="Snowbird"-->
-<!--        app:showAsAction="always" />-->
 
 </menu>

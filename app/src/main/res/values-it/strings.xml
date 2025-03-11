@@ -83,7 +83,7 @@
     <string name="get_started">Per incominciare</string>
     <string name="refresh">Aggiorna</string>
     <string name="select_all">Seleziona tutto</string>
-    <string name="got_it">Ho capito</string>
+    <string name="lbl_got_it">Ho capito</string>
     <string name="skip">Salta</string>
     <string name="add_files">Aggiungi file</string>
 

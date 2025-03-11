@@ -1,14 +1,16 @@
 package net.opendasharchive.openarchive.features.media
 
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
+import net.opendasharchive.openarchive.databinding.RvMediaBoxBinding
 import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.db.MediaViewHolder
+import net.opendasharchive.openarchive.features.media.adapter.PreviewViewHolder
 import java.lang.ref.WeakReference
 
-class PreviewAdapter(listener: Listener? = null): ListAdapter<Media, MediaViewHolder>(DIFF_CALLBACK) {
+class PreviewAdapter(listener: Listener? = null): ListAdapter<Media, PreviewViewHolder>(DIFF_CALLBACK) {
 
     interface Listener {
 
@@ -53,8 +55,9 @@ class PreviewAdapter(listener: Listener? = null): ListAdapter<Media, MediaViewHo
 
     private val mListener = WeakReference(listener)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MediaViewHolder {
-        val mvh = MediaViewHolder.Box(parent)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PreviewViewHolder {
+        val binding = RvMediaBoxBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val mvh = PreviewViewHolder(binding)
 
         mvh.itemView.setOnClickListener { view ->
             val media = getMedia(view) ?: return@setOnClickListener
@@ -79,7 +82,7 @@ class PreviewAdapter(listener: Listener? = null): ListAdapter<Media, MediaViewHo
         return  mvh
     }
 
-    override fun onBindViewHolder(holder: MediaViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: PreviewViewHolder, position: Int) {
         holder.bind(getItem(position), batchMode = true, doImageFade = false)
     }
 

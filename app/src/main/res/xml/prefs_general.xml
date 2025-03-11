@@ -13,11 +13,12 @@
             android:icon="@null"
             android:iconSpaceReserved="false"
             android:key="@string/pref_app_passcode"
+            android:layout="@layout/custom_preference_switch"
             android:singleLineTitle="false"
             android:title="Lock app with passcode"
+            android:widgetLayout="@layout/custom_preference_widget_switch"
             app:icon="@null"
-            app:iconSpaceReserved="false"
-            app:summary="6 digit passcode" />
+            app:iconSpaceReserved="false" />
 
         <Preference
             android:defaultValue="false"
@@ -37,22 +38,35 @@
         android:title="@string/pref_title_archive"
         app:allowDividerAbove="true">
 
+        <SwitchPreferenceCompat
+            android:iconSpaceReserved="false"
+            android:key="upload_wifi_only"
+            android:layout="@layout/custom_preference_switch"
+            android:singleLineTitle="false"
+            android:title="@string/only_upload_media_when_you_are_connected_to_wi_fi"
+            android:widgetLayout="@layout/custom_preference_widget_switch"
+            app:defaultValue="false"
+            app:iconSpaceReserved="false"
+            app:singleLineTitle="false" />
+
         <Preference
             android:iconSpaceReserved="false"
             android:key="@string/pref_media_servers"
+            android:layout="@layout/custom_preference"
             android:singleLineTitle="true"
-            android:summary="Add or remove media servers"
-            android:title="Media Servers"
+            android:summary="@string/pref_summary_media_servers"
+            android:title="@string/pref_title_media_servers"
             app:iconSpaceReserved="false"
-            app:summary="Add or remove media servers"
+            app:summary="@string/pref_summary_media_servers"
             app:title="Media Servers" />
 
         <Preference
             android:iconSpaceReserved="false"
             android:key="@string/pref_media_folders"
+            android:layout="@layout/custom_preference"
             android:singleLineTitle="true"
-            android:summary="Add or remove media folders"
-            android:title="Media Folders"
+            android:summary="@string/pref_summary_media_folders"
+            android:title="@string/pref_title_media_folders"
             app:iconSpaceReserved="false" />
 
         <!--        <ListPreference-->
@@ -79,7 +93,8 @@
 
         <Preference
             android:iconSpaceReserved="false"
-            android:key="proof_mode"
+            android:key="@string/pref_key_proof_mode"
+            android:layout="@layout/custom_preference"
             android:singleLineTitle="false"
             android:title="@string/proofmode"
             app:iconSpaceReserved="false" />
@@ -93,10 +108,12 @@
         <SwitchPreferenceCompat
             android:enabled="false"
             android:iconSpaceReserved="false"
-            android:key="use_tor"
+            android:key="@string/pref_key_use_tor"
+            android:layout="@layout/custom_preference_switch"
             android:singleLineTitle="false"
             android:summary="@string/prefs_use_tor_summary"
             android:title="@string/prefs_use_tor_title"
+            android:widgetLayout="@layout/custom_preference_widget_switch"
             app:defaultValue="false"
             app:enabled="true"
             app:iconSpaceReserved="false" />
@@ -107,39 +124,37 @@
         android:layout="@layout/custom_preference_category"
         android:title="General">
 
+        <!--        <ListPreference-->
+        <!--            android:dialogTitle="Theme"-->
+        <!--            android:iconSpaceReserved="false"-->
+        <!--            android:key="theme"-->
+        <!--            android:singleLineTitle="false"-->
+        <!--            android:summary="%s"-->
+        <!--            android:title="@string/prefs_theme_title"-->
+        <!--            app:defaultValue="@string/prefs_theme_val_system"-->
+        <!--            app:entries="@array/ar_prefs_theme_labels"-->
+        <!--            app:entryValues="@array/ar_prefs_theme_val"-->
+        <!--            app:iconSpaceReserved="false"-->
+        <!--            app:useSimpleSummaryProvider="true" />-->
+
         <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:icon="@null"
             android:iconSpaceReserved="false"
-            android:key="upload_wifi_only"
-            android:singleLineTitle="false"
-            android:title="@string/only_upload_media_when_you_are_connected_to_wi_fi"
-            app:defaultValue="false"
-            app:iconSpaceReserved="false"
-            app:singleLineTitle="false" />
-
-        <ListPreference
-            android:dialogTitle="Themessss"
-            android:iconSpaceReserved="false"
-            android:key="theme"
-            android:singleLineTitle="false"
-            android:summary="%s"
-            android:title="@string/prefs_theme_title"
-            app:defaultValue="@string/prefs_theme_val_system"
-            app:entries="@array/ar_prefs_theme_labels"
-            app:entryValues="@array/ar_prefs_theme_val"
-            app:iconSpaceReserved="false"
-            app:useSimpleSummaryProvider="true" />
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        android:layout="@layout/custom_preference_category"
-        android:title="About">
+            android:key="@string/pref_key_use_dark_mode"
+            android:layout="@layout/custom_preference_switch"
+            android:singleLineTitle="true"
+            android:title="Switch to dark mode"
+            android:widgetLayout="@layout/custom_preference_widget_switch"
+            app:icon="@null"
+            app:iconSpaceReserved="false" />
 
         <Preference
             android:iconSpaceReserved="false"
-            android:key="about_app"
+            android:key="@string/pref_key_about_app"
+            android:layout="@layout/custom_preference"
             android:singleLineTitle="true"
-            android:summary="Tap to view about Save App"
+            android:summary="Discover the Save app"
             android:title="Save by Open Archive"
             app:enabled="true"
             app:iconSpaceReserved="false">
@@ -150,10 +165,11 @@
 
         <Preference
             android:iconSpaceReserved="false"
-            android:key="privacy_policy"
+            android:key="@string/pref_key_privacy_policy"
+            android:layout="@layout/custom_preference"
             android:singleLineTitle="true"
-            android:summary="Tap to view our Terms &amp; Privacy Policy"
-            android:title="Terms &amp; Privacy Policy"
+            android:summary="@string/pref_summary_privacy_policy"
+            android:title="@string/pref_title_privacy_policy"
             app:enabled="true"
             app:iconSpaceReserved="false">
             <intent
@@ -163,7 +179,8 @@
 
         <Preference
             android:iconSpaceReserved="false"
-            android:key="app_version"
+            android:key="@string/pref_key_app_version"
+            android:layout="@layout/custom_preference"
             android:singleLineTitle="true"
             android:title="Version"
             app:enabled="false"
@@ -171,5 +188,12 @@
             tools:summary="0.7.2.4783" />
 
     </PreferenceCategory>
+
+    <!--    <PreferenceCategory-->
+    <!--        android:layout="@layout/custom_preference_category"-->
+    <!--        android:title="About">-->
+
+
+    <!--    </PreferenceCategory>-->
 
 </PreferenceScreen>

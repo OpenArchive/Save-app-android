@@ -9,7 +9,13 @@
         layout="@layout/common_app_bar" />
 
 
-    <include layout="@layout/content_upload_manager" />
+<!--    <include layout="@layout/content_upload_manager" />-->
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="hello"
+        android:layout_gravity="center"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

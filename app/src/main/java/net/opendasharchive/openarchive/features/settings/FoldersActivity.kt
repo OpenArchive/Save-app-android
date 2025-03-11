@@ -14,6 +14,7 @@ import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.folders.AddFolderActivity
+import net.opendasharchive.openarchive.util.extensions.toggle
 
 class FoldersActivity : BaseActivity(), FolderAdapterListener {
 
@@ -57,9 +58,18 @@ class FoldersActivity : BaseActivity(), FolderAdapterListener {
     }
 
     private fun setupButtons() {
-        mBinding.fabAdd.apply {
-            visibility = if (mArchived) View.INVISIBLE else View.VISIBLE
-            setOnClickListener { addFolder() }
+//        mBinding.fabAdd.apply {
+//            visibility = if (mArchived) View.INVISIBLE else View.VISIBLE
+//            setOnClickListener { addFolder() }
+//        }
+
+        mBinding.btViewArchived.apply {
+            toggle(!mArchived)
+            setOnClickListener {
+                val i = Intent(this@FoldersActivity, FoldersActivity::class.java)
+                i.putExtra(EXTRA_SHOW_ARCHIVED, true)
+                startActivity(i)
+            }
         }
     }
 
@@ -112,23 +122,13 @@ class FoldersActivity : BaseActivity(), FolderAdapterListener {
         startActivity(intent)
     }
 
-    private fun addFolder() {
-        val intent = Intent(this, AddFolderActivity::class.java)
-        startActivity(intent)
-    }
-
-    override fun getSelectedProject(): Project? {
-        return Space.current?.projects?.find { it.id == mSelectedProjectId }
-    }
 
     override fun projectClicked(project: Project) {
         val resultIntent = Intent()
         resultIntent.putExtra("SELECTED_FOLDER_ID", project.id)
         setResult(RESULT_OK, resultIntent)
         finish() // Close FoldersActivity and return to MainActivity
-    }
 
-    override fun projectEdit(project: Project) {
         val intent = Intent(this, EditFolderActivity::class.java).apply {
             putExtra(EditFolderActivity.EXTRA_CURRENT_PROJECT_ID, project.id)
         }

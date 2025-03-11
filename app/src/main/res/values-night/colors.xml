@@ -19,7 +19,7 @@
     <color name="colorSecondaryDark">@color/c23_teal_30</color>
     <color name="colorSecondaryBright">@color/c23_teal_60</color>
 
-    <color name="colorSurface">#16161D</color>
+    <color name="colorSurface">#24242E</color>
     <color name="colorOnSurface">@color/c23_light_grey</color>
     <color name="colorTertiary">@color/c23_teal_60</color>
     <color name="colorText">@color/c23_light_grey</color>

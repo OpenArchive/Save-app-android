@@ -1,37 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <SwitchPreferenceCompat
         android:layout="@layout/custom_preference_switch"
-        app:layout="@layout/custom_preference_switch"
-        app:key="use_proofmode"
+        android:widgetLayout="@layout/custom_preference_widget_switch"
+        app:allowDividerBelow="false"
         app:defaultValue="false"
-        app:title="@string/prefs_use_proofmode_title"
-        app:singleLineTitle="false"
-        app:summary="@string/prefs_use_proofmode_summary" />
-
-<!--    <SwitchPreferenceCompat-->
-<!--        app:key="proofmode_key_encryption"-->
-<!--        app:defaultValue="false"-->
-<!--        app:title="@string/prefs_proofmode_key_encryption_title_all"-->
-<!--        app:singleLineTitle="false"-->
-<!--        app:summary="@string/prefs_proofmode_key_encryption_summary" />-->
-
-<!--    <Preference-->
-<!--        app:key="share_proofmode"-->
-<!--        app:title="@string/prefs_share_proofmode_title"-->
-<!--        app:singleLineTitle="false"-->
-<!--        app:summary="@string/prefs_share_proofmode_summary" />-->
-
-    <Preference
-        android:layout="@layout/custom_preference_info"
         app:iconSpaceReserved="false"
-        android:iconSpaceReserved="false"
-        app:layout="@layout/custom_preference"
-        app:selectable="false"
-        app:allowDividerAbove="true"
-        android:title="@string/proofmode_permissions_explanation"
-        app:title="@string/proofmode_permissions_explanation" />
+        app:key="@string/pref_key_use_proof_mode"
+        app:singleLineTitle="false"
+        app:summary="@string/prefs_use_proofmode_summary"
+        app:title="@string/prefs_use_proofmode_title" />
 
 </PreferenceScreen>

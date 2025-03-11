@@ -17,66 +17,23 @@ interface FolderAdapterListener {
 
     fun projectClicked(project: Project)
 
-    fun projectEdit(project: Project)
-
-    fun getSelectedProject(): Project?
 }
 
-class FolderAdapter(
-    private val context: Context,
-    listener: FolderAdapterListener?,
-    val isArchived: Boolean = false
-) : ListAdapter<Project, FolderAdapter.ViewHolder>(DIFF_CALLBACK), FolderAdapterListener {
+class FolderAdapter(private val context: Context, private val listener: FolderAdapterListener, private val isArchived: Boolean = false) : ListAdapter<Project, FolderAdapter.FolderViewHolder>(DIFF_CALLBACK) {
 
-    inner class ViewHolder(private val binding: RvFoldersRowBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class FolderViewHolder(private val binding: RvFoldersRowBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(listener: WeakReference<FolderAdapterListener>?, project: Project?) {
+        fun bind(project: Project) {
 
-            val isSelected = listener?.get()?.getSelectedProject()?.id == project?.id
-            itemView.isSelected = isSelected
+            binding.rvTitle.text = project.description
 
-            val textColorRes = if (isSelected) R.color.colorTertiary else R.color.colorText
-            val iconColorRes = if (isSelected) R.color.colorTertiary else R.color.colorOnBackground
-            val backgroundRes = if (isSelected) R.drawable.item_background_selector else android.R.color.transparent
-
-            binding.root.setBackgroundResource(backgroundRes)
-
-            binding.rvTitle.text = project?.description
-            binding.rvTitle.setTextColor(ContextCompat.getColor(context, textColorRes))
-
-            val icon = if (isSelected) {
-                ContextCompat.getDrawable(context, R.drawable.baseline_folder_white_24)
-            } else {
-                ContextCompat.getDrawable(context, R.drawable.outline_folder_white_24)
-            }
-
-            icon?.setTint(ContextCompat.getColor(context, iconColorRes))
+            val icon = ContextCompat.getDrawable(context, R.drawable.ic_folder_new)
 
             binding.rvIcon.setImageDrawable(icon)
 
-            if (isArchived) {
-                binding.rvEdit.visibility = View.GONE
-            } else {
-                binding.rvEdit.visibility = View.VISIBLE
-            }
-
-
-
-            if (project != null) {
-                binding.textContainer.setOnClickListener {
-                    if (isArchived) {
-                        listener?.get()?.projectEdit(project)
-                    } else {
-                        listener?.get()?.projectClicked(project)
-                    }
-                }
-
-                binding.rvEdit.setOnClickListener {
-                    listener?.get()?.projectEdit(project)
-                }
-
-            } else {
-                binding.root.setOnClickListener(null)
+            itemView.setOnClickListener {
+                    listener.projectClicked(project)
             }
         }
     }
@@ -91,48 +48,10 @@ class FolderAdapter(
                 return oldItem.description == newItem.description
             }
         }
-
-        private var highlightColor: Int? = null
-        private var defaultColor: Int? = null
-
-        fun getColorOld(context: Context, highlight: Boolean): Int {
-            if (highlight) {
-                var color = highlightColor
-
-                if (color != null) return color
-
-                color = ContextCompat.getColor(context, R.color.colorPrimary)
-                highlightColor = color
-
-                return color
-            }
-
-            var color = defaultColor
-
-            if (color != null) return color
-
-            val textview = TextView(context)
-            color = textview.currentTextColor
-            defaultColor = color
-
-            return color
-        }
-
-        fun getColor(context: Context, highlight: Boolean): Int {
-            return if (highlight) {
-                ContextCompat.getColor(context, R.color.colorPrimary)
-            } else {
-                ContextCompat.getColor(context, R.color.colorOnBackground)
-            }
-        }
     }
 
-    private val mListener: WeakReference<FolderAdapterListener>? = WeakReference(listener)
-
-    private var mLastSelected: Project? = null
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FolderViewHolder {
+        return FolderViewHolder(
             RvFoldersRowBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent, false
@@ -140,43 +59,14 @@ class FolderAdapter(
         )
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: FolderViewHolder, position: Int) {
         val project = getItem(position)
 
-        holder.bind(WeakReference(this), project)
+        holder.bind( project)
     }
 
     fun update(projects: List<Project>) {
-        notifyItemChanged(getIndex(mLastSelected))
 
         submitList(projects)
-    }
-
-    override fun projectClicked(project: Project) {
-        notifyItemChanged(getIndex(getSelectedProject()))
-        notifyItemChanged(getIndex(project))
-
-        mListener?.get()?.projectClicked(project)
-    }
-
-    override fun getSelectedProject(): Project? {
-        mLastSelected = mListener?.get()?.getSelectedProject()
-
-        return mLastSelected
-    }
-
-    override fun projectEdit(project: Project) {
-        notifyItemChanged(getIndex(getSelectedProject()))
-        notifyItemChanged(getIndex(project))
-
-        mListener?.get()?.projectEdit(project)
-    }
-
-    private fun getIndex(project: Project?): Int {
-        return if (project == null) {
-            -1
-        } else {
-            currentList.indexOf(project)
-        }
     }
 }

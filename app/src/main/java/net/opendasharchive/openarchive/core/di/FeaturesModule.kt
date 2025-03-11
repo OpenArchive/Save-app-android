@@ -27,40 +27,8 @@ val featuresModule = module {
     includes(internetArchiveModule)
     // TODO: have some registry of feature modules
 
-    single {
-        AppConfig(
-            passcodeLength = 6,
-            enableHapticFeedback = true,
-            maxRetryLimitEnabled = false,
-            biometricAuthEnabled = false,
-            maxFailedAttempts = 5,
-            snowbirdEnabled = true
-        )
-    }
 
-    single {
-        HapticManager(
-            appConfig = get<AppConfig>(),
-        )
-    }
 
-    single<HashingStrategy> {
-        PBKDF2HashingStrategy()
-    }
-
-    single { AppConfig() }
-
-    single {
-        val hashingStrategy: HashingStrategy = PBKDF2HashingStrategy()
-
-        PasscodeRepository(
-            context = get<Context>(),
-            config = get<AppConfig>(),
-            hashingStrategy = hashingStrategy
-        )
-    }
-    viewModel { PasscodeEntryViewModel(get(), get()) }
-    viewModel { PasscodeSetupViewModel(get(), get()) }
 
 //    single<ISnowbirdFileRepository> { SnowbirdFileRepository(get(named("retrofit"))) }
 //    single<ISnowbirdGroupRepository> { SnowbirdGroupRepository(get(named("retrofit"))) }

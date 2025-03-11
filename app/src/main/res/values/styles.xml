@@ -2,17 +2,9 @@
 
     <!-- themes -->
     <style name="Theme.SaveApp.Starting" parent="Theme.SplashScreen">
-
         <item name="windowSplashScreenBackground">@color/colorBackground</item>
-
-        <!-- Use windowSplashScreenAnimatedIcon to add a drawable or an animated
-             drawable. One of these is required. -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/avd_splash_animator</item>
-        <!-- Required for animated icons. -->
         <item name="windowSplashScreenAnimationDuration">1000</item>
-
-        <!-- Set the theme of the Activity that directly follows your splash
-        screen. This is required. -->
         <item name="postSplashScreenTheme">@style/SaveAppTheme.NoActionBar</item>
     </style>
 
@@ -26,9 +18,20 @@
 
 
         <item name="android:textViewStyle">@style/OATextViewStyle</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.SaveApp.18pt</item>
 
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.SaveApp.16pt</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.SaveApp.14pt</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.SaveApp.11pt</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.Material3.BodySmall</item>
+
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.App.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.App.TitleMedium</item>
+
+
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@color/colorPrimary</item>
-        <item name="android:windowLightStatusBar">@bool/dayMode</item>
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">@bool/dayMode</item>
         <item name="navigationViewStyle">@style/NavigationViewStyle</item>
         <item name="dialogTheme">@style/AppDialogTheme</item>
@@ -49,7 +52,7 @@
         <item name="borderlessButtonStyle">@style/Widget.App.Button.TextButton</item>
         <item name="materialButtonOutlinedStyle">@style/Widget.App.Button.OutlinedButton</item>
 
-        <!-- button text style -->
+        <!--        Button text style -->
         <item name="textAppearanceLabelLarge">@style/TextAppearance.App.Button</item>
 
         <!--        For App Bar Action Menu Text Color-->
@@ -57,14 +60,15 @@
         <item name="android:actionMenuTextColor">@color/white</item>
 
         <!--        Input Layout Style-->
-        <item name="textInputStyle">@style/Widget.SaveApp.TextInputLayout</item>
+        <item name="textInputStyle">@style/OATextInputLayoutStyle</item>
 
-        <item name="textAppearanceTitleLarge">@style/TextAppearance.App.TitleLarge</item>
-        <item name="textAppearanceTitleMedium">@style/TextAppearance.App.TitleMedium</item>
-        <item name="textAppearanceBodySmall">@style/TextAppearance.App.BodySmall</item>
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.SaveApp.SmallComponent
         </item>
         <item name="materialSwitchStyle">@style/Widget.SaveApp.Switch</item>
+    </style>
+
+    <style name="SaveAppTheme.NoActionBar.Onboarding" parent="SaveAppTheme.NoActionBar">
+        <item name="android:statusBarColor">@color/colorBackground</item>
     </style>
 
 
@@ -73,8 +77,8 @@
         <item name="android:divider">@drawable/save_list_item_spacing_small</item>
         <item name="android:dividerHeight">2dp</item>
         <item name="alertDialogTheme">@style/AlertDialogTheme</item>
-<!--        <item name="preferenceInformationStyle">@style/SaveApp.Preference.Information</item>-->
-<!--        <item name="switchPreferenceCompatStyle">@style/SaveApp.Preference.SwitchPreference</item>-->
+        <!--        <item name="preferenceInformationStyle">@style/SaveApp.Preference.Information</item>-->
+        <item name="switchPreferenceCompatStyle">@style/SaveApp.Preference.SwitchPreference</item>
     </style>
 
     <style name="SaveApp.Preference.Information" parent="@style/Preference.Information">
@@ -83,30 +87,27 @@
     </style>
 
     <style name="SaveApp.Preference.SwitchPreference" parent="@style/Preference.SwitchPreferenceCompat.Material">
-<!--        <item name="android:widgetLayout">@layout/custom_preference_widget_switch</item>-->
         <item name="android:textSize">12sp</item>
+        <item name="android:widgetLayout">@layout/custom_preference_widget_switch</item>
     </style>
 
-
-    <!--    <style name="MainTheme.NoActionBar" parent="Theme.Material3.DayNight.NoActionBar">-->
-    <!--        <item name="colorPrimary">@color/colorPrimary</item>-->
-    <!--        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>-->
-    <!--        <item name="colorOnPrimary">@color/colorOnPrimary</item>-->
-    <!--        <item name="android:colorBackground">@color/colorBackground</item>-->
-    <!--        <item name="android:textColor">@color/colorOnBackground</item>-->
-    <!--        <item name="android:statusBarColor">@color/colorBackground</item>-->
-    <!--        <item name="android:navigationBarColor">@color/colorBottomNavbar</item>-->
-    <!--        <item name="android:windowLightStatusBar" tools:targetApi="m">@bool/dayMode</item>-->
-    <!--        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">@bool/dayMode</item>-->
-    <!--        <item name="navigationViewStyle">@style/NavigationViewStyle</item>-->
-    <!--        <item name="appBarLayoutStyle">@style/AppBarStyle</item>-->
-    <!--        <item name="android:textViewStyle">@style/OATextViewStyle</item>-->
-    <!--    </style>-->
 
     <style name="SaveAppBottomSheetTheme" parent="ThemeOverlay.Material3.DayNight.BottomSheetDialog">
         <item name="shapeAppearanceOverlay">@style/CustomShapeAppearanceBottomSheetDialog</item>
         <item name="buttonStyle">@style/OAButtonStyle</item>
         <item name="materialButtonStyle">@style/OAMaterialButtonStyle</item>
+    </style>
+
+    <style name="SaveAppFullBottomSheetTheme" parent="ThemeOverlay.Material3.DayNight.BottomSheetDialog">
+        <item name="shapeAppearanceOverlay">@style/CustomShapeAppearanceBottomSheetDialog</item>
+        <item name="buttonStyle">@style/OAButtonStyle</item>
+        <item name="materialButtonStyle">@style/OAMaterialButtonStyle</item>
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:layout_gravity">bottom</item>
+        <item name="behavior_peekHeight">0dp</item>
+        <item name="behavior_expandedOffset">0dp</item>
     </style>
 
     <style name="CustomShapeAppearanceBottomSheetDialog" parent="">
@@ -142,12 +143,14 @@
     <style name="SaveApp.Widget.AppBarStyle" parent="Widget.Material3.AppBarLayout">
         <item name="android:background">@color/colorPrimary</item>
         <item name="colorOnPrimary">@color/white</item>
+        <item name="titleTextAppearance">@style/TextAppearance.App.TitleLarge</item>
     </style>
 
     <style name="SaveApp.Widget.MaterialToolbarStyle" parent="Widget.Material3.Toolbar">
         <item name="colorControlNormal">@color/white</item>
         <item name="titleTextColor">@color/white</item>
         <item name="subtitleTextColor">@color/white</item>
+        <item name="navigationIcon">@drawable/ic_arrow_back_ios</item>
         <item name="navigationIconTint">@color/white</item>
         <item name="android:gravity">center_horizontal</item>
         <item name="android:layout_gravity">center_horizontal</item>
@@ -216,6 +219,55 @@
         <item name="android:textColorLink">@color/colorTertiary</item>
     </style>
 
+    <!-- 16pt (16sp) text style -->
+    <style name="TextAppearance.SaveApp.16pt" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineHeight">20sp</item>
+        <item name="android:fontWeight">600</item> <!-- SemiBold -->
+    </style>
+
+    <!-- 18pt (18sp) text style -->
+    <style name="TextAppearance.SaveApp.18pt" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:lineHeight">22sp</item>
+        <item name="android:fontWeight">600</item> <!-- SemiBold -->
+    </style>
+
+    <!-- 14pt (14sp) text style -->
+    <style name="TextAppearance.SaveApp.14pt" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">16sp</item>
+        <item name="android:fontWeight">500</item> <!-- Medium -->
+    </style>
+
+    <!-- 11pt (11sp) text style -->
+    <style name="TextAppearance.SaveApp.11pt" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:lineHeight">14sp</item>
+        <item name="android:fontWeight">500</item> <!-- Medium -->
+    </style>
+
+    <!-- 14pt Link Style -->
+    <style name="TextAppearance.SaveApp.14ptLink" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">16sp</item>
+        <item name="android:fontWeight">500</item> <!-- Medium -->
+        <item name="android:textColor">@color/colorTertiary</item>
+    </style>
+
+    <!-- 11pt Italic Style -->
+    <style name="TextAppearance.SaveApp.11ptItalic" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:fontFamily">@font/montserrat_italic</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:lineHeight">14sp</item>
+        <item name="android:fontStyle">italic</item>
+    </style>
+
     <style name="Widget.App.FloatingActionButton" parent="Widget.Material3.FloatingActionButton.Primary">
         <item name="backgroundTint">@color/colorTertiary</item>
         <item name="colorOnPrimaryContainer">@color/white</item>
@@ -230,13 +282,14 @@
 
     <style name="ShapeAppearanceOverlay.App.FloatingActionButton" parent="ShapeAppearance.MaterialComponents.SmallComponent">
         <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">64dp</item>
+        <item name="cornerSize">8dp</item>
     </style>
 
     <style name="OAMaterialButtonStyle" parent="Widget.Material3.Button">
         <item name="android:textColor">@color/black</item>
         <item name="android:background">@drawable/button</item>
         <item name="android:textAllCaps">false</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.Button</item>
     </style>
 
     <style name="Widget.App.Button.TextButton" parent="Widget.Material3.Button.TextButton">
@@ -297,14 +350,26 @@
         <item name="boxCornerRadiusTopStart">@dimen/cornerRadius</item>
         <item name="hintTextColor">@color/c23_teal</item>
         <item name="cursorColor">@color/c23_teal</item>
+        <item name="hintEnabled">false</item>
+        <item name="placeholderTextAppearance">@style/ItalicPlaceholderTextAppearance</item>
+        <item name="editTextStyle">@style/ItalicPlaceholderEditTextStyle</item>
     </style>
 
-    <style name="Widget.SaveApp.TextInputLayout" parent="Widget.Material3.TextInputLayout.FilledBox">
+
+    <style name="ItalicPlaceholderEditTextStyle" parent="Widget.Material3.TextInputEditText.OutlinedBox">
+        <item name="android:textAppearance">@style/ItalicPlaceholderTextAppearance</item>
+    </style>
+
+    <style name="ItalicPlaceholderTextAppearance" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textStyle">italic</item>
+    </style>
+
+    <style name="Widget.SaveApp.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="materialThemeOverlay">@style/ThemeOverlay.App.TextInputLayout</item>
         <item name="shapeAppearance">@style/ShapeAppearance.SaveApp.SmallComponent</item>
         <item name="hintTextColor">?attr/colorOnSurface</item>
 
-        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidth">1dp</item>
         <item name="boxStrokeWidthFocused">0dp</item>
         <item name="boxBackgroundColor">@color/inputBackground</item>
         <item name="boxCornerRadiusTopStart">8dp</item>
@@ -319,29 +384,29 @@
         <!--        <item name="colorOnSurface">@color/colorText</item>-->
         <item name="colorError">@color/colorError</item>
         <item name="textAppearanceTitleMedium">@style/TextAppearance.App.TitleMedium</item>
-        <item name="textAppearanceBodySmall">@style/TextAppearance.App.BodySmall</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.SaveApp.11pt</item>
         <item name="editTextStyle">@style/Widget.Material3.TextInputEditText.FilledBox</item>
     </style>
 
     <style name="TextAppearance.App.Button" parent="TextAppearance.Material3.LabelLarge">
         <item name="fontFamily">@font/montserrat</item>
         <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:textFontWeight">500</item>
     </style>
 
     <style name="TextAppearance.App.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
         <item name="fontFamily">@font/montserrat</item>
         <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textFontWeight">600</item>
     </style>
 
     <style name="TextAppearance.App.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
         <item name="fontFamily">@font/montserrat</item>
         <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:fontWeight">500</item>
     </style>
 
-    <style name="TextAppearance.App.BodySmall" parent="TextAppearance.Material3.BodySmall">
-        <item name="fontFamily">@font/montserrat</item>
-        <item name="android:fontFamily">@font/montserrat</item>
-    </style>
 
     <style name="ShapeAppearance.SaveApp.SmallComponent" parent="ShapeAppearance.Material3.SmallComponent">
         <item name="cornerFamily">rounded</item>
@@ -363,5 +428,10 @@
 
     <style name="ThinProgressBar" parent="Widget.MaterialComponents.CircularProgressIndicator">
         <item name="android:thickness">2dp</item>
+    </style>
+
+    <style name="popup_window_animation">
+        <item name="android:windowEnterAnimation">@anim/popup_anim</item>
+        <item name="android:windowExitAnimation">@anim/popdown_anim</item>
     </style>
 </resources>

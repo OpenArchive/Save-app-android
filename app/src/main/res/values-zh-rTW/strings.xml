@@ -63,7 +63,7 @@
     <string name="get_started">開始</string>
     <string name="refresh">更新</string>
     <string name="select_all">選擇全部</string>
-    <string name="got_it">收到</string>
+    <string name="lbl_got_it">收到</string>
     <string name="skip">跳過</string>
     <string name="retry">重試</string>
 

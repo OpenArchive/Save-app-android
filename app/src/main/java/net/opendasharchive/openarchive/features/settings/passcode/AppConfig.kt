@@ -6,6 +6,7 @@ data class AppConfig(
     val maxRetryLimitEnabled: Boolean = false,
     val biometricAuthEnabled: Boolean = false,
     val maxFailedAttempts: Int = 5,
-    val snowbirdEnabled: Boolean = false,
+    val isDwebEnabled: Boolean = true,
     val appMaskingEnabled: Boolean = true,
+    val multipleProjectSelectionMode: Boolean = false,
 )

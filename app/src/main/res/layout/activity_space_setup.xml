@@ -1,30 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
     android:filterTouchesWhenObscured="true"
+    android:orientation="vertical"
     tools:context=".features.onboarding.SpaceSetupActivity">
 
 
-    <LinearLayout
+    <include
+        android:id="@+id/common_app_bar"
+        layout="@layout/common_app_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="wrap_content" />
 
-        <include
-            android:id="@+id/common_app_bar"
-            layout="@layout/common_app_bar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
 
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/space_setup_fragment"
-            android:name="net.opendasharchive.openarchive.features.settings.SpaceSetupFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:layout="@layout/fragment_space_setup" />
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/space_nav_host_fragment"
+        android:name="androidx.navigation.fragment.compose.ComposableNavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/space_setup_navigation" />
 
-    </LinearLayout>
-</ScrollView>
+</LinearLayout>
+

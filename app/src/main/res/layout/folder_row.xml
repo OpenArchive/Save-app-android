@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
     android:padding="8dp"
-    android:background="@drawable/item_background_selector"
+    android:background="@drawable/list_item_background_selector"
     android:filterTouchesWhenObscured="true">
 
 
@@ -30,7 +30,7 @@
             android:layout_marginEnd="@dimen/activity_vertical_margin"
             android:importantForAccessibility="no"
             app:tint="@color/colorOnPrimaryContainer"
-            android:src="@drawable/ic_folder" />
+            android:src="@drawable/ic_folder_new" />
 
         <LinearLayout
             android:paddingVertical="4dp"
@@ -47,6 +47,7 @@
                 tools:text="Foobar Project" />
 
             <TextView
+                android:visibility="gone"
                 android:id="@+id/timestamp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -65,12 +66,13 @@
         android:layout_gravity="center_vertical"
         android:layout_marginEnd="16dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:src="@drawable/ic_tick_circle"
+        android:src="@drawable/ic_done"
         android:visibility="invisible"
+        tools:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/text_container"
         app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/colorTertiary" />
+        app:tint="@color/colorOnBackground" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,7 +8,6 @@
 
     <com.google.android.material.appbar.MaterialToolbar
         tools:title="OpenArchive"
-        tools:navigationIcon="@drawable/ic_arrow_back"
         tools:menu="@menu/menu_main"
         android:id="@+id/common_toolbar"
         android:layout_width="match_parent"

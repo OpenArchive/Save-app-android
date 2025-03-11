@@ -4,10 +4,11 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
-import net.opendasharchive.openarchive.core.presentation.theme.Theme
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.features.internetarchive.presentation.login.ComposeAppBar
 import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
 
 class PasscodeSetupActivity : BaseActivity() {
@@ -16,22 +17,29 @@ class PasscodeSetupActivity : BaseActivity() {
         const val EXTRA_PASSCODE_ENABLED = "passcode_enabled"
     }
 
-    private val onBackPressedCallback = object : OnBackPressedCallback(enabled = true) {
-        override fun handleOnBackPressed() {
-            setResult(RESULT_CANCELED)
-            finish()
-        }
-    }
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        onBackPressedDispatcher.addCallback(onBackPressedCallback)
-
         setContent {
-            Theme {
-                DefaultScaffold {
+            SaveAppTheme {
+                DefaultScaffold(
+                    topAppBar = {
+                        ComposeAppBar(
+                            title = "Lock app with passcode",
+                            onNavigationAction = {
+                                setResult(RESULT_CANCELED)
+                                finish()
+                            }
+                        )
+                    }
+                ) {
+
+                    // Handle back press inside Compose
+                    BackHandler {
+                        setResult(RESULT_CANCELED)
+                        finish()
+                    }
+
                     PasscodeSetupScreen(
                         onPasscodeSet = {
                             // Passcode successfully set

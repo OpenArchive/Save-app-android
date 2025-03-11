@@ -13,18 +13,20 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.zxing.integration.android.IntentIntegrator
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdBinding
 import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.extensions.getQueryParameter
+import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.main.QRScannerActivity
-import net.opendasharchive.openarchive.features.onboarding.BaseFragment
-import net.opendasharchive.openarchive.features.settings.SpaceSetupFragment
-import net.opendasharchive.openarchive.features.settings.SpaceSetupFragment.Companion.RESULT_VAL_INTERNET_ARCHIVE
-import net.opendasharchive.openarchive.util.Utility
 import timber.log.Timber
 
-class SnowbirdFragment private constructor(): BaseFragment() {
-    private val CANNED_URI = "save+dweb::?dht=82fd345d484393a96b6e0c5d5e17a85a61c9184cc5a3311ab069d6efa0bf1410&enc=6fa27396fe298f92c91013ac54d8f316c2d45dc3bed0edec73078040aa10feed&pk=f4b404d294817cf11ea7f8ef7231626e03b74f6fafe3271b53918608afa82d12&sk=5482a8f490081be684fbadb8bde7f0a99bab8acdcf1ec094826f0f18e327e399"
+class SnowbirdFragment : BaseFragment() {
+    private val CANNED_URI =
+        "save+dweb::?dht=82fd345d484393a96b6e0c5d5e17a85a61c9184cc5a3311ab069d6efa0bf1410&enc=6fa27396fe298f92c91013ac54d8f316c2d45dc3bed0edec73078040aa10feed&pk=f4b404d294817cf11ea7f8ef7231626e03b74f6fafe3271b53918608afa82d12&sk=5482a8f490081be684fbadb8bde7f0a99bab8acdcf1ec094826f0f18e327e399"
     private lateinit var viewBinding: FragmentSnowbirdBinding
     private var canNavigate = false
 
@@ -39,7 +41,11 @@ class SnowbirdFragment private constructor(): BaseFragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         viewBinding = FragmentSnowbirdBinding.inflate(inflater)
 
         return viewBinding.root
@@ -54,18 +60,29 @@ class SnowbirdFragment private constructor(): BaseFragment() {
 
         viewBinding.myGroupsButton.setOnClickListener {
 
-            setFragmentResult(
-                RESULT_REQUEST_KEY,
-                bundleOf(RESULT_BUNDLE_KEY to RESULT_VAL_RAVEN_MY_GROUPS)
-            )
+            if (isJetpackNavigation) {
+                val action =
+                    SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdGroupList()
+                findNavController().navigate(action)
+            } else {
+                setFragmentResult(
+                    RESULT_REQUEST_KEY,
+                    bundleOf(RESULT_BUNDLE_KEY to RESULT_VAL_RAVEN_MY_GROUPS)
+                )
+            }
         }
 
         viewBinding.createGroupButton.setOnClickListener {
-
-            setFragmentResult(
-                RESULT_REQUEST_KEY,
-                bundleOf(RESULT_BUNDLE_KEY to RESULT_VAL_RAVEN_CREATE_GROUP)
-            )
+            if (isJetpackNavigation) {
+                val action =
+                    SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdCreateGroup()
+                findNavController().navigate(action)
+            } else {
+                setFragmentResult(
+                    RESULT_REQUEST_KEY,
+                    bundleOf(RESULT_BUNDLE_KEY to RESULT_VAL_RAVEN_CREATE_GROUP)
+                )
+            }
         }
 
         initializeViewModelObservers()
@@ -74,7 +91,13 @@ class SnowbirdFragment private constructor(): BaseFragment() {
     private fun initializeViewModelObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                launch { snowbirdGroupViewModel.groupState.collect { state -> handleGroupStateUpdate(state) } }
+                launch {
+                    snowbirdGroupViewModel.groupState.collect { state ->
+                        handleGroupStateUpdate(
+                            state
+                        )
+                    }
+                }
             }
         }
     }
@@ -107,23 +130,45 @@ class SnowbirdFragment private constructor(): BaseFragment() {
         val name = uriString.getQueryParameter("name")
 
         if (name == null) {
-            Utility.showMaterialWarning(
-                requireContext(),
-                "Unable to determine group name from QR code.")
+            dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+                type = DialogType.Warning
+                title = UiText.DynamicString("Oops!")
+                message = UiText.DynamicString("Unable to determine group name from QR code.")
+                positiveButton {
+                    text = UiText.StringResource(R.string.lbl_ok)
+                }
+            }
             return
         }
 
         if (SnowbirdGroup.exists(name)) {
-            Utility.showMaterialWarning(
-                requireContext(),
-                "You have already joined this group.")
+            dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+                type = DialogType.Warning
+                title = UiText.DynamicString("Oops!")
+                message = UiText.DynamicString("You have already joined this group.")
+                positiveButton {
+                    text = UiText.StringResource(R.string.lbl_ok)
+                }
+            }
             return
         }
 
-        setFragmentResult(
-            RESULT_REQUEST_KEY,
-            bundleOf(RESULT_BUNDLE_KEY to RESULT_VAL_RAVEN_JOIN_GROUPS, RESULT_VAL_RAVEN_JOIN_GROUPS_ARG to uriString)
-        )
+        if (isJetpackNavigation) {
+            val action =
+                SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdJoinGroup(
+                    uriString
+                )
+            findNavController().navigate(action)
+        } else {
+
+            setFragmentResult(
+                RESULT_REQUEST_KEY,
+                bundleOf(
+                    RESULT_BUNDLE_KEY to RESULT_VAL_RAVEN_JOIN_GROUPS,
+                    RESULT_VAL_RAVEN_JOIN_GROUPS_ARG to uriString
+                )
+            )
+        }
     }
 
     companion object {

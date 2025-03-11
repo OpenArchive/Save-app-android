@@ -22,7 +22,6 @@ class BrowseFoldersAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FolderViewHolder {
         val binding = FolderRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        val context = binding.root.context
 
         return FolderViewHolder(binding, onClick)
     }
@@ -42,10 +41,9 @@ class BrowseFoldersAdapter(
             itemView.isSelected = isSelected
 
 
-            val folderIconRes = if (isSelected) R.drawable.ic_folder_selected else R.drawable.ic_folder_unselected
-
-            binding.icon.setImageDrawable(ContextCompat.getDrawable(binding.icon.context, folderIconRes))
-
+            val icon = ContextCompat.getDrawable(binding.icon.context, R.drawable.ic_folder_new)
+            icon?.setTint(ContextCompat.getColor(binding.icon.context, R.color.colorOnBackground))
+            binding.icon.setImageDrawable(icon)
 
             binding.name.text = folder.name
             binding.timestamp.text = formatter.format(folder.modified)

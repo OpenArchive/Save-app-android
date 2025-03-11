@@ -16,6 +16,17 @@
 
 
     <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/web_dav_nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        tools:layout="@layout/fragment_web_dav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/common_app_bar" />
+
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/web_dav_fragment"
         android:name="net.opendasharchive.openarchive.services.webdav.WebDavFragment"
         android:layout_width="match_parent"

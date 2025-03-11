@@ -8,9 +8,9 @@ import net.opendasharchive.openarchive.databinding.FragmentSnowbirdShareGroupBin
 import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.extensions.asQRCode
 import net.opendasharchive.openarchive.extensions.urlEncode
-import net.opendasharchive.openarchive.features.onboarding.BaseFragment
+import net.opendasharchive.openarchive.features.core.BaseFragment
 
-class SnowbirdShareFragment private constructor(): BaseFragment() {
+class SnowbirdShareFragment: BaseFragment() {
     private lateinit var viewBinding: FragmentSnowbirdShareGroupBinding
     private lateinit var groupKey: String
 
@@ -48,7 +48,7 @@ class SnowbirdShareFragment private constructor(): BaseFragment() {
 
     companion object {
 
-        const val RESULT_VAL_RAVEN_GROUP_KEY = "RESULT_VAL_RAVEN_GROUP_KEY"
+        const val RESULT_VAL_RAVEN_GROUP_KEY = "dweb_group_key"
 
         @JvmStatic
         fun newInstance(groupKey: String): SnowbirdShareFragment {

@@ -20,6 +20,7 @@
     <RelativeLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
         android:layout_weight="1"
         android:paddingTop="16dp"
         android:paddingBottom="16dp">
@@ -30,11 +31,10 @@
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
             android:singleLine="true"
+            android:textColor="@color/colorOnBackground"
             android:textFontWeight="500"
-            android:textAppearance="?android:attr/textAppearanceListItem"
             android:textSize="14sp"
             tools:text="Title" />
-
 
 
         <TextView
@@ -43,19 +43,17 @@
             android:layout_height="wrap_content"
             android:layout_below="@android:id/title"
             android:layout_alignStart="@android:id/title"
-            android:maxLines="2"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorSecondary"
+            android:maxLines="1"
+            android:textColor="@color/colorOnBackground"
+            android:textFontWeight="500"
             android:textSize="11sp"
+            android:textStyle="italic"
             tools:text="Summary" />
-
     </RelativeLayout>
 
-    <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@android:id/checkbox"
+    <LinearLayout
+        android:id="@android:id/widget_frame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@null"
-        android:clickable="false"
-        android:focusable="false" />
+        android:orientation="vertical" />
 </LinearLayout>

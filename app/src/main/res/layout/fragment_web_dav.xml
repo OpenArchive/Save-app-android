@@ -35,7 +35,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginVertical="24dp">
+                android:layout_marginTop="48dp"
+                android:layout_marginBottom="24dp">
 
                 <ImageView
                     android:layout_width="48dp"
@@ -44,13 +45,14 @@
                     android:background="@drawable/circle_shape"
                     android:backgroundTint="@color/colorBackgroundSpaceIcon"
                     android:importantForAccessibility="no"
-                    android:padding="12dp"
+                    android:padding="8dp"
                     android:src="@drawable/ic_private_server"
                     app:tint="@color/colorTertiary" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:paddingEnd="23dp"
                     android:layout_gravity="center_vertical"
                     android:orientation="vertical">
 
@@ -62,9 +64,10 @@
                         android:textFontWeight="700"
                         android:textStyle="bold"
                         android:visibility="gone"
-                        tools:targetApi="p" />
+                         />
 
                     <TextView
+                        android:paddingEnd="32dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud" />
@@ -83,29 +86,35 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:text="@string/server_info" />
+                    android:text="@string/server_info"
+                    android:textFontWeight="600"
+                    android:textSize="18sp" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
-                    android:hint="@string/enter_url"
                     android:layout_height="wrap_content"
-                    android:paddingVertical="4dp"
-                    android:layout_marginBottom="8dp">
+                    android:layout_marginBottom="8dp"
+                    app:hintEnabled="false"
+                    android:paddingVertical="4dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/server"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="textUri"
+                        android:hint="@string/enter_url"
                         android:maxLines="1"
                         android:singleLine="true" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_name"
                     android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:paddingVertical="4dp"
-                    android:layout_height="wrap_content">
+                    android:visibility="visible"
+                    tools:visibility="visible">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/name"
@@ -131,13 +140,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    android:text="@string/account" />
+                    android:text="@string/account"
+                    android:textFontWeight="600"
+                    android:textSize="18sp" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingVertical="4dp"
-                    android:layout_marginBottom="8dp">
+                    android:layout_marginBottom="8dp"
+                    android:paddingVertical="4dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/username"
@@ -173,6 +184,59 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/layout_license"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/license_label"
+                    android:textFontWeight="600"
+                    android:textSize="18sp" />
+
+                <include
+                    android:id="@+id/cc"
+                    layout="@layout/content_cc" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/button_bar_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:visibility="visible">
+
+
+                <TextView
+                    android:id="@+id/bt_remove"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/remove_from_app"
+                    android:textColor="@color/colorDanger"
+                    android:textFontWeight="600"
+                    android:textSize="18sp" />
+
+
+<!--                <Button-->
+<!--                    android:id="@+id/bt_license"-->
+<!--                    style="?android:attr/buttonBarButtonStyle"-->
+<!--                    android:textColor="@color/colorTertiary"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="Licenses" />-->
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -180,7 +244,7 @@
 
 
     <LinearLayout
-        android:id="@+id/button_bar_edit"
+        android:id="@+id/button_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -189,89 +253,42 @@
         android:weightSum="2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="gone">
 
         <LinearLayout
             android:layout_width="0dp"
-            android:gravity="center"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
-
-            <Button
-                android:id="@+id/bt_remove"
-                style="?android:attr/buttonBarButtonStyle"
-                android:textColor="@color/colorDanger"
-                android:layout_width="wrap_content"
-                android:drawableStart="@drawable/ic_delete_danger_24dp"
-                android:drawableTint="@color/colorDanger"
-                android:layout_height="wrap_content"
-                android:text="@string/remove_from_app" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
+            android:layout_marginHorizontal="24dp"
+            android:layout_weight="1"
             android:gravity="center"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
-
-            <Button
-                android:id="@+id/bt_license"
-                style="?android:attr/buttonBarButtonStyle"
-                android:textColor="@color/colorTertiary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Licenses" />
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/button_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        android:visibility="gone"
-        android:weightSum="2"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <LinearLayout
-            android:textColor="@color/colorText"
-            android:layout_width="0dp"
-            android:gravity="center"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
-            android:layout_weight="1">
+            android:textColor="@color/colorText">
 
             <Button
                 android:id="@+id/bt_cancel"
                 style="?android:attr/buttonBarButtonStyle"
-                android:textColor="@color/colorText"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/back" />
+                android:text="@string/back"
+                android:textColor="@color/colorText" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="0dp"
-            android:gravity="center"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+            android:layout_marginHorizontal="24dp"
             android:layout_weight="1"
+            android:gravity="center"
             tools:ignore="ButtonStyle">
+
             <Button
                 android:id="@+id/bt_authenticate"
-                android:backgroundTint="@color/buttonBackground"
-                android:paddingHorizontal="24dp"
-                android:paddingVertical="16dp"
-                style="@style/Widget.Material3.Button"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:enabled="false"
+                android:paddingHorizontal="24dp"
+                android:paddingVertical="8dp"
                 android:text="@string/action_next" />
         </LinearLayout>
 

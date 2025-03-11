@@ -1,8 +1,7 @@
 package net.opendasharchive.openarchive.db
 
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Intent
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -10,37 +9,24 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.features.media.PreviewActivity
+import net.opendasharchive.openarchive.databinding.RvMediaRowSmallBinding
 import net.opendasharchive.openarchive.upload.BroadcastManager
-import net.opendasharchive.openarchive.upload.UploadManagerActivity
-import net.opendasharchive.openarchive.upload.UploadService
-import net.opendasharchive.openarchive.util.AlertHelper
-import net.opendasharchive.openarchive.util.Prefs
-import net.opendasharchive.openarchive.util.extensions.toggle
 import java.lang.ref.WeakReference
 
-class MediaAdapter(
+class UploadMediaAdapter(
     activity: Activity?,
-    private val generator: (parent: ViewGroup) -> MediaViewHolder,
-    data: List<Media>,
+    mediaItems: List<Media>,
     private val recyclerView: RecyclerView,
-    private val supportedStatuses: List<Media.Status> = listOf(
-        Media.Status.Local,
-        Media.Status.Uploading,
-        Media.Status.Error
-    ),
-    private val checkSelecting: (() -> Unit)? = null
-) : RecyclerView.Adapter<MediaViewHolder>() {
+    private val checkSelecting: (() -> Unit)? = null,
+    private val onDeleteClick: (Media, Int) -> Unit,
+) : RecyclerView.Adapter<UploadMediaViewHolder>() {
 
-    var media: ArrayList<Media> = ArrayList(data)
+    var media: ArrayList<Media> = ArrayList(mediaItems)
         private set
 
     var doImageFade = true
 
-    var isEditMode = false
-
-    var selecting = false
-        private set
+    var isEditMode = true
 
     private var mActivity = WeakReference(activity)
 
@@ -49,68 +35,25 @@ class MediaAdapter(
     }
 
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MediaViewHolder {
-        val mvh = generator(parent)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UploadMediaViewHolder {
+        val binding =
+            RvMediaRowSmallBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val mvh = UploadMediaViewHolder(
+            binding = binding,
+            onDeleteClick = { position ->
+                deleteItem(position)
+            }
+        )
 
         mvh.itemView.setOnClickListener { v ->
-            if (selecting && checkSelecting != null) {
-                selectView(v)
+            val position = recyclerView.getChildLayoutPosition(v)
+            val item = media[position]
+
+            if (item.sStatus == Media.Status.Error) {
+                onDeleteClick.invoke(item, position)
             } else {
-                val pos = recyclerView.getChildLayoutPosition(v)
-
-                when (media[pos].sStatus) {
-                    Media.Status.Local -> {
-                        if (supportedStatuses.contains(Media.Status.Local)) {
-                            mActivity.get()?.let {
-                                PreviewActivity.start(it, media[pos].projectId)
-                            }
-                        }
-                    }
-
-                    Media.Status.Queued, Media.Status.Uploading -> {
-                        if (supportedStatuses.contains(Media.Status.Uploading)) {
-                            mActivity.get()?.let {
-                                it.startActivity(
-                                    Intent(it, UploadManagerActivity::class.java)
-                                )
-                            }
-                        }
-                    }
-
-                    Media.Status.Error -> {
-                        if (supportedStatuses.contains(Media.Status.Error)) {
-                            //CleanInsightsManager.measureEvent("backend", "upload-error", media[pos].space?.friendlyName)
-                            mActivity.get()?.let {
-                                AlertHelper.show(
-                                    it, it.getString(R.string.upload_unsuccessful_description),
-                                    R.string.upload_unsuccessful, R.drawable.ic_error, listOf(
-                                        AlertHelper.positiveButton(R.string.retry) { _, _ ->
-
-                                            media[pos].apply {
-                                                sStatus = Media.Status.Queued
-                                                statusMessage = ""
-                                                save()
-
-                                                BroadcastManager.postChange(it, collectionId, id)
-                                            }
-
-                                            UploadService.startUploadService(it)
-                                        },
-                                        AlertHelper.negativeButton(R.string.remove) { _, _ ->
-                                            deleteItem(pos)
-                                        },
-                                        AlertHelper.neutralButton()
-                                    )
-                                )
-                            }
-                        }
-                    }
-
-                    else -> {
-                        if (checkSelecting != null) {
-                            selectView(v)
-                        }
-                    }
+                if (checkSelecting != null) {
+                    selectView(v)
                 }
             }
         }
@@ -123,19 +66,6 @@ class MediaAdapter(
             }
         }
 
-        mvh.flagIndicator?.setOnClickListener {
-            showFirstTimeFlag()
-
-            // Toggle flag
-            val mediaId = mvh.itemView.tag as? Long ?: return@setOnClickListener
-
-            val item = media.firstOrNull { it.id == mediaId } ?: return@setOnClickListener
-            item.flag = !item.flag
-            item.save()
-
-            notifyItemChanged(media.indexOf(item))
-        }
-
         return mvh
     }
 
@@ -145,46 +75,53 @@ class MediaAdapter(
         return media[position].id
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    override fun onBindViewHolder(holder: MediaViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: UploadMediaViewHolder, position: Int) {
         AppLogger.i("onBindViewHolder called for position $position")
-        holder.bind(media[position], selecting, doImageFade)
-        holder.handle?.toggle(isEditMode)
+        holder.bind(media[position], doImageFade)
+        holder.toggleEditMode(isEditMode)
     }
 
-    override fun onBindViewHolder(holder: MediaViewHolder, position: Int, payloads: MutableList<Any>) {
+    override fun onBindViewHolder(
+        holder: UploadMediaViewHolder,
+        position: Int,
+        payloads: MutableList<Any>
+    ) {
         if (payloads.isNotEmpty()) {
             val payload = payloads[0]
             when (payload) {
                 "progress" -> {
                     holder.updateProgress(media[position].uploadPercentage ?: 0)
                 }
+
                 "full" -> {
-                    holder.bind(media[position], selecting, doImageFade)
-                    holder.handle?.toggle(isEditMode)
+                    holder.bind(media[position], doImageFade)
+                    holder.toggleEditMode(isEditMode)
                 }
             }
         } else {
-            holder.bind(media[position], selecting, doImageFade)
-            holder.handle?.toggle(isEditMode)
+            holder.bind(media[position], doImageFade)
+            holder.toggleEditMode(isEditMode)
         }
     }
 
     fun updateItem(mediaId: Long, progress: Int, isUploaded: Boolean = false): Boolean {
-        val idx = media.indexOfFirst { it.id == mediaId }
-        AppLogger.i("updateItem: mediaId=$mediaId idx=$idx")
-        if (idx < 0) return false
+        val mediaIndex = media.indexOfFirst { it.id == mediaId }
+        AppLogger.i("updateItem: mediaId=$mediaId idx=$mediaIndex")
+        if (mediaIndex < 0) return false
 
-        val item = media[idx]
+        val item = media[mediaIndex]
 
         if (isUploaded) {
             item.status = Media.Status.Uploaded.id
-            AppLogger.i("Media item $mediaId uploaded, notifying item changed at position $idx")
-            notifyItemChanged(idx, "full")
+            AppLogger.i("Media item $mediaId uploaded, notifying item changed at position $mediaIndex")
+            notifyItemChanged(mediaIndex, "full")
         } else if (progress >= 0) {
             item.uploadPercentage = progress
             item.status = Media.Status.Uploading.id
-            notifyItemChanged(idx, "progress")
+            notifyItemChanged(mediaIndex, "progress")
+        }else {
+            item.status = Media.Status.Queued.id
+            notifyItemChanged(mediaIndex, "full")
         }
 
         return true
@@ -213,15 +150,6 @@ class MediaAdapter(
         diffResult.dispatchUpdatesTo(this)
     }
 
-    private fun showFirstTimeFlag() {
-        if (Prefs.flagHintShown) return
-        val activity = mActivity.get() ?: return
-
-        AlertHelper.show(activity, R.string.popup_flag_desc, R.string.popup_flag_title)
-
-        Prefs.flagHintShown = true
-    }
-
     private fun selectView(view: View) {
         val mediaId = view.tag as? Long ?: return
 
@@ -231,7 +159,6 @@ class MediaAdapter(
 
         notifyItemChanged(media.indexOf(m))
 
-        selecting = media.firstOrNull { it.selected } != null
         checkSelecting?.invoke()
     }
 
@@ -309,8 +236,6 @@ class MediaAdapter(
 
             hasDeleted = true
         }
-
-        selecting = false
 
         checkSelecting?.invoke()
 

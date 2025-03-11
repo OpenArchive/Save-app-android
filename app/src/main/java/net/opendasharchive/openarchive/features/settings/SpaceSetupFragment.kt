@@ -6,10 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
+import androidx.fragment.compose.content
+import androidx.navigation.NavDirections
+import androidx.navigation.fragment.findNavController
+import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.databinding.FragmentSpaceSetupBinding
 import net.opendasharchive.openarchive.db.Space
-import net.opendasharchive.openarchive.features.onboarding.BaseFragment
+import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
+import net.opendasharchive.openarchive.features.spaces.SpaceSetupScreen
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show
 import org.koin.android.ext.android.inject
@@ -19,41 +25,62 @@ class SpaceSetupFragment : BaseFragment() {
 
     private val appConfig by inject<AppConfig>()
 
-    private lateinit var binding: FragmentSpaceSetupBinding
-
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        binding = FragmentSpaceSetupBinding.inflate(inflater)
+    ): View = content {
 
-        binding.webdav.setOnClickListener {
-            setFragmentResult(RESULT_REQUEST_KEY, bundleOf(RESULT_BUNDLE_KEY to RESULT_VAL_WEBDAV))
+        // Prepare click lambdas that use the fragment’s business logic.
+        val onWebDavClick = {
+            if (isJetpackNavigation) {
+                findNavController().navigate(R.id.action_fragment_space_setup_to_fragment_web_dav)
+            } else {
+                setFragmentResult(
+                    RESULT_REQUEST_KEY,
+                    bundleOf(RESULT_BUNDLE_KEY to RESULT_VAL_WEBDAV)
+                )
+            }
         }
-
-        if (Space.has(Space.Type.INTERNET_ARCHIVE)) {
-            this@SpaceSetupFragment.binding.internetArchive.hide()
-        } else {
-            binding.internetArchive.setOnClickListener {
+        // Only enable Internet Archive if not already present
+        val isInternetArchiveAllowed = !Space.has(Space.Type.INTERNET_ARCHIVE)
+        val onInternetArchiveClick = {
+            if (isJetpackNavigation) {
+                val action =
+                    SpaceSetupFragmentDirections.actionFragmentSpaceSetupToFragmentInternetArchive()
+                findNavController().navigate(action)
+            } else {
                 setFragmentResult(
                     RESULT_REQUEST_KEY,
                     bundleOf(RESULT_BUNDLE_KEY to RESULT_VAL_INTERNET_ARCHIVE)
                 )
             }
         }
-
-        if (appConfig.snowbirdEnabled) {
-            binding.snowbird.show()
-        } else {
-            binding.snowbird.hide()
+        // Show/hide Snowbird based on config
+        val isDwebEnabled = appConfig.isDwebEnabled
+        val onDwebClicked = {
+            if (isJetpackNavigation) {
+                val action =
+                    SpaceSetupFragmentDirections.actionFragmentSpaceSetupToFragmentSnowbird()
+                findNavController().navigate(action)
+            } else {
+                setFragmentResult(
+                    RESULT_REQUEST_KEY,
+                    bundleOf(RESULT_BUNDLE_KEY to RESULT_VAL_RAVEN)
+                )
+            }
         }
 
-
-        binding.snowbird.setOnClickListener {
-            setFragmentResult(RESULT_REQUEST_KEY, bundleOf(RESULT_BUNDLE_KEY to RESULT_VAL_RAVEN))
+        SaveAppTheme {
+            SpaceSetupScreen(
+                onWebDavClick = onWebDavClick,
+                isInternetArchiveAllowed = isInternetArchiveAllowed,
+                onInternetArchiveClick = onInternetArchiveClick,
+                isDwebEnabled = isDwebEnabled,
+                onDwebClicked = onDwebClicked
+            )
         }
 
-        return binding.root
     }
 
     companion object {

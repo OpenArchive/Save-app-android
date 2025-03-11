@@ -4,17 +4,20 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.util.Log
-import coil.Coil
-import coil.ImageLoader
-import coil.util.Logger
+import coil3.ImageLoader
+import coil3.PlatformContext
+import coil3.SingletonImageLoader
+import coil3.util.Logger
 import com.orm.SugarApp
 import info.guardianproject.netcipher.proxy.OrbotHelper
 import net.opendasharchive.openarchive.core.di.coreModule
 import net.opendasharchive.openarchive.core.di.featuresModule
+import net.opendasharchive.openarchive.core.di.passcodeModule
 import net.opendasharchive.openarchive.core.di.retrofitModule
 import net.opendasharchive.openarchive.core.di.unixSocketModule
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeManager
+import net.opendasharchive.openarchive.util.Analytics
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Theme
 import org.koin.android.ext.koin.androidContext
@@ -23,7 +26,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import timber.log.Timber
 
-class SaveApp : SugarApp() {
+class SaveApp : SugarApp(), SingletonImageLoader.Factory {
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
@@ -31,6 +34,7 @@ class SaveApp : SugarApp() {
 
     override fun onCreate() {
         super.onCreate()
+        Analytics.init(this)
         AppLogger.init(applicationContext, initDebugger = true)
         registerActivityLifecycleCallbacks(PasscodeManager())
         startKoin {
@@ -40,31 +44,17 @@ class SaveApp : SugarApp() {
                 coreModule,
                 featuresModule,
                 retrofitModule,
-                unixSocketModule
+                unixSocketModule,
+                passcodeModule
             )
         }
 
-        val imageLoader = ImageLoader.Builder(this)
-            .logger(object : Logger {
-                override var level = Log.VERBOSE
-
-                override fun log(
-                    tag: String,
-                    priority: Int,
-                    message: String?,
-                    throwable: Throwable?
-                ) {
-                    Timber.tag("Coil").log(priority, throwable, message)
-                }
-            })
-            .build()
-
-        Coil.setImageLoader(imageLoader)
         Prefs.load(this)
 
         if (Prefs.useTor) initNetCipher()
 
-        Theme.set(Prefs.theme)
+        val useDarkMode = Prefs.getBoolean(getString(R.string.pref_key_use_dark_mode), false)
+        Theme.darkModeEnabled = useDarkMode
 
         CleanInsightsManager.init(this)
 
@@ -109,5 +99,21 @@ class SaveApp : SugarApp() {
 
         const val TOR_SERVICE_ID = 2602
         const val TOR_SERVICE_CHANNEL = "tor_service_channel"
+    }
+
+    override fun newImageLoader(context: PlatformContext): ImageLoader {
+        return ImageLoader.Builder(this).logger(object : Logger {
+            override var minLevel: Logger.Level = Logger.Level.Verbose
+
+            override fun log(
+                tag: String,
+                level: Logger.Level,
+                message: String?,
+                throwable: Throwable?
+            ) {
+                Timber.tag("Coil3:$tag").log(level.ordinal, throwable, message)
+            }
+        })
+            .build()
     }
 }

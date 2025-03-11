@@ -6,7 +6,7 @@
     android:background="@android:color/transparent"
     android:orientation="vertical"
     android:paddingHorizontal="16dp"
-    android:paddingTop="16dp"
+    android:paddingTop="24dp"
     android:paddingBottom="8dp">
 
     <!--  Overriding android ids results automatic setting of title / summary -->
@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:fontFamily="sans-serif"
         android:lineSpacingExtra="3sp"
-        android:textColor="@color/c23_teal"
+        android:textColor="@color/colorTertiary"
         android:textFontWeight="600"
         android:textSize="18sp"
         android:textStyle="normal"

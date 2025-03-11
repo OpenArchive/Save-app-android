@@ -13,23 +13,39 @@
         android:id="@+id/media_grid"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/bt_add_more"
+        app:layout_constraintBottom_toTopOf="@id/bt_add_more_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/common_app_bar" />
 
-    <Button
+    <LinearLayout
         android:layout_marginVertical="24dp"
-        android:id="@+id/bt_add_more"
-        style="@style/Widget.Material3.Button.Icon"
-        android:backgroundTint="@color/colorTertiary"
-        android:layout_width="wrap_content"
+        android:id="@+id/bt_add_more_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/add_more"
-        app:icon="@drawable/baseline_add_24"
+        android:weightSum="5"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:drawableTint="@color/colorOnBackground"
         app:layout_constraintBottom_toTopOf="@id/bottom_bar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_weight="2.5"
+            android:id="@+id/bt_add_more"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/add_more"
+            app:icon="@drawable/baseline_add_24"
+            app:iconTint="@color/colorOnBackground"
+            app:layout_constraintBottom_toTopOf="@id/bottom_bar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </LinearLayout>
+
+
 
     <LinearLayout
         android:id="@+id/bottom_bar"

@@ -3,14 +3,13 @@ package net.opendasharchive.openarchive.features.folders
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.databinding.ActivityAddFolderBinding
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
-import net.opendasharchive.openarchive.util.extensions.hide
 
 class AddFolderActivity : BaseActivity() {
 
@@ -19,7 +18,6 @@ class AddFolderActivity : BaseActivity() {
         const val EXTRA_FOLDER_NAME = "folder_name"
     }
 
-    private lateinit var mBinding: ActivityAddFolderBinding
     private lateinit var mResultLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +32,7 @@ class AddFolderActivity : BaseActivity() {
                     val name = it.data?.getStringExtra(EXTRA_FOLDER_NAME)
 
                     if (!name.isNullOrBlank()) {
-                        val i = Intent(this, CreateNewFolderActivity::class.java)
+                        val i = Intent(this, CreateNewFolderFragment::class.java)
                         i.putExtra(EXTRA_FOLDER_NAME, name)
 
                         mResultLauncher.launch(i)
@@ -42,27 +40,35 @@ class AddFolderActivity : BaseActivity() {
                 }
             }
 
-        mBinding = ActivityAddFolderBinding.inflate(layoutInflater)
-        setContentView(mBinding.root)
+        //mBinding = ActivityAddFolderBinding.inflate(layoutInflater)
+        //setContentView(mBinding.root)
 
-        setupToolbar(
-            title = getString(R.string.add_a_folder),
-            showBackButton = true
-        )
 
-        mBinding.addFolderContainer.setOnClickListener {
-            setFolder(false)
+        setContent {
+
+            SaveAppTheme {
+
+                AddFolderScreen(
+//                    onCreateFolder = {
+//                        setFolder(browse = false)
+//                    },
+//                    onBrowseFolders = {
+//                        setFolder(browse = true)
+//                    },
+//                    onNavigateBack = {
+//                        finish()
+//                    }
+                )
+            }
         }
 
-        mBinding.browseFolderContainer.setOnClickListener {
-            setFolder(true)
-        }
+
 
 
         // We cannot browse the Internet Archive. Directly forward to creating a project,
         // as it doesn't make sense to show a one-option menu.
         if (Space.current?.tType == Space.Type.INTERNET_ARCHIVE) {
-            mBinding.browseFolderContainer.hide()
+            //mBinding.browseFolderContainer.hide()
 
             finish()
             setFolder(false)
@@ -92,7 +98,7 @@ class AddFolderActivity : BaseActivity() {
         mResultLauncher.launch(
             Intent(
                 this,
-                if (browse) BrowseFoldersActivity::class.java else CreateNewFolderActivity::class.java
+                if (browse) BrowseFoldersFragment::class.java else CreateNewFolderFragment::class.java
             )
         )
     }
