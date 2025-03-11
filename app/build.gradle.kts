@@ -118,6 +118,7 @@ android {
 dependencies {
 
     val composeVersion = "1.7.8"
+    val activity = "1.9.3"
     val material = "1.12.0"
     val material3 = "1.3.1"
     val lifecycle = "2.8.7"
@@ -166,8 +167,8 @@ dependencies {
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     // Compose Libraries
-    implementation("androidx.activity:activity-ktx:1.9.3")
-    implementation("androidx.activity:activity-compose:1.9.3")
+    implementation("androidx.activity:activity-ktx:$activity")
+    implementation("androidx.activity:activity-compose:$activity")
     implementation("androidx.compose.material3:material3:$material3")
     implementation("androidx.compose.ui:ui:$composeVersion")
     implementation("androidx.compose.foundation:foundation:$composeVersion")
