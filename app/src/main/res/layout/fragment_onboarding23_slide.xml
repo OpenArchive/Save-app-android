@@ -19,40 +19,38 @@
         android:layout_height="0dp"
         android:layout_weight="65" />
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:paddingTop="8dp"
-        android:layout_weight="40">
 
-        <LinearLayout
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="40"
+        android:orientation="vertical"
+        android:paddingTop="8dp">
+
+        <TextView
+            android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:paddingBottom="8dp"
+            android:text="title"
+            android:textAllCaps="true"
+            android:textFontWeight="800"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingBottom="8dp"
-                android:text="title"
-                android:textAllCaps="true"
-                android:textFontWeight="800"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText" />
+        <TextView
+            android:id="@+id/summary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="1sp"
+            android:scrollbars="none"
+            android:textColor="@color/colorOnBackground"
+            android:textColorLink="@color/colorOnBackground"
+            android:textSize="16sp"
+            tools:text="@tools:sample/lorem/random" />
 
-            <TextView
-                android:id="@+id/summary"
-                android:textColor="@color/colorOnBackground"
-                android:textColorLink="@color/colorOnBackground"
-                android:lineSpacingExtra="3sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="@tools:sample/lorem/random"
-                android:textSize="16sp" />
+    </LinearLayout>
 
-        </LinearLayout>
-    </ScrollView>
 
 </LinearLayout>

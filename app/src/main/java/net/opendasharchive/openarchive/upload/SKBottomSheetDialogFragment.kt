@@ -8,16 +8,20 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.activityViewModels
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 
 open class SKBottomSheetDialogFragment : BottomSheetDialogFragment() {
+
+    protected val dialogManager: DialogStateManager by activityViewModels()
+
     override fun onStart() {
         super.onStart()
         val sheetContainer = requireView().parent as? ViewGroup ?: return
         sheetContainer.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
-
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

@@ -148,7 +148,7 @@ private fun InternetArchiveLoginContent(
                     .padding(vertical = 8.dp)
             ) {
                 Text(
-                    "Account",
+                    stringResource(R.string.account),
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp
                 )

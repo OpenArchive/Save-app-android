@@ -1,7 +1,6 @@
 package net.opendasharchive.openarchive.features.main.adapters
 
 import android.app.Activity
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,9 +14,6 @@ import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.features.media.PreviewActivity
 import net.opendasharchive.openarchive.upload.BroadcastManager
-import net.opendasharchive.openarchive.upload.UploadManagerActivity
-import net.opendasharchive.openarchive.upload.UploadService
-import net.opendasharchive.openarchive.util.AlertHelper
 import java.lang.ref.WeakReference
 
 class MainMediaAdapter(
@@ -149,20 +145,23 @@ class MainMediaAdapter(
     }
 
     fun updateItem(mediaId: Long, progress: Int, isUploaded: Boolean = false): Boolean {
-        val idx = media.indexOfFirst { it.id == mediaId }
-        AppLogger.i("updateItem: mediaId=$mediaId idx=$idx")
-        if (idx < 0) return false
+        val mediaIndex = media.indexOfFirst { it.id == mediaId }
+        AppLogger.i("updateItem: mediaId=$mediaId idx=$mediaIndex")
+        if (mediaIndex < 0) return false
 
-        val item = media[idx]
+        val item = media[mediaIndex]
 
         if (isUploaded) {
             item.status = Media.Status.Uploaded.id
-            AppLogger.i("Media item $mediaId uploaded, notifying item changed at position $idx")
-            notifyItemChanged(idx, "full")
+            AppLogger.i("Media item $mediaId uploaded, notifying item changed at position $mediaIndex")
+            notifyItemChanged(mediaIndex, "full")
         } else if (progress >= 0) {
             item.uploadPercentage = progress
             item.status = Media.Status.Uploading.id
-            notifyItemChanged(idx, "progress")
+            notifyItemChanged(mediaIndex, "progress")
+        } else {
+            item.status = Media.Status.Queued.id
+            notifyItemChanged(mediaIndex, "full")
         }
 
         return true

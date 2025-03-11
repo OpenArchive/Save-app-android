@@ -110,7 +110,7 @@
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
-    <string name="prompt_email">Username</string>
+    <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
 
     <string name="label_username">@string/prompt_email</string>

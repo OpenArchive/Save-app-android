@@ -18,6 +18,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.PopupWindow
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -196,6 +197,13 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 startActivity(Intent(this, HomeActivity::class.java))
                 true
             }
+        }
+
+        supportFragmentManager.setFragmentResultListener("uploadRetry", this) { key, bundle ->
+            val mediaId = bundle.getLong("mediaId")
+            // Now you know which media item is being retried.
+            // You can start the upload service or update the UI accordingly.
+            UploadService.startUploadService(this)
         }
     }
 
@@ -819,11 +827,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     private fun checkNotificationPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             when {
-                ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED -> Timber.d("We have notifications permissions")
-
+                ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED -> Timber.d("We have notifications permissions")
                 shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> showNotificationPermissionRationale()
                 else -> requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }
@@ -837,7 +841,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             positiveButton {
                 text = UiText.DynamicString("Accept")
                 action = {
-                    Timber.d("thing")
+                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
             }
         }
@@ -888,8 +892,18 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
-            REQUEST_FILE_MEDIA -> Picker.pickMedia(this, mediaLaunchers.imagePickerLauncher)
-            REQUEST_CAMERA_PERMISSION -> Picker.takePhoto(this, mediaLaunchers.cameraLauncher)
+            REQUEST_FILE_MEDIA -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Picker.pickMedia(this, mediaLaunchers.imagePickerLauncher)
+                }
+            }
+            REQUEST_CAMERA_PERMISSION -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Picker.takePhoto(this, mediaLaunchers.cameraLauncher)
+                } else {
+                    Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 

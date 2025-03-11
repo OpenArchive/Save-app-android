@@ -127,10 +127,10 @@ class MainMediaFragment : BaseFragment() {
             if (projects.isNotEmpty()) {
                 getString(R.string.tap_to_add)
             } else {
-                "Tap the button below to add media folder"
+                "Tap the button below to add a folder"
             }
         } else {
-            "Tap the button below to add media server"
+            "Tap the button below to add a server"
         }
 
         binding.tvWelcomeDescr.text = text
@@ -245,9 +245,7 @@ class MainMediaFragment : BaseFragment() {
             onDeleteClick = { mediaItem, itemPosition ->
                 showDeleteConfirmationDialog(
                     mediaItem = mediaItem,
-                    onDeleteItem = {
-                        onDeleteItem(collectionId = collection.id, itemPosition = itemPosition)
-                    }
+                    itemPosition = itemPosition
                 )
 
             }
@@ -260,13 +258,7 @@ class MainMediaFragment : BaseFragment() {
         return holder.root
     }
 
-    private fun onDeleteItem(collectionId: Long, itemPosition: Int) {
-        val adapter = mAdapters[collectionId]
-        adapter?.deleteItem(itemPosition)
-    }
-
-    private fun showDeleteConfirmationDialog(mediaItem: Media, onDeleteItem: () -> Unit) {
-
+    private fun showDeleteConfirmationDialog(mediaItem: Media, itemPosition: Int) {
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Error
             title = UiText.StringResource(R.string.upload_unsuccessful)
@@ -290,25 +282,11 @@ class MainMediaFragment : BaseFragment() {
             destructiveButton {
                 text = UiText.StringResource(R.string.btn_lbl_remove_media)
                 action = {
-                    onDeleteItem.invoke()
+                    val adapter = mAdapters[mediaItem.collectionId]
+                    adapter?.deleteItem(itemPosition)
                 }
             }
         }
-//        AlertHelper.show(
-//            context = requireContext(),
-//            message = getString(R.string.upload_unsuccessful_description),
-//            title = R.string.upload_unsuccessful,
-//            icon = R.drawable.ic_error,
-//            buttons = listOf(
-//                AlertHelper.positiveButton(R.string.retry) { _, _ ->
-//
-//                },
-//                AlertHelper.negativeButton(R.string.remove) { _, _ ->
-//                    onDeleteItem.invoke()
-//                },
-//                AlertHelper.neutralButton()
-//            )
-//        )
     }
 
     //update selection UI by summing selected counts from all adapters.

@@ -102,7 +102,7 @@ fun ServerOptionItem(
                 modifier = Modifier
                     .size(24.dp)
                     .align(Alignment.CenterVertically),
-                imageVector = Icons.Default.ArrowForward,
+                painter = painterResource(R.drawable.ic_arrow_forward_ios),
                 contentDescription = null,
             )
         }

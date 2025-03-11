@@ -11,16 +11,14 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.RvMediaRowSmallBinding
 import net.opendasharchive.openarchive.upload.BroadcastManager
-import net.opendasharchive.openarchive.upload.UploadService
-import net.opendasharchive.openarchive.util.AlertHelper
-import net.opendasharchive.openarchive.util.Prefs
 import java.lang.ref.WeakReference
 
 class UploadMediaAdapter(
     activity: Activity?,
     mediaItems: List<Media>,
     private val recyclerView: RecyclerView,
-    private val checkSelecting: (() -> Unit)? = null
+    private val checkSelecting: (() -> Unit)? = null,
+    private val onDeleteClick: (Media, Int) -> Unit,
 ) : RecyclerView.Adapter<UploadMediaViewHolder>() {
 
     var media: ArrayList<Media> = ArrayList(mediaItems)
@@ -48,33 +46,11 @@ class UploadMediaAdapter(
         )
 
         mvh.itemView.setOnClickListener { v ->
-            val pos = recyclerView.getChildLayoutPosition(v)
-            val mediaItem = media[pos]
+            val position = recyclerView.getChildLayoutPosition(v)
+            val item = media[position]
 
-            if (mediaItem.sStatus == Media.Status.Error) {
-                mActivity.get()?.let {
-                    AlertHelper.show(
-                        it, it.getString(R.string.upload_unsuccessful_description),
-                        R.string.upload_unsuccessful, R.drawable.ic_error, listOf(
-                            AlertHelper.positiveButton(R.string.retry) { _, _ ->
-
-                                media[pos].apply {
-                                    sStatus = Media.Status.Queued
-                                    statusMessage = ""
-                                    save()
-
-                                    BroadcastManager.postChange(it, collectionId, id)
-                                }
-
-                                UploadService.startUploadService(it)
-                            },
-                            AlertHelper.negativeButton(R.string.remove) { _, _ ->
-                                deleteItem(pos)
-                            },
-                            AlertHelper.neutralButton()
-                        )
-                    )
-                }
+            if (item.sStatus == Media.Status.Error) {
+                onDeleteClick.invoke(item, position)
             } else {
                 if (checkSelecting != null) {
                     selectView(v)
@@ -129,20 +105,23 @@ class UploadMediaAdapter(
     }
 
     fun updateItem(mediaId: Long, progress: Int, isUploaded: Boolean = false): Boolean {
-        val idx = media.indexOfFirst { it.id == mediaId }
-        AppLogger.i("updateItem: mediaId=$mediaId idx=$idx")
-        if (idx < 0) return false
+        val mediaIndex = media.indexOfFirst { it.id == mediaId }
+        AppLogger.i("updateItem: mediaId=$mediaId idx=$mediaIndex")
+        if (mediaIndex < 0) return false
 
-        val item = media[idx]
+        val item = media[mediaIndex]
 
         if (isUploaded) {
             item.status = Media.Status.Uploaded.id
-            AppLogger.i("Media item $mediaId uploaded, notifying item changed at position $idx")
-            notifyItemChanged(idx, "full")
+            AppLogger.i("Media item $mediaId uploaded, notifying item changed at position $mediaIndex")
+            notifyItemChanged(mediaIndex, "full")
         } else if (progress >= 0) {
             item.uploadPercentage = progress
             item.status = Media.Status.Uploading.id
-            notifyItemChanged(idx, "progress")
+            notifyItemChanged(mediaIndex, "progress")
+        }else {
+            item.status = Media.Status.Queued.id
+            notifyItemChanged(mediaIndex, "full")
         }
 
         return true
@@ -169,15 +148,6 @@ class UploadMediaAdapter(
         this.media.addAll(newMediaList)
 
         diffResult.dispatchUpdatesTo(this)
-    }
-
-    private fun showFirstTimeFlag() {
-        if (Prefs.flagHintShown) return
-        val activity = mActivity.get() ?: return
-
-        AlertHelper.show(activity, R.string.popup_flag_desc, R.string.popup_flag_title)
-
-        Prefs.flagHintShown = true
     }
 
     private fun selectView(view: View) {

@@ -13,6 +13,9 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentUploadManagerBinding
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.UploadMediaAdapter
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.main.MainActivity
 
 open class UploadManagerFragment : SKBottomSheetDialogFragment() {
@@ -38,7 +41,8 @@ open class UploadManagerFragment : SKBottomSheetDialogFragment() {
 
         binding.uploadList.layoutManager = LinearLayoutManager(activity)
 
-        val decorator = DividerItemDecoration(binding.uploadList.context, DividerItemDecoration.VERTICAL)
+        val decorator =
+            DividerItemDecoration(binding.uploadList.context, DividerItemDecoration.VERTICAL)
         val divider = ContextCompat.getDrawable(binding.uploadList.context, R.drawable.divider)
         if (divider != null) decorator.setDrawable(divider)
 
@@ -49,6 +53,14 @@ open class UploadManagerFragment : SKBottomSheetDialogFragment() {
             activity = activity,
             mediaItems = Media.getByStatus(STATUSES, Media.ORDER_PRIORITY),
             recyclerView = binding.uploadList,
+            onDeleteClick = { mediaItem, position ->
+                showDeleteConfirmationDialog(
+                    mediaItem = mediaItem,
+                    onDeleteItem = {
+                        uploadMediaAdapter?.deleteItem(position)
+                    }
+                )
+            }
         )
 
         uploadMediaAdapter?.doImageFade = false
@@ -117,5 +129,44 @@ open class UploadManagerFragment : SKBottomSheetDialogFragment() {
 
     open fun getUploadingCounter(): Int {
         return uploadMediaAdapter?.media?.size ?: 0
+    }
+
+    private fun showDeleteConfirmationDialog(mediaItem: Media, onDeleteItem: () -> Unit) {
+
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Error
+            title = UiText.StringResource(R.string.upload_unsuccessful)
+            message = UiText.StringResource(R.string.upload_unsuccessful_description)
+            positiveButton {
+                text = UiText.StringResource(R.string.retry)
+                action = {
+                    mediaItem.apply {
+                        sStatus = Media.Status.Queued
+                        uploadPercentage = 0
+                        statusMessage = ""
+                        save()
+                        BroadcastManager.postChange(
+                            requireActivity(),
+                            mediaItem.collectionId,
+                            mediaItem.id
+                        )
+                    }
+                    //UploadService.startUploadService(requireActivity())
+
+                    // Notify parent that retry was selected
+                    val resultBundle = Bundle().apply {
+                        putLong("mediaId", mediaItem.id)
+                        putInt("progress", 0)
+                    }
+                    parentFragmentManager.setFragmentResult("uploadRetry", resultBundle)
+                }
+            }
+            destructiveButton {
+                text = UiText.StringResource(R.string.btn_lbl_remove_media)
+                action = {
+                    onDeleteItem.invoke()
+                }
+            }
+        }
     }
 }

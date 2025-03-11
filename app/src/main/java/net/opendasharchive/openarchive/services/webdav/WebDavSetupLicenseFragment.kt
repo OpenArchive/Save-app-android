@@ -92,6 +92,7 @@ class WebDavSetupLicenseFragment: BaseFragment() {
 
                 mSpace.name = name.toString()
                 mSpace.save()
+                binding.name.clearFocus()
             }
         })
 
