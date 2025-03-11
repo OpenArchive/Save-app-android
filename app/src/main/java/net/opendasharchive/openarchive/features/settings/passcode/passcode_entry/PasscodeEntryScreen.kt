@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.collectAsState
 import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultEmptyScaffoldPreview
@@ -51,7 +51,7 @@ fun PasscodeEntryScreen(
     hapticManager: HapticManager = koinInject()
 ) {
 
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val state by viewModel.uiState.collectAsState()
 
 
     val hapticFeedback = LocalHapticFeedback.current
