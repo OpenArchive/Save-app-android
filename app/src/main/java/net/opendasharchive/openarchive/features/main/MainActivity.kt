@@ -469,6 +469,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                     action = {
                         getCurrentMediaFragment()?.deleteSelected()
                         updateSelectedCount(0)
+                        refreshCurrentFolderCount()
                     }
                 ),
                 neutralButton =

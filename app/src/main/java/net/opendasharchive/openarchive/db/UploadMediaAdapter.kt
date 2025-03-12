@@ -119,7 +119,7 @@ class UploadMediaAdapter(
             item.uploadPercentage = progress
             item.status = Media.Status.Uploading.id
             notifyItemChanged(mediaIndex, "progress")
-        }else {
+        } else {
             item.status = Media.Status.Queued.id
             notifyItemChanged(mediaIndex, "full")
         }
