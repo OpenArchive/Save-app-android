@@ -223,16 +223,14 @@ private fun InternetArchiveLoginContent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
-                .padding(top = ThemeDimensions.spacing.medium),
+                .weight(1f),
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             TextButton(
                 modifier = Modifier
                     .weight(1f)
-                    .heightIn(ThemeDimensions.touchable)
-                    .padding(ThemeDimensions.spacing.small),
+                    .heightIn(ThemeDimensions.touchable),
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = colorResource(R.color.colorOnBackground)
                 ),
@@ -243,8 +241,7 @@ private fun InternetArchiveLoginContent(
             Button(
                 modifier = Modifier
                     .heightIn(ThemeDimensions.touchable)
-                    .weight(1f)
-                    .padding(ThemeDimensions.spacing.small),
+                    .weight(1f),
                 enabled = !state.isBusy && state.isValid,
                 shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
                 onClick = { dispatch(Login) },
