@@ -78,6 +78,7 @@ import net.opendasharchive.openarchive.features.internetarchive.presentation.log
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction as Action
+import androidx.core.net.toUri
 
 @Composable
 fun InternetArchiveLoginScreen(space: Space, onResult: (IAResult) -> Unit) {
@@ -97,7 +98,7 @@ fun InternetArchiveLoginScreen(space: Space, onResult: (IAResult) -> Unit) {
             when (action) {
                 is CreateLogin -> launcher.launch(
                     Intent(
-                        Intent.ACTION_VIEW, Uri.parse(CreateLogin.URI)
+                        Intent.ACTION_VIEW, CreateLogin.URI.toUri()
                     )
                 )
 
@@ -242,7 +243,8 @@ private fun InternetArchiveLoginContent(
             Button(
                 modifier = Modifier
                     .heightIn(ThemeDimensions.touchable)
-                    .weight(1f),
+                    .weight(1f)
+                    .padding(ThemeDimensions.spacing.small),
                 enabled = !state.isBusy && state.isValid,
                 shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
                 onClick = { dispatch(Login) },
