@@ -146,7 +146,7 @@ private fun InternetArchiveLoginContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp)
+                    .padding(top = 8.dp, bottom = 16.dp)
             ) {
                 Text(
                     stringResource(R.string.account),
@@ -229,17 +229,20 @@ private fun InternetArchiveLoginContent(
         ) {
             TextButton(
                 modifier = Modifier
-                    .weight(1f)
-                    .heightIn(ThemeDimensions.touchable),
+                    .padding(8.dp)
+                    .heightIn(ThemeDimensions.touchable)
+                    .weight(1f),
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = colorResource(R.color.colorOnBackground)
                 ),
+                enabled = !state.isBusy && state.isValid,
                 shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
                 onClick = { dispatch(Action.Cancel) }) {
                 Text(stringResource(R.string.back))
             }
             Button(
                 modifier = Modifier
+                    .padding(8.dp)
                     .heightIn(ThemeDimensions.touchable)
                     .weight(1f),
                 enabled = !state.isBusy && state.isValid,
