@@ -2,8 +2,11 @@ package net.opendasharchive.openarchive
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.UiModeManager
 import android.content.Context
+import android.os.Build
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
@@ -32,6 +35,20 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory {
         super.attachBaseContext(base)
     }
 
+    private fun applyTheme() {
+
+        val useDarkMode = Prefs.getBoolean(getString(R.string.pref_key_use_dark_mode), false)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val uiModeManager = getSystemService(UI_MODE_SERVICE) as UiModeManager
+            val darkMode = if (useDarkMode) UiModeManager.MODE_NIGHT_YES else UiModeManager.MODE_NIGHT_NO
+            uiModeManager.setApplicationNightMode(darkMode)
+        } else {
+            val darkMode = if (useDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+            AppCompatDelegate.setDefaultNightMode(darkMode)
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
         Analytics.init(this)
@@ -50,11 +67,9 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory {
         }
 
         Prefs.load(this)
+        applyTheme()
 
         if (Prefs.useTor) initNetCipher()
-
-        val useDarkMode = Prefs.getBoolean(getString(R.string.pref_key_use_dark_mode), false)
-        Theme.darkModeEnabled = useDarkMode
 
         CleanInsightsManager.init(this)
 

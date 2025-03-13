@@ -28,6 +28,7 @@
 
     <color name="inputBackground">#212021</color>
     <color name="buttonBackground">@color/c23_teal_50</color>
+    <color name="colorDrawerSpaceListBackground">@color/c23_dark_grey</color>
     <color name="colorBottomNavbar">@color/c23_darker_grey</color>
     <color name="colorOnBottomNavbar">@color/white</color>
     <color name="colorAddButton">@color/colorOnPrimary</color>

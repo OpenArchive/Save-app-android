@@ -59,6 +59,7 @@ import net.opendasharchive.openarchive.features.media.ContentPickerFragment
 import net.opendasharchive.openarchive.features.media.MediaLaunchers
 import net.opendasharchive.openarchive.features.media.Picker
 import net.opendasharchive.openarchive.features.media.PreviewActivity
+import net.opendasharchive.openarchive.features.onboarding.Onboarding23Activity
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
@@ -199,6 +200,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     override fun onResume() {
         super.onResume()
+        if (!Prefs.didCompleteOnboarding) {
+            startActivity(Intent(this, Onboarding23Activity::class.java))
+        }
         AppLogger.i("MainActivity onResume is called.......")
         refreshSpace()
         mCurrentPagerItem = mSelectedPageIndex
@@ -927,6 +931,13 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 })
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        // Clear pending callbacks/messages
+        window?.decorView?.handler?.removeCallbacksAndMessages(null)
     }
 
     companion object {

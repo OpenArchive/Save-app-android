@@ -100,13 +100,11 @@ android {
         abortOnError = false
     }
 
-
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
         }
     }
-
 
     namespace = "net.opendasharchive.openarchive"
 
@@ -139,7 +137,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.livedata)
     implementation(libs.androidx.lifecycle.runtime.compose)
-
 
     implementation(libs.androidx.preferences)
     implementation(libs.androidx.biometric)
@@ -262,23 +259,18 @@ dependencies {
     implementation("com.google.guava:guava:31.0.1-jre")
     implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
 
-
     implementation("com.github.satyan:sugar:1.5")
-
 
     // adding web dav support: https://github.com/thegrizzlylabs/sardine-android'
     implementation("com.github.guardianproject:sardine-android:89f7eae512")
 
-
     implementation("com.github.derlio:audio-waveform:v1.0.1")
-
 
     implementation("org.cleaninsights.sdk:clean-insights-sdk:2.8.0")
     implementation("info.guardianproject.netcipher:netcipher:2.2.0-alpha")
 
     // Mixpanel analytics
     implementation("com.mixpanel.android:mixpanel-android:8.0.2")
-
 
     // Tests
     testImplementation("junit:junit:4.13.2")
@@ -293,6 +285,8 @@ dependencies {
     detektPlugins(libs.detekt.rules.libraries)
     detektPlugins(libs.detekt.compose)
     detektPlugins(libs.detekt.rules.compose)
+
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
 }
 
 configurations.all {

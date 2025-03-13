@@ -109,7 +109,7 @@
     <!-- custom day colors -->
     <color name="inputBackground">#FFFBF0</color>
     <color name="buttonBackground">@color/c23_teal_60</color>
-
+    <color name="colorDrawerSpaceListBackground">@color/c23_light_grey</color>
     <color name="colorBottomNavbar">@color/colorPrimary</color>
     <color name="colorOnBottomNavbar">@color/colorOnBackground</color>
     <color name="colorAddButton">@color/colorOnPrimary</color>
