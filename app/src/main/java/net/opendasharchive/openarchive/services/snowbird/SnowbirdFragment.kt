@@ -11,7 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.google.zxing.integration.android.IntentIntegrator
+//import com.google.zxing.integration.android.IntentIntegrator
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdBinding
@@ -21,7 +21,7 @@ import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
-import net.opendasharchive.openarchive.features.main.QRScannerActivity
+//import net.opendasharchive.openarchive.features.main.QRScannerActivity
 import timber.log.Timber
 
 class SnowbirdFragment : BaseFragment() {
@@ -33,12 +33,12 @@ class SnowbirdFragment : BaseFragment() {
     private val qrCodeLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        val scanResult = IntentIntegrator.parseActivityResult(result.resultCode, result.data)
-        if (scanResult != null) {
-            if (scanResult.contents != null) {
-                processScannedData(scanResult.contents)
-            }
-        }
+//        val scanResult = IntentIntegrator.parseActivityResult(result.resultCode, result.data)
+//        if (scanResult != null) {
+//            if (scanResult.contents != null) {
+//                processScannedData(scanResult.contents)
+//            }
+//        }
     }
 
     override fun onCreateView(
@@ -113,17 +113,17 @@ class SnowbirdFragment : BaseFragment() {
     }
 
     private fun startQRScanner() {
-        val integrator = IntentIntegrator(requireActivity())
-        integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-        integrator.setPrompt("Scan QR Code")
-        integrator.setCameraId(0)  // Use the rear camera
-        integrator.setBeepEnabled(false)
-        integrator.setBarcodeImageEnabled(true)
-        integrator.setCaptureActivity(QRScannerActivity::class.java)
+//        val integrator = IntentIntegrator(requireActivity())
+//        integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
+//        integrator.setPrompt("Scan QR Code")
+//        integrator.setCameraId(0)  // Use the rear camera
+//        integrator.setBeepEnabled(false)
+//        integrator.setBarcodeImageEnabled(true)
+//        integrator.setCaptureActivity(QRScannerActivity::class.java)
+//
+//        val scanningIntent = integrator.createScanIntent()
 
-        val scanningIntent = integrator.createScanIntent()
-
-        qrCodeLauncher.launch(scanningIntent)
+//        qrCodeLauncher.launch(scanningIntent)
     }
 
     private fun processScannedData(uriString: String) {
