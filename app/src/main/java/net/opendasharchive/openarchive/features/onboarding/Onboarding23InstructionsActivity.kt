@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
@@ -119,6 +120,13 @@ class Onboarding23InstructionsActivity : BaseActivity() {
     }
 
     private fun done() {
+        // Hide keyboard before finishing activity
+        val imm = getSystemService(InputMethodManager::class.java)
+        currentFocus?.let { view ->
+            imm?.hideSoftInputFromWindow(view.windowToken, 0)
+            view.clearFocus()  // Remove focus from any input field
+        }
+
         Prefs.didCompleteOnboarding = true
         // We are moving space setup to MainActivity
         startActivity(Intent(this, MainActivity::class.java))

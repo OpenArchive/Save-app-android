@@ -139,7 +139,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_tor)?.isEnabled = false
 
         findPreference<Preference>(Prefs.THEME)?.setOnPreferenceChangeListener { _, newValue ->
-            Theme.set(Theme.get(newValue as? String))
+            Theme.set(requireActivity(), Theme.get(newValue as? String))
             true
         }
 
@@ -155,7 +155,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_dark_mode)?.setOnPreferenceChangeListener { pref, newValue ->
             val useDarkMode = newValue as Boolean
             val theme = if (useDarkMode) Theme.DARK else Theme.LIGHT
-            Theme.set(theme)
+            Theme.set(requireActivity(), theme)
             // Save the preference
             Prefs.putBoolean(getString(R.string.pref_key_use_dark_mode), useDarkMode)
             true
@@ -175,7 +175,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         getPrefByKey<Preference>(R.string.pref_key_app_version)?.summary = versionText
     }
 
-    private fun <T: Preference> getPrefByKey(key: Int): T? {
+    private fun <T : Preference> getPrefByKey(key: Int): T? {
         return findPreference(getString(key))
     }
 

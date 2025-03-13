@@ -235,7 +235,7 @@ private fun InternetArchiveLoginContent(
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = colorResource(R.color.colorOnBackground)
                 ),
-                enabled = !state.isBusy && state.isValid,
+                enabled = !state.isBusy,
                 shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
                 onClick = { dispatch(Action.Cancel) }) {
                 Text(stringResource(R.string.back))

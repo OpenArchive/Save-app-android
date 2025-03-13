@@ -128,4 +128,23 @@ class SpaceSetupActivity : BaseActivity() {
     override fun onSupportNavigateUp(): Boolean {
         return findNavController(R.id.space_nav_host_fragment).navigateUp() || super.onSupportNavigateUp()
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        // Clear any pending messages or callbacks in the main thread handler
+        window?.decorView?.handler?.removeCallbacksAndMessages(null)
+        binding.commonAppBar.commonToolbar.setNavigationOnClickListener(null)
+
+        // Remove navigation reference (if using Jetpack Navigation)
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.space_nav_host_fragment) as? NavHostFragment
+        navHostFragment?.let {
+            it.childFragmentManager.fragments.forEach { fragment ->
+                fragment.view?.let { view ->
+                    view.handler?.removeCallbacksAndMessages(null)
+                }
+            }
+        }
+    }
 }

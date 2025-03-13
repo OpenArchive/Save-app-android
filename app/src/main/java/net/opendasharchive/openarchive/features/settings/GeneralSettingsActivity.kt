@@ -113,7 +113,7 @@ class GeneralSettingsActivity: BaseActivity() {
             }
 
             findPreference<Preference>(Prefs.THEME)?.setOnPreferenceChangeListener { _, newValue ->
-                Theme.set(Theme.get(newValue as? String))
+                Theme.set(requireActivity(), Theme.get(newValue as? String))
 
                 true
             }

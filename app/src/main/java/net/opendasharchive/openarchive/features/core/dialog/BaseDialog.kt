@@ -226,6 +226,11 @@ class DialogStateManager(private val resourceProvider: ResourceProvider) : ViewM
      */
     fun requireResourceProvider(): ResourceProvider =
         resourceProvider
+
+
+    override fun onCleared() {
+        super.onCleared()
+    }
 }
 
 @Composable
