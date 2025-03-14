@@ -26,15 +26,10 @@ abstract class SwipeToDeleteCallback(context: Context?): ItemTouchHelper.Callbac
         recyclerView: RecyclerView,
         viewHolder: RecyclerView.ViewHolder
     ): Int {
-        if (isEditingAllowed()) {
-            return  makeMovementFlags(ItemTouchHelper.UP or ItemTouchHelper.DOWN,
-                ItemTouchHelper.START)
-        }
 
-        return 0
+            return  makeMovementFlags(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0)
+
     }
-
-    abstract fun isEditingAllowed(): Boolean
 
     override fun onChildDraw(
         c: Canvas,

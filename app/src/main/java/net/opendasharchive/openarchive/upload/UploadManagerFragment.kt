@@ -67,9 +67,6 @@ open class UploadManagerFragment : SKBottomSheetDialogFragment() {
         binding.uploadList.adapter = uploadMediaAdapter
 
         mItemTouchHelper = ItemTouchHelper(object : SwipeToDeleteCallback(context) {
-            override fun isEditingAllowed(): Boolean {
-                return uploadMediaAdapter.isEditMode == true
-            }
 
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -85,7 +82,7 @@ open class UploadManagerFragment : SKBottomSheetDialogFragment() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                uploadMediaAdapter.deleteItem(viewHolder.bindingAdapterPosition)
+                // Do nothing
             }
         })
 
@@ -116,11 +113,6 @@ open class UploadManagerFragment : SKBottomSheetDialogFragment() {
 
     open fun removeItem(mediaId: Long) {
         uploadMediaAdapter.removeItem(mediaId)
-    }
-
-    fun setEditMode(isEditMode: Boolean) {
-        uploadMediaAdapter.isEditMode = isEditMode
-        uploadMediaAdapter.notifyDataSetChanged()
     }
 
     open fun refresh() {
