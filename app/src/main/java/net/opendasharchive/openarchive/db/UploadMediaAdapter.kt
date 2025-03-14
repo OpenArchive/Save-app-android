@@ -26,8 +26,6 @@ class UploadMediaAdapter(
 
     var doImageFade = true
 
-    var isEditMode = true
-
     private var mActivity = WeakReference(activity)
 
     init {
@@ -78,7 +76,6 @@ class UploadMediaAdapter(
     override fun onBindViewHolder(holder: UploadMediaViewHolder, position: Int) {
         AppLogger.i("onBindViewHolder called for position $position")
         holder.bind(media[position], doImageFade)
-        holder.toggleEditMode(isEditMode)
     }
 
     override fun onBindViewHolder(
@@ -95,12 +92,10 @@ class UploadMediaAdapter(
 
                 "full" -> {
                     holder.bind(media[position], doImageFade)
-                    holder.toggleEditMode(isEditMode)
                 }
             }
         } else {
             holder.bind(media[position], doImageFade)
-            holder.toggleEditMode(isEditMode)
         }
     }
 
@@ -163,7 +158,6 @@ class UploadMediaAdapter(
     }
 
     fun onItemMove(oldPos: Int, newPos: Int) {
-        if (!isEditMode) return
 
         val mediaToMov = media.removeAt(oldPos)
         media.add(newPos, mediaToMov)

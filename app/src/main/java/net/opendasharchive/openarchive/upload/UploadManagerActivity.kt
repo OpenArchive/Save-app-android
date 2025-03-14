@@ -85,7 +85,7 @@ class UploadManagerActivity : BaseActivity() {
 
     private fun toggleEditMode() {
         mEditMode = !mEditMode
-        mFrag?.setEditMode(mEditMode)
+
         mFrag?.refresh()
 
         if (mEditMode) {

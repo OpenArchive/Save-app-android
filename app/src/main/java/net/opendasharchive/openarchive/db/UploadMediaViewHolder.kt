@@ -18,7 +18,6 @@ import net.opendasharchive.openarchive.databinding.RvMediaRowSmallBinding
 import net.opendasharchive.openarchive.fragments.VideoRequestHandler
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show
-import net.opendasharchive.openarchive.util.extensions.toggle
 import timber.log.Timber
 import java.io.InputStream
 
@@ -238,10 +237,5 @@ class UploadMediaViewHolder(
 
         binding.progressText.show(animate = true)
         binding.progressText.text = "$progressValue%"
-    }
-
-    fun toggleEditMode(isEdit: Boolean) {
-        binding.handle.toggle(isEdit)
-        binding.btnDelete.toggle(isEdit)
     }
 }
