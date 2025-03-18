@@ -98,7 +98,7 @@
     <string name="prefs_user_interface_title">Presentation</string>
     <string name="prefs_theme_title">Theme</string>
 <!--    <string name="prefs_theme_summary">Change Save\'s theme to light/dark</string>-->
-    <string name="prefs_theme_summary">Change Save&apos;s theme to light/dark</string>
+    <string name="prefs_theme_summary">Change Save’s theme to light/dark</string>
     <string name="prefs_theme_system">System Controlled</string>
     <string name="prefs_theme_light">Light</string>
     <string name="prefs_theme_dark">Dark</string>
