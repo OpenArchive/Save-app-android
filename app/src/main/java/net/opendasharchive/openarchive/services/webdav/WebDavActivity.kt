@@ -26,7 +26,7 @@ class WebDavActivity : BaseActivity() {
         mBinding = ActivityWebdavBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
-        setupToolbar(title = "Edit Private Server", showBackButton = true)
+        setupToolbar(title = getString(R.string.edit_private_server), showBackButton = true)
 
         mSpaceId = intent.getLongExtra(EXTRA_DATA_SPACE, WebDavFragment.ARG_VAL_NEW_SPACE)
 

@@ -265,7 +265,7 @@ class WebDavFragment : BaseFragment() {
             requireActivity().invalidateOptionsMenu() //Refresh menu to hide confirm btn again
             showSuccessDialog()
         } else {
-            Snackbar.make(binding.root, "Name cannot be empty", Snackbar.LENGTH_LONG).show()
+            Snackbar.make(binding.root, getString(R.string.empty_name_warning), Snackbar.LENGTH_LONG).show()
         }
     }
 
@@ -287,15 +287,15 @@ class WebDavFragment : BaseFragment() {
     private fun showUnsavedChangesDialog() {
         dialogManager.showDialog(DialogConfig(
             type = DialogType.Warning,
-            title = UiText.DynamicString("Unsaved changes!"),
-            message = UiText.DynamicString("Do you want to save"),
+            title = UiText.StringResource(R.string.unsaved_changes),
+            message = UiText.StringResource(R.string.do_you_want_to_save),
             icon = UiImage.DynamicVector(Icons.Default.Warning),
             positiveButton = ButtonData(
-                text = UiText.DynamicString("Save"),
+                text = UiText.StringResource(R.string.lbl_save),
                 action = { saveChanges() }
             ),
             neutralButton = ButtonData(
-                text = UiText.DynamicString("Discard"),
+                text = UiText.StringResource(R.string.lbl_discard),
                 action = { findNavController().popBackStack() }
             )
         ))

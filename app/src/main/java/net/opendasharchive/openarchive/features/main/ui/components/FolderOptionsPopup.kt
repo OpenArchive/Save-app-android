@@ -7,8 +7,10 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import net.opendasharchive.openarchive.R
 
 @Composable
 fun FolderOptionsPopup(
@@ -29,15 +31,15 @@ fun FolderOptionsPopup(
 
             DropdownMenuItem(
                 onClick = onRenameFolder,
-                text = { Text("Rename Folder") }
+                text = { Text(stringResource(R.string.lbl_rename_folder)) }
             )
             DropdownMenuItem(
                 onClick = onSelectMedia,
-                text = { Text("Select Media") }
+                text = { Text(stringResource(R.string.lbl_select_media)) }
             )
             DropdownMenuItem(
                 onClick = onRemoveFolder,
-                text = { Text("Remove Folder") }
+                text = { Text(stringResource(R.string.lbl_remove_folder)) }
             )
         }
     }

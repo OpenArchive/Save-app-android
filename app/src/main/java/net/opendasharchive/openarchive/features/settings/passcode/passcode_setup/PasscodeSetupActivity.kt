@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.compose.ui.res.stringResource
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.ComposeAppBar
@@ -25,7 +27,7 @@ class PasscodeSetupActivity : BaseActivity() {
                 DefaultScaffold(
                     topAppBar = {
                         ComposeAppBar(
-                            title = "Lock app with passcode",
+                            title = stringResource(R.string.passcode_lock_app),
                             onNavigationAction = {
                                 setResult(RESULT_CANCELED)
                                 finish()

@@ -127,10 +127,10 @@ class MainMediaFragment : BaseFragment() {
             if (projects.isNotEmpty()) {
                 getString(R.string.tap_to_add)
             } else {
-                "Tap the button below to add a folder"
+                getString(R.string.tap_to_add_folder)
             }
         } else {
-            "Tap the button below to add a server"
+            getString(R.string.tap_to_add_server)
         }
 
         binding.tvWelcomeDescr.text = text

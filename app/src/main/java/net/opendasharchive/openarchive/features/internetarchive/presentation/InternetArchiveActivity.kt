@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.dialog.DialogHost
@@ -38,7 +40,7 @@ class InternetArchiveActivity : AppCompatActivity() {
                 Scaffold(
                     topBar = {
                         ComposeAppBar(
-                            title = if (isNewSpace) "Internet Archive" else "Internet Archive",
+                            title = stringResource(R.string.internet_archive),
                             onNavigationAction = { onComplete(IAResult.Cancelled) }
                         )
                     }

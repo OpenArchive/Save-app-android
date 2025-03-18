@@ -36,6 +36,16 @@
 
     <!-- MainActivity -->
     <string name="servers">Servers</string>
+    <string name="add_server">Add Server</string>
+
+    <string name="lbl_rename_folder">Rename Folder</string>
+    <string name="lbl_select_media">Select Media</string>
+    <string name="lbl_remove_folder">Remove Folder</string>
+
+    <string name="folder_empty_warning">Folder name cannot be empty</string>
+    <string name="folder_rename_success">Folder renamed</string>
+    <string name="folder_not_found">Folder not found</string>
+    <string name="folder_removed">Folder removed</string>
 
     <!-- MainFragment -->
 
@@ -107,6 +117,9 @@
     <string name="prefs_share_proofmode_summary">Share ProofMode Public Key</string>
 
 
+    <!-- Strings for ProofMode Activity -->
+    <string name="phone_permission_required">Phone permission required</string>
+
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
@@ -142,9 +155,26 @@
 
     <string name="action_upload">Upload</string>
 
+    <!-- Passcode Settings -->
+    <string name="multiple_failed_attempts_message">App is locked due to multiple failed attempts. Please try again later.</string>
+    <string name="passcode_not_set">Passcode not set</string>
+    <string name="passcode_remaining_attempts">Incorrect passcode. %1$d attempts remaining.</string>
+    <string name="passcode_too_many_failed_attempts">Too many failed attempts. App is locked.</string>
+
+    <string name="passcode_lock_app">Lock app with passcode</string>
+    <string name="enter_passcode">Enter Your Passcode</string>
+    <string name="passcode_do_not_match">Passcodes do not match. Try again.</string>
+
+    <string name="confirm_passcode">Confirm Passcode</string>
+    <string name="set_passcode">Set Passcode</string>
+    <string name="set_passcode_warning">Make sure you remember this pin. If you forget it, you will need to reset the app, and all data will be erased.</string>
+
+
     <!-- Strings related to Settings -->
 
-    <string name="tap_to_add">Tap the button below\nto add media</string>
+    <string name="tap_to_add">Tap the button below to add media</string>
+    <string name="tap_to_add_folder">Tap the button below to add a folder</string>
+    <string name="tap_to_add_server">Tap the button below to add a server</string>
     <string name="to_get_started_connect_to_a_server_to_store_your_media">To get started, connect to a server to store your media.</string>
     <string name="to_get_started_more_hint_dweb">You can add multiple private servers and\none IA or DWeb server account at any time.</string>
     <string name="to_get_started_more_hint">You can add multiple private servers and\none IA account at any time.</string>
@@ -202,6 +232,22 @@
     <string name="unsecured_internet_connection">Detected an unsecured internet connection</string>
     <string name="version__">Version %s</string>
 
+    <!-- WebDAV related strings -->
+    <string name="private_server">Private Server</string>
+    <string name="edit_private_server">Edit Private Server</string>
+    <string name="empty_name_warning">Name cannot be empty</string>
+
+    <string name="unsaved_changes">Unsaved changes!</string>
+    <string name="do_you_want_to_save">Do you want to save</string>
+    <string name="lbl_save">Save</string>
+    <string name="lbl_discard">Discard</string>
+
+    <!-- WebDAV setup License -->
+    <string name="name_your_server">Name your server and choose a license</string>
+
+    <!-- Upload Manager Bottom Sheet -->
+    <string name="edit_queue">Edit Queue</string>
+    <string name="uploading_is_paused">Uploading is paused</string>
 
     <!-- Clean Insights measurement -->
     <string name="server_name_optional">Server Name (Optional)</string>
@@ -218,7 +264,7 @@
     <string name="create">Create</string>
     <string name="add">Add</string>
     <string name="no_more_folders">No (more) folders</string>
-    <string name="private_server">Private Server</string>
+
     <string name="upload_to_dropbox">Upload to Dropbox</string>
     <string name="sign_in_or_create_an_account_with_dropbox">Sign in or create an account with Dropbox</string>
     <string name="authenticate">Authenticate</string>
@@ -309,7 +355,7 @@
     <string name="retry">Retry</string>
 
     <string name="edit_media">Edit Media</string>
-    <string name="uploading_is_paused">Uploading is paused</string>
+
     <string name="add_media_using">Add Media using:</string>
     <string name="camera">Camera</string>
     <string name="photo_gallery">Photo Gallery</string>
@@ -396,4 +442,5 @@
     <!-- Create New Folder -->
     <string name="create_folder_ok_message">You have added a folder successfully</string>
     <string name="msg_edit_server_success">You have changed your server settings successfully.</string>
+    <string name="expand">Expand</string>
 </resources>

@@ -183,7 +183,7 @@ complexity:
   ReplaceSafeCallChainWithRun:
     active: false
   StringLiteralDuplication:
-    active: false
+    active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**']
     threshold: 3
     ignoreAnnotation: true
