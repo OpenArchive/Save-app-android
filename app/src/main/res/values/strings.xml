@@ -232,6 +232,8 @@
     <string name="unsecured_internet_connection">Detected an unsecured internet connection</string>
     <string name="version__">Version %s</string>
 
+    <!-- Space Setup -->
+    <string name="space_setup_title">Select a Server</string>
     <!-- WebDAV related strings -->
     <string name="private_server">Private Server</string>
     <string name="edit_private_server">Edit Private Server</string>
@@ -244,6 +246,9 @@
 
     <!-- WebDAV setup License -->
     <string name="name_your_server">Name your server and choose a license</string>
+
+    <!-- Space Setup Success -->
+    <string name="space_setup_success_title">Setup Complete</string>
 
     <!-- Upload Manager Bottom Sheet -->
     <string name="edit_queue">Edit Queue</string>

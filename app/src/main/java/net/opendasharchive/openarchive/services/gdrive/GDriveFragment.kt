@@ -161,5 +161,5 @@ class GDriveFragment : BaseFragment() {
         }
     }
 
-    override fun getToolbarTitle() = "Google Drive"
+    override fun getToolbarTitle() = getString(R.string.gdrive)
 }

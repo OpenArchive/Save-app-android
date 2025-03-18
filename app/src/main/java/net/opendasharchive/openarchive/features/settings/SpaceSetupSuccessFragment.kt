@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentSpaceSetupSuccessBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.main.MainActivity
@@ -60,6 +61,6 @@ class SpaceSetupSuccessFragment : BaseFragment() {
             }
     }
 
-    override fun getToolbarTitle() = "Setup Complete"
+    override fun getToolbarTitle() = getString(R.string.space_setup_success_title)
     override fun shouldShowBackButton() = false
 }
