@@ -20,6 +20,7 @@ import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.fragments.VideoRequestHandler
 import net.opendasharchive.openarchive.util.AlertHelper
 import net.opendasharchive.openarchive.util.Prefs
+import net.opendasharchive.openarchive.util.createSoundFileFromStream
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show
 import net.opendasharchive.openarchive.util.extensions.toggle
@@ -311,14 +312,14 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
 
         if (media?.mimeType?.startsWith("image") == true) {
             Glide.with(this)
-                .load(media.fileUri)
+                .load(media.getFileUri(this))
                 .into(imageView)
         }
         else if (media?.mimeType?.startsWith("video") == true) {
             Picasso.Builder(this)
                 .addRequestHandler(VideoRequestHandler(this))
                 .build()
-                .load(VideoRequestHandler.SCHEME_VIDEO + ":" + media.originalFilePath)
+                .load(media.getFileUri(this))
                 ?.fit()
                 ?.centerCrop()
                 ?.into(imageView)
@@ -327,11 +328,19 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
             imageView.setImageResource(R.drawable.audio_waveform)
 
             if (waveform != null) {
-                val soundFile = MediaViewHolder.soundCache[media.originalFilePath]
-                if (soundFile != null) {
-                    waveform.setAudioFile(soundFile)
-                    waveform.show()
-                    imageView.hide()
+                media.getFileUri(this).toString().let { uriKey -> // ✅ Store URI once
+                    var soundFile = MediaViewHolder.soundCache[uriKey]
+
+                    if (soundFile == null) {
+                        soundFile = createSoundFileFromStream(this, media.fileInputStream(this))
+                        soundFile?.let { MediaViewHolder.soundCache[uriKey] = it }
+                    }
+
+                    soundFile?.let {
+                        waveform.setAudioFile(it)
+                        waveform.show()
+                        imageView.hide()
+                    }
                 }
             }
         }

@@ -5,92 +5,89 @@ import android.net.Uri
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.services.Conduit
 import net.opendasharchive.openarchive.services.SaveClient
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import timber.log.Timber
 import java.io.File
 import java.io.IOException
+import java.io.InputStream
 
 class IaConduit(media: Media, context: Context) : Conduit(media, context) {
-
 
     companion object {
         const val ARCHIVE_BASE_URL = "https://archive.org/"
         const val NAME = "Internet Archive"
-
         const val ARCHIVE_API_ENDPOINT = "https://s3.us.archive.org"
-        private const val ARCHIVE_DETAILS_ENDPOINT = "https://archive.org/details/"
 
         private fun getSlug(title: String): String {
             return title.replace("[^A-Za-z\\d]".toRegex(), "-")
         }
 
         val textMediaType = "texts".toMediaTypeOrNull()
-
         private val gson = GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
     }
 
     override suspend fun upload(): Boolean {
         sanitize()
 
-        try {
-            val mimeType = mMedia.mimeType
-
+        return try {
             val client = SaveClient.get(mContext)
-
             val fileName = getUploadFileName(mMedia, true)
             val metaJson = gson.toJson(mMedia)
-//            val proof = getProof()
 
             if (mMedia.serverUrl.isBlank()) {
-                // TODO this should make sure we aren't accidentally using one of archive.org's metadata fields by accident
                 val slug = getSlug(mMedia.title)
                 val newIdentifier = "$slug-${Util.RandomString(4).nextString()}"
-                // create an identifier for the upload
                 mMedia.serverUrl = newIdentifier
             }
 
-            // upload content synchronously for progress
-            client.uploadContent(fileName, mimeType)
+            // **Decrypt the file before uploading**
+            val decryptedFile = decryptFileForUpload(mMedia)
 
-            // upload metadata and proofs async, and report failures
+            if (decryptedFile == null) {
+                Timber.e("Decryption failed, cannot upload ${mMedia.title}")
+                return false
+            }
+
+            // Upload content synchronously using the decrypted file
+            client.uploadContent(decryptedFile, fileName, mMedia.mimeType)
+
+            // Upload metadata
             client.uploadMetaData(metaJson, fileName)
 
-            /// Upload ProofMode metadata, if enabled and successfully created.
-//            for (file in proof) {
-//                client.uploadProofFiles(file)
-//            }
+            // Delete decrypted file after upload
+            decryptedFile.delete()
 
             jobSucceeded()
-
-            return true
+            true
         } catch (e: Throwable) {
             jobFailed(e)
+            false
+        }
+    }
+
+    private suspend fun OkHttpClient.uploadContent(decryptedFile: File, fileName: String, mimeType: String) {
+        val url = "${ARCHIVE_API_ENDPOINT}/${mMedia.serverUrl}/$fileName"
+
+        // Ensure the file exists before attempting to upload
+        if (!decryptedFile.exists() || decryptedFile.length() == 0L) {
+            AppLogger.e("Upload failed: Decrypted file is missing or empty for media ${mMedia.id}")
+            return
         }
 
-        return false
-    }
-
-    override suspend fun createFolder(url: String) {
-        // Ignored. Not used here.
-    }
-
-    private suspend fun OkHttpClient.uploadContent(fileName: String, mimeType: String) {
-        val mediaUri = mMedia.originalFilePath
-
-        val url = "${ARCHIVE_API_ENDPOINT}/${mMedia.serverUrl}/$fileName"
+        val decryptedUri = mMedia.getFileUri(mContext) // ✅ Use content:// URI instead of file://
 
         val requestBody = RequestBodyUtil.create(
             mContext.contentResolver,
-            Uri.parse(mediaUri),
-            mMedia.contentLength,
-            mimeType.toMediaTypeOrNull(),
-            createListener(cancellable = { !mCancelled }, onProgress = {
-                jobProgress(it)
-            })
+            decryptedUri, // ✅ Correctly passing a content URI instead of file://
+            decryptedFile.length(),
+            mimeType.toMediaTypeOrNull() ?: "application/octet-stream".toMediaType(),
+            createListener(cancellable = { !mCancelled }, onProgress = { jobProgress(it) })
         )
 
         val request = Request.Builder()
@@ -99,7 +96,22 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
             .headers(mainHeader())
             .build()
 
-        execute(request)
+        try {
+            val response = newCall(request).execute() // ✅ Store the response
+
+            if (response.isSuccessful) { // ✅ Now isSuccessful works
+                AppLogger.i("Upload successful for media ${mMedia.id}")
+
+                // ✅ Delete decrypted file only after successful upload
+                decryptedFile.delete()
+            } else {
+                AppLogger.e("Upload failed with status ${response.code} for media ${mMedia.id}")
+            }
+
+            response.close() // ✅ Always close response to avoid memory leaks
+        } catch (e: Exception) {
+            AppLogger.e("Upload failed due to an exception: ${e.message}")
+        }
     }
 
     @Throws(IOException::class)
@@ -122,25 +134,36 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
         enqueue(request)
     }
 
-    /// upload proof mode
-    @Throws(IOException::class)
-    private fun OkHttpClient.uploadProofFiles(uploadFile: File) {
-        val requestBody = RequestBodyUtil.create(
-            mContext.contentResolver,
-            Uri.fromFile(uploadFile),
-            uploadFile.length(),
-            textMediaType, createListener(cancellable = { !mCancelled })
-        )
+    override suspend fun createFolder(url: String) {
+        // Not used for Internet Archive
+    }
 
-        val url = "$ARCHIVE_API_ENDPOINT/${mMedia.serverUrl}/${uploadFile.name}"
+    /**
+     * Returns a **decrypted file** that can be uploaded.
+     * The file is stored temporarily and deleted after use.
+     */
+    private suspend fun decryptFileForUpload(media: Media): File? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val tempFile = File.createTempFile("decrypted_", ".tmp", mContext.cacheDir)
+                val inputStream: InputStream? = media.fileInputStream(mContext)
 
-        val request = Request.Builder()
-            .url(url)
-            .put(requestBody)
-            .headers(metadataHeader())
-            .build()
+                if (inputStream == null) {
+                    Timber.e("Decryption failed for ${media.title}, input stream is null.")
+                    return@withContext null
+                }
 
-        enqueue(request)
+                tempFile.outputStream().use { output ->
+                    inputStream.copyTo(output)
+                }
+
+                inputStream.close()
+                tempFile
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to decrypt file for upload")
+                null
+            }
+        }
     }
 
     private fun mainHeader(): Headers {
@@ -149,12 +172,11 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
             .add("x-archive-auto-make-bucket", "1")
             .add("x-amz-auto-make-bucket", "1")
             .add("x-archive-interactive-priority", "1")
-            .add("x-archive-meta-language", "eng") // FIXME set based on locale or selected.
+            .add("x-archive-meta-language", "eng") // TODO: Set dynamically
             .add("Authorization", "LOW " + mMedia.space?.username + ":" + mMedia.space?.password)
 
-        val author = mMedia.author
-        if (author.isNotEmpty()) {
-            builder.add("x-archive-meta-author", author)
+        mMedia.author.takeIf { it.isNotEmpty() }?.let {
+            builder.add("x-archive-meta-author", it)
         }
 
         if (mMedia.contentLength > 0) {
@@ -168,52 +190,39 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
         }
         builder.add("x-archive-meta-collection", collection)
 
-        if (mMedia.mimeType.isNotEmpty()) {
-            val mediaType = when {
-                mMedia.mimeType.startsWith("image") -> "image"
-                mMedia.mimeType.startsWith("video") -> "movies"
-                mMedia.mimeType.startsWith("audio") -> "audio"
-                else -> "data"
-            }
-            builder.add("x-archive-meta-mediatype", mediaType)
+        val mediaType = when {
+            mMedia.mimeType.startsWith("image") -> "image"
+            mMedia.mimeType.startsWith("video") -> "movies"
+            mMedia.mimeType.startsWith("audio") -> "audio"
+            else -> "data"
+        }
+        builder.add("x-archive-meta-mediatype", mediaType)
+
+        mMedia.location.takeIf { it.isNotEmpty() }?.let {
+            builder.add("x-archive-meta-location", it)
         }
 
-        if (mMedia.location.isNotEmpty()) {
-            builder.add("x-archive-meta-location", mMedia.location)
+        mMedia.tags.takeIf { it.isNotEmpty() }?.let {
+            builder.add("x-archive-meta-subject", it)
         }
 
-        if (mMedia.tags.isNotEmpty()) {
-            val tags = mMedia.tagSet
-            tags.add(mContext.getString(R.string.default_tags))
-            mMedia.tagSet = tags
-
-            builder.add("x-archive-meta-subject", mMedia.tags)
+        mMedia.description.takeIf { it.isNotEmpty() }?.let {
+            builder.add("x-archive-meta-description", it)
         }
 
-        if (mMedia.description.isNotEmpty()) {
-            builder.add("x-archive-meta-description", mMedia.description)
+        mMedia.title.takeIf { it.isNotEmpty() }?.let {
+            builder.add("x-archive-meta-title", it)
         }
 
-        if (mMedia.title.isNotEmpty()) {
-            builder.add("x-archive-meta-title", mMedia.title)
-        }
-
-        var licenseUrl = mMedia.licenseUrl
-
-        if (licenseUrl.isNullOrEmpty()) {
-            licenseUrl = "https://creativecommons.org/licenses/by/4.0/"
-        }
-
-        builder.add("x-archive-meta-licenseurl", licenseUrl)
+        builder.add("x-archive-meta-licenseurl", mMedia.licenseUrl ?: "https://creativecommons.org/licenses/by/4.0/")
 
         return builder.build()
     }
 
-    /// headers for meta-data and proof mode
     private fun metadataHeader(): Headers {
         return Headers.Builder()
             .add("x-amz-auto-make-bucket", "1")
-            .add("x-archive-meta-language", "eng") // FIXME set based on locale or selected
+            .add("x-archive-meta-language", "eng")
             .add("Authorization", "LOW " + mMedia.space?.username + ":" + mMedia.space?.password)
             .add("x-archive-meta-mediatype", "texts")
             .add("x-archive-meta-collection", "opensource")
@@ -222,28 +231,24 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
 
     @Throws(Exception::class)
     private suspend fun OkHttpClient.execute(request: Request) = withContext(Dispatchers.IO) {
-        val result = newCall(request)
-            .execute()
-
-        if (result.isSuccessful.not()) {
-            throw RuntimeException("${result.code}: ${result.message}")
+        val response = newCall(request).execute()
+        if (!response.isSuccessful) {
+            throw IOException("Upload failed: ${response.code} - ${response.message}")
         }
     }
 
     @Throws(Exception::class)
     private fun OkHttpClient.enqueue(request: Request) {
-        newCall(request)
-            .enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    jobFailed(e)
-                }
+        newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                jobFailed(e)
+            }
 
-                override fun onResponse(call: Call, response: Response) {
-                    if (!response.isSuccessful) {
-                        jobFailed(Exception("${response.code}: ${response.message}"))
-                    }
+            override fun onResponse(call: Call, response: Response) {
+                if (!response.isSuccessful) {
+                    jobFailed(Exception("Upload failed: ${response.code} - ${response.message}"))
                 }
-
-            })
+            }
+        })
     }
 }

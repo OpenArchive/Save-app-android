@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import androidx.viewbinding.ViewBinding
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.github.derlio.waveform.SimpleWaveformView
 import com.github.derlio.waveform.soundfile.SoundFile
 import com.google.android.material.progressindicator.CircularProgressIndicator
@@ -209,7 +210,6 @@ abstract class MediaViewHolder(protected val binding: ViewBinding) :
         .addRequestHandler(VideoRequestHandler(mContext))
         .build()
 
-
     @SuppressLint("SetTextI18n")
     fun bind(media: Media? = null, batchMode: Boolean = false, doImageFade: Boolean = true) {
         AppLogger.i("Binding media item ${media?.id} with status ${media?.sStatus} and progress ${media?.uploadPercentage}")
@@ -225,101 +225,91 @@ abstract class MediaViewHolder(protected val binding: ViewBinding) :
 
         image.alpha = if (media?.sStatus == Media.Status.Uploaded || !doImageFade) 1f else 0.5f
 
-        if (media?.mimeType?.startsWith("image") == true) {
-            val progress = CircularProgressDrawable(mContext)
-            progress.strokeWidth = 5f
-            progress.centerRadius = 30f
-            progress.start()
+        media?.let {
+            val fileUri = it.getFileUri(mContext) // ✅ Securely get URI
 
-            Glide.with(mContext)
-                .load(media.fileUri)
-                .placeholder(progress)
-                .fitCenter()
-                .into(image)
+            when {
+                it.mimeType.startsWith("image") -> {
+                    val progress = CircularProgressDrawable(mContext)
+                    progress.strokeWidth = 5f
+                    progress.centerRadius = 30f
+                    progress.start()
 
-            image.show()
-            waveform.hide()
-            videoIndicator?.hide()
-        } else if (media?.mimeType?.startsWith("video") == true) {
-            mPicasso.load(VideoRequestHandler.SCHEME_VIDEO + ":" + media.originalFilePath)
-                .fit()
-                .centerCrop()
-                .into(image)
+                    Glide.with(mContext)
+                        .load(fileUri)
+                        .placeholder(progress)
+                        .diskCacheStrategy(DiskCacheStrategy.NONE) // ✅ Prevents caching issues
+                        .fitCenter()
+                        .into(image)
 
-            image.show()
-            waveform.hide()
-            videoIndicator?.show()
-        } else if (media?.mimeType?.startsWith("audio") == true) {
-            videoIndicator?.hide()
+                    image.show()
+                    waveform.hide()
+                    videoIndicator?.hide()
+                }
+                it.mimeType.startsWith("video") -> {
+                    mPicasso.load(VideoRequestHandler.SCHEME_VIDEO + ":" + fileUri)
+                        .fit()
+                        .centerCrop()
+                        .into(image)
 
-            val soundFile = soundCache[media.originalFilePath]
+                    image.show()
+                    waveform.hide()
+                    videoIndicator?.show()
+                }
+                it.mimeType.startsWith("audio") -> {
+                    videoIndicator?.hide()
 
-            if (soundFile != null) {
-                image.hide()
-                waveform.setAudioFile(soundFile)
-                waveform.show()
-            } else {
-                image.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.no_thumbnail))
-                image.show()
-                waveform.hide()
-
-                CoroutineScope(Dispatchers.IO).launch {
-                    @Suppress("NAME_SHADOWING")
-                    val soundFile = try {
-                        SoundFile.create(media.originalFilePath) {
-                            return@create true
-                        }
-                    } catch (e: Throwable) {
-                        Timber.d(e)
-
-                        null
-                    }
+                    val soundFile = soundCache[fileUri.toString()]
 
                     if (soundFile != null) {
-                        soundCache[media.originalFilePath] = soundFile
+                        image.hide()
+                        waveform.setAudioFile(soundFile)
+                        waveform.show()
+                    } else {
+                        image.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.no_thumbnail))
+                        image.show()
+                        waveform.hide()
 
-                        MainScope().launch {
-                            waveform.setAudioFile(soundFile)
-                            image.hide()
-                            waveform.show()
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val soundFile = try {
+                                SoundFile.create(fileUri.toString()) { true }
+                            } catch (e: Throwable) {
+                                Timber.d(e)
+                                null
+                            }
+
+                            if (soundFile != null) {
+                                soundCache[fileUri.toString()] = soundFile
+
+                                MainScope().launch {
+                                    waveform.setAudioFile(soundFile)
+                                    image.hide()
+                                    waveform.show()
+                                }
+                            }
                         }
                     }
                 }
+                else -> {
+                    image.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.no_thumbnail))
+                    image.show()
+                    waveform.hide()
+                    videoIndicator?.hide()
+                }
             }
-        } else {
-            image.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.no_thumbnail))
-            image.show()
-            waveform.hide()
-            videoIndicator?.hide()
         }
 
         if (media != null) {
-            val file = media.file
+            val inputStream = media.fileInputStream(mContext)
 
-            if (file.exists()) {
-                fileInfo?.text = Formatter.formatShortFileSize(mContext, file.length())
-            } else {
-                if (media.contentLength == -1L) {
-                    var iStream: InputStream? = null
-                    try {
-                        iStream = mContext.contentResolver.openInputStream(media.fileUri)
-
-                        if (iStream != null) {
-                            media.contentLength = iStream.available().toLong()
-                            media.save()
-                        }
-                    } catch (e: Throwable) {
-                        Timber.e(e)
-                    } finally {
-                        iStream?.close()
-                    }
+            fileInfo?.text = when {
+                media.contentLength > 0 -> Formatter.formatShortFileSize(mContext, media.contentLength)
+                inputStream != null -> {
+                    val size = inputStream.available().toLong()
+                    inputStream.close()
+                    Formatter.formatShortFileSize(mContext, size)
                 }
-
-                fileInfo?.text = if (media.contentLength > 0) {
-                    Formatter.formatShortFileSize(mContext, media.contentLength)
-                } else {
-                    media.formattedCreateDate
-                }
+                else -> media.formattedCreateDate
             }
 
             fileInfo?.show()
@@ -419,11 +409,7 @@ abstract class MediaViewHolder(protected val binding: ViewBinding) :
         }
 
         AppLogger.i("Updating progressText to $progressValue%")
-        if (progressText == null) {
-            AppLogger.e("progressText is null")
-        } else {
-            progressText?.show(animate = true)
-            progressText?.text = "$progressValue%"
-        }
+        progressText?.show(animate = true)
+        progressText?.text = "$progressValue%"
     }
 }

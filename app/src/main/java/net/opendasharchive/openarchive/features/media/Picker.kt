@@ -20,12 +20,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
-import com.esafirm.imagepicker.features.ImagePickerConfig
-import com.esafirm.imagepicker.features.ImagePickerLauncher
-import com.esafirm.imagepicker.features.ImagePickerMode
-import com.esafirm.imagepicker.features.ImagePickerSavePath
-import com.esafirm.imagepicker.features.ReturnMode
-import com.esafirm.imagepicker.features.registerImagePicker
+import com.esafirm.imagepicker.features.*
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -50,68 +45,54 @@ object Picker {
         completed: (List<Media>) -> Unit
     ): MediaLaunchers {
 
-        val mpl = activity.registerImagePicker { result ->
-
+        val imagePickerLauncher = activity.registerImagePicker { result ->
             val snackbar = showProgressSnackBar(activity, root, activity.getString(R.string.importing_media))
 
             activity.lifecycleScope.launch(Dispatchers.IO) {
-                val media = import(activity, project(), result.map { it.uri })
-
+                val mediaList = import(activity, project(), result.map { it.uri })
                 activity.lifecycleScope.launch(Dispatchers.Main) {
                     snackbar.dismiss()
-                    completed(media)
+                    completed(mediaList)
                 }
             }
         }
 
-        val fpl = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val filePickerLauncher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode != AppCompatActivity.RESULT_OK) return@registerForActivityResult
 
             val uri = result.data?.data ?: return@registerForActivityResult
-
             val snackbar = showProgressSnackBar(activity, root, activity.getString(R.string.importing_media))
 
             activity.lifecycleScope.launch(Dispatchers.IO) {
-                val files = import(activity, project(), listOf(uri))
-
+                val mediaList = import(activity, project(), listOf(uri))
                 activity.lifecycleScope.launch(Dispatchers.Main) {
                     snackbar.dismiss()
-                    completed(files)
+                    completed(mediaList)
                 }
             }
         }
 
-        val cpl = activity.registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        val cameraLauncher = activity.registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
             if (success) {
                 currentPhotoUri?.let { uri ->
-
                     val snackbar = showProgressSnackBar(activity, root, activity.getString(R.string.importing_media))
-
                     activity.lifecycleScope.launch(Dispatchers.IO) {
-                        val media = import(activity, project(), listOf(uri))
-
+                        val mediaList = import(activity, project(), listOf(uri))
                         activity.lifecycleScope.launch(Dispatchers.Main) {
                             snackbar.dismiss()
-                            completed(media)
+                            completed(mediaList)
                         }
                     }
                 }
             }
         }
 
-        return MediaLaunchers(
-            imagePickerLauncher = mpl,
-            filePickerLauncher = fpl,
-            cameraLauncher = cpl
-        )
+        return MediaLaunchers(imagePickerLauncher, filePickerLauncher, cameraLauncher)
     }
 
     fun pickMedia(activity: Activity, launcher: ImagePickerLauncher) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (needAskForPermission(activity, arrayOf(
-                    Manifest.permission.READ_MEDIA_IMAGES,
-                    Manifest.permission.READ_MEDIA_VIDEO))
-            ) {
+            if (!hasMediaPermissions(activity)) {
                 return
             }
         }
@@ -124,7 +105,7 @@ object Picker {
             isIncludeVideo = true
             arrowColor = Color.WHITE
             limit = 99
-            savePath = ImagePickerSavePath(Environment.getExternalStorageDirectory().path, false)
+            savePath = ImagePickerSavePath(activity.getExternalFilesDir(Environment.DIRECTORY_PICTURES)?.absolutePath ?: "", false)
         }
 
         launcher.launch(config)
@@ -143,77 +124,59 @@ object Picker {
         type = "application/*"
     }
 
-    private fun needAskForPermission(activity: Activity, permissions: Array<String>): Boolean {
-        var needAsk = false
-
-        for (permission in permissions) {
-            needAsk = ContextCompat.checkSelfPermission(
-                activity,
-                permission
-            ) != PackageManager.PERMISSION_GRANTED
-                    && ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)
-
-            if (needAsk) break
+    private fun hasMediaPermissions(activity: Activity): Boolean {
+        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            arrayOf(
+                Manifest.permission.READ_MEDIA_IMAGES,
+                Manifest.permission.READ_MEDIA_VIDEO
+            )
+        } else {
+            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE) // ✅ Use for API 29-32
         }
 
-        if (!needAsk) return false
+        if (permissions.all { ContextCompat.checkSelfPermission(activity, it) == PackageManager.PERMISSION_GRANTED }) {
+            return true
+        }
 
         ActivityCompat.requestPermissions(activity, permissions, 2)
-
-        return true
+        return false
     }
 
-    private fun import(context: Context, project: Project?, uris: List<Uri>): ArrayList<Media> {
-        val result = ArrayList<Media>()
-
-        for (uri in uris) {
+    private fun import(context: Context, project: Project?, uris: List<Uri>): List<Media> {
+        return uris.mapNotNull { uri ->
             try {
-                val media = import(context, project, uri)
-                if (media != null) result.add(media)
+                import(context, project, uri)
             } catch (e: Exception) {
-                AppLogger.e( "Error importing media", e)
+                AppLogger.e("Error importing media", e)
+                null
             }
         }
-
-        return result
     }
 
     fun import(context: Context, project: Project?, uri: Uri): Media? {
-        @Suppress("NAME_SHADOWING")
-        val project = project ?: return null
+        project ?: return null
 
-        val title = Utility.getUriDisplayName(context, uri) ?: ""
-        val file = Utility.getOutputMediaFileByCache(context, title)
+        val title = Utility.getUriDisplayName(context, uri) ?: return null
+        val file = Utility.getOutputMediaFileByCache(context, title) ?: return null
 
-        if (!Utility.writeStreamToFile(context.contentResolver.openInputStream(uri), file)) {
+        if (!Utility.writeStreamToFile(context, context.contentResolver.openInputStream(uri), file)) {
             return null
         }
 
-        // create media
         val media = Media()
+        val collection = project.openCollection
 
-        val coll = project.openCollection
-
-        media.collectionId = coll.id
+        media.collectionId = collection.id
 
         val fileSource = uri.path?.let { File(it) }
-        var createDate = Date()
+        val createDate = fileSource?.takeIf { it.exists() }?.let { Date(it.lastModified()) } ?: Date()
 
-        if (fileSource?.exists() == true) {
-            createDate = Date(fileSource.lastModified())
-            media.contentLength = fileSource.length()
-        }
-        else {
-            media.contentLength = file?.length() ?: 0
-        }
-
-        media.originalFilePath = Uri.fromFile(file).toString()
+        media.encryptedFilePath = file.absolutePath
         media.mimeType = Utility.getMimeType(context, uri) ?: ""
         media.createDate = createDate
-        media.updateDate = media.createDate
+        media.updateDate = createDate
         media.sStatus = Media.Status.Local
-        media.mediaHashString =
-            HashUtils.getSHA256FromFileContent(context.contentResolver.openInputStream(uri))
+        media.mediaHashString = HashUtils.getSHA256FromFileContent(context.contentResolver.openInputStream(uri))
         media.projectId = project.id
         media.title = title
         media.save()
@@ -222,16 +185,11 @@ object Picker {
     }
 
     fun takePhoto(context: Context, launcher: ActivityResultLauncher<Uri>) {
-        val file = Utility.getOutputMediaFileByCache(context, "IMG_${System.currentTimeMillis()}.jpg")
+        val file = Utility.getOutputMediaFileByCache(context, "IMG_${System.currentTimeMillis()}.jpg") ?: return
 
-        file?.let {
-            val uri = FileProvider.getUriForFile(
-                context, "${context.packageName}.provider",
-                it
-            )
-            currentPhotoUri = uri
-            launcher.launch(uri)
-        }
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+        currentPhotoUri = uri
+        launcher.launch(uri)
     }
 
     @SuppressLint("RestrictedApi")

@@ -57,18 +57,20 @@ abstract class Conduit(
         Prefs.proofModeNetwork = false
 
         try {
+            val fileUri = mMedia.getFileUri(mContext) // ✅ Store it once
+
             var hash = ProofMode.generateProof(
                 mContext,
-                Uri.parse(mMedia.originalFilePath),
+                fileUri,
                 mMedia.mediaHashString
             )
 
             if (hash == null) {
                 val proofHash = HashUtils.getSHA256FromFileContent(
-                    mContext.contentResolver.openInputStream(mMedia.fileUri)
+                    mContext.contentResolver.openInputStream(fileUri)
                 )
 
-                hash = ProofMode.generateProof(mContext, mMedia.fileUri, proofHash)
+                hash = ProofMode.generateProof(mContext, fileUri, proofHash)
             }
 
             return ProofMode.getProofDir(mContext, hash).listFiles() ?: emptyArray()
@@ -124,10 +126,16 @@ abstract class Conduit(
 
     fun jobProgress(uploadedBytes: Long) {
         mMedia.progress = uploadedBytes
-        val progress = if (uploadedBytes > 0) (uploadedBytes.toFloat() / mMedia.contentLength * 100).toInt() else 0
-        if (progress > (lastReportedProgress ?: 0) + 1) {
+
+        // Ensure contentLength is valid before calculating progress
+        val totalSize = mMedia.contentLength.takeIf { it > 0 } ?: return
+
+        val progress = ((uploadedBytes.toFloat() / totalSize) * 100).toInt().coerceIn(0, 100)
+
+        if (progress > (lastReportedProgress ?: 0) + 1) { // ✅ Avoid redundant updates
             lastReportedProgress = progress
-            AppLogger.i("Media Item ${mMedia.id} progress: $progress/100")
+            AppLogger.i("Media Item ${mMedia.id} progress: $progress%")
+
             BroadcastManager.postProgress(
                 context = mContext,
                 collectionId = mMedia.collectionId,
@@ -137,14 +145,23 @@ abstract class Conduit(
         }
     }
 
+
     /**
      * workaround to deal with some quirks in our data model?
      *
      * reads some values from mMedia and copies them to some other fields of mMedia
      */
     protected fun sanitize() {
-        val length = mMedia.file.length()
-        if (length > 0) mMedia.contentLength = length
+        if (mMedia.contentLength <= 0) { // ✅ Only fetch if not already set
+            val decryptedUri = mMedia.getFileUri(mContext)
+            val decryptedFile = File(decryptedUri.path!!) // ✅ Get actual file path
+            val length = if (decryptedFile.exists()) decryptedFile.length() else -1L
+
+            if (length > 0) {
+                mMedia.contentLength = length
+                mMedia.save() // ✅ Save updated file size in the database
+            }
+        }
 
         val tags = mMedia.tagSet
 
@@ -278,7 +295,7 @@ abstract class Conduit(
 
             var title = media.title
 
-            if (title.isBlank()) title = media.mediaHashString
+            if (title.isBlank()) title = media.mediaHashString.ifBlank { "media_${System.currentTimeMillis()}" }
 
             if (escapeTitle) {
                 title = UrlEscapers.urlPathSegmentEscaper().escape(title) ?: title

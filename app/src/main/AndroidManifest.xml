@@ -281,6 +281,18 @@
             android:exported="false">
         </service>
 
+        <provider
+            android:name=".util.extensions.DecryptedFileProvider"
+            android:authorities="net.opendasharchive.openarchive.decryptedfileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+
+        </provider>
+
     </application>
 
 </manifest>

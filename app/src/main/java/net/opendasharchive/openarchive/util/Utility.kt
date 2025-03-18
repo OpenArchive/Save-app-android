@@ -6,6 +6,8 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.OpenableColumns
+import android.util.Base64
+import com.github.derlio.waveform.soundfile.SoundFile
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import timber.log.Timber
 import java.io.File
@@ -13,9 +15,15 @@ import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
+import java.security.SecureRandom
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import javax.crypto.Cipher
+import javax.crypto.CipherOutputStream
+import javax.crypto.KeyGenerator
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
 
 object Utility {
 
@@ -42,7 +50,7 @@ object Utility {
     }
 
     fun getOutputMediaFileByCache(context: Context, fileName: String): File? {
-        val dir = context.cacheDir
+        val dir = context.filesDir
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
                 return null
@@ -54,7 +62,10 @@ object Utility {
         return File(dir, "$timeStamp.$fileName")
     }
 
-    fun writeStreamToFile(input: InputStream?, file: File?): Boolean {
+    private const val PREFS_NAME = "EncryptedFiles"
+    private const val KEY_GLOBAL = "global-aes-key"
+
+    fun writeStreamToFile(context: Context, input: InputStream?, file: File?): Boolean {
         @Suppress("NAME_SHADOWING")
         val input = input ?: return false
 
@@ -65,40 +76,106 @@ object Utility {
         var output: FileOutputStream? = null
 
         try {
+            val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+            // Retrieve or generate global AES-256 key
+            val key = getOrGenerateGlobalKey(sharedPreferences)
+
+            // Retrieve or generate IV for this file
+            val iv = getOrGenerateFileIV(sharedPreferences, file.absolutePath)
+
+            // Initialize Cipher for AES encryption
+            val cipher = Cipher.getInstance("AES/CBC/PKCS7Padding")
+            cipher.init(Cipher.ENCRYPT_MODE, SecretKeySpec(key, "AES"), IvParameterSpec(iv))
+
+            // Open FileOutputStream to write encrypted data
             output = FileOutputStream(file)
-            val buffer = ByteArray(4 * 1024) // or other buffer size
+            val cipherOutputStream = CipherOutputStream(output, cipher)
+
+            // Read from input stream and encrypt
+            val buffer = ByteArray(4 * 1024) // Buffer size
             var read: Int
 
             while (input.read(buffer).also { read = it } != -1) {
-                output.write(buffer, 0, read)
+                cipherOutputStream.write(buffer, 0, read)
             }
-            output.flush()
+            cipherOutputStream.flush()
+            cipherOutputStream.close()
 
             success = true
-        }
-        catch (e: FileNotFoundException) {
+        } catch (e: FileNotFoundException) {
             Timber.e(e)
-        }
-        catch (e: IOException) {
+        } catch (e: IOException) {
             Timber.e(e)
-        }
-        finally {
+        } catch (e: Exception) {
+            Timber.e(e, "Encryption error")
+        } finally {
             try {
                 output?.close()
-            }
-            catch (e: IOException) {
+            } catch (e: IOException) {
                 Timber.e(e)
             }
 
             try {
                 input.close()
-            }
-            catch (e: IOException) {
+            } catch (e: IOException) {
                 Timber.e(e)
             }
         }
 
         return success
+    }
+
+    // Function to retrieve existing global AES-256 key or generate a new one
+    private fun getOrGenerateGlobalKey(sharedPreferences: android.content.SharedPreferences): ByteArray {
+        val keyBase64 = sharedPreferences.getString(KEY_GLOBAL, null)
+
+        return if (keyBase64 != null) {
+            Base64.decode(keyBase64, Base64.DEFAULT)
+        } else {
+            // Generate a new AES-256 key
+            val key = generateAESKey()
+
+            // Store it in SharedPreferences
+            val editor = sharedPreferences.edit()
+            editor.putString(KEY_GLOBAL, Base64.encodeToString(key, Base64.DEFAULT))
+            editor.apply()
+
+            key
+        }
+    }
+
+    // Function to retrieve existing IV for a file or generate a new one
+    private fun getOrGenerateFileIV(sharedPreferences: android.content.SharedPreferences, filePath: String): ByteArray {
+        val ivBase64 = sharedPreferences.getString("$filePath-iv", null)
+
+        return if (ivBase64 != null) {
+            Base64.decode(ivBase64, Base64.DEFAULT)
+        } else {
+            // Generate a new IV
+            val iv = generateIV()
+
+            // Store IV in SharedPreferences
+            val editor = sharedPreferences.edit()
+            editor.putString("$filePath-iv", Base64.encodeToString(iv, Base64.DEFAULT))
+            editor.apply()
+
+            iv
+        }
+    }
+
+    // Function to generate AES-256 key
+    private fun generateAESKey(): ByteArray {
+        val keyGen = KeyGenerator.getInstance("AES")
+        keyGen.init(256) // 256-bit key
+        return keyGen.generateKey().encoded
+    }
+
+    // Function to generate a 16-byte IV
+    private fun generateIV(): ByteArray {
+        val iv = ByteArray(16) // AES block size is 16 bytes
+        SecureRandom().nextBytes(iv)
+        return iv
     }
 
     fun openStore(context: Context, appId: String) {
@@ -156,5 +233,21 @@ object Utility {
                 }
                 .show()
         }
+    }
+}
+
+fun createSoundFileFromStream(context: Context, inputStream: InputStream?): SoundFile? {
+    if (inputStream == null) return null
+
+    val tempFile = File(context.filesDir, "temp_audio_${System.currentTimeMillis()}.wav") // Adjust extension as needed
+
+    return try {
+        tempFile.outputStream().use { output -> inputStream.copyTo(output) }
+        SoundFile.create(tempFile.absolutePath) { true } // ✅ Use file path
+    } catch (e: Exception) {
+        Timber.e(e, "Failed to create SoundFile from InputStream")
+        null
+    } finally {
+        inputStream.close()
     }
 }

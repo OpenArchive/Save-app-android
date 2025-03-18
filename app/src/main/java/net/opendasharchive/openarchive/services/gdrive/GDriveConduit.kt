@@ -78,7 +78,11 @@ class GDriveConduit(media: Media, context: Context) : Conduit(media, context) {
             )
         }
 
+        private var driveInstance: Drive? = null
+
         fun getDrive(context: Context): Drive {
+            if (driveInstance != null) return driveInstance!! // ✅ Reuse cached instance
+
             val credential =
                 GoogleAccountCredential.usingOAuth2(
                     context,
@@ -137,8 +141,9 @@ class GDriveConduit(media: Media, context: Context) : Conduit(media, context) {
                 AndroidHttp.newCompatibleTransport()
             }
 
-            return Drive.Builder(transport, GsonFactory(), credential)
+            driveInstance = Drive.Builder(transport, GsonFactory(), credential)
                 .setApplicationName(ContextCompat.getString(context, R.string.app_name)).build()
+            return driveInstance!!
         }
 
         private fun createFolder(gdrive: Drive, folderName: String, parent: File?): File {
@@ -194,6 +199,8 @@ class GDriveConduit(media: Media, context: Context) : Conduit(media, context) {
             }
             return result
         }
+
+        private const val UPLOAD_CHUNK_SIZE = 256 * 1024 // 256 KB
     }
 
     override suspend fun upload(): Boolean {
@@ -205,7 +212,9 @@ class GDriveConduit(media: Media, context: Context) : Conduit(media, context) {
             val folder = createFolders(mDrive, destinationPath)
             uploadMetadata(folder, destinationFileName)
             if (mCancelled) throw Exception("Cancelled")
-            uploadFile(mMedia.file, folder, destinationFileName)
+            mMedia.fileInputStream(mContext)?.use { stream ->
+                uploadFile(stream, folder, destinationFileName)
+            } ?: throw IOException("Failed to read media file for upload")
         } catch (e: Exception) {
             jobFailed(e)
             return false
@@ -239,7 +248,9 @@ class GDriveConduit(media: Media, context: Context) : Conduit(media, context) {
         parentFolder: File,
         targetFileName: String,
     ) {
-        uploadFile(sourceFile.inputStream(), parentFolder, targetFileName)
+        sourceFile.inputStream().use { stream ->
+            uploadFile(stream, parentFolder, targetFileName)
+        }
     }
 
     private fun uploadFile(
@@ -254,8 +265,7 @@ class GDriveConduit(media: Media, context: Context) : Conduit(media, context) {
             val request =
                 mDrive.files().create(fMeta, InputStreamContent(null, inputStream))
             request.mediaHttpUploader.isDirectUploadEnabled = false
-            request.mediaHttpUploader.chunkSize =
-                262144  // magic minimum chunk-size number (smaller number will cause exception)
+            request.mediaHttpUploader.chunkSize = UPLOAD_CHUNK_SIZE  // magic minimum chunk-size number (smaller number will cause exception)
             request.mediaHttpUploader.setProgressListener {
                 if (it.uploadState == MediaHttpUploader.UploadState.MEDIA_IN_PROGRESS) {
                     jobProgress(it.numBytesUploaded)
@@ -263,7 +273,9 @@ class GDriveConduit(media: Media, context: Context) : Conduit(media, context) {
             }
             val response = request.execute()
         } catch (e: Exception) {
-            Timber.e("gdrive upload of '$targetFileName' failed", e)
+            Timber.e(e, "GDrive upload failed for file: %s (parent folder: %s)", targetFileName, parentFolder.name)
+            jobFailed(e) // ✅ Properly mark upload as failed
+            throw e // ✅ Ensure failure is correctly propagated
         }
     }
 }

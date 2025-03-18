@@ -24,7 +24,7 @@ class PreviewAdapter(listener: Listener? = null): ListAdapter<Media, MediaViewHo
             }
 
             override fun areContentsTheSame(oldItem: Media, newItem: Media): Boolean {
-                return oldItem.originalFilePath == newItem.originalFilePath
+                return oldItem.encryptedFilePath == newItem.encryptedFilePath
                         && oldItem.mimeType == newItem.mimeType
                         && oldItem.createDate == newItem.createDate
                         && oldItem.updateDate == newItem.updateDate
