@@ -390,6 +390,7 @@ fun CustomSecureField(
         ),
         trailingIcon = {
             IconButton(
+                enabled = !isLoading,
                 modifier = Modifier.sizeIn(ThemeDimensions.touchable),
                 onClick = { showPassword = !showPassword }) {
                 Icon(
