@@ -16,7 +16,11 @@ fun loadLocalProperties(): Properties = Properties().apply {
     if (localPropsFile.exists()) {
         FileInputStream(localPropsFile).use { load(it) }
     } else {
-        throw GradleException("Missing local.properties file")
+        setProperty("MIXPANELKEY", System.getenv("MIXPANEL_KEY") ?: "")
+        setProperty("STOREFILE", System.getenv("STOREFILE") ?: "")
+        setProperty("STOREPASSWORD", System.getenv("STOREPASSWORD") ?: "")
+        setProperty("KEYALIAS", System.getenv("KEYALIAS") ?: "")
+        setProperty("KEYPASSWORD", System.getenv("KEYPASSWORD") ?: "")
     }
 }
 
@@ -45,7 +49,7 @@ android {
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         val localProps = loadLocalProperties()
-        resValue("string", "MIXPANELKEY", localProps.getProperty("mixpanel.key") ?: "")
+        resValue("string", "mixpanel_key", localProps.getProperty("MIXPANELKEY") ?: "")
     }
 
     base {
