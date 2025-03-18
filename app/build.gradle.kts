@@ -45,7 +45,7 @@ android {
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         val localProps = loadLocalProperties()
-        resValue("string", "mixpanel_key", localProps.getProperty("mixpanel.key") ?: "")
+        resValue("string", "MIXPANELKEY", localProps.getProperty("mixpanel.key") ?: "")
     }
 
     base {
@@ -78,10 +78,10 @@ android {
     signingConfigs {
         getByName("debug") {
             val props = loadLocalProperties()
-            storeFile = file(props["storeFile"] as? String ?: "")
-            storePassword = props["storePassword"] as? String ?: ""
-            keyAlias = props["keyAlias"] as? String ?: ""
-            keyPassword = props["keyPassword"] as? String ?: ""
+            storeFile = file(props["STOREFILE"] as? String ?: "")
+            storePassword = props["STOREPASSWORD"] as? String ?: ""
+            keyAlias = props["KEYALIAS"] as? String ?: ""
+            keyPassword = props["KEYPASSWORD"] as? String ?: ""
         }
     }
 
