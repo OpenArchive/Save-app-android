@@ -52,9 +52,9 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingEnd="23dp"
                     android:layout_gravity="center_vertical"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:paddingEnd="23dp">
 
                     <TextView
                         style="@style/TextAppearance.AppCompat.Title"
@@ -63,13 +63,12 @@
                         android:text="@string/private_server"
                         android:textFontWeight="700"
                         android:textStyle="bold"
-                        android:visibility="gone"
-                         />
+                        android:visibility="gone" />
 
                     <TextView
-                        android:paddingEnd="32dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:paddingEnd="32dp"
                         android:text="@string/save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud" />
 
                 </LinearLayout>
@@ -94,15 +93,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
-                    app:hintEnabled="false"
-                    android:paddingVertical="4dp">
+                    android:paddingVertical="4dp"
+                    app:hintEnabled="false">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/server"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textUri"
                         android:hint="@string/enter_url"
+                        android:inputType="textUri"
                         android:maxLines="1"
                         android:singleLine="true" />
 
@@ -188,7 +187,8 @@
                 android:id="@+id/layout_license"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                tools:visibility="gone">
 
 
                 <TextView
@@ -229,13 +229,6 @@
                     android:textSize="18sp" />
 
 
-<!--                <Button-->
-<!--                    android:id="@+id/bt_license"-->
-<!--                    style="?android:attr/buttonBarButtonStyle"-->
-<!--                    android:textColor="@color/colorTertiary"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:text="Licenses" />-->
             </LinearLayout>
 
         </LinearLayout>
@@ -282,14 +275,15 @@
             android:gravity="center"
             tools:ignore="ButtonStyle">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/bt_authenticate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:enabled="false"
                 android:paddingHorizontal="24dp"
                 android:paddingVertical="8dp"
-                android:text="@string/action_next" />
+                android:text="@string/action_next"
+                app:backgroundTint="@color/colorTertiary" />
         </LinearLayout>
 
     </LinearLayout>

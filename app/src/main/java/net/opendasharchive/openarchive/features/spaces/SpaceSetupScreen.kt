@@ -1,11 +1,13 @@
 package net.opendasharchive.openarchive.features.spaces
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -44,6 +46,7 @@ fun SpaceSetupScreen(
             Text(
                 text = stringResource(R.string.to_get_started_connect_to_a_server_to_store_your_media),
                 fontSize = 18.sp,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center
             )
@@ -52,6 +55,7 @@ fun SpaceSetupScreen(
             val description = if (isDwebEnabled) stringResource(R.string.to_get_started_more_hint_dweb) else stringResource(R.string.to_get_started_more_hint)
             Text(
                 text = description,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center
@@ -92,6 +96,7 @@ fun SpaceSetupScreen(
 }
 
 @Preview
+@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun SpaceSetupScreenPreview() {
     DefaultScaffoldPreview {

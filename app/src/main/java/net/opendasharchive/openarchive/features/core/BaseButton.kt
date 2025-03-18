@@ -27,7 +27,7 @@ fun BaseButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = MaterialTheme.colorScheme.primary,
+    backgroundColor: Color = MaterialTheme.colorScheme.tertiary,
     textColor: Color = MaterialTheme.colorScheme.onPrimary,
     cornerRadius: Dp = 12.dp,
 ) {

@@ -1,7 +1,6 @@
 package net.opendasharchive.openarchive.features.internetarchive.presentation.login
 
 import android.content.Intent
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -26,16 +25,14 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -50,7 +47,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -61,6 +57,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import net.opendasharchive.openarchive.R
@@ -78,7 +75,6 @@ import net.opendasharchive.openarchive.features.internetarchive.presentation.log
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction as Action
-import androidx.core.net.toUri
 
 @Composable
 fun InternetArchiveLoginScreen(space: Space, onResult: (IAResult) -> Unit) {
@@ -150,6 +146,7 @@ private fun InternetArchiveLoginContent(
             ) {
                 Text(
                     stringResource(R.string.account),
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 18.sp
                 )
@@ -210,7 +207,11 @@ private fun InternetArchiveLoginContent(
             )
             TextButton(
                 modifier = Modifier.heightIn(ThemeDimensions.touchable),
-                onClick = { dispatch(CreateLogin) }) {
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.tertiary
+                ),
+                onClick = { dispatch(CreateLogin) }
+            ) {
                 Text(
                     text = stringResource(R.string.label_create_login),
                     fontWeight = FontWeight.SemiBold,
@@ -332,9 +333,10 @@ fun CustomTextField(
             hintLocales = null
         ),
         isError = isError,
-        colors = TextFieldDefaults.colors(
+        colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.background,
-            unfocusedContainerColor = MaterialTheme.colorScheme.background
+            unfocusedContainerColor = MaterialTheme.colorScheme.background,
+            focusedBorderColor = MaterialTheme.colorScheme.tertiary
             //focusedIndicatorColor = Color.Transparent,
             //unfocusedIndicatorColor = Color.Transparent,
         ),
@@ -379,9 +381,10 @@ fun CustomSecureField(
         ),
         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
         isError = isError,
-        colors = TextFieldDefaults.colors(
+        colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.background,
-            unfocusedContainerColor = MaterialTheme.colorScheme.background
+            unfocusedContainerColor = MaterialTheme.colorScheme.background,
+            focusedBorderColor = MaterialTheme.colorScheme.tertiary
             //focusedIndicatorColor = Color.Transparent,
             //unfocusedIndicatorColor = Color.Transparent,
         ),

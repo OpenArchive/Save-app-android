@@ -98,7 +98,8 @@
                 android:gravity="center"
                 tools:ignore="ButtonStyle">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
+                    app:backgroundTint="@color/colorTertiary"
                     android:textFontWeight="500"
                     android:id="@+id/bt_next"
                     android:paddingHorizontal="32dp"

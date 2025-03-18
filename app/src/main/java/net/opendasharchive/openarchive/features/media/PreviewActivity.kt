@@ -242,6 +242,7 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
 
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             icon = R.drawable.perm_media_24px.asUiImage()
+            iconColor = dialogManager.requireResourceProvider().getColor(R.color.colorTertiary)
             title = R.string.edit_multiple.asUiText()
             message = R.string.press_and_hold_to_select_and_edit_multiple_media.asUiText()
             positiveButton {
@@ -278,6 +279,7 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
 
             dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                 type = DialogType.Warning
+                iconColor = dialogManager.requireResourceProvider().getColor(R.color.colorTertiary)
                 message = R.string.once_uploaded_you_will_not_be_able_to_edit_media.asUiText()
                 showCheckbox = true
                 checkboxText = UiText.StringResource(R.string.do_not_show_me_this_again)
