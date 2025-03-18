@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.features.settings.passcode.components
 
+import android.content.res.Configuration
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -15,8 +16,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import kotlin.math.roundToInt
 
 @Composable
@@ -60,11 +63,24 @@ fun PasscodeDots(
                 modifier = Modifier
                     .size(20.dp)
                     .background(
-                        color = if (index < currentPasscodeLength) MaterialTheme.colorScheme.primary
+                        color = if (index < currentPasscodeLength) MaterialTheme.colorScheme.onBackground
                         else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
                         shape = CircleShape
                     )
             )
         }
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview
+@Composable
+private fun PasswordDotsPreview() {
+
+    DefaultScaffoldPreview {
+        PasscodeDots(
+            passcodeLength = 6,
+            currentPasscodeLength = 3
+        )
     }
 }

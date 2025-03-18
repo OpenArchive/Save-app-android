@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/progress_bar_overlay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#D0000000"
+    android:clickable="true"
+    android:focusable="true"
+    android:visibility="visible">
+
+    <ProgressBar
+        style="@style/ThinProgressBar"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:indeterminate="true"
+        android:layout_gravity="center"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/cancel_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@color/transparent"
+        android:textColor="@color/c23_teal"
+        android:textSize="18sp"
+        android:text="CANCEL"/>
+
+</FrameLayout>

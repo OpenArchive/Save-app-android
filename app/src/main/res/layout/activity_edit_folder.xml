@@ -6,28 +6,26 @@
     android:layout_height="match_parent"
     android:filterTouchesWhenObscured="true"
     android:orientation="vertical"
+    tools:background="@color/colorBackground"
     tools:context=".features.settings.EditFolderActivity">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.DayNight.ActionBar"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+
+    <include
+        android:id="@+id/common_app_bar"
+        layout="@layout/common_app_bar"/>
+
 
     <TextView
         android:id="@+id/label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:text="@string/folder_name"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@id/common_app_bar" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/folder_name_container"
@@ -50,12 +48,12 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-<!--    Hiding Creative Commons Licensing section from Folder Edit-->
+    <!--    Hiding Creative Commons Licensing section from Folder Edit-->
     <RelativeLayout
-        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/activity_vertical_margin"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/folder_name_container">
@@ -70,29 +68,44 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintStart_toStartOf="parent">
 
-        <TextView
-            android:id="@+id/bt_remove"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+            android:layout_gravity="center"
             android:layout_weight="50"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/bt_remove"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/remove_from_app"
+                android:textColor="@color/colorDanger"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:gravity="center"
-            android:text="@string/remove_from_app"
-            android:textColor="@color/colorDanger"
-            android:textStyle="bold" />
+            android:layout_weight="50">
 
-        <Button
-            android:id="@+id/bt_archive"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
-            android:layout_weight="50"
-            android:text="@string/action_archive_project" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/bt_archive"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:padding="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/action_archive_project"
+                android:textColor="@color/colorOnPrimaryContainer"/>
+        </LinearLayout>
+
 
     </LinearLayout>
 

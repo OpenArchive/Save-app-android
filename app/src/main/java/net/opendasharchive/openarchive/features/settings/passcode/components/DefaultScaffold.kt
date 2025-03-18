@@ -26,6 +26,7 @@ object MessageManager {
 @Composable
 fun DefaultScaffold(
     modifier: Modifier = Modifier,
+    topAppBar: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
 
@@ -39,6 +40,9 @@ fun DefaultScaffold(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        topBar = {
+            topAppBar?.invoke()
+        },
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         },

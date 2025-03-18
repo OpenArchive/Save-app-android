@@ -1,0 +1,5 @@
+<resources>
+    <declare-styleable name="CustomSwitchPreference">
+        <attr name="useSwitchMaterialTheme" format="boolean" />
+    </declare-styleable>
+</resources>

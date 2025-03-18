@@ -1,44 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:filterTouchesWhenObscured="true"
     android:orientation="vertical"
+    tools:background="@color/colorBackground"
     tools:context=".features.settings.FoldersActivity">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.DayNight.ActionBar" />
+        android:layout_height="match_parent"
+        android:filterTouchesWhenObscured="true"
+        android:orientation="vertical"
+        tools:context=".features.settings.FoldersActivity">
 
-<!--    Hiding Creating Commons Licensing section from Folder List view-->
-    <RelativeLayout
-        android:visibility="gone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="@dimen/activity_vertical_margin">
-
+        <!-- Include the common AppBar -->
         <include
-            android:id="@+id/cc"
-            layout="@layout/content_cc" />
+            android:id="@+id/common_app_bar"
+            layout="@layout/common_app_bar" />
 
-    </RelativeLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_marginHorizontal="8dp"
+            android:id="@+id/rv_projects"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_vertical_margin" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_projects"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="@dimen/activity_vertical_margin"
-        android:layout_marginHorizontal="@dimen/activity_horizontal_margin" />
+        <com.google.android.material.button.MaterialButton
+            app:backgroundTint="@color/colorTertiary"
+            android:textColor="@color/colorBackground"
+            android:id="@+id/bt_view_archived"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/activity_vertical_margin"
+            android:layout_marginHorizontal="16dp"
+            android:text="@string/view_archived_folders" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/bt_view_archived"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="@dimen/activity_vertical_margin"
-        android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
-        android:text="@string/view_archived_folders" />
+    </LinearLayout>
 
-</LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

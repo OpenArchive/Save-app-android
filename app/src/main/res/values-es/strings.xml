@@ -214,7 +214,7 @@ sus intenciones para uso futuro.</string>
     <string name="preview_media">Previsualizar Medios</string>
     <string name="add_more">Agregar Más</string>
     <string name="select_all">Seleccionar Todos</string>
-    <string name="got_it">Entendido</string>
+    <string name="lbl_got_it">Entendido</string>
     <string name="do_not_show_me_this_again">No mostrar esto de nuevo</string>
     <string name="edit_multiple">Editar Múltiples</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">Presionar y sostener para seleccionar medios y editar múltiples medios.</string>

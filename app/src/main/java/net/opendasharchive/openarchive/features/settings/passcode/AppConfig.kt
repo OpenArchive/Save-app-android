@@ -5,5 +5,7 @@ data class AppConfig(
     val enableHapticFeedback: Boolean = true,
     val maxRetryLimitEnabled: Boolean = false,
     val biometricAuthEnabled: Boolean = false,
-    val maxFailedAttempts: Int = 5
+    val maxFailedAttempts: Int = 5,
+    val isDwebEnabled: Boolean = false,
+    val multipleProjectSelectionMode: Boolean = false
 )

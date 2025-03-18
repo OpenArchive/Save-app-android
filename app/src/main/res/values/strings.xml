@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
+    <string name="navigation_drawer_open">Drawer Open</string>
+    <string name="navigation_drawer_close">Drawer Closed</string>
+
     <!-- Activities -->
     <string name="app_name" translatable="false">Save</string>
     <string name="app_subtext">Archive Your Media\n<a href="#">learn more</a></string>
@@ -22,6 +25,8 @@
     <!-- FirstStartActivity -->
     <string name="internet_archive">Internet Archive</string>
     <string name="internet_archive_description">Upload your media to a free public or paid private account on the Internet Archive.</string>
+    <string name="dweb_title">DWeb Service</string>
+    <string name="dweb_description">Connect to the decentralized web</string>
     <string name="gdrive" translatable="false">Google Drive</string>
     <string name="gdrive_tm" translatable="false">Google Drive™</string>
     <string name="upload_to_gdrive">Upload to Google Drive</string>
@@ -31,8 +36,22 @@
 
     <!-- MainActivity -->
     <string name="servers">Servers</string>
+    <string name="add_server">Add Server</string>
+
+    <string name="lbl_rename_folder">Rename Folder</string>
+    <string name="lbl_select_media">Select Media</string>
+    <string name="lbl_remove_folder">Remove Folder</string>
+
+    <string name="folder_empty_warning">Folder name cannot be empty</string>
+    <string name="folder_rename_success">Folder renamed</string>
+    <string name="folder_not_found">Folder not found</string>
+    <string name="folder_removed">Folder removed</string>
 
     <!-- MainFragment -->
+
+    <!-- Settings Fragment -->
+    <string name="disable_passcode_dialog_title">Disable Passcode</string>
+    <string name="disable_passcode_dialog_msg">Are you sure you want to disable the passcode?</string>
 
     <!-- ViewMediaActivity -->
     <string name="iv_content_desc">Main Image</string>
@@ -42,6 +61,7 @@
     <!-- Server -->
     <string name="lbl_Cancel">Cancel</string>
     <string name="lbl_ok">OK</string>
+    <string name="lbl_confirm">Confirm</string>
     <string name="archive_title">E-mail Confirmation</string>
     <string name="archive_message">Please confirm your e-mail address and return to connect your Internet Archive account.</string>
 
@@ -51,11 +71,14 @@
     <string name="info_license_comm">Allow commercial uses of your work?</string>
     -->
 
+
+    <string name="license_label">License</string>
     <string name="info_license_deriv">Allow anyone to remix and share?</string>
     <string name="info_license_sharealike">Require them to share like you have?</string>
     <string name="info_license_comm">Allow commercial use?</string>
 
     <string name="menu_delete">Remove Media</string>
+    <string name="menu_delete_desc">This media will be removed from Save.\nIt will remain on the server and in your Photos app.</string>
 
     <string name="hint_flag">Tap to flag as significant content</string>
     <string name="answer_yes">Yes</string>
@@ -82,16 +105,25 @@
     <string name="prefs_theme_val_dark" translatable="false">dark</string>
 
     <string name="prefs_use_proofmode_title">Enable ProofMode</string>
-    <string name="prefs_use_proofmode_summary">Capture extra metadata and notarize all media.</string>
+    <string name="prefs_use_proofmode_summary">Share ProofMode public key</string>
+    <string name="prefs_use_proofmode_description">
+    <![CDATA[
+    ProofMode is a system that enables authentication and verification of multimedia content, <a href="%1$s" style="text-decoration: underline;">learn more here</a>
+    ]]>
+    </string>
+    <string name="proof_mode_warning_text">ProofMode gathers metadata from local cell towers to help verify media. Android requires permission to enable this setting. <b>Save</b> will only use this setting to capture data and will NOT access your phone to make/manage calls.</string>
 
     <string name="prefs_share_proofmode_title">ProofMode Identity</string>
     <string name="prefs_share_proofmode_summary">Share ProofMode Public Key</string>
 
 
+    <!-- Strings for ProofMode Activity -->
+    <string name="phone_permission_required">Phone permission required</string>
+
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
-    <string name="prompt_email">Username</string>
+    <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
 
     <string name="label_username">@string/prompt_email</string>
@@ -105,7 +137,7 @@
 
     <string name="importing_media">Importing media…</string>
 
-    <string name="title_welcome">Welcome</string>
+    <string name="title_welcome">Welcome!</string>
 
     <string name="action_privacy">Privacy Policy</string>
     <string name="action_about">About %s</string>
@@ -115,20 +147,41 @@
     <string name="title_activity_upload_manager">Upload Manager</string>
 
     <string name="uploads">Uploads</string>
+    <string name="upload_manager_screen_title">Edit Queue</string>
+    <string name="upload_manager_screen_subtitle">Uploading is paused</string>
     <string name="uploading">Uploading…</string>
     <string name="uploading_left">Uploading… (%d left)</string>
     <string name="uploads_notification_descriptions">These notifications show up while this app is performing media uploads.</string>
 
     <string name="action_upload">Upload</string>
 
+    <!-- Passcode Settings -->
+    <string name="multiple_failed_attempts_message">App is locked due to multiple failed attempts. Please try again later.</string>
+    <string name="passcode_not_set">Passcode not set</string>
+    <string name="passcode_remaining_attempts">Incorrect passcode. %1$d attempts remaining.</string>
+    <string name="passcode_too_many_failed_attempts">Too many failed attempts. App is locked.</string>
+
+    <string name="passcode_lock_app">Lock app with passcode</string>
+    <string name="enter_passcode">Enter Your Passcode</string>
+    <string name="passcode_do_not_match">Passcodes do not match. Try again.</string>
+
+    <string name="confirm_passcode">Confirm Passcode</string>
+    <string name="set_passcode">Set Passcode</string>
+    <string name="set_passcode_warning">Make sure you remember this pin. If you forget it, you will need to reset the app, and all data will be erased.</string>
+
+
     <!-- Strings related to Settings -->
 
-    <string name="tap_to_add">Tap the button below to add media.</string>
+    <string name="tap_to_add">Tap the button below to add media</string>
+    <string name="tap_to_add_folder">Tap the button below to add a folder</string>
+    <string name="tap_to_add_server">Tap the button below to add a server</string>
     <string name="to_get_started_connect_to_a_server_to_store_your_media">To get started, connect to a server to store your media.</string>
+    <string name="to_get_started_more_hint_dweb">You can add multiple private servers and\none IA or DWeb server account at any time.</string>
+    <string name="to_get_started_more_hint">You can add multiple private servers and\none IA account at any time.</string>
     <string name="in_the_side_menu_you_can_add_another_server_and_connect_to_multiple_servers">In the side menu, you can add another server and connect to multiple servers</string>
-    <string name="send_directly_to_a_private_server">Send to a webdav server</string>
-    <string name="upload_to_the_internet_archive">Upload to the IA</string>
-    <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud"><b><i>Save</i></b> only connects to WebDAV-compatible servers, e.g Nextcloud and ownCloud.</string>
+    <string name="send_directly_to_a_private_server">Connect to a secure WebDAV server</string>
+    <string name="upload_to_the_internet_archive">Connect to a free public or paid private server</string>
+    <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">Connect to a WebDAV-compatible servers, e.g. Nexcloud and ownCloud.</string>
     <string name="action_next">Next</string>
     <string name="action_done">Done</string>
     <string name="status_flagged">Significant Content</string>
@@ -138,9 +191,12 @@
     <string name="you_have_successfully_connected_to_the_internet_archive">You have successfully connected to the Internet Archive!</string>
     <string name="you_have_successfully_connected_to_gdrive">You have successfully connected to Google Drive!</string>
     <string name="create_a_new_folder">Create a New Folder</string>
+    <string name="create_new_folder_title">First, please name your folder</string>
+    <string name="create_new_folder_subtitle">This folder will be created on your server and automatically added on Save</string>
+    <string name="create_new_folder_hint">Enter folder name</string>
     <string name="edit">Edit</string>
     <string name="menu_done">Done</string>
-    <string name="remove_from_app">Remove from App</string>
+    <string name="remove_from_app">Remove from app</string>
     <string name="action_remove_project">Are you sure you want to remove your project?</string>
     <string name="remove">Remove</string>
     <string name="action_archive_project">Archive Project</string>
@@ -150,13 +206,14 @@
     <string name="secret_key">Secret Key</string>
     <string name="info_archiveorg_keys"><b><i>Save</i></b> needs your Internet Archive account\'s API keys to be able to upload media.</string>
     <string name="action_acquire_keys">Acquire Keys</string>
-    <string name="new_folder">ADD FOLDER</string>
+    <string name="new_folder">New Folder</string>
     <string name="please_do_not_include_special_characters_in_the_name">Please do not include special characters in the name.</string>
     <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">Are you sure you want to remove this server from the app?</string>
     <string name="folder_name_already_exists">Folder name already exists.</string>
     <string name="dropbox">Dropbox</string>
     <string name="metadata">Metadata</string>
 
+    <string name="btn_lbl_remove_media">Remove Media</string>
     <string name="confirm_remove_media">Are you sure you want to remove this Media?</string>
 
     <string name="popup_flag_title">Flag Significant Content</string>
@@ -175,11 +232,27 @@
     <string name="unsecured_internet_connection">Detected an unsecured internet connection</string>
     <string name="version__">Version %s</string>
 
+    <!-- WebDAV related strings -->
+    <string name="private_server">Private Server</string>
+    <string name="edit_private_server">Edit Private Server</string>
+    <string name="empty_name_warning">Name cannot be empty</string>
+
+    <string name="unsaved_changes">Unsaved changes!</string>
+    <string name="do_you_want_to_save">Do you want to save</string>
+    <string name="lbl_save">Save</string>
+    <string name="lbl_discard">Discard</string>
+
+    <!-- WebDAV setup License -->
+    <string name="name_your_server">Name your server and choose a license</string>
+
+    <!-- Upload Manager Bottom Sheet -->
+    <string name="edit_queue">Edit Queue</string>
+    <string name="uploading_is_paused">Uploading is paused</string>
 
     <!-- Clean Insights measurement -->
     <string name="server_name_optional">Server Name (Optional)</string>
     <string name="dropbox_id">Dropbox ID:</string>
-    <string name="add_another_account">Add Server</string>
+    <string name="add_another_account">Add new server</string>
     <string name="prefs_proofmode_key_encryption_title_all">Secure ProofMode Key with Biometrics or Device Passcode</string>
     <string name="prefs_proofmode_key_encryption_title_biometrics">Secure ProofMode Key with Biometrics</string>
     <string name="prefs_proofmode_key_encryption_title_passcode">Secure ProofMode Key with Device Passcode</string>
@@ -191,14 +264,14 @@
     <string name="create">Create</string>
     <string name="add">Add</string>
     <string name="no_more_folders">No (more) folders</string>
-    <string name="private_server">Private Server</string>
+
     <string name="upload_to_dropbox">Upload to Dropbox</string>
     <string name="sign_in_or_create_an_account_with_dropbox">Sign in or create an account with Dropbox</string>
     <string name="authenticate">Authenticate</string>
     <string name="back">Back</string>
     <string name="my_media">My Media</string>
     <string name="if_you_do_not_have_existing_keys_learn_how_to_acquire_keys">If you do not have existing keys, <b>learn how</b> to acquire keys.</string>
-    <string name="server_info">Server Info</string>
+    <string name="server_info">Server info</string>
     <string name="enter_url">Enter URL</string>
     <string name="account">Account</string>
     <string name="general">General</string>
@@ -208,16 +281,16 @@
     <string name="proofmode">ProofMode</string>
     <string name="no_webbrowser_found_error">No application can handle this request. Please install a webbrowser.</string>
 
-    <string name="intro_header_secure" translatable="false">SECURE</string>
-    <string name="intro_header_archive" translatable="false">ARCHIVE</string>
-    <string name="intro_header_verify" translatable="false">VERIFY</string>
-    <string name="intro_header_encrypt" translatable="false">ENCRYPT</string>
+    <string name="intro_header_secure" translatable="false">Secure</string>
+    <string name="intro_header_archive" translatable="false">Archive</string>
+    <string name="intro_header_verify" translatable="false">Verify</string>
+    <string name="intro_header_encrypt" translatable="false">Encrypt</string>
     <string name="intro_text_secure">
         Send your media securely to private servers and lock the app with a pin.
     </string>
     <string name="intro_text_archive">
     <![CDATA[
-    Keep your media verifiable, safe and organized for the long-term by uploading it to private or public servers like Nextcloud or the Internet Archive.<br><br>
+    Keep your media verifiable, safe and organized for the long-term by uploading it to private or public servers like Nextcloud or the Internet Archive.<br>
     Communicate your intentions for future use by adding a <a href="%1$s" style="text-decoration: underline;">Creative Commons License</a>.
     ]]>
     </string>
@@ -233,7 +306,7 @@
     </string>
     <string name="intro_text_encrypt" translatable="false">
     <![CDATA[
-    <b><i>Save</i></b> always uploads over TLS (Transport Layer Security) to protect your media in transit.<br><br>
+    <b><i>Save</i></b> always uploads over TLS (Transport Layer Security) to protect your media in transit.<br>
     To further enhance security, enable <a href="%1$s" style="text-decoration: underline;">Tor</a> to prevent interception of your media from your phone to the server.
     ]]>
     </string>
@@ -253,12 +326,14 @@
     <string name="is_video">is video</string>
     <string name="use_upload_chunking_nextcloud_only">Use Upload Chunking (Nextcloud Only)</string>
     <string name="chunking_explanation">\"Chunking\" uploads media in pieces so you don\'t have to restart your upload if your connection is interrupted.</string>
-    <string name="preview_media">Preview Media</string>
+    <string name="preview_media">Preview Upload</string>
     <string name="add_more">Add More</string>
     <string name="select_all">Select All</string>
-    <string name="got_it">Got it</string>
+    <string name="lbl_got_it">Got it</string>
     <string name="do_not_show_me_this_again">Do not show me this again</string>
     <string name="edit_multiple">Edit Multiple</string>
+    <string name="press_and_hold_options_media_screen_title">Add Media</string>
+    <string name="press_and_hold_options_media_screen_message">Tap + to pick from image gallery or press and hold to add media from other apps.</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">Press and hold to select and edit multiple media.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Once uploaded, you will not be able to edit media</string>
     <string name="edit_media_info">Edit Media Info</string>
@@ -280,7 +355,7 @@
     <string name="retry">Retry</string>
 
     <string name="edit_media">Edit Media</string>
-    <string name="uploading_is_paused">Uploading is paused</string>
+
     <string name="add_media_using">Add Media using:</string>
     <string name="camera">Camera</string>
     <string name="photo_gallery">Photo Gallery</string>
@@ -318,4 +393,54 @@
     <string name="prompt_no_account">No account?</string>
     <string name="action_continue">Continue</string>
 
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+
+    <string name="pref_media_servers">pref_media_servers</string>
+    <string name="pref_media_folders">pref_media_folders</string>
+
+    <string name="pref_title_secure">Secure</string>
+    <string name="pref_title_archive">Archive</string>
+    <string name="pref_title_privacy_policy">Read our Terms &amp; Privacy Policy</string>
+    <string name="pref_title_media_servers">Media Servers</string>
+    <string name="pref_title_media_folders">Media Folders</string>
+    <string name="pref_summary_media_servers">Manage your servers</string>
+    <string name="pref_summary_media_folders">Manage your folders</string>
+    <string name="pref_summary_privacy_policy">Read our Terms &amp; Privacy Policy</string>
+
+    <string name="pref_app_passcode" translatable="false">passcode_enabled</string>
+    <string name="pref_key_proof_mode" translatable="false">pref_proof_mode</string>
+    <string name="pref_key_use_proof_mode" translatable="false">use_proofmode</string>
+    <string name="pref_key_use_tor" translatable="false">pref_use_tor</string>
+    <string name="pref_key_use_dark_mode">pref_is_dark_mode</string>
+    <string name="pref_key_about_app" translatable="false">pref_about_app</string>
+    <string name="pref_key_privacy_policy" translatable="false">pref_privacy_policy</string>
+    <string name="pref_key_app_version" translatable="false">pref_app_version</string>
+
+
+    <!-- General -->
+    <string name="label_success_title">Success!</string>
+    <string name="label_warning_title">Warning!</string>
+    <string name="label_info_title">Info!</string>
+    <string name="label_got_it">Got it</string>
+
+    <!-- Create New Folder -->
+    <string name="create_folder_ok_message">You have added a folder successfully</string>
+    <string name="msg_edit_server_success">You have changed your server settings successfully.</string>
+    <string name="expand">Expand</string>
 </resources>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="20dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/header_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/snowbird_logo"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/snowbird"
+                android:contentDescription="Raven"
+                app:iconSize="50dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <TextView
+                android:id="@+id/help_text_subheader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:lines="3"
+                android:text="Raven is OpenArchive's decentralized web service built with Iroh and Veilid."
+                android:textColor="@color/colorSectionHeaderText"
+                android:textSize="16sp"
+                app:layout_constraintStart_toEndOf="@id/snowbird_logo"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/OATextInputLayoutStyle"
+            android:id="@+id/group_name_textfield_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/header_container">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/group_name_textfield"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:focusedByDefault="false"
+                android:hint="Your group name"
+                android:inputType="textUri"
+                android:maxLines="1"
+                android:singleLine="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/OATextInputLayoutStyle"
+            android:id="@+id/repo_name_textfield_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/group_name_textfield_container">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/repo_name_textfield"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:focusedByDefault="false"
+                android:hint="Your name in the group"
+                android:inputType="textUri"
+                android:maxLines="1"
+                android:singleLine="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            style="@style/OAMaterialSignInButtonStyle"
+            android:id="@+id/create_group_button"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="40dp"
+            android:text="Create Group"
+            app:layout_constraintTop_toBottomOf="@id/repo_name_textfield_container" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

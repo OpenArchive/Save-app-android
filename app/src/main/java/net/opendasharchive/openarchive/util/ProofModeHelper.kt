@@ -73,7 +73,7 @@ object ProofModeHelper {
             Prefs.temporaryUnencryptedProofModePassphrase)
 
         // Initialize MediaWatcher with the correct passphrase.
-        MediaWatcher.getInstance(context)
+        MediaWatcher.getInstance(context.applicationContext)
 
         // Remove again to avoid leaking unencrypted passphrase.
         Prefs.temporaryUnencryptedProofModePassphrase = null

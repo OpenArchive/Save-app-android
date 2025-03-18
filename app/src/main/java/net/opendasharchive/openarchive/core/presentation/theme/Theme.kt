@@ -8,12 +8,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 
 @Composable
-fun Theme(
+fun SaveAppTheme(
     content: @Composable () -> Unit
 ) {
     val isDarkTheme by rememberUpdatedState(newValue = isSystemInDarkTheme())
 
-    val colors = getThemeColors(isDarkTheme)
+    val colors = if (isDarkTheme) darkColorScheme() else lightColorScheme()
 
     val dimensions = getThemeDimensions(isDarkTheme)
 
@@ -23,7 +23,9 @@ fun Theme(
     ) {
         MaterialTheme(
             colorScheme = colors.material,
-            content = content
+            content = content,
+            shapes = Shapes,
+            typography = Typography,
         )
     }
 }

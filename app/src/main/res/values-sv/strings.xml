@@ -59,7 +59,7 @@
     <string name="get_started">Kom igång</string>
     <string name="refresh">Ladda om sidan</string>
     <string name="select_all">Markera allt</string>
-    <string name="got_it">Förstått</string>
+    <string name="lbl_got_it">Förstått</string>
     <string name="skip">Hoppa över</string>
     <string name="retry">Försök igen</string>
 

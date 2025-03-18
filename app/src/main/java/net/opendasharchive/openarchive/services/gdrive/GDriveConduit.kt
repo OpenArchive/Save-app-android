@@ -20,7 +20,7 @@ import com.google.api.services.drive.model.File
 import info.guardianproject.netcipher.proxy.OrbotHelper
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.features.folders.BrowseFoldersViewModel
+import net.opendasharchive.openarchive.features.folders.Folder
 import net.opendasharchive.openarchive.services.Conduit
 import net.opendasharchive.openarchive.util.Prefs
 import org.apache.http.conn.ClientConnectionManager
@@ -174,8 +174,8 @@ class GDriveConduit(media: Media, context: Context) : Conduit(media, context) {
             return parentFolder
         }
 
-        fun listFoldersInRoot(gdrive: Drive): List<BrowseFoldersViewModel.Folder> {
-            val result = ArrayList<BrowseFoldersViewModel.Folder>()
+        fun listFoldersInRoot(gdrive: Drive): List<Folder> {
+            val result = ArrayList<Folder>()
             try {
                 var pageToken: String? = null
                 do {
@@ -185,7 +185,7 @@ class GDriveConduit(media: Media, context: Context) : Conduit(media, context) {
                             .setFields("nextPageToken, files(id, name, createdTime)").execute()
                     for (f in folders.files) {
                         val date = Date(f.createdTime.value)
-                        result.add(BrowseFoldersViewModel.Folder(f.name, date))
+                        result.add(Folder(f.name, date))
                     }
                     pageToken = folders.nextPageToken
                 } while (pageToken != null)

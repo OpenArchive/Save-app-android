@@ -70,8 +70,7 @@ abstract class Conduit(
 
                 hash = ProofMode.generateProof(mContext, mMedia.fileUri, proofHash)
             }
-
-            return ProofMode.getProofDir(mContext, hash).listFiles() ?: emptyArray()
+            return ProofMode.getProofDir(mContext, mMedia.mediaHashString).listFiles() ?: emptyArray()
         } catch (exception: FileNotFoundException) {
             AppLogger.e(exception)
 

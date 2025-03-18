@@ -65,7 +65,7 @@
     <string name="get_started">Beginnen</string>
     <string name="refresh">Vernieuwen</string>
     <string name="select_all">Alles selecteren</string>
-    <string name="got_it">Begrepen</string>
+    <string name="lbl_got_it">Begrepen</string>
     <string name="skip">Overslaan</string>
     <string name="retry">Opnieuw proberen</string>
 

@@ -7,15 +7,16 @@
     android:layout_height="match_parent"
     android:gravity="center_vertical"
     android:orientation="vertical"
-    android:weightSum="55">
+    android:weightSum="55"
+    tools:showIn="@layout/activity_onboarding23">
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="12"
+        android:layout_weight="8"
         android:adjustViewBounds="true"
         android:src="@drawable/save_oa"
-        app:tint="@color/colorPrimary" />
+        app:tint="@color/colorTertiary" />
 
     <View
         android:layout_width="match_parent"
@@ -47,10 +48,10 @@
             android:scaleX="1.15"
             android:scaleY="1.15"
             android:text="@string/intro_header_secure"
+            android:textColor="@color/colorOnBackground"
             android:textFontWeight="900"
-            android:textStyle="bold"
-            app:autoSizeTextType="uniform"
-            tools:targetApi="p" />
+            android:textSize="60sp"
+            app:autoSizeTextType="uniform" />
 
     </LinearLayout>
 
@@ -75,10 +76,10 @@
             android:scaleX="1.15"
             android:scaleY="1.15"
             android:text="@string/intro_header_archive"
+            android:textColor="@color/colorOnBackground"
             android:textFontWeight="900"
-            android:textStyle="bold"
-            app:autoSizeTextType="uniform"
-            tools:targetApi="p" />
+            android:textSize="60sp"
+            app:autoSizeTextType="uniform" />
     </LinearLayout>
 
     <LinearLayout
@@ -102,10 +103,10 @@
             android:scaleX="1.15"
             android:scaleY="1.15"
             android:text="@string/intro_header_verify"
+            android:textColor="@color/colorOnBackground"
             android:textFontWeight="900"
-            android:textStyle="bold"
-            app:autoSizeTextType="uniform"
-            tools:targetApi="p" />
+            android:textSize="60sp"
+            app:autoSizeTextType="uniform" />
 
     </LinearLayout>
 
@@ -131,26 +132,27 @@
             android:scaleX="1.15"
             android:scaleY="1.15"
             android:text="@string/intro_header_encrypt"
+            android:textColor="@color/colorOnBackground"
             android:textFontWeight="900"
-            android:textStyle="bold"
-            app:autoSizeTextType="uniform"
-            tools:targetApi="p" />
+            android:textSize="60sp"
+            app:autoSizeTextType="uniform" />
 
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="2" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="2"
+        android:textColor="@color/colorOnBackground"
+        android:layout_weight="5"
         android:text="@string/secure_mobile_media_preservation"
-        android:textStyle="bold"
+        android:textFontWeight="600"
         app:autoSizeMaxTextSize="500sp"
-        app:autoSizeMinTextSize="4sp"
+        app:autoSizeMinTextSize="16sp"
         app:autoSizeTextType="uniform" />
 
 </LinearLayout>

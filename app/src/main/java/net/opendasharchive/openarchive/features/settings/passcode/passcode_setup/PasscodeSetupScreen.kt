@@ -22,17 +22,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.core.presentation.theme.Theme
+import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.features.settings.passcode.AppHapticFeedbackType
 import net.opendasharchive.openarchive.features.settings.passcode.HapticManager
 import net.opendasharchive.openarchive.features.settings.passcode.components.MessageManager
@@ -49,7 +52,9 @@ fun PasscodeSetupScreen(
     hapticManager: HapticManager = koinInject()
 ) {
 
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
 
     val hapticFeedback = LocalHapticFeedback.current
 
@@ -64,7 +69,7 @@ fun PasscodeSetupScreen(
                 PasscodeSetupUiEvent.PasscodeSet -> onPasscodeSet()
                 PasscodeSetupUiEvent.PasscodeDoNotMatch -> {
                     hapticManager.performHapticFeedback(AppHapticFeedbackType.Error)
-                    MessageManager.showMessage("Passcodes do not match. Try again.")
+                    MessageManager.showMessage(context.getString(R.string.passcode_do_not_match))
                 }
 
                 PasscodeSetupUiEvent.PasscodeCancelled -> onCancel()
@@ -99,27 +104,41 @@ private fun PasscodeSetupScreenContent(
             verticalArrangement = Arrangement.Top,
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(top = 32.dp)
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 24.dp)
         ) {
-            Image(
-                painter = painterResource(R.drawable.savelogo),
-                contentDescription = null,
-                modifier = Modifier.size(100.dp),
-                contentScale = ContentScale.Fit
+            Text(
+                text = if (state.isConfirming) stringResource(R.string.confirm_passcode) else stringResource(R.string.set_passcode),
+                style = TextStyle(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Remember this PIN. If you forget it, you will need to reset the application and all data will be erased.",
+                text = stringResource(R.string.set_passcode_warning),
                 color = MaterialTheme.colorScheme.error,
+                fontSize = 11.sp,
                 textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Light,
+                fontWeight = FontWeight.Medium,
                 style = MaterialTheme.typography.labelMedium
             )
         }
 
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Passcode dots display
+        PasscodeDots(
+            passcodeLength = state.passcodeLength,
+            currentPasscodeLength = state.passcode.length,
+            shouldShake = state.shouldShake
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
 
         // Middle section with prompt and passcode dots
         Column(
@@ -129,76 +148,61 @@ private fun PasscodeSetupScreenContent(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = if (state.isConfirming) "Confirm Your Passcode" else "Set Your Passcode",
-                style = TextStyle(
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            )
-
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Passcode dots display
-            PasscodeDots(
-                passcodeLength = state.passcodeLength,
-                currentPasscodeLength = state.passcode.length,
-                shouldShake = state.shouldShake
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
 
             // Custom numeric keypad
             NumericKeypad(
                 isEnabled = !state.isProcessing,
                 onNumberClick = { number ->
                     onAction(PasscodeSetupUiAction.OnNumberClick(number))
+                },
+                onDeleteClick = {
+                    onAction(PasscodeSetupUiAction.OnBackspaceClick)
+                },
+                onSubmitClick = {
+                    onAction(PasscodeSetupUiAction.OnSubmit)
                 }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                TextButton(
-                    onClick = {
-                        onAction(PasscodeSetupUiAction.OnCancel)
-                    }
-                ) {
-                    Text(
-                        text = "Cancel",
-                        modifier = Modifier.padding(8.dp),
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                        ),
-                    )
-                }
-
-                TextButton(
-                    enabled = state.passcode.isNotEmpty(),
-                    onClick = {
-                        onAction(PasscodeSetupUiAction.OnBackspaceClick)
-                    }
-                ) {
-                    Text(
-                        text = "Delete",
-                        modifier = Modifier.padding(8.dp),
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                    )
-                }
+            Spacer(modifier = Modifier.height(64.dp))
 
 
-            }
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.SpaceAround
+//            ) {
+//                TextButton(
+//                    onClick = {
+//                        onAction(PasscodeSetupUiAction.OnCancel)
+//                    }
+//                ) {
+//                    Text(
+//                        text = "Cancel",
+//                        modifier = Modifier.padding(8.dp),
+//                        style = TextStyle(
+//                            fontSize = 16.sp,
+//                            fontWeight = FontWeight.Bold,
+//                        ),
+//                    )
+//                }
+//
+//                TextButton(
+//                    enabled = state.passcode.isNotEmpty(),
+//                    onClick = {
+//                        onAction(PasscodeSetupUiAction.OnBackspaceClick)
+//                    }
+//                ) {
+//                    Text(
+//                        text = "Delete",
+//                        modifier = Modifier.padding(8.dp),
+//                        style = TextStyle(
+//                            fontSize = 16.sp,
+//                            fontWeight = FontWeight.Bold
+//                        ),
+//                    )
+//                }
+//
+//
+//            }
         }
     }
 }
@@ -207,7 +211,7 @@ private fun PasscodeSetupScreenContent(
 @Preview
 @Composable
 private fun PasscodeSetupScreenPreview() {
-    Theme {
+    DefaultScaffoldPreview {
         PasscodeSetupScreenContent(
             state = PasscodeSetupUiState(
                 passcodeLength = 6

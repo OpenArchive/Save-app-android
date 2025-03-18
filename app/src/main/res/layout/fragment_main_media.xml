@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -15,7 +14,6 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_gravity="top"
-            android:layout_marginTop="6dp"
             android:gravity="top"
             android:orientation="vertical">
 
@@ -25,14 +23,15 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/add_media_hint"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:elevation="1dp">
 
         <TextView
             android:id="@+id/tv_welcome"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
-            android:layout_marginTop="100dp"
+            android:layout_marginTop="120dp"
             android:gravity="center"
             android:text="@string/title_welcome"
             android:textColor="@color/c23_medium_grey"
@@ -41,8 +40,7 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:targetApi="p" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tv_welcome_descr"
@@ -60,24 +58,40 @@
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_welcome"
-            tools:targetApi="p" />
+            app:layout_constraintTop_toBottomOf="@id/tv_welcome" />
 
-        <ImageView
+        <LinearLayout
+            android:id="@+id/img_welcome_arrow_layout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginStart="50dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="50dp"
-            android:layout_marginBottom="40dp"
             android:contentDescription="@string/title_welcome"
+            android:gravity="end"
+            android:orientation="vertical"
             android:scaleType="fitEnd"
+            android:src="@drawable/welcome_arrow"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tv_welcome_descr"
-            app:srcCompat="@drawable/welcome_arrow"
-            app:tint="@color/c23_medium_grey" />
+            app:tint="@color/c23_medium_grey">
+
+            <ImageView
+                android:id="@+id/img_welcome_arrow"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="48dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="48dp"
+                android:layout_marginBottom="8dp"
+                android:contentDescription="@string/title_welcome"
+                android:scaleType="fitEnd"
+                android:src="@drawable/welcome_arrow"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_welcome_descr"
+                app:tint="@color/c23_medium_grey" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

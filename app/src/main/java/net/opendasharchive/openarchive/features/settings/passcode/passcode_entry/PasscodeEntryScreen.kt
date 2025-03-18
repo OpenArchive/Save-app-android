@@ -29,9 +29,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.core.presentation.theme.Theme
+import net.opendasharchive.openarchive.core.presentation.theme.DefaultEmptyScaffoldPreview
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
+import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.features.settings.passcode.AppHapticFeedbackType
 import net.opendasharchive.openarchive.features.settings.passcode.HapticManager
 import net.opendasharchive.openarchive.features.settings.passcode.components.MessageManager
@@ -49,7 +54,9 @@ fun PasscodeEntryScreen(
     hapticManager: HapticManager = koinInject()
 ) {
 
-    val state by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val context = LocalContext.current
 
 
     val hapticFeedback = LocalHapticFeedback.current
@@ -65,21 +72,21 @@ fun PasscodeEntryScreen(
                 PasscodeEntryUiEvent.Success -> onPasscodeSuccess()
 
                 PasscodeEntryUiEvent.PasscodeNotSet -> {
-                    MessageManager.showMessage("Passcode not set")
+                    MessageManager.showMessage(context.getString(R.string.passcode_not_set))
                 }
 
                 is PasscodeEntryUiEvent.IncorrectPasscode -> {
                     hapticManager.performHapticFeedback(AppHapticFeedbackType.Error)
 
                     event.remainingAttempts?.let {
-                        val message = "Incorrect passcode. $it attempts remaining."
+                        val message = context.getString(R.string.passcode_remaining_attempts, it)//"Incorrect passcode. $it attempts remaining."
                         MessageManager.showMessage(message)
                     }
 
                 }
 
                 PasscodeEntryUiEvent.LockedOut -> {
-                    MessageManager.showMessage("Too many failed attempts. App is locked.")
+                    MessageManager.showMessage(context.getString(R.string.passcode_too_many_failed_attempts))
                     onExit()
                 }
             }
@@ -136,7 +143,7 @@ fun PasscodeEntryScreenContent(
         ) {
 
             Text(
-                text = "Enter Your Passcode", style = TextStyle(
+                text = stringResource(R.string.enter_passcode), style = TextStyle(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
@@ -159,50 +166,56 @@ fun PasscodeEntryScreenContent(
                 isEnabled = !state.isProcessing,
                 onNumberClick = { number ->
                     onAction(PasscodeEntryScreenAction.OnNumberClick(number))
+                },
+                onDeleteClick = {
+                    onAction(PasscodeEntryScreenAction.OnBackspaceClick)
+                },
+                onSubmitClick = {
+
                 }
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                TextButton(
-                    onClick = {
-                        onExit()
-                    }
-                ) {
-                    Text(
-                        text = "Exit",
-                        modifier = Modifier.padding(8.dp),
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                        ),
-                    )
-                }
+            Spacer(modifier = Modifier.height(16.dp))
 
-                TextButton(
-                    enabled = state.passcode.isNotEmpty(),
-                    onClick = {
-                        onAction(PasscodeEntryScreenAction.OnBackspaceClick)
-                    }
-                ) {
-                    Text(
-                        text = "Delete",
-                        modifier = Modifier.padding(8.dp),
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                    )
-                }
-
-
-            }
-
-
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.SpaceAround
+//            ) {
+//                TextButton(
+//                    onClick = {
+//                        onExit()
+//                    }
+//                ) {
+//                    Text(
+//                        text = "Exit",
+//                        modifier = Modifier.padding(8.dp),
+//                        style = TextStyle(
+//                            fontSize = 16.sp,
+//                            fontWeight = FontWeight.Bold,
+//                            color = MaterialTheme.colorScheme.onBackground
+//                        ),
+//                    )
+//                }
+//
+//                TextButton(
+//                    enabled = state.passcode.isNotEmpty(),
+//                    onClick = {
+//                        onAction(PasscodeEntryScreenAction.OnBackspaceClick)
+//                    }
+//                ) {
+//                    Text(
+//                        text = "Delete",
+//                        modifier = Modifier.padding(8.dp),
+//                        style = TextStyle(
+//                            fontSize = 16.sp,
+//                            fontWeight = FontWeight.Bold,
+//                            color = MaterialTheme.colorScheme.onBackground
+//                        ),
+//                    )
+//                }
+//            }
         }
     }
 }
@@ -213,7 +226,8 @@ fun PasscodeEntryScreenContent(
 @Composable
 private fun PasscodeEntryScreenPreview() {
 
-    Theme {
+    DefaultEmptyScaffoldPreview {
+
         PasscodeEntryScreenContent(
             state = PasscodeEntryScreenState(
                 passcodeLength = 6
@@ -221,5 +235,6 @@ private fun PasscodeEntryScreenPreview() {
             onAction = {},
             onExit = {},
         )
+
     }
 }

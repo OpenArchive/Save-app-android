@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:elevation="8dp"
+    android:background="@drawable/bg_pill_white">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/menu_folder_bar_rename_folder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackground"
+            android:padding="4dp"
+            android:text="Rename folder"
+            android:textSize="16sp" />
+
+
+        <TextView
+            android:id="@+id/menu_folder_bar_select_media"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackground"
+            android:padding="4dp"
+            android:text="Select media"
+            android:textSize="16sp" />
+
+
+
+        <TextView
+            android:id="@+id/menu_folder_bar_remove"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackground"
+            android:padding="4dp"
+            android:text="Remove folder from app"
+            android:textSize="16sp" />
+
+
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

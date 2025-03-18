@@ -211,7 +211,7 @@
     <string name="preview_media">Попередній перегляд медіа</string>
     <string name="add_more">Додати більше</string>
     <string name="select_all">Вибрати всі</string>
-    <string name="got_it">Зрозуміло</string>
+    <string name="lbl_got_it">Зрозуміло</string>
     <string name="do_not_show_me_this_again">Не показувати знову</string>
     <string name="edit_multiple">Редагувати декілька</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">Натисніть й утримуйте для обрання та редагування декількох медіафайлів.</string>

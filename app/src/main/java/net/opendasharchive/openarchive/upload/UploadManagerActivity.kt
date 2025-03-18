@@ -36,22 +36,11 @@ class UploadManagerActivity : BaseActivity() {
                 else {
                     handler.post { mFrag?.updateItem(mediaId) }
                 }
-
-//                if (media?.sStatus == Media.Status.Error) {
-//                    CleanInsightsManager.getConsent(this@UploadManagerActivity) {
-//                        // TODO: Record metadata. See iOS implementation.
-//                        CleanInsightsManager.measureEvent("upload", "upload_failed")
-//                    }
-//                }
-            }
-
-            handler.post {
-                updateTitle()
             }
         }
     }
 
-    private var mEditMode = false
+    private var mEditMode = true // Setting Edit mode as the default mode
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,10 +48,16 @@ class UploadManagerActivity : BaseActivity() {
         mBinding = ActivityUploadManagerBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
-        setSupportActionBar(mBinding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setupToolbar(
+            title = getString(R.string.upload_manager_screen_title),
+            subtitle = getString(R.string.upload_manager_screen_subtitle),
+            showBackButton = true
+        )
 
-        mFrag = supportFragmentManager.findFragmentById(R.id.fragUploadManager) as? UploadManagerFragment
+        //mFrag = supportFragmentManager.findFragmentById(R.id.fragUploadManager) as? UploadManagerFragment
+
+        val bottomSheet = UploadManagerFragment()
+        bottomSheet.show(supportFragmentManager, UploadManagerFragment.TAG)
     }
 
     override fun onResume() {
@@ -71,7 +66,7 @@ class UploadManagerActivity : BaseActivity() {
 
         BroadcastManager.register(this, mMessageReceiver)
 
-        updateTitle()
+        onStartEdit()
     }
 
     override fun onPause() {
@@ -80,9 +75,17 @@ class UploadManagerActivity : BaseActivity() {
         BroadcastManager.unregister(this, mMessageReceiver)
     }
 
+    private fun onStartEdit() {
+        UploadService.stopUploadService(this)
+    }
+
+    private fun onCompleteEdit() {
+        UploadService.startUploadService(this)
+    }
+
     private fun toggleEditMode() {
         mEditMode = !mEditMode
-        mFrag?.setEditMode(mEditMode)
+
         mFrag?.refresh()
 
         if (mEditMode) {
@@ -101,7 +104,7 @@ class UploadManagerActivity : BaseActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_upload, menu)
-        mMenuEdit = menu.findItem(R.id.menu_edit)
+        mMenuEdit =  menu.findItem(R.id.menu_done)
 
         return super.onCreateOptionsMenu(menu)
     }
@@ -112,8 +115,8 @@ class UploadManagerActivity : BaseActivity() {
                 finish()
                 return true
             }
-            R.id.menu_edit -> {
-                toggleEditMode()
+            R.id.menu_done -> {
+                onCompleteEdit()
                 return true
             }
         }
@@ -133,8 +136,7 @@ class UploadManagerActivity : BaseActivity() {
         if (mEditMode) {
             supportActionBar?.title = getString(R.string.edit_media)
             supportActionBar?.subtitle = getString(R.string.uploading_is_paused)
-        }
-        else {
+        } else {
             val count = mFrag?.getUploadingCounter() ?: 0
 
             supportActionBar?.title = if (count < 1) {

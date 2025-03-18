@@ -1,69 +1,66 @@
 package net.opendasharchive.openarchive.features.folders
 
-import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FolderRowBinding
-import net.opendasharchive.openarchive.util.extensions.clone
-import net.opendasharchive.openarchive.util.extensions.scaled
-import net.opendasharchive.openarchive.util.extensions.tint
 import java.text.SimpleDateFormat
 
 class BrowseFoldersAdapter(
-    private val folders: List<BrowseFoldersViewModel.Folder> = emptyList(),
-    private val onClick: (folder: BrowseFoldersViewModel.Folder) -> Unit
+    private val folders: List<Folder> = emptyList(),
+    private val onClick: (folder: Folder) -> Unit
 ) : RecyclerView.Adapter<BrowseFoldersAdapter.FolderViewHolder>() {
 
     companion object {
-        private var sOriginalColor = 0
-        private var sHighlightColor = 0
-        private var sIcon: Drawable? = null
         private val formatter = SimpleDateFormat.getDateTimeInstance(SimpleDateFormat.LONG, SimpleDateFormat.MEDIUM)
     }
 
-    private var mSelected = -1
+    private var mSelected: Folder? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FolderViewHolder {
         val binding = FolderRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        val context = binding.root.context
-
-        if (sOriginalColor == 0) sOriginalColor = binding.name.currentTextColor
-        if (sHighlightColor == 0) sHighlightColor = ContextCompat.getColor(context, R.color.colorPrimary)
-        if (sIcon == null) sIcon = ContextCompat.getDrawable(context, R.drawable.ic_folder)?.scaled(0.75, context)
 
         return FolderViewHolder(binding, onClick)
     }
 
     override fun onBindViewHolder(holder: FolderViewHolder, position: Int) {
-        holder.onBindView(position, mSelected == position)
+        holder.bind(folders[position])
     }
 
-    override fun getItemCount(): Int {
-        return folders.size
-    }
+    override fun getItemCount(): Int = folders.size
 
-    inner class FolderViewHolder(
-        private val binding: FolderRowBinding,
-        private val onClick: (folder: BrowseFoldersViewModel.Folder) -> Unit
-    ) : RecyclerView.ViewHolder(binding.root)
-    {
-        fun onBindView(position: Int, selected: Boolean) {
-            val color = if (selected) sHighlightColor else sOriginalColor
+    inner class FolderViewHolder(private val binding: FolderRowBinding, private val onClick: (folder: Folder) -> Unit) : RecyclerView.ViewHolder(binding.root) {
 
-            binding.icon.setImageDrawable(sIcon?.clone()?.tint(color))
-            binding.name.setTextColor(color)
+        fun bind(folder: Folder) {
 
-            binding.name.text = folders[position].name
-            binding.timestamp.text = formatter.format(folders[position].modified)
+            val isSelected = mSelected == folder
+
+            itemView.isSelected = isSelected
+
+
+            val icon = ContextCompat.getDrawable(binding.icon.context, R.drawable.ic_folder_new)
+            icon?.setTint(ContextCompat.getColor(binding.icon.context, R.color.colorOnBackground))
+            binding.icon.setImageDrawable(icon)
+
+            binding.name.text = folder.name
+            binding.timestamp.text = formatter.format(folder.modified)
+
+            binding.rvTick.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
 
             binding.root.setOnClickListener {
-                mSelected = position
-                this@BrowseFoldersAdapter.notifyDataSetChanged()
+                if (mSelected == folder) return@setOnClickListener
 
-                onClick.invoke(folders[position])
+                val previousSelected = mSelected
+                mSelected = folder
+
+                // Notify changes for previous and current selection
+                notifyItemChanged(folders.indexOf(previousSelected))
+                notifyItemChanged(folders.indexOf(mSelected))
+
+                onClick.invoke(folder)
             }
         }
     }

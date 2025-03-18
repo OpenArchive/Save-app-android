@@ -10,8 +10,10 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.view.View
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -33,6 +35,8 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Project
+import net.opendasharchive.openarchive.features.main.MainActivity
+import net.opendasharchive.openarchive.features.main.MainActivity.Companion.REQUEST_CAMERA_PERMISSION
 import net.opendasharchive.openarchive.util.Utility
 import net.opendasharchive.openarchive.util.extensions.makeSnackBar
 import org.witness.proofmode.crypto.HashUtils
@@ -81,8 +85,8 @@ object Picker {
             }
         }
 
-        val cpl = activity.registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-            if (success) {
+        val cpl = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == AppCompatActivity.RESULT_OK) {
                 currentPhotoUri?.let { uri ->
 
                     val snackbar = showProgressSnackBar(activity, root, activity.getString(R.string.importing_media))
@@ -106,15 +110,7 @@ object Picker {
         )
     }
 
-    fun pickMedia(activity: Activity, launcher: ImagePickerLauncher) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (needAskForPermission(activity, arrayOf(
-                    Manifest.permission.READ_MEDIA_IMAGES,
-                    Manifest.permission.READ_MEDIA_VIDEO))
-            ) {
-                return
-            }
-        }
+    fun pickMedia(launcher: ImagePickerLauncher) {
 
         val config = ImagePickerConfig {
             mode = ImagePickerMode.MULTIPLE
@@ -141,26 +137,6 @@ object Picker {
     private val mFilePickerIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
         addCategory(Intent.CATEGORY_OPENABLE)
         type = "application/*"
-    }
-
-    private fun needAskForPermission(activity: Activity, permissions: Array<String>): Boolean {
-        var needAsk = false
-
-        for (permission in permissions) {
-            needAsk = ContextCompat.checkSelfPermission(
-                activity,
-                permission
-            ) != PackageManager.PERMISSION_GRANTED
-                    && ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)
-
-            if (needAsk) break
-        }
-
-        if (!needAsk) return false
-
-        ActivityCompat.requestPermissions(activity, permissions, 2)
-
-        return true
     }
 
     private fun import(context: Context, project: Project?, uris: List<Uri>): ArrayList<Media> {
@@ -221,16 +197,28 @@ object Picker {
         return media
     }
 
-    fun takePhoto(context: Context, launcher: ActivityResultLauncher<Uri>) {
-        val file = Utility.getOutputMediaFileByCache(context, "IMG_${System.currentTimeMillis()}.jpg")
+    fun takePhoto(activity: Activity, launcher: ActivityResultLauncher<Intent>) {
+
+        val file = Utility.getOutputMediaFileByCache(activity, "IMG_${System.currentTimeMillis()}.jpg")
 
         file?.let {
             val uri = FileProvider.getUriForFile(
-                context, "${context.packageName}.provider",
+                activity, "${activity.packageName}.provider",
                 it
             )
+
             currentPhotoUri = uri
-            launcher.launch(uri)
+
+            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
+                putExtra(MediaStore.EXTRA_OUTPUT, uri)
+                addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION) // Ensure permission is granted
+            }
+
+            if (takePictureIntent.resolveActivity(activity.packageManager) != null) {
+                launcher.launch(takePictureIntent)
+            } else {
+                Toast.makeText(activity, "Camera not available", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

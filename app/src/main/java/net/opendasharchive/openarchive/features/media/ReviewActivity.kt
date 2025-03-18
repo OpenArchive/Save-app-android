@@ -10,16 +10,16 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import com.bumptech.glide.Glide
-import com.facebook.drawee.view.SimpleDraweeView
 import com.github.derlio.waveform.SimpleWaveformView
 import com.squareup.picasso.Picasso
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivityReviewBinding
 import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.db.MediaViewHolder
+import net.opendasharchive.openarchive.db.UploadMediaViewHolder
 import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.fragments.VideoRequestHandler
-import net.opendasharchive.openarchive.util.AlertHelper
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show
@@ -67,15 +67,19 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
         mBinding = ActivityReviewBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
-        setSupportActionBar(mBinding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        mBatchMode = intent.getBooleanExtra(EXTRA_BATCH_MODE, false)
+
+        setupToolbar(
+            title = if (mBatchMode) "Bulk Edit Media Info" else getString(R.string.edit_media_info),
+            showBackButton = true
+        )
 
         mStore = intent.getLongArrayExtra(EXTRA_CURRENT_MEDIA_ID)
             ?.map { Media.get(it) }?.filterNotNull() ?: emptyList()
 
         mIndex = savedInstanceState?.getInt(EXTRA_SELECTED_IDX) ?: intent.getIntExtra(EXTRA_SELECTED_IDX, 0)
 
-        mBatchMode = intent.getBooleanExtra(EXTRA_BATCH_MODE, false)
+
 
         mBinding.btFlag.setOnClickListener(this)
 
@@ -166,12 +170,12 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
 
     override fun onClick(view: View?) {
         when (view) {
-            mBinding.waveform, mBinding.image -> {
-                if (mMedia?.mimeType?.startsWith("image") == true) {
-                    val draweeView = SimpleDraweeView(this)
-                    draweeView.setImageURI(mMedia?.fileUri)
-                }
-            }
+//            mBinding.waveform, mBinding.image -> {
+//                if (mMedia?.mimeType?.startsWith("image") == true) {
+//                    val draweeView = SimpleDraweeView(this)
+//                    draweeView.setImageURI(mMedia?.fileUri)
+//                }
+//            }
             mBinding.btFlag -> {
                 showFirstTimeFlag()
 
@@ -283,9 +287,18 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
         }
 
     private fun showFirstTimeFlag() {
-        if (Prefs.flagHintShown) return
+        if (!Prefs.flagHintShown) return
 
-        AlertHelper.show(this, R.string.popup_flag_desc, R.string.popup_flag_title)
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            title = UiText.StringResource(R.string.popup_flag_title)
+            message = UiText.StringResource(R.string.popup_flag_desc)
+            positiveButton {
+                text = UiText.StringResource(R.string.lbl_got_it)
+                action = {
+                    dialogManager.dismissDialog()
+                }
+            }
+        }
 
         Prefs.flagHintShown = true
     }
@@ -322,7 +335,7 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
             imageView.setImageResource(R.drawable.audio_waveform)
 
             if (waveform != null) {
-                val soundFile = MediaViewHolder.soundCache[media.originalFilePath]
+                val soundFile = UploadMediaViewHolder.soundCache[media.originalFilePath]
                 if (soundFile != null) {
                     waveform.setAudioFile(soundFile)
                     waveform.show()

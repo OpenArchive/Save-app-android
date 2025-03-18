@@ -4,10 +4,12 @@
     <!-- legacy color value definitions -->
 
     <color name="red">#ff0000</color>
+    <color name="red_bg">#DC341E</color>
     <color name="green">#00ff00</color>
     <color name="blue">#0000ff</color>
     <color name="black">#000000</color>
     <color name="transparent_black">#33333333</color>
+    <color name="transparent_loading_overlay">#AB2B2B2B</color>
     <color name="transparent_white">#CCFFFFFF</color>
     <color name="storymaker_blue">#27aae1</color>
     <color name="bright_blue">#b0e7ff</color>
@@ -17,6 +19,7 @@
     <color name="light_grey">#9e9e9e</color>
     <color name="grey">#757575</color>
     <color name="dark_grey">#424242</color>
+    <color name="text_grey">#434343</color>
     <color name="light_black">#212121</color>
     <color name="brand_accent">#A92E33</color>
 
@@ -78,18 +81,38 @@
     <color name="colorOnBackground">@color/black</color>
     <color name="colorOnBackgroundTonedDown">@color/c23_grey</color>
     <color name="colorOnBackgroundLowContrast">@color/c23_grey</color>
-    <color name="colorOnPrimary">@color/white</color>
-    <color name="colorOnPrimaryTonedDown">#ffffff</color>
+
     <color name="colorPrimary">@color/c23_teal</color>
+    <color name="colorOnPrimary">@color/white</color>
+    <color name="colorPrimaryContainer">@color/c23_teal</color>
+    <color name="colorOnPrimaryContainer">@color/black</color>
+
+    <color name="colorOnPrimaryTonedDown">#ffffff</color>
     <color name="colorPrimaryDark">@color/c23_teal_40</color>
     <color name="colorPrimaryBright">@color/c23_powder_blue</color>
+    <color name="colorSecondary">@color/c23_teal_40</color>
+    <color name="colorOnSecondary">@color/black</color>
+    <color name="colorSecondaryContainer">@color/c23_teal_90</color>
+    <color name="colorOnSecondaryContainer">@color/black</color>
+    <color name="colorSecondaryDark">@color/c23_teal_30</color>
+    <color name="colorSecondaryBright">@color/c23_teal_60</color>
+
+    <color name="colorSurface">#F5F1E7</color>
+    <color name="colorOnSurface">@color/c23_dark_grey</color>
+    <color name="colorOnSurfaceVariant">@color/text_grey</color>
+
+    <color name="colorTertiary">@color/c23_teal</color>
     <color name="colorText">@color/c23_dark_grey</color>
 
-    <!-- custom day colors -->
+    <color name="colorError">@color/red</color>
 
+    <!-- custom day colors -->
+    <color name="inputBackground">#FFFBF0</color>
+    <color name="buttonBackground">@color/c23_teal_60</color>
+    <color name="colorDrawerSpaceListBackground">@color/c23_light_grey</color>
     <color name="colorBottomNavbar">@color/colorPrimary</color>
     <color name="colorOnBottomNavbar">@color/colorOnBackground</color>
-    <color name="colorAddButton">@color/colorBackground</color>
+    <color name="colorAddButton">@color/colorOnPrimary</color>
     <color name="colorOnAddButton">@color/colorOnBackground</color>
     <color name="colorNavigationDrawerBackground">@color/colorBackground</color>
     <color name="colorOnboarding23GetStarted">@color/colorOnBackground</color>

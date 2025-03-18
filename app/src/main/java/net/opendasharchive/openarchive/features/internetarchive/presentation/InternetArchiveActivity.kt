@@ -1,31 +1,65 @@
 package net.opendasharchive.openarchive.features.internetarchive.presentation
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import net.opendasharchive.openarchive.CleanInsightsManager
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.features.core.dialog.DialogHost
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.internetarchive.presentation.components.IAResult
 import net.opendasharchive.openarchive.features.internetarchive.presentation.components.getSpace
+import net.opendasharchive.openarchive.features.internetarchive.presentation.login.ComposeAppBar
 import net.opendasharchive.openarchive.features.main.MainActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 @Deprecated("use jetpack compose")
 class InternetArchiveActivity : AppCompatActivity() {
+
+    val dialogManager: DialogStateManager by viewModel()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val (space, isNewSpace) = intent.extras.getSpace(Space.Type.INTERNET_ARCHIVE)
 
         setContent {
-            InternetArchiveScreen(space, isNewSpace) {
-                finish(it)
+
+            SaveAppTheme {
+
+                DialogHost(dialogManager)
+
+                Scaffold(
+                    topBar = {
+                        ComposeAppBar(
+                            title = stringResource(R.string.internet_archive),
+                            onNavigationAction = { onComplete(IAResult.Cancelled) }
+                        )
+                    }
+                ) { paddingValues ->
+                    Box(modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)) {
+                        InternetArchiveScreen(space, isNewSpace) {
+                            onComplete(it)
+                        }
+                    }
+                }
             }
+
+
         }
     }
 
-    private fun finish(result: IAResult) {
+    private fun onComplete(result: IAResult) {
         when (result) {
             IAResult.Saved -> {
                 startActivity(Intent(this, MainActivity::class.java))
@@ -33,7 +67,7 @@ class InternetArchiveActivity : AppCompatActivity() {
             }
 
             IAResult.Deleted -> Space.navigate(this)
-            else -> Unit
+            IAResult.Cancelled -> onBackPressed()
         }
     }
 }

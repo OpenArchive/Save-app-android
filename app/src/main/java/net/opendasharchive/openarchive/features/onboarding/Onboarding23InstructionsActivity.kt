@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
@@ -12,6 +13,7 @@ import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivityOnboarding23InstructionsBinding
 import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.util.Prefs
 
 class Onboarding23InstructionsActivity : BaseActivity() {
@@ -98,10 +100,10 @@ class Onboarding23InstructionsActivity : BaseActivity() {
 
     private fun updateCoverImage() {
         when (mBinding.viewPager.currentItem) {
-            0 -> mBinding.coverImage.setImageResource(R.drawable.onboarding23_cover_secure)
-            1 -> mBinding.coverImage.setImageResource(R.drawable.onboarding23_cover_archive)
-            2 -> mBinding.coverImage.setImageResource(R.drawable.onboarding23_cover_verify)
-            3 -> mBinding.coverImage.setImageResource(R.drawable.onboarding23_cover_encrypt)
+            0 -> mBinding.coverImage.setImageResource(R.drawable.onboarding_secure_png)
+            1 -> mBinding.coverImage.setImageResource(R.drawable.onboarding_archive_png)
+            2 -> mBinding.coverImage.setImageResource(R.drawable.onboarding_verify_png)
+            3 -> mBinding.coverImage.setImageResource(R.drawable.onboarding_encrypt_png)
         }
         mBinding.coverImage.alpha = 0F
         mBinding.coverImage.animate().setDuration(200L).alpha(1F).start()
@@ -118,7 +120,16 @@ class Onboarding23InstructionsActivity : BaseActivity() {
     }
 
     private fun done() {
+        // Hide keyboard before finishing activity
+        val imm = getSystemService(InputMethodManager::class.java)
+        currentFocus?.let { view ->
+            imm?.hideSoftInputFromWindow(view.windowToken, 0)
+            view.clearFocus()  // Remove focus from any input field
+        }
+
         Prefs.didCompleteOnboarding = true
-        startActivity(Intent(this, SpaceSetupActivity::class.java))
+        // We are moving space setup to MainActivity
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
     }
 }

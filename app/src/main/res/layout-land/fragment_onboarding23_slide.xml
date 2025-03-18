@@ -39,7 +39,7 @@
                     android:textSize="28sp"
                     android:layout_above="@id/summary"
                     tools:ignore="HardcodedText"
-                    tools:targetApi="p" />
+                     />
 
                 <TextView
                     android:id="@+id/summary"

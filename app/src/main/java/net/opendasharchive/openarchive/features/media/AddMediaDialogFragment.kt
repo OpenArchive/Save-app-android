@@ -18,7 +18,7 @@ class AddMediaDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = MaterialAlertDialogBuilder(requireContext())
-        mDialogView = onCreateView(LayoutInflater.from(requireContext()), null, savedInstanceState)
+        mDialogView = onCreateView(layoutInflater, null, savedInstanceState)
         builder.setView(mDialogView)
         return builder.create()
     }

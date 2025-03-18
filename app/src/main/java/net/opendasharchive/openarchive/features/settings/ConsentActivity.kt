@@ -18,8 +18,7 @@ class ConsentActivity: BaseActivity() {
         mBinding = ActivityConsentBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
-        setSupportActionBar(mBinding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setupToolbar(getString(R.string.health_checks))
 
         mBinding.explainer.text = getString(
             R.string.by_allowing_health_checks_you_give_permission_for_the_app_to_securely_send_health_check_data_to_the_s_team,

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<net.opendasharchive.openarchive.features.main.ui.CustomButton xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/button"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:drawableStart="@drawable/logo_drive_2020q4_color_2x_web_64dp"
+    android:drawableEnd="@drawable/button_with_right_icon"
+    android:background="@drawable/item_background_selector"
+    android:padding="16dp"
+    tools:text="Lorem ipsum"
+    android:textAlignment="viewStart" />
