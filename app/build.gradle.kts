@@ -16,7 +16,11 @@ fun loadLocalProperties(): Properties = Properties().apply {
     if (localPropsFile.exists()) {
         FileInputStream(localPropsFile).use { load(it) }
     } else {
-        throw GradleException("Missing local.properties file")
+        setProperty("MIXPANELKEY", System.getenv("MIXPANEL_KEY") ?: "")
+        setProperty("STOREFILE", System.getenv("STOREFILE") ?: "")
+        setProperty("STOREPASSWORD", System.getenv("STOREPASSWORD") ?: "")
+        setProperty("KEYALIAS", System.getenv("KEYALIAS") ?: "")
+        setProperty("KEYPASSWORD", System.getenv("KEYPASSWORD") ?: "")
     }
 }
 
@@ -45,7 +49,7 @@ android {
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         val localProps = loadLocalProperties()
-        resValue("string", "mixpanel_key", localProps.getProperty("mixpanel.key") ?: "")
+        resValue("string", "mixpanel_key", localProps.getProperty("MIXPANELKEY") ?: "")
     }
 
     base {
@@ -78,10 +82,10 @@ android {
     signingConfigs {
         getByName("debug") {
             val props = loadLocalProperties()
-            storeFile = file(props["storeFile"] as? String ?: "")
-            storePassword = props["storePassword"] as? String ?: ""
-            keyAlias = props["keyAlias"] as? String ?: ""
-            keyPassword = props["keyPassword"] as? String ?: ""
+            storeFile = file(props["STOREFILE"] as? String ?: "")
+            storePassword = props["STOREPASSWORD"] as? String ?: ""
+            keyAlias = props["KEYALIAS"] as? String ?: ""
+            keyPassword = props["KEYPASSWORD"] as? String ?: ""
         }
     }
 
@@ -286,7 +290,7 @@ dependencies {
     detektPlugins(libs.detekt.compose)
     detektPlugins(libs.detekt.rules.compose)
 
-    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.14")
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:3.0-alpha-8")
 }
 
 configurations.all {

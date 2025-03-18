@@ -45,7 +45,7 @@
                     android:textFontWeight="600"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Edit Queue"
+                    android:text="@string/edit_queue"
                     android:textSize="16sp"
                     android:textColor="?attr/colorOnSurface" />
 
@@ -55,7 +55,7 @@
                     android:textSize="11sp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Uploading is paused"
+                    android:text="@string/uploading_is_paused"
                     android:textColor="?attr/colorOnSurface" />
             </LinearLayout>
 

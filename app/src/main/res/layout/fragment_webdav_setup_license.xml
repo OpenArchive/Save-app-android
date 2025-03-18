@@ -32,7 +32,7 @@
                 android:layout_margin="24dp"
                 android:autoLink="web"
                 android:gravity="center"
-                android:text="Name your server and choose a license"
+                android:text="@string/name_your_server"
                 android:textFontWeight="600"
                 android:textSize="18sp" />
 
@@ -98,7 +98,8 @@
                 android:gravity="center"
                 tools:ignore="ButtonStyle">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
+                    app:backgroundTint="@color/colorTertiary"
                     android:textFontWeight="500"
                     android:id="@+id/bt_next"
                     android:paddingHorizontal="32dp"

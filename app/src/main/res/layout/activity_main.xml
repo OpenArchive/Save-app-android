@@ -120,6 +120,7 @@
                 app:cornerRadius="8dp"
                 app:icon="@drawable/ic_add"
                 app:iconTint="@color/colorOnBackground"
+                app:backgroundTint="@color/colorTertiary"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />

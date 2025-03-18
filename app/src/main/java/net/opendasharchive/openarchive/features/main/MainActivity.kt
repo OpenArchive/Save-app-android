@@ -376,7 +376,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 } else {
                     Snackbar.make(
                         binding.root,
-                        "Folder name cannot be empty",
+                        getString(R.string.folder_empty_warning),
                         Snackbar.LENGTH_SHORT
                     ).show()
                 }
@@ -404,7 +404,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             it.description = newName
             it.save()
             refreshCurrentProject()
-            Snackbar.make(binding.root, "Folder renamed", Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(binding.root, getString(R.string.folder_rename_success), Snackbar.LENGTH_SHORT).show()
         }
     }
 
@@ -437,7 +437,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             if (getSelectedProject() != null) {
                 showDeleteFolderConfirmDialog()
             } else {
-                Snackbar.make(binding.root, "Folder not found", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(binding.root, getString(R.string.folder_not_found), Snackbar.LENGTH_LONG).show()
             }
         }
 
@@ -500,7 +500,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                     refreshProjects()
                     updateCurrentFolderVisibility()
                     refreshCurrentProject()
-                    Snackbar.make(binding.root, "Folder removed", Snackbar.LENGTH_SHORT).show()
+                    Snackbar.make(binding.root, getString(R.string.folder_removed), Snackbar.LENGTH_SHORT).show()
                 }
             }
             neutralButton {

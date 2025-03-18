@@ -60,7 +60,7 @@ class ProofModeSettingsActivity : BaseActivity() {
             if (!hasPermission) {
                 proofModeSwitch?.isChecked = false // Uncheck if permission not granted
                 Prefs.putBoolean(Prefs.USE_PROOFMODE, false)
-                Toast.makeText(requireContext(), "Phone permission required", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), getString(R.string.phone_permission_required), Toast.LENGTH_LONG).show()
             } else {
                 proofModeSwitch?.isChecked = Prefs.getBoolean(Prefs.USE_PROOFMODE, false)
             }

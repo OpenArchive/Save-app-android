@@ -1,11 +1,9 @@
 package net.opendasharchive.openarchive.features.main.ui.components
 
-import android.content.res.Configuration
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,8 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.components.PrimaryButton
@@ -53,7 +51,7 @@ fun ExpandableSpaceList(
                 if (selectedSpace != null) {
                     DrawerSpaceListItem(space = selectedSpace)
                 } else {
-                    Text("Servers")
+                    Text(stringResource(R.string.servers))
                 }
 
                 IconButton(
@@ -64,7 +62,7 @@ fun ExpandableSpaceList(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.KeyboardArrowDown,
-                        contentDescription = "Expand"
+                        contentDescription = stringResource(R.string.expand)
                     )
                 }
             }
@@ -83,7 +81,7 @@ fun ExpandableSpaceList(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     PrimaryButton(
-                        text = "Add Server",
+                        text = stringResource(R.string.add_server),
                         icon = Icons.Default.Add
                     ) { }
                 }
@@ -105,7 +103,7 @@ fun DrawerSpaceListItem(
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         SpaceIcon(
-            type = space.tType ?: Space.Type.INTERNET_ARCHIVE,
+            type = space.tType,
             modifier = Modifier.size(24.dp)
         )
 

@@ -1,6 +1,5 @@
 package net.opendasharchive.openarchive.features.core.dialog
 
-import android.content.res.Configuration
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -70,8 +69,6 @@ fun BaseDialog(
             usePlatformDefaultWidth = true
         )
     ) {
-
-
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -265,7 +262,7 @@ private fun BaseDialogPreview() {
         BaseDialog(
             onDismiss = {},
             icon = Icons.Filled.Check.asUiImage(),
-            iconColor = MaterialTheme.colorScheme.primary,
+            iconColor = MaterialTheme.colorScheme.tertiary,
             title = "Success",
             message = "You have added a folder successfully",
             positiveButton = ButtonData(UiText.DynamicString("OK")),
@@ -283,7 +280,7 @@ private fun WarningDialogPreview() {
         BaseDialog(
             onDismiss = {},
             icon = Icons.Default.Warning.asUiImage(),
-            iconColor = MaterialTheme.colorScheme.primary,
+            iconColor = MaterialTheme.colorScheme.tertiary,
             title = "Warning",
             message = "Once uploaded, you will not be able to edit media",
             positiveButton = ButtonData(UiText.DynamicString("OK")),

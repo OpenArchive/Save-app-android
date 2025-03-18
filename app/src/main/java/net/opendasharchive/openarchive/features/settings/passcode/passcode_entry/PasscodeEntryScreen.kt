@@ -29,6 +29,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
@@ -54,6 +56,8 @@ fun PasscodeEntryScreen(
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
+
 
     val hapticFeedback = LocalHapticFeedback.current
 
@@ -68,21 +72,21 @@ fun PasscodeEntryScreen(
                 PasscodeEntryUiEvent.Success -> onPasscodeSuccess()
 
                 PasscodeEntryUiEvent.PasscodeNotSet -> {
-                    MessageManager.showMessage("Passcode not set")
+                    MessageManager.showMessage(context.getString(R.string.passcode_not_set))
                 }
 
                 is PasscodeEntryUiEvent.IncorrectPasscode -> {
                     hapticManager.performHapticFeedback(AppHapticFeedbackType.Error)
 
                     event.remainingAttempts?.let {
-                        val message = "Incorrect passcode. $it attempts remaining."
+                        val message = context.getString(R.string.passcode_remaining_attempts, it)//"Incorrect passcode. $it attempts remaining."
                         MessageManager.showMessage(message)
                     }
 
                 }
 
                 PasscodeEntryUiEvent.LockedOut -> {
-                    MessageManager.showMessage("Too many failed attempts. App is locked.")
+                    MessageManager.showMessage(context.getString(R.string.passcode_too_many_failed_attempts))
                     onExit()
                 }
             }
@@ -139,7 +143,7 @@ fun PasscodeEntryScreenContent(
         ) {
 
             Text(
-                text = "Enter Your Passcode", style = TextStyle(
+                text = stringResource(R.string.enter_passcode), style = TextStyle(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground

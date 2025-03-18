@@ -98,7 +98,7 @@ fun ProofModeScreenContent() {
     val spannedText: Spanned = HtmlCompat.fromHtml(
         stringResource(
             R.string.prefs_use_proofmode_description,
-            "https://www.google.com"
+            "https://proofmode.org/"
         ), HtmlCompat.FROM_HTML_MODE_COMPACT
     )
 

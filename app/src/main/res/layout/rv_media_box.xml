@@ -50,7 +50,7 @@
                 android:indeterminateBehavior="cycle"
                 android:max="100"
                 tools:visibility="visible"
-                app:indicatorColor="@color/colorPrimary"
+                app:indicatorColor="@color/colorTertiary"
                 app:indicatorSize="32dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

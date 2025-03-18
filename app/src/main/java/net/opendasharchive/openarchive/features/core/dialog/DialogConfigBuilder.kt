@@ -5,8 +5,6 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Error
@@ -14,14 +12,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
-import net.opendasharchive.openarchive.features.core.asUiText
 
 // --------------------------------------------------------------------
 // 1. Dialog Types
@@ -276,6 +272,7 @@ fun DialogStateManager.showSuccessDialog(
     showDialog(resourceProvider) {
         type = DialogType.Success
         if (icon != null) this.icon = icon
+        this.iconColor = resourceProvider.getColor(R.color.colorTertiary)
         if (title != null) this.title = UiText.StringResource(title)
         this.message = UiText.StringResource(message)
         positiveButton {
@@ -322,6 +319,7 @@ fun DialogStateManager.showInfoDialog(
     showDialog(resourceProvider) {
         type = DialogType.Info
         this.icon = icon
+        this.iconColor = resourceProvider.getColor(R.color.colorTertiary)
         this.title = title
         this.message = message
         positiveButton {

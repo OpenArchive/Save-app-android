@@ -120,12 +120,12 @@ fun HomeScreen(
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-        HomeScreenContent(
-            onExit = onExit,
-            state = state,
-            onAction = viewModel::onAction,
-            onNavigateToCache = onNavigateToCache
-        )
+    HomeScreenContent(
+        onExit = onExit,
+        state = state,
+        onAction = viewModel::onAction,
+        onNavigateToCache = onNavigateToCache
+    )
 
 
 }
@@ -169,7 +169,7 @@ class HomeViewModel : ViewModel() {
 
 sealed class HomeScreenAction {
     data class UpdateSelectedProject(val project: Project? = null) : HomeScreenAction()
-    data class AddMediaClicked(val mediaType: AddMediaType): HomeScreenAction()
+    data class AddMediaClicked(val mediaType: AddMediaType) : HomeScreenAction()
 }
 
 data class HomeScreenState(
