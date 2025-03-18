@@ -140,7 +140,7 @@ private fun NumberButton(
     label: String,
     enabled: Boolean = true,
     onClick: () -> Unit,
-    //hapticManager: HapticManager = koinInject()
+    hapticManager: HapticManager = koinInject()
 ) {
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -190,7 +190,7 @@ private fun NumberButton(
                 indication = null,
                 enabled = enabled,
                 onClick = {
-                    //hapticManager.performHapticFeedback(AppHapticFeedbackType.KeyPress)
+                    hapticManager.performHapticFeedback(AppHapticFeedbackType.KeyPress)
                     onClick()
                 }
             )

@@ -93,7 +93,7 @@ class SpaceSetupFragment : BaseFragment() {
         const val RESULT_VAL_GDRIVE = "gdrive"
     }
 
-    override fun getToolbarTitle() = "Select a Server"
+    override fun getToolbarTitle() = getString(R.string.space_setup_title)
     override fun getToolbarSubtitle(): String? = null
     override fun shouldShowBackButton() = true
 }

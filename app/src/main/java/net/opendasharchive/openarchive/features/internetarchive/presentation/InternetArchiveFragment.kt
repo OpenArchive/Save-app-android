@@ -74,6 +74,6 @@ class InternetArchiveFragment : BaseFragment(), ToolbarConfigurable {
         fun newInstance() = newInstance(args = bundleWithNewSpace())
     }
 
-    override fun getToolbarTitle() = "Internet Archive"
+    override fun getToolbarTitle() = getString(R.string.internet_archive)
     override fun shouldShowBackButton() = true
 }

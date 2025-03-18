@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.compose.content
 import androidx.navigation.fragment.findNavController
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.databinding.FragmentSpaceListBinding
 import net.opendasharchive.openarchive.db.Space
@@ -49,7 +50,7 @@ class SpaceListFragment : BaseFragment() {
         return binding.root
     }
 
-    override fun getToolbarTitle() = "Media Servers"
+    override fun getToolbarTitle() = getString(R.string.pref_title_media_servers)
 
     private fun startSpaceAuthActivity(spaceId: Long?) {
         val space = Space.get(spaceId ?: return) ?: return
