@@ -195,11 +195,11 @@
             android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar" />
 
-        <activity
-            android:name=".features.main.QRScannerActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/zxing_CaptureTheme"
-            android:windowSoftInputMode="stateAlwaysHidden" />
+<!--        <activity-->
+<!--            android:name=".features.main.QRScannerActivity"-->
+<!--            android:screenOrientation="portrait"-->
+<!--            android:theme="@style/zxing_CaptureTheme"-->
+<!--            android:windowSoftInputMode="stateAlwaysHidden" />-->
 
         <activity
             android:name=".features.media.ReviewActivity"
