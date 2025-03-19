@@ -108,8 +108,9 @@
 
     <string name="prefs_use_proofmode_title">Enable ProofMode</string>
     <string name="prefs_use_proofmode_summary">Share ProofMode public key</string>
-    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a system that enables authentication and verification of multimedia content, <a href="%1$s" style="text-decoration: underline;">learn more here</a>]]></string>
-<!--    <string name="prefs_use_proofmode_description">-->
+<!--    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a system that enables authentication and verification of multimedia content, <a href="%1$s" style="text-decoration: underline;">learn more here</a>]]></string>-->
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a system that enables authentication and verification of multimedia content, <a href="%1$s"><u>learn more here</u></a>]]></string>
+    <!--    <string name="prefs_use_proofmode_description">-->
 <!--        ProofMode is a system that enables authentication and verification of multimedia content, &lt;a href="%1$s" style="text-decoration: underline;"&gt;learn more here&lt;/a&gt;-->
 <!--    </string>-->
 
@@ -293,40 +294,24 @@
     <string name="intro_header_archive" translatable="false">Archive</string>
     <string name="intro_header_verify" translatable="false">Verify</string>
     <string name="intro_header_encrypt" translatable="false">Encrypt</string>
-    <string name="intro_text_secure">
-        Send your media securely to private servers and lock the app with a pin.
-    </string>
+    <string name="intro_text_secure">Send your media securely to private servers and lock the app with a pin.</string>
 <!--    <string name="intro_text_archive">-->
 <!--    <![CDATA[-->
 <!--    Keep your media verifiable, safe and organized for the long-term by uploading it to private or public servers like Nextcloud or the Internet Archive.<br>-->
 <!--    Communicate your intentions for future use by adding a <a href="%1$s" style="text-decoration: underline;">Creative Commons License</a>.-->
 <!--    ]]>-->
 <!--    </string>-->
-    <string name="intro_text_archive">
-        Keep your media verifiable, safe and organized for the long-term by uploading it to private or public servers like Nextcloud or the Internet Archive.&lt;br&gt;
-        Communicate your intentions for future use by adding a &lt;a href="%1$s" style="text-decoration: underline;"&gt;Creative Commons License&lt;/a&gt;.
-    </string>
+    <string name="intro_text_archive">Keep your media verifiable, safe and organized for the long-term by uploading it to private or public servers like Nextcloud or the Internet Archive.&lt;br&gt;Communicate your intentions for future use by adding a &lt;a href="%1$s" style="text-decoration: underline;"&gt;Creative Commons License&lt;/a&gt;.</string>
 
     <string name="intro_link_archive" translatable="false">https://creativecommons.org</string>
-    <string name="intro_text_verify">
-    <![CDATA[
-    Authenticate and verify your media with sha256 hashes and <a href="%1$s" style="text-decoration: underline;">ProofMode</a>.
-    ]]>
-    </string>
+    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href="%1$s" style="text-decoration: underline;">ProofMode</a>.]]></string>
     <string name="intro_link_verify" translatable="false">https://proofmode.org</string>
-    <string name="intro_text_encrypt_old">
-        Automatically upload over TLS (Transport Layer Security) and use Orbot to protect your media in transit over the Tor network.
-    </string>
-<!--    <string name="intro_text_encrypt" translatable="false">-->
-<!--    <![CDATA[-->
-<!--    <b><i>Save</i></b> always uploads over TLS (Transport Layer Security) to protect your media in transit.<br>-->
-<!--    To further enhance security, enable <a href="%1$s" style="text-decoration: underline;">Tor</a> to prevent interception of your media from your phone to the server.-->
-<!--    ]]>-->
+    <string name="intro_text_encrypt_old">Automatically upload over TLS (Transport Layer Security) and use Orbot to protect your media in transit over the Tor network.</string>
+    <string name="intro_text_encrypt" translatable="false"><![CDATA[<b><i>Save</i></b> always uploads over TLS (Transport Layer Security) to protect your media in transit.<br>To further enhance security, enable <a href="%1$s" style="text-decoration: underline;">Tor</a> to prevent interception of your media from your phone to the server.]]></string>
+<!--    <string name="intro_text_encrypt">-->
+<!--        &lt;b&gt;&lt;i&gt;Save&lt;/i&gt;&lt;/b&gt; always uploads over TLS (Transport Layer Security) to protect your media in transit.&lt;br&gt;-->
+<!--        To further enhance security, enable &lt;a href="%1$s" style="text-decoration: underline;"&gt;Tor&lt;/a&gt; to prevent interception of your media from your phone to the server.-->
 <!--    </string>-->
-    <string name="intro_text_encrypt">
-        &lt;b&gt;&lt;i&gt;Save&lt;/i&gt;&lt;/b&gt; always uploads over TLS (Transport Layer Security) to protect your media in transit.&lt;br&gt;
-        To further enhance security, enable &lt;a href="%1$s" style="text-decoration: underline;"&gt;Tor&lt;/a&gt; to prevent interception of your media from your phone to the server.
-    </string>
     <string name="intro_link_encrypt" translatable="false">https://www.torproject.org</string>
 
     <string name="next">Next</string>
@@ -424,8 +409,7 @@
     <!-- Sync Preferences -->
     <string name="sync_title">Sync email periodically</string>
     <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails</string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
 
     <string name="pref_media_servers">pref_media_servers</string>
