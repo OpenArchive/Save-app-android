@@ -295,19 +295,14 @@
     <string name="intro_header_verify" translatable="false">Verify</string>
     <string name="intro_header_encrypt" translatable="false">Encrypt</string>
     <string name="intro_text_secure">Send your media securely to private servers and lock the app with a pin.</string>
-<!--    <string name="intro_text_archive">-->
-<!--    <![CDATA[-->
-<!--    Keep your media verifiable, safe and organized for the long-term by uploading it to private or public servers like Nextcloud or the Internet Archive.<br>-->
-<!--    Communicate your intentions for future use by adding a <a href="%1$s" style="text-decoration: underline;">Creative Commons License</a>.-->
-<!--    ]]>-->
-<!--    </string>-->
-    <string name="intro_text_archive">Keep your media verifiable, safe and organized for the long-term by uploading it to private or public servers like Nextcloud or the Internet Archive.&lt;br&gt;Communicate your intentions for future use by adding a &lt;a href="%1$s" style="text-decoration: underline;"&gt;Creative Commons License&lt;/a&gt;.</string>
+    <string name="intro_text_archive"><![CDATA[Keep your media verifiable, safe and organized for the long-term by uploading it to private or public servers like Nextcloud or the Internet Archive.<br>Communicate your intentions for future use by adding a <a href=\"%1$s\"><u>Creative Commons License</u></a>.]]></string>
+<!--    <string name="intro_text_archive">Keep your media verifiable, safe and organized for the long-term by uploading it to private or public servers like Nextcloud or the Internet Archive.&lt;br&gt;Communicate your intentions for future use by adding a &lt;a href="%1$s" style="text-decoration: underline;"&gt;Creative Commons License&lt;/a&gt;.</string>-->
 
     <string name="intro_link_archive" translatable="false">https://creativecommons.org</string>
-    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href="%1$s" style="text-decoration: underline;">ProofMode</a>.]]></string>
+    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href=\"%1$s\"><u>ProofMode</u></a>.]]></string>
     <string name="intro_link_verify" translatable="false">https://proofmode.org</string>
     <string name="intro_text_encrypt_old">Automatically upload over TLS (Transport Layer Security) and use Orbot to protect your media in transit over the Tor network.</string>
-    <string name="intro_text_encrypt" translatable="false"><![CDATA[<b><i>Save</i></b> always uploads over TLS (Transport Layer Security) to protect your media in transit.<br>To further enhance security, enable <a href="%1$s" style="text-decoration: underline;">Tor</a> to prevent interception of your media from your phone to the server.]]></string>
+    <string name="intro_text_encrypt" translatable="false"><![CDATA[<b><i>Save</i></b> always uploads over TLS (Transport Layer Security) to protect your media in transit.<br>To further enhance security, enable <a href=\"%1$s\"><u>Tor</u></a> to prevent interception of your media from your phone to the server.]]></string>
 <!--    <string name="intro_text_encrypt">-->
 <!--        &lt;b&gt;&lt;i&gt;Save&lt;/i&gt;&lt;/b&gt; always uploads over TLS (Transport Layer Security) to protect your media in transit.&lt;br&gt;-->
 <!--        To further enhance security, enable &lt;a href="%1$s" style="text-decoration: underline;"&gt;Tor&lt;/a&gt; to prevent interception of your media from your phone to the server.-->
@@ -382,7 +377,7 @@
     <string name="gdrive_id">Google Drive ID</string>
     <string name="gdrive_disclaimer_1" formatted="true">%1$s\'s use and transfer of information received from %2$s APIs to any other app adheres to %3$s, including the Limited Use requirements.</string>
     <string name="google_name" translatable="false">Google</string>
-    <string name="gdrive_sudp_name" translatable="false"><![CDATA[<a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>]]></string>
+    <string name="gdrive_sudp_name" translatable="false"><![CDATA[<a href=\"https://developers.google.com/terms/api-services-user-data-policy\">Google API Services User Data Policy</a>]]></string>
     <string name="gdrive_disclaimer_2" formatted="true">%1$s\'s APIs allow you to send media to your %2$s via %3$s. %3$s, however, cannot see or access anything on your %2$s, which you didn\'t create with %3$s in the first place.</string>
     <string name="gdrive_auth_insufficient_permissions" formatted="true">%1$s cannot work properly if you don\'t allow it to write to your %2$s. Please try the authorization again and make sure to grant all the access permissions listed.</string>
     <string name="new_user">new user</string>
