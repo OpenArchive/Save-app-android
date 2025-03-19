@@ -108,14 +108,10 @@
 
     <string name="prefs_use_proofmode_title">Enable ProofMode</string>
     <string name="prefs_use_proofmode_summary">Share ProofMode public key</string>
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a system that enables authentication and verification of multimedia content, <a href="%1$s" style="text-decoration: underline;">learn more here</a>]]></string>
 <!--    <string name="prefs_use_proofmode_description">-->
-<!--    <![CDATA[-->
-<!--    ProofMode is a system that enables authentication and verification of multimedia content, <a href="%1$s" style="text-decoration: underline;">learn more here</a>-->
-<!--    ]]>-->
+<!--        ProofMode is a system that enables authentication and verification of multimedia content, &lt;a href="%1$s" style="text-decoration: underline;"&gt;learn more here&lt;/a&gt;-->
 <!--    </string>-->
-    <string name="prefs_use_proofmode_description">
-        ProofMode is a system that enables authentication and verification of multimedia content, &lt;a href="%1$s" style="text-decoration: underline;"&gt;learn more here&lt;/a&gt;
-    </string>
 
 
     <string name="proof_mode_warning_text">ProofMode gathers metadata from local cell towers to help verify media. Android requires permission to enable this setting. <b>Save</b> will only use this setting to capture data and will NOT access your phone to make/manage calls.</string>
