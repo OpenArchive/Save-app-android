@@ -6,9 +6,9 @@
 
     <!-- Activities -->
     <string name="app_name" translatable="false">Save</string>
-<!--    <string name="app_subtext">Archive Your Media\n<a href="#">learn more</a></string>-->
-    <string name="app_subtext">Archive Your Media&#10;&lt;a href="#"&gt;learn more&lt;/a&gt;</string>
-    <string name="web_client_id">741316235729-ohg8quvto8ajl8qpil4r9rm1o3gfml3t.apps.googleusercontent.com</string>
+    <string name="app_subtext">Archive Your Media\n<a href="#">learn more</a></string>
+<!--    <string name="app_subtext">Archive Your Media&#10;&lt;a href="#"&gt;learn more&lt;/a&gt;</string>-->
+    <string name="web_client_id" translatable="false">741316235729-ohg8quvto8ajl8qpil4r9rm1o3gfml3t.apps.googleusercontent.com</string>
 
     <string name="title_activity_login">Log in</string>
     <string name="title_activity_first_start">First Start</string>
