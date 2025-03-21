@@ -30,7 +30,7 @@
 
 
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@color/colorPrimary</item>
+        <item name="android:statusBarColor">@color/colorTertiary</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">@bool/dayMode</item>
         <item name="navigationViewStyle">@style/NavigationViewStyle</item>
@@ -141,7 +141,7 @@
     <!-- widgets / dialogs / alerts -->
 
     <style name="SaveApp.Widget.AppBarStyle" parent="Widget.Material3.AppBarLayout">
-        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:background">@color/colorTertiary</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="titleTextAppearance">@style/TextAppearance.App.TitleLarge</item>
     </style>

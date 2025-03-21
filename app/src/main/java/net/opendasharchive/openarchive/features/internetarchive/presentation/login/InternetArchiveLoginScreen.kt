@@ -248,6 +248,9 @@ private fun InternetArchiveLoginContent(
                     .weight(1f),
                 enabled = !state.isBusy && state.isValid,
                 shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary
+                ),
                 onClick = { dispatch(Login) },
             ) {
                 if (state.isBusy) {
