@@ -374,7 +374,9 @@
     </style>
 
     <style name="ItalicPlaceholderTextAppearance" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textSize">13sp</item>
         <item name="android:textStyle">italic</item>
+        <item name="android:fontFamily">@font/montserrat_italic</item>
     </style>
 
     <style name="Widget.SaveApp.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">

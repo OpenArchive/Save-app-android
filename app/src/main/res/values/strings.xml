@@ -127,9 +127,9 @@
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
-    <string name="prompt_username">Username</string>
+    <string name="prompt_username"><i>Username</i></string>
     <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password</string>
+    <string name="prompt_password"><i>Password</i></string>
 
     <string name="label_username">@string/prompt_email</string>
     <string name="placeholder_email_or_username">Enter an email or username</string>
@@ -282,7 +282,7 @@
     <string name="my_media">My Media</string>
     <string name="if_you_do_not_have_existing_keys_learn_how_to_acquire_keys">If you do not have existing keys, <b>learn how</b> to acquire keys.</string>
     <string name="server_info">Server info</string>
-    <string name="enter_url">Enter URL</string>
+    <string name="enter_url"><i>Enter URL</i></string>
     <string name="account">Account</string>
     <string name="general">General</string>
     <string name="connectivity_data"><![CDATA[Connectivity & Data]]></string>

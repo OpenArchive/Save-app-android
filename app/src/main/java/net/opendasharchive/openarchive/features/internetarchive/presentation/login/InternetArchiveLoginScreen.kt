@@ -326,7 +326,10 @@ fun CustomTextField(
         placeholder = {
             placeholder?.let {
                 Text(
-                    text = placeholder
+                    text = placeholder,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Normal,
+                    fontStyle = FontStyle.Italic
                 )
             }
         },
@@ -375,7 +378,12 @@ fun CustomSecureField(
         enabled = !isLoading,
         onValueChange = onValueChange,
         placeholder = {
-            Text(placeholder)
+            Text(
+                text = placeholder,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Normal,
+                fontStyle = FontStyle.Italic
+            )
         },
         singleLine = true,
         shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
