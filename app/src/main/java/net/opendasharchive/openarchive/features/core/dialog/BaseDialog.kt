@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.ViewModel
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultBoxPreview
 import net.opendasharchive.openarchive.features.core.BaseButton
 import net.opendasharchive.openarchive.features.core.BaseDestructiveButton
@@ -282,7 +284,7 @@ private fun WarningDialogPreview() {
             icon = Icons.Default.Warning.asUiImage(),
             iconColor = MaterialTheme.colorScheme.tertiary,
             title = "Warning",
-            message = "Once uploaded, you will not be able to edit media",
+            message = stringResource(R.string.once_uploaded_you_will_not_be_able_to_edit_media),
             positiveButton = ButtonData(UiText.DynamicString("OK")),
             neutralButton = ButtonData(UiText.DynamicString("Cancel")),
             hasCheckbox = true,

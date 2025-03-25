@@ -109,4 +109,9 @@ abstract class BaseActivity : AppCompatActivity() {
             supportActionBar?.setDisplayHomeAsUpEnabled(false)
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        dialogManager.dismissDialog()
+    }
 }

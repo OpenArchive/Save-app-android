@@ -420,6 +420,13 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             animationStyle = R.style.popup_window_animation
         }
 
+        // Check if there is at least one media item in the selected project
+        val hasMedia = getSelectedProject()?.collections?.any { it.media.isNotEmpty() } == true
+
+        // Disable select media if no media in current folder
+        popupBinding.menuFolderBarSelectMedia.isEnabled = hasMedia
+        popupBinding.menuFolderBarSelectMedia.alpha = if (hasMedia) 1.0f else 0.4f
+
         // Option to toggle selection mode
         popupBinding.menuFolderBarSelectMedia.setOnClickListener {
             popup.dismiss()
@@ -778,7 +785,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                     }
                 } else {
                     dialogManager.showInfoDialog(
-                        icon = R.drawable.perm_media_24px.asUiImage(),
+                        icon = R.drawable.ic_media_new.asUiImage(),
                         title = R.string.press_and_hold_options_media_screen_title.asUiText(),
                         message = R.string.press_and_hold_options_media_screen_message.asUiText(),
                         onDone = {
