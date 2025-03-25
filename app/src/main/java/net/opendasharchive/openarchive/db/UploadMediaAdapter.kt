@@ -87,7 +87,7 @@ class UploadMediaAdapter(
             val payload = payloads[0]
             when (payload) {
                 "progress" -> {
-                    holder.updateProgress(media[position].uploadPercentage ?: 0)
+
                 }
 
                 "full" -> {

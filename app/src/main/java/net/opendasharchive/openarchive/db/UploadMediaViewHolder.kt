@@ -171,8 +171,6 @@ class UploadMediaViewHolder(
             sbTitle.append(mContext.getString(R.string.error))
 
             binding.overlayContainer.show()
-            binding.progress.hide()
-            binding.progressText.hide()
             binding.error.show()
 
             if (media.statusMessage.isNotBlank()) {
@@ -182,37 +180,13 @@ class UploadMediaViewHolder(
         } else if (media?.sStatus == Media.Status.Queued) {
             AppLogger.i("Media Item ${media.id} is queued")
             binding.overlayContainer.show()
-            binding.progress.isIndeterminate = true
-            binding.progress.show()
-            binding.progressText.hide()
             binding.error.hide()
         } else if (media?.sStatus == Media.Status.Uploading) {
-//            val progressValue = if (media.contentLength > 0) {
-//                (media.progress.toFloat() / media.contentLength.toFloat() * 100f).roundToInt()
-//            } else 0
-            binding.progress.isIndeterminate = false
-            val progressValue = media.uploadPercentage ?: 0
             AppLogger.i("Media Item ${media.id} is uploading")
-
             binding.overlayContainer.show()
-            binding.progress.show()
-            binding.progressText.show()
-
-            // Make sure to keep spinning until the upload has made some noteworthy progress.
-            if (progressValue > 2) {
-                binding.progress.setProgressCompat(progressValue, true)
-            }
-//            else {
-//                progress?.isIndeterminate = true
-//            }
-
-            binding.progressText.text = "${progressValue}%"
-
             binding.error.hide()
         } else {
             binding.overlayContainer.hide()
-            binding.progress.hide()
-            binding.progressText.hide()
             binding.error.hide()
         }
 
@@ -225,17 +199,5 @@ class UploadMediaViewHolder(
         } else {
             binding.title.hide()
         }
-    }
-
-    fun updateProgress(progressValue: Int) {
-        if (progressValue > 2) {
-            binding.progress.isIndeterminate = false
-            binding.progress.setProgressCompat(progressValue, true)
-        } else {
-            binding.progress.isIndeterminate = true
-        }
-
-        binding.progressText.show(animate = true)
-        binding.progressText.text = "$progressValue%"
     }
 }

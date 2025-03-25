@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -47,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -226,7 +228,7 @@ private fun InternetArchiveLoginContent(
                 .fillMaxWidth()
                 .weight(1f),
             verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.SpaceEvenly
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             TextButton(
                 modifier = Modifier
@@ -241,6 +243,7 @@ private fun InternetArchiveLoginContent(
                 onClick = { dispatch(Action.Cancel) }) {
                 Text(stringResource(R.string.back))
             }
+            Spacer(modifier = Modifier.width(8.dp))
             Button(
                 modifier = Modifier
                     .padding(8.dp)
@@ -270,7 +273,8 @@ private fun InternetArchiveLoginPreview() {
     DefaultScaffoldPreview {
         InternetArchiveLoginContent(
             state = InternetArchiveLoginState(
-                username = "user@example.org", password = "abc123"
+                username = "",
+                password = ""
             )
         ) {}
     }
@@ -317,11 +321,13 @@ fun CustomTextField(
     OutlinedTextField(
         modifier = modifier.fillMaxWidth(),
         value = value,
-        enabled = !isLoading,
+        enabled = !isLoading && enabled,
         onValueChange = onValueChange,
         placeholder = {
             placeholder?.let {
-                Text(placeholder)
+                Text(
+                    text = placeholder
+                )
             }
         },
         singleLine = true,

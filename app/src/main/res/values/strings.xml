@@ -127,6 +127,7 @@
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
+    <string name="prompt_username">Username</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
 
@@ -136,7 +137,7 @@
     <string name="placeholder_password">Enter a password</string>
 
     <string name="action_sign_in_short">Sign in</string>
-    <string name="error_incorrect_username_or_password">Incorrect username or password</string>
+    <string name="error_incorrect_username_or_password">Incorrect email or password</string>
     <string name="error_field_required">This field is required</string>
 
     <string name="importing_media">Importing media…</string>
@@ -179,7 +180,7 @@
     <string name="tap_to_add">Tap the button below to add media</string>
     <string name="tap_to_add_folder">Tap the button below to add a folder</string>
     <string name="tap_to_add_server">Tap the button below to add a server</string>
-    <string name="to_get_started_connect_to_a_server_to_store_your_media">To get started, connect to a server to store your media.</string>
+    <string name="to_get_started_connect_to_a_server_to_store_your_media">To get started, connect to a server to store your media</string>
     <string name="to_get_started_more_hint_dweb">You can add multiple private servers and\none IA or DWeb server account at any time.</string>
     <string name="to_get_started_more_hint">You can add multiple private servers and\none IA account at any time.</string>
     <string name="in_the_side_menu_you_can_add_another_server_and_connect_to_multiple_servers">In the side menu, you can add another server and connect to multiple servers</string>
@@ -332,7 +333,7 @@
     <string name="press_and_hold_options_media_screen_title">Add Media</string>
     <string name="press_and_hold_options_media_screen_message">Tap + to pick from image gallery or press and hold to add media from other apps.</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">Press and hold to select and edit multiple media.</string>
-    <string name="once_uploaded_you_will_not_be_able_to_edit_media">Once uploaded, you will not be able to edit media</string>
+    <string name="once_uploaded_you_will_not_be_able_to_edit_media">Once uploaded, you will not be able to edit media.</string>
     <string name="edit_media_info">Edit Media Info</string>
     <string name="counter">%1$d/%2$d</string>
     <string name="add_a_location_optional">Add a location (optional)</string>

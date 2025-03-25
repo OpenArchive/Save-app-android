@@ -153,7 +153,7 @@
                         android:id="@+id/username"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="@string/prompt_email"
+                        android:hint="@string/prompt_username"
                         android:inputType="textNoSuggestions"
                         android:maxLines="1"
                         android:singleLine="true" />
@@ -247,7 +247,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="gone">
+        tools:visibility="visible">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -283,7 +283,7 @@
                 android:paddingHorizontal="24dp"
                 android:paddingVertical="8dp"
                 android:text="@string/action_next"
-                app:backgroundTint="@color/colorTertiary" />
+                app:backgroundTint="@color/button_color" />
         </LinearLayout>
 
     </LinearLayout>

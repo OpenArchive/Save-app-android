@@ -15,6 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="end"
+        android:paddingBottom="8dp"
         android:background="@color/colorTertiary">
 
         <com.google.android.material.button.MaterialButton
@@ -25,7 +26,7 @@
             android:layout_gravity="top|center_horizontal"
             android:layout_marginTop="8dp"
             android:text="@string/skip"
-            android:textFontWeight="600"
+            android:textAppearance="@style/TextAppearance.SaveApp.16pt"
             android:textColor="@color/colorOnBackground" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
