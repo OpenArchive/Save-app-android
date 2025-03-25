@@ -53,9 +53,9 @@ class ProofModeSettingsActivity : BaseActivity() {
             val proofModeSwitch = findPreference<SwitchPreferenceCompat>(Prefs.USE_PROOFMODE)
 
             // Check if permission is granted
-            val hasPermission = ContextCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.READ_PHONE_STATE
-            ) == PackageManager.PERMISSION_GRANTED
+            val hasPermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
             if (!hasPermission) {
                 proofModeSwitch?.isChecked = false // Uncheck if permission not granted
@@ -68,7 +68,7 @@ class ProofModeSettingsActivity : BaseActivity() {
             getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_proof_mode)?.setOnPreferenceChangeListener { preference, newValue ->
                 if (newValue as Boolean) {
                     PermissionX.init(this)
-                        .permissions(Manifest.permission.READ_PHONE_STATE)
+                        .permissions(Manifest.permission.READ_PHONE_STATE, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
                         .onExplainRequestReason { _, _ ->
                             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                             val uri = Uri.fromParts("package", activity?.packageName, null)

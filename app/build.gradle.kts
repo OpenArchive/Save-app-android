@@ -290,7 +290,7 @@ dependencies {
     detektPlugins(libs.detekt.compose)
     detektPlugins(libs.detekt.rules.compose)
 
-    debugImplementation("com.squareup.leakcanary:leakcanary-android:3.0-alpha-8")
+//    debugImplementation("com.squareup.leakcanary:leakcanary-android:3.0-alpha-8")
 }
 
 configurations.all {

@@ -122,7 +122,7 @@
 
 
     <!-- Strings for ProofMode Activity -->
-    <string name="phone_permission_required">Phone permission required</string>
+    <string name="phone_permission_required">Phone and Location permission required</string>
 
     <!-- Strings for nearby sharing -->
 

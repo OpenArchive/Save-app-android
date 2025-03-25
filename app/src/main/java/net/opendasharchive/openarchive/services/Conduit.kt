@@ -53,8 +53,8 @@ abstract class Conduit(
         if (!Prefs.useProofMode) return emptyArray()
 
         // Don't use geolocation and network information.
-        Prefs.proofModeLocation = false
-        Prefs.proofModeNetwork = false
+        Prefs.proofModeLocation = true
+        Prefs.proofModeNetwork = true
 
         try {
             var hash = ProofMode.generateProof(
