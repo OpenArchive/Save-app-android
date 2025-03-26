@@ -154,7 +154,7 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
 
         val author = mMedia.author
         if (author.isNotEmpty()) {
-            builder.add("x-archive-meta-author", author)
+            builder.add("x-archive-meta-author", sanitizeHeaderValue(author))
         }
 
         if (mMedia.contentLength > 0) {
@@ -179,7 +179,7 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
         }
 
         if (mMedia.location.isNotEmpty()) {
-            builder.add("x-archive-meta-location", mMedia.location)
+            builder.add("x-archive-meta-location", sanitizeHeaderValue(mMedia.location))
         }
 
         if (mMedia.tags.isNotEmpty()) {
@@ -187,15 +187,15 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
             tags.add(mContext.getString(R.string.default_tags))
             mMedia.tagSet = tags
 
-            builder.add("x-archive-meta-subject", mMedia.tags)
+            builder.add("x-archive-meta-subject", sanitizeHeaderValue(mMedia.tags))
         }
 
         if (mMedia.description.isNotEmpty()) {
-            builder.add("x-archive-meta-description", mMedia.description)
+            builder.add("x-archive-meta-description", sanitizeHeaderValue(mMedia.description))
         }
 
         if (mMedia.title.isNotEmpty()) {
-            builder.add("x-archive-meta-title", mMedia.title)
+            builder.add("x-archive-meta-title", sanitizeHeaderValue(mMedia.title))
         }
 
         var licenseUrl = mMedia.licenseUrl
@@ -245,5 +245,9 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
                 }
 
             })
+    }
+
+    private fun sanitizeHeaderValue(value: String): String {
+        return value.replace("[^\\x20-\\x7E]".toRegex(), "") // Removes non-ASCII characters
     }
 }
