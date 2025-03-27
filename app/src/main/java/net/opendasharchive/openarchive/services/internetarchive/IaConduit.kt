@@ -182,7 +182,7 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
         }
 
         if (mMedia.location.isNotEmpty()) {
-            builder.add("x-archive-meta-location", mMedia.location)
+            builder.add("x-archive-meta-location", sanitizeHeaderValue(mMedia.location))
         }
 
         if (mMedia.tags.isNotEmpty()) {
@@ -194,7 +194,7 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
         }
 
         if (mMedia.description.isNotEmpty()) {
-            builder.add("x-archive-meta-description", mMedia.description)
+            builder.add("x-archive-meta-description", sanitizeHeaderValue(mMedia.description))
         }
 
         if (mMedia.title.isNotEmpty()) {
@@ -248,5 +248,9 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
                 }
 
             })
+    }
+
+    private fun sanitizeHeaderValue(value: String): String {
+        return value.replace("[^\\x20-\\x7E]".toRegex(), "") // Removes non-ASCII characters
     }
 }
