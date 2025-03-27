@@ -137,7 +137,8 @@
     <string name="placeholder_password">Enter a password</string>
 
     <string name="action_sign_in_short">Sign in</string>
-    <string name="error_incorrect_username_or_password">Incorrect email or password</string>
+    <string name="error_incorrect_username_or_password">Incorrect username or password</string>
+    <string name="error_incorrect_email_or_password">Incorrect email or password</string>
     <string name="error_field_required">This field is required</string>
 
     <string name="importing_media">Importing media…</string>

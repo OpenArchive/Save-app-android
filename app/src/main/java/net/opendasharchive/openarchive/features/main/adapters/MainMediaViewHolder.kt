@@ -168,13 +168,13 @@ class MainMediaViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHol
 
                 binding.overlayContainer.show()
                 binding.progress.show()
-                binding.progressText.show()
+                //binding.progressText.show()
 
                 // Make sure to keep spinning until the upload has made some noteworthy progress.
                 if (progressValue > 2) {
                     binding.progress.setProgressCompat(progressValue, true)
                 }
-                binding.progressText.text = "${progressValue}%"
+                //binding.progressText.text = "${progressValue}%"
                 binding.error.hide()
             }
             else -> {
@@ -195,8 +195,8 @@ class MainMediaViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHol
             binding.progress.isIndeterminate = true
         }
 
-        AppLogger.i("Updating progressText to $progressValue%")
-        binding.progressText.show(animate = true)
-        binding.progressText.text = "$progressValue%"
+        //AppLogger.i("Updating progressText to $progressValue%")
+        //binding.progressText.show(animate = true)
+        //binding.progressText.text = "$progressValue%"
     }
 }

@@ -2,6 +2,8 @@ package net.opendasharchive.openarchive.services.webdav
 
 import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -16,6 +18,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
@@ -37,7 +40,9 @@ import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
 import net.opendasharchive.openarchive.services.SaveClient
 import net.opendasharchive.openarchive.services.internetarchive.Util
+import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.makeSnackBar
+import net.opendasharchive.openarchive.util.extensions.show
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
@@ -369,7 +374,7 @@ class WebDavFragment : BaseFragment() {
         // perform the user login attempt.
         mSnackbar.show()
 
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
                 testConnection()
                 mSpace.save()
@@ -382,12 +387,24 @@ class WebDavFragment : BaseFragment() {
                 navigate(mSpace.id)
             } catch (exception: IOException) {
                 if (exception.message?.startsWith("401") == true) {
-                    showError(getString(R.string.error_incorrect_username_or_password), true)
+                    showInvalidCredentialsError()
                 } else {
                     showError(exception.localizedMessage ?: getString(R.string.error))
                 }
             }
         }
+    }
+
+    private fun showInvalidCredentialsError() {
+        requireActivity().runOnUiThread {
+            mSnackbar.dismiss()
+            binding.errorHint.text = getString(R.string.error_incorrect_username_or_password)
+            binding.errorHint.show()
+        }
+    }
+
+    private fun dismissCredentialsError() {
+        binding.errorHint.hide()
     }
 
     private fun navigate(spaceId: Long) = CoroutineScope(Dispatchers.Main).launch {
@@ -444,7 +461,7 @@ class WebDavFragment : BaseFragment() {
             mSnackbar.dismiss()
 
             if (onForm) {
-                binding.password.error = text
+                binding.errorHint.error = text
                 binding.password.requestFocus()
             } else {
                 mSnackbar = binding.root.makeSnackBar(text, Snackbar.LENGTH_LONG)
@@ -490,14 +507,16 @@ class WebDavFragment : BaseFragment() {
 
     private fun setupTextWatchers() {
         // Create a common TextWatcher for all three fields
-        val textWatcher = object : android.text.TextWatcher {
+        val textWatcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 updateAuthenticateButtonState()
             }
 
-            override fun afterTextChanged(s: android.text.Editable?) {}
+            override fun afterTextChanged(s: Editable?) {
+                dismissCredentialsError()
+            }
         }
 
         binding.server.addTextChangedListener(textWatcher)
