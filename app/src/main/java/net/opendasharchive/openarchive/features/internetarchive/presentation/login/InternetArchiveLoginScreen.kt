@@ -189,7 +189,7 @@ private fun InternetArchiveLoginContent(
                 exit = fadeOut()
             ) {
                 Text(
-                    text = stringResource(R.string.error_incorrect_username_or_password),
+                    text = stringResource(R.string.error_incorrect_email_or_password),
                     color = MaterialTheme.colorScheme.error
                 )
             }
@@ -274,7 +274,8 @@ private fun InternetArchiveLoginPreview() {
         InternetArchiveLoginContent(
             state = InternetArchiveLoginState(
                 username = "",
-                password = ""
+                password = "",
+                isLoginError = true
             )
         ) {}
     }
@@ -348,7 +349,8 @@ fun CustomTextField(
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.background,
             unfocusedContainerColor = MaterialTheme.colorScheme.background,
-            focusedBorderColor = MaterialTheme.colorScheme.tertiary
+            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+            cursorColor = MaterialTheme.colorScheme.tertiary
             //focusedIndicatorColor = Color.Transparent,
             //unfocusedIndicatorColor = Color.Transparent,
         ),
@@ -401,7 +403,8 @@ fun CustomSecureField(
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.background,
             unfocusedContainerColor = MaterialTheme.colorScheme.background,
-            focusedBorderColor = MaterialTheme.colorScheme.tertiary
+            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+            cursorColor = MaterialTheme.colorScheme.tertiary
             //focusedIndicatorColor = Color.Transparent,
             //unfocusedIndicatorColor = Color.Transparent,
         ),

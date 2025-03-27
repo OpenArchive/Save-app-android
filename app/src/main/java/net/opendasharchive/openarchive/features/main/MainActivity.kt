@@ -640,6 +640,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 // Prepopulate the rename field with the current folder name
                 binding.contentMain.etFolderName.setText(getSelectedProject()?.description ?: "")
                 binding.contentMain.etFolderName.requestFocus()
+                binding.contentMain.etFolderName.selectAll()
 
                 // Show the keyboard
                 val imm =

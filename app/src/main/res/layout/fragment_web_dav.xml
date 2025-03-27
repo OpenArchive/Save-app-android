@@ -181,6 +181,13 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <TextView
+                    android:id="@+id/error_hint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="@string/error_incorrect_username_or_password"
+                    android:textColor="@color/colorError"/>
+
             </LinearLayout>
 
             <LinearLayout
