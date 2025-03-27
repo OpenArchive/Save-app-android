@@ -88,9 +88,12 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
             Uri.parse(mediaUri),
             mMedia.contentLength,
             mimeType.toMediaTypeOrNull(),
-            createListener(cancellable = { !mCancelled }, onProgress = {
-                jobProgress(it)
-            })
+            createListener(
+                cancellable = { !mCancelled },
+                onProgress = {
+                    jobProgress(it)
+                }
+            )
         )
 
         val request = Request.Builder()
@@ -213,7 +216,7 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
     private fun metadataHeader(): Headers {
         return Headers.Builder()
             .add("x-amz-auto-make-bucket", "1")
-            .add("x-archive-meta-language", "eng") // FIXME set based on locale or selected
+            .add("x-archive-meta-language", "eng") // TODO: FIXME set based on locale or selected
             .add("Authorization", "LOW " + mMedia.space?.username + ":" + mMedia.space?.password)
             .add("x-archive-meta-mediatype", "texts")
             .add("x-archive-meta-collection", "opensource")
