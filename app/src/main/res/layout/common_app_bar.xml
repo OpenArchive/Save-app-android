@@ -10,6 +10,7 @@
         tools:title="OpenArchive"
         tools:menu="@menu/menu_main"
         android:id="@+id/common_toolbar"
+        style="@style/SaveApp.Widget.AppBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="?attr/actionBarSize" />

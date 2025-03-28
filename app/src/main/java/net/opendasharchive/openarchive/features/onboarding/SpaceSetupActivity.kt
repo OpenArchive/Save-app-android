@@ -1,38 +1,17 @@
 package net.opendasharchive.openarchive.features.onboarding
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph
-import androidx.navigation.NavOptions
-import androidx.navigation.Navigator
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivitySpaceSetupBinding
-import net.opendasharchive.openarchive.extensions.onBackButtonPressed
 import net.opendasharchive.openarchive.features.core.BaseActivity
-import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
-import net.opendasharchive.openarchive.features.internetarchive.presentation.InternetArchiveFragment
-import net.opendasharchive.openarchive.features.main.MainActivity
-import net.opendasharchive.openarchive.features.settings.SpaceSetupFragment
-import net.opendasharchive.openarchive.features.settings.SpaceSetupSuccessFragment
-import net.opendasharchive.openarchive.services.gdrive.GDriveFragment
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdCreateGroupFragment
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdFileListFragment
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdFragment
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupListFragment
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdJoinGroupFragment
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdRepoListFragment
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdShareFragment
-import net.opendasharchive.openarchive.services.webdav.WebDavFragment
-import net.opendasharchive.openarchive.services.webdav.WebDavSetupLicenseFragment
 
 enum class StartDestination {
     SPACE_TYPE,

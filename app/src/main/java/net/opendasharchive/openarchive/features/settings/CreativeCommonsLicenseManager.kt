@@ -69,8 +69,8 @@ object CreativeCommonsLicenseManager {
             tvLicenseUrl.text = currentLicense
             tvLicenseUrl.styleAsLink()
             swCcEnabled.isEnabled = enabled
-            swAllowRemix.isEnabled = enabled
-            swRequireShareAlike.isEnabled = enabled
+            swAllowRemix.isEnabled =  enabled
+            swRequireShareAlike.isEnabled = isActive && enabled && swAllowRemix.isEnabled
             swAllowCommercial.isEnabled = enabled
         }
     }
