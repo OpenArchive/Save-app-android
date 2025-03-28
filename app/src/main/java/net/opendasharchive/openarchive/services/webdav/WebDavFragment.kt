@@ -258,6 +258,12 @@ class WebDavFragment : BaseFragment() {
                 }
             }
         }
+
+        if (BuildConfig.DEBUG) {
+            binding.server.setText("https://nx27277.your-storageshare.de/")
+            binding.username.setText("Upul")
+            binding.password.setText("J7wc(ka_4#9!13h&")
+        }
     }
 
     private fun saveChanges() {
