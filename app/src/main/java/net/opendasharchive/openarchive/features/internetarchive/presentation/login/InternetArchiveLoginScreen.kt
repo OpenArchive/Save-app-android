@@ -252,7 +252,9 @@ private fun InternetArchiveLoginContent(
                 enabled = !state.isBusy && state.isValid,
                 shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    disabledContainerColor = colorResource(R.color.grey_50),
+                    disabledContentColor = colorResource(R.color.extra_light_grey)//MaterialTheme.colorScheme.onBackground
                 ),
                 onClick = { dispatch(Login) },
             ) {
@@ -297,7 +299,7 @@ fun ComposeAppBar(
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
+            containerColor = MaterialTheme.colorScheme.tertiary,
             navigationIconContentColor = Color.White,
             titleContentColor = Color.White,
             actionIconContentColor = Color.White

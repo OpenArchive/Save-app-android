@@ -21,7 +21,7 @@
 
     <color name="colorSurface">#24242E</color>
     <color name="colorOnSurface">@color/c23_light_grey</color>
-    <color name="colorTertiary">@color/c23_teal_60</color>
+    <color name="colorTertiary">@color/c23_teal</color>
     <color name="colorText">@color/c23_light_grey</color>
     <color name="colorError">@color/red</color>
 

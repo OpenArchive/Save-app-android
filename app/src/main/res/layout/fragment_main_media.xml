@@ -34,7 +34,7 @@
             android:layout_marginTop="120dp"
             android:gravity="center"
             android:text="@string/title_welcome"
-            android:textColor="@color/c23_medium_grey"
+            android:textColor="@color/colorOnSurface"
             android:textFontWeight="700"
             android:textSize="48sp"
             android:textStyle="bold"

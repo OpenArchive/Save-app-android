@@ -258,6 +258,7 @@ class WebDavFragment : BaseFragment() {
                 }
             }
         }
+
     }
 
     private fun saveChanges() {

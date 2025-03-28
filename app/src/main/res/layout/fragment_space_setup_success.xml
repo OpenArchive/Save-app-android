@@ -32,7 +32,6 @@
                 android:textAlignment="center"
                 android:textFontWeight="600"
                 android:textSize="18sp"
-                app:layout_constraintBottom_toTopOf="@id/success_illustration"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageView
@@ -68,7 +67,7 @@
                 android:layout_marginHorizontal="24dp"
                 android:padding="@dimen/activity_row_padding"
                 android:text="@string/action_done"
-                android:textColor="@color/colorOnBackground"
+                android:textColor="@color/black"
                 android:textStyle="bold"
                 app:backgroundTint="@color/colorTertiary"
                 app:layout_constraintBottom_toBottomOf="parent"

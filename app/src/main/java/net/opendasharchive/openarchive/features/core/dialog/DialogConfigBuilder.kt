@@ -140,6 +140,7 @@ class DialogBuilder {
 
         val finalIconColor = iconColor ?: when (type) {
             DialogType.Error -> MaterialTheme.colorScheme.error
+            DialogType.Warning -> MaterialTheme.colorScheme.tertiary
             else -> MaterialTheme.colorScheme.primary
         }
         val finalBackgroundColor = backgroundColor ?: MaterialTheme.colorScheme.surfaceVariant
