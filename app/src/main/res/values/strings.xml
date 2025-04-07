@@ -115,7 +115,7 @@
 <!--    </string>-->
 
 
-    <string name="proof_mode_warning_text">ProofMode gathers metadata from local cell towers to help verify media. Android requires permission to enable this setting. <b>Save</b> will only use this setting to capture data and will NOT access your phone to make/manage calls.</string>
+    <string name="proof_mode_warning_text">To help verify where your media was captured, ProofMode gathers data from nearby cell towers to corroborate your location. To add credibility and context, it then includes a separate metadata file with your media. Neither <b>Save</b> nor <b>OpenArchive</b> will be able to access or store this location data, it will only be accessible to those with access to the server files. Android requires location access to collect this information.</string>
 
     <string name="prefs_share_proofmode_title">ProofMode Identity</string>
     <string name="prefs_share_proofmode_summary">Share ProofMode Public Key</string>
