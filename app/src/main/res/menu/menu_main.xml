@@ -16,7 +16,7 @@
     <item
         android:id="@+id/menu_folders"
         android:icon="@drawable/ic_menu"
-        app:iconTint="@color/colorOnBackground"
+        app:iconTint="@color/black"
         android:iconTint="@color/colorOnBackground"
         android:orderInCategory="300"
         android:title="@string/folders"
