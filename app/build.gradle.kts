@@ -216,8 +216,8 @@ dependencies {
     implementation("com.guolindev.permissionx:permissionx:1.6.4")
 
     // Barcode Scanning
-    //implementation("com.google.zxing:core:3.5.3")
-    //implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("com.google.zxing:core:3.5.3")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
     // Security and Encryption
     implementation("org.bouncycastle:bcpkix-jdk15to18:1.72")

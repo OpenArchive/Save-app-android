@@ -151,7 +151,7 @@ class SnowbirdJoinGroupFragment: BaseFragment() {
     companion object {
 
 
-        const val ARG_RAVEN_GROUP_URI_STRING = "space_setup_success_fragment_arg_message"
+        const val ARG_RAVEN_GROUP_URI_STRING = "raven_join_group_argument_uri"
 
         @JvmStatic
         fun newInstance(uriString: String) =

@@ -114,7 +114,7 @@ class SnowbirdFileViewModel(
 
                 FileProvider.getUriForFile(
                     context,
-                    "${context.packageName}.fileprovider",
+                    "${context.packageName}.provider",
                     file
                 )
             }
