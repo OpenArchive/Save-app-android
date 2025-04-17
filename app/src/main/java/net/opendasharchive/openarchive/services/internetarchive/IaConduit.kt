@@ -43,7 +43,8 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
 
             val fileName = getUploadFileName(mMedia, true)
             val metaJson = gson.toJson(mMedia)
-            val proof = getProof()
+            // Commenting out proof generation - 17th April 2025
+            // val proof = getProof()
 
             if (mMedia.serverUrl.isBlank()) {
                 // TODO this should make sure we aren't accidentally using one of archive.org's metadata fields by accident
@@ -59,10 +60,11 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
             // upload metadata and proofs async, and report failures
             client.uploadMetaData(metaJson, fileName)
 
+            // Commenting out proof generation - 17th April 2025
             // Upload ProofMode metadata, if enabled and successfully created.
-            for (file in proof) {
-                client.uploadProofFiles(file)
-            }
+            // for (file in proof) {
+            //      client.uploadProofFiles(file)
+            // }
 
             jobSucceeded()
 
