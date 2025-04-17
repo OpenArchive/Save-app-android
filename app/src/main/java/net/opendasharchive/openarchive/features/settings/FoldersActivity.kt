@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import net.opendasharchive.openarchive.FolderAdapter
 import net.opendasharchive.openarchive.FolderAdapterListener
@@ -13,10 +12,9 @@ import net.opendasharchive.openarchive.databinding.ActivityFoldersBinding
 import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseActivity
-import net.opendasharchive.openarchive.features.folders.AddFolderActivity
 import net.opendasharchive.openarchive.util.extensions.toggle
 
-class FoldersActivity : BaseActivity(), FolderAdapterListener {
+class  FoldersActivity : BaseActivity(), FolderAdapterListener {
 
     companion object {
         const val EXTRA_SHOW_ARCHIVED = "show_archived"
@@ -27,7 +25,7 @@ class FoldersActivity : BaseActivity(), FolderAdapterListener {
     private lateinit var mBinding: ActivityFoldersBinding
     private lateinit var mAdapter: FolderAdapter
 
-    private var mArchived = false
+    private var mArchived = true
     private var mSelectedSpaceId = -1L
     private var mSelectedProjectId: Long = -1L
 

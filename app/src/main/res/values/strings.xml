@@ -43,10 +43,16 @@
     <string name="lbl_select_media">Select Media</string>
     <string name="lbl_remove_folder">Remove Folder</string>
 
+    <string name="popup_rename_folder">Rename folder</string>
+    <string name="popup_select_media">Select media</string>
+    <string name="popup_archive_folder">Archive folder</string>
+    <string name="popup_remove_folder">Remove folder from app</string>
+
     <string name="folder_empty_warning">Folder name cannot be empty</string>
     <string name="folder_rename_success">Folder renamed</string>
     <string name="folder_not_found">Folder not found</string>
     <string name="folder_removed">Folder removed</string>
+    <string name="folder_archived">Folder archived</string>
 
     <!-- MainFragment -->
 
@@ -115,7 +121,7 @@
 <!--    </string>-->
 
 
-    <string name="proof_mode_warning_text">To help verify where your media was captured, ProofMode gathers data from nearby cell towers to corroborate your location. To add credibility and context, it then includes a separate metadata file with your media. Neither <b>Save</b> nor <b>OpenArchive</b> will be able to access or store this location data, it will only be accessible to those with access to the server files. Android requires location access to collect this information.</string>
+    <string name="proof_mode_warning_text">To help verify where your media was captured, ProofMode gathers data from nearby cell towers to corroborate your location. To add credibility and context, it then includes a separate metadata file with your media. <b>Neither Save nor OpenArchive will be able to access or store this location data, it will only be accessible to those with access to the server files.</b> Android requires location access to collect this information.</string>
 
     <string name="prefs_share_proofmode_title">ProofMode Identity</string>
     <string name="prefs_share_proofmode_summary">Share ProofMode Public Key</string>
@@ -416,9 +422,9 @@
     <string name="pref_title_archive">Archive</string>
     <string name="pref_title_privacy_policy">Read our Terms &amp; Privacy Policy</string>
     <string name="pref_title_media_servers">Media Servers</string>
-    <string name="pref_title_media_folders">Media Folders</string>
+    <string name="pref_title_media_folders">Archived Folders</string>
     <string name="pref_summary_media_servers">Manage your servers</string>
-    <string name="pref_summary_media_folders">Manage your folders</string>
+    <string name="pref_summary_media_folders">Manage your archived folders</string>
     <string name="pref_summary_privacy_policy">Read our Terms &amp; Privacy Policy</string>
 
     <string name="pref_app_passcode" translatable="false">passcode_enabled</string>

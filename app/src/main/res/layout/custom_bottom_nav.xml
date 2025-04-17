@@ -29,7 +29,7 @@
             app:iconGravity="textStart"
             app:iconPadding="0dp"
             app:iconSize="24dp"
-            app:iconTint="@color/black"
+            app:iconTint="@color/white"
             app:rippleColor="@color/c23_light_grey" />
 
         <TextView
@@ -43,7 +43,7 @@
             android:padding="0dp"
             android:soundEffectsEnabled="false"
             android:text="@string/my_media"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             android:textSize="12sp"
             tools:ignore="KeyboardInaccessibleWidget" />
 
@@ -90,7 +90,7 @@
             app:iconGravity="textStart"
             app:iconPadding="0dp"
             app:iconSize="24dp"
-            app:iconTint="@color/black"
+            app:iconTint="@color/white"
             app:rippleColor="@color/c23_light_grey" />
 
         <TextView
@@ -103,7 +103,7 @@
             android:focusable="false"
             android:padding="0dp"
             android:soundEffectsEnabled="false"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             android:text="@string/action_settings"
             android:textSize="12sp"
             tools:ignore="KeyboardInaccessibleWidget" />

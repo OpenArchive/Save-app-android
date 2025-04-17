@@ -121,7 +121,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         getPrefByKey<Preference>(R.string.pref_media_folders)?.setOnPreferenceClickListener {
-            startActivity(Intent(context, FoldersActivity::class.java))
+            val intent = Intent(context, FoldersActivity::class.java)
+            intent.putExtra(FoldersActivity.EXTRA_SHOW_ARCHIVED, true)
+            startActivity(intent)
             true
         }
 
