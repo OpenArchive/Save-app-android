@@ -56,7 +56,6 @@ class EditFolderActivity : BaseActivity() {
             false
         }
 
-        mBinding.btRemove.setDrawable(R.drawable.ic_delete, Position.Start, 0.5)
         mBinding.btRemove.setOnClickListener {
             showDeleteFolderConfirmDialog()
         }
