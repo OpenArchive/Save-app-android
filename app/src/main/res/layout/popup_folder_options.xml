@@ -24,7 +24,7 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:padding="4dp"
-            android:text="Rename folder"
+            android:text="@string/popup_rename_folder"
             android:textSize="16sp" />
 
 
@@ -36,7 +36,20 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:padding="4dp"
-            android:text="Select media"
+            android:text="@string/popup_select_media"
+            android:textSize="16sp" />
+
+
+
+        <TextView
+            android:id="@+id/menu_folder_bar_archive_folder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_weight="1"
+            android:background="?android:attr/selectableItemBackground"
+            android:padding="4dp"
+            android:text="@string/popup_archive_folder"
             android:textSize="16sp" />
 
 
@@ -49,7 +62,7 @@
             android:layout_weight="1"
             android:background="?android:attr/selectableItemBackground"
             android:padding="4dp"
-            android:text="Remove folder from app"
+            android:text="@string/popup_remove_folder"
             android:textSize="16sp" />
 
 

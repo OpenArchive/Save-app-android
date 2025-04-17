@@ -19,7 +19,7 @@
         android:id="@+id/label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+        android:layout_marginHorizontal="16dp"
         android:layout_marginTop="@dimen/activity_vertical_margin"
         android:text="@string/folder_name"
         android:textSize="14sp"
@@ -32,7 +32,7 @@
         style="@style/ThemeOverlay.Material3.TextInputEditText.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+        android:layout_marginHorizontal="16dp"
         android:layout_marginVertical="@dimen/activity_vertical_margin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -53,6 +53,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/activity_vertical_margin"
+        android:layout_marginHorizontal="16dp"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -65,18 +66,36 @@
     </RelativeLayout>
 
     <LinearLayout
+        android:layout_marginTop="48dp"
+        android:orientation="vertical"
         android:layout_width="match_parent"
+        android:layout_marginHorizontal="16dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/folder_name_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_weight="50"
+            android:gravity="center">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/bt_archive"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:padding="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/action_archive_project"
+                android:textColor="@color/colorOnPrimaryContainer"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:gravity="center">
 
             <TextView
@@ -89,22 +108,7 @@
         </LinearLayout>
 
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:layout_weight="50">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/bt_archive"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:padding="16dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/action_archive_project"
-                android:textColor="@color/colorOnPrimaryContainer"/>
-        </LinearLayout>
 
 
     </LinearLayout>
