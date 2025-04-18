@@ -40,7 +40,6 @@ class BrowseFoldersAdapter(
 
             itemView.isSelected = isSelected
 
-
             val icon = ContextCompat.getDrawable(binding.icon.context, R.drawable.ic_folder_new)
             icon?.setTint(ContextCompat.getColor(binding.icon.context, R.color.colorOnBackground))
             binding.icon.setImageDrawable(icon)
