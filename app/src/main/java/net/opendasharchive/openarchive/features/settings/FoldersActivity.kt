@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import net.opendasharchive.openarchive.FolderAdapter
 import net.opendasharchive.openarchive.FolderAdapterListener
@@ -85,6 +86,14 @@ class  FoldersActivity : BaseActivity(), FolderAdapterListener {
         } ?: emptyList()
 
         mAdapter.update(projects)
+
+        if (projects.isEmpty()) {
+            mBinding.rvProjects.visibility = View.GONE
+            mBinding.tvNoFolders.visibility = View.VISIBLE
+        } else {
+            mBinding.rvProjects.visibility = View.VISIBLE
+            mBinding.tvNoFolders.visibility = View.GONE
+        }
     }
 
 
