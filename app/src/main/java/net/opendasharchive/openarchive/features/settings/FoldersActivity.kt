@@ -134,7 +134,7 @@ class  FoldersActivity : BaseActivity(), FolderAdapterListener {
         val resultIntent = Intent()
         resultIntent.putExtra("SELECTED_FOLDER_ID", project.id)
         setResult(RESULT_OK, resultIntent)
-        finish() // Close FoldersActivity and return to MainActivity
+        //finish() // Close FoldersActivity and return to MainActivity
 
         val intent = Intent(this, EditFolderActivity::class.java).apply {
             putExtra(EditFolderActivity.EXTRA_CURRENT_PROJECT_ID, project.id)
