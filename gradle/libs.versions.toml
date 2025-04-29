@@ -1,6 +1,6 @@
 [versions]
 activity = "1.9.3"
-agp = "8.9.1"
+agp = "8.9.2"
 appcompat = "1.7.0"
 biometric = "1.1.0"
 coil = "3.0.4"
@@ -86,7 +86,7 @@ compose-preferences = { group = "me.zhanghai.compose.preference", name = "librar
 # Google
 google-auth = { group = "com.google.android.gms", name = "play-services-auth", version = "21.3.0" }
 google-drive-api = { group = "com.google.apis", name = "google-api-services-drive", version = "v3-rev136-1.25.0" }
-google-http-client = { group = "com.google.http-client", name = "google-http-client-gson", version = "1.42.3" }
+google-http-client = { group = "com.google.http-client", name = "google-http-client-gson", version = "1.45.2" }
 google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 # Koin

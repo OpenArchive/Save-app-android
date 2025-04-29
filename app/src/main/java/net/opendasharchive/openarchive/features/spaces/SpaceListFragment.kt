@@ -5,8 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.fragment.compose.content
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
@@ -16,6 +15,7 @@ import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.internetarchive.presentation.InternetArchiveActivity
 import net.opendasharchive.openarchive.services.gdrive.GDriveActivity
 import net.opendasharchive.openarchive.services.webdav.WebDavActivity
+import org.koin.compose.viewmodel.koinViewModel
 
 class SpaceListFragment : BaseFragment() {
 
@@ -36,7 +36,14 @@ class SpaceListFragment : BaseFragment() {
 
         binding.composeViewSpaceList.setContent {
 
+            val viewModel: SpaceListViewModel  = koinViewModel()
+
             SaveAppTheme {
+
+                // Calling refresh here will update state & trigger recomposition
+                LaunchedEffect(Unit) {
+                    viewModel.refreshSpaces()
+                }
 
                 SpaceListScreen(
                     onSpaceClicked = { space ->
