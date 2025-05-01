@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.features.main
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Point
@@ -16,6 +17,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.PopupWindow
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -27,6 +29,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.play.core.review.ReviewException
+import com.google.android.play.core.review.ReviewInfo
+import com.google.android.play.core.review.ReviewManager
+import com.google.android.play.core.review.ReviewManagerFactory
+import com.google.android.play.core.review.model.ReviewErrorCode
+import com.google.android.play.core.review.testing.FakeReviewManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.BuildConfig
@@ -129,6 +137,10 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     private lateinit var permissionManager: PermissionManager
 
+    private lateinit var reviewManager: ReviewManager
+//    private lateinit var reviewManager: FakeReviewManager
+    var reviewInfo: ReviewInfo? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ///enableEdgeToEdge()
@@ -188,6 +200,11 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 startActivity(Intent(this, HomeActivity::class.java))
                 true
             }
+        } else {
+            binding.contentMain.imgLogo.setOnLongClickListener {
+                validateAndShowReviewFlow()
+                true
+            }
         }
 
         supportFragmentManager.setFragmentResultListener("uploadRetry", this) { key, bundle ->
@@ -195,6 +212,48 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             // Now you know which media item is being retried.
             // You can start the upload service or update the UI accordingly.
             UploadService.startUploadService(this)
+        }
+
+        reviewManager = ReviewManagerFactory.create(this)
+//        reviewManager = FakeReviewManager(this)
+
+        requestReviewInfo()
+    }
+
+    fun requestReviewInfo() {
+        val request = reviewManager.requestReviewFlow()
+        request.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                // Store the ReviewInfo object for later use.
+                reviewInfo = task.result
+                AppLogger.d("InAppReview", "ReviewInfo obtained successfully.")
+            } else {
+                // Handle the error, possibly log it. Don't show an error message to the user.
+                task.exception?.printStackTrace()
+                val reviewErrorCode = (task.exception as? ReviewException)?.errorCode
+                AppLogger.e("InAppReview", "Error requesting review flow: $reviewErrorCode", task.exception)
+                reviewInfo = null // Reset if failed
+            }
+        }
+    }
+
+    fun showReviewFlow(activity: Activity) { // Pass the current activity
+        reviewInfo?.let { info ->
+            val flow = reviewManager.launchReviewFlow(activity, info)
+            flow.addOnCompleteListener { _ ->
+                // The flow has finished. The API does NOT indicate whether the user
+                // reviewed or not, or even if the dialog was shown.
+                // Continue your app flow regardless of the outcome.
+                // It's important NOT to change your app's logic based on this completion.
+                AppLogger.d("InAppReview", "Review flow finished.")
+                // Reset reviewInfo for next potential request cycle if desired,
+                // or rely on requesting it again when needed.
+                reviewInfo = null
+            }
+        } ?: run {
+            AppLogger.d("InAppReview", "ReviewInfo is null, cannot launch review flow.")
+            // Optionally, you could attempt to request it again here if appropriate,
+            // but usually, you'd request it ahead of time.
         }
     }
 
@@ -725,6 +784,18 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             mCurrentPagerItem = mPagerAdapter.getProjectIndexById(it, default = 0)
         }
         mFolderAdapter.update(projects)
+    }
+
+    private fun validateAndShowReviewFlow() {
+        // show the review flow only if there is at least one server available and that server has at least one project/folder
+        val canShowReviewFlow = Space.current?.projects?.isNotEmpty() == true
+
+        if (canShowReviewFlow) {
+            showReviewFlow(this@MainActivity)
+        } else {
+            AppLogger.d("InAppReview", "Cannot show review flow: No projects available.")
+            Toast.makeText(this, "Cannot show review flow: No projects available.", Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun refreshCurrentProject() {
