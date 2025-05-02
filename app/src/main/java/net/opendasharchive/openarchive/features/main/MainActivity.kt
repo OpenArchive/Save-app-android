@@ -432,10 +432,27 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             popup.dismiss()
             setFolderBarMode(FolderBarMode.SELECTION)
         }
+
         // Rename folder
         popupBinding.menuFolderBarRenameFolder.setOnClickListener {
             popup.dismiss()
             setFolderBarMode(FolderBarMode.EDIT)
+        }
+
+        // Archive folder
+        popupBinding.menuFolderBarArchiveFolder.setOnClickListener {
+            popup.dismiss()
+            val selectedProject = getSelectedProject()
+            if (selectedProject != null) {
+                selectedProject.isArchived = !selectedProject.isArchived
+                selectedProject.save()
+                refreshProjects()
+                updateCurrentFolderVisibility()
+                refreshCurrentProject()
+                Snackbar.make(binding.root, getString(R.string.folder_archived), Snackbar.LENGTH_SHORT).show()
+            } else {
+                Snackbar.make(binding.root, getString(R.string.folder_not_found), Snackbar.LENGTH_LONG).show()
+            }
         }
 
         // Remove folder

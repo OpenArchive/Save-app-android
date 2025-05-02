@@ -13,10 +13,9 @@ import net.opendasharchive.openarchive.databinding.ActivityFoldersBinding
 import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseActivity
-import net.opendasharchive.openarchive.features.folders.AddFolderActivity
 import net.opendasharchive.openarchive.util.extensions.toggle
 
-class FoldersActivity : BaseActivity(), FolderAdapterListener {
+class  FoldersActivity : BaseActivity(), FolderAdapterListener {
 
     companion object {
         const val EXTRA_SHOW_ARCHIVED = "show_archived"
@@ -27,7 +26,7 @@ class FoldersActivity : BaseActivity(), FolderAdapterListener {
     private lateinit var mBinding: ActivityFoldersBinding
     private lateinit var mAdapter: FolderAdapter
 
-    private var mArchived = false
+    private var mArchived = true
     private var mSelectedSpaceId = -1L
     private var mSelectedProjectId: Long = -1L
 
@@ -87,6 +86,14 @@ class FoldersActivity : BaseActivity(), FolderAdapterListener {
         } ?: emptyList()
 
         mAdapter.update(projects)
+
+        if (projects.isEmpty()) {
+            mBinding.rvProjects.visibility = View.GONE
+            mBinding.tvNoFolders.visibility = View.VISIBLE
+        } else {
+            mBinding.rvProjects.visibility = View.VISIBLE
+            mBinding.tvNoFolders.visibility = View.GONE
+        }
     }
 
 
@@ -127,7 +134,7 @@ class FoldersActivity : BaseActivity(), FolderAdapterListener {
         val resultIntent = Intent()
         resultIntent.putExtra("SELECTED_FOLDER_ID", project.id)
         setResult(RESULT_OK, resultIntent)
-        finish() // Close FoldersActivity and return to MainActivity
+        //finish() // Close FoldersActivity and return to MainActivity
 
         val intent = Intent(this, EditFolderActivity::class.java).apply {
             putExtra(EditFolderActivity.EXTRA_CURRENT_PROJECT_ID, project.id)

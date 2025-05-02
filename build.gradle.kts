@@ -7,6 +7,8 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.navigation.safeargs) apply false
     alias(libs.plugins.detekt.plugin) apply false
+    alias(libs.plugins.google.gms.google.services) apply false
+    alias(libs.plugins.google.firebase.crashlytics) apply false
 }
 
 tasks.register<Delete>("clean") {

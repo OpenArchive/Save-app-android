@@ -1,6 +1,7 @@
 package net.opendasharchive.openarchive.features.internetarchive.presentation.login
 
 import android.content.Intent
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -45,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -72,8 +74,10 @@ import net.opendasharchive.openarchive.features.internetarchive.presentation.com
 import net.opendasharchive.openarchive.features.internetarchive.presentation.components.InternetArchiveHeader
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.CreateLogin
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.Login
+import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.LoginError
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.UpdatePassword
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.UpdateUsername
+import net.opendasharchive.openarchive.util.NetworkUtils
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction as Action
@@ -116,6 +120,8 @@ fun InternetArchiveLoginScreen(space: Space, onResult: (IAResult) -> Unit) {
 private fun InternetArchiveLoginContent(
     state: InternetArchiveLoginState, dispatch: Dispatch<Action>
 ) {
+
+    val context = LocalContext.current
 
     LaunchedEffect(state.isLoginError) {
         while (state.isLoginError) {
@@ -256,7 +262,14 @@ private fun InternetArchiveLoginContent(
                     disabledContainerColor = colorResource(R.color.grey_50),
                     disabledContentColor = colorResource(R.color.extra_light_grey)//MaterialTheme.colorScheme.onBackground
                 ),
-                onClick = { dispatch(Login) },
+                onClick = {
+                    if (NetworkUtils.isNetworkAvailable(context)) {
+                        dispatch(Login)
+                    } else {
+                        Toast.makeText(context, R.string.error_no_internet, Toast.LENGTH_LONG)
+                            .show()
+                    }
+                },
             ) {
                 if (state.isBusy) {
                     CircularProgressIndicator(color = ThemeColors.material.primary)

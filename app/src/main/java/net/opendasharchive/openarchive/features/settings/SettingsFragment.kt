@@ -121,7 +121,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         getPrefByKey<Preference>(R.string.pref_media_folders)?.setOnPreferenceClickListener {
-            startActivity(Intent(context, FoldersActivity::class.java))
+            val intent = Intent(context, FoldersActivity::class.java)
+            intent.putExtra(FoldersActivity.EXTRA_SHOW_ARCHIVED, true)
+            startActivity(intent)
             true
         }
 
@@ -181,30 +183,5 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        //view.setPadding(0, 16.dpToPx(), 0, 0)
     }
-
-    fun Int.dpToPx(): Int = (this * resources.displayMetrics.density).toInt()
-
-
-//    mBinding.btAbout.text = getString(R.string.action_about, getString(R.string.app_name))
-//    mBinding.btAbout.styleAsLink()
-//    mBinding.btAbout.setOnClickListener {
-//        context?.openBrowser("https://open-archive.org/save")
-//    }
-//
-//    mBinding.btPrivacy.styleAsLink()
-//    mBinding.btPrivacy.setOnClickListener {
-//        context?.openBrowser("https://open-archive.org/privacy")
-//    }
-//
-//    val activity = activity
-//
-//    if (activity != null) {
-//        mBinding.version.text = getString(
-//            R.string.version__,
-//            activity.packageManager.getVersionName(activity.packageName)
-//        )
-//    }
 }

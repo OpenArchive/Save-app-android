@@ -9,6 +9,8 @@ plugins {
     id("com.google.devtools.ksp")
     id("androidx.navigation.safeargs.kotlin")
     alias(libs.plugins.detekt.plugin)
+    alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.google.firebase.crashlytics)
 }
 
 fun loadLocalProperties(): Properties = Properties().apply {
@@ -167,6 +169,7 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.icons.extended)
+    implementation(libs.firebase.crashlytics)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     implementation(libs.androidx.compose.runtime)
@@ -211,26 +214,27 @@ dependencies {
     // Utility Libraries
     implementation(libs.timber)
     implementation(libs.orhanobut.logger)
-    implementation("com.github.abdularis:circularimageview:1.4")
-    implementation("com.tbuonomo:dotsindicator:5.1.0")
-    implementation("com.guolindev.permissionx:permissionx:1.6.4")
+    implementation(libs.abdularis.circularimageview)
+    implementation(libs.dotsindicator)
+    implementation(libs.permissionx)
 
     // Barcode Scanning
     implementation("com.google.zxing:core:3.5.3")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
     // Security and Encryption
-    implementation("org.bouncycastle:bcpkix-jdk15to18:1.72")
-    implementation("org.bouncycastle:bcprov-jdk15to18:1.72")
-    api("org.bouncycastle:bcpg-jdk15to18:1.71")
+    implementation(libs.bouncycastle.bcpkix)
+    implementation(libs.bouncycastle.bcprov)
+    api(libs.bouncycastle.bcpg)
 
     // Google Play Services
     implementation("com.google.android.gms:play-services-auth:21.3.0")
-//    implementation("com.google.android.play:core-ktx:1.8.1")
-//    implementation("com.google.android.play:asset-delivery-ktx:2.3.0")
-//    implementation("com.google.android.play:feature-delivery-ktx:2.1.0")
-//    implementation("com.google.android.play:review-ktx:2.0.2")
-//    implementation("com.google.android.play:app-update-ktx:2.1.0")
+    implementation(libs.google.play.asset.delivery.ktx)
+    implementation(libs.google.play.feature.delivery)
+    implementation(libs.google.play.feature.delivery.ktx)
+    implementation(libs.google.play.review)
+    implementation(libs.google.play.review.ktx)
+    implementation(libs.google.play.app.update.ktx)
 
     // Google Drive API
     implementation("com.google.http-client:google-http-client-gson:1.42.3")
@@ -238,14 +242,14 @@ dependencies {
     implementation("com.google.apis:google-api-services-drive:v3-rev136-1.25.0")
 
     // Tor Libraries
-    implementation("info.guardianproject:tor-android:0.4.7.14")
-    implementation("info.guardianproject:jtorctl:0.4.5.7")
+    implementation(libs.tor.android)
+    implementation(libs.jtorctl)
 
-    implementation("org.bitcoinj:bitcoinj-core:0.16.2")
+    implementation(libs.bitcoinj.core)
     implementation("com.eclipsesource.j2v8:j2v8:6.2.1@aar")
 
     // ProofMode //from here: https://github.com/guardianproject/proofmode
-    implementation("org.proofmode:android-libproofmode:1.0.26") {
+    implementation(libs.proofmode) {
         //transitive = false
         exclude(group = "org.bitcoinj")
         exclude(group = "com.google.protobuf")
@@ -260,21 +264,21 @@ dependencies {
     }
 
     // Guava Conflicts
-    implementation("com.google.guava:guava:31.0.1-jre")
-    implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
+    implementation(libs.guava)
+    implementation(libs.guava.listenablefuture)
 
-    implementation("com.github.satyan:sugar:1.5")
+    implementation(libs.satyan.sugar)
 
     // adding web dav support: https://github.com/thegrizzlylabs/sardine-android'
     implementation("com.github.guardianproject:sardine-android:89f7eae512")
 
     implementation("com.github.derlio:audio-waveform:v1.0.1")
 
-    implementation("org.cleaninsights.sdk:clean-insights-sdk:2.8.0")
-    implementation("info.guardianproject.netcipher:netcipher:2.2.0-alpha")
+    implementation(libs.clean.insights)
+    implementation(libs.netcipher)
 
     // Mixpanel analytics
-    implementation("com.mixpanel.android:mixpanel-android:8.0.2")
+    implementation(libs.mixpanel)
 
     // Tests
     testImplementation("junit:junit:4.13.2")

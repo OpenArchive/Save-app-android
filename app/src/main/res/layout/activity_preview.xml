@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:text="@string/add_more"
             app:icon="@drawable/baseline_add_24"
-            app:iconTint="@color/colorOnBackground"
+            app:iconTint="@color/black"
             app:backgroundTint="@color/colorTertiary"
             app:layout_constraintBottom_toTopOf="@id/bottom_bar"
             app:layout_constraintEnd_toEndOf="parent"
