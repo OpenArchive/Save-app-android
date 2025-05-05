@@ -1,14 +1,11 @@
 package net.opendasharchive.openarchive.features.media
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
-import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.view.View
@@ -18,8 +15,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.esafirm.imagepicker.features.ImagePickerConfig
@@ -35,11 +30,12 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Project
-import net.opendasharchive.openarchive.features.main.MainActivity
-import net.opendasharchive.openarchive.features.main.MainActivity.Companion.REQUEST_CAMERA_PERMISSION
+import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Utility
 import net.opendasharchive.openarchive.util.extensions.makeSnackBar
+import org.witness.proofmode.ProofMode
 import org.witness.proofmode.crypto.HashUtils
+import timber.log.Timber
 import java.io.File
 import java.util.Date
 
@@ -59,7 +55,8 @@ object Picker {
             val snackbar = showProgressSnackBar(activity, root, activity.getString(R.string.importing_media))
 
             activity.lifecycleScope.launch(Dispatchers.IO) {
-                val media = import(activity, project(), result.map { it.uri })
+                // We don't generate proof for media picker files.
+                val media = import(activity, project(), result.map { it.uri },false)
 
                 activity.lifecycleScope.launch(Dispatchers.Main) {
                     snackbar.dismiss()
@@ -76,7 +73,8 @@ object Picker {
             val snackbar = showProgressSnackBar(activity, root, activity.getString(R.string.importing_media))
 
             activity.lifecycleScope.launch(Dispatchers.IO) {
-                val files = import(activity, project(), listOf(uri))
+                // We don't generate proof for file picker files.
+                val files = import(activity, project(), listOf(uri), false)
 
                 activity.lifecycleScope.launch(Dispatchers.Main) {
                     snackbar.dismiss()
@@ -92,7 +90,9 @@ object Picker {
                     val snackbar = showProgressSnackBar(activity, root, activity.getString(R.string.importing_media))
 
                     activity.lifecycleScope.launch(Dispatchers.IO) {
-                        val media = import(activity, project(), listOf(uri))
+                        // We generate proof for in app capture Just because we toggle it true, it doesn't generate proof.
+                        // It should be on in the settings too. We check that inside import
+                        val media = import(activity, project(), listOf(uri),true)
 
                         activity.lifecycleScope.launch(Dispatchers.Main) {
                             snackbar.dismiss()
@@ -139,12 +139,13 @@ object Picker {
         type = "application/*"
     }
 
-    private fun import(context: Context, project: Project?, uris: List<Uri>): ArrayList<Media> {
+    private fun import(context: Context, project: Project?, uris: List<Uri>, generateProof: Boolean): ArrayList<Media> {
         val result = ArrayList<Media>()
 
         for (uri in uris) {
             try {
-                val media = import(context, project, uri)
+                //Simply pass the generate proof boolean for single file import which is looped here
+                val media = import(context, project, uri, generateProof)
                 if (media != null) result.add(media)
             } catch (e: Exception) {
                 AppLogger.e( "Error importing media", e)
@@ -154,7 +155,7 @@ object Picker {
         return result
     }
 
-    fun import(context: Context, project: Project?, uri: Uri): Media? {
+    fun import(context: Context, project: Project?, uri: Uri, generateProof: Boolean): Media? {
         @Suppress("NAME_SHADOWING")
         val project = project ?: return null
 
@@ -188,17 +189,24 @@ object Picker {
         media.createDate = createDate
         media.updateDate = media.createDate
         media.sStatus = Media.Status.Local
-        media.mediaHashString =
-            HashUtils.getSHA256FromFileContent(context.contentResolver.openInputStream(uri))
+        //We generate hash regardless if proof is on or off because we don't want unexpected behaviour when we are looking for proof files when uploaded later.
+        media.mediaHashString = HashUtils.getSHA256FromFileContent(context.contentResolver.openInputStream(uri))
         media.projectId = project.id
         media.title = title
         media.save()
-
+        if (generateProof && Prefs.useProofMode) {
+            //If Proof mode is on we need this to be on always
+            Prefs.proofModeLocation = true
+            Prefs.proofModeNetwork = true
+            //Generate proof for camera photos and also always track location
+            ProofMode.generateProof(context, uri, media.mediaHashString)
+        } else {
+            Timber.w("Skipping proof generation")
+        }
         return media
     }
 
     fun takePhoto(activity: Activity, launcher: ActivityResultLauncher<Intent>) {
-
         val file = Utility.getOutputMediaFileByCache(activity, "IMG_${System.currentTimeMillis()}.jpg")
 
         file?.let {
