@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<PreferenceScreen
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
@@ -38,15 +38,21 @@
 <!--        app:layout="@layout/prefs_title"-->
 <!--        app:title="@string/security">-->
 
-<!--        <SwitchPreferenceCompat-->
-<!--            app:allowDividerAbove="false"-->
-<!--            app:allowDividerBelow="false"-->
-<!--            app:iconSpaceReserved="false"-->
-<!--            app:key="use_tor"-->
-<!--            app:defaultValue="false"-->
-<!--            app:title="@string/prefs_use_tor_title"-->
-<!--            app:singleLineTitle="false"-->
-<!--            app:summary="@string/prefs_use_tor_summary" />-->
+        <SwitchPreferenceCompat
+            app:allowDividerAbove="false"
+            app:allowDividerBelow="false"
+            app:iconSpaceReserved="false"
+            app:key="use_tor"
+            app:defaultValue="false"
+            app:title="@string/prefs_use_tor_title"
+            app:singleLineTitle="false"
+            app:summary="@string/prefs_use_tor_summary" />
+
+        <Preference
+            android:key="tor_status"
+            android:title="@string/prefs_use_tor_summary"
+            android:description="@string/prefs_install_tor_summary"
+            />
 
 <!--        <SwitchPreferenceCompat-->
 <!--            app:allowDividerAbove="false"-->

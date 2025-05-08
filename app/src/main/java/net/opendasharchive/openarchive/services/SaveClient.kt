@@ -8,6 +8,8 @@ import info.guardianproject.netcipher.client.StrongBuilderBase
 import info.guardianproject.netcipher.proxy.OrbotHelper
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.services.tor.ITorRepository
+import net.opendasharchive.openarchive.services.tor.TorStatus
 import net.opendasharchive.openarchive.services.webdav.BasicAuthInterceptor
 import net.opendasharchive.openarchive.util.Prefs
 import okhttp3.Interceptor
@@ -15,14 +17,19 @@ import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.Request
 import okhttp3.internal.platform.Platform
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import java.net.InetSocketAddress
+import java.net.Proxy
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.suspendCoroutine
 
-class SaveClient(context: Context) : StrongBuilderBase<SaveClient, OkHttpClient>(context) {
+class SaveClient(context: Context) : StrongBuilderBase<SaveClient, OkHttpClient>(context), KoinComponent {
 
     class OrbotException(message: String): Exception(message)
 
     private var okBuilder: OkHttpClient.Builder
+    private val torRepo: ITorRepository by inject()
 
     init {
         val cacheInterceptor = Interceptor { chain ->
@@ -37,6 +44,9 @@ class SaveClient(context: Context) : StrongBuilderBase<SaveClient, OkHttpClient>
             .readTimeout(40L, TimeUnit.SECONDS)
             .retryOnConnectionFailure(false)
             .protocols(arrayListOf(Protocol.HTTP_1_1))
+
+        if (Prefs.useTor)
+            okBuilder = okBuilder.proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress("localhost", torRepo.httpTunnelPort)))
     }
 
     /**
@@ -124,17 +134,12 @@ class SaveClient(context: Context) : StrongBuilderBase<SaveClient, OkHttpClient>
                     }
                 }
 
-                if (Prefs.useTor) {
-                    if (!OrbotHelper.requestStartTor(context)) {
-                        callback.onInvalid()
-                    }
-                    else {
-                        strongBuilder.build(callback)
-                    }
+                /*if (Prefs.useTor && strongBuilder.torRepo.torStatus.value != TorStatus.CONNECTED) {
+                    strongBuilder.build(callback)
                 }
-                else {
-                    callback.onConnected(strongBuilder.build(Intent()))
-                }
+                else {*/
+                callback.onConnected(strongBuilder.build(Intent()))
+                //}
             }
         }
 

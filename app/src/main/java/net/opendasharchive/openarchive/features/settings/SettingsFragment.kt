@@ -25,7 +25,6 @@ class SettingsFragment : Fragment() {
 
     private lateinit var mBinding: FragmentSettingsBinding
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

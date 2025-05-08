@@ -2,6 +2,7 @@ package net.opendasharchive.openarchive.features.media
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -12,7 +13,7 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.github.derlio.waveform.SimpleWaveformView
 import com.squareup.picasso.Picasso
-import com.stfalcon.frescoimageviewer.ImageViewer
+import com.stfalcon.imageviewer.StfalconImageViewer
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivityReviewBinding
 import net.opendasharchive.openarchive.db.Media
@@ -25,6 +26,7 @@ import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show
 import net.opendasharchive.openarchive.util.extensions.toggle
 import java.text.NumberFormat
+import kotlin.arrayOf
 import kotlin.math.max
 import kotlin.math.min
 
@@ -59,6 +61,12 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
 
     private val mMedia
         get() = mStore.getOrNull(mIndex)
+
+    private val mPicasso by lazy {
+        Picasso.Builder(this)
+            .addRequestHandler(VideoRequestHandler(this))
+            .build()
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -168,9 +176,9 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
         when (view) {
             mBinding.waveform, mBinding.image -> {
                 if (mMedia?.mimeType?.startsWith("image") == true) {
-                    ImageViewer.Builder(this, listOf(mMedia?.fileUri))
-                        .setStartPosition(0)
-                        .show()
+                    StfalconImageViewer.Builder(this, listOf(mMedia?.fileUri)) { view, image ->
+                        mPicasso.load(image).into(view)
+                    }.show()
                 }
             }
             mBinding.btFlag -> {
@@ -311,9 +319,7 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
                 .into(imageView)
         }
         else if (media?.mimeType?.startsWith("video") == true) {
-            Picasso.Builder(this)
-                .addRequestHandler(VideoRequestHandler(this))
-                .build()
+            mPicasso
                 .load(VideoRequestHandler.SCHEME_VIDEO + ":" + media.originalFilePath)
                 ?.fit()
                 ?.centerCrop()
