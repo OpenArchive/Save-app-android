@@ -3,7 +3,6 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-
         maven {
             url "https://plugins.gradle.org/m2/"
             content {
@@ -49,7 +48,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.3.2'
+        classpath 'com.android.tools.build:gradle:8.9.2'
         classpath "com.neenbedankt.gradle.plugins:android-apt:1.8"
         classpath "com.testdroid:gradle:2.63.1"
         classpath "gradle.plugin.com.browserstack.gradle:browserstack-gradle-plugin:2.3.1"
@@ -57,44 +56,9 @@ buildscript {
     }
 }
 
-
 configurations.configureEach {
     resolutionStrategy {
         force "com.android.support:support-v4:$versions.support_v4"
-    }
-}
-
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-
-        maven {
-            url 'https://raw.githubusercontent.com/guardianproject/gpmaven/master'
-            content {
-                includeModule 'org.proofmode', 'android-libproofmode'
-            }
-        }
-
-        maven {
-            url 'https://jitpack.io'
-            content {
-                includeModule 'com.github.esafirm', 'android-image-picker'
-                includeModule 'com.github.derlio', 'audio-waveform'
-                includeModule 'com.github.abdularis', 'circularimageview'
-                includeModule 'com.github.guardianproject', 'sardine-android'
-            }
-        }
-
-        maven {
-            url 'https://jcenter.bintray.com'
-            content {
-                includeModule 'com.amulyakhare', 'com.amulyakhare.textdrawable'
-                includeModule 'com.github.stfalcon', 'frescoimageviewer'
-                includeModule 'me.relex', 'photodraweeview'
-            }
-        }
     }
 }
 

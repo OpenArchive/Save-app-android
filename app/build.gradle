@@ -19,7 +19,7 @@ android {
         targetSdkVersion 34
         versionCode 30001
         versionName '0.7.4'
-        archivesBaseName = "Save-$versionName"
+        //archivesBaseName = "Save-$versionName"
         multiDexEnabled true
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -110,11 +110,11 @@ dependencies {
     annotationProcessor "com.github.bumptech.glide:compiler:4.16.0"
     implementation "com.github.derlio:audio-waveform:v1.0.1"
     implementation "com.github.esafirm:android-image-picker:3.0.0"
-    implementation "com.github.stfalcon:frescoimageviewer:0.5.0"
+    implementation 'com.github.stfalcon-studio:StfalconImageViewer:v1.0.1'
     implementation "com.facebook.fresco:fresco:2.6.0"
     implementation "com.squareup.picasso:picasso:2.5.2"
 
-    implementation "com.amulyakhare:com.amulyakhare.textdrawable:1.0.1"
+    implementation "com.github.amulyakhare:TextDrawable:master"
     implementation "com.github.abdularis:circularimageview:1.4"
 
     implementation "org.cleaninsights.sdk:clean-insights-sdk:2.8.0"
@@ -156,7 +156,7 @@ dependencies {
     implementation 'com.google.apis:google-api-services-drive:v3-rev136-1.25.0'
 
     // Tor
-    implementation 'info.guardianproject:tor-android:0.4.7.14'
+    implementation 'info.guardianproject:tor-android:0.4.8.11'
     implementation 'info.guardianproject:jtorctl:0.4.5.7'
 
     // New Play libraries
