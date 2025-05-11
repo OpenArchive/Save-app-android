@@ -105,7 +105,8 @@
             android:name=".features.main.HomeActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:theme="@style/SaveAppTheme.NoActionBar">
+            android:theme="@style/SaveAppTheme.NoActionBar"
+            tools:ignore="DiscouragedApi">
             <!--            <intent-filter>-->
             <!--                <action android:name="android.intent.action.MAIN" />-->
 
@@ -143,41 +144,7 @@
         </activity>
 
         <activity
-            android:name=".upload.UploadManagerActivity"
-            android:exported="false"
-            android:label="@string/title_activity_upload_manager"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-
-        <activity
-            android:name=".services.webdav.WebDavActivity"
-            android:label="@string/title_activity_login"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan" />
-
-        <activity
-            android:name=".features.internetarchive.presentation.InternetArchiveActivity"
-            android:label="@string/title_activity_login"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
             android:name=".services.gdrive.GDriveActivity"
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.settings.FoldersActivity"
-            android:exported="false"
-            android:label="@string/folders"
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.settings.GeneralSettingsActivity"
-            android:exported="false"
-            android:label="@string/general"
-            android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar" />
 
         <activity
@@ -226,17 +193,6 @@
         <activity
             android:name=".features.onboarding.Onboarding23InstructionsActivity"
             android:exported="false"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <!--        <activity-->
-        <!--            android:name=".features.folders.CreateNewFolderActivity"-->
-        <!--            android:label="@string/new_folder"-->
-        <!--            android:taskAffinity=""-->
-        <!--            android:theme="@style/SaveAppTheme.NoActionBar" />-->
-
-        <activity
-            android:name=".features.folders.AddFolderActivity"
             android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar" />
 

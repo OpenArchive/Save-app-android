@@ -32,13 +32,18 @@ import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.internetarchive.presentation.components.IAResult
+import net.opendasharchive.openarchive.features.internetarchive.presentation.components.InternetArchiveHeader
 import net.opendasharchive.openarchive.features.internetarchive.presentation.details.InternetArchiveDetailsViewModel.Action
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.CustomTextField
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
-fun InternetArchiveDetailsScreen(space: Space, onResult: (IAResult) -> Unit) {
+fun InternetArchiveDetailsScreen(
+    space: Space,
+    onResult: (IAResult) -> Unit,
+    dialogManager: DialogStateManager,
+) {
     val viewModel: InternetArchiveDetailsViewModel = koinViewModel {
         parametersOf(space)
     }
@@ -55,14 +60,36 @@ fun InternetArchiveDetailsScreen(space: Space, onResult: (IAResult) -> Unit) {
         }
     }
 
-    InternetArchiveDetailsContent(state, viewModel::dispatch)
+    InternetArchiveDetailsContent(
+        state = state,
+        onRemove = {
+            dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+                title = UiText.StringResource(R.string.remove_from_app)
+                message =
+                    UiText.StringResource(R.string.are_you_sure_you_want_to_remove_this_server_from_the_app)
+                icon = UiImage.DrawableResource(R.drawable.ic_trash)
+                destructiveButton {
+                    text = UiText.StringResource(R.string.remove)
+                    action = {
+                        viewModel.dispatch(Action.Remove)
+                    }
+                }
+
+                neutralButton {
+                    text = UiText.StringResource(R.string.action_cancel)
+                    action = {
+                        //dismiss
+                    }
+                }
+            }
+        }
+    )
 }
 
 @Composable
 private fun InternetArchiveDetailsContent(
     state: InternetArchiveDetailsState,
-    dispatch: Dispatch<Action>,
-    dialogManager: DialogStateManager = koinViewModel()
+    onRemove: () -> Unit,
 ) {
 
     Box(
@@ -73,7 +100,7 @@ private fun InternetArchiveDetailsContent(
 
         Column {
 
-            //InternetArchiveHeader()
+            Text(stringResource(R.string.account), fontSize = 18.sp, color = MaterialTheme.colorScheme.onSurface)
 
             Spacer(Modifier.height(ThemeDimensions.spacing.large))
 
@@ -110,28 +137,7 @@ private fun InternetArchiveDetailsContent(
                 horizontalArrangement = Arrangement.Center
             ) {
                 TextButton(
-                    onClick = {
-                        //isRemoving = true
-
-                        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-                            title = UiText.StringResource(R.string.remove_from_app)
-                            message = UiText.StringResource(R.string.are_you_sure_you_want_to_remove_this_server_from_the_app)
-                            icon = UiImage.DrawableResource(R.drawable.ic_trash)
-                            destructiveButton {
-                                text = UiText.StringResource(R.string.remove)
-                                action = {
-                                    dispatch(Action.Remove)
-                                }
-                            }
-
-                            neutralButton {
-                                text = UiText.StringResource(R.string.action_cancel)
-                                action = {
-                                    //dismiss
-                                }
-                            }
-                        }
-                    },
+                    onClick = onRemove,
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.colorScheme.error
                     )
@@ -161,7 +167,7 @@ private fun InternetArchiveScreenPreview() {
                 userName = "@abc_name",
                 screenName = "ABC Name"
             ),
-            dispatch = {}
+            onRemove = {}
         )
     }
 }

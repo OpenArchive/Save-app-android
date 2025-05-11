@@ -2,17 +2,14 @@ package net.opendasharchive.openarchive.db
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import com.github.abdularis.civ.AvatarImageView
 import com.orm.SugarRecord
 import net.opendasharchive.openarchive.R
@@ -20,7 +17,6 @@ import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.services.gdrive.GDriveConduit
 import net.opendasharchive.openarchive.services.internetarchive.IaConduit
-import net.opendasharchive.openarchive.util.DrawableUtil
 import net.opendasharchive.openarchive.util.Prefs
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -76,10 +72,6 @@ data class Space(
         RAVEN(5, "DWeb Service"),
     }
 
-    enum class IconStyle {
-        SOLID, OUTLINE
-    }
-
     companion object {
         fun getAll(): Iterator<Space> {
             return findAll(Space::class.java)
@@ -131,6 +123,15 @@ data class Space(
                 activity.startActivity(Intent(activity, SpaceSetupActivity::class.java))
             }
         }
+
+        fun navigate(activity: FragmentActivity) {
+            if (getAll().hasNext()) {
+                activity.finish()
+            } else {
+                activity.finishAffinity()
+                activity.startActivity(Intent(activity, SpaceSetupActivity::class.java))
+            }
+        }
     }
 
     val friendlyName: String
@@ -151,7 +152,7 @@ data class Space(
     var tType: Type
         get() = Type.entries.first { it.id == type }
         set(value) {
-            type = (value ?: Type.WEBDAV).id
+            type = value.id
         }
 
     var license: String?
@@ -199,45 +200,30 @@ data class Space(
             "space_id = ? AND description = ?",
             id.toString(),
             description
-        ).size > 0
+        ).isNotEmpty()
     }
 
-    fun getAvatar(context: Context, style: IconStyle = IconStyle.SOLID): Drawable? {
-
-
-        return when (tType) {
+    fun getAvatar(context: Context): Drawable? = when (tType) {
             Type.WEBDAV -> ContextCompat.getDrawable(
                 context,
                 R.drawable.ic_private_server
-            ) // ?.tint(color)
+            )
 
             Type.INTERNET_ARCHIVE -> ContextCompat.getDrawable(
                 context,
                 R.drawable.ic_internet_archive
-            ) // ?.tint(color)
+            )
 
             Type.GDRIVE -> ContextCompat.getDrawable(
                 context,
                 R.drawable.logo_gdrive_outline
-            ) // ?.tint(color)
+            )
 
-            Type.RAVEN -> ContextCompat.getDrawable(context, R.drawable.snowbird) // ?.tint(color)
-
-            else -> {
-                val color = ContextCompat.getColor(context, R.color.colorOnBackground)
-                BitmapDrawable(
-                    context.resources,
-                    DrawableUtil.createCircularTextDrawable(initial, color)
-                )
-            }
-
-        }
+            Type.RAVEN -> ContextCompat.getDrawable(context, R.drawable.snowbird)
     }
 
     @Composable
-    fun getAvatar(): Painter {
-
-        return when (tType) {
+    fun getAvatar(): Painter = when (tType) {
             Type.WEBDAV -> painterResource(R.drawable.ic_space_private_server)
 
             Type.INTERNET_ARCHIVE -> painterResource(R.drawable.ic_space_interent_archive)
@@ -245,15 +231,8 @@ data class Space(
             Type.GDRIVE -> painterResource(R.drawable.logo_gdrive_outline)
 
             Type.RAVEN -> painterResource(R.drawable.ic_space_dweb)
-            null -> {
-                val context = LocalContext.current
-                val color = ContextCompat.getColor(context, R.color.colorOnBackground)
-                val bitmap = DrawableUtil.createCircularTextDrawable(initial, color)
-                val imageBitmap = bitmap.asImageBitmap()
-                BitmapPainter(imageBitmap)
-            }
         }
-    }
+
 
     fun setAvatar(view: ImageView) {
         when (tType) {

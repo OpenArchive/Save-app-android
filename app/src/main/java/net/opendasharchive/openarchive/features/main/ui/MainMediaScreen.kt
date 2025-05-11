@@ -7,9 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,9 +20,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
@@ -56,8 +51,6 @@ import net.opendasharchive.openarchive.db.Collection
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.features.media.PreviewActivity
 import net.opendasharchive.openarchive.upload.BroadcastManager
-import net.opendasharchive.openarchive.upload.UploadManagerActivity
-import org.koin.androidx.compose.koinViewModel
 
 /**
  * A data class representing one “section” (i.e. one Collection and its list of Media).
@@ -400,7 +393,7 @@ private fun handleMediaClick(context: Context, media: Media, onError: (Media) ->
 
         Media.Status.Queued, Media.Status.Uploading -> {
             // Start the upload manager activity
-            context.startActivity(Intent(context, UploadManagerActivity::class.java))
+            //TODO: show the bottom sheet for EditUploads here
         }
 
         Media.Status.Error -> {

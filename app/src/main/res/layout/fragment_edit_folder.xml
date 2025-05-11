@@ -7,12 +7,7 @@
     android:filterTouchesWhenObscured="true"
     android:orientation="vertical"
     tools:background="@color/colorBackground"
-    tools:context=".features.settings.EditFolderActivity">
-
-
-    <include
-        android:id="@+id/common_app_bar"
-        layout="@layout/common_app_bar"/>
+    tools:context=".features.settings.EditFolderFragment">
 
 
     <TextView
@@ -25,7 +20,7 @@
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/common_app_bar" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/folder_name_container"
@@ -106,10 +101,6 @@
                 android:textColor="@color/colorDanger"
                 android:textStyle="bold" />
         </LinearLayout>
-
-
-
-
 
     </LinearLayout>
 

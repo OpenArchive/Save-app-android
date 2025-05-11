@@ -5,11 +5,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.navigation.NavDeepLinkBuilder
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.features.core.NavArgument
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
@@ -115,15 +118,34 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         getPrefByKey<Preference>(R.string.pref_media_servers)?.setOnPreferenceClickListener {
             val intent = Intent(context, SpaceSetupActivity::class.java)
-            intent.putExtra("start_destination", StartDestination.SPACE_LIST.name)
+            intent.putExtra(NavArgument.START_DESTINATION, StartDestination.SPACE_LIST.name)
             startActivity(intent)
             true
         }
 
         getPrefByKey<Preference>(R.string.pref_media_folders)?.setOnPreferenceClickListener {
-            val intent = Intent(context, FoldersActivity::class.java)
-            intent.putExtra(FoldersActivity.EXTRA_SHOW_ARCHIVED, true)
+//            val intent = Intent(context, FoldersActivity::class.java)
+//            intent.putExtra(FoldersActivity.EXTRA_SHOW_ARCHIVED, true)
+//            startActivity(intent)
+//
+            val intent = Intent(context, SpaceSetupActivity::class.java)
+            intent.putExtra(NavArgument.START_DESTINATION, StartDestination.FOLDER_LIST.name)
+            intent.putExtra(NavArgument.SHOW_ARCHIVED_FOLDERS, true)
+            intent.putExtra(NavArgument.SPACE_ID, Space.current?.id)
             startActivity(intent)
+
+//            val args = Bundle().apply {
+//                putBoolean(NavArgument.SHOW_ARCHIVED_FOLDERS, true)
+//                putLong(NavArgument.SPACE_ID, -1L)
+//                putLong(NavArgument.FOLDER_ID, -1L)
+//            }
+//            NavDeepLinkBuilder(requireContext())
+//                .setComponentName(SpaceSetupActivity::class.java)
+//                .setGraph(R.navigation.space_setup_navigation)
+//                .setDestination(R.id.fragment_folder_list)
+//                .setArguments(args)
+//                .createPendingIntent()
+//                .send()
             true
         }
 
