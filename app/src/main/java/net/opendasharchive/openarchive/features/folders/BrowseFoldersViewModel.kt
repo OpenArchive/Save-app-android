@@ -24,14 +24,12 @@ class BrowseFoldersViewModel : ViewModel() {
 
     private val client: SaveClient by inject(SaveClient::class.java)
 
-    private val drive: GDriveConduit by inject(GDriveConduit::class.java)
-
     val folders: LiveData<List<Folder>>
         get() = mFolders
 
     val progressBarFlag = MutableLiveData(false)
 
-    fun getFiles(space: Space) {
+    fun getFiles(context: Context, space: Space) {
         viewModelScope.launch {
             progressBarFlag.value = true
 
@@ -40,7 +38,7 @@ class BrowseFoldersViewModel : ViewModel() {
                     when (space.tType) {
                         Space.Type.WEBDAV -> getWebDavFolders(space)
 
-                        Space.Type.GDRIVE -> getGDriveFolders()
+                        Space.Type.GDRIVE -> getGDriveFolders(context)
 
                         else -> emptyList()
                     }
@@ -73,7 +71,7 @@ class BrowseFoldersViewModel : ViewModel() {
         } ?: emptyList()
     }
 
-    private suspend fun getGDriveFolders(): List<Folder> {
-        return drive.listFoldersInRoot()
+    private fun getGDriveFolders(context: Context): List<Folder> {
+        return GDriveConduit.listFoldersInRoot(GDriveConduit.getDrive(context))
     }
 }

@@ -37,7 +37,7 @@ class BrowseFoldersActivity : BaseActivity() {
         mBinding.rvFolderList.layoutManager = LinearLayoutManager(this)
 
         val space = Space.current
-        if (space != null) mViewModel.getFiles(space)
+        if (space != null) mViewModel.getFiles(this, space)
 
         mViewModel.folders.observe(this) {
             mBinding.projectsEmpty.toggle(it.isEmpty())

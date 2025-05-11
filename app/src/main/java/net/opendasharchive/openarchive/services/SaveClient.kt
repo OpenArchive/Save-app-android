@@ -8,6 +8,7 @@ import info.guardianproject.netcipher.proxy.OrbotHelper
 import info.guardianproject.netcipher.proxy.OrbotHelper.SimpleStatusCallback
 import net.opendasharchive.openarchive.core.infrastructure.client.enqueueResult
 import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.util.Prefs
 import okhttp3.Call
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -17,27 +18,20 @@ import okhttp3.Response
 import org.koin.core.component.KoinComponent
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
-import java.util.logging.Level
-import java.util.logging.Logger
 
 class SaveClient(private val context: Context) : SimpleStatusCallback(), KoinComponent, Call.Factory {
 
     private var okBuilder: OkHttpClient.Builder
     private val strongBuilder: StrongOkHttpClientBuilder
 
-    var proxyHttpPort: Int = -1
-        private set
-
-    var proxySocksPort: Int = -1
-        private set
-
     init {
-        Logger.getLogger(OkHttpClient::class.java.name).setLevel(Level.FINE)
         okBuilder = setup()
         strongBuilder = StrongOkHttpClientBuilder.forMaxSecurity(context)
-        OrbotHelper.get(context).apply {
-            addStatusCallback(this@SaveClient)
-            init()
+        if (Prefs.useTor) {
+            OrbotHelper.get(context).apply {
+                addStatusCallback(this@SaveClient)
+                init()
+            }
         }
     }
 
@@ -61,10 +55,10 @@ class SaveClient(private val context: Context) : SimpleStatusCallback(), KoinCom
     override fun onEnabled(statusIntent: Intent?) {
         OrbotHelper.get(context).removeStatusCallback(this)
 
+        if (Prefs.useTor.not()) return
+
         try {
             strongBuilder.applyTo(okBuilder, statusIntent)
-            proxyHttpPort = strongBuilder.getHttpPort(statusIntent)
-            proxySocksPort = strongBuilder.getSocksPort(statusIntent)
         } catch (e: Exception) {
             Timber.e(e, "Error setting up OkHttp client")
         }

@@ -5,7 +5,4 @@ enum class TorStatus {
     CONNECTING,
     CONNECTED,
     DISCONNECTING,
-    ERROR,
-    INVALID,
-    UNAVAILABLE
 }

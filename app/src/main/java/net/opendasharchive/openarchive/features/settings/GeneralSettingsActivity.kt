@@ -4,66 +4,70 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
-import info.guardianproject.netcipher.proxy.OrbotHelper
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.CleanInsightsManager
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.core.infrastructure.client.enqueueResult
 import net.opendasharchive.openarchive.databinding.ActivitySettingsContainerBinding
 import net.opendasharchive.openarchive.features.core.BaseActivity
-import net.opendasharchive.openarchive.services.SaveClient
 import net.opendasharchive.openarchive.services.tor.TorStatus
 import net.opendasharchive.openarchive.services.tor.TorViewModel
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Theme
-import okhttp3.Request
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import kotlin.getValue
 
-class GeneralSettingsActivity: BaseActivity() {
+class GeneralSettingsActivity : BaseActivity() {
 
-    private val torViewModel: TorViewModel by viewModel()
-
-    override fun onResume() {
-        super.onResume()
-        torViewModel.requestTorStatus()
-    }
-
-    class Fragment: PreferenceFragmentCompat() {
+    class Fragment : PreferenceFragmentCompat() {
 
         private val torViewModel: TorViewModel by viewModel()
-
-        private var hasToggled = false
 
         private var mCiConsentPref: SwitchPreferenceCompat? = null
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.prefs_general, rootKey)
 
-            val torStatusPref = findPreference<Preference>("tor_status")
             val useTorPref = findPreference<SwitchPreferenceCompat>(Prefs.USE_TOR)
+            val torStatusPref = findPreference<EditTextPreference>("tor_status")
 
-           useTorPref?.setOnPreferenceChangeListener { _, newValue ->
-               val enabled = newValue as Boolean
-               torViewModel.toggleTorServiceState(requireActivity(), enabled)
-               val status = if (enabled) TorStatus.CONNECTING else TorStatus.DISCONNECTED
-               torStatusPref?.summary = status.name.lowercase()
-               hasToggled = true
-               true
-           }
-
-            this.lifecycleScope.launch {
-                torViewModel.torStatus.collect { torStatus ->
-                    if (!hasToggled) {
-                        torStatusPref?.summary = torStatus.name.lowercase()
-                        useTorPref?.isChecked = torStatus == TorStatus.CONNECTED
+            val setUseTorText: (TorStatus, Boolean) -> Unit = { torStatus, enabled ->
+                if (torStatus == TorStatus.CONNECTED) {
+                    if (enabled) {
+                        torStatusPref?.setSummary(R.string.prefs_use_tor_enabled)
+                    } else {
+                        torStatusPref?.setSummary(R.string.prefs_use_tor_ready)
+                    }
+                } else {
+                    if (enabled) {
+                        torStatusPref?.setSummary(R.string.prefs_use_tor_disabled)
+                    } else {
+                        torStatusPref?.setSummary(R.string.prefs_use_tor_not_ready)
                     }
                 }
             }
 
+            this.lifecycleScope.launch {
+                torViewModel.torStatus.collect { torStatus ->
+                    setUseTorText(torStatus, useTorPref?.isChecked == true)
+                }
+            }
+            useTorPref?.apply {
+                setUseTorText(torViewModel.torStatus.value, isChecked)
+                setOnPreferenceChangeListener { _, newValue ->
+                    val enabled = newValue as Boolean
+                    torViewModel.toggleTorServiceState(requireActivity(), enabled)
+                    setUseTorText(torViewModel.torStatus.value, enabled)
+                    true
+                }
+            }
+
+            findPreference<OpenOrbotPreference>("open_orbot")?.setOnOpenOrbotListener {
+                torViewModel.requestOpenOrInstallOrbot(requireActivity())
+                true
+            }
 
             findPreference<Preference>("proof_mode")?.setOnPreferenceClickListener {
                 startActivity(Intent(context, ProofModeSettingsActivity::class.java))
@@ -102,8 +106,8 @@ class GeneralSettingsActivity: BaseActivity() {
 
         override fun onResume() {
             super.onResume()
-
             mCiConsentPref?.isChecked = CleanInsightsManager.hasConsent()
+            torViewModel.requestTorStatus()
         }
     }
 

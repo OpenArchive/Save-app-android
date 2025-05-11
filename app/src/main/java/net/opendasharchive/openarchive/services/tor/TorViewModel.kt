@@ -2,17 +2,15 @@ package net.opendasharchive.openarchive.services.tor
 
 import android.app.Activity
 import android.app.Application
-import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import info.guardianproject.netcipher.proxy.OrbotHelper
 import kotlinx.coroutines.flow.StateFlow
-import net.opendasharchive.openarchive.util.Prefs
 import timber.log.Timber
 
 
 class TorViewModel(
     private val application: Application,
-    private val torRepository: ITorRepository,
+    torRepository: ITorRepository,
 ) : AndroidViewModel(application), OrbotHelper.InstallCallback {
 
     val torStatus: StateFlow<TorStatus> = torRepository.torStatus
@@ -20,8 +18,15 @@ class TorViewModel(
     fun toggleTorServiceState(activity: Activity, enabled: Boolean) {
         if (enabled) {
             startTor(activity)
+        }
+    }
+
+    fun requestOpenOrInstallOrbot(activity: Activity) {
+        if (OrbotHelper.isOrbotInstalled(application)) {
+            requestOpenOrbot(activity)
         } else {
-            stopTor(activity)
+            OrbotHelper.get(application).addInstallCallback(this)
+            OrbotHelper.get(application).installOrbot(activity)
         }
     }
 
@@ -34,19 +39,22 @@ class TorViewModel(
         }
     }
 
-    private fun stopTor(activity: Activity) {
-        if (OrbotHelper.isOrbotInstalled(application)) {
-            val intent = activity.packageManager.getLaunchIntentForPackage(OrbotHelper.ORBOT_PACKAGE_NAME)
-            if (intent != null) {
-                activity.startActivity(intent)
-            } else {
-                Timber.e("Orbot is not installed.")
-            }
-
+    private fun requestOpenOrbot(activity: Activity): Boolean {
+        if (!OrbotHelper.isOrbotInstalled(application)) {
+            return false
         }
+        val intent =
+            activity.packageManager.getLaunchIntentForPackage(OrbotHelper.ORBOT_PACKAGE_NAME)
+        if (intent == null) {
+            Timber.e("Orbot is not installed.")
+            return false
+        }
+
+        activity.startActivity(intent)
+        return true
     }
 
-    fun requestTorStatus()  {
+    fun requestTorStatus() {
         OrbotHelper.get(application).init()
     }
 

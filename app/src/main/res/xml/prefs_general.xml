@@ -33,10 +33,10 @@
 
     <!--    </PreferenceCategory>-->
 
-    <!--    <PreferenceCategory-->
-    <!--        app:iconSpaceReserved="false"-->
-    <!--        app:layout="@layout/prefs_title"-->
-    <!--        app:title="@string/security">-->
+        <PreferenceCategory
+            app:iconSpaceReserved="false"
+            app:layout="@layout/prefs_title"
+            app:title="@string/security">
 
     <SwitchPreferenceCompat
         app:allowDividerAbove="false"
@@ -47,15 +47,24 @@
         app:singleLineTitle="false"
         app:summary="@string/prefs_use_tor_summary"
         app:title="@string/prefs_use_tor_title" />
+
     <EditTextPreference
-        android:enabled="false"
         app:allowDividerAbove="false"
         app:allowDividerBelow="false"
         app:iconSpaceReserved="false"
+        android:inputType="none"
+        android:textIsSelectable="true"
         app:key="tor_status"
         app:singleLineTitle="false"
-        app:title="@string/orbot_status" />
+        app:title="@string/prefs_tor_status" />
 
+            <net.opendasharchive.openarchive.features.settings.OpenOrbotPreference
+                app:allowDividerAbove="false"
+                app:allowDividerBelow="false"
+                app:iconSpaceReserved="false"
+                android:layout="@layout/prefs_open_orbot"
+                app:key="open_orbot"
+                app:singleLineTitle="false" />
 
     <!--        <SwitchPreferenceCompat-->
     <!--            app:allowDividerAbove="false"-->
@@ -67,7 +76,7 @@
     <!--            app:singleLineTitle="false"-->
     <!--            app:summary="@string/prefs_prohibit_screenshots_summary" />-->
 
-    <!--    </PreferenceCategory>-->
+        </PreferenceCategory>
 
     <PreferenceCategory
         app:iconSpaceReserved="false"

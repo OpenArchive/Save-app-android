@@ -4,14 +4,12 @@ import android.content.Context
 import com.thegrizzlylabs.sardineandroid.SardineListener
 import com.thegrizzlylabs.sardineandroid.impl.OkHttpSardine
 import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.services.Conduit
 import net.opendasharchive.openarchive.services.SaveClient
 import okhttp3.HttpUrl
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.io.IOException
-import java.util.*
 
 
 class WebDavConduit(media: Media, context: Context) : Conduit(media, context), KoinComponent {
@@ -25,8 +23,6 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context), K
     override suspend fun upload(): Boolean {
         val base = space.hostUrl ?: return false
         val path = getPath() ?: return false
-
-        webdav = client.webdav(space)
 
         sanitize()
 

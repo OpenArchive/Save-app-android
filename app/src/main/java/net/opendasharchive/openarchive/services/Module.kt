@@ -6,7 +6,7 @@ import org.koin.dsl.module
 
 internal val servicesModule = module {
 
-    single { SaveClient(get()) }
+    factory { SaveClient(get()) }
 
     includes(torModule, gdriveModule)
 }

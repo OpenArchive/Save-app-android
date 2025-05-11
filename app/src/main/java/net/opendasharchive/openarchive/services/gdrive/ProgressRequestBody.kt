@@ -4,9 +4,7 @@ import com.google.api.client.http.InputStreamContent
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
-import okio.*
-import java.io.File
-import java.io.InputStream
+import okio.BufferedSink
 
 fun interface ProgressListener {
     fun onProgressUpdate(uploadedBytes: Long, percent: Int)
@@ -14,7 +12,6 @@ fun interface ProgressListener {
 
 class ProgressRequestBody(
     private val content: InputStreamContent,
-    private val contentType: String,
     private val chunkSize: Int = 262144,
     private val listener: (bytesWritten: Long, contentLength: Long) -> Unit
 ) : RequestBody() {
@@ -24,7 +21,7 @@ class ProgressRequestBody(
     override fun contentLength(): Long = content.length
 
     override fun writeTo(sink: BufferedSink) {
-        val buffer = ByteArray(8192)
+        val buffer = ByteArray(chunkSize)
         var bytesRead: Int
         var totalBytesWritten = 0L
 

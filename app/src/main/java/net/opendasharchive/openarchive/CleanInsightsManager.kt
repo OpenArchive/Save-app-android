@@ -6,6 +6,7 @@ import android.content.Intent
 import net.opendasharchive.openarchive.features.settings.ConsentActivity
 import org.cleaninsights.sdk.*
 
+@Suppress("unused")
 object CleanInsightsManager  {
 
     private const val CI_CAMPAIGN = "main"

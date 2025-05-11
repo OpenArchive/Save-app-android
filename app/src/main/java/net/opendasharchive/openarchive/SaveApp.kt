@@ -1,7 +1,5 @@
 package net.opendasharchive.openarchive
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.imagepipeline.core.ImagePipelineConfig
@@ -10,12 +8,10 @@ import com.orm.SugarApp
 import info.guardianproject.netcipher.proxy.OrbotHelper
 import net.opendasharchive.openarchive.core.di.coreModule
 import net.opendasharchive.openarchive.core.di.featuresModule
-import net.opendasharchive.openarchive.services.tor.TorViewModel
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Theme
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import org.koin.core.context.startKoin
 import timber.log.Timber
 
@@ -51,8 +47,6 @@ class SaveApp : SugarApp(), KoinComponent {
 
         CleanInsightsManager.init(this)
 
-        createTorNotificationChannel()
-
         // enable timber logging library for debug builds
         if (BuildConfig.DEBUG){
             Timber.plant(Timber.DebugTree())
@@ -61,24 +55,11 @@ class SaveApp : SugarApp(), KoinComponent {
     }
 
     private fun initTor() {
-        Timber.d( "Initializing internal tor client")
+        Timber.d( "Initializing tor client")
+
         OrbotHelper.get(this).apply {
             init()
             requestStart(this@SaveApp)
         }
     }
-
-
-    private fun createTorNotificationChannel() {
-        val name = "Tor Service"
-        val descriptionText = "Keeps the Tor service running"
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel("torService", name, importance).apply {
-            description = descriptionText
-        }
-        val notificationManager: NotificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(channel)
-    }
-
 }
