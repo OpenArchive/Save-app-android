@@ -4,12 +4,8 @@ enum class TorStatus {
     DISCONNECTED,
     CONNECTING,
     CONNECTED,
-    VERIFIED,
     DISCONNECTING,
-    ERROR;
+    ERROR,
+    INVALID,
+    UNAVAILABLE
 }
-
-data class CheckTorResponse(
-    val IsTor: Boolean,
-    val IP: String,
-)

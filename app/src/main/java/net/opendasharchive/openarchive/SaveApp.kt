@@ -10,7 +10,6 @@ import com.orm.SugarApp
 import info.guardianproject.netcipher.proxy.OrbotHelper
 import net.opendasharchive.openarchive.core.di.coreModule
 import net.opendasharchive.openarchive.core.di.featuresModule
-import net.opendasharchive.openarchive.services.tor.TOR_SERVICE_CHANNEL
 import net.opendasharchive.openarchive.services.tor.TorViewModel
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Theme
@@ -22,8 +21,6 @@ import timber.log.Timber
 
 
 class SaveApp : SugarApp(), KoinComponent {
-
-    private val torViewModel: TorViewModel by inject()
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
@@ -47,7 +44,6 @@ class SaveApp : SugarApp(), KoinComponent {
         Prefs.load(this)
 
         if (Prefs.useTor) {
-            OrbotHelper.get(this).init()
             initTor()
         }
 
@@ -66,7 +62,10 @@ class SaveApp : SugarApp(), KoinComponent {
 
     private fun initTor() {
         Timber.d( "Initializing internal tor client")
-        torViewModel.updateTorServiceState()
+        OrbotHelper.get(this).apply {
+            init()
+            requestStart(this@SaveApp)
+        }
     }
 
 
@@ -74,7 +73,7 @@ class SaveApp : SugarApp(), KoinComponent {
         val name = "Tor Service"
         val descriptionText = "Keeps the Tor service running"
         val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(TOR_SERVICE_CHANNEL, name, importance).apply {
+        val channel = NotificationChannel("torService", name, importance).apply {
             description = descriptionText
         }
         val notificationManager: NotificationManager =

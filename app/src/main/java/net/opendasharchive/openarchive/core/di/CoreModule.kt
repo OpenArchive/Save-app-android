@@ -1,9 +1,8 @@
 package net.opendasharchive.openarchive.core.di
 
-import net.opendasharchive.openarchive.services.tor.TorRepository
-import net.opendasharchive.openarchive.services.tor.torModule
+import net.opendasharchive.openarchive.services.servicesModule
 import org.koin.dsl.module
 
 val coreModule = module {
-    includes(torModule)
+    includes(servicesModule)
 }

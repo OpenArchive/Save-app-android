@@ -297,5 +297,6 @@
     <string name="label_create_login">Sign up</string>
     <string name="prompt_no_account">No account?</string>
     <string name="action_continue">Continue</string>
+    <string name="orbot_status">Orbot Status</string>
 
 </resources>

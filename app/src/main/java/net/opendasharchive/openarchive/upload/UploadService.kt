@@ -15,6 +15,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.work.Configuration
+import info.guardianproject.netcipher.proxy.OrbotHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -25,45 +26,17 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.services.Conduit
+import net.opendasharchive.openarchive.services.tor.ITorRepository
+import net.opendasharchive.openarchive.services.tor.TorStatus
 import net.opendasharchive.openarchive.util.Prefs
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import org.koin.core.qualifier.named
 import timber.log.Timber
 import java.io.IOException
 import java.util.*
 
-//class StartTor(val appContext: Context, workerParams: WorkerParameters) : Worker(appContext, workerParams) {
-//
-//    override fun doWork(): Result {
-//        Timber.d("StartTor")
-//        bindService(Intent(appContext, TorService::class.java), object : ServiceConnection {
-//            override fun onServiceConnected(name: ComponentName, service: IBinder) {
-//                val torService: TorService = (service as TorService.LocalBinder).service
-//
-//                while (torService.torControlConnection == null) {
-//                    try {
-//                        Timber.d("Sleeping")
-//                        Thread.sleep(500)
-//                    } catch (e: InterruptedException) {
-//                        e.printStackTrace()
-//                    }
-//                }
-//
-////                Toast.makeText(
-////                    this@MainActivity,
-////                    "Got Tor control connection",
-////                    Toast.LENGTH_LONG
-//            }
-////                ).show()
-//
-//            override fun onServiceDisconnected(name: ComponentName) {
-//                // Things...
-//            }
-//        }, BIND_AUTO_CREATE)
-//
-//        return Result.success()
-//    }
-//}
-
-class UploadService : JobService() {
+class UploadService : JobService(), KoinComponent {
 
     companion object {
         private const val MY_BACKGROUND_JOB = 0
@@ -97,8 +70,7 @@ class UploadService : JobService() {
     private var mKeepUploading = true
     private val mConduits = ArrayList<Conduit>()
     private lateinit var notification: Notification
-
-//    private val constraints = Constraints.Builder()
+    private val torRepo: ITorRepository by inject(named("tor"))
 
     override fun onCreate() {
         super.onCreate()
@@ -113,18 +85,6 @@ class UploadService : JobService() {
                 Timber.d(e)
             }
         }
-
-//        val contentUri = Uri.parse("content://org.opendasharchive.safe.provider.tor/status")
-//        constraints.addContentUriTrigger(contentUri, true)
-//
-//        val myConstraints = constraints.build()
-//
-//        val workRequest = OneTimeWorkRequestBuilder<StartTor>()
-//            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-//            .setConstraints(myConstraints)
-//            .build()
-//
-//        WorkManager.getInstance(this).enqueue(workRequest)
     }
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -156,7 +116,7 @@ class UploadService : JobService() {
         return true
     }
 
-    private suspend fun upload(completed: () -> Unit) {
+    private fun upload(completed: () -> Unit) {
         if (mRunning) {
             return completed()
         }
@@ -180,7 +140,7 @@ class UploadService : JobService() {
         ) {
             val datePublish = Date()
 
-            val media = results.removeFirst()
+            val media = results.removeAt(0)
 
             if (media.sStatus != Media.Status.Uploading) {
                 media.uploadDate = datePublish
@@ -218,7 +178,7 @@ class UploadService : JobService() {
     }
 
     @Throws(IOException::class)
-    private suspend fun upload(media: Media): Boolean {
+    private fun upload(media: Media): Boolean {
 
         val conduit = Conduit.get(media, this) ?: return false
 
@@ -269,7 +229,7 @@ class UploadService : JobService() {
     }
 
     private fun isTorAvailable(): Boolean {
-        return false
+        return torRepo.torStatus.value == TorStatus.CONNECTED
     }
 
     private fun isNetworkAvailable(requireUnmetered: Boolean): Boolean {

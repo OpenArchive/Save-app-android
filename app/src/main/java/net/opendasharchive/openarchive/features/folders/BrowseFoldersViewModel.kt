@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.services.SaveClient
 import net.opendasharchive.openarchive.services.gdrive.GDriveConduit
+import org.koin.java.KoinJavaComponent.inject
 import timber.log.Timber
 import java.io.IOException
 import java.util.Date
@@ -21,21 +22,25 @@ class BrowseFoldersViewModel : ViewModel() {
 
     private val mFolders = MutableLiveData<List<Folder>>()
 
+    private val client: SaveClient by inject(SaveClient::class.java)
+
+    private val drive: GDriveConduit by inject(GDriveConduit::class.java)
+
     val folders: LiveData<List<Folder>>
         get() = mFolders
 
     val progressBarFlag = MutableLiveData(false)
 
-    fun getFiles(context: Context, space: Space) {
+    fun getFiles(space: Space) {
         viewModelScope.launch {
             progressBarFlag.value = true
 
             try {
                 val value = withContext(Dispatchers.IO) {
                     when (space.tType) {
-                        Space.Type.WEBDAV -> getWebDavFolders(context, space)
+                        Space.Type.WEBDAV -> getWebDavFolders(space)
 
-                        Space.Type.GDRIVE -> getGDriveFolders(context, space)
+                        Space.Type.GDRIVE -> getGDriveFolders()
 
                         else -> emptyList()
                     }
@@ -55,10 +60,10 @@ class BrowseFoldersViewModel : ViewModel() {
     }
 
     @Throws(IOException::class)
-    private suspend fun getWebDavFolders(context: Context, space: Space): List<Folder> {
+    private fun getWebDavFolders(space: Space): List<Folder> {
         val root = space.hostUrl?.encodedPath
 
-        return SaveClient.getSardine(context, space).list(space.host)?.mapNotNull {
+        return client.webdav(space).list(space.host)?.mapNotNull {
             if (it?.isDirectory == true && it.path != root) {
                 Folder(it.name, it.modified ?: Date())
             }
@@ -68,7 +73,7 @@ class BrowseFoldersViewModel : ViewModel() {
         } ?: emptyList()
     }
 
-    private fun getGDriveFolders(context: Context, space: Space): List<Folder> {
-        return GDriveConduit.listFoldersInRoot(GDriveConduit.getDrive(context))
+    private suspend fun getGDriveFolders(): List<Folder> {
+        return drive.listFoldersInRoot()
     }
 }

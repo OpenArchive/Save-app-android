@@ -7,6 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import info.guardianproject.netcipher.proxy.OrbotHelper
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.CleanInsightsManager
 import net.opendasharchive.openarchive.R
@@ -14,6 +15,7 @@ import net.opendasharchive.openarchive.core.infrastructure.client.enqueueResult
 import net.opendasharchive.openarchive.databinding.ActivitySettingsContainerBinding
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.services.SaveClient
+import net.opendasharchive.openarchive.services.tor.TorStatus
 import net.opendasharchive.openarchive.services.tor.TorViewModel
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Theme
@@ -23,26 +25,42 @@ import kotlin.getValue
 
 class GeneralSettingsActivity: BaseActivity() {
 
+    private val torViewModel: TorViewModel by viewModel()
+
+    override fun onResume() {
+        super.onResume()
+        torViewModel.requestTorStatus()
+    }
+
     class Fragment: PreferenceFragmentCompat() {
 
         private val torViewModel: TorViewModel by viewModel()
 
-        private var mCiConsentPref: SwitchPreferenceCompat? = null
+        private var hasToggled = false
 
+        private var mCiConsentPref: SwitchPreferenceCompat? = null
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.prefs_general, rootKey)
 
-            findPreference<Preference>(Prefs.USE_TOR)?.setOnPreferenceChangeListener { _, newValue ->
-                torViewModel.toggleTorServiceState()
-                true
-            }
+            val torStatusPref = findPreference<Preference>("tor_status")
+            val useTorPref = findPreference<SwitchPreferenceCompat>(Prefs.USE_TOR)
+
+           useTorPref?.setOnPreferenceChangeListener { _, newValue ->
+               val enabled = newValue as Boolean
+               torViewModel.toggleTorServiceState(requireActivity(), enabled)
+               val status = if (enabled) TorStatus.CONNECTING else TorStatus.DISCONNECTED
+               torStatusPref?.summary = status.name.lowercase()
+               hasToggled = true
+               true
+           }
 
             this.lifecycleScope.launch {
                 torViewModel.torStatus.collect { torStatus ->
-                    findPreference<Preference>("tor_status")?.setSummary(
-                        torStatus.toString().lowercase()
-                    )
+                    if (!hasToggled) {
+                        torStatusPref?.summary = torStatus.name.lowercase()
+                        useTorPref?.isChecked = torStatus == TorStatus.CONNECTED
+                    }
                 }
             }
 

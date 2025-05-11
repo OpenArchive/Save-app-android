@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
@@ -18,53 +18,56 @@
 
     </PreferenceCategory>
 
-<!--    <PreferenceCategory-->
-<!--        app:iconSpaceReserved="false"-->
-<!--        app:layout="@layout/prefs_title"-->
-<!--        app:title="@string/metadata">-->
+    <!--    <PreferenceCategory-->
+    <!--        app:iconSpaceReserved="false"-->
+    <!--        app:layout="@layout/prefs_title"-->
+    <!--        app:title="@string/metadata">-->
 
-<!--        <Preference-->
-<!--            app:allowDividerAbove="false"-->
-<!--            app:allowDividerBelow="false"-->
-<!--            app:iconSpaceReserved="false"-->
-<!--            app:key="proof_mode"-->
-<!--            app:title="@string/proofmode"-->
-<!--            app:singleLineTitle="false" />-->
+    <!--        <Preference-->
+    <!--            app:allowDividerAbove="false"-->
+    <!--            app:allowDividerBelow="false"-->
+    <!--            app:iconSpaceReserved="false"-->
+    <!--            app:key="proof_mode"-->
+    <!--            app:title="@string/proofmode"-->
+    <!--            app:singleLineTitle="false" />-->
 
-<!--    </PreferenceCategory>-->
+    <!--    </PreferenceCategory>-->
 
-<!--    <PreferenceCategory-->
-<!--        app:iconSpaceReserved="false"-->
-<!--        app:layout="@layout/prefs_title"-->
-<!--        app:title="@string/security">-->
+    <!--    <PreferenceCategory-->
+    <!--        app:iconSpaceReserved="false"-->
+    <!--        app:layout="@layout/prefs_title"-->
+    <!--        app:title="@string/security">-->
 
-        <SwitchPreferenceCompat
-            app:allowDividerAbove="false"
-            app:allowDividerBelow="false"
-            app:iconSpaceReserved="false"
-            app:key="use_tor"
-            app:defaultValue="false"
-            app:title="@string/prefs_use_tor_title"
-            app:singleLineTitle="false"
-            app:summary="@string/prefs_use_tor_summary" />
+    <SwitchPreferenceCompat
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="false"
+        app:defaultValue="false"
+        app:iconSpaceReserved="false"
+        app:key="use_tor"
+        app:singleLineTitle="false"
+        app:summary="@string/prefs_use_tor_summary"
+        app:title="@string/prefs_use_tor_title" />
+    <EditTextPreference
+        android:enabled="false"
+        app:allowDividerAbove="false"
+        app:allowDividerBelow="false"
+        app:iconSpaceReserved="false"
+        app:key="tor_status"
+        app:singleLineTitle="false"
+        app:title="@string/orbot_status" />
 
-        <Preference
-            android:key="tor_status"
-            android:title="@string/prefs_use_tor_summary"
-            android:description="@string/prefs_install_tor_summary"
-            />
 
-<!--        <SwitchPreferenceCompat-->
-<!--            app:allowDividerAbove="false"-->
-<!--            app:allowDividerBelow="false"-->
-<!--            app:iconSpaceReserved="false"-->
-<!--            app:key="prohibit_screenshots"-->
-<!--            app:defaultValue="false"-->
-<!--            app:title="@string/prefs_prohibit_screenshots_title"-->
-<!--            app:singleLineTitle="false"-->
-<!--            app:summary="@string/prefs_prohibit_screenshots_summary" />-->
+    <!--        <SwitchPreferenceCompat-->
+    <!--            app:allowDividerAbove="false"-->
+    <!--            app:allowDividerBelow="false"-->
+    <!--            app:iconSpaceReserved="false"-->
+    <!--            app:key="prohibit_screenshots"-->
+    <!--            app:defaultValue="false"-->
+    <!--            app:title="@string/prefs_prohibit_screenshots_title"-->
+    <!--            app:singleLineTitle="false"-->
+    <!--            app:summary="@string/prefs_prohibit_screenshots_summary" />-->
 
-<!--    </PreferenceCategory>-->
+    <!--    </PreferenceCategory>-->
 
     <PreferenceCategory
         app:iconSpaceReserved="false"
@@ -74,31 +77,31 @@
         <ListPreference
             app:allowDividerAbove="false"
             app:allowDividerBelow="false"
-            app:iconSpaceReserved="false"
-            app:key="theme"
             app:defaultValue="@string/prefs_theme_val_system"
             app:entries="@array/ar_prefs_theme_labels"
             app:entryValues="@array/ar_prefs_theme_val"
-            app:title="@string/prefs_theme_title"
+            app:iconSpaceReserved="false"
+            app:key="theme"
             app:singleLineTitle="false"
-            app:summary="@string/prefs_theme_summary" />
+            app:summary="@string/prefs_theme_summary"
+            app:title="@string/prefs_theme_title" />
 
     </PreferenceCategory>
 
-<!--    <PreferenceCategory-->
-<!--        app:iconSpaceReserved="false"-->
-<!--        app:layout="@layout/prefs_title"-->
-<!--        app:title="@string/health_checks">-->
+    <!--    <PreferenceCategory-->
+    <!--        app:iconSpaceReserved="false"-->
+    <!--        app:layout="@layout/prefs_title"-->
+    <!--        app:title="@string/health_checks">-->
 
-<!--        <SwitchPreferenceCompat-->
-<!--            app:allowDividerAbove="false"-->
-<!--            app:allowDividerBelow="false"-->
-<!--            app:iconSpaceReserved="false"-->
-<!--            app:key="health_checks"-->
-<!--            app:title="@string/health_checks"-->
-<!--            app:singleLineTitle="false"-->
-<!--            app:summary="@string/help_improve_the_app_by_running_health_checks_when_uploads_fail" />-->
+    <!--        <SwitchPreferenceCompat-->
+    <!--            app:allowDividerAbove="false"-->
+    <!--            app:allowDividerBelow="false"-->
+    <!--            app:iconSpaceReserved="false"-->
+    <!--            app:key="health_checks"-->
+    <!--            app:title="@string/health_checks"-->
+    <!--            app:singleLineTitle="false"-->
+    <!--            app:summary="@string/help_improve_the_app_by_running_health_checks_when_uploads_fail" />-->
 
-<!--    </PreferenceCategory>-->
+    <!--    </PreferenceCategory>-->
 
 </PreferenceScreen>
