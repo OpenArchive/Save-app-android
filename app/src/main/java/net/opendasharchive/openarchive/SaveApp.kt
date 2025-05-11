@@ -11,12 +11,11 @@ import net.opendasharchive.openarchive.core.di.featuresModule
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Theme
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.component.KoinComponent
 import org.koin.core.context.startKoin
 import timber.log.Timber
 
 
-class SaveApp : SugarApp(), KoinComponent {
+class SaveApp : SugarApp() {
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
@@ -40,7 +39,7 @@ class SaveApp : SugarApp(), KoinComponent {
         Prefs.load(this)
 
         if (Prefs.useTor) {
-            initTor()
+            initNetCipher()
         }
 
         Theme.set(Prefs.theme)
@@ -54,10 +53,13 @@ class SaveApp : SugarApp(), KoinComponent {
         }
     }
 
-    private fun initTor() {
-        Timber.d( "Initializing tor client")
+    private fun initNetCipher() {
+        Timber.d( "Initializing NetCipher client")
 
         OrbotHelper.get(this).apply {
+            if (BuildConfig.DEBUG) {
+                skipOrbotValidation()
+            }
             init()
             requestStart(this@SaveApp)
         }

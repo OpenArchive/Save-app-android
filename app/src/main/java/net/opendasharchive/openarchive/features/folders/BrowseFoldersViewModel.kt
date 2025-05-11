@@ -38,7 +38,7 @@ class BrowseFoldersViewModel : ViewModel() {
                     when (space.tType) {
                         Space.Type.WEBDAV -> getWebDavFolders(space)
 
-                        Space.Type.GDRIVE -> getGDriveFolders(context)
+                        Space.Type.GDRIVE -> getGDriveFolders(context, space)
 
                         else -> emptyList()
                     }
@@ -71,7 +71,7 @@ class BrowseFoldersViewModel : ViewModel() {
         } ?: emptyList()
     }
 
-    private fun getGDriveFolders(context: Context): List<Folder> {
+    private fun getGDriveFolders(context: Context, space: Space): List<Folder> {
         return GDriveConduit.listFoldersInRoot(GDriveConduit.getDrive(context))
     }
 }
