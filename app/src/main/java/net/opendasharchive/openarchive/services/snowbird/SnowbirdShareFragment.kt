@@ -11,8 +11,9 @@ import net.opendasharchive.openarchive.extensions.urlEncode
 import net.opendasharchive.openarchive.features.core.BaseFragment
 
 class SnowbirdShareFragment: BaseFragment() {
-    private lateinit var viewBinding: FragmentSnowbirdShareGroupBinding
+    private lateinit var binding: FragmentSnowbirdShareGroupBinding
     private lateinit var groupKey: String
+    private var isSetupOngoing: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,22 +24,28 @@ class SnowbirdShareFragment: BaseFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        viewBinding = FragmentSnowbirdShareGroupBinding.inflate(inflater)
+        binding = FragmentSnowbirdShareGroupBinding.inflate(inflater)
 
-        return viewBinding.root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        if (isSetupOngoing) {
+            binding.buttonBar.visibility = View.VISIBLE
+        } else {
+            binding.buttonBar.visibility = View.GONE
+        }
+
         val group = SnowbirdGroup.get(groupKey)
         val groupName = group?.name ?: "Unknown group"
 
-        viewBinding.groupName.text = groupName
+        binding.groupName.text = groupName
 
         SnowbirdGroup.get(groupKey)?.uri?.let { uriString ->
             val qrCode = "$uriString&name=${groupName.urlEncode()}".asQRCode(size = 1024)
-            viewBinding.qrCode.setImageBitmap(qrCode)
+            binding.qrCode.setImageBitmap(qrCode)
         }
     }
 
@@ -47,16 +54,6 @@ class SnowbirdShareFragment: BaseFragment() {
     }
 
     companion object {
-
         const val RESULT_VAL_RAVEN_GROUP_KEY = "dweb_group_key"
-
-        @JvmStatic
-        fun newInstance(groupKey: String): SnowbirdShareFragment {
-            return SnowbirdShareFragment().apply {
-                arguments = Bundle().apply {
-                    putString(RESULT_VAL_RAVEN_GROUP_KEY, groupKey)
-                }
-            }
-        }
     }
 }

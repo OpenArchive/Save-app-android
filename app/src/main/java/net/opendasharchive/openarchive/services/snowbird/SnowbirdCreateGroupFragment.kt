@@ -1,6 +1,8 @@
 package net.opendasharchive.openarchive.services.snowbird
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,40 +11,39 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdCreateGroupBinding
 import net.opendasharchive.openarchive.db.SnowbirdError
 import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.db.SnowbirdRepo
 import net.opendasharchive.openarchive.features.core.BaseFragment
-import net.opendasharchive.openarchive.features.core.UiText
-import net.opendasharchive.openarchive.features.core.dialog.DialogType
-import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.util.FullScreenOverlayCreateGroupManager
-import timber.log.Timber
 
-class SnowbirdCreateGroupFragment: BaseFragment() {
+class SnowbirdCreateGroupFragment : BaseFragment() {
 
-    private lateinit var viewBinding: FragmentSnowbirdCreateGroupBinding
+    private lateinit var binding: FragmentSnowbirdCreateGroupBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewBinding = FragmentSnowbirdCreateGroupBinding.inflate(inflater)
+        binding = FragmentSnowbirdCreateGroupBinding.inflate(inflater)
 
-        return viewBinding.root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.createGroupButton.setOnClickListener {
-            snowbirdGroupViewModel.createGroup(viewBinding.groupNameTextfield.text.toString())
+        binding.btnNext.setOnClickListener {
+            snowbirdGroupViewModel.createGroup(binding.groupNameTextfield.text.toString())
             dismissKeyboard(it)
         }
 
         initializeViewModelObservers()
+        setupTextWatchers()
     }
 
     private fun initializeViewModelObservers() {
@@ -67,7 +68,7 @@ class SnowbirdCreateGroupFragment: BaseFragment() {
     }
 
     private fun handleGroupStateUpdate(state: SnowbirdGroupViewModel.GroupState) {
-        Timber.d("group state = $state")
+        AppLogger.d("group state = $state")
         when (state) {
             is SnowbirdGroupViewModel.GroupState.Loading -> handleCreateGroupLoadingStatus(true)
             is SnowbirdGroupViewModel.GroupState.SingleGroupSuccess -> handleGroupCreated(state.group)
@@ -86,7 +87,7 @@ class SnowbirdCreateGroupFragment: BaseFragment() {
 
 
     private fun handleRepoStateUpdate(state: SnowbirdRepoViewModel.RepoState) {
-        Timber.d("repo state = $state")
+        AppLogger.d("repo state = $state")
         when (state) {
             is SnowbirdRepoViewModel.RepoState.Loading -> handleCreateGroupLoadingStatus(true)
             is SnowbirdRepoViewModel.RepoState.SingleRepoSuccess -> handleRepoCreated(state.repo)
@@ -101,50 +102,80 @@ class SnowbirdCreateGroupFragment: BaseFragment() {
     }
 
     private fun handleGroupCreated(group: SnowbirdGroup?) {
-        group?.let {
-            snowbirdGroupViewModel.setCurrentGroup(group)
+        if (group == null) {
+            handleError(SnowbirdError.GeneralError("Group was null"))
+            return
+        }
 
-            lifecycleScope.launch {
-                group.save()
-                snowbirdRepoViewModel.createRepo(
-                    group.key, viewBinding.repoNameTextfield.text.toString()
-                )
-            }
+        snowbirdGroupViewModel.setCurrentGroup(group)
+
+        lifecycleScope.launch {
+            group.save()
+            snowbirdRepoViewModel.createRepo(
+                groupKey = group.key,
+                repoName = binding.repoNameTextfield.text.toString()
+            )
         }
     }
 
     private fun handleRepoCreated(repo: SnowbirdRepo?) {
         handleCreateGroupLoadingStatus(false)
-        repo?.let {
-            repo.groupKey = snowbirdGroupViewModel.currentGroup.value!!.key
-            repo.permissions = "READ_WRITE"
-            repo.save()
-            showConfirmation(repo)
+        if (repo == null) {
+            handleError(SnowbirdError.GeneralError("Repo was null"))
+            return
         }
+
+        repo.groupKey = snowbirdGroupViewModel.currentGroup.value!!.key
+        repo.permissions = "READ_WRITE"
+        repo.save()
+        showConfirmation(repo)
     }
 
     private fun showConfirmation(repo: SnowbirdRepo?) {
-        val group = SnowbirdGroup.get(repo!!.groupKey)!!
+        val group = SnowbirdGroup.get(repo!!.groupKey)
 
-        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-            type = DialogType.Success
-            title = UiText.DynamicString("Raven Group Created")
-            message = UiText.DynamicString("Would you like to share your new group with a QR code?")
-            positiveButton {
-                text = UiText.DynamicString("Yes")
-                action = {
-                    val action =
-                        SnowbirdCreateGroupFragmentDirections.actionFragmentSnowbirdCreateGroupToFragmentSnowbirdShareGroup(group.key)
-                    findNavController().navigate(action)
-                }
+        if (group == null) {
+            handleError(SnowbirdError.GeneralError("Group was null"))
+            return
+        }
+
+        val action = SnowbirdCreateGroupFragmentDirections
+            .actionFragmentSnowbirdCreateGroupToFragmentSpaceSetupSuccess(
+                message = getString(R.string.you_have_successfully_created_dweb),
+                isDweb = true,
+                dwebGroupKey = group.key,
+            )
+        findNavController().navigate(action)
+    }
+
+    private fun setupTextWatchers() {
+        // Create a common TextWatcher for all three fields
+        val textWatcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                updateAuthenticateButtonState()
             }
-            neutralButton {
-                text = UiText.DynamicString("No")
-                action = {
-                    parentFragmentManager.popBackStack()
-                }
+
+            override fun afterTextChanged(s: Editable?) {
+                dismissCredentialsError()
             }
         }
+
+        binding.groupNameTextfield.addTextChangedListener(textWatcher)
+        binding.repoNameTextfield.addTextChangedListener(textWatcher)
+    }
+
+    private fun updateAuthenticateButtonState() {
+        val groupName = binding.groupNameTextfield.text?.toString()?.trim().orEmpty()
+        val repoName = binding.repoNameTextfield.text?.toString()?.trim().orEmpty()
+
+        // Enable the button only if none of the fields are empty
+        binding.btnNext.isEnabled = groupName.isNotEmpty() && repoName.isNotEmpty()
+    }
+
+    private fun dismissCredentialsError() {
+        //binding.errorHint.hide()
     }
 
     override fun getToolbarTitle(): String {

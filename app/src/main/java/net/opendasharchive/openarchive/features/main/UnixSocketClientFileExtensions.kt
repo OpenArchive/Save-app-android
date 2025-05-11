@@ -7,11 +7,52 @@ import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.db.SerializableMarker
 import net.opendasharchive.openarchive.services.snowbird.service.HttpLikeException
 import timber.log.Timber
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.net.SocketTimeoutException
 
+
 suspend fun UnixSocketClient.downloadFile(endpoint: String): ByteArray = withContext(Dispatchers.IO) {
+    LocalSocket().use { socket ->
+        socket.connect(LocalSocketAddress(socketPath, LocalSocketAddress.Namespace.FILESYSTEM))
+
+        // 1) build & send a perfectly raw HTTP/1.1 GET
+        val req = buildString {
+            append("GET $endpoint HTTP/1.1\r\n")
+            append("Accept: image/*\r\n")
+            append("Connection: close\r\n")
+            append("\r\n")
+        }.toByteArray()
+        socket.outputStream.write(req)
+        socket.outputStream.flush()
+
+        // 2) now read response entirely over the InputStream
+        val input = socket.inputStream
+        val (statusCode, headers) = input.readHttpResponseHeaders()
+        if (statusCode !in 200..299) throw HttpLikeException(statusCode)
+
+        // 3) decide how to read the body
+        return@withContext when {
+            headers["Transfer-Encoding"]?.equals("chunked", true) == true ->
+                input.readChunkedBody()
+            headers["Content-Length"] != null ->
+                input.readFixedLengthBody(headers["Content-Length"]!!.toInt())
+            else ->
+                input.readAllCompat()   // maybe not ideal for huge files, but safe
+        }
+    }
+}
+
+private fun InputStream.readAllCompat(): ByteArray {
+    val buffer = ByteArrayOutputStream()
+    this.use { input ->
+        input.copyTo(buffer)
+    }
+    return buffer.toByteArray()
+}
+
+suspend fun UnixSocketClient.downloadFileOld(endpoint: String): ByteArray = withContext(Dispatchers.IO) {
     LocalSocket().use { socket ->
         socket.connect(LocalSocketAddress(socketPath, LocalSocketAddress.Namespace.FILESYSTEM))
 

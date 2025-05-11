@@ -5,17 +5,52 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.os.bundleOf
-import androidx.fragment.app.setFragmentResult
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter.Companion.tint
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.fragment.findNavController
 import com.google.zxing.integration.android.IntentIntegrator
-import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.databinding.FragmentSnowbirdBinding
+import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
+import net.opendasharchive.openarchive.core.presentation.theme.ThemeColors
+import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.extensions.getQueryParameter
 import net.opendasharchive.openarchive.features.core.BaseFragment
@@ -23,13 +58,8 @@ import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.main.QRScannerActivity
-import timber.log.Timber
 
 class SnowbirdFragment : BaseFragment() {
-    private val CANNED_URI =
-        "save+dweb::?dht=82fd345d484393a96b6e0c5d5e17a85a61c9184cc5a3311ab069d6efa0bf1410&enc=6fa27396fe298f92c91013ac54d8f316c2d45dc3bed0edec73078040aa10feed&pk=f4b404d294817cf11ea7f8ef7231626e03b74f6fafe3271b53918608afa82d12&sk=5482a8f490081be684fbadb8bde7f0a99bab8acdcf1ec094826f0f18e327e399"
-    private lateinit var viewBinding: FragmentSnowbirdBinding
-    private var canNavigate = false
 
     private val qrCodeLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -47,57 +77,43 @@ class SnowbirdFragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewBinding = FragmentSnowbirdBinding.inflate(inflater)
 
-        return viewBinding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        viewBinding.joinGroupButton.setOnClickListener {
+        val onJoinGroup: () -> Unit = {
             startQRScanner()
         }
 
-        viewBinding.myGroupsButton.setOnClickListener {
-
-            if (isJetpackNavigation) {
-                val action =
-                    SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdGroupList()
-                findNavController().navigate(action)
-            } else {
-                setFragmentResult(
-                    RESULT_REQUEST_KEY,
-                    bundleOf(RESULT_BUNDLE_KEY to RESULT_VAL_RAVEN_MY_GROUPS)
-                )
-            }
+        val onCreateGroup = {
+            val action =
+                SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdCreateGroup()
+            findNavController().navigate(action)
         }
 
-        viewBinding.createGroupButton.setOnClickListener {
-            if (isJetpackNavigation) {
-                val action =
-                    SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdCreateGroup()
-                findNavController().navigate(action)
-            } else {
-                setFragmentResult(
-                    RESULT_REQUEST_KEY,
-                    bundleOf(RESULT_BUNDLE_KEY to RESULT_VAL_RAVEN_CREATE_GROUP)
-                )
-            }
+        val onMyGroups = {
+            val action =
+                SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdGroupList()
+            findNavController().navigate(action)
         }
 
-        initializeViewModelObservers()
-    }
+        return ComposeView(requireContext()).apply {
+            // Dispose of the Composition when the view's LifecycleOwner
+            // is destroyed
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                SaveAppTheme {
 
-    private fun initializeViewModelObservers() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                launch {
-                    snowbirdGroupViewModel.groupState.collect { state ->
-                        handleGroupStateUpdate(
-                            state
-                        )
+                    LaunchedEffect(Unit) {
+                        snowbirdGroupViewModel.groupState.collect { state ->
+                            handleGroupStateUpdate(
+                                state
+                            )
+                        }
                     }
+
+                    SnowbirdScreen(
+                        onJoinGroup = onJoinGroup,
+                        onCreateGroup = onCreateGroup,
+                        onMyGroups = onMyGroups
+                    )
                 }
             }
         }
@@ -105,7 +121,7 @@ class SnowbirdFragment : BaseFragment() {
 
     private fun handleGroupStateUpdate(state: SnowbirdGroupViewModel.GroupState) {
         handleLoadingStatus(false)
-        Timber.d("group state = $state")
+        AppLogger.d("group state = $state")
         when (state) {
             is SnowbirdGroupViewModel.GroupState.Loading -> handleLoadingStatus(true)
             is SnowbirdGroupViewModel.GroupState.Error -> handleError(state.error)
@@ -154,38 +170,185 @@ class SnowbirdFragment : BaseFragment() {
             return
         }
 
-        if (isJetpackNavigation) {
-            AppLogger.i("EZIO: $uriString")
-            val action =
-                SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdJoinGroup(
-                    uriString
-                )
-            findNavController().navigate(action)
-        } else {
+        val action = SnowbirdFragmentDirections
+            .actionFragmentSnowbirdToFragmentSnowbirdJoinGroup(dwebGroupKey = uriString)
+        findNavController().navigate(action)
 
-            setFragmentResult(
-                RESULT_REQUEST_KEY,
-                bundleOf(
-                    RESULT_BUNDLE_KEY to RESULT_VAL_RAVEN_JOIN_GROUPS,
-                    RESULT_VAL_RAVEN_JOIN_GROUPS_ARG to uriString
-                )
-            )
-        }
-    }
-
-    companion object {
-        const val RESULT_REQUEST_KEY = "raven_fragment_result"
-        const val RESULT_BUNDLE_KEY = "raven_fragment_result_key"
-        const val RESULT_VAL_RAVEN_MY_GROUPS = "raven_my_group"
-        const val RESULT_VAL_RAVEN_JOIN_GROUPS = "raven_join_group"
-        const val RESULT_VAL_RAVEN_JOIN_GROUPS_ARG = "raven_join_group_argument_uri"
-        const val RESULT_VAL_RAVEN_CREATE_GROUP = "raven_create_group"
-
-        @JvmStatic
-        fun newInstance() = SnowbirdFragment()
     }
 
     override fun getToolbarTitle(): String {
         return "Raven"
+    }
+}
+
+@Composable
+fun SnowbirdScreen(
+    onJoinGroup: () -> Unit = {},
+    onCreateGroup: () -> Unit = {},
+    onMyGroups: () -> Unit = {}
+) {
+    // Use a scrollable Column to mimic ScrollView + LinearLayout
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 32.dp, bottom = 16.dp)
+            .padding(horizontal = 24.dp),
+    ) {
+
+
+        // Header texts
+        SpaceAuthHeader(
+            description = "Preserve your media on the decentralized web (DWeb).",
+            imagePainter = painterResource(R.drawable.ic_dweb),
+            modifier = Modifier
+                .padding(vertical = 48.dp)
+                .padding(end = 24.dp)
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // WebDav option
+        DwebOptionItem(
+            title = "Join group",
+            subtitle = "Connect to existing group",
+            onClick = onJoinGroup
+        )
+
+        DwebOptionItem(
+            title = "Create group",
+            subtitle = "Create a new group via Dweb",
+            onClick = onCreateGroup
+        )
+
+
+
+        DwebOptionItem(
+            title = "My groups",
+            subtitle = "View and manage your groups",
+            onClick = onMyGroups
+        )
+
+    }
+}
+
+@Preview
+@Composable
+private fun SnowbirdScreenPreview() {
+    DefaultScaffoldPreview {
+
+        SnowbirdScreen()
+    }
+}
+
+@Composable
+fun DwebOptionItem(
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+    // You can customize this look to match your original design
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.background
+        ),
+        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.onBackground),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(
+                modifier = Modifier
+                    .align(Alignment.Top)
+                    .weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = title,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 18.sp
+                )
+
+                Text(
+                    text = subtitle,
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 14.sp
+                )
+            }
+
+            Icon(
+                modifier = Modifier
+                    .size(24.dp)
+                    .align(Alignment.CenterVertically),
+                painter = painterResource(R.drawable.ic_arrow_forward_ios),
+                contentDescription = null,
+            )
+        }
+
+
+    }
+}
+
+
+@Composable
+fun SpaceAuthHeader(
+    modifier: Modifier = Modifier,
+    description: String = stringResource(id = R.string.internet_archive_description),
+    imagePainter: Painter = painterResource(id = R.drawable.ic_internet_archive)
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(50.dp)
+                .clip(CircleShape)
+                .background(ThemeColors.material.surfaceDim,)
+                .padding(8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                modifier = Modifier.size(30.dp),
+                painter = imagePainter,
+                contentDescription = "Space Image",
+                colorFilter = tint(colorResource(id = R.color.colorTertiary))
+            )
+        }
+
+        Column(
+            modifier = Modifier.padding(start = ThemeDimensions.spacing.medium, end = ThemeDimensions.spacing.xlarge)
+        ) {
+            Text(
+                text = description,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = ThemeColors.material.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+private fun SpaceAuthHeaderPreview() {
+    SaveAppTheme {
+        SpaceAuthHeader()
     }
 }

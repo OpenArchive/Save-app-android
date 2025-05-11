@@ -53,8 +53,7 @@ class SnowbirdService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        val backendBaseDirectory = filesDir
-        DEFAULT_BACKEND_DIRECTORY = backendBaseDirectory.absolutePath
+        DEFAULT_BACKEND_DIRECTORY = filesDir.absolutePath
 
         val serverSocketFile = File(filesDir, "rust_server.sock")
         DEFAULT_SOCKET_PATH = serverSocketFile.absolutePath
@@ -76,8 +75,18 @@ class SnowbirdService : Service() {
             SaveApp.SNOWBIRD_SERVICE_ID,
             createNotification("Snowbird Server is starting up.")
         )
-        startServer(DEFAULT_BACKEND_DIRECTORY, DEFAULT_SOCKET_PATH)
-        startPolling()
+
+        // Launch a coroutine to check & start
+        serviceScope.launch {
+            val alreadyUp = isServerRunning()
+            if (alreadyUp) {
+                Timber.d("Snowbird server already running; skipping start()")
+            } else {
+                Timber.d("Snowbird server not running; invoking startServer()")
+                startServer(DEFAULT_BACKEND_DIRECTORY, DEFAULT_SOCKET_PATH)
+            }
+            startPolling()
+        }
         return START_STICKY
     }
 
@@ -224,6 +233,24 @@ class SnowbirdService : Service() {
             createNotification(status, withSound)
         )
     }
+
+    private suspend fun isServerRunning(): Boolean = withContext(Dispatchers.IO) {
+        try {
+            (URL("http://localhost:8080/status")
+                .openConnection() as HttpURLConnection).run {
+                connectTimeout = 500
+                readTimeout = 500
+                requestMethod = "GET"
+                val ok = responseCode == HttpURLConnection.HTTP_OK
+                disconnect()
+                ok
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
 }
 
 /**

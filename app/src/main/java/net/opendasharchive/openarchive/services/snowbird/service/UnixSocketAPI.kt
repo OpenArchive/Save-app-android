@@ -30,6 +30,7 @@ class UnixSocketAPI(private var context: Context, private var client: UnixSocket
         const val REPOS_PATH = "$BASE_PATH/groups/%s/repos"
         const val MEDIA_PATH = "$BASE_PATH/groups/%s/repos/%s/media"
         const val MEDIA_PATH_UPLOAD = "$BASE_PATH/groups/%s/repos/%s/media/%s"
+        const val FORCE_REFRESH = "$BASE_PATH/groups/%s/refresh"
     }
 
     override suspend fun downloadFile(groupKey: String, repoKey: String, filename: String): ByteArray {
