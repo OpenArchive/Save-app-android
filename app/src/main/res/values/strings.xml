@@ -393,7 +393,7 @@
     <!-- Internet Archive Settings -->
     <string name="label_email">Email</string>
     <string name="label_screen_name">Screen Name</string>
-    <string name="label_login">Login</string>
+    <string name="label_login">Log in</string>
     <string name="label_create_login">Create one</string>
     <string name="prompt_no_account">No account?</string>
     <string name="action_continue">Continue</string>
