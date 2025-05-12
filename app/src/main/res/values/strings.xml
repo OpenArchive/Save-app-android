@@ -309,7 +309,7 @@
     <string name="intro_link_archive" translatable="false">https://creativecommons.org</string>
     <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with SHA-256 hashes and <a href=\"%1$s\"&gt;<u&gt;ProofMode</u&gt;</a&gt;.]]&gt;</string>
     <string name="intro_link_verify" translatable="false">https://proofmode.org</string>
-    <string name="intro_text_encrypt_old">Automatically upload over TLS (Transport Layer Security) and use Orbot to protect your media in transit over the Tor network.</string>
+    <string name="intro_text_encrypt_old">Automatically upload over TLS (Transport Layer Security) and use Orbot to protect your media in transit over the Tor Network.</string>
     <string name="intro_text_encrypt" translatable="false"><![CDATA[<b><i>Save</i></b> always uploads over TLS (Transport Layer Security) to protect your media in transit.<br>To further enhance security, enable <a href=\"%1$s\"><u>Tor</u></a> to prevent interception of your media from your phone to the server.]]></string>
 <!--    <string name="intro_text_encrypt">-->
 <!--        &lt;b&gt;&lt;i&gt;Save&lt;/i&gt;&lt;/b&gt; always uploads over TLS (Transport Layer Security) to protect your media in transit.&lt;br&gt;-->
