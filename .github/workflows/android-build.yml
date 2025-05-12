@@ -1,0 +1,42 @@
+name: Android Build
+
+on:
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Create local.properties
+        run: |
+          echo "MIXPANEL_KEY=${{ secrets.MIXPANEL_KEY }}" >> local.properties
+          echo "STOREFILE=${{ secrets.STOREFILE }}" >> local.properties
+          echo "STOREPASSWORD=${{ secrets.STOREPASSWORD }}" >> local.properties
+          echo "KEYALIAS=${{ secrets.KEYALIAS }}" >> local.properties
+          echo "KEYPASSWORD=${{ secrets.KEYPASSWORD }}" >> local.properties
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build and Test
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: |
+            assembleDebug 
+            assembleRelease
+            lintDebug
+            lintRelease
+            test
+          cache-read-only: false

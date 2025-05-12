@@ -64,12 +64,30 @@ android {
         compose = true
     }
 
+    signingConfigs {
+        create("release") {
+            val props = loadLocalProperties()
+            storeFile = file(props["STOREFILE"] as? String ?: "")
+            storePassword = props["STOREPASSWORD"] as? String ?: ""
+            keyAlias = props["KEYALIAS"] as? String ?: ""
+            keyPassword = props["KEYPASSWORD"] as? String ?: ""
+        }
+
+        getByName("debug") {
+            val props = loadLocalProperties()
+            storeFile = file(props["STOREFILE"] as? String ?: "")
+            storePassword = props["STOREPASSWORD"] as? String ?: ""
+            keyAlias = props["KEYALIAS"] as? String ?: ""
+            keyPassword = props["KEYPASSWORD"] as? String ?: ""
+        }
+    }
+
     buildTypes {
 
         getByName("release") {
-            signingConfig = signingConfigs.getByName("debug")
-            isMinifyEnabled = false
-            isShrinkResources = false
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
             applicationIdSuffix = ".release"
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
@@ -78,16 +96,7 @@ android {
             signingConfig = signingConfigs.getByName("debug")
             applicationIdSuffix = ".debug"
             isMinifyEnabled = false
-        }
-    }
-
-    signingConfigs {
-        getByName("debug") {
-            val props = loadLocalProperties()
-            storeFile = file(props["STOREFILE"] as? String ?: "")
-            storePassword = props["STOREPASSWORD"] as? String ?: ""
-            keyAlias = props["KEYALIAS"] as? String ?: ""
-            keyPassword = props["KEYPASSWORD"] as? String ?: ""
+            buildConfigField("Boolean", "ENABLE_BUILD_CACHE", "true")
         }
     }
 
