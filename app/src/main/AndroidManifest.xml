@@ -197,11 +197,6 @@
             android:theme="@style/SaveAppTheme.NoActionBar" />
 
         <activity
-            android:name=".features.settings.EditFolderActivity"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
             android:name=".features.settings.ConsentActivity"
             android:label="@string/health_checks"
             android:taskAffinity=""
