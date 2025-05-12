@@ -213,7 +213,7 @@
     <string name="remove">Remove</string>
     <string name="action_archive_project">Archive Project</string>
     <string name="action_unarchive_project">Unarchive Project</string>
-    <string name="IA_login_error">Please login with valid Internet Archive credentials.</string>
+    <string name="IA_login_error">Please log in with valid Internet Archive credentials.</string>
     <string name="access_key">Access Key</string>
     <string name="secret_key">Secret Key</string>
     <string name="info_archiveorg_keys"><b><i>Save</i></b> needs your Internet Archive account\'s API keys to be able to upload media.</string>
