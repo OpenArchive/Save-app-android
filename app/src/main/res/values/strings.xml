@@ -296,7 +296,7 @@
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Only upload media when you are connected to Wi-Fi</string>
     <string name="security">Security</string>
     <string name="proofmode">ProofMode</string>
-    <string name="no_webbrowser_found_error">No application can handle this request. Please install a webbrowser.</string>
+    <string name="no_webbrowser_found_error">No application can handle this request. Please install a web browser.</string>
 
     <string name="intro_header_secure" translatable="false">Secure</string>
     <string name="intro_header_archive" translatable="false">Archive</string>
