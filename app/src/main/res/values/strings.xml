@@ -351,7 +351,7 @@
     <string name="add_files">Add Files</string>
 
     <string name="ia_learn_how_title">How to Acquire Keys in 3 easy steps</string>
-    <string name="ia_learn_how_summary_step_1">Step 1: Log into the Internet Archive. If you don\'t have an account, create one.</string>
+    <string name="ia_learn_how_summary_step_1">Step 1: Log in to the Internet Archive. If you don\'t have an account, create one.</string>
     <string name="ia_learn_how_summary_step_2">Step 2: If you are creating a new account, verify your email.</string>
     <string name="ia_learn_how_summary_step_3">Step 3: Generate your API keys by selecting the box and it will auto load in the app!</string>
 
