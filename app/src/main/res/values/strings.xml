@@ -252,7 +252,7 @@
     <string name="empty_name_warning">Name cannot be empty</string>
 
     <string name="unsaved_changes">Unsaved changes!</string>
-    <string name="do_you_want_to_save">Do you want to save</string>
+    <string name="do_you_want_to_save">Do you want to save\?</string>
     <string name="lbl_save">Save</string>
     <string name="lbl_discard">Discard</string>
 
