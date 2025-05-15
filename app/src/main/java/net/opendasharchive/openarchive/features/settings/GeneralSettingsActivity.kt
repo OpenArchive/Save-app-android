@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.compose.ui.res.stringResource
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
@@ -15,9 +14,11 @@ import net.opendasharchive.openarchive.databinding.ActivitySettingsContainerBind
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupActivity
+import net.opendasharchive.openarchive.services.tor.TorViewModel
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Theme
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class GeneralSettingsActivity: BaseActivity() {
@@ -26,9 +27,9 @@ class GeneralSettingsActivity: BaseActivity() {
 
         private val passcodeRepository by inject<PasscodeRepository>()
 
-//        private var mCiConsentPref: SwitchPreferenceCompat? = null
-
         private var passcodePreference: SwitchPreferenceCompat? = null
+
+        private val torViewModel: TorViewModel by viewModel()
 
         private val activityResultLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
@@ -84,28 +85,10 @@ class GeneralSettingsActivity: BaseActivity() {
                 false
             }
 
-//            findPreference<Preference>(Prefs.USE_TOR)?.setOnPreferenceChangeListener { _, newValue ->
-//                val activity = activity ?: return@setOnPreferenceChangeListener true
-//
-//                if (newValue as Boolean) {
-//                    if (!OrbotHelper.isOrbotInstalled(activity) && !OrbotHelper.isTorServicesInstalled(activity)) {
-//                        AlertHelper.show(activity,
-//                            R.string.prefs_install_tor_summary,
-//                            R.string.prefs_use_tor_title,
-//                            buttons = listOf(
-//                                AlertHelper.positiveButton(R.string.action_install) { _, _ ->
-//                                    activity.startActivity(
-//                                        OrbotHelper.getOrbotInstallIntent(activity))
-//                                },
-//                                AlertHelper.negativeButton(R.string.action_cancel)
-//                            ))
-//
-//                        return@setOnPreferenceChangeListener false
-//                    }
-//                }
-//
-//                true
-//            }
+            findPreference<Preference>(Prefs.USE_TOR)?.setOnPreferenceChangeListener { _, newValue ->
+                torViewModel.setTorServiceState(newValue as Boolean)
+                true
+            }
 
             findPreference<Preference>("proof_mode")?.setOnPreferenceClickListener {
                 startActivity(Intent(context, ProofModeSettingsActivity::class.java))

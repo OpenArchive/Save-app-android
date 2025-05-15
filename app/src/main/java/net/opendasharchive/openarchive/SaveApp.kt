@@ -5,31 +5,34 @@ import android.app.NotificationManager
 import android.app.UiModeManager
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import coil3.util.Logger
 import com.orm.SugarApp
-import info.guardianproject.netcipher.proxy.OrbotHelper
 import net.opendasharchive.openarchive.core.di.coreModule
 import net.opendasharchive.openarchive.core.di.featuresModule
 import net.opendasharchive.openarchive.core.di.passcodeModule
 import net.opendasharchive.openarchive.core.di.retrofitModule
+import net.opendasharchive.openarchive.core.di.torModule
 import net.opendasharchive.openarchive.core.di.unixSocketModule
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeManager
+import net.opendasharchive.openarchive.services.tor.TorViewModel
 import net.opendasharchive.openarchive.util.Analytics
 import net.opendasharchive.openarchive.util.Prefs
-import net.opendasharchive.openarchive.util.Theme
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import timber.log.Timber
 
-class SaveApp : SugarApp(), SingletonImageLoader.Factory {
+class SaveApp : SugarApp(), SingletonImageLoader.Factory, KoinComponent {
+
+    private val torViewModel: TorViewModel by inject()
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
@@ -62,29 +65,21 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory {
                 featuresModule,
                 retrofitModule,
                 unixSocketModule,
-                passcodeModule
+                passcodeModule,
+                torModule
             )
         }
 
         Prefs.load(this)
         applyTheme()
 
-        if (Prefs.useTor) initNetCipher()
-
         CleanInsightsManager.init(this)
 
         createSnowbirdNotificationChannel()
-    }
 
-    private fun initNetCipher() {
-        AppLogger.d("Initializing NetCipher client")
-        val oh = OrbotHelper.get(this)
-
-        if (BuildConfig.DEBUG) {
-            oh.skipOrbotValidation()
+        if (Prefs.useTor) {
+            torViewModel.setTorServiceState(true)
         }
-
-//        oh.init()
     }
 
     private fun createSnowbirdNotificationChannel() {

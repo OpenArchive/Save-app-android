@@ -15,10 +15,11 @@ private const val LOGIN_URI = "https://archive.org/services/xauthn?op=login"
 
 class InternetArchiveRemoteSource(
     private val context: Context,
-    private val gson: InternetArchiveGson
+    private val gson: InternetArchiveGson,
+    private val client: SaveClient
 ) {
     suspend fun login(request: InternetArchiveLoginRequest): Result<InternetArchiveLoginResponse> =
-        SaveClient.get(context).enqueueResult(
+        client.enqueue(
             Request.Builder()
                 .url(LOGIN_URI)
                 .post(
@@ -27,22 +28,21 @@ class InternetArchiveRemoteSource(
                         .add("password", request.password).build()
                 )
                 .build()
-        ) { response ->
-            val data = gson.fromJson(
+        ).map { response ->
+            gson.fromJson(
                 response.body?.string(),
                 InternetArchiveLoginResponse::class.java
             )
-            Result.success(data)
         }
 
     suspend fun testConnection(auth: InternetArchive.Auth): Result<Boolean> =
-        SaveClient.get(context).enqueueResult(
+        client.enqueue(
             Request.Builder()
                 .url(ARCHIVE_API_ENDPOINT)
                 .method("GET", null)
                 .addHeader("Authorization", "LOW ${auth.access}:${auth.secret}")
                 .build()
-        ) { response ->
-            Result.success(response.isSuccessful)
+        ).map { response ->
+            response.isSuccessful
         }
 }

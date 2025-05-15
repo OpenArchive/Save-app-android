@@ -18,11 +18,13 @@ import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupActivity
+import net.opendasharchive.openarchive.services.tor.TorViewModel
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Theme
 import net.opendasharchive.openarchive.util.extensions.getVersionName
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
@@ -30,6 +32,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private val dialogManager: DialogStateManager by activityViewModel()
 
+    private val torViewModel: TorViewModel by viewModel()
 
     private var passcodePreference: SwitchPreferenceCompat? = null
 
@@ -66,7 +69,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         rootKey: String?
     ) {
         setPreferencesFromResource(R.xml.prefs_general, rootKey)
-
 
         passcodePreference = findPreference(Prefs.PASSCODE_ENABLED)
 
@@ -132,13 +134,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
-        findPreference<Preference>(Prefs.USE_TOR)?.setOnPreferenceChangeListener { _, newValue ->
+        getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_tor)?.setOnPreferenceChangeListener { _, newValue ->
             Prefs.useTor = (newValue as Boolean)
-            //torViewModel.updateTorServiceState()
+            torViewModel.setTorServiceState(newValue)
             true
         }
-
-        getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_tor)?.isEnabled = false
 
         findPreference<Preference>(Prefs.THEME)?.setOnPreferenceChangeListener { _, newValue ->
             Theme.set(requireActivity(), Theme.get(newValue as? String))

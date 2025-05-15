@@ -84,10 +84,12 @@ android {
     signingConfigs {
         getByName("debug") {
             val props = loadLocalProperties()
-            storeFile = file(props["STOREFILE"] as? String ?: "")
-            storePassword = props["STOREPASSWORD"] as? String ?: ""
-            keyAlias = props["KEYALIAS"] as? String ?: ""
-            keyPassword = props["KEYPASSWORD"] as? String ?: ""
+            (props["STOREFILE"] as? String)?.also {
+                storeFile = file(it)
+                storePassword = props["STOREPASSWORD"] as? String ?: ""
+                keyAlias = props["KEYALIAS"] as? String ?: ""
+                keyPassword = props["KEYPASSWORD"] as? String ?: ""
+            }
         }
     }
 

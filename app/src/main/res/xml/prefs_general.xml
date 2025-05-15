@@ -95,7 +95,6 @@
         android:title="Encrypt">
 
         <SwitchPreferenceCompat
-            android:enabled="false"
             android:iconSpaceReserved="false"
             android:key="@string/pref_key_use_tor"
             android:layout="@layout/custom_preference_switch"
@@ -104,7 +103,6 @@
             android:title="@string/prefs_use_tor_title"
             android:widgetLayout="@layout/custom_preference_widget_switch"
             app:defaultValue="false"
-            app:enabled="true"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 

@@ -9,6 +9,7 @@ import net.opendasharchive.openarchive.features.core.dialog.ResourceProvider
 import net.opendasharchive.openarchive.features.folders.BrowseFoldersViewModel
 import net.opendasharchive.openarchive.features.main.MainViewModel
 import net.opendasharchive.openarchive.features.main.ui.HomeViewModel
+import net.opendasharchive.openarchive.services.SaveClient
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -16,6 +17,8 @@ import org.koin.dsl.module
 val coreModule = module {
     // Provide a ResourceProvider using the application context.
     single<ResourceProvider> { DefaultResourceProvider(androidApplication()) }
+
+    single { SaveClient() }
 
     // Provide DialogStateManager and let Koin inject the ResourceProvider.
     viewModel { DialogStateManager(get()) }
@@ -28,7 +31,7 @@ val coreModule = module {
 
     viewModel {
         BrowseFoldersViewModel(
-            context = get<Context>()
+            get(), get()
         )
     }
 }

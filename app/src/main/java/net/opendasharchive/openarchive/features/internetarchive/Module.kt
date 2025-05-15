@@ -22,7 +22,7 @@ val internetArchiveModule = module {
             .create()
     }
     factory { ValidateLoginCredentialsUseCase() }
-    factory { InternetArchiveRemoteSource(get(), get()) }
+    factory { InternetArchiveRemoteSource(get(), get(), get()) }
     single { InternetArchiveLocalSource() }
     factory { InternetArchiveMapper() }
     factory { InternetArchiveRepository(get(), get(), get()) }

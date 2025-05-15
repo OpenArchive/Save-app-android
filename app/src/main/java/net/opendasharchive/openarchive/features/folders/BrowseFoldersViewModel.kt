@@ -1,6 +1,8 @@
 package net.opendasharchive.openarchive.features.folders
 
+import android.app.Application
 import android.content.Context
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -19,7 +21,7 @@ import java.util.Date
 
 data class Folder(val name: String, val modified: Date)
 
-class BrowseFoldersViewModel(private val context: Context) : ViewModel() {
+class BrowseFoldersViewModel(application: Application, private val client: SaveClient) : AndroidViewModel(application) {
 
     private val mFolders = MutableLiveData<List<Folder>>()
 
@@ -35,9 +37,9 @@ class BrowseFoldersViewModel(private val context: Context) : ViewModel() {
             try {
                 val value = withContext(Dispatchers.IO) {
                     when (space.tType) {
-                        Space.Type.WEBDAV -> getWebDavFolders(context, space)
+                        Space.Type.WEBDAV -> getWebDavFolders(getApplication(), space)
 
-                        Space.Type.GDRIVE -> getGDriveFolders(context, space)
+                        Space.Type.GDRIVE -> getGDriveFolders(getApplication(), space)
 
                         else -> emptyList()
                     }
@@ -60,7 +62,7 @@ class BrowseFoldersViewModel(private val context: Context) : ViewModel() {
     private suspend fun getWebDavFolders(context: Context, space: Space): List<Folder> {
         val root = space.hostUrl?.encodedPath
 
-        return SaveClient.getSardine(context, space).list(space.host)?.mapNotNull {
+        return client.webdav(space).list(space.host)?.mapNotNull {
             if (it?.isDirectory == true && it.path != root) {
                 Folder(it.name, it.modified ?: Date())
             }

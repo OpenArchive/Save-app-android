@@ -11,10 +11,13 @@ import net.opendasharchive.openarchive.services.Conduit
 import net.opendasharchive.openarchive.services.SaveClient
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.io.File
 import java.io.IOException
+import androidx.core.net.toUri
 
-class IaConduit(media: Media, context: Context) : Conduit(media, context) {
+class IaConduit(media: Media, context: Context) : Conduit(media, context), KoinComponent {
 
 
     companion object {
@@ -33,13 +36,13 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
         private val gson = GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
     }
 
+    private val client: SaveClient by inject()
+
     override suspend fun upload(): Boolean {
         sanitize()
 
         try {
             val mimeType = mMedia.mimeType
-
-            val client = SaveClient.get(mContext)
 
             val fileName = getUploadFileName(mMedia, true)
             val metaJson = gson.toJson(mMedia)
@@ -55,10 +58,22 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
             }
 
             // upload content synchronously for progress
-            client.uploadContent(fileName, mimeType)
+            client.uploadContent(fileName, mimeType).onFailure {
+                jobFailed(it)
+                return@upload false
+            }.onSuccess {
+                if (!it) jobFailed(Throwable("Upload failed"))
+                return false
+            }
 
             // upload metadata and proofs async, and report failures
-            client.uploadMetaData(metaJson, fileName)
+            client.uploadMetaData(metaJson, fileName).onFailure {
+                jobFailed(it)
+                return@upload false
+            }.onSuccess {
+                if (!it) jobFailed(Throwable("Upload failed"))
+                return false
+            }
 
             // Commenting out proof generation - 17th April 2025
             // Upload ProofMode metadata, if enabled and successfully created.
@@ -80,14 +95,14 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
         // Ignored. Not used here.
     }
 
-    private suspend fun OkHttpClient.uploadContent(fileName: String, mimeType: String) {
+    private suspend fun SaveClient.uploadContent(fileName: String, mimeType: String): Result<Boolean> {
         val mediaUri = mMedia.originalFilePath
 
         val url = "${ARCHIVE_API_ENDPOINT}/${mMedia.serverUrl}/$fileName"
 
         val requestBody = RequestBodyUtil.create(
             mContext.contentResolver,
-            Uri.parse(mediaUri),
+            mediaUri.toUri(),
             mMedia.contentLength,
             mimeType.toMediaTypeOrNull(),
             createListener(
@@ -104,11 +119,11 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
             .headers(mainHeader())
             .build()
 
-        execute(request)
+        return client.enqueue(request).map { it.isSuccessful}
     }
 
     @Throws(IOException::class)
-    private fun OkHttpClient.uploadMetaData(content: String, fileName: String) {
+    private suspend fun SaveClient.uploadMetaData(content: String, fileName: String): Result<Boolean> {
         val requestBody = RequestBodyUtil.create(
             textMediaType,
             content.byteInputStream(),
@@ -124,12 +139,12 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
             .headers(metadataHeader())
             .build()
 
-        enqueue(request)
+        return client.enqueue(request).map { it.isSuccessful }
     }
 
     /// upload proof mode
     @Throws(IOException::class)
-    private fun OkHttpClient.uploadProofFiles(uploadFile: File) {
+    private suspend fun SaveClient.uploadProofFiles(uploadFile: File): Result<Boolean> {
         val requestBody = RequestBodyUtil.create(
             mContext.contentResolver,
             Uri.fromFile(uploadFile),
@@ -145,7 +160,7 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
             .headers(metadataHeader())
             .build()
 
-        enqueue(request)
+        return client.enqueue(request).map { it.isSuccessful }
     }
 
     private fun mainHeader(): Headers {
@@ -223,33 +238,6 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
             .add("x-archive-meta-mediatype", "texts")
             .add("x-archive-meta-collection", "opensource")
             .build()
-    }
-
-    @Throws(Exception::class)
-    private suspend fun OkHttpClient.execute(request: Request) = withContext(Dispatchers.IO) {
-        val result = newCall(request)
-            .execute()
-
-        if (result.isSuccessful.not()) {
-            throw RuntimeException("${result.code}: ${result.message}")
-        }
-    }
-
-    @Throws(Exception::class)
-    private fun OkHttpClient.enqueue(request: Request) {
-        newCall(request)
-            .enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    jobFailed(e)
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    if (!response.isSuccessful) {
-                        jobFailed(Exception("${response.code}: ${response.message}"))
-                    }
-                }
-
-            })
     }
 
     private fun sanitizeHeaderValue(value: String): String {
