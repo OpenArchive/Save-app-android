@@ -55,19 +55,22 @@ class SnowbirdService : Service() {
 
         DEFAULT_BACKEND_DIRECTORY = filesDir.absolutePath
 
-        val serverSocketFile = File(filesDir, "rust_server.sock")
-        DEFAULT_SOCKET_PATH = serverSocketFile.absolutePath
+        val socketFile = File(filesDir, "rust_server.sock")
+        DEFAULT_SOCKET_PATH = socketFile.absolutePath
 
-        val path = Path(serverSocketFile.absolutePath)
-
-        try {
-            Files.delete(path)
-        } catch (e: Exception) {
-            // ignore
-            e.printStackTrace()
-        } finally {
-            Files.createFile(path)
+        if (socketFile.exists()) {
+            socketFile.delete()
         }
+
+//        val path = Path(socketFile.absolutePath)
+//        try {
+//            Files.delete(path)
+//        } catch (e: Exception) {
+//            // ignore
+//            e.printStackTrace()
+//        } finally {
+//            Files.createFile(path)
+//        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

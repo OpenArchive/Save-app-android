@@ -156,6 +156,10 @@ class SnowbirdGroupListFragment : BaseFragment() {
             )
 
             is SnowbirdGroupViewModel.GroupState.Error -> handleError(state.error)
+            is SnowbirdGroupViewModel.GroupState.SingleGroupSuccess -> {
+                AppLogger.d("Group fetched: ${state.group}")
+                // store it
+            }
             else -> Unit
         }
     }

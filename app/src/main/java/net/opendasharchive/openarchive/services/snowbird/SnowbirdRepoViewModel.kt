@@ -7,8 +7,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.core.logger.AppLogger
+import net.opendasharchive.openarchive.db.RefreshGroupResponse
 import net.opendasharchive.openarchive.db.SnowbirdError
+import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.db.SnowbirdRepo
+import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupViewModel.GroupState
+import net.opendasharchive.openarchive.services.snowbird.SnowbirdResult
 import net.opendasharchive.openarchive.util.BaseViewModel
 import net.opendasharchive.openarchive.util.trackProcessingWithTimeout
 
@@ -22,7 +27,9 @@ class SnowbirdRepoViewModel(
         data object Loading : RepoState()
         data class SingleRepoSuccess(val groupKey: String, val repo: SnowbirdRepo) : RepoState()
         data class MultiRepoSuccess(val repos: List<SnowbirdRepo>) : RepoState()
-        data class RepoFetchSuccess(val repos: List<SnowbirdRepo>, val isRefresh: Boolean) : RepoState()
+        data class RepoFetchSuccess(val repos: List<SnowbirdRepo>, val isRefresh: Boolean) :
+            RepoState()
+
         data class Error(val error: SnowbirdError) : RepoState()
     }
 
@@ -56,9 +63,38 @@ class SnowbirdRepoViewModel(
                 }
 
                 _repoState.value = when (result) {
-                    is SnowbirdResult.Success -> RepoState.RepoFetchSuccess(result.value, forceRefresh)
+                    is SnowbirdResult.Success -> RepoState.RepoFetchSuccess(
+                        result.value,
+                        forceRefresh
+                    )
+
                     is SnowbirdResult.Error -> RepoState.Error(result.error)
                 }
+            } catch (e: TimeoutCancellationException) {
+                _repoState.value = RepoState.Error(SnowbirdError.TimedOut)
+            }
+        }
+    }
+
+    fun refreshGroups(groupKey: String) {
+        viewModelScope.launch {
+            _repoState.value = RepoState.Loading
+            try {
+                val result = processingTracker.trackProcessingWithTimeout(30_000, "fetch_groups") {
+                    repository.refreshGroupContent(groupKey)
+                }
+
+                when (result) {
+                    is SnowbirdResult.Error -> {
+                        AppLogger.e(result.error.friendlyMessage)
+                        _repoState.value = RepoState.Error(result.error)
+                    }
+
+                    is SnowbirdResult.Success<RefreshGroupResponse> -> {
+                        AppLogger.i(result.value.toString())
+                    }
+                }
+
             } catch (e: TimeoutCancellationException) {
                 _repoState.value = RepoState.Error(SnowbirdError.TimedOut)
             }

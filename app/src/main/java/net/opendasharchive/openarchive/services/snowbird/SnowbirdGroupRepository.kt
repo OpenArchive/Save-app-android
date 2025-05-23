@@ -21,7 +21,8 @@ class SnowbirdGroupRepository(val api: ISnowbirdAPI) : ISnowbirdGroupRepository 
     override suspend fun createGroup(groupName: String): SnowbirdResult<SnowbirdGroup> {
         return try {
             val response = api.createGroup(
-                RequestName(groupName))
+                RequestName(groupName)
+            )
             SnowbirdResult.Success(response)
         } catch (e: Exception) {
             SnowbirdResult.Error(e.toSnowbirdError())
@@ -51,7 +52,8 @@ class SnowbirdGroupRepository(val api: ISnowbirdAPI) : ISnowbirdGroupRepository 
     override suspend fun joinGroup(uriString: String): SnowbirdResult<JoinGroupResponse> {
         return try {
             val response = api.joinGroup(
-                MembershipRequest(uriString))
+                MembershipRequest(uriString)
+            )
             SnowbirdResult.Success(response)
         } catch (e: Exception) {
             e.printStackTrace()

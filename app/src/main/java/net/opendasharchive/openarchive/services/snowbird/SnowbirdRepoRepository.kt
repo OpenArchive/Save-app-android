@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.services.snowbird
 
+import net.opendasharchive.openarchive.db.RefreshGroupResponse
 import net.opendasharchive.openarchive.db.RequestName
 import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.db.SnowbirdRepo
@@ -10,6 +11,7 @@ import timber.log.Timber
 interface ISnowbirdRepoRepository {
     suspend fun createRepo(groupKey: String, repoName: String): SnowbirdResult<SnowbirdRepo>
     suspend fun fetchRepos(groupKey: String, forceRefresh: Boolean = false): SnowbirdResult<List<SnowbirdRepo>>
+    suspend fun refreshGroupContent(groupKey: String): SnowbirdResult<RefreshGroupResponse>
 }
 
 class SnowbirdRepoRepository(val api: ISnowbirdAPI) : ISnowbirdRepoRepository {
@@ -43,5 +45,14 @@ class SnowbirdRepoRepository(val api: ISnowbirdAPI) : ISnowbirdRepoRepository {
 
     private fun fetchFromCache(groupKey: String): SnowbirdResult<List<SnowbirdRepo>> {
         return SnowbirdResult.Success(SnowbirdRepo.getAllFor(SnowbirdGroup.get(groupKey)))
+    }
+
+    override suspend fun refreshGroupContent(groupKey: String): SnowbirdResult<RefreshGroupResponse> {
+        return try {
+            val response = api.refreshGroupContent(groupKey)
+            SnowbirdResult.Success(response)
+        } catch (e: Exception) {
+            SnowbirdResult.Error(e.toSnowbirdError())
+        }
     }
 }

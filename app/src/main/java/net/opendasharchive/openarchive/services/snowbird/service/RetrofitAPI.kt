@@ -5,6 +5,7 @@ import android.net.Uri
 import net.opendasharchive.openarchive.db.FileUploadResult
 import net.opendasharchive.openarchive.db.JoinGroupResponse
 import net.opendasharchive.openarchive.db.MembershipRequest
+import net.opendasharchive.openarchive.db.RefreshGroupResponse
 import net.opendasharchive.openarchive.db.RequestName
 import net.opendasharchive.openarchive.db.SnowbirdFileList
 import net.opendasharchive.openarchive.db.SnowbirdGroup
@@ -40,6 +41,10 @@ class RetrofitAPI(private var context: Context, private val client: RetrofitClie
 
     override suspend fun joinGroup(request: MembershipRequest): JoinGroupResponse {
         return client.joinGroup(request)
+    }
+
+    override suspend fun refreshGroupContent(groupKey: String): RefreshGroupResponse {
+        return client.refreshGroup(groupKey)
     }
 
     override suspend fun createRepo(groupKey: String, repoName: RequestName): SnowbirdRepo {

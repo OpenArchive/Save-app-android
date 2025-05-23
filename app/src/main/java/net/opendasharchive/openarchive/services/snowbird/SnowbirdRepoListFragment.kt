@@ -183,6 +183,7 @@ class SnowbirdRepoListFragment : BaseFragment() {
         viewBinding.swipeRefreshLayout.setOnRefreshListener {
             lifecycleScope.launch {
                 snowbirdRepoViewModel.fetchRepos(groupKey, forceRefresh = true)
+                //snowbirdRepoViewModel.refreshGroups(groupKey)
             }
         }
 

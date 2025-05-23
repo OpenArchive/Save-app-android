@@ -4,6 +4,7 @@ import android.net.Uri
 import net.opendasharchive.openarchive.db.FileUploadResult
 import net.opendasharchive.openarchive.db.JoinGroupResponse
 import net.opendasharchive.openarchive.db.MembershipRequest
+import net.opendasharchive.openarchive.db.RefreshGroupResponse
 import net.opendasharchive.openarchive.db.RequestName
 import net.opendasharchive.openarchive.db.SnowbirdFileList
 import net.opendasharchive.openarchive.db.SnowbirdGroup
@@ -22,6 +23,7 @@ interface ISnowbirdAPI {
     suspend fun fetchGroup(key: String): SnowbirdGroup
     suspend fun fetchGroups(): SnowbirdGroupList
     suspend fun joinGroup(request: MembershipRequest): JoinGroupResponse
+    suspend fun refreshGroupContent(groupKey: String): RefreshGroupResponse
 
     // Repos
     suspend fun createRepo(groupKey: String, repoName: RequestName): SnowbirdRepo

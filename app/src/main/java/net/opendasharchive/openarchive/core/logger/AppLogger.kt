@@ -37,7 +37,7 @@ object AppLogger {
 
     // Info Level Logging
     fun i(message: String, vararg args: Any?) {
-        Timber.i(message + args.joinToString(" "))
+        Timber.i("%s%s", message, args.joinToString(" "))
         Analytics.log(Analytics.APP_LOG, mapOf("info" to message + args.joinToString(" ")))
     }
 
@@ -48,7 +48,7 @@ object AppLogger {
 
     // Debug Level Logging
     fun d(message: String, vararg args: Any?) {
-        Timber.d(message + args.joinToString(" "))
+        Timber.d("%s%s", message, args.joinToString(" "))
     }
 
     fun d(message: String, throwable: Throwable) {
@@ -57,7 +57,7 @@ object AppLogger {
 
     // Error Level Logging
     fun e(message: String, vararg args: Any?) {
-        Timber.e(message + args.joinToString(" "))
+        Timber.e("%s%s", message, args.joinToString(" "))
         Analytics.log(Analytics.APP_ERROR, mapOf("error" to message + args.joinToString(" ")))
     }
 
@@ -73,7 +73,7 @@ object AppLogger {
 
     // Warning Level Logging
     fun w(message: String, vararg args: Any?) {
-        Timber.w(message + args.joinToString(" "))
+        Timber.w("%s%s", message, args.joinToString(" "))
     }
 
     fun w(message: String, throwable: Throwable) {
@@ -82,7 +82,7 @@ object AppLogger {
 
     // Verbose Level Logging
     fun v(message: String, vararg args: Any?) {
-        Timber.v(message + args.joinToString(" "))
+        Timber.v("%s%s", message, args.joinToString(" "))
     }
 
     // Tagged Logging Methods

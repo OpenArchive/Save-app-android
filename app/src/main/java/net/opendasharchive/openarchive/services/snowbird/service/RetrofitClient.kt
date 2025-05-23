@@ -3,6 +3,7 @@ package net.opendasharchive.openarchive.services.snowbird.service
 import net.opendasharchive.openarchive.db.FileUploadResult
 import net.opendasharchive.openarchive.db.JoinGroupResponse
 import net.opendasharchive.openarchive.db.MembershipRequest
+import net.opendasharchive.openarchive.db.RefreshGroupResponse
 import net.opendasharchive.openarchive.db.RequestName
 import net.opendasharchive.openarchive.db.SnowbirdFileList
 import net.opendasharchive.openarchive.db.SnowbirdGroup
@@ -60,6 +61,11 @@ interface RetrofitClient {
     suspend fun joinGroup(
         @Body request: MembershipRequest
     ): JoinGroupResponse
+
+    @POST("groups/{group_id}/refresh")
+    suspend fun refreshGroup(
+        @Path("group_id") groupKey: String
+    ): RefreshGroupResponse
 
     // Repos
 

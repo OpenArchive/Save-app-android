@@ -6,6 +6,7 @@ import net.opendasharchive.openarchive.db.EmptyRequest
 import net.opendasharchive.openarchive.db.FileUploadResult
 import net.opendasharchive.openarchive.db.JoinGroupResponse
 import net.opendasharchive.openarchive.db.MembershipRequest
+import net.opendasharchive.openarchive.db.RefreshGroupResponse
 import net.opendasharchive.openarchive.db.RequestName
 import net.opendasharchive.openarchive.db.SnowbirdFileList
 import net.opendasharchive.openarchive.db.SnowbirdGroup
@@ -77,6 +78,13 @@ class UnixSocketAPI(private var context: Context, private var client: UnixSocket
             endpoint = MEMBERSHIPS_PATH,
             method = HttpMethod.POST,
             body = request)
+    }
+
+    override suspend fun refreshGroupContent(groupKey: String): RefreshGroupResponse {
+        return client.sendRequest<EmptyRequest, RefreshGroupResponse>(
+            endpoint = FORCE_REFRESH.format(groupKey),
+            method = HttpMethod.POST,
+        )
     }
 
     override suspend fun createRepo(groupKey: String, repoName: RequestName): SnowbirdRepo {
