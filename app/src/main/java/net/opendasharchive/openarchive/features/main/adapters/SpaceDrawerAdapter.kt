@@ -15,6 +15,7 @@ interface SpaceDrawerAdapterListener {
     fun onSpaceSelected(space: Space)
     fun onAddNewSpace()
     fun getSelectedSpace(): Space?
+    fun onNavigateToDwebGroups()
 }
 
 class SpaceDrawerAdapter(private val listener: SpaceDrawerAdapterListener) :
@@ -25,12 +26,14 @@ class SpaceDrawerAdapter(private val listener: SpaceDrawerAdapterListener) :
     sealed class SpaceItem {
         data class SpaceItemData(val space: Space) : SpaceItem()
         data object AddSpaceItem : SpaceItem()
+        data object DwebGroupItem : SpaceItem()
     }
 
     companion object {
 
         private const val VIEW_TYPE_SPACE = 0
         private const val VIEW_TYPE_ADD = 1
+        private const val VIEW_TYPE_DWEB = 2
 
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<SpaceItem>() {
             override fun areItemsTheSame(oldItem: SpaceItem, newItem: SpaceItem): Boolean {
@@ -115,10 +118,31 @@ class SpaceDrawerAdapter(private val listener: SpaceDrawerAdapterListener) :
         }
     }
 
+    inner class DwebGroupViewHolder(private val binding: RvDrawerRowBinding) :
+        ItemTypeViewHolder(binding) {
+        override fun bind(item: SpaceItem) {
+            val context = binding.rvTitle.context
+            val backgroundColor = R.color.colorDrawerSpaceListBackground
+            binding.root.setBackgroundColor(binding.root.context.getColor(backgroundColor))
+            binding.rvTitle.text = "My Groups"//context.getString(R.string.dweb_join_group_group_name)
+            binding.rvTitle.setTextColor(ContextCompat.getColor(context, R.color.colorTertiary))
+
+            val icon = ContextCompat.getDrawable(context, R.drawable.ic_space_dweb)
+            icon?.setTint(ContextCompat.getColor(binding.rvIcon.context, R.color.colorTertiary))
+            binding.rvIcon.setImageDrawable(icon)
+
+            binding.root.setOnClickListener {
+                // Handle Dweb group click
+                listener.onNavigateToDwebGroups()
+            }
+        }
+    }
+
     override fun getItemViewType(position: Int): Int {
         return when (getItem(position)) {
             is SpaceItem.SpaceItemData -> VIEW_TYPE_SPACE
             is SpaceItem.AddSpaceItem -> VIEW_TYPE_ADD
+            is SpaceItem.DwebGroupItem -> VIEW_TYPE_DWEB
             else -> throw IllegalArgumentException("Invalid view type")
         }
     }
@@ -130,6 +154,7 @@ class SpaceDrawerAdapter(private val listener: SpaceDrawerAdapterListener) :
         return when (viewType) {
             VIEW_TYPE_SPACE -> SpaceViewHolder(binding)
             VIEW_TYPE_ADD -> AddSpaceViewHolder(binding)
+            VIEW_TYPE_DWEB -> DwebGroupViewHolder(binding)
             else -> throw IllegalArgumentException("Invalid view type")
         }
     }
@@ -138,8 +163,12 @@ class SpaceDrawerAdapter(private val listener: SpaceDrawerAdapterListener) :
         holder.bind(getItem(position))
     }
 
-    fun update(spaces: List<Space>) {
-        val items = spaces.map { SpaceItem.SpaceItemData(it) } + SpaceItem.AddSpaceItem
+    fun update(spaces: List<Space>, hasDwebGroups: Boolean) {
+        val items = mutableListOf<SpaceItem>()
+        items.addAll(spaces.map { SpaceItem.SpaceItemData(it) })
+        if (hasDwebGroups) items.add(SpaceItem.DwebGroupItem)
+        items.add(SpaceItem.AddSpaceItem)
+
         submitList(items)
     }
 

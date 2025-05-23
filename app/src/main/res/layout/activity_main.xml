@@ -100,7 +100,7 @@
 
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/folders"
+                android:id="@+id/rv_folders"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -138,7 +138,7 @@
 
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/spaces"
+                android:id="@+id/rv_spaces"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:alpha="0"

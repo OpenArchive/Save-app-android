@@ -80,6 +80,9 @@ class SpaceSetupActivity : BaseActivity() {
             StartDestination.ADD_NEW_FOLDER -> {
                 navGraph.setStartDestination(R.id.fragment_create_new_folder)
             }
+            StartDestination.DWEB_DASHBOARD -> {
+                navGraph.setStartDestination(R.id.fragment_snowbird)
+            }
             else -> {
                 navGraph.setStartDestination(R.id.fragment_space_setup)
             }
