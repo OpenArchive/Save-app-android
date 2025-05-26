@@ -15,7 +15,6 @@ import okhttp3.Response
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.qualifier.named
-import org.torproject.jni.TorService
 import java.net.InetSocketAddress
 import java.net.Proxy
 import java.util.concurrent.TimeUnit
@@ -37,16 +36,15 @@ class SaveClientProxyBuilder() : KoinComponent {
             .readTimeout(40L, TimeUnit.SECONDS)
             .retryOnConnectionFailure(false)
             .protocols(arrayListOf(Protocol.HTTP_1_1))
-
     }
 
     private fun withTor(): SaveClientProxyBuilder {
-        builder.proxy(Proxy(Proxy.Type.HTTP, InetSocketAddress("127.0.0.1", TorService.httpTunnelPort)))
+        builder.proxy(Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", 9150)))
         return this
     }
 
     fun build(): OkHttpClient {
-        if (Prefs.useTor && torRepository.torStatus.value == TorStatus.CONNECTED) {
+        if (Prefs.useTor) {
             withTor()
         }
         return builder.build()

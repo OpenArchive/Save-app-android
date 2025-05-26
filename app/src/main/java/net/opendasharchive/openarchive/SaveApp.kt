@@ -28,6 +28,7 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
+import org.openarchive.SaveTor
 import timber.log.Timber
 
 class SaveApp : SugarApp(), SingletonImageLoader.Factory, KoinComponent {
@@ -77,6 +78,8 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, KoinComponent {
 
         createSnowbirdNotificationChannel()
 
+        createTorNotificationChannel()
+
         if (Prefs.useTor) {
             torViewModel.setTorServiceState(true)
         }
@@ -100,6 +103,18 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, KoinComponent {
 
         notificationManager.createNotificationChannel(chimeChannel)
         notificationManager.createNotificationChannel(silentChannel)
+    }
+
+    private fun createTorNotificationChannel() {
+        val name = "Tor Service"
+        val descriptionText = "Keeps the Tor service running"
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val channel = NotificationChannel(TOR_SERVICE_CHANNEL, name, importance).apply {
+            description = descriptionText
+        }
+        val notificationManager: NotificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
 
     companion object {

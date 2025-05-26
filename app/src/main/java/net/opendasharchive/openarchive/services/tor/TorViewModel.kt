@@ -1,11 +1,13 @@
 package net.opendasharchive.openarchive.services.tor
 
 import android.app.Application
-import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import kotlinx.coroutines.flow.StateFlow
-import org.torproject.jni.TorService
-
 
 class TorViewModel(
     private val application: Application,
@@ -23,19 +25,18 @@ class TorViewModel(
     }
 
     private fun startTor() {
-        val intent = Intent(application, TorService::class.java)
-        application.startForegroundService(intent)
-        requestTorStatus()
+        val workRequest = OneTimeWorkRequestBuilder<TorService>()
+            .setConstraints(Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build())
+            .build()
+        WorkManager.getInstance(application).enqueueUniqueWork(
+            "tor_worker",
+            ExistingWorkPolicy.KEEP,
+            workRequest)
     }
 
     private fun stopTor() {
-        val intent = Intent(application, TorService::class.java)
-        application.stopService(intent)
-        requestTorStatus()
-    }
-
-    fun requestTorStatus() {
-        val intent = Intent(TorService.ACTION_STATUS).setPackage(application.packageName)
-        application.sendBroadcast(intent)
+       WorkManager.getInstance(application).cancelUniqueWork("tor_worker")
     }
 }

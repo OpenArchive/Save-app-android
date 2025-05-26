@@ -310,21 +310,9 @@
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
-        <service
-            android:name="org.torproject.jni.TorService"
-            android:enabled="true"
+        <service android:name=".services.tor.TorService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
-
-        <receiver android:name=".services.tor.TorStatusReceiver"
-            android:exported="false"
-            android:enabled="true">
-            <intent-filter>
-                <action android:name="org.torproject.android.intent.action.STATUS" />
-                <action android:name="org.torproject.android.intent.action.ERROR" />
-            </intent-filter>
-        </receiver>
-
     </application>
 
 </manifest>
