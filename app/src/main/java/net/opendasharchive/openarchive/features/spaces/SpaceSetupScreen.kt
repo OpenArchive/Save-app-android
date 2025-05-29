@@ -27,7 +27,8 @@ fun SpaceSetupScreen(
     isInternetArchiveAllowed: Boolean,
     onInternetArchiveClick: () -> Unit,
     isDwebEnabled: Boolean,
-    onDwebClicked: () -> Unit
+    onDwebClicked: () -> Unit,
+    onStorachaClicked: () -> Unit,
 ) {
     // Use a scrollable Column to mimic ScrollView + LinearLayout
     Column(
@@ -92,6 +93,14 @@ fun SpaceSetupScreen(
                 onClick = onDwebClicked
             )
         }
+
+        // WebDav option
+        ServerOptionItem(
+            iconRes = R.drawable.storacha,
+            title = stringResource(R.string.storacha),
+            subtitle = stringResource(R.string.send_directly_to_storacha_server),
+            onClick = onStorachaClicked
+        )
     }
 }
 
@@ -106,6 +115,7 @@ private fun SpaceSetupScreenPreview() {
             onInternetArchiveClick = {},
             isDwebEnabled = true,
             onDwebClicked = {},
+            onStorachaClicked = {}
         )
     }
 }

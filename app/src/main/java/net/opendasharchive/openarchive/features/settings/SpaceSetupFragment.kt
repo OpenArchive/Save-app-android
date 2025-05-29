@@ -7,19 +7,14 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.setFragmentResult
 import androidx.fragment.compose.content
-import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.databinding.FragmentSpaceSetupBinding
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.features.spaces.SpaceSetupScreen
-import net.opendasharchive.openarchive.util.extensions.hide
-import net.opendasharchive.openarchive.util.extensions.show
 import org.koin.android.ext.android.inject
-import kotlin.getValue
 
 class SpaceSetupFragment : BaseFragment() {
 
@@ -42,6 +37,9 @@ class SpaceSetupFragment : BaseFragment() {
                 )
             }
         }
+
+
+
         // Only enable Internet Archive if not already present
         val isInternetArchiveAllowed = !Space.has(Space.Type.INTERNET_ARCHIVE)
         val onInternetArchiveClick = {
@@ -71,13 +69,27 @@ class SpaceSetupFragment : BaseFragment() {
             }
         }
 
+        val onStorachaClicked = {
+            if (isJetpackNavigation) {
+                val action =
+                    SpaceSetupFragmentDirections.actionFragmentSpaceSetupToFragmentStoracha()
+                findNavController().navigate(action)
+            } else {
+                setFragmentResult(
+                    RESULT_REQUEST_KEY,
+                    bundleOf(RESULT_BUNDLE_KEY to RESULT_VAL_STORACHA)
+                )
+            }
+        }
+
         SaveAppTheme {
             SpaceSetupScreen(
                 onWebDavClick = onWebDavClick,
                 isInternetArchiveAllowed = isInternetArchiveAllowed,
                 onInternetArchiveClick = onInternetArchiveClick,
                 isDwebEnabled = isDwebEnabled,
-                onDwebClicked = onDwebClicked
+                onDwebClicked = onDwebClicked,
+                onStorachaClicked = onStorachaClicked
             )
         }
 
@@ -89,6 +101,7 @@ class SpaceSetupFragment : BaseFragment() {
         const val RESULT_VAL_DROPBOX = "dropbox"
         const val RESULT_VAL_WEBDAV = "webdav"
         const val RESULT_VAL_RAVEN = "raven"
+        const val RESULT_VAL_STORACHA = "storacha"
         const val RESULT_VAL_INTERNET_ARCHIVE = "internet_archive"
         const val RESULT_VAL_GDRIVE = "gdrive"
     }

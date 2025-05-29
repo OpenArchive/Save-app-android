@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:orientation="vertical"
+    android:padding="20dp"
+    tools:background="@color/colorBackground"
+    tools:context="net.opendasharchive.openarchive.services.storacha.StorachaDIDAccessFragment">
+
+
+    <com.google.android.material.textview.MaterialTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/define_access_to_the_following_did_key"
+        android:textFontWeight="600"
+        android:textSize="18sp" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_did"
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="did:key:z6MkjTHQxjZh7sQZ7sZBvJxDqyzYb4nKq1iWzWUzRr3oT1XB"
+        android:textFontWeight="600"
+        android:textSize="18sp" />
+
+
+    <LinearLayout
+        android:layout_marginTop="100dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:layout_marginEnd="20dp"
+            android:text="@string/users_can_read_the_content_within_the_space"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textFontWeight="500" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/sw_read"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:showText="true"
+            android:textOff="@string/answer_no"
+            android:textOn="@string/answer_yes" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:text="@string/users_can_write_content_to_the_space"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textFontWeight="500" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/sw_write"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:showText="true"
+            android:textOff="@string/answer_no"
+            android:textOn="@string/answer_yes" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="20dp"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:text="@string/users_can_delete_the_content_within_the_space"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textFontWeight="500" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/sw_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:showText="true"
+            android:textOff="@string/answer_no"
+            android:textOn="@string/answer_yes" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_revoke_access"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:gravity="bottom"
+        android:layout_weight="1"
+        android:text="Revoke Access"
+        android:textColor="@color/colorDanger"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_marginTop="50dp"
+        android:id="@+id/button_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <Button
+            android:id="@+id/bt_back"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/back"
+            android:textColor="@color/colorText"
+            android:visibility="visible" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/bt_ok"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="@color/buttonBackground"
+            android:text="@string/lbl_ok"
+            android:textFontWeight="500"
+            app:backgroundTint="@color/colorTertiary" />
+
+    </LinearLayout>
+</LinearLayout>
