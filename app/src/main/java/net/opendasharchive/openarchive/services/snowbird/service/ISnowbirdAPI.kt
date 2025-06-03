@@ -1,6 +1,7 @@
 package net.opendasharchive.openarchive.services.snowbird.service
 
 import android.net.Uri
+import net.opendasharchive.openarchive.db.CreateRepoResponse
 import net.opendasharchive.openarchive.db.FileUploadResult
 import net.opendasharchive.openarchive.db.JoinGroupResponse
 import net.opendasharchive.openarchive.db.MembershipRequest
@@ -26,6 +27,6 @@ interface ISnowbirdAPI {
     suspend fun refreshGroupContent(groupKey: String): RefreshGroupResponse
 
     // Repos
-    suspend fun createRepo(groupKey: String, repoName: RequestName): SnowbirdRepo
+    suspend fun createRepo(groupKey: String, repoName: RequestName): CreateRepoResponse
     suspend fun fetchRepos(groupKey: String): SnowbirdRepoList
 }

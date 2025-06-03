@@ -124,7 +124,7 @@ class SpaceDrawerAdapter(private val listener: SpaceDrawerAdapterListener) :
             val context = binding.rvTitle.context
             val backgroundColor = R.color.colorDrawerSpaceListBackground
             binding.root.setBackgroundColor(binding.root.context.getColor(backgroundColor))
-            binding.rvTitle.text = "My Groups"//context.getString(R.string.dweb_join_group_group_name)
+            binding.rvTitle.text = "Dweb"//context.getString(R.string.dweb_join_group_group_name)
             binding.rvTitle.setTextColor(ContextCompat.getColor(context, R.color.colorTertiary))
 
             val icon = ContextCompat.getDrawable(context, R.drawable.ic_space_dweb)

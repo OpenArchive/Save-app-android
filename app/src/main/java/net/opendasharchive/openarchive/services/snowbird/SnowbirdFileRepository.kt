@@ -3,6 +3,7 @@ package net.opendasharchive.openarchive.services.snowbird
 import android.net.Uri
 import net.opendasharchive.openarchive.db.FileUploadResult
 import net.opendasharchive.openarchive.db.SnowbirdFileItem
+import net.opendasharchive.openarchive.db.toFile
 import net.opendasharchive.openarchive.extensions.toSnowbirdError
 import net.opendasharchive.openarchive.services.snowbird.service.ISnowbirdAPI
 
@@ -13,6 +14,7 @@ interface ISnowbirdFileRepository {
 }
 
 class SnowbirdFileRepository(val api: ISnowbirdAPI) : ISnowbirdFileRepository {
+
     override suspend fun fetchFiles(groupKey: String, repoKey: String, forceRefresh: Boolean): SnowbirdResult<List<SnowbirdFileItem>> {
         return if (forceRefresh) {
             fetchFilesFromNetwork(groupKey, repoKey)
@@ -28,7 +30,8 @@ class SnowbirdFileRepository(val api: ISnowbirdAPI) : ISnowbirdFileRepository {
     private suspend fun fetchFilesFromNetwork(groupKey: String, repoKey: String): SnowbirdResult<List<SnowbirdFileItem>> {
         return try {
             val response = api.fetchFiles(groupKey, repoKey)
-            SnowbirdResult.Success(response.files)
+            val files = response.files.map { it.toFile(groupKey = groupKey, repoKey = repoKey) }
+            SnowbirdResult.Success(files)
         } catch (e: Exception) {
             SnowbirdResult.Error(e.toSnowbirdError())
         }

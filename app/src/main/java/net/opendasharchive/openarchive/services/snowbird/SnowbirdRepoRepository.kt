@@ -1,9 +1,12 @@
 package net.opendasharchive.openarchive.services.snowbird
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import net.opendasharchive.openarchive.db.RefreshGroupResponse
 import net.opendasharchive.openarchive.db.RequestName
 import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.db.SnowbirdRepo
+import net.opendasharchive.openarchive.db.toRepo
 import net.opendasharchive.openarchive.extensions.toSnowbirdError
 import net.opendasharchive.openarchive.services.snowbird.service.ISnowbirdAPI
 import timber.log.Timber
@@ -15,12 +18,14 @@ interface ISnowbirdRepoRepository {
 }
 
 class SnowbirdRepoRepository(val api: ISnowbirdAPI) : ISnowbirdRepoRepository {
+
     override suspend fun createRepo(groupKey: String, repoName: String): SnowbirdResult<SnowbirdRepo> {
         Timber.d("Creating repo: groupKey=$groupKey, repoName=$repoName")
 
         return try {
             val response = api.createRepo(groupKey, RequestName(repoName))
-            SnowbirdResult.Success(response)
+            val repo = response.toRepo(groupKey)
+            SnowbirdResult.Success(repo)
         } catch (e: Exception) {
             SnowbirdResult.Error(e.toSnowbirdError())
         }
@@ -37,7 +42,8 @@ class SnowbirdRepoRepository(val api: ISnowbirdAPI) : ISnowbirdRepoRepository {
     private suspend fun fetchFromNetwork(groupKey: String): SnowbirdResult<List<SnowbirdRepo>> {
         return try {
             val response = api.fetchRepos(groupKey)
-            SnowbirdResult.Success(response.repos)
+            val repoList = response.repos.map { it.toRepo(groupKey) }
+            SnowbirdResult.Success(repoList)
         } catch (e: Exception) {
             SnowbirdResult.Error(e.toSnowbirdError())
         }
@@ -56,3 +62,5 @@ class SnowbirdRepoRepository(val api: ISnowbirdAPI) : ISnowbirdRepoRepository {
         }
     }
 }
+
+

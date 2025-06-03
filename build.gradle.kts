@@ -9,6 +9,8 @@ plugins {
     alias(libs.plugins.detekt.plugin) apply false
     alias(libs.plugins.google.gms.google.services) apply false
     alias(libs.plugins.google.firebase.crashlytics) apply false
+
+    alias(libs.plugins.androidx.room) apply false
 }
 
 tasks.register<Delete>("clean") {

@@ -30,7 +30,7 @@ suspend fun UnixSocketClient.downloadFile(endpoint: String): ByteArray = withCon
         // 2) now read response entirely over the InputStream
         val input = socket.inputStream
         val (statusCode, headers) = input.readHttpResponseHeaders()
-        if (statusCode !in 200..299) throw HttpLikeException(statusCode)
+        if (statusCode !in 200..299) throw HttpLikeException(statusCode, "Failed to download file: $statusCode")
 
         // 3) decide how to read the body
         return@withContext when {
@@ -74,7 +74,7 @@ suspend fun UnixSocketClient.downloadFileOld(endpoint: String): ByteArray = with
 
             when (responseCode) {
                 in 200..299 -> bytes
-                else -> throw HttpLikeException(responseCode)
+                else -> throw HttpLikeException(responseCode, "Failed to download file: $responseCode")
             }
         } catch (e: SocketTimeoutException) {
             throw e
@@ -113,7 +113,7 @@ suspend inline fun <reified RESPONSE : SerializableMarker> UnixSocketClient.uplo
 
             when (responseCode) {
                 in 200..299 -> parseSuccessResponse(responseBody) { json.decodeFromString<RESPONSE>(it) }
-                else -> throw HttpLikeException(responseCode)
+                else -> throw HttpLikeException(responseCode, "Failed to upload file: $responseCode")
             }
         }
     } catch (e: SocketTimeoutException) {

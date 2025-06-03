@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.services.snowbird.service
 
+import net.opendasharchive.openarchive.db.CreateRepoResponse
 import net.opendasharchive.openarchive.db.FileUploadResult
 import net.opendasharchive.openarchive.db.JoinGroupResponse
 import net.opendasharchive.openarchive.db.MembershipRequest
@@ -73,7 +74,7 @@ interface RetrofitClient {
     suspend fun createRepo(
         @Path("groupKey") groupKey: String,
         @Body repoName: RequestName
-    ): SnowbirdRepo
+    ): CreateRepoResponse
 
     @GET("groups/{groupKey}/repos")
     suspend fun fetchRepos(

@@ -10,10 +10,9 @@ import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.RefreshGroupResponse
 import net.opendasharchive.openarchive.db.SnowbirdError
-import net.opendasharchive.openarchive.db.SnowbirdGroup
+import net.opendasharchive.openarchive.db.SnowbirdFileItem
 import net.opendasharchive.openarchive.db.SnowbirdRepo
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupViewModel.GroupState
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdResult
+import net.opendasharchive.openarchive.db.toRepo
 import net.opendasharchive.openarchive.util.BaseViewModel
 import net.opendasharchive.openarchive.util.trackProcessingWithTimeout
 
@@ -27,9 +26,8 @@ class SnowbirdRepoViewModel(
         data object Loading : RepoState()
         data class SingleRepoSuccess(val groupKey: String, val repo: SnowbirdRepo) : RepoState()
         data class MultiRepoSuccess(val repos: List<SnowbirdRepo>) : RepoState()
-        data class RepoFetchSuccess(val repos: List<SnowbirdRepo>, val isRefresh: Boolean) :
-            RepoState()
-
+        data class RepoFetchSuccess(val repos: List<SnowbirdRepo>, val isRefresh: Boolean) : RepoState()
+        data object RefreshGroupContentSuccess: RepoState()
         data class Error(val error: SnowbirdError) : RepoState()
     }
 
@@ -91,7 +89,54 @@ class SnowbirdRepoViewModel(
                     }
 
                     is SnowbirdResult.Success<RefreshGroupResponse> -> {
-                        AppLogger.i(result.value.toString())
+                        AppLogger.i("Group content refreshed successfully")
+                        //TODO: Save Repo List and Media List to DB
+
+                        // Get existing repos for group
+                        val existingRepos = SnowbirdRepo.getAllForGroupKey(groupKey)
+                        val existingReposMap = existingRepos.associateBy { it.key }
+
+                        result.value.refreshedRepos.forEach  { repoData ->
+
+                            // Log repo errors if any
+                            if (!repoData.error.isNullOrEmpty()) {
+                                AppLogger.e("Error refreshing repo ${repoData.repoId}: ${repoData.error}")
+                            }
+
+                            // Update or create repo
+                            val snowbirdRepo = existingReposMap[repoData.repoId] ?: repoData.toRepo().apply {
+                                this.groupKey = groupKey
+                            }
+                            snowbirdRepo.apply {
+                                name = repoData.name
+                                hash = repoData.hash ?: hash
+                                permissions = if (repoData.canWrite) "READ_WRITE" else "READ_ONLY"
+                            }.save()
+
+                            // Get existing files for this repo
+                            val existingFiles = SnowbirdFileItem.findBy(groupKey, repoData.repoId)
+                            val existingFilesMap = existingFiles.associateBy { it.name }
+
+                            // Process all files (not just refreshed ones)
+                            repoData.allFiles.forEach { fileName ->
+                                val existingFile = existingFilesMap[fileName]
+
+                                if (existingFile == null) {
+                                    // Create new file if it doesn't exist
+                                    SnowbirdFileItem(
+                                        name = fileName,
+                                        repoKey = repoData.repoId,
+                                        groupKey = groupKey,
+                                    ).save()
+                                } else {
+                                    // Update existing file without overwriting with null
+                                    // Note: The refresh API doesn't provide file details,
+                                    // so we just maintain the existing file record
+                                }
+                            }
+                        }
+                        _repoState.value = RepoState.RefreshGroupContentSuccess
+                        fetchRepos(groupKey = groupKey)
                     }
                 }
 

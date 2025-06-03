@@ -10,6 +10,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
@@ -50,14 +51,14 @@ class SnowbirdCreateGroupFragment : BaseFragment() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
-                    snowbirdGroupViewModel.groupState.collect { state ->
+                    snowbirdGroupViewModel.groupState.collectLatest { state ->
                         handleGroupStateUpdate(
                             state
                         )
                     }
                 }
                 launch {
-                    snowbirdRepoViewModel.repoState.collect { state ->
+                    snowbirdRepoViewModel.repoState.collectLatest { state ->
                         handleRepoStateUpdate(
                             state
                         )

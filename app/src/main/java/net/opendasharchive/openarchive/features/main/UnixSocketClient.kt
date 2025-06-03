@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import net.opendasharchive.openarchive.db.SerializableMarker
+import net.opendasharchive.openarchive.services.snowbird.service.ErrorResponse
 import net.opendasharchive.openarchive.services.snowbird.service.HttpLikeException
 import timber.log.Timber
 import java.io.BufferedReader
@@ -62,7 +63,17 @@ class UnixSocketClient(context: Context) {
 
                 when (responseCode) {
                     in 200..299 -> parseSuccessResponse(responseBody, deserialize)
-                    else -> throw HttpLikeException(responseCode)
+                    else -> {
+                        Timber.e("Error response body = $responseBody")
+                        // try to decode our {"error":"…","status":"error"} payload
+                        val message = try {
+                            json.decodeFromString<ErrorResponse>(responseBody).error
+                        } catch (_: Exception) {
+                            // fallback to raw body if it wasn’t JSON
+                            responseBody
+                        }
+                        throw HttpLikeException(responseCode, message)
+                    }
                 }
             }
         } catch (e: SocketTimeoutException) {
@@ -91,6 +102,7 @@ class UnixSocketClient(context: Context) {
             append("$method $endpoint HTTP/1.1\r\n")
             append("Content-Type: application/json\r\n")
             append("Content-Length: ${jsonBody.length}\r\n")
+            //append("Connection: close\r\n")
             append("\r\n")
         }
 

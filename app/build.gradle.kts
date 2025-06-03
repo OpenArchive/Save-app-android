@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.detekt.plugin)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
+    alias(libs.plugins.androidx.room)
 }
 
 fun loadLocalProperties(): Properties = Properties().apply {
@@ -120,6 +121,10 @@ android {
             exclude(group = "org.bouncycastle", module = "bcprov-jdk15on")
         }
     }
+
+    room {
+        schemaDirectory("$projectDir/schemas")
+    }
 }
 
 dependencies {
@@ -180,6 +185,11 @@ dependencies {
     implementation(libs.androidx.navigation.ui)
     implementation(libs.androidx.navigation.fragment)
     implementation(libs.androidx.navigation.fragment.compose)
+
+    // Room Database
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
     // Preference
     implementation(libs.androidx.preferences)

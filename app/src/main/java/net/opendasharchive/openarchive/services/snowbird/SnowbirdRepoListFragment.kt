@@ -7,9 +7,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.bundle.bundleOf
 import androidx.core.view.MenuProvider
-import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -17,7 +15,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdListReposBinding
 import net.opendasharchive.openarchive.db.SnowbirdError
 import net.opendasharchive.openarchive.db.SnowbirdRepo
@@ -68,8 +65,8 @@ class SnowbirdRepoListFragment : BaseFragment() {
                 state.repos,
                 state.isRefresh
             )
-
             is SnowbirdRepoViewModel.RepoState.Error -> handleError(state.error)
+            is SnowbirdRepoViewModel.RepoState.RefreshGroupContentSuccess -> handleLoadingStatus(false)
             else -> Unit
         }
     }
@@ -182,8 +179,8 @@ class SnowbirdRepoListFragment : BaseFragment() {
     private fun setupSwipeRefresh() {
         viewBinding.swipeRefreshLayout.setOnRefreshListener {
             lifecycleScope.launch {
-                snowbirdRepoViewModel.fetchRepos(groupKey, forceRefresh = true)
-                //snowbirdRepoViewModel.refreshGroups(groupKey)
+                //snowbirdRepoViewModel.fetchRepos(groupKey, forceRefresh = true)
+                snowbirdRepoViewModel.refreshGroups(groupKey)
             }
         }
 

@@ -2,6 +2,7 @@ package net.opendasharchive.openarchive.services.snowbird.service
 
 import android.content.Context
 import android.net.Uri
+import net.opendasharchive.openarchive.db.CreateRepoResponse
 import net.opendasharchive.openarchive.db.FileUploadResult
 import net.opendasharchive.openarchive.db.JoinGroupResponse
 import net.opendasharchive.openarchive.db.MembershipRequest
@@ -15,6 +16,14 @@ import net.opendasharchive.openarchive.db.SnowbirdRepoList
 import net.opendasharchive.openarchive.extensions.getFilename
 
 class RetrofitAPI(private var context: Context, private val client: RetrofitClient) : ISnowbirdAPI {
+
+
+    // Groups
+    // Create group
+    override suspend fun createGroup(groupName: RequestName): SnowbirdGroup {
+        return client.createGroup(groupName)
+    }
+
     override suspend fun fetchFiles(groupKey: String, repoKey: String): SnowbirdFileList {
         return client.fetchFiles(groupKey, repoKey)
     }
@@ -27,9 +36,6 @@ class RetrofitAPI(private var context: Context, private val client: RetrofitClie
         return client.uploadFile(groupKey, repoKey, uri.getFilename(context)!!)
     }
 
-    override suspend fun createGroup(groupName: RequestName): SnowbirdGroup {
-        return client.createGroup(groupName)
-    }
 
     override suspend fun fetchGroup(key: String): SnowbirdGroup {
         return client.fetchGroup(key)
@@ -47,7 +53,7 @@ class RetrofitAPI(private var context: Context, private val client: RetrofitClie
         return client.refreshGroup(groupKey)
     }
 
-    override suspend fun createRepo(groupKey: String, repoName: RequestName): SnowbirdRepo {
+    override suspend fun createRepo(groupKey: String, repoName: RequestName): CreateRepoResponse {
         return client.createRepo(groupKey, repoName)
     }
 
