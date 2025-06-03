@@ -10,7 +10,7 @@
 <!--    <string name="app_subtext">Archive Your Media&#10;&lt;a href="#"&gt;learn more&lt;/a&gt;</string>-->
     <string name="web_client_id" translatable="false">741316235729-ohg8quvto8ajl8qpil4r9rm1o3gfml3t.apps.googleusercontent.com</string>
 
-    <string name="title_activity_login">Log in</string>
+    <string name="title_activity_login">Log in</string>
     <string name="title_activity_first_start">First Start</string>
     <string name="title_media_list">Uploads</string>
 
@@ -59,6 +59,9 @@
     <!-- Settings Fragment -->
     <string name="disable_passcode_dialog_title">Disable Passcode</string>
     <string name="disable_passcode_dialog_msg">Are you sure you want to disable the passcode?</string>
+
+    <string name="tor_disabled_title">Onion routing under development</string>
+    <string name="tor_disabled_message">This feature is currently under development. For now, you can use Orbot or any VPN of your choice to enhance your privacy and security.</string>
 
     <!-- ViewMediaActivity -->
     <string name="iv_content_desc">Main Image</string>
@@ -213,7 +216,7 @@
     <string name="remove">Remove</string>
     <string name="action_archive_project">Archive Project</string>
     <string name="action_unarchive_project">Unarchive Project</string>
-    <string name="IA_login_error">Please log in with valid Internet Archive credentials.</string>
+    <string name="IA_login_error">Please login with valid Internet Archive credentials.</string>
     <string name="access_key">Access Key</string>
     <string name="secret_key">Secret Key</string>
     <string name="info_archiveorg_keys"><b><i>Save</i></b> needs your Internet Archive account\'s API keys to be able to upload media.</string>
@@ -252,7 +255,7 @@
     <string name="empty_name_warning">Name cannot be empty</string>
 
     <string name="unsaved_changes">Unsaved changes!</string>
-    <string name="do_you_want_to_save">Do you want to save\?</string>
+    <string name="do_you_want_to_save">Do you want to save</string>
     <string name="lbl_save">Save</string>
     <string name="lbl_discard">Discard</string>
 
@@ -296,7 +299,7 @@
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Only upload media when you are connected to Wi-Fi</string>
     <string name="security">Security</string>
     <string name="proofmode">ProofMode</string>
-    <string name="no_webbrowser_found_error">No application can handle this request. Please install a web browser.</string>
+    <string name="no_webbrowser_found_error">No application can handle this request. Please install a webbrowser.</string>
 
     <string name="intro_header_secure" translatable="false">Secure</string>
     <string name="intro_header_archive" translatable="false">Archive</string>
@@ -307,9 +310,9 @@
 <!--    <string name="intro_text_archive">Keep your media verifiable, safe and organized for the long-term by uploading it to private or public servers like Nextcloud or the Internet Archive.&lt;br&gt;Communicate your intentions for future use by adding a &lt;a href="%1$s" style="text-decoration: underline;"&gt;Creative Commons License&lt;/a&gt;.</string>-->
 
     <string name="intro_link_archive" translatable="false">https://creativecommons.org</string>
-    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with SHA-256 hashes and <a href=\"%1$s\"&gt;<u&gt;ProofMode</u&gt;</a&gt;.]]&gt;</string>
+    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href=\"%1$s\"><u>ProofMode</u></a>.]]></string>
     <string name="intro_link_verify" translatable="false">https://proofmode.org</string>
-    <string name="intro_text_encrypt_old">Automatically upload over TLS (Transport Layer Security) and use Orbot to protect your media in transit over the Tor Network.</string>
+    <string name="intro_text_encrypt_old">Automatically upload over TLS (Transport Layer Security) and use Orbot to protect your media in transit over the Tor network.</string>
     <string name="intro_text_encrypt" translatable="false"><![CDATA[<b><i>Save</i></b> always uploads over TLS (Transport Layer Security) to protect your media in transit.<br>To further enhance security, enable <a href=\"%1$s\"><u>Tor</u></a> to prevent interception of your media from your phone to the server.]]></string>
 <!--    <string name="intro_text_encrypt">-->
 <!--        &lt;b&gt;&lt;i&gt;Save&lt;/i&gt;&lt;/b&gt; always uploads over TLS (Transport Layer Security) to protect your media in transit.&lt;br&gt;-->
@@ -351,7 +354,7 @@
     <string name="add_files">Add Files</string>
 
     <string name="ia_learn_how_title">How to Acquire Keys in 3 easy steps</string>
-    <string name="ia_learn_how_summary_step_1">Step 1: Log in to the Internet Archive. If you don\'t have an account, create one.</string>
+    <string name="ia_learn_how_summary_step_1">Step 1: Log into the Internet Archive. If you don\'t have an account, create one.</string>
     <string name="ia_learn_how_summary_step_2">Step 2: If you are creating a new account, verify your email.</string>
     <string name="ia_learn_how_summary_step_3">Step 3: Generate your API keys by selecting the box and it will auto load in the app!</string>
 
@@ -393,7 +396,7 @@
     <!-- Internet Archive Settings -->
     <string name="label_email">Email</string>
     <string name="label_screen_name">Screen Name</string>
-    <string name="label_login">Log in</string>
+    <string name="label_login">Login</string>
     <string name="label_create_login">Create one</string>
     <string name="prompt_no_account">No account?</string>
     <string name="action_continue">Continue</string>
