@@ -19,9 +19,6 @@ object ProofModeHelper {
     fun init(activity: FragmentActivity, completed: () -> Unit) {
         if (initialized) return completed()
 
-        // Disable ProofMode GPS data tracking by default.
-        if (Prefs.proofModeLocation) Prefs.proofModeLocation = true
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val encryptedPassphrase = Prefs.proofModeEncryptedPassphrase
 

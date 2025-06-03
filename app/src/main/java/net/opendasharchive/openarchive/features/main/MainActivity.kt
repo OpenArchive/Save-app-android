@@ -277,14 +277,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     override fun onStart() {
         super.onStart()
 
-        if (Prefs.useProofMode) {
-            Prefs.proofModeLocation = true
-            Prefs.proofModeNetwork = true
-        } else {
-            Prefs.proofModeLocation = false
-            Prefs.proofModeNetwork = false
-        }
-
         ProofModeHelper.init(this) {
             // Check for any queued uploads and restart, only after ProofMode is correctly initialized.
             UploadService.startUploadService(this)
@@ -901,7 +893,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
         mSnackBar?.show()
         lifecycleScope.launch(Dispatchers.IO) {
-            val media = Picker.import(this@MainActivity, getSelectedProject(), uri)
+            //When we are sharing a file to be uploaded to Save app we don't generate proof.
+            val media = Picker.import(this@MainActivity, getSelectedProject(), uri, false)
             lifecycleScope.launch(Dispatchers.Main) {
                 mSnackBar?.dismiss()
                 intent = null

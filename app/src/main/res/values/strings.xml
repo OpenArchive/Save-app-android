@@ -449,4 +449,5 @@
     <string name="expand">Expand</string>
     <string name="lbl_no_servers">No servers added yet.</string>
     <string name="lbl_no_archived_folders">No archived folders found.</string>
+    <string name="error_no_internet">Internet not available</string>
 </resources>
