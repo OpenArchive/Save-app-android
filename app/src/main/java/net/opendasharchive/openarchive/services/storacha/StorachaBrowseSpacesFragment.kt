@@ -59,7 +59,7 @@ class StorachaBrowseSpacesFragment : BaseFragment(), MenuProvider {
     override fun onPrepareMenu(menu: Menu) {
         super.onPrepareMenu(menu)
         val addMenuItem = menu.findItem(R.id.action_add)
-        addMenuItem?.isVisible = true
+        addMenuItem?.isVisible = false
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {

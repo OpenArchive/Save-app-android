@@ -11,117 +11,47 @@
     tools:context="net.opendasharchive.openarchive.services.storacha.StorachaDIDAccessFragment">
 
 
-    <com.google.android.material.textview.MaterialTextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="@string/define_access_to_the_following_did_key"
-        android:textFontWeight="600"
-        android:textSize="18sp" />
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tv_did"
-        android:layout_marginTop="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="did:key:z6MkjTHQxjZh7sQZ7sZBvJxDqyzYb4nKq1iWzWUzRr3oT1XB"
-        android:textFontWeight="600"
-        android:textSize="18sp" />
-
-
-    <LinearLayout
-        android:layout_marginTop="100dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:layout_marginEnd="20dp"
-            android:text="@string/users_can_read_the_content_within_the_space"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textFontWeight="500" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/sw_read"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="false"
-            android:showText="true"
-            android:textOff="@string/answer_no"
-            android:textOn="@string/answer_yes" />
-
-    </LinearLayout>
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-
-        <TextView
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/group_name_textfield_container"
+            style="@style/OATextInputLayoutStyle"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:layout_gravity="center"
             android:layout_weight="1"
-            android:text="@string/users_can_write_content_to_the_space"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textFontWeight="500" />
+            android:layout_marginEnd="10dp"
+            android:layout_height="wrap_content">
 
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/sw_write"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/tv_did"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:hint="@string/did_access_key"
+                android:inputType="text"
+                android:maxLines="1"
+                android:singleLine="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageButton
+            android:id="@+id/iv_qr_scanner"
+            android:background="@drawable/pill_bg_qr"
+            android:layout_gravity="center"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="false"
-            android:showText="true"
-            android:textOff="@string/answer_no"
-            android:textOn="@string/answer_yes" />
-
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_qr_code"
+            />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:layout_gravity="center"
-            android:layout_weight="1"
-            android:text="@string/users_can_delete_the_content_within_the_space"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textFontWeight="500" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/sw_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="false"
-            android:showText="true"
-            android:textOff="@string/answer_no"
-            android:textOn="@string/answer_yes" />
-
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/tv_revoke_access"
+    <View
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_gravity="center"
-        android:gravity="bottom"
-        android:layout_weight="1"
-        android:text="Revoke Access"
-        android:textColor="@color/colorDanger"
-        android:textStyle="bold" />
+        android:layout_weight="1">
+    </View>
 
     <LinearLayout
-        android:layout_marginTop="50dp"
         android:id="@+id/button_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

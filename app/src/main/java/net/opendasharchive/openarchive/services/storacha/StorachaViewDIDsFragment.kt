@@ -45,8 +45,7 @@ class StorachaViewDIDsFragment : BaseFragment(), MenuProvider {
             mBinding.progressBar.toggle(false)
             mBinding.rvFolderList.adapter =
                 StorachaBrowseAccountsAdapter(listOf(Account("did:key:z6MkhMZsRrTyfxGq9pRwTW6vZK7ZTVqCGTTgzs2342342"),Account("did:key:z6MkhMZsRrTyfxGq9pRwTW6vZK7ZTVqCGTTgzsZfuAqS8a6D"),Account("did:key:z6MkhMZsRrTyfxGq9pRwTW6vZK7ZTVqCGTTgzsZ234234"),Account("did:key:z6MkhMZsRrTyfxGq9pRwTW6vZK7ZTVqCGTTgzsZf234234"))) { account ->
-                    val action = StorachaViewDIDsFragmentDirections.actionFragmentStorachaViewDidsToFragmentStorachaDidAccess()
-                    findNavController().navigate(action)
+
                 }
         }, 500)
 
@@ -68,6 +67,8 @@ class StorachaViewDIDsFragment : BaseFragment(), MenuProvider {
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             R.id.action_add -> {
+                val action = StorachaViewDIDsFragmentDirections.actionFragmentStorachaViewDidsToFragmentStorachaDidAccess()
+                findNavController().navigate(action)
                 true
             }
             else -> false
