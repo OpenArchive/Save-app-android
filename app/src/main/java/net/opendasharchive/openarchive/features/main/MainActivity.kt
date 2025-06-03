@@ -86,6 +86,9 @@ import net.opendasharchive.openarchive.util.extensions.show
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.NumberFormat
+import androidx.core.content.edit
+import kotlinx.coroutines.delay
+import net.opendasharchive.openarchive.util.InAppReviewHelper
 
 
 class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAdapterListener {
@@ -138,9 +141,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     private lateinit var permissionManager: PermissionManager
 
     private lateinit var reviewManager: ReviewManager
-//    private lateinit var reviewManager: FakeReviewManager
-    var reviewInfo: ReviewInfo? = null
-
+    private var shouldPromptReview = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ///enableEdgeToEdge()
@@ -177,6 +178,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         // Initialize the permission manager with this activity and its dialogManager.
         permissionManager = PermissionManager(this, dialogManager)
 
+        // Initialize In App Ratings Helper
+        InAppReviewHelper.init(this)
+
         initMediaLaunchers()
         setupToolbarAndPager()
         setupNavigationDrawer()
@@ -200,11 +204,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 startActivity(Intent(this, HomeActivity::class.java))
                 true
             }
-        } else {
-            binding.contentMain.imgLogo.setOnLongClickListener {
-                validateAndShowReviewFlow()
-                true
-            }
         }
 
         supportFragmentManager.setFragmentResultListener("uploadRetry", this) { key, bundle ->
@@ -215,46 +214,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         }
 
         reviewManager = ReviewManagerFactory.create(this)
-//        reviewManager = FakeReviewManager(this)
-
-        requestReviewInfo()
-    }
-
-    fun requestReviewInfo() {
-        val request = reviewManager.requestReviewFlow()
-        request.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                // Store the ReviewInfo object for later use.
-                reviewInfo = task.result
-                AppLogger.d("InAppReview", "ReviewInfo obtained successfully.")
-            } else {
-                // Handle the error, possibly log it. Don't show an error message to the user.
-                task.exception?.printStackTrace()
-                val reviewErrorCode = (task.exception as? ReviewException)?.errorCode
-                AppLogger.e("InAppReview", "Error requesting review flow: $reviewErrorCode", task.exception)
-                reviewInfo = null // Reset if failed
-            }
-        }
-    }
-
-    fun showReviewFlow(activity: Activity) { // Pass the current activity
-        reviewInfo?.let { info ->
-            val flow = reviewManager.launchReviewFlow(activity, info)
-            flow.addOnCompleteListener { _ ->
-                // The flow has finished. The API does NOT indicate whether the user
-                // reviewed or not, or even if the dialog was shown.
-                // Continue your app flow regardless of the outcome.
-                // It's important NOT to change your app's logic based on this completion.
-                AppLogger.d("InAppReview", "Review flow finished.")
-                // Reset reviewInfo for next potential request cycle if desired,
-                // or rely on requesting it again when needed.
-                reviewInfo = null
-            }
-        } ?: run {
-            AppLogger.d("InAppReview", "ReviewInfo is null, cannot launch review flow.")
-            // Optionally, you could attempt to request it again here if appropriate,
-            // but usually, you'd request it ahead of time.
-        }
+        InAppReviewHelper.requestReviewInfo(this)
+        shouldPromptReview = InAppReviewHelper.onAppLaunched()
     }
 
     override fun onResume() {
@@ -271,6 +232,19 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             serverListOffset = -dims.second.toFloat()
             serverListCurOffset = serverListOffset
         }
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // Only now, after UI is ready, do we fire the in‐app review if needed.
+        if (shouldPromptReview) {
+            lifecycleScope.launch(Dispatchers.Main) {
+                // Wait a small delay so we don’t interrupt initial load (e.g. 2 seconds).
+                delay(2_000)
+                InAppReviewHelper.showReviewIfPossible(this@MainActivity, reviewManager)
+                InAppReviewHelper.markReviewDone()
+                shouldPromptReview = false
+            }
+        }
+        // ─────────────────────────────────────────────────────────────────────────
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -778,17 +752,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         mFolderAdapter.update(projects)
     }
 
-    private fun validateAndShowReviewFlow() {
-        // show the review flow only if there is at least one server available and that server has at least one project/folder
-        val canShowReviewFlow = Space.current?.projects?.isNotEmpty() == true
 
-        if (canShowReviewFlow) {
-            showReviewFlow(this@MainActivity)
-        } else {
-            AppLogger.d("InAppReview", "Cannot show review flow: No projects available.")
-            Toast.makeText(this, "Cannot show review flow: No projects available.", Toast.LENGTH_LONG).show()
-        }
-    }
 
     private fun refreshCurrentProject() {
         val project = getSelectedProject()
