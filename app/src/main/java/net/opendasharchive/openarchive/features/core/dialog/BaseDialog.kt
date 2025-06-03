@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -71,105 +72,104 @@ fun BaseDialog(
             usePlatformDefaultWidth = true
         )
     ) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 4.dp
-                ),
-                colors = CardDefaults.cardColors(
-                    containerColor = backgroundColor
-                )
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp),
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 4.dp
+            ),
+            colors = CardDefaults.cardColors(
+                containerColor = backgroundColor
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 12.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+
+                icon?.let { icon ->
+                    icon.asIcon(
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp),
+                        tint = iconColor ?: Color.Unspecified
+                    ).invoke()
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                BaseDialogTitle(title)
+
+                Spacer(Modifier.height(4.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
                 ) {
+                    BaseDialogMessage(message)
+                }
 
-                    icon?.let { icon ->
-                        icon.asIcon(
-                            contentDescription = null,
-                            modifier = Modifier.size(30.dp),
-                            tint = iconColor ?: Color.Unspecified
-                        ).invoke()
-
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-
-                    BaseDialogTitle(title)
-
-                    Spacer(Modifier.height(4.dp))
+                if (hasCheckbox) {
+                    Spacer(Modifier.height(8.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        BaseDialogMessage(message)
-                    }
-
-                    if (hasCheckbox) {
-                        Spacer(Modifier.height(8.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Checkbox(
-                                checked = isCheckedState,
-                                onCheckedChange = { isChecked ->
-                                    setCheckedState(isChecked)
-                                    onCheckBoxStateChanged.invoke(isChecked)
-                                }
-                            )
-
-                            BaseDialogMessage(checkBoxHint)
-                        }
-
-                    }
-
-                    Spacer(Modifier.height(24.dp))
-
-                    positiveButton?.let { btn ->
-                        Spacer(Modifier.height(4.dp))
-                        BaseButton(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = btn.text.asString(),
-                            onClick = {
-                                btn.action()
-                                onDismiss()
-                            })
-                    }
-
-                    destructiveButton?.let { btn ->
-                        Spacer(modifier = Modifier.height(4.dp))
-                        BaseDestructiveButton(
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = {
-                                btn.action()
-                                onDismiss()
-                            },
-                            text = btn.text.asString()
+                        Checkbox(
+                            checked = isCheckedState,
+                            onCheckedChange = { isChecked ->
+                                setCheckedState(isChecked)
+                                onCheckBoxStateChanged.invoke(isChecked)
+                            }
                         )
+
+                        BaseDialogMessage(checkBoxHint)
                     }
 
-                    neutralButton?.let { btn ->
-                        Spacer(modifier = Modifier.height(4.dp))
-                        BaseNeutralButton(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = btn.text.asString(),
-                            onClick = {
-                                btn.action()
-                                onDismiss()
-                            })
-                    }
                 }
 
+                Spacer(Modifier.height(24.dp))
+
+                positiveButton?.let { btn ->
+                    Spacer(Modifier.height(4.dp))
+                    BaseButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = btn.text.asString(),
+                        onClick = {
+                            btn.action()
+                            onDismiss()
+                        })
+                }
+
+                destructiveButton?.let { btn ->
+                    Spacer(modifier = Modifier.height(4.dp))
+                    BaseDestructiveButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            btn.action()
+                            onDismiss()
+                        },
+                        text = btn.text.asString()
+                    )
+                }
+
+                neutralButton?.let { btn ->
+                    Spacer(modifier = Modifier.height(4.dp))
+                    BaseNeutralButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = btn.text.asString(),
+                        onClick = {
+                            btn.action()
+                            onDismiss()
+                        })
+                }
             }
 
+        }
 
 
     }
@@ -186,6 +186,7 @@ fun BaseDialogTitle(
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         ),
+        textAlign = TextAlign.Center,
         modifier = modifier
     )
 }
@@ -308,6 +309,22 @@ private fun ErrorDialogPreview() {
             message = "Give a reason here? Lorem Ipsum text can go here if needed",
             positiveButton = ButtonData(UiText.DynamicString("Retry")),
             destructiveButton = ButtonData(UiText.DynamicString("Remove Image")),
+        )
+    }
+}
+
+@Preview
+@Preview(uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun TorWarningDialogPreview() {
+    DefaultBoxPreview {
+
+        BaseDialog(
+            onDismiss = {},
+            icon = Icons.Default.Info.asUiImage(),
+            title = stringResource(R.string.tor_disabled_title),
+            message = stringResource(R.string.tor_disabled_message),
+            positiveButton = ButtonData(UiText.DynamicString(stringResource(R.string.lbl_ok))),
         )
     }
 }

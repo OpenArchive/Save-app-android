@@ -60,6 +60,9 @@
     <string name="disable_passcode_dialog_title">Disable Passcode</string>
     <string name="disable_passcode_dialog_msg">Are you sure you want to disable the passcode?</string>
 
+    <string name="tor_disabled_title">Onion routing under development</string>
+    <string name="tor_disabled_message">This feature is currently under development. For now, you can use Orbot or any VPN of your choice to enhance your privacy and security.</string>
+
     <!-- ViewMediaActivity -->
     <string name="iv_content_desc">Main Image</string>
 

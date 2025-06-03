@@ -138,7 +138,25 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
-        getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_tor)?.isEnabled = false
+        getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_tor)?.apply {
+            isEnabled = true
+
+            setOnPreferenceClickListener {
+                dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+                    type = DialogType.Info
+                    title = UiText.StringResource(R.string.tor_disabled_title)
+                    message = UiText.StringResource(R.string.tor_disabled_message)
+                    positiveButton {
+                        text = UiText.StringResource(android.R.string.ok)
+                    }
+                }
+                true
+            }
+
+            setOnPreferenceChangeListener { _, newValue ->
+                false
+            }
+        }
 
         findPreference<Preference>(Prefs.THEME)?.setOnPreferenceChangeListener { _, newValue ->
             Theme.set(requireActivity(), Theme.get(newValue as? String))
