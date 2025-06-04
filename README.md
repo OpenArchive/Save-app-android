@@ -1,6 +1,6 @@
 # Save by OpenArchive: Secure Mobile Media Preservation
 
-Save is an open-source app created by OpenArchive to help eyewitnesses and human rights defenders preserve truth to power by securely sharing, archiving, verifying, and encrypting their mobile media.
+Save is an open-source app created by OpenArchive to help you securely verify, share, and archive your mobile media. It's free, open-source, and available for iOS and Android.
 
 <details open="open">
   <summary>Table of Contents</summary>
