@@ -1,6 +1,6 @@
 # Save by OpenArchive: Secure Mobile Media Preservation
 
-Save is an open-source app created by OpenArchive to help eyewitnesses and human rights defenders preserve truth to power by securely sharing, archiving, verifying, and encrypting their mobile media.
+Save is an open-source app created by OpenArchive to help you securely verify, share, and archive your mobile media. It's free, open-source, and available for iOS and Android.
 
 <details open="open">
   <summary>Table of Contents</summary>
@@ -17,8 +17,8 @@ Save is an open-source app created by OpenArchive to help eyewitnesses and human
 </details>
  
 ## About OpenArchive💡
-OpenArchive is dedicated to protecting media freedom: preserving, amplifying, and securely routing mobile media to community-maintained collections in accessible public and private archives, outside the corporate walled gardens currently dominating the online media ecosystem.
-Created by and for citizen reporters and human rights defenders in 2015, our distributed media ecosystem promotes freedom of expression by protecting, authenticating, and offering access to and long-term preservation of at-risk community media.
+OpenArchive is dedicated to protecting, preserving, amplifying, and securely routing mobile media to community-maintained collections in accessible public and private archives, outside the corporate walled gardens currently dominating the online media ecosystem.
+Created by and for privacy conscious individuals in 2015, our distributed media ecosystem promotes freedom of expression by protecting, authenticating, and offering access to and long-term preservation of community media.
 Visit our website to learn more: [open-archive.org](https://open-archive.org)
 
 ## About Save📲 
@@ -44,10 +44,10 @@ Before contributing, please familiarize yourself with the Contributor Covenant [
 We aim to make the Save app accessible for people from various countries and communities. If you want to contribute by translating our app, you can join Localization Lab here: [https://www.transifex.com/otf/SAVE/](https://www.transifex.com/otf/SAVE/)
 
 ## Donate🤝
-OpenArchive is a veteran research and development organization that collaborates with human rights defenders and at-risk communities to create responsive, secure, and ethical archiving technologies for mobile media.
+OpenArchive is a veteran research and development organization that collaborates with privacy conscious individuals and organizations to create responsive, secure, and ethical archiving technologies for mobile media.
 Our work is critical, ongoing and solely funded by grants and individuals like you.
 If you would like to help fund our efforts, you can [make a tax-deductible donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MA7ZZG3DJL97E&source=url) thanks to our fiscal sponsor, [Media Alliance](https://media-alliance.org/).
-There are other ways you can help, too! If you’re interested in volunteering or providing in-kind expertise to advance human rights through secure digital media preservation, please send us an email: info[at]open-archive.org. We’d love to hear from you!
+There are other ways you can help, too! If you’re interested in volunteering or providing in-kind expertise to advance secure digital media preservation, please send us an email: info[at]open-archive.org. We’d love to hear from you!
 
 ## Contact💬
 Join the OpenArchive community:
