@@ -1,27 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
-    <external-files-path
-        name="files"
-        path="/" />
+    <!-- Allow app to share cache directory -->
+    <cache-path name="cache" path="." />
 
-    <external-files-path
-        name="files2"
-        path="." />
+    <!-- Share files in your external files directory -->
+    <external-files-path name="external_files" path="." />
 
-    <external-path
-        name="files3"
-        path="." />
+    <external-files-path name="files" path="/" />
 
-    <files-path
-        name="sdcard"
-        path="/storage/sdcard" />
+    <external-files-path name="files2" path="." />
 
-    <files-path
-        name="sdcard1"
-        path="/storage/sdcard1" />
+    <external-path name="files3" path="." />
 
-    <files-path
-        name="internal"
-        path="/data/data" />
+    <files-path name="sdcard" path="/storage/sdcard" />
+
+    <files-path name="sdcard1" path="/storage/sdcard1" />
+
+    <files-path name="internal" path="/data/data" />
 
 </paths>

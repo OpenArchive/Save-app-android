@@ -9,11 +9,12 @@ import org.witness.proofmode.ProofMode
 import org.witness.proofmode.ProofModeConstants
 
 object Prefs {
+    const val PASSCODE_ENABLED = "passcode_enabled"
     private const val DID_COMPLETE_ONBOARDING = "did_complete_onboarding"
-    private const val UPLOAD_WIFI_ONLY = "upload_wifi_only"
+    const val UPLOAD_WIFI_ONLY = "upload_wifi_only"
     private const val NEARBY_USE_BLUETOOTH = "nearby_use_bluetooth"
     private const val NEARBY_USE_WIFI = "nearby_use_wifi"
-    const val USE_TOR = "use_tor"
+    const val USE_TOR = "pref_use_tor"
     const val PROHIBIT_SCREENSHOTS = "prohibit_screenshots"
     const val USE_PROOFMODE = "use_proofmode"
     const val USE_PROOFMODE_KEY_ENCRYPTION = "proofmode_key_encryption"
@@ -22,6 +23,7 @@ object Prefs {
     private const val CURRENT_SPACE_ID = "current_space"
     private const val FLAG_HINT_SHOWN = "ft.flag"
     private const val BATCH_HINT_SHOWN = "ft.batch"
+    private const val ADD_MEDIA_HINT = "ft.addMedia"
     private const val DONT_SHOW_UPLOAD_HINT = "ft.upload"
     private const val IA_HINT_SHOWN = "ft.ia"
     private const val ADD_FOLDER_HINT_SHOWN = "ft.add_folder"
@@ -37,6 +39,38 @@ object Prefs {
     @SuppressLint("ApplySharedPref")
     fun store() {
         prefs?.edit()?.commit()
+    }
+
+    fun getString(key: String, defaultValue: String): String {
+        return prefs?.getString(key, defaultValue) ?: defaultValue
+    }
+
+    fun putString(key: String, value: String) {
+        prefs?.edit()?.putString(key, value)?.apply()
+    }
+
+    fun getInt(key: String, defaultValue: Int): Int {
+        return prefs?.getInt(key, defaultValue) ?: defaultValue
+    }
+
+    fun putInt(key: String, value: Int) {
+        prefs?.edit()?.putInt(key, value)?.apply()
+    }
+
+    fun getLong(key: String, defaultValue: Long): Long {
+        return prefs?.getLong(key, defaultValue) ?: defaultValue
+    }
+
+    fun putLong(key: String, value: Long) {
+        prefs?.edit()?.putLong(key, value)?.apply()
+    }
+
+    fun getBoolean(key: String, defaultValue: Boolean): Boolean {
+        return prefs?.getBoolean(key, defaultValue) ?: defaultValue
+    }
+
+    fun putBoolean(key: String, value: Boolean) {
+        prefs?.edit()?.putBoolean(key, value)?.apply()
     }
 
 //    val useNextcloudChunking: Boolean
@@ -87,6 +121,12 @@ object Prefs {
             prefs?.edit()?.putBoolean(FLAG_HINT_SHOWN, value)?.apply()
         }
 
+    var addMediaHint: Boolean
+        get() = prefs?.getBoolean(ADD_MEDIA_HINT, false) ?: false
+        set(value) {
+            prefs?.edit()?.putBoolean(ADD_MEDIA_HINT, value)?.apply()
+        }
+
     var batchHintShown: Boolean
         get() = prefs?.getBoolean(BATCH_HINT_SHOWN, false) ?: false
         set(value) {
@@ -115,6 +155,12 @@ object Prefs {
         get() = prefs?.getString(LICENSE_URL, null)
         set(value) {
             prefs?.edit()?.putString(LICENSE_URL, value)?.apply()
+        }
+
+    var passcodeEnabled: Boolean
+        get() = prefs?.getBoolean(PASSCODE_ENABLED, false) ?: false
+        set(value) {
+            prefs?.edit()?.putBoolean(PASSCODE_ENABLED, value)?.apply()
         }
 
     var proofModeLocation: Boolean
@@ -161,6 +207,7 @@ object Prefs {
 
     val theme: Theme
         get() = Theme.get(prefs?.getString(THEME, null))
+
 
     var prohibitScreenshots: Boolean
         get() = prefs?.getBoolean(PROHIBIT_SCREENSHOTS, false) ?: false

@@ -1,0 +1,8 @@
+<layer-list
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:drawable="@drawable/outline_link_off_24"
+        android:width="24dp"
+        android:height="24dp"
+        android:gravity="end|center_vertical" />
+</layer-list>

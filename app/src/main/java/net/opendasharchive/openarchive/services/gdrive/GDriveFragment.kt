@@ -9,20 +9,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.core.text.HtmlCompat
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import net.opendasharchive.openarchive.CleanInsightsManager
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentGdriveBinding
 import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.features.core.BaseFragment
 
-class GDriveFragment : Fragment() {
+class GDriveFragment : BaseFragment() {
 
     private lateinit var mBinding: FragmentGdriveBinding
 
@@ -57,7 +57,11 @@ class GDriveFragment : Fragment() {
         mBinding.error.visibility = View.GONE
 
         mBinding.btBack.setOnClickListener {
-            setFragmentResult(RESP_CANCEL, bundleOf())
+            if(isJetpackNavigation) {
+                findNavController().popBackStack()
+            } else {
+                setFragmentResult(RESP_CANCEL, bundleOf())
+            }
         }
 
         mBinding.btAuthenticate.setOnClickListener {
@@ -80,7 +84,13 @@ class GDriveFragment : Fragment() {
             )
         } else {
             // permission was already granted, we're already signed in, continue.
-            setFragmentResult(RESP_AUTHENTICATED, bundleOf())
+            if (isJetpackNavigation) {
+                val message = getString(R.string.you_have_successfully_connected_to_gdrive)
+                val action = GDriveFragmentDirections.actionFragmentGdriveToFragmentSpaceSetupSuccess(message)
+                findNavController().navigate(action)
+            } else {
+                setFragmentResult(RESP_AUTHENTICATED, bundleOf())
+            }
         }
     }
 
@@ -150,4 +160,6 @@ class GDriveFragment : Fragment() {
             mBinding.btAuthenticate.isEnabled = true
         }
     }
+
+    override fun getToolbarTitle() = getString(R.string.gdrive)
 }

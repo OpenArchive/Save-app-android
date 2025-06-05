@@ -4,10 +4,12 @@
     <!-- legacy color value definitions -->
 
     <color name="red">#ff0000</color>
+    <color name="red_bg">#DC341E</color>
     <color name="green">#00ff00</color>
     <color name="blue">#0000ff</color>
     <color name="black">#000000</color>
     <color name="transparent_black">#33333333</color>
+    <color name="transparent_loading_overlay">#AB2B2B2B</color>
     <color name="transparent_white">#CCFFFFFF</color>
     <color name="storymaker_blue">#27aae1</color>
     <color name="bright_blue">#b0e7ff</color>
@@ -16,7 +18,9 @@
     <color name="extra_light_grey">#ffbebebe</color>
     <color name="light_grey">#9e9e9e</color>
     <color name="grey">#757575</color>
+    <color name="grey_50">#777979</color>
     <color name="dark_grey">#424242</color>
+    <color name="text_grey">#434343</color>
     <color name="light_black">#212121</color>
     <color name="brand_accent">#A92E33</color>
 
@@ -31,6 +35,7 @@
     <color name="blue_semi_transparent_pressed">#80738ffe</color>
 
     <color name="oablue">#00c8b7</color>
+    <color name="eigengrau">#16161D</color>
 
     <color name="intro1bg">#34c5ff</color>
     <color name="intro2bg">#34c5ff</color>
@@ -50,7 +55,8 @@
     <color name="c23_teal_100">#ff00ffeb</color> <!-- h=175,3 s=100 v=100 -->
     <color name="c23_teal_90">#ff00e7d5</color> <!-- v=90.6 -->
     <color name="c23_teal_80">#ff00cebe</color> <!-- v=80.6 -->
-    <color name="c23_teal">#ff00b4a6</color> <!-- v=70.6 -->
+<!--    <color name="c23_teal">#ff00b4a6</color> &lt;!&ndash; v=70.6 &ndash;&gt;-->
+    <color name="c23_teal">#ff00B4A6</color> <!-- v=70.6 -->
     <color name="c23_teal_60">#ff009b8f</color> <!-- v=60.6 -->
     <color name="c23_teal_50">#ff008177</color> <!-- v=50.6 -->
     <color name="c23_teal_40">#ff00685f</color> <!-- v=40.6 -->
@@ -59,28 +65,69 @@
     <color name="c23_teal_10">#ff001b19</color> <!-- v=10.6 -->
     <color name="c23_powder_blue">#ffaae6e1</color>
 
+    <color name="c24_cream_100">#fffbf0</color>
+    <color name="c24_cream_95">#f2eee4</color>
+    <color name="c24_cream_90">#e5e2d8</color>
+    <color name="c24_cream_80">#ccc9c0</color>
+    <color name="c24_cream_70">#b3afa8</color>
+    <color name="c24_cream_60">#999690</color>
+    <color name="c24_cream_50">#807d78</color>
+    <color name="c24_cream_40">#666460</color>
+    <color name="c24_cream_30">#4d4b48</color>
+    <color name="c24_cream_20">#333230</color>
+    <color name="c24_cream_10">#1a1918</color>
+
     <!-- theme day colors -->
 
     <color name="colorBackground">@color/white</color>
     <color name="colorOnBackground">@color/black</color>
     <color name="colorOnBackgroundTonedDown">@color/c23_grey</color>
-    <color name="colorOnPrimary">@color/white</color>
+    <color name="colorOnBackgroundLowContrast">@color/c23_grey</color>
+
     <color name="colorPrimary">@color/c23_teal</color>
+    <color name="colorOnPrimary">@color/white</color>
+    <color name="colorPrimaryContainer">@color/c23_teal</color>
+    <color name="colorOnPrimaryContainer">@color/black</color>
+
+    <color name="colorOnPrimaryTonedDown">#ffffff</color>
     <color name="colorPrimaryDark">@color/c23_teal_40</color>
     <color name="colorPrimaryBright">@color/c23_powder_blue</color>
+    <color name="colorSecondary">@color/c23_teal_40</color>
+    <color name="colorOnSecondary">@color/black</color>
+    <color name="colorSecondaryContainer">@color/c23_teal_90</color>
+    <color name="colorOnSecondaryContainer">@color/black</color>
+    <color name="colorSecondaryDark">@color/c23_teal_30</color>
+    <color name="colorSecondaryBright">@color/c23_teal_60</color>
+
+    <color name="colorSurface">#F5F1E7</color>
+    <color name="colorOnSurface">@color/c23_dark_grey</color>
+    <color name="colorOnSurfaceVariant">@color/text_grey</color>
+
+    <color name="colorTertiary">@color/c23_teal</color>
+    <color name="colorText">@color/c23_dark_grey</color>
+
+    <color name="colorError">@color/red</color>
 
     <!-- custom day colors -->
-
+    <color name="inputBackground">#FFFBF0</color>
+    <color name="buttonBackground">@color/c23_teal_60</color>
+    <color name="colorDrawerSpaceListBackground">@color/c23_light_grey</color>
     <color name="colorBottomNavbar">@color/colorPrimary</color>
     <color name="colorOnBottomNavbar">@color/colorOnBackground</color>
-    <color name="colorAddButton">@color/colorBackground</color>
+    <color name="colorAddButton">@color/colorOnPrimary</color>
     <color name="colorOnAddButton">@color/colorOnBackground</color>
     <color name="colorNavigationDrawerBackground">@color/colorBackground</color>
     <color name="colorOnboarding23GetStarted">@color/colorOnBackground</color>
     <color name="colorSpaceSetupProgressOn">@color/black</color>
     <color name="colorSpaceSetupProgressOff">@color/c23_grey</color>
     <color name="colorBackgroundSpaceIcon">@color/c23_light_grey</color>
-
+    <color name="colorButtonOnBackground">@color/white</color>
+    <color name="colorTextViewHint">@color/colorPrimary</color>
+    <color name="colorSectionHeader">#00B4A6</color>
+    <color name="colorBackendButton">@color/white</color>
+    <color name="colorBackendButtonInactive">@color/c24_cream_70</color>
+    <color name="colorBackendButtonBorder">@color/c23_grey</color>
+    <color name="colorSkipButton">@color/c24_cream_95</color>
     <!--
 
       custom colors
@@ -90,8 +137,9 @@
       aren't mapped to the materials color system.
 
      -->
-
+    <color name="colorIcon">@color/white</color>
     <color name="colorPill">#E3E3E4</color>
+    <color name="dragHandle">@color/c24_cream_70</color>
     <color name="colorMediaOverlayIcon">@color/white</color>
     <color name="colorDanger">@color/red</color>
     <color name="colorDivider">@color/light_grey</color>
@@ -101,5 +149,10 @@
     <color name="colorMediaTitleText">@color/light_grey</color>
     <color name="colorWaveformIndicator">#aa0000</color>
     <color name="colorWaveform">#999999</color>
+    <color name="splashBackground">#e5e5e5</color>
+    <color name="tabBarMenuButton">@color/eigengrau</color>
+    <color name="swipeBackground">@color/c24_cream_80</color>
+    <color name="colorRipple">#bbe3e3e4</color>
+    <color name="bottomSheetBackground">@color/c24_cream_100</color>
 
 </resources>

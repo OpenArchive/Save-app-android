@@ -3,6 +3,18 @@ package net.opendasharchive.openarchive.db
 import com.orm.SugarRecord
 import java.util.Date
 
+/**
+ * Project - aka Folder
+ * Each Space can have many folders created by the user.
+ *
+ * @property description
+ * @property created
+ * @property spaceId
+ * @property archived
+ * @property openCollectionId
+ * @property licenseUrl
+ * @constructor Create empty Project
+ */
 data class Project(
     var description: String? = null,
     var created: Date? = null,

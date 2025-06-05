@@ -12,17 +12,15 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.work.Configuration
 import info.guardianproject.netcipher.proxy.OrbotHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.CleanInsightsManager
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.services.Conduit
@@ -45,23 +43,19 @@ class UploadService : JobService(), KoinComponent {
         fun startUploadService(activity: Activity) {
             val jobScheduler =
                 ContextCompat.getSystemService(activity, JobScheduler::class.java) ?: return
-
             var jobBuilder = JobInfo.Builder(
                 MY_BACKGROUND_JOB,
                 ComponentName(activity, UploadService::class.java)
             ).setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 jobBuilder = jobBuilder.setUserInitiated(true)
             }
-
             jobScheduler.schedule(jobBuilder.build())
         }
 
         fun stopUploadService(context: Context) {
             val jobScheduler =
                 ContextCompat.getSystemService(context, JobScheduler::class.java) ?: return
-
             jobScheduler.cancel(MY_BACKGROUND_JOB)
         }
     }
@@ -75,22 +69,11 @@ class UploadService : JobService(), KoinComponent {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        notification = prepNotification()
         Configuration.Builder().setJobSchedulerJobIdRange(0, Integer.MAX_VALUE).build()
-
-        with (NotificationManagerCompat.from(this)) {
-            try {
-                notify(23, notification)
-            } catch(e: SecurityException) {
-                Timber.d(e)
-            }
-        }
     }
 
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-
     override fun onStartJob(params: JobParameters): Boolean {
-        scope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             upload {
                 jobFinished(params, false)
             }
@@ -112,88 +95,91 @@ class UploadService : JobService(), KoinComponent {
         mKeepUploading = false
         for (conduit in mConduits) conduit.cancel()
         mConduits.clear()
-        scope.cancel()
+
         return true
     }
 
-    private fun upload(completed: () -> Unit) {
-        if (mRunning) {
-            return completed()
-        }
+    private suspend fun upload(completed: () -> Unit) {
+        if (mRunning) return completed()
 
         mRunning = true
+        AppLogger.i("upload started")
 
         if (!shouldUpload()) {
             mRunning = false
-
+            AppLogger.i("no network, upload stopped")
             return completed()
         }
 
         // Get all media items that are set into queued state.
-        val results = Media.getByStatus(
-            listOf(Media.Status.Queued, Media.Status.Uploading),
-            Media.ORDER_PRIORITY
-        ).toMutableList()
+        var results = emptyList<Media>()
 
         while (mKeepUploading &&
-           results.isNotEmpty()
+            Media.getByStatus(
+                listOf(Media.Status.Queued, Media.Status.Uploading),
+                Media.ORDER_PRIORITY
+            )
+                .also { results = it }
+                .isNotEmpty()
         ) {
             val datePublish = Date()
 
-            val media = results.removeAt(0)
+            for (media in results) {
+                if (media.sStatus != Media.Status.Uploading) {
+                    media.uploadDate = datePublish
+                    media.progress = 0 // Should we reset this?
+                    media.sStatus = Media.Status.Uploading
+                    media.statusMessage = ""
+                }
 
-            if (media.sStatus != Media.Status.Uploading) {
-                media.uploadDate = datePublish
-                media.progress = 0 // Should we reset this?
-                media.sStatus = Media.Status.Uploading
-                media.statusMessage = ""
+                media.licenseUrl = media.project?.licenseUrl
+
+                val collection = media.collection
+
+                if (collection?.uploadDate == null) {
+                    collection?.uploadDate = datePublish
+                    collection?.save()
+                }
+
+                try {
+                    AppLogger.i("Started uploading", media)
+                    upload(media)
+                } catch (ioe: IOException) {
+                    AppLogger.e(ioe)
+
+                    media.statusMessage = "error in uploading media: " + ioe.message
+                    media.sStatus = Media.Status.Error
+                    media.save()
+                }
+
+                if (!mKeepUploading) break // Time to end this.
             }
-
-            media.licenseUrl = media.project?.licenseUrl
-
-            val collection = media.collection
-
-            if (collection?.uploadDate == null) {
-                collection?.uploadDate = datePublish
-                collection?.save()
-            }
-
-            try {
-                upload(media)
-            } catch (ioe: IOException) {
-                Timber.d(ioe)
-
-                media.statusMessage = "error in uploading media: " + ioe.message
-                media.sStatus = Media.Status.Error
-                media.save()
-
-                BroadcastManager.postChange(applicationContext, media.collectionId, media.id)
-            }
-
-            if (!mKeepUploading) break // Time to end this.
         }
+
+        AppLogger.i("Uploads completed")
 
         mRunning = false
         completed()
     }
 
     @Throws(IOException::class)
-    private fun upload(media: Media): Boolean {
-
-        val conduit = Conduit.get(media, this) ?: return false
-
+    private suspend fun upload(media: Media): Boolean {
         media.sStatus = Media.Status.Uploading
+        AppLogger.i("${media.id} - media status changed to uploading")
         media.save()
         BroadcastManager.postChange(this, media.collectionId, media.id)
+
+        val conduit = Conduit.get(media, this)
+        if (conduit == null) {
+            AppLogger.e("Conduit is null")
+            return false
+        }
 
         CleanInsightsManager.measureEvent("upload", "try_upload", media.space?.tType?.friendlyName)
 
         mConduits.add(conduit)
-
-        scope.launch {
-            conduit.upload()
-            mConduits.remove(conduit)
-        }
+        conduit.upload()
+        mConduits.remove(conduit)
 
         return true
     }
@@ -206,13 +192,8 @@ class UploadService : JobService(), KoinComponent {
 
         if (isNetworkAvailable(requireUnmetered)) return true
 
-        if (Prefs.useTor && isTorAvailable()) return true
-
-        val type = if (requireUnmetered) {
-            JobInfo.NETWORK_TYPE_UNMETERED
-        } else {
-            JobInfo.NETWORK_TYPE_ANY
-        }
+        val type =
+            if (requireUnmetered) JobInfo.NETWORK_TYPE_UNMETERED else JobInfo.NETWORK_TYPE_ANY
 
         // Try again when there is a network.
         val job = JobInfo.Builder(
@@ -233,7 +214,8 @@ class UploadService : JobService(), KoinComponent {
     }
 
     private fun isNetworkAvailable(requireUnmetered: Boolean): Boolean {
-        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return false
+        val cm =
+            getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager ?: return false
 
         val cap = cm.getNetworkCapabilities(cm.activeNetwork) ?: return false
 
@@ -257,7 +239,7 @@ class UploadService : JobService(), KoinComponent {
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL_ID, getString(R.string.uploads),
-            NotificationManager.IMPORTANCE_DEFAULT
+            NotificationManager.IMPORTANCE_LOW
         )
 
         channel.description = getString(R.string.uploads_notification_descriptions)
@@ -266,16 +248,16 @@ class UploadService : JobService(), KoinComponent {
         channel.setShowBadge(false)
         channel.lockscreenVisibility = Notification.VISIBILITY_SECRET
 
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        notificationManager.createNotificationChannel(channel)
+        val notificationManager = (getSystemService(NOTIFICATION_SERVICE) as? NotificationManager)
+        notificationManager?.createNotificationChannel(channel)
     }
 
     private fun prepNotification(): Notification {
+
         val pendingIntent = PendingIntent.getActivity(
             this, 0,
-            Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE
+            Intent(this, MainActivity::class.java),
+            PendingIntent.FLAG_IMMUTABLE
         )
 
         return NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)

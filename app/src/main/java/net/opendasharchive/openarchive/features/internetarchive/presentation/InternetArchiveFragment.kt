@@ -6,16 +6,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResult
+import androidx.navigation.fragment.findNavController
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.internetarchive.presentation.components.IAResult
 import net.opendasharchive.openarchive.features.internetarchive.presentation.components.bundleWithNewSpace
 import net.opendasharchive.openarchive.features.internetarchive.presentation.components.bundleWithSpaceId
 import net.opendasharchive.openarchive.features.internetarchive.presentation.components.getSpace
+import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
 
 @Deprecated("only used for backward compatibility")
-class InternetArchiveFragment : Fragment() {
+class InternetArchiveFragment : BaseFragment(), ToolbarConfigurable {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,10 +38,22 @@ class InternetArchiveFragment : Fragment() {
     }
 
     private fun finish(result: IAResult) {
-        setFragmentResult(result.value, bundleOf())
+        if (isJetpackNavigation) {
+            when (result) {
+                IAResult.Saved -> {
+                    val message = getString(R.string.you_have_successfully_connected_to_the_internet_archive)
+                    val action = InternetArchiveFragmentDirections.actionFragmentInternetArchiveToFragmentSpaceSetupSuccess(message)
+                    findNavController().navigate(action)
+                }
+                IAResult.Deleted -> TODO()
+                IAResult.Cancelled -> findNavController().popBackStack()
+            }
+        } else {
+            setFragmentResult(result.value, bundleOf())
 
-        if (result == IAResult.Saved) {
-            // activity?.measureNewBackend(Space.Type.INTERNET_ARCHIVE)
+            if (result == IAResult.Saved) {
+                // activity?.measureNewBackend(Space.Type.INTERNET_ARCHIVE)
+            }
         }
     }
 
@@ -58,4 +73,7 @@ class InternetArchiveFragment : Fragment() {
         @JvmStatic
         fun newInstance() = newInstance(args = bundleWithNewSpace())
     }
+
+    override fun getToolbarTitle() = getString(R.string.internet_archive)
+    override fun shouldShowBackButton() = true
 }

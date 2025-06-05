@@ -3,16 +3,19 @@ package net.opendasharchive.openarchive.features.settings
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.text.Spanned
+import android.text.method.LinkMovementMethod
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
@@ -31,31 +34,40 @@ import java.io.IOException
 import java.util.UUID
 import javax.crypto.SecretKey
 
-class ProofModeSettingsActivity: BaseActivity() {
+class ProofModeSettingsActivity : BaseActivity() {
 
-    class Fragment: PreferenceFragmentCompat() {
+    class Fragment : PreferenceFragmentCompat() {
 
-        private val enrollBiometrics = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            findPreference<SwitchPreferenceCompat>(Prefs.USE_PROOFMODE_KEY_ENCRYPTION)?.let {
-                MainScope().launch {
-                    enableProofModeKeyEncryption(it)
+        private val enrollBiometrics =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                findPreference<SwitchPreferenceCompat>(Prefs.USE_PROOFMODE_KEY_ENCRYPTION)?.let {
+                    MainScope().launch {
+                        enableProofModeKeyEncryption(it)
+                    }
                 }
             }
-        }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.prefs_proof_mode, rootKey)
 
-            findPreference<Preference>("share_proofmode")?.onPreferenceClickListener =
-                Preference.OnPreferenceClickListener {
-                    shareKey(requireActivity())
-                    true
-                }
+            val proofModeSwitch = findPreference<SwitchPreferenceCompat>(Prefs.USE_PROOFMODE)
 
-            findPreference<Preference>(Prefs.USE_PROOFMODE)?.setOnPreferenceChangeListener { preference, newValue ->
+            // Check if permission is granted
+            val hasPermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+
+            if (!hasPermission) {
+                proofModeSwitch?.isChecked = false // Uncheck if permission not granted
+                Prefs.putBoolean(Prefs.USE_PROOFMODE, false)
+                Toast.makeText(requireContext(), getString(R.string.phone_permission_required), Toast.LENGTH_LONG).show()
+            } else {
+                proofModeSwitch?.isChecked = Prefs.getBoolean(Prefs.USE_PROOFMODE, false)
+            }
+
+            getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_proof_mode)?.setOnPreferenceChangeListener { preference, newValue ->
                 if (newValue as Boolean) {
                     PermissionX.init(this)
-                        .permissions(Manifest.permission.READ_PHONE_STATE)
+                        .permissions( Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
                         .onExplainRequestReason { _, _ ->
                             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                             val uri = Uri.fromParts("package", activity?.packageName, null)
@@ -65,11 +77,17 @@ class ProofModeSettingsActivity: BaseActivity() {
                         .request { allGranted, _, _ ->
                             if (!allGranted) {
                                 (preference as? SwitchPreferenceCompat)?.isChecked = false
-                                Toast.makeText(activity,"Please allow all permissions", Toast.LENGTH_LONG).show()
+                                Toast.makeText(
+                                    activity,
+                                    "Please allow all permissions",
+                                    Toast.LENGTH_LONG
+                                ).show()
                                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                                 val uri = Uri.fromParts("package", activity?.packageName, null)
                                 intent.data = uri
                                 activity?.startActivity(intent)
+                            } else {
+                                (preference as? SwitchPreferenceCompat)?.isChecked = true
                             }
                         }
                 }
@@ -77,20 +95,23 @@ class ProofModeSettingsActivity: BaseActivity() {
                 true
             }
 
-            val pkePreference = findPreference<SwitchPreferenceCompat>(Prefs.USE_PROOFMODE_KEY_ENCRYPTION)
+            val pkePreference =
+                findPreference<SwitchPreferenceCompat>(Prefs.USE_PROOFMODE_KEY_ENCRYPTION)
             val activity = activity
             val availability = Hbks.deviceAvailablity(requireContext())
 
             if (activity != null && availability !is Hbks.Availability.Unavailable) {
                 pkePreference?.isSingleLineTitle = false
 
-                pkePreference?.setTitle(when (Hbks.biometryType(activity)) {
-                    Hbks.BiometryType.StrongBiometry -> R.string.prefs_proofmode_key_encryption_title_biometrics
+                pkePreference?.setTitle(
+                    when (Hbks.biometryType(activity)) {
+                        Hbks.BiometryType.StrongBiometry -> R.string.prefs_proofmode_key_encryption_title_biometrics
 
-                    Hbks.BiometryType.DeviceCredential -> R.string.prefs_proofmode_key_encryption_title_passcode
+                        Hbks.BiometryType.DeviceCredential -> R.string.prefs_proofmode_key_encryption_title_passcode
 
-                    else -> R.string.prefs_proofmode_key_encryption_title_all
-                })
+                        else -> R.string.prefs_proofmode_key_encryption_title_all
+                    }
+                )
 
                 pkePreference?.setOnPreferenceChangeListener { _, newValue ->
                     if (newValue as Boolean) {
@@ -99,8 +120,7 @@ class ProofModeSettingsActivity: BaseActivity() {
                         } else {
                             enableProofModeKeyEncryption(pkePreference)
                         }
-                    }
-                    else {
+                    } else {
                         if (Prefs.proofModeEncryptedPassphrase != null) {
                             Prefs.proofModeEncryptedPassphrase = null
 
@@ -112,17 +132,12 @@ class ProofModeSettingsActivity: BaseActivity() {
 
                     true
                 }
-            }
-            else {
+            } else {
                 pkePreference?.isVisible = false
             }
         }
 
         private fun enableProofModeKeyEncryption(pkePreference: SwitchPreferenceCompat) {
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                return
-            }
 
             val key = Hbks.loadKey() ?: Hbks.createKey()
 
@@ -145,6 +160,11 @@ class ProofModeSettingsActivity: BaseActivity() {
                 // What??  shouldn't happen if enrolled with a PIN or Fingerprint
             }
         }
+
+
+        private fun <T: Preference> getPrefByKey(key: Int): T? {
+            return findPreference(getString(key))
+        }
     }
 
     private lateinit var mBinding: ActivitySettingsContainerBinding
@@ -155,13 +175,31 @@ class ProofModeSettingsActivity: BaseActivity() {
         mBinding = ActivitySettingsContainerBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
-        setSupportActionBar(mBinding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setupToolbar(getString(R.string.proofmode))
+
 
         supportFragmentManager
             .beginTransaction()
             .replace(mBinding.container.id, Fragment())
             .commit()
+
+//        setContent {
+
+//        }
+
+
+        val learnModeInfo =
+            getString(R.string.prefs_use_proofmode_description, getString(R.string.intro_link_verify))
+
+
+        val spannedText: Spanned =
+            HtmlCompat.fromHtml(learnModeInfo, HtmlCompat.FROM_HTML_MODE_COMPACT)
+
+        mBinding.proofModeLearnMode.text = spannedText
+
+        mBinding.proofModeLearnMode.movementMethod =
+            LinkMovementMethod.getInstance() // Enable link clicks
+
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -186,14 +224,16 @@ class ProofModeSettingsActivity: BaseActivity() {
                     intent.putExtra(Intent.EXTRA_TEXT, pubKey)
                     activity.startActivity(intent)
                 }
-            }
-            catch (ioe: IOException) {
+            } catch (ioe: IOException) {
                 Timber.d("error publishing key")
             }
         }
 
-        @RequiresApi(Build.VERSION_CODES.M)
-        private fun createPassphrase(key: SecretKey, activity: FragmentActivity?, completed: (passphrase: String?) -> Unit) {
+        private fun createPassphrase(
+            key: SecretKey,
+            activity: FragmentActivity?,
+            completed: (passphrase: String?) -> Unit
+        ) {
             val passphrase = UUID.randomUUID().toString()
 
             Hbks.encrypt(passphrase, key, activity) { ciphertext, _ ->
@@ -203,7 +243,11 @@ class ProofModeSettingsActivity: BaseActivity() {
 
                 Prefs.proofModeEncryptedPassphrase = ciphertext
 
-                Hbks.decrypt(Prefs.proofModeEncryptedPassphrase, key, activity) { decrpytedPassphrase, _ ->
+                Hbks.decrypt(
+                    Prefs.proofModeEncryptedPassphrase,
+                    key,
+                    activity
+                ) { decrpytedPassphrase, _ ->
                     if (decrpytedPassphrase == null || decrpytedPassphrase != passphrase) {
                         Prefs.proofModeEncryptedPassphrase = null
 
@@ -216,3 +260,5 @@ class ProofModeSettingsActivity: BaseActivity() {
         }
     }
 }
+
+

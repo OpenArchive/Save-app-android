@@ -3,11 +3,11 @@ package net.opendasharchive.openarchive.services
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
-import android.net.Uri
 import android.webkit.MimeTypeMap
 import com.google.common.net.UrlEscapers
 import com.google.gson.GsonBuilder
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.services.gdrive.GDriveConduit
@@ -17,8 +17,6 @@ import net.opendasharchive.openarchive.upload.BroadcastManager
 import net.opendasharchive.openarchive.util.Prefs
 import okhttp3.HttpUrl
 import org.witness.proofmode.ProofMode
-import org.witness.proofmode.crypto.HashUtils
-import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -51,34 +49,16 @@ abstract class Conduit(
 
     fun getProof(): Array<out File> {
         if (!Prefs.useProofMode) return emptyArray()
-
-        // Don't use geolocation and network information.
-        Prefs.proofModeLocation = false
-        Prefs.proofModeNetwork = false
-
         try {
-            var hash = ProofMode.generateProof(
-                mContext,
-                Uri.parse(mMedia.originalFilePath),
-                mMedia.mediaHashString
-            )
-
-            if (hash == null) {
-                val proofHash = HashUtils.getSHA256FromFileContent(
-                    mContext.contentResolver.openInputStream(mMedia.fileUri)
-                )
-
-                hash = ProofMode.generateProof(mContext, mMedia.fileUri, proofHash)
-            }
-
-            return ProofMode.getProofDir(mContext, hash).listFiles() ?: emptyArray()
+        // Here we are simply fetching the files. Don't generate proof here. This is only called during upload.
+        // Generating Proof here won't make sense because the file can be created well before it could be uploaded.
+          var files = ProofMode.getProofDir(mContext, mMedia.mediaHashString).listFiles() ?: emptyArray()
+          return files
         } catch (exception: FileNotFoundException) {
-            Timber.e(exception)
-
+            AppLogger.e(exception)
             return emptyArray()
         } catch (exception: SecurityException) {
-            Timber.e(exception)
-
+            AppLogger.e(exception)
             return emptyArray()
         }
     }
@@ -91,27 +71,50 @@ abstract class Conduit(
         mMedia.progress = mMedia.contentLength
         mMedia.sStatus = Media.Status.Uploaded
         mMedia.save()
-
-        BroadcastManager.postChange(mContext, mMedia.collectionId, mMedia.id)
+        AppLogger.i("media item ${mMedia.id} is uploaded and saved")
+        BroadcastManager.postSuccess(
+            context = mContext,
+            collectionId = mMedia.collectionId,
+            mediaId = mMedia.id
+        )
     }
 
     fun jobFailed(exception: Throwable) {
         // If an upload was cancelled, ignore the error.
-        if (mCancelled) return
+        if (mCancelled) {
+            AppLogger.i("Upload cancelled", exception)
+            return
+        }
 
         mMedia.statusMessage =
             exception.localizedMessage ?: exception.message ?: exception.toString()
         mMedia.sStatus = Media.Status.Error
         mMedia.save()
 
-        Timber.d(exception)
+        AppLogger.e(exception)
 
-        BroadcastManager.postChange(mContext, mMedia.collectionId, mMedia.id)
+        BroadcastManager.postChange(
+            context = mContext,
+            collectionId = mMedia.collectionId,
+            mediaId = mMedia.id
+        )
     }
+
+    private var lastReportedProgress: Int? = null
 
     fun jobProgress(uploadedBytes: Long) {
         mMedia.progress = uploadedBytes
-        BroadcastManager.postProgress(mContext, mMedia.collectionId, mMedia.id, uploadedBytes)
+        val progress = if (uploadedBytes > 0) (uploadedBytes.toFloat() / mMedia.contentLength * 100).toInt() else 0
+        if (progress > (lastReportedProgress ?: 0) + 1) {
+            lastReportedProgress = progress
+            AppLogger.i("Media Item ${mMedia.id} progress: $progress/100")
+            BroadcastManager.postProgress(
+                context = mContext,
+                collectionId = mMedia.collectionId,
+                mediaId = mMedia.id,
+                progress = progress,
+            )
+        }
     }
 
     /**

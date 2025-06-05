@@ -1,12 +1,15 @@
 package net.opendasharchive.openarchive
 
+import android.content.Context
+import android.graphics.Rect
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import net.opendasharchive.openarchive.databinding.RvSimpleRowBinding
+import net.opendasharchive.openarchive.databinding.RvSpacesRowBinding
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.util.extensions.scaled
 import java.lang.ref.WeakReference
@@ -15,59 +18,46 @@ interface SpaceAdapterListener {
 
     fun spaceClicked(space: Space)
 
-    fun addSpaceClicked()
+    fun editSpaceClicked(spaceId: Long?)
 
     fun getSelectedSpace(): Space?
 }
 
-class SpaceAdapter(listener: SpaceAdapterListener?) : ListAdapter<Space, SpaceAdapter.ViewHolder>(DIFF_CALLBACK), SpaceAdapterListener {
+class SpaceAdapter(private val context: Context, listener: SpaceAdapterListener?) : ListAdapter<Space, SpaceAdapter.ViewHolder>(DIFF_CALLBACK), SpaceAdapterListener {
 
-    class ViewHolder(private val binding: RvSimpleRowBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ViewHolder(private val binding: RvSpacesRowBinding) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(listener: WeakReference<SpaceAdapterListener>?, space: Space?) {
-            val context = binding.rvTitle.context
 
-            if (listener?.get()?.getSelectedSpace()?.id == space?.id) {
-                val icon = Space.current?.getAvatar(context)?.scaled(32, context)
-                val color = ContextCompat.getColor(binding.rvIcon.context, R.color.colorPrimary)
-                icon?.setTint(color)
-                binding.rvIcon.setImageDrawable(icon)
+            val isSelected = listener?.get()?.getSelectedSpace()?.id == space?.id
+            itemView.isSelected = isSelected
+            val textColorRes = if (isSelected) R.color.colorTertiary else R.color.colorText
+            val iconColorRes = if (isSelected) R.color.colorTertiary else R.color.colorOnBackground
+            val backgroundRes = if (isSelected) R.drawable.item_background_selector else android.R.color.transparent
+
+            binding.root.setBackgroundResource(backgroundRes)
+
+            val icon = space?.getAvatar(context)?.scaled(32, context)
+
+            icon?.setTint(ContextCompat.getColor(binding.rvIcon.context, iconColorRes))
+            binding.rvIcon.setImageDrawable(icon)
+
+            binding.rvEdit.setColorFilter(ContextCompat.getColor(binding.rvEdit.context, iconColorRes))
+
+
+            binding.rvTitle.text = space?.friendlyName
+            binding.rvTitle.setTextColor(ContextCompat.getColor(binding.rvTitle.context, textColorRes))
+
+
+            binding.rvEdit.setOnClickListener {
+                listener?.get()?.editSpaceClicked(space?.id)
             }
-            else {
-                val icon = space?.getAvatar(context)?.scaled(32, context)
-                val color = ContextCompat.getColor(binding.rvIcon.context, R.color.colorOnBackground)
-                icon?.setTint(color)
-                binding.rvIcon.setImageDrawable(icon)
-            }
-
-            if (space?.type == ADD_SPACE_ID) {
-                binding.rvTitle.text = context.getText(R.string.add_another_account)
-
-                val icon = ContextCompat.getDrawable(binding.rvIcon.context, R.drawable.ic_add)
-                binding.rvIcon.setImageDrawable(icon)
-
-                binding.root.setOnClickListener {
-                    listener?.get()?.addSpaceClicked()
-                }
-
-                return
-            } else {
-                binding.rvTitle.text = space?.friendlyName
-            }
-
-            binding.rvTitle.setTextColor(
-                FolderAdapter.getColor(
-                    binding.rvTitle.context,
-                    listener?.get()?.getSelectedSpace()?.id == space?.id
-                )
-            )
 
             if (space != null) {
                 binding.root.setOnClickListener {
                     listener?.get()?.spaceClicked(space)
                 }
-            }
-            else {
+            } else {
                 binding.root.setOnClickListener(null)
             }
         }
@@ -84,7 +74,6 @@ class SpaceAdapter(listener: SpaceAdapterListener?) : ListAdapter<Space, SpaceAd
             }
         }
 
-        private const val ADD_SPACE_ID = -1
     }
 
     private val mListener = WeakReference(listener)
@@ -92,7 +81,7 @@ class SpaceAdapter(listener: SpaceAdapterListener?) : ListAdapter<Space, SpaceAd
     private var mLastSelected: Space? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(RvSimpleRowBinding.inflate(LayoutInflater.from(parent.context),
+        return ViewHolder(RvSpacesRowBinding.inflate(LayoutInflater.from(parent.context),
             parent, false))
     }
 
@@ -105,22 +94,28 @@ class SpaceAdapter(listener: SpaceAdapterListener?) : ListAdapter<Space, SpaceAd
     fun update(spaces: List<Space>) {
         notifyItemChanged(getIndex(mLastSelected))
 
-        @Suppress("NAME_SHADOWING")
-        val spaces = spaces.toMutableList()
-        spaces.add(Space(ADD_SPACE_ID))
+        //@Suppress("NAME_SHADOWING")
+        //val spaces = spaces.toMutableList()
+        //spaces.add(Space(ADD_SPACE_ID))
 
         submitList(spaces)
     }
 
     override fun spaceClicked(space: Space) {
-        notifyItemChanged(getIndex(getSelectedSpace()))
-        notifyItemChanged(getIndex(space))
+        // Notify previous and new selected items
+        val previousIndex = getIndex(getSelectedSpace())
+        val newIndex = getIndex(space)
+
+        mLastSelected = space
+
+        notifyItemChanged(previousIndex)
+        notifyItemChanged(newIndex)
 
         mListener.get()?.spaceClicked(space)
     }
 
-    override fun addSpaceClicked() {
-        mListener.get()?.addSpaceClicked()
+    override fun editSpaceClicked(spaceId: Long?) {
+        mListener.get()?.editSpaceClicked(spaceId)
     }
 
     override fun getSelectedSpace(): Space? {
@@ -135,6 +130,26 @@ class SpaceAdapter(listener: SpaceAdapterListener?) : ListAdapter<Space, SpaceAd
         }
         else {
             currentList.indexOf(space)
+        }
+    }
+}
+
+class SpaceItemDecoration(private val space: Int) : RecyclerView.ItemDecoration() {
+    override fun getItemOffsets(
+        outRect: Rect,
+        view: View,
+        parent: RecyclerView,
+        state: RecyclerView.State
+    ) {
+        // Add space to the bottom of each item except the last one
+        val position = parent.getChildAdapterPosition(view)
+        val itemCount = state.itemCount
+
+        outRect.bottom = space
+
+        // Optional: Add top margin only to the first item
+        if (position == 0) {
+            outRect.top = space
         }
     }
 }

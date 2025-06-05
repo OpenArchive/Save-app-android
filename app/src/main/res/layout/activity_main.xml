@@ -1,236 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground"
     android:filterTouchesWhenObscured="true"
     android:fitsSystemWindows="true"
+    android:clipToPadding="false"
     tools:openDrawer="end">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize">
-
-                <ImageView
-                    android:id="@+id/alertIcon"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:contentDescription="@string/error"
-                    android:src="@drawable/alert"
-                    android:visibility="gone" />
-
-                <ImageView
-                    android:layout_width="61dp"
-                    android:layout_height="34dp"
-                    android:importantForAccessibility="no"
-                    android:src="@drawable/savelogo" />
-
-            </androidx.appcompat.widget.Toolbar>
-
-        </com.google.android.material.appbar.AppBarLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="?attr/actionBarSize">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/current_folder"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
-                android:layout_marginVertical="@dimen/activity_vertical_margin"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ImageView
-                    android:id="@+id/current_folder_icon"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:ignore="ContentDescription" />
-
-                <TextView
-                    android:id="@+id/current_folder_name"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:textSize="20sp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/current_folder_icon"
-                    tools:text="Folder Name" />
-
-                <TextView
-                    android:id="@+id/current_folder_count"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:background="@drawable/pill"
-                    tools:text="1"
-                    android:gravity="center"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-<!--                <com.google.android.material.button.MaterialButton-->
-<!--                    android:id="@+id/upload_edit_button"-->
-<!--                    style="@style/Widget.Material3.Button.TextButton"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="40dp"-->
-<!--                    android:paddingEnd="0dp"-->
-<!--                    android:text="@string/edit"-->
-<!--                    app:icon="@drawable/ic_low_priority"-->
-<!--                    app:iconGravity="textStart"-->
-<!--                    app:layout_constraintBottom_toBottomOf="parent"-->
-<!--                    app:layout_constraintEnd_toEndOf="parent"-->
-<!--                    app:layout_constraintTop_toTopOf="parent"-->
-<!--                    tools:ignore="RtlSymmetry" />-->
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/pager"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginBottom="2dp"
-                android:layout_marginTop="2dp"
-                app:layout_constraintBottom_toTopOf="@id/bottom_bar"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/current_folder" />
-
-            <LinearLayout
-                android:id="@+id/bottom_bar"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/bottom_nav_height"
-                android:background="@drawable/bottom_nav_background"
-                android:orientation="horizontal"
-                android:weightSum="3"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                android:baselineAligned="false">
-
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/my_media_button"
-                        android:layout_width="56dp"
-                        android:layout_height="38dp"
-                        android:layout_centerHorizontal="true"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="0dp"
-                        android:paddingTop="0dp"
-                        android:paddingBottom="0dp"
-                        android:background="@color/transparent"
-                        app:icon="@drawable/outline_perm_media_24"
-                        app:iconGravity="textStart"
-                        app:iconPadding="0dp"
-                        app:iconSize="36dp"
-                        app:iconTint="@color/colorOnBottomNavbar"
-                        app:rippleColor="@color/c23_light_grey" />
-
-                    <TextView
-                        android:id="@+id/my_media_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/my_media_button"
-                        android:layout_centerHorizontal="true"
-                        android:clickable="true"
-                        android:focusable="false"
-                        android:padding="0dp"
-                        android:soundEffectsEnabled="false"
-                        android:text="@string/my_media"
-                        android:textSize="12sp"
-                        tools:ignore="KeyboardInaccessibleWidget" />
-
-                </RelativeLayout>
-
-                <FrameLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/add_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="8dp"
-                        android:backgroundTint="@color/colorAddButton"
-                        android:paddingTop="0dp"
-                        android:paddingBottom="0dp"
-                        app:icon="@drawable/baseline_add_white_24"
-                        app:iconGravity="textStart"
-                        app:iconPadding="0dp"
-                        app:iconSize="38dp"
-                        app:iconTint="@color/colorOnAddButton"
-                        app:rippleColor="@color/c23_light_grey" />
-
-                </FrameLayout>
-
-                <RelativeLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/settings_button"
-                        android:layout_width="56dp"
-                        android:layout_height="38dp"
-                        android:layout_centerHorizontal="true"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="0dp"
-                        android:backgroundTint="@color/colorBottomNavbar"
-                        android:paddingTop="0dp"
-                        android:paddingBottom="0dp"
-                        android:background="@color/transparent"
-                        app:icon="@drawable/ic_settings"
-                        app:iconGravity="textStart"
-                        app:iconPadding="0dp"
-                        app:iconSize="36dp"
-                        app:iconTint="@color/colorOnBottomNavbar"
-                        app:rippleColor="@color/c23_light_grey" />
-
-                    <TextView
-                        android:id="@+id/settings_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/settings_button"
-                        android:layout_centerHorizontal="true"
-                        android:clickable="true"
-                        android:focusable="false"
-                        android:padding="0dp"
-                        android:soundEffectsEnabled="false"
-                        android:text="@string/action_settings"
-                        android:textSize="12sp"
-                        tools:ignore="KeyboardInaccessibleWidget" />
-
-                </RelativeLayout>
-
-            </LinearLayout>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <include
+            android:id="@+id/content_main"
+            layout="@layout/content_main"
+            android:fitsSystemWindows="false" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <com.google.android.material.navigation.NavigationView
-        android:id="@+id/folder_bar"
+        android:id="@+id/drawer_content"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="end"
@@ -244,47 +37,52 @@
             android:animateLayoutChanges="false"
             android:backgroundTint="@color/background">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/folders"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="24dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/current_space_name" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/spaces"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:alpha="0"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/navigation_drawer_header" />
-
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/navigation_drawer_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:animateLayoutChanges="false"
-                android:background="@color/colorNavigationDrawerBackground"
+                android:paddingVertical="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
-                <TextView
-                    android:id="@+id/space_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:layout_marginHorizontal="12dp"
-                    android:drawablePadding="@dimen/padding_small"
+                <LinearLayout
+                    android:id="@+id/space_name_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
                     android:gravity="center_vertical"
-                    android:textSize="24sp"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/current_space_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        tools:src="@drawable/ic_internet_archive" />
+
+                    <TextView
+                        android:id="@+id/current_space_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="12dp"
+                        android:textSize="16sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="Upul's Server" />
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/space_list_more"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_expand_more"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <View
@@ -293,45 +91,67 @@
                     android:layout_height="0.5dp"
                     android:layout_marginVertical="10dp"
                     android:alpha="0.5"
-                    android:background="@color/colorOnPrimary"
+                    android:background="@color/c23_grey"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/space_name" />
+                    app:layout_constraintTop_toBottomOf="@id/space_name_layout" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
-                android:id="@+id/current_space_name"
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/folders"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginHorizontal="8dp"
-                android:layout_marginStart="12dp"
-                android:layout_marginTop="12dp"
-                android:drawablePadding="@dimen/padding_small"
-                android:gravity="center_vertical"
-                android:textSize="20sp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/navigation_drawer_header" />
+                app:layout_constraintTop_toBottomOf="@id/navigation_drawer_header"
+                tools:listitem="@layout/rv_drawer_row" />
+
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/new_folder"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_margin="30dp"
+                android:id="@+id/btn_add_folder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
                 android:text="@string/new_folder"
-                android:textColor="@color/c23_teal_80"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                app:cornerRadius="10dp"
+                app:cornerRadius="8dp"
+                app:icon="@drawable/ic_add"
+                app:iconTint="@color/colorOnBackground"
+                app:backgroundTint="@color/colorTertiary"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <View
+                android:id="@+id/dimOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:background="#80000000"
+                android:clickable="true"
+                android:focusable="true"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/navigation_drawer_header" />
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/spaces"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:alpha="0"
+                android:background="@color/c23_light_grey"
+                android:elevation="8dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:strokeColor="@color/c23_teal_80"
-                app:strokeWidth="3dp" />
+                app:layout_constraintTop_toBottomOf="@id/navigation_drawer_header"
+                tools:listitem="@layout/rv_drawer_row" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.navigation.NavigationView>
-
 </androidx.drawerlayout.widget.DrawerLayout>
+

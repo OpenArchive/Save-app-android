@@ -3,6 +3,7 @@ package net.opendasharchive.openarchive.services.webdav
 import android.content.Context
 import com.thegrizzlylabs.sardineandroid.SardineListener
 import com.thegrizzlylabs.sardineandroid.impl.OkHttpSardine
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.services.Conduit
 import net.opendasharchive.openarchive.services.SaveClient
@@ -43,11 +44,13 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context), K
 //            return uploadChunked(base, path, fileName)
 //        }
 
+        AppLogger.i("Begin media file upload...")
         if (mMedia.contentLength > CHUNK_FILESIZE_THRESHOLD) {
             return webdav.uploadChunked(base, path, fileName)
         }
 
         val fullPath = construct(base, path, fileName)
+        AppLogger.i("Uploading started for single file upload...", "filePath: $fullPath")
 
         try {
             webdav.put(mContext.contentResolver,
@@ -64,9 +67,11 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context), K
                             jobProgress(bytes)
                             lastBytes = bytes
                         }
+                        AppLogger.i("Bytes transferred for for ${mMedia.id}: ", "$bytes")
                     }
 
                     override fun continueUpload(): Boolean {
+                        AppLogger.i("Should continue upload for ${mMedia.id}?", "$mCancelled")
                         return !mCancelled
                     }
                 })
@@ -84,11 +89,17 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context), K
     }
 
     override suspend fun createFolder(url: String) {
-        if (!webdav.exists(url)) webdav.createDirectory(url)
+        if (!webdav.exists(url)) {
+            webdav.createDirectory(url)
+        } else {
+            AppLogger.i("folder already exists: ", url)
+        }
     }
 
     @Throws(IOException::class)
     private suspend fun OkHttpSardine.uploadChunked(base: HttpUrl, path: List<String>, fileName: String): Boolean {
+        AppLogger.i("Uploading started as chunked upload...")
+
         val space = mMedia.space ?: return false
         val url = space.hostUrl ?: return false
 
@@ -178,21 +189,25 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context), K
     }
 
     private fun OkHttpSardine.uploadMetadata(base: HttpUrl, path: List<String>, fileName: String) {
+        AppLogger.i("Uploading metadata....")
         val metadata = getMetadata()
 
         if (mCancelled) throw Exception("Cancelled")
 
         put(
-            construct(base, path, "$fileName.meta.json"), metadata.toByteArray(),
-            "text/plain", null)
+            construct(base, path, "$fileName.meta.json"),
+            metadata.toByteArray(),
+            "text/plain",
+            null
+        )
 
         /// Upload ProofMode metadata, if enabled and successfully created.
-//        for (file in getProof()) {
-//            if (mCancelled) throw Exception("Cancelled")
-//
-//            mClient.put(
-//                construct(base, path, file.name), file, "text/plain",
-//                false, null)
-//        }
+        for (file in getProof()) {
+            if (mCancelled) throw Exception("Cancelled")
+
+            put(
+                construct(base, path, file.name), file, "text/plain",
+                false, null)
+        }
     }
 }

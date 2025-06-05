@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Breadcrumb and Count Container -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/breadcrumb_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="8dp"
+        android:layout_marginVertical="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Horizontal ScrollView for Breadcrumb -->
+        <HorizontalScrollView
+            android:id="@+id/breadcrumb_section"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            android:scrollbars="none"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/folder_count"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <!-- Space Icon -->
+                <ImageView
+                    android:id="@+id/space_icon"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:contentDescription="@string/servers"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp" />
+
+                <!-- Space Chip -->
+                <TextView
+                    android:id="@+id/breadcrumb_space"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="0dp"
+                    android:text="Space Name" />
+
+                <!-- Separator -->
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/keyboard_arrow_right"
+                    app:tint="@color/colorOnBackground" />
+
+                <!-- Folder Chip -->
+                <TextView
+                    android:id="@+id/breadcrumb_folder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:maxLines="1"
+                    android:padding="0dp"
+                    android:text="Folder Name" />
+
+                <!-- Add more breadcrumb items as needed -->
+
+            </LinearLayout>
+
+        </HorizontalScrollView>
+
+        <!-- Gradient Fade Effect -->
+        <View
+            android:layout_width="72dp"
+            android:layout_height="0dp"
+            android:layout_gravity="end"
+            android:background="@drawable/gradient_fade"
+            app:layout_constraintBottom_toBottomOf="@id/breadcrumb_section"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/breadcrumb_section" />
+
+        <!-- Folder Count -->
+        <TextView
+            android:id="@+id/folder_count"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="@drawable/pill"
+            android:elevation="1dp"
+            android:fontFamily="@font/montserrat"
+            android:gravity="center"
+            android:text="1"
+            android:textColor="@color/colorOnBackground"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/pager"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/breadcrumb_container" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

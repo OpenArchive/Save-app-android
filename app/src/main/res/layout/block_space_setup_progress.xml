@@ -61,6 +61,22 @@
                 android:layout_height="12dp"
                 android:background="@drawable/dot"
                 android:backgroundTint="@color/colorSpaceSetupProgressOff" />
+
+            <View
+                android:id="@+id/bar3"
+                android:layout_width="80dp"
+                android:layout_height="1dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="5.5dp"
+                android:layout_marginRight="8dp"
+                android:background="@color/colorSpaceSetupProgressOff" />
+
+            <View
+                android:id="@+id/dot4"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:background="@drawable/dot"
+                android:backgroundTint="@color/colorSpaceSetupProgressOff" />
         </LinearLayout>
     </FrameLayout>
 

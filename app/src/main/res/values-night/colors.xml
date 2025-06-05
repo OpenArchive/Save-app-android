@@ -3,21 +3,56 @@
 
     <!-- night theme colors -->
 
-    <color name="colorBackground">@color/black</color>
+    <color name="colorBackground">#16161D</color>
     <color name="colorOnBackground">@color/white</color>
+
+    <color name="colorPrimary">#000A0A</color>
     <color name="colorOnPrimary">@color/white</color>
-    <color name="colorPrimary">@color/c23_teal</color>
+    <color name="colorPrimaryContainer">@color/c23_teal</color>
+    <color name="colorOnPrimaryContainer">@color/white</color>
     <color name="colorPrimaryDark">@color/c23_teal_40</color>
 
+    <color name="colorSecondary">@color/c23_teal</color>
+    <color name="colorOnSecondary">@color/black</color>
+    <color name="colorSecondaryContainer">@color/c23_teal_20</color>
+    <color name="colorOnSecondaryContainer">@color/white</color>
+    <color name="colorSecondaryDark">@color/c23_teal_30</color>
+    <color name="colorSecondaryBright">@color/c23_teal_60</color>
+
+    <color name="colorSurface">#24242E</color>
+    <color name="colorOnSurface">@color/c23_light_grey</color>
+    <color name="colorTertiary">@color/c23_teal</color>
+    <color name="colorText">@color/c23_light_grey</color>
+    <color name="colorError">@color/red</color>
+
+
+    <color name="inputBackground">#212021</color>
+    <color name="buttonBackground">@color/c23_teal_50</color>
+    <color name="colorDrawerSpaceListBackground">@color/c23_dark_grey</color>
     <color name="colorBottomNavbar">@color/c23_darker_grey</color>
     <color name="colorOnBottomNavbar">@color/white</color>
-    <color name="colorAddButton">@color/colorPrimary</color>
+    <color name="colorAddButton">@color/colorOnPrimary</color>
     <color name="colorOnAddButton">@color/colorBackground</color>
     <color name="colorNavigationDrawerBackground">@color/c23_nav_drawer_night</color>
     <color name="colorOnboarding23GetStarted">@color/colorPrimary</color>
     <color name="colorSpaceSetupProgressOn">@color/c23_teal</color>
     <color name="colorSpaceSetupProgressOff">@color/c23_medium_grey</color>
     <color name="colorBackgroundSpaceIcon">@color/c23_darker_grey</color>
+    <color name="colorButtonOnBackground">@color/black</color>
+    <color name="colorOnBackgroundTonedDown">@color/c23_grey</color>
+    <color name="colorOnBackgroundLowContrast">@color/c23_medium_grey</color>
+    <color name="colorTextViewHint">@color/white</color>
+    <color name="colorSectionHeader">#00B4A6</color>
+    <color name="tabBarMenuButton">@color/c24_cream_95</color>
+    <color name="colorPill">@color/c23_dark_grey</color>
+    <color name="dragHandle">@color/c23_grey</color>
+    <color name="splashBackground">#151515</color>
+    <color name="swipeBackground">@color/black</color>
+    <color name="colorBackendButton">@color/black</color>
+    <color name="colorBackendButtonInactive">@color/c23_dark_grey</color>
+    <color name="colorBackendButtonBorder">@color/c23_teal</color>
+    <color name="colorRipple">#33e3e3e4</color>
+    <color name="bottomSheetBackground">@color/eigengrau</color>
+    <color name="colorSkipButton">@color/c23_teal</color>
 
-    <color name="colorPill">#434343</color>
 </resources>

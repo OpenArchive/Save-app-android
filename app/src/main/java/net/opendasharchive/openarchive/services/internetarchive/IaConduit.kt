@@ -43,7 +43,8 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context), KoinC
 
             val fileName = getUploadFileName(mMedia, true)
             val metaJson = gson.toJson(mMedia)
-//            val proof = getProof()
+            // Commenting out proof generation - 17th April 2025
+            // val proof = getProof()
 
             if (mMedia.serverUrl.isBlank()) {
                 // TODO this should make sure we aren't accidentally using one of archive.org's metadata fields by accident
@@ -59,10 +60,11 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context), KoinC
             // upload metadata and proofs async, and report failures
             client.uploadMetaData(metaJson, fileName)
 
-            /// Upload ProofMode metadata, if enabled and successfully created.
-//            for (file in proof) {
-//                client.uploadProofFiles(file)
-//            }
+            // Commenting out proof generation - 17th April 2025
+            // Upload ProofMode metadata, if enabled and successfully created.
+            // for (file in proof) {
+            //      client.uploadProofFiles(file)
+            // }
 
             jobSucceeded()
 
@@ -88,9 +90,12 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context), KoinC
             mediaUri.toUri(),
             mMedia.contentLength,
             mimeType.toMediaTypeOrNull(),
-            createListener(cancellable = { !mCancelled }, onProgress = {
-                jobProgress(it)
-            })
+            createListener(
+                cancellable = { !mCancelled },
+                onProgress = {
+                    jobProgress(it)
+                }
+            )
         )
 
         val request = Request.Builder()
@@ -179,7 +184,7 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context), KoinC
         }
 
         if (mMedia.location.isNotEmpty()) {
-            builder.add("x-archive-meta-location", mMedia.location)
+            builder.add("x-archive-meta-location", sanitizeHeaderValue(mMedia.location))
         }
 
         if (mMedia.tags.isNotEmpty()) {
@@ -191,7 +196,7 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context), KoinC
         }
 
         if (mMedia.description.isNotEmpty()) {
-            builder.add("x-archive-meta-description", mMedia.description)
+            builder.add("x-archive-meta-description", sanitizeHeaderValue(mMedia.description))
         }
 
         if (mMedia.title.isNotEmpty()) {
@@ -213,10 +218,14 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context), KoinC
     private fun metadataHeader(): Headers {
         return Headers.Builder()
             .add("x-amz-auto-make-bucket", "1")
-            .add("x-archive-meta-language", "eng") // FIXME set based on locale or selected
+            .add("x-archive-meta-language", "eng") // TODO: FIXME set based on locale or selected
             .add("Authorization", "LOW " + mMedia.space?.username + ":" + mMedia.space?.password)
             .add("x-archive-meta-mediatype", "texts")
             .add("x-archive-meta-collection", "opensource")
             .build()
+    }
+
+    private fun sanitizeHeaderValue(value: String): String {
+        return value.replace("[^\\x20-\\x7E]".toRegex(), "") // Removes non-ASCII characters
     }
 }

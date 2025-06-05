@@ -1,87 +1,136 @@
 package net.opendasharchive.openarchive.features.main
 
-import android.Manifest
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
+import android.graphics.Point
+import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import androidx.activity.result.ActivityResultLauncher
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.LinearLayout
+import android.widget.PopupWindow
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
-import com.esafirm.imagepicker.features.ImagePickerLauncher
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.play.core.review.ReviewException
+import com.google.android.play.core.review.ReviewInfo
+import com.google.android.play.core.review.ReviewManager
+import com.google.android.play.core.review.ReviewManagerFactory
+import com.google.android.play.core.review.model.ReviewErrorCode
+import com.google.android.play.core.review.testing.FakeReviewManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import net.opendasharchive.openarchive.FolderAdapter
-import net.opendasharchive.openarchive.FolderAdapterListener
+import net.opendasharchive.openarchive.BuildConfig
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.SpaceAdapter
-import net.opendasharchive.openarchive.SpaceAdapterListener
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.ActivityMainBinding
+import net.opendasharchive.openarchive.databinding.PopupFolderOptionsBinding
+import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.extensions.getMeasurments
 import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.features.core.UiImage
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.asUiImage
+import net.opendasharchive.openarchive.features.core.asUiText
+import net.opendasharchive.openarchive.features.core.dialog.ButtonData
+import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
+import net.opendasharchive.openarchive.features.core.dialog.showInfoDialog
 import net.opendasharchive.openarchive.features.folders.AddFolderActivity
+import net.opendasharchive.openarchive.features.main.adapters.FolderDrawerAdapter
+import net.opendasharchive.openarchive.features.main.adapters.FolderDrawerAdapterListener
+import net.opendasharchive.openarchive.features.main.adapters.SpaceDrawerAdapter
+import net.opendasharchive.openarchive.features.main.adapters.SpaceDrawerAdapterListener
 import net.opendasharchive.openarchive.features.media.AddMediaDialogFragment
+import net.opendasharchive.openarchive.features.media.AddMediaType
+import net.opendasharchive.openarchive.features.media.ContentPickerFragment
+import net.opendasharchive.openarchive.features.media.MediaLaunchers
 import net.opendasharchive.openarchive.features.media.Picker
 import net.opendasharchive.openarchive.features.media.PreviewActivity
 import net.opendasharchive.openarchive.features.onboarding.Onboarding23Activity
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
+import net.opendasharchive.openarchive.features.onboarding.StartDestination
+import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
+import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
+import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
+import net.opendasharchive.openarchive.upload.UploadManagerFragment
 import net.opendasharchive.openarchive.upload.UploadService
-import net.opendasharchive.openarchive.util.AlertHelper
+import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.ProofModeHelper
 import net.opendasharchive.openarchive.util.extensions.Position
 import net.opendasharchive.openarchive.util.extensions.cloak
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.scaleAndTintDrawable
-import net.opendasharchive.openarchive.util.extensions.scaled
-import net.opendasharchive.openarchive.util.extensions.setDrawable
 import net.opendasharchive.openarchive.util.extensions.show
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import timber.log.Timber
-import java.net.InetSocketAddress
-import java.net.Proxy
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.NumberFormat
-import java.util.concurrent.TimeUnit
-import kotlin.math.roundToInt
+import androidx.core.content.edit
+import kotlinx.coroutines.delay
+import net.opendasharchive.openarchive.util.InAppReviewHelper
 
 
-class MainActivity : BaseActivity(), FolderAdapterListener, SpaceAdapterListener {
+class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAdapterListener {
+
+    private val appConfig by inject<AppConfig>()
+    private val viewModel by viewModel<MainViewModel>()
 
     private var mMenuDelete: MenuItem? = null
 
     private var mSnackBar: Snackbar? = null
 
-    private lateinit var mBinding: ActivityMainBinding
-    private lateinit var mPagerAdapter: ProjectAdapter
-    private lateinit var mSpaceAdapter: SpaceAdapter
-    private lateinit var mFolderAdapter: FolderAdapter
-    private lateinit var mMediaPickerLauncher: ImagePickerLauncher
-    private lateinit var mFilePickerLauncher: ActivityResultLauncher<Intent>
+    var uploadManagerFragment: UploadManagerFragment? = null
 
-    private var mLastItem: Int = 0
-    private var mLastMediaItem: Int = 0
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var mPagerAdapter: ProjectAdapter
+    private lateinit var mSpaceAdapter: SpaceDrawerAdapter
+    private lateinit var mFolderAdapter: FolderDrawerAdapter
+
+    private lateinit var mediaLaunchers: MediaLaunchers
+
+    private var mSelectedPageIndex: Int = 0
+    private var mSelectedMediaPageIndex: Int = 0
     private var serverListOffset: Float = 0F
     private var serverListCurOffset: Float = 0F
 
-    private var mCurrentItem
-        get() = mBinding.pager.currentItem
+    private var selectModeToggle: Boolean = false
+    private var currentSelectionCount = 0
+
+    private enum class FolderBarMode { INFO, SELECTION, EDIT }
+
+    // Hold the current mode (default to INFO)
+    private var folderBarMode = FolderBarMode.INFO
+
+    // Current page getter/setter (updates bottom navbar accordingly)
+    private var mCurrentPagerItem
+        get() = binding.contentMain.pager.currentItem
         set(value) {
-            mBinding.pager.currentItem = value
+            binding.contentMain.pager.currentItem = value
             updateBottomNavbar(value)
         }
 
+    // ----- Activity Result Launchers -----
     private val mNewFolderResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
@@ -89,149 +138,113 @@ class MainActivity : BaseActivity(), FolderAdapterListener, SpaceAdapterListener
             }
         }
 
+    private lateinit var permissionManager: PermissionManager
+
+    private lateinit var reviewManager: ReviewManager
+    private var shouldPromptReview = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        ///enableEdgeToEdge()
+
         super.onCreate(savedInstanceState)
+        installSplashScreen()
 
-        mBinding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(mBinding.root)
-
-        val launchers = Picker.register(this, mBinding.root, { getSelectedProject() }, { media ->
-            refreshCurrentProject()
-
-            if (media.isNotEmpty()) {
-                preview()
-            }
-        })
-        mMediaPickerLauncher = launchers.first
-        mFilePickerLauncher = launchers.second
-
-        setSupportActionBar(mBinding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        supportActionBar?.title = null
-
-//        mSnackBar = mBinding.root.makeSnackBar(getString(R.string.importing_media))
-//        (mSnackBar?.view as? SnackbarLayout)?.addView(ProgressBar(this))
-
-//        mBinding.uploadEditButton.setOnClickListener {
-//            startActivity(Intent(this, UploadManagerActivity::class.java))
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//            window.insetsController?.let {
+//                it.hide(WindowInsets.Type.statusBars())
+//                it.hide(WindowInsets.Type.systemBars())
+//                it.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+//            }
+//        } else {
+//            // For older versions, use the deprecated approach
+//            window.setFlags(
+//                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+//                WindowManager.LayoutParams.FLAG_FULLSCREEN
+//            )
 //        }
 
-        mPagerAdapter = ProjectAdapter(supportFragmentManager, lifecycle)
-        mBinding.pager.adapter = mPagerAdapter
+//        window.apply {
+//            clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+//            addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+//            statusBarColor = ContextCompat.getColor(this@MainActivity, R.color.colorPrimary)
+//            // optional. if you want the icons to be light.
+//            decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+//        }
 
-        mBinding.pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageScrolled(
-                position: Int, positionOffset: Float,
-                positionOffsetPixels: Int
-            ) {
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        // Initialize the permission manager with this activity and its dialogManager.
+        permissionManager = PermissionManager(this, dialogManager)
+
+        // Initialize In App Ratings Helper
+        InAppReviewHelper.init(this)
+
+        initMediaLaunchers()
+        setupToolbarAndPager()
+        setupNavigationDrawer()
+        setupBottomNavBar()
+        setupFolderBar()
+        setupBottomSheetObserver()
+
+
+        if (appConfig.isDwebEnabled) {
+            permissionManager.checkNotificationPermission {
+                AppLogger.i("Notification permission granted")
             }
-
-            override fun onPageSelected(position: Int) {
-                mLastItem = position
-                if (position < mPagerAdapter.settingsIndex) {
-                    mLastMediaItem = position
-                }
-
-                updateBottomNavbar(position)
-
-                refreshCurrentProject()
-            }
-
-            override fun onPageScrollStateChanged(state: Int) {}
-        })
-
-        mBinding.spaceName.setOnClickListener {
-            var newAlpha = 0F
-
-            if (serverListCurOffset != serverListOffset) {
-                serverListCurOffset = serverListOffset
-                mBinding.spaceName.setDrawable(R.drawable.ic_expand_more, Position.End, 0.75)
-            } else {
-                newAlpha = 1F
-                serverListCurOffset = 0F
-                mBinding.spaceName.setDrawable(R.drawable.ic_expand_less, Position.End, 0.75)
-            }
-
-            mBinding.spaces.visibility = View.VISIBLE
-            mBinding.currentSpaceName.visibility = View.VISIBLE
-            mBinding.newFolder.visibility = View.VISIBLE
-            mBinding.folders.visibility = View.VISIBLE
-
-            mBinding.spaces.animate().translationY(serverListCurOffset).alpha(newAlpha).withEndAction(
-                Runnable {
-                    run() {
-                        if (newAlpha == 0F) {
-                            mBinding.spaces.hide(false)
-                        }
-                    }
-                })
-            mBinding.currentSpaceName.animate().alpha(1 - newAlpha)
-            mBinding.newFolder.animate().alpha(1 - newAlpha)
-            mBinding.folders.animate().alpha(1 - newAlpha)
+            SnowbirdBridge.getInstance().initialize()
+            startForegroundService(Intent(this, SnowbirdService::class.java))
+            handleIntent(intent)
         }
 
-        mBinding.currentSpaceName.text = Space.current?.friendlyName
-        mBinding.currentSpaceName.setDrawable(Space.current?.getAvatar(applicationContext)?.scaled(32, applicationContext),
-            Position.Start, tint = true)
-        mBinding.currentSpaceName.compoundDrawablePadding =
-            applicationContext.resources.getDimension(R.dimen.padding_small).roundToInt()
 
-        mSpaceAdapter = SpaceAdapter(this)
-        mBinding.spaces.layoutManager = LinearLayoutManager(this)
-        mBinding.spaces.adapter = mSpaceAdapter
-
-        mFolderAdapter = FolderAdapter(this)
-        mBinding.folders.layoutManager = LinearLayoutManager(this)
-        mBinding.folders.adapter = mFolderAdapter
-
-        mBinding.newFolder.scaleAndTintDrawable(Position.Start, 0.75)
-        mBinding.newFolder.setOnClickListener {
-            addFolder()
-        }
-
-        mBinding.myMediaButton.setOnClickListener {
-            mCurrentItem = mLastMediaItem
-        }
-        mBinding.myMediaLabel.setOnClickListener {
-            // perform click + play ripple animation
-            mBinding.myMediaButton.isPressed = true
-            mBinding.myMediaButton.isPressed = false
-            mBinding.myMediaButton.performClick()
-        }
-
-        mBinding.addButton.setOnClickListener { addClicked() }
-
-        mBinding.settingsButton.setOnClickListener {
-            mCurrentItem = mPagerAdapter.settingsIndex
-        }
-        mBinding.settingsLabel.setOnClickListener {
-            // perform click + play ripple animation
-            mBinding.settingsButton.isPressed = true
-            mBinding.settingsButton.isPressed = false
-            mBinding.settingsButton.performClick()
-        }
-
-        if (Picker.canPickFiles(this)) {
-            mBinding.addButton.setOnLongClickListener {
-                val addMediaDialogFragment = AddMediaDialogFragment()
-                addMediaDialogFragment.show(supportFragmentManager, addMediaDialogFragment.tag)
-
+        if (BuildConfig.DEBUG) {
+            binding.contentMain.imgLogo.setOnLongClickListener {
+                startActivity(Intent(this, HomeActivity::class.java))
                 true
             }
+        }
 
-            supportFragmentManager.setFragmentResultListener(
-                AddMediaDialogFragment.RESP_PHOTO_GALLERY,
-                this
-            ) { _, _ ->
-                addClicked()
-            }
-            supportFragmentManager.setFragmentResultListener(
-                AddMediaDialogFragment.RESP_FILES,
-                this
-            ) { _, _ ->
-                addClicked(typeFiles = true)
+        supportFragmentManager.setFragmentResultListener("uploadRetry", this) { key, bundle ->
+            val mediaId = bundle.getLong("mediaId")
+            // Now you know which media item is being retried.
+            // You can start the upload service or update the UI accordingly.
+            UploadService.startUploadService(this)
+        }
+
+        reviewManager = ReviewManagerFactory.create(this)
+        InAppReviewHelper.requestReviewInfo(this)
+        shouldPromptReview = InAppReviewHelper.onAppLaunched()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!Prefs.didCompleteOnboarding) {
+            startActivity(Intent(this, Onboarding23Activity::class.java))
+        }
+        AppLogger.i("MainActivity onResume is called.......")
+        refreshSpace()
+        mCurrentPagerItem = mSelectedPageIndex
+        importSharedMedia(intent)
+        if (serverListOffset == 0F) {
+            val dims = binding.spaces.getMeasurments()
+            serverListOffset = -dims.second.toFloat()
+            serverListCurOffset = serverListOffset
+        }
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // Only now, after UI is ready, do we fire the in‐app review if needed.
+        if (shouldPromptReview) {
+            lifecycleScope.launch(Dispatchers.Main) {
+                // Wait a small delay so we don’t interrupt initial load (e.g. 2 seconds).
+                delay(2_000)
+                InAppReviewHelper.showReviewIfPossible(this@MainActivity, reviewManager)
+                InAppReviewHelper.markReviewDone()
+                shouldPromptReview = false
             }
         }
+        // ─────────────────────────────────────────────────────────────────────────
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -242,244 +255,522 @@ class MainActivity : BaseActivity(), FolderAdapterListener, SpaceAdapterListener
             // Check for any queued uploads and restart, only after ProofMode is correctly initialized.
             UploadService.startUploadService(this)
         }
-
-        // requestNotificationPermission()
-
-//        registerReceiver(object : BroadcastReceiver() {
-//            override fun onReceive(context: Context, intent: Intent) {
-//                val status = intent.getStringExtra(TorService.EXTRA_STATUS)
-//
-//                Toast.makeText(context, status, Toast.LENGTH_SHORT).show()
-//
-////                if (status == TorService.STATUS_ON) {
-////                    CoroutineScope(Dispatchers.IO).launch {
-////                        connectToRestEndpoint()
-////                    }
-////                }
-//            }
-//        }, IntentFilter(TorService.ACTION_STATUS), RECEIVER_NOT_EXPORTED)
-
-//        class StartTor(val appContext: Context, workerParams: WorkerParameters) : Worker(appContext, workerParams) {
-//
-//            override fun doWork(): Result {
-//                Timber.d("StartTor")
-//                bindService(Intent(appContext, TorService::class.java), object : ServiceConnection {
-//                    override fun onServiceConnected(name: ComponentName, service: IBinder) {
-//                        val torService: TorService = (service as TorService.LocalBinder).service
-//
-//                        while (torService.torControlConnection == null) {
-//                            try {
-//                                Timber.d("Sleeping")
-//                                Thread.sleep(500)
-//                            } catch (e: InterruptedException) {
-//                                e.printStackTrace()
-//                            }
-//                        }
-//
-//                        Toast.makeText(
-//                            this@MainActivity,
-//                            "Got Tor control connection",
-//                            Toast.LENGTH_LONG
-//                        )
-//                            .show()
-//                    }
-//
-//                    override fun onServiceDisconnected(name: ComponentName) {
-//                        // Things...
-//                    }
-//                }, BIND_AUTO_CREATE)
-//
-//                return Result.success()
-//            }
-//        }
-
-//        class UploadMedia(appContext: Context, workerParams: WorkerParameters) : Worker(appContext, workerParams) {
-//            override fun doWork(): Result {
-//                Timber.d("UploadMedia")
-//                val imageUriInput =
-//                    inputData.getString("IMAGE_URI") ?: return Result.failure()
-//
-//                return Result.success()
-//            }
-//        }
-//
-//        val startTorRequest = OneTimeWorkRequestBuilder<StartTor>()
-//            .build()
-//
-//        val uploadMediaRequest = OneTimeWorkRequestBuilder<UploadMedia>()
-//            .addTag("media_upload")
-//            .setInputData(workDataOf(
-//                "IMAGE_URI" to "http://..."
-//            ))
-//            .build()
-//
-//        WorkManager.getInstance(this)
-//            .enqueue(uploadMediaRequest)
     }
 
-    suspend fun connectToRestEndpoint() {
-        val proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress("localhost", 9050))
-
-        val client = OkHttpClient.Builder()
-            .connectTimeout(3000L, TimeUnit.MILLISECONDS)
-            .proxy(proxy)
-            .build()
-
-        val request = Request.Builder()
-            .url("https://jsonplaceholder.typicode.com/todos/1")
-            .build()
-
-        try {
-            val response = withContext(Dispatchers.IO) {
-                client.newCall(request).execute()
+    // ----- Initialization Methods -----
+    private fun initMediaLaunchers() {
+        mediaLaunchers = Picker.register(
+            activity = this,
+            root = binding.root,
+            project = { getSelectedProject() },
+            completed = { media ->
+                refreshCurrentProject()
+                if (media.isNotEmpty()) navigateToPreview()
             }
-
-            val result = if (response.isSuccessful) {
-                response.body?.string()
-            } else {
-                null
-            }
-
-            Timber.d("result: $result")
-        } catch (e: Exception) {
-            Timber.e(e)
-        }
+        )
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        refreshSpace()
-
-        mCurrentItem = mLastItem
-
-        if (!Prefs.didCompleteOnboarding) {
-            startActivity(Intent(this, Onboarding23Activity::class.java))
+    private fun setupToolbarAndPager() {
+        setSupportActionBar(binding.contentMain.toolbar)
+        supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(false)
+            title = null
         }
 
-        importSharedMedia(intent)
+        mPagerAdapter = ProjectAdapter(supportFragmentManager, lifecycle)
+        binding.contentMain.pager.adapter = mPagerAdapter
 
-        if (serverListOffset == 0F) {
-            val dims = mBinding.spaces.getMeasurments()
-            serverListOffset = -dims.second.toFloat()
-            serverListCurOffset = serverListOffset
-            mBinding.spaces.visibility = View.GONE
-            mBinding.spaces.animate().translationY(serverListOffset)
-            mBinding.spaceName.setDrawable(R.drawable.ic_expand_more, Position.End, 0.75)
-        }
-    }
-
-    private val requestNotificationPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-    ) { _: Boolean ->
-        // Nothing to do here, if we got permission we just use it later, if it was denied
-        // permissions simply won't show up. No need to bother users about it any further.
-        // The only notification in Save at the moment of writing this comment is showing up
-        // during media uploads.
-    }
-
-    private fun requestNotificationPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
-            PackageManager.PERMISSION_GRANTED
-        ) {
-            //  ask for the permission
-            requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
-    }
-
-//    override fun onNewIntent(intent: Intent?) {
-//        super.onNewIntent(intent)
-//
-//        importSharedMedia(intent)
-//    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
-        mMenuDelete = menu.findItem(R.id.menu_delete)
-
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.menu_folders -> {
-                // https://stackoverflow.com/questions/21796209/how-to-create-a-custom-navigation-drawer-in-android
-
-                if (mBinding.root.isDrawerOpen(mBinding.folderBar)) {
-                    mBinding.root.closeDrawer(mBinding.folderBar)
-                } else {
-                    mBinding.root.openDrawer(mBinding.folderBar)
+        binding.contentMain.pager.registerOnPageChangeCallback(object :
+            ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                mSelectedPageIndex = position
+                if (position < mPagerAdapter.settingsIndex) {
+                    mSelectedMediaPageIndex = position
+                    val selectedProject = getSelectedProject()
+                    mFolderAdapter.updateSelectedProject(selectedProject)
                 }
-                true
+                if (!appConfig.multipleProjectSelectionMode) {
+                    getCurrentMediaFragment()?.cancelSelection()
+                }
+                updateBottomNavbar(position)
+                refreshCurrentProject()
+            }
+        })
+    }
+
+    private fun setupNavigationDrawer() {
+        // Drawer listener resets state on close
+        binding.root.addDrawerListener(object : DrawerLayout.DrawerListener {
+            override fun onDrawerClosed(drawerView: View) {
+                collapseSpacesList()
             }
 
-            else -> super.onOptionsItemSelected(item)
+            override fun onDrawerOpened(drawerView: View) {
+                //
+            }
+
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                //
+            }
+
+            override fun onDrawerStateChanged(newState: Int) {
+                //
+            }
+        })
+
+        binding.navigationDrawerHeader.setOnClickListener { toggleSpacesList() }
+        binding.dimOverlay.setOnClickListener { collapseSpacesList() }
+
+        mSpaceAdapter = SpaceDrawerAdapter(this)
+        binding.spaces.layoutManager = LinearLayoutManager(this)
+        binding.spaces.adapter = mSpaceAdapter
+
+        mFolderAdapter = FolderDrawerAdapter(this)
+        binding.folders.layoutManager = LinearLayoutManager(this)
+        binding.folders.adapter = mFolderAdapter
+
+        binding.btnAddFolder.scaleAndTintDrawable(Position.Start, 0.75)
+        binding.btnAddFolder.setOnClickListener {
+            closeDrawer()
+            navigateToAddFolder()
+        }
+
+        updateCurrentSpaceAtDrawer()
+    }
+
+    private fun setupBottomNavBar() {
+        with(binding.contentMain.bottomNavBar) {
+            onMyMediaClick = {
+                mCurrentPagerItem = mSelectedMediaPageIndex
+            }
+            onAddClick = { addClicked(AddMediaType.GALLERY) }
+            onSettingsClick = {
+                mCurrentPagerItem = mPagerAdapter.settingsIndex
+            }
+
+            if (Picker.canPickFiles(this@MainActivity)) {
+                setAddButtonLongClickEnabled()
+                onAddLongClick = {
+                    if (Space.current == null) {
+                        navigateToAddServer()
+                    } else if (getSelectedProject() == null) {
+                        navigateToAddFolder()
+                    } else {
+                        val addMediaBottomSheet =
+                            ContentPickerFragment { actionType -> addClicked(actionType) }
+                        addMediaBottomSheet.show(supportFragmentManager, ContentPickerFragment.TAG)
+                    }
+                }
+                supportFragmentManager.setFragmentResultListener(
+                    AddMediaDialogFragment.RESP_TAKE_PHOTO, this@MainActivity
+                ) { _, _ -> addClicked(AddMediaType.CAMERA) }
+                supportFragmentManager.setFragmentResultListener(
+                    AddMediaDialogFragment.RESP_PHOTO_GALLERY, this@MainActivity
+                ) { _, _ -> addClicked(AddMediaType.GALLERY) }
+                supportFragmentManager.setFragmentResultListener(
+                    AddMediaDialogFragment.RESP_FILES, this@MainActivity
+                ) { _, _ -> addClicked(AddMediaType.FILES) }
+            }
         }
     }
 
-    fun updateAfterDelete(done: Boolean) {
-        mMenuDelete?.isVisible = !done
+    private fun setupFolderBar() {
+        // Tapping the edit button shows the folder options popup.
+        binding.contentMain.btnEdit.setOnClickListener { btnView ->
+            val location = IntArray(2)
+            binding.contentMain.btnEdit.getLocationOnScreen(location)
+            val point = Point(location[0], location[1])
+            showFolderOptionsPopup(point)
+        }
+        // In selection mode, cancel selection reverts to INFO mode.
+        binding.contentMain.btnCancelSelection.setOnClickListener {
+            setFolderBarMode(FolderBarMode.INFO)
+            getCurrentMediaFragment()?.cancelSelection()
+        }
+        // In the edit (rename) container, cancel button reverts to INFO mode.
+        binding.contentMain.btnCancelEdit.setOnClickListener {
+            setFolderBarMode(FolderBarMode.INFO)
+        }
+        // Listen for the "done" action to commit a rename.
+        binding.contentMain.etFolderName.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                val newName = binding.contentMain.etFolderName.text.toString().trim()
+                if (newName.isNotEmpty()) {
+                    renameCurrentFolder(newName)
+                    setFolderBarMode(FolderBarMode.INFO)
+                } else {
+                    Snackbar.make(
+                        binding.root,
+                        getString(R.string.folder_empty_warning),
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                }
+                // Hide the keyboard
+                val imm =
+                    binding.contentMain.etFolderName.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(binding.contentMain.etFolderName.windowToken, 0)
 
-        if (done) refreshCurrentFolderCount()
+                // Remove focus from the EditText
+                binding.contentMain.etFolderName.clearFocus()
+
+                true
+            } else false
+        }
+
+        binding.contentMain.btnRemoveSelected.setOnClickListener {
+            showDeleteSelectedMediaConfirmDialog()
+        }
     }
 
-    private fun addFolder() {
-        mNewFolderResultLauncher.launch(Intent(this, AddFolderActivity::class.java))
+    // Called when a new folder name is confirmed. (Adjust as needed to update your data store.)
+    private fun renameCurrentFolder(newName: String) {
+        val project = getSelectedProject()
+        project?.let {
+            it.description = newName
+            it.save()
+            refreshCurrentProject()
+            Snackbar.make(binding.root, getString(R.string.folder_rename_success), Snackbar.LENGTH_SHORT).show()
+        }
+    }
 
-        mBinding.root.closeDrawer(mBinding.folderBar)
+    private fun showFolderOptionsPopup(p: Point) {
+        val layoutInflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val popupBinding = PopupFolderOptionsBinding.inflate(layoutInflater)
+        val popup = PopupWindow(this).apply {
+            contentView = popupBinding.root
+            width = LinearLayout.LayoutParams.WRAP_CONTENT
+            height = LinearLayout.LayoutParams.WRAP_CONTENT
+            isFocusable = true
+            setBackgroundDrawable(ColorDrawable())
+            animationStyle = R.style.popup_window_animation
+        }
+
+        // Check if there is at least one media item in the selected project
+        val hasMedia = getSelectedProject()?.collections?.any { it.media.isNotEmpty() } == true
+
+        // Disable select media if no media in current folder
+        popupBinding.menuFolderBarSelectMedia.isEnabled = hasMedia
+        popupBinding.menuFolderBarSelectMedia.alpha = if (hasMedia) 1.0f else 0.4f
+
+        // Option to toggle selection mode
+        popupBinding.menuFolderBarSelectMedia.setOnClickListener {
+            popup.dismiss()
+            setFolderBarMode(FolderBarMode.SELECTION)
+        }
+
+        // Rename folder
+        popupBinding.menuFolderBarRenameFolder.setOnClickListener {
+            popup.dismiss()
+            setFolderBarMode(FolderBarMode.EDIT)
+        }
+
+        // Archive folder
+        popupBinding.menuFolderBarArchiveFolder.setOnClickListener {
+            popup.dismiss()
+            val selectedProject = getSelectedProject()
+            if (selectedProject != null) {
+                selectedProject.isArchived = !selectedProject.isArchived
+                selectedProject.save()
+                refreshProjects()
+                updateCurrentFolderVisibility()
+                refreshCurrentProject()
+                Snackbar.make(binding.root, getString(R.string.folder_archived), Snackbar.LENGTH_SHORT).show()
+            } else {
+                Snackbar.make(binding.root, getString(R.string.folder_not_found), Snackbar.LENGTH_LONG).show()
+            }
+        }
+
+        // Remove folder
+        popupBinding.menuFolderBarRemove.setOnClickListener {
+            popup.dismiss()
+            if (getSelectedProject() != null) {
+                showDeleteFolderConfirmDialog()
+            } else {
+                Snackbar.make(binding.root, getString(R.string.folder_not_found), Snackbar.LENGTH_LONG).show()
+            }
+        }
+
+        // Adjust popup position if needed
+        val x = 200
+        val y = 60
+        popup.showAtLocation(binding.root, Gravity.NO_GRAVITY, p.x + x, p.y + y)
+    }
+
+    fun setSelectionMode(isSelecting: Boolean) {
+        if (isSelecting) {
+            setFolderBarMode(FolderBarMode.SELECTION)
+        } else {
+            setFolderBarMode(FolderBarMode.INFO)
+        }
+    }
+
+    // New helper: update the cancel selection TextView to show the number of selected items.
+    fun updateSelectedCount(count: Int) {
+        // For example, if count > 0 display “Selected: X”; otherwise, revert to “Select Media”.
+        //binding.contentMain.tvSelectedCount.text = if (count > 0) "Selected: $count" else "Select Media"
+    }
+
+    private fun showDeleteSelectedMediaConfirmDialog() {
+        dialogManager.showDialog(
+            config = DialogConfig(
+                type = DialogType.Warning,
+                title = R.string.menu_delete.asUiText(),
+                message = R.string.menu_delete_desc.asUiText(),
+                icon = UiImage.DrawableResource(R.drawable.ic_trash),
+                positiveButton = ButtonData(
+                    text = R.string.lbl_ok.asUiText(),
+                    action = {
+                        getCurrentMediaFragment()?.deleteSelected()
+                        updateSelectedCount(0)
+                        refreshCurrentFolderCount()
+                    }
+                ),
+                neutralButton =
+                    ButtonData(
+                        text = UiText.StringResource(R.string.lbl_Cancel),
+                        action = {
+
+                        }
+                    )
+            )
+        )
+    }
+
+    private fun showDeleteFolderConfirmDialog() {
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Error
+            icon = UiImage.DrawableResource(R.drawable.ic_trash)
+            title = UiText.StringResource(R.string.remove_from_app)
+            message = UiText.StringResource(R.string.action_remove_project)
+            destructiveButton {
+                text = UiText.StringResource(R.string.remove)
+                action = {
+                    getSelectedProject()?.delete()
+                    refreshProjects()
+                    updateCurrentFolderVisibility()
+                    refreshCurrentProject()
+                    Snackbar.make(binding.root, getString(R.string.folder_removed), Snackbar.LENGTH_SHORT).show()
+                }
+            }
+            neutralButton {
+                text = UiText.StringResource(R.string.lbl_Cancel)
+                action = {
+                    dialogManager.dismissDialog()
+                }
+            }
+        }
+    }
+
+    private fun getCurrentMediaFragment(): MainMediaFragment? {
+        val currentItem = binding.contentMain.pager.currentItem
+        return supportFragmentManager.findFragmentByTag("f$currentItem") as? MainMediaFragment
+    }
+
+
+    // ----- Drawer Helpers -----
+    private fun toggleDrawerState() {
+        if (binding.root.isDrawerOpen(binding.drawerContent)) {
+            closeDrawer()
+        } else {
+            openDrawer()
+        }
+    }
+
+    private fun openDrawer() {
+        binding.root.openDrawer(binding.drawerContent)
+    }
+
+    private fun closeDrawer() {
+        binding.root.closeDrawer(binding.drawerContent)
+    }
+
+    private fun toggleSpacesList() {
+        if (serverListCurOffset == serverListOffset) {
+            expandSpacesList()
+        } else {
+            collapseSpacesList()
+        }
+    }
+
+    private fun expandSpacesList() {
+        serverListCurOffset = 0f
+        binding.spaceListMore.setImageDrawable(
+            ContextCompat.getDrawable(this, R.drawable.ic_expand_less)
+        )
+        binding.spaces.visibility = View.VISIBLE
+        binding.dimOverlay.visibility = View.VISIBLE
+        binding.spaces.bringToFront()
+        binding.dimOverlay.bringToFront()
+        binding.spaces.animate()
+            .translationY(0f).alpha(1f).setDuration(200)
+            .withStartAction {
+                binding.spacesHeaderSeparator.alpha = 0.3f
+                binding.folders.alpha = 0.3f
+                binding.btnAddFolder.alpha = 0.3f
+            }
+        binding.dimOverlay.animate().alpha(1f).setDuration(200)
+        binding.navigationDrawerHeader.elevation = 8f
+    }
+
+    private fun collapseSpacesList() {
+        serverListCurOffset = serverListOffset
+        binding.spaceListMore.setImageDrawable(
+            ContextCompat.getDrawable(this, R.drawable.ic_expand_more)
+        )
+
+        binding.spaces.animate()
+            .translationY(serverListOffset).alpha(0f).setDuration(200)
+            .withEndAction {
+                binding.spaces.visibility = View.GONE
+                binding.dimOverlay.visibility = View.GONE
+                binding.spacesHeaderSeparator.alpha = 1f
+                binding.folders.alpha = 1f
+                binding.btnAddFolder.alpha = 1f
+            }
+        binding.dimOverlay.animate().alpha(0f).setDuration(200)
+        binding.navigationDrawerHeader.elevation = 0f
+    }
+
+    private fun updateCurrentSpaceAtDrawer() {
+        Space.current?.setAvatar(binding.currentSpaceIcon)
+        mSpaceAdapter.notifyDataSetChanged()
+
+        if (Space.current == null) {
+            binding.btnAddFolder.visibility = View.INVISIBLE
+        } else {
+            binding.btnAddFolder.visibility = View.VISIBLE
+        }
+    }
+
+    // ----- Refresh & Update Methods -----
+    /**
+     * Updates the visibility of the current folder container.
+     * The container is only visible if:
+     *   1. We are not on the settings page AND
+     *   2. There is a current space with at least one project.
+     */
+    // Central function to update folder bar state
+    private fun setFolderBarMode(mode: FolderBarMode) {
+        folderBarMode = mode
+        when (mode) {
+            FolderBarMode.INFO -> {
+                binding.contentMain.folderInfoContainer.visibility = View.VISIBLE
+                binding.contentMain.folderSelectionContainer.visibility = View.GONE
+                binding.contentMain.folderEditContainer.visibility = View.GONE
+
+                if (Space.current != null) {
+                    if (Space.current?.projects?.isNotEmpty() == true) {
+                        binding.contentMain.folderInfoContainerRight.visibility = View.VISIBLE
+                    } else {
+                        binding.contentMain.folderInfoContainerRight.visibility = View.INVISIBLE
+                    }
+                } else {
+                    binding.contentMain.folderInfoContainerRight.visibility = View.INVISIBLE
+                }
+            }
+
+            FolderBarMode.SELECTION -> {
+                binding.contentMain.folderInfoContainer.visibility = View.GONE
+                binding.contentMain.folderSelectionContainer.visibility = View.VISIBLE
+                binding.contentMain.folderEditContainer.visibility = View.GONE
+            }
+
+            FolderBarMode.EDIT -> {
+                binding.contentMain.folderInfoContainer.visibility = View.GONE
+                binding.contentMain.folderSelectionContainer.visibility = View.GONE
+                binding.contentMain.folderEditContainer.visibility = View.VISIBLE
+                // Prepopulate the rename field with the current folder name
+                binding.contentMain.etFolderName.setText(getSelectedProject()?.description ?: "")
+                binding.contentMain.etFolderName.requestFocus()
+                binding.contentMain.etFolderName.selectAll()
+
+                // Show the keyboard
+                val imm =
+                    binding.contentMain.etFolderName.context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.showSoftInput(
+                    binding.contentMain.etFolderName,
+                    InputMethodManager.SHOW_IMPLICIT
+                )
+            }
+        }
+    }
+
+    private fun updateCurrentFolderVisibility() {
+        val currentPagerIndex = binding.contentMain.pager.currentItem
+        val settingsIndex = mPagerAdapter.settingsIndex
+        if (currentPagerIndex == settingsIndex) {
+            binding.contentMain.folderBar.hide()
+            // Reset to default mode
+            setFolderBarMode(FolderBarMode.INFO)
+
+            // Force ViewPager2 to re-measure its layout after visibility change
+            binding.contentMain.pager.post {
+                binding.contentMain.pager.requestLayout()
+            }
+        } else {
+            binding.contentMain.folderBar.show()
+            setFolderBarMode(FolderBarMode.INFO)
+        }
+
+        mFolderAdapter.notifyDataSetChanged()
+    }
+
+    private fun updateBottomNavbar(position: Int) {
+        val isSettings = position == mPagerAdapter.settingsIndex
+        binding.contentMain.bottomNavBar.updateSelectedItem(isSettings = isSettings)
+        updateCurrentFolderVisibility()
+        invalidateOptionsMenu()
     }
 
     private fun refreshSpace() {
-//        val currentSpace = Space.current
-
-//        if (currentSpace != null) {
-//            mBinding.space.setDrawable(
-//                currentSpace.getAvatar(this@MainActivity)
-//                    ?.scaled(32, this@MainActivity), Position.Start, tint = false
-//            )
-            mBinding.spaceName.text = "Servers" // currentSpace.friendlyName
-//        } else {
-//            mBinding.space.setDrawable(R.drawable.avatar_default, Position.Start, tint = false)
-//            mBinding.space.text = getString(R.string.app_name)
-//        }
+        val currentSpace = Space.current
+        if (currentSpace != null) {
+            binding.spaceNameLayout.visibility = View.VISIBLE
+            binding.currentSpaceName.text = currentSpace.friendlyName
+            updateCurrentSpaceAtDrawer()
+            currentSpace.setAvatar(binding.contentMain.spaceIcon)
+        } else {
+            binding.contentMain.spaceIcon.visibility = View.INVISIBLE
+            binding.spaceNameLayout.visibility = View.INVISIBLE
+        }
 
         mSpaceAdapter.update(Space.getAll().asSequence().toList())
-
+        updateCurrentSpaceAtDrawer()
         refreshProjects()
+        refreshCurrentProject()
+        updateCurrentFolderVisibility()
     }
 
     private fun refreshProjects(setProjectId: Long? = null) {
         val projects = Space.current?.projects ?: emptyList()
-
         mPagerAdapter.updateData(projects)
-
-        mBinding.pager.adapter = mPagerAdapter
+        binding.contentMain.pager.adapter = mPagerAdapter
 
         setProjectId?.let {
-            mCurrentItem = mPagerAdapter.getProjectIndexById(it, default = 0)
+            mCurrentPagerItem = mPagerAdapter.getProjectIndexById(it, default = 0)
         }
-
         mFolderAdapter.update(projects)
-
-        refreshCurrentProject()
     }
+
+
 
     private fun refreshCurrentProject() {
         val project = getSelectedProject()
 
         if (project != null) {
-            mPagerAdapter.notifyProjectChanged(project)
-
-            project.space?.setAvatar(mBinding.currentFolderIcon)
-            mBinding.currentFolderIcon.show()
-
-            mBinding.currentFolderName.text = project.description
-            mBinding.currentFolderName.show()
+            binding.contentMain.pager.post {
+                mPagerAdapter.notifyProjectChanged(project)
+            }
+            binding.contentMain.folderInfoContainer.visibility = View.VISIBLE
+            project.space?.setAvatar(binding.contentMain.spaceIcon)
+            binding.contentMain.folderName.text = project.description
+            binding.contentMain.folderNameArrow.visibility = View.VISIBLE
+            binding.contentMain.folderName.visibility = View.VISIBLE
         } else {
-            mBinding.currentFolderIcon.cloak()
-            mBinding.currentFolderName.cloak()
+            binding.contentMain.folderNameArrow.visibility = View.INVISIBLE
+            binding.contentMain.folderName.visibility = View.INVISIBLE
         }
-
+        updateCurrentFolderVisibility()
         refreshCurrentFolderCount()
     }
 
@@ -487,150 +778,224 @@ class MainActivity : BaseActivity(), FolderAdapterListener, SpaceAdapterListener
         val project = getSelectedProject()
 
         if (project != null) {
-            mBinding.currentFolderCount.text = NumberFormat.getInstance().format(
-                project.collections.map { it.size }
-                    .reduceOrNull { acc, count -> acc + count } ?: 0)
-            mBinding.currentFolderCount.show()
-
-//            mBinding.uploadEditButton.toggle(project.isUploading)
+            val count = project.collections.map { it.size }
+                .reduceOrNull { acc, count -> acc + count } ?: 0
+            binding.contentMain.itemCount.text = NumberFormat.getInstance().format(count)
+            if (!selectModeToggle) {
+                binding.contentMain.itemCount.show()
+            }
         } else {
-            mBinding.currentFolderCount.cloak()
-//            mBinding.uploadEditButton.hide()
+            binding.contentMain.itemCount.cloak()
         }
     }
 
-    private fun importSharedMedia(data: Intent?) {
-        if (data?.action != Intent.ACTION_SEND) return
+    // ----- Navigation & Media Handling -----
+    private fun navigateToAddServer() {
+        closeDrawer()
+        startActivity(Intent(this, SpaceSetupActivity::class.java))
+    }
 
-        val uri = data.data ?: if ((data.clipData?.itemCount
-                ?: 0) > 0
-        ) data.clipData?.getItemAt(0)?.uri else null
+    private fun navigateToAddFolder() {
+        val intent = Intent(this, SpaceSetupActivity::class.java)
+        if (Space.current?.tType == Space.Type.INTERNET_ARCHIVE) {
+            // We cannot browse the Internet Archive. Directly forward to creating a project,
+            // as it doesn't make sense to show a one-option menu.
+            intent.putExtra("start_destination", StartDestination.ADD_NEW_FOLDER.name)
+        } else {
+            intent.putExtra("start_destination", StartDestination.ADD_FOLDER.name)
+        }
+        mNewFolderResultLauncher.launch(intent)
+//        mNewFolderResultLauncher.launch(Intent(this, AddFolderActivity::class.java))
+    }
+
+    private fun addClicked(mediaType: AddMediaType) {
+
+        when {
+            getSelectedProject() != null -> {
+                if (Prefs.addMediaHint) {
+                    when (mediaType) {
+                        AddMediaType.CAMERA -> {
+                            //permissionManager.checkCameraPermission {
+                                Picker.takePhoto(this@MainActivity, mediaLaunchers.cameraLauncher)
+                            //}
+                        }
+
+                        AddMediaType.GALLERY -> {
+                            permissionManager.checkMediaPermissions {
+                                Picker.pickMedia(mediaLaunchers.imagePickerLauncher)
+                            }
+                        }
+
+                        AddMediaType.FILES -> Picker.pickFiles(mediaLaunchers.filePickerLauncher)
+                    }
+                } else {
+                    dialogManager.showInfoDialog(
+                        icon = R.drawable.ic_media_new.asUiImage(),
+                        title = R.string.press_and_hold_options_media_screen_title.asUiText(),
+                        message = R.string.press_and_hold_options_media_screen_message.asUiText(),
+                        onDone = {
+                            Prefs.addMediaHint = true
+                            addClicked(mediaType)
+                        }
+                    )
+                }
+            }
+
+            Space.current == null -> navigateToAddServer()
+            else -> {
+                navigateToAddFolder()
+            }
+        }
+    }
+
+    private fun importSharedMedia(imageIntent: Intent?) {
+        if (imageIntent?.action != Intent.ACTION_SEND) return
+        val uri =
+            imageIntent.data ?: imageIntent.clipData?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.uri
         val path = uri?.path ?: return
-
         if (path.contains(packageName)) return
 
         mSnackBar?.show()
-
         lifecycleScope.launch(Dispatchers.IO) {
-            val media = Picker.import(this@MainActivity, getSelectedProject(), uri)
-
+            //When we are sharing a file to be uploaded to Save app we don't generate proof.
+            val media = Picker.import(this@MainActivity, getSelectedProject(), uri, false)
             lifecycleScope.launch(Dispatchers.Main) {
                 mSnackBar?.dismiss()
                 intent = null
-
                 if (media != null) {
-                    preview()
+                    navigateToPreview()
                 }
             }
         }
     }
 
-    private fun pickMedia() {
-        Picker.pickMedia(this, mMediaPickerLauncher)
-    }
-
-    private fun preview() {
+    private fun navigateToPreview() {
         val projectId = getSelectedProject()?.id ?: return
-
         PreviewActivity.start(this, projectId)
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        when (requestCode) {
-            2 -> pickMedia()
+    // ----- Permissions & Intent Handling -----
+    private fun handleIntent(intent: Intent) {
+        if (intent.action == Intent.ACTION_VIEW) {
+            intent.data?.takeIf { it.scheme == "save-veilid" }?.let { processUri(it) }
         }
     }
 
-//    private fun showAlertIcon() {
-//        mBinding.alertIcon.show()
-//        TooltipCompat.setTooltipText(
-//            mBinding.alertIcon,
-//            getString(R.string.unsecured_internet_connection)
-//        )
-//    }
+    private fun processUri(uri: Uri) {
+        val path = uri.path
+        val queryParams = uri.queryParameterNames.associateWith { uri.getQueryParameter(it) }
+        AppLogger.d("Path: $path, QueryParams: $queryParams")
+    }
 
-    override fun projectClicked(project: Project) {
-        mCurrentItem = mPagerAdapter.projects.indexOf(project)
+    // ----- Overrides -----
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
 
-//        mBinding.root.closeDrawer(mBinding.folderBar)
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        val shouldShowSideMenu =
+            Space.current != null && mCurrentPagerItem != mPagerAdapter.settingsIndex
+        menu?.findItem(R.id.menu_folders)?.apply {
+            isVisible = shouldShowSideMenu
+        }
+        return super.onPrepareOptionsMenu(menu)
+    }
 
-//        mBinding.spacesCard.disableAnimation {
-//            mBinding.spacesCard.hide()
-//        }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_folders -> {
+                toggleDrawerState()
+                true
+            }
 
-        // make sure that even when navigating to settings and picking a folder there
-        // the dataset will get update correctly
-        mFolderAdapter.notifyDataSetChanged()
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    // ----- Adapter Listeners -----
+    override fun onProjectSelected(project: Project) {
+        binding.root.closeDrawer(binding.drawerContent)
+        mCurrentPagerItem = mPagerAdapter.projects.indexOf(project)
     }
 
     override fun getSelectedProject(): Project? {
-        return mPagerAdapter.getProject(mCurrentItem)
+        return mPagerAdapter.getProject(mCurrentPagerItem)
     }
 
-    override fun spaceClicked(space: Space) {
+    override fun onSpaceSelected(space: Space) {
         Space.current = space
-
         refreshSpace()
-
-        mBinding.root.closeDrawer(mBinding.folderBar)
-
-//        mBinding.spacesCard.disableAnimation {
-//            mBinding.spacesCard.hide()
-//        }
+        updateCurrentSpaceAtDrawer()
+        collapseSpacesList()
+        binding.root.closeDrawer(binding.drawerContent)
     }
 
-    override fun addSpaceClicked() {
-        mBinding.root.closeDrawer(mBinding.folderBar)
-
-        startActivity(Intent(this, SpaceSetupActivity::class.java))
+    override fun onAddNewSpace() {
+        collapseSpacesList()
+        closeDrawer()
+        val intent = Intent(this, SpaceSetupActivity::class.java)
+        startActivity(intent)
     }
 
     override fun getSelectedSpace(): Space? {
+        val currentSpace = Space.current
+        AppLogger.i("current space requested by adapter... = $currentSpace")
         return Space.current
     }
 
-    private fun addClicked(typeFiles: Boolean = false) {
-        if (getSelectedProject() != null) {
-            if (typeFiles && Picker.canPickFiles(this)) {
-                Picker.pickFiles(mFilePickerLauncher)
-            } else {
-                pickMedia()
-            }
-        } else {
-            if (!Prefs.addFolderHintShown) {
-                AlertHelper.show(
-                    this,
-                    R.string.before_adding_media_create_a_new_folder_first,
-                    R.string.to_get_started_please_create_a_folder,
-                    R.drawable.ic_folder,
-                    buttons = listOf(
-                        AlertHelper.positiveButton(R.string.add_a_folder) { _, _ ->
-                            Prefs.addFolderHintShown = true
+    /**
+     * Show the UploadManagerFragment as a Bottom Sheet.
+     * Ensures we only show one instance.
+     */
+    fun showUploadManagerFragment() {
+        if (uploadManagerFragment == null) {
+            uploadManagerFragment = UploadManagerFragment()
+            uploadManagerFragment?.show(supportFragmentManager, UploadManagerFragment.TAG)
 
-                            addFolder()
-                        },
-                        AlertHelper.negativeButton(R.string.lbl_Cancel)
-                    )
-                )
-            } else {
-                addFolder()
+            // Stop the upload service when the bottom sheet is shown
+            UploadService.stopUploadService(this)
+        }
+    }
+
+    /**
+     * Setup a listener to detect when the UploadManagerFragment is dismissed.
+     * If there are pending uploads, restart the UploadService.
+     */
+    private fun setupBottomSheetObserver() {
+        supportFragmentManager.addFragmentOnAttachListener { _, fragment ->
+            if (fragment is UploadManagerFragment) {
+                uploadManagerFragment = fragment
+
+                // Observe when it gets dismissed
+                fragment.lifecycle.addObserver(object : DefaultLifecycleObserver {
+                    override fun onDestroy(owner: LifecycleOwner) {
+                        uploadManagerFragment = null // Clear reference
+
+                        // Check if there are pending uploads
+                        if (Media.getByStatus(
+                                listOf(Media.Status.Queued, Media.Status.Uploading),
+                                Media.ORDER_PRIORITY
+                            ).isNotEmpty()
+                        ) {
+                            UploadService.startUploadService(this@MainActivity)
+                        }
+                    }
+                })
             }
         }
     }
 
-    private fun updateBottomNavbar(position: Int) {
-        if (position == mPagerAdapter.settingsIndex) {
-            mBinding.myMediaButton.setIconResource(R.drawable.outline_perm_media_24)
-            mBinding.settingsButton.setIconResource(R.drawable.ic_settings_filled)
-        } else {
-            mBinding.myMediaButton.setIconResource(R.drawable.perm_media_24px)
-            mBinding.settingsButton.setIconResource(R.drawable.ic_settings)
-        }
+    override fun onDestroy() {
+        super.onDestroy()
+
+        // Clear pending callbacks/messages
+        window?.decorView?.handler?.removeCallbacksAndMessages(null)
+    }
+
+    companion object {
+        // Define request codes
+        const val REQUEST_CAMERA_PERMISSION = 100
+        const val REQUEST_FILE_MEDIA = 101
     }
 }

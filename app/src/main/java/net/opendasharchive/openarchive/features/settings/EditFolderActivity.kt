@@ -7,7 +7,10 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivityEditFolderBinding
 import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.features.core.BaseActivity
-import net.opendasharchive.openarchive.util.AlertHelper
+import net.opendasharchive.openarchive.features.core.UiImage
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.util.extensions.Position
 import net.opendasharchive.openarchive.util.extensions.setDrawable
 
@@ -31,8 +34,8 @@ class EditFolderActivity : BaseActivity() {
         mBinding = ActivityEditFolderBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
-        setSupportActionBar(mBinding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        setupToolbar("Edit Folder")
 
         mBinding.folderName.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -44,22 +47,24 @@ class EditFolderActivity : BaseActivity() {
 
                     supportActionBar?.title = newName
                     mBinding.folderName.hint = newName
+
+
+                    setupToolbar(newName)
                 }
             }
 
             false
         }
 
-        mBinding.btRemove.setDrawable(R.drawable.ic_delete, Position.Start, 0.5)
         mBinding.btRemove.setOnClickListener {
-            removeProject()
+            showDeleteFolderConfirmDialog()
         }
 
         mBinding.btArchive.setOnClickListener {
             archiveProject()
         }
 
-        CcSelector.init(mBinding.cc, null) {
+        CreativeCommonsLicenseManager.initialize(mBinding.cc, null) {
             mProject.licenseUrl = it
             mProject.save()
         }
@@ -67,14 +72,26 @@ class EditFolderActivity : BaseActivity() {
         updateUi()
     }
 
-    private fun removeProject() {
-        AlertHelper.show(this, R.string.action_remove_project, R.string.remove_from_app, buttons = listOf(
-            AlertHelper.positiveButton(R.string.remove) { _, _ ->
-                mProject.delete()
-
-                finish()
-            },
-            AlertHelper.negativeButton()))
+    private fun showDeleteFolderConfirmDialog() {
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Error
+            icon = UiImage.DrawableResource(R.drawable.ic_trash)
+            title = UiText.StringResource(R.string.remove_from_app)
+            message = UiText.StringResource(R.string.action_remove_project)
+            destructiveButton {
+                text = UiText.StringResource(R.string.remove)
+                action = {
+                    mProject.delete()
+                    finish()
+                }
+            }
+            neutralButton {
+                text = UiText.StringResource(R.string.lbl_Cancel)
+                action = {
+                    dialogManager.dismissDialog()
+                }
+            }
+        }
     }
 
     private fun archiveProject() {
@@ -98,10 +115,10 @@ class EditFolderActivity : BaseActivity() {
         val global = mProject.space?.license != null
 
         if (global) {
-            mBinding.cc.tvCc.setText(R.string.set_the_same_creative_commons_license_for_all_folders_on_this_server)
+            mBinding.cc.tvCcLabel.setText(R.string.set_the_same_creative_commons_license_for_all_folders_on_this_server)
         }
 
-        CcSelector.set(mBinding.cc, mProject.licenseUrl, !mProject.isArchived && !global)
+        CreativeCommonsLicenseManager.initialize(mBinding.cc, mProject.licenseUrl, !mProject.isArchived && !global)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

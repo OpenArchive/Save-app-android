@@ -45,7 +45,7 @@ class Onboarding23Activity : BaseActivity() {
             mBinding.titleBlock.verifyText,
             mBinding.titleBlock.encryptText
         )) {
-            textView.text = colorizeFirstLetter(textView.text, R.color.colorPrimary)
+            textView.text = colorizeFirstLetter(textView.text, R.color.colorTertiary)
         }
     }
 

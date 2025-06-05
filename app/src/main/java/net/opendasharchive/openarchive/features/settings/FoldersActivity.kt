@@ -2,7 +2,9 @@ package net.opendasharchive.openarchive.features.settings
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import net.opendasharchive.openarchive.FolderAdapter
 import net.opendasharchive.openarchive.FolderAdapterListener
@@ -11,85 +13,132 @@ import net.opendasharchive.openarchive.databinding.ActivityFoldersBinding
 import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseActivity
-import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.toggle
 
-class FoldersActivity: BaseActivity(), FolderAdapterListener {
+class  FoldersActivity : BaseActivity(), FolderAdapterListener {
 
     companion object {
         const val EXTRA_SHOW_ARCHIVED = "show_archived"
+        const val EXTRA_SELECTED_SPACE_ID = "selected_space_id"
+        const val EXTRA_SELECTED_PROJECT_ID = "SELECTED_PROJECT_ID"
     }
 
     private lateinit var mBinding: ActivityFoldersBinding
     private lateinit var mAdapter: FolderAdapter
 
-    private var mArchived = false
+    private var mArchived = true
+    private var mSelectedSpaceId = -1L
+    private var mSelectedProjectId: Long = -1L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         mArchived = intent.getBooleanExtra(EXTRA_SHOW_ARCHIVED, false)
+        mSelectedSpaceId = intent.getLongExtra(EXTRA_SELECTED_SPACE_ID, -1L)
+        mSelectedProjectId = intent.getLongExtra(EXTRA_SELECTED_PROJECT_ID, -1L)
 
         mBinding = ActivityFoldersBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
-        setSupportActionBar(mBinding.toolbar)
-        supportActionBar?.title = getString(if (mArchived) R.string.archived_folders else R.string.folders)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setupToolbar(
+            title = getString(if (mArchived) R.string.archived_folders else R.string.folders),
+            showBackButton = true
+        )
 
-        mAdapter = FolderAdapter(this)
+        setupRecyclerView()
 
+        setupButtons()
+    }
+
+    private fun setupRecyclerView() {
+        mAdapter = FolderAdapter(context = this, listener = this, isArchived = mArchived)
         mBinding.rvProjects.layoutManager = LinearLayoutManager(this)
         mBinding.rvProjects.adapter = mAdapter
+    }
 
-        mBinding.btViewArchived.toggle(!mArchived)
-        mBinding.btViewArchived.setOnClickListener {
-            val i = Intent(this, FoldersActivity::class.java)
-            i.putExtra(EXTRA_SHOW_ARCHIVED, true)
+    private fun setupButtons() {
+//        mBinding.fabAdd.apply {
+//            visibility = if (mArchived) View.INVISIBLE else View.VISIBLE
+//            setOnClickListener { addFolder() }
+//        }
 
-            startActivity(i)
-        }
-
-        if (mArchived) {
-            mBinding.cc.root.hide()
-        }
-        else {
-            mBinding.cc.tvCc.setText(R.string.set_the_same_creative_commons_license_for_all_folders_on_this_server)
-
-            CcSelector.init(mBinding.cc, Space.current?.license) {
-                val space = Space.current ?: return@init
-
-                space.license = it
-                space.save()
+        mBinding.btViewArchived.apply {
+            toggle(!mArchived)
+            setOnClickListener {
+                val i = Intent(this@FoldersActivity, FoldersActivity::class.java)
+                i.putExtra(EXTRA_SHOW_ARCHIVED, true)
+                startActivity(i)
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
+        refreshProjects()
+        invalidateOptionsMenu()
+    }
 
-        val projects = if (mArchived) Space.current?.archivedProjects else Space.current?.projects
+    private fun refreshProjects() {
+        val projects = if (mArchived) {
+            Space.current?.archivedProjects
+        } else {
+            Space.current?.projects?.filter { !it.isArchived }
+        } ?: emptyList()
 
-        mAdapter.update(projects ?: emptyList())
+        mAdapter.update(projects)
+
+        if (projects.isEmpty()) {
+            mBinding.rvProjects.visibility = View.GONE
+            mBinding.tvNoFolders.visibility = View.VISIBLE
+        } else {
+            mBinding.rvProjects.visibility = View.VISIBLE
+            mBinding.tvNoFolders.visibility = View.GONE
+        }
+    }
+
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_folder_list, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        val archivedCount = Space.get(mSelectedSpaceId)?.archivedProjects?.size ?: 0
+        menu?.findItem(R.id.action_archived_folders)?.isVisible = (!mArchived && archivedCount > 0)
+        return super.onPrepareOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
-        }
+        return when (item.itemId) {
 
-        return super.onOptionsItemSelected(item)
+            R.id.action_archived_folders -> {
+                navigateToArchivedFolders()
+                true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
     }
+
+    private fun navigateToArchivedFolders() {
+        val intent = Intent(this, FoldersActivity::class.java).apply {
+            putExtra(EXTRA_SHOW_ARCHIVED, true)
+            putExtra(EXTRA_SELECTED_SPACE_ID, mSelectedSpaceId)
+            putExtra(EXTRA_SELECTED_PROJECT_ID, mSelectedProjectId)
+        }
+        startActivity(intent)
+    }
+
 
     override fun projectClicked(project: Project) {
-        val i = Intent(this, EditFolderActivity::class.java)
-        i.putExtra(EditFolderActivity.EXTRA_CURRENT_PROJECT_ID, project.id)
+        val resultIntent = Intent()
+        resultIntent.putExtra("SELECTED_FOLDER_ID", project.id)
+        setResult(RESULT_OK, resultIntent)
+        //finish() // Close FoldersActivity and return to MainActivity
 
-        startActivity(i)
-    }
-
-    override fun getSelectedProject(): Project? {
-        return null
+        val intent = Intent(this, EditFolderActivity::class.java).apply {
+            putExtra(EditFolderActivity.EXTRA_CURRENT_PROJECT_ID, project.id)
+        }
+        startActivity(intent)
     }
 }

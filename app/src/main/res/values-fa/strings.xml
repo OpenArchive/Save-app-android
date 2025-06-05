@@ -102,7 +102,7 @@
     <string name="get_started">شروع کنید</string>
     <string name="refresh">تازه‌سازی</string>
     <string name="select_all">انتخاب همه</string>
-    <string name="got_it">متوجه شدم</string>
+    <string name="lbl_got_it">متوجه شدم</string>
     <string name="skip">از قلم بینداز</string>
     <string name="retry">تلاش دوباره</string>
 

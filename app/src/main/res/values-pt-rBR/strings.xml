@@ -81,7 +81,7 @@
     <string name="get_started">Começar</string>
     <string name="refresh">Atualizar</string>
     <string name="select_all">Selecionar todos</string>
-    <string name="got_it">Entendi</string>
+    <string name="lbl_got_it">Entendi</string>
     <string name="skip">Pular</string>
     <string name="retry">Tentar novamente</string>
 

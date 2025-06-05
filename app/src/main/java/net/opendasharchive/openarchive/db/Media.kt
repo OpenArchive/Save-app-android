@@ -105,7 +105,7 @@ data class Media(
         }
 
     var sStatus: Status
-        get() = Status.values().firstOrNull { it.id == status } ?: Status.New
+        get() = Status.entries.firstOrNull { it.id == status } ?: Status.New
         set(value) {
             status = value.id
         }
@@ -135,4 +135,8 @@ data class Media(
         set(value) {
             tags = value.joinToString(";")
         }
+
+
+    @Transient
+    var uploadPercentage: Int? = null
 }

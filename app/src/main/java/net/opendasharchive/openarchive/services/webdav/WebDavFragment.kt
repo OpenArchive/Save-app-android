@@ -5,24 +5,44 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import androidx.activity.addCallback
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.core.os.bundleOf
-import androidx.fragment.app.Fragment
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.setFragmentResult
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.opendasharchive.openarchive.CleanInsightsManager
+import net.opendasharchive.openarchive.BuildConfig
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.FragmentWebDavBinding
 import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.features.core.UiImage
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.asUiText
+import net.opendasharchive.openarchive.features.core.dialog.ButtonData
+import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
+import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
 import net.opendasharchive.openarchive.services.SaveClient
 import net.opendasharchive.openarchive.services.internetarchive.Util
-import net.opendasharchive.openarchive.util.AlertHelper
+import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.makeSnackBar
+import net.opendasharchive.openarchive.util.extensions.show
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Credentials
@@ -32,44 +52,53 @@ import org.koin.java.KoinJavaComponent.inject
 import java.io.IOException
 import kotlin.coroutines.suspendCoroutine
 
-class WebDavFragment : Fragment() {
+class WebDavFragment : BaseFragment() {
     private var mSpaceId: Long? = null
     private lateinit var mSpace: Space
 
     private lateinit var mSnackbar: Snackbar
-    private lateinit var mBinding: FragmentWebDavBinding
+    private lateinit var binding: FragmentWebDavBinding
+
+    private var originalName: String? = null
+    private var isNameChanged = false
 
     private val client: SaveClient by inject(SaveClient::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mSpaceId = arguments?.getLong(ARG_SPACE) ?: ARG_VAL_NEW_SPACE
+        mSpaceId = arguments?.getLong(ARG_SPACE_ID) ?: ARG_VAL_NEW_SPACE
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        mBinding = FragmentWebDavBinding.inflate(inflater)
+        binding = FragmentWebDavBinding.inflate(inflater)
 
-        mSpaceId = arguments?.getLong(ARG_SPACE) ?: ARG_VAL_NEW_SPACE
+        mSpaceId = arguments?.getLong(ARG_SPACE_ID) ?: ARG_VAL_NEW_SPACE
 
-        if (ARG_VAL_NEW_SPACE != mSpaceId) {
-            // setup views for editing and existing space
+        if (mSpaceId != ARG_VAL_NEW_SPACE) {
+            // setup views for editing an existing space
 
             mSpace = Space.get(mSpaceId!!) ?: Space(Space.Type.WEBDAV)
 
-            mBinding.header.visibility = View.GONE
-            mBinding.buttonBar.visibility = View.GONE
+            binding.header.visibility = View.GONE
+            binding.buttonBar.visibility = View.GONE
+            binding.buttonBarEdit.visibility = View.VISIBLE
 
-            mBinding.server.isEnabled = false
-            mBinding.username.isEnabled = false
-            mBinding.password.isEnabled = false
+            binding.server.isEnabled = false
+            binding.username.isEnabled = false
+            binding.password.isEnabled = false
 
-            mBinding.server.setText(mSpace.host)
-            mBinding.name.setText(mSpace.name)
-            mBinding.username.setText(mSpace.username)
-            mBinding.password.setText(mSpace.password)
+            // Disable the password visibility toggle
+            binding.passwordLayout.isEndIconVisible = false
+
+            binding.server.setText(mSpace.host)
+            binding.username.setText(mSpace.username)
+            binding.password.setText(mSpace.password)
+
+            binding.name.setText(mSpace.name)
+            binding.layoutName.visibility = View.VISIBLE
 
 //            mBinding.swChunking.isChecked = mSpace.useChunking
 //            mBinding.swChunking.setOnCheckedChangeListener { _, useChunking ->
@@ -77,58 +106,209 @@ class WebDavFragment : Fragment() {
 //                mSpace.save()
 //            }
 
-            mBinding.name.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+
+            binding.btRemove.setOnClickListener {
+                removeSpace()
+            }
+
+            // swap webDavFragment with Creative Commons License Fragment
+//            binding.btLicense.setOnClickListener {
+//                setFragmentResult(RESP_LICENSE, bundleOf())
+//            }
+
+//            binding.name.setOnEditorActionListener { _, actionId, _ ->
+//                if (actionId == EditorInfo.IME_ACTION_DONE) {
+//
+//                    val enteredName = binding.name.text?.toString()?.trim()
+//                    if (!enteredName.isNullOrEmpty()) {
+//                        // Update the Space entity and save it using SugarORM
+//                        mSpace.name = enteredName
+//                        mSpace.save() // Save the entity using SugarORM
+//
+//                        // Hide the keyboard
+//                        val imm =
+//                            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//                        imm.hideSoftInputFromWindow(binding.name.windowToken, 0)
+//                        binding.name.clearFocus() // Clear focus from the input field
+//
+//                        // Optional: Provide feedback to the user
+//                        Snackbar.make(
+//                            binding.root,
+//                            "Name saved successfully!",
+//                            Snackbar.LENGTH_SHORT
+//                        ).show()
+//                    } else {
+//                        // Notify the user that the name cannot be empty (optional)
+//                        Snackbar.make(binding.root, "Name cannot be empty", Snackbar.LENGTH_SHORT)
+//                            .show()
+//                    }
+//
+//                    true // Consume the event
+//                } else {
+//                    false // Pass the event to the next listener
+//                }
+//            }
+
+            originalName = mSpace.name
+
+            // Listen for name changes
+            binding.name.addTextChangedListener(object : android.text.TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    val enteredName = s?.toString()?.trim()
+                    isNameChanged = enteredName != originalName
+                    requireActivity().invalidateOptionsMenu() // Refresh menu to show confirm button
                 }
 
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                }
-
-                override fun afterTextChanged(name: Editable?) {
-                    if (name == null) return
-
-                    mSpace.name = name.toString()
-                    mSpace.save()
-                }
+                override fun afterTextChanged(s: android.text.Editable?) {}
             })
 
-            mBinding.btRemove.setOnClickListener {
-                removeProject()
+            CreativeCommonsLicenseManager.initialize(binding.cc, mSpace.license) {
+                mSpace.license = it
+                mSpace.save()
             }
 
         } else {
             // setup views for creating a new space
-
             mSpace = Space(Space.Type.WEBDAV)
-            mBinding.btRemove.visibility = View.GONE
+            binding.btRemove.visibility = View.GONE
+            binding.buttonBar.visibility = View.VISIBLE
+            binding.buttonBarEdit.visibility = View.GONE
+            binding.layoutName.visibility = View.GONE
+            binding.layoutLicense.visibility = View.GONE
+
+            binding.btAuthenticate.isEnabled = false
+            setupTextWatchers()
+
         }
 
-        mBinding.btAuthenticate.setOnClickListener { attemptLogin() }
+        binding.btAuthenticate.setOnClickListener { attemptLogin() }
 
-        mBinding.btCancel.setOnClickListener {
-            setFragmentResult(RESP_CANCEL, bundleOf())
-        }
-
-        mBinding.server.setOnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus) {
-                mBinding.server.setText(fixSpaceUrl(mBinding.server.text)?.toString())
+        binding.btCancel.setOnClickListener {
+            if (isJetpackNavigation) {
+                findNavController().popBackStack()
+            } else {
+                setFragmentResult(RESP_CANCEL, bundleOf())
             }
         }
 
-        mBinding.password.setOnEditorActionListener { _, actionId, _ ->
+        binding.server.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                binding.server.setText(fixSpaceUrl(binding.server.text)?.toString())
+            }
+        }
+
+        binding.password.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_NULL) {
-                attemptLogin()
+                //attemptLogin()
             }
 
             false
         }
 
-        return mBinding.root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mSnackbar = mBinding.root.makeSnackBar(getString(R.string.login_activity_logging_message))
+        mSnackbar = binding.root.makeSnackBar(getString(R.string.login_activity_logging_message))
+
+        if (mSpaceId != ARG_VAL_NEW_SPACE) {
+            val menuProvider = object : MenuProvider {
+                override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                    menuInflater.inflate(R.menu.menu_confirm, menu)
+                }
+
+                override fun onPrepareMenu(menu: Menu) {
+                    super.onPrepareMenu(menu)
+                    val btnConfirm = menu.findItem(R.id.action_confirm)
+                    btnConfirm?.isVisible = isNameChanged
+                }
+
+                override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                    return when (menuItem.itemId) {
+                        R.id.action_confirm -> {
+                            //todo: save changes here and show success dialog
+                            saveChanges()
+                            true
+                        }
+                        android.R.id.home -> {
+                            if(isNameChanged) {
+                                AppLogger.e("unsaved changes")
+                                showUnsavedChangesDialog()
+                                false
+                            } else {
+                                findNavController().popBackStack()
+                            }
+                        }
+                        else -> false
+                    }
+                }
+            }
+
+            requireActivity().addMenuProvider(
+                menuProvider,
+                viewLifecycleOwner,
+                Lifecycle.State.RESUMED
+            )
+
+
+            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+                if (isNameChanged) {
+                    showUnsavedChangesDialog()
+                } else {
+                    findNavController().popBackStack()
+                }
+            }
+        }
+
+    }
+
+    private fun saveChanges() {
+        val enteredName = binding.name.text?.toString()?.trim()
+        if (!enteredName.isNullOrEmpty()) {
+            mSpace.name = enteredName
+            mSpace.save()
+            originalName = enteredName
+            isNameChanged = false
+            requireActivity().invalidateOptionsMenu() //Refresh menu to hide confirm btn again
+            showSuccessDialog()
+        } else {
+            Snackbar.make(binding.root, getString(R.string.empty_name_warning), Snackbar.LENGTH_LONG).show()
+        }
+    }
+
+    private fun showSuccessDialog() {
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+           type = DialogType.Success
+            title = R.string.label_success_title.asUiText()
+            message = R.string.msg_edit_server_success.asUiText()
+            icon = UiImage.DrawableResource(R.drawable.ic_done)
+            positiveButton {
+                text = UiText.StringResource(R.string.lbl_got_it)
+                action = {
+                    findNavController().popBackStack()
+                }
+            }
+        }
+    }
+
+    private fun showUnsavedChangesDialog() {
+        dialogManager.showDialog(DialogConfig(
+            type = DialogType.Warning,
+            title = UiText.StringResource(R.string.unsaved_changes),
+            message = UiText.StringResource(R.string.do_you_want_to_save),
+            icon = UiImage.DynamicVector(Icons.Default.Warning),
+            positiveButton = ButtonData(
+                text = UiText.StringResource(R.string.lbl_save),
+                action = { saveChanges() }
+            ),
+            neutralButton = ButtonData(
+                text = UiText.StringResource(R.string.lbl_discard),
+                action = { findNavController().popBackStack() }
+            )
+        ))
     }
 
     private fun fixSpaceUrl(url: CharSequence?): Uri? {
@@ -158,31 +338,27 @@ class WebDavFragment : Fragment() {
      */
     private fun attemptLogin() {
         // Reset errors.
-        mBinding.username.error = null
-        mBinding.password.error = null
+        binding.username.error = null
+        binding.password.error = null
 
         // Store values at the time of the login attempt.
         var errorView: View? = null
 
-        mSpace.name = mBinding.name.text?.toString() ?: ""
+        mSpace.host = fixSpaceUrl(binding.server.text)?.toString() ?: ""
+        binding.server.setText(mSpace.host)
 
-        mSpace.host = fixSpaceUrl(mBinding.server.text)?.toString() ?: ""
-        mBinding.server.setText(mSpace.host)
-
-        mSpace.username = mBinding.username.text?.toString() ?: ""
-        mSpace.password = mBinding.password.text?.toString() ?: ""
-
-//        mSpace.useChunking = mBinding.swChunking.isChecked
+        mSpace.username = binding.username.text?.toString() ?: ""
+        mSpace.password = binding.password.text?.toString() ?: ""
 
         if (mSpace.host.isEmpty()) {
-            mBinding.server.error = getString(R.string.error_field_required)
-            errorView = mBinding.server
+            binding.server.error = getString(R.string.error_field_required)
+            errorView = binding.server
         } else if (mSpace.username.isEmpty()) {
-            mBinding.username.error = getString(R.string.error_field_required)
-            errorView = mBinding.username
+            binding.username.error = getString(R.string.error_field_required)
+            errorView = binding.username
         } else if (mSpace.password.isEmpty()) {
-            mBinding.password.error = getString(R.string.error_field_required)
-            errorView = mBinding.password
+            binding.password.error = getString(R.string.error_field_required)
+            errorView = binding.password
         }
 
         if (errorView != null) {
@@ -203,7 +379,7 @@ class WebDavFragment : Fragment() {
         // perform the user login attempt.
         mSnackbar.show()
 
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO) {
             try {
                 testConnection()
                 mSpace.save()
@@ -213,15 +389,45 @@ class WebDavFragment : Fragment() {
 //                    CleanInsightsManager.measureEvent("backend", "new", Space.Type.WEBDAV.friendlyName)
 //                }
 
-                setFragmentResult(RESP_SAVED, bundleOf())
+                navigate(mSpace.id)
             } catch (exception: IOException) {
                 if (exception.message?.startsWith("401") == true) {
-                    showError(getString(R.string.error_incorrect_username_or_password), true)
+                    showInvalidCredentialsError()
                 } else {
                     showError(exception.localizedMessage ?: getString(R.string.error))
                 }
             }
         }
+    }
+
+    private fun showInvalidCredentialsError() {
+        requireActivity().runOnUiThread {
+            mSnackbar.dismiss()
+            binding.errorHint.text = getString(R.string.error_incorrect_username_or_password)
+            binding.errorHint.show()
+        }
+    }
+
+    private fun dismissCredentialsError() {
+        binding.errorHint.hide()
+    }
+
+    private fun navigate(spaceId: Long) = CoroutineScope(Dispatchers.Main).launch {
+//        Utility.showMaterialMessage(
+//            context = requireContext(),
+//            title = "Success",
+//            message = "You have successfully authenticated! Now let's continue setting up your media server."
+//        ) {}
+        if (isJetpackNavigation) {
+            val action =
+                WebDavFragmentDirections.actionFragmentWebDavToFragmentWebDavSetupLicense(
+                    spaceId = spaceId
+                )
+            findNavController().navigate(action)
+        } else {
+            setFragmentResult(RESP_SAVED, bundleOf(ARG_SPACE_ID to spaceId))
+        }
+
     }
 
     private suspend fun testConnection() {
@@ -259,19 +465,22 @@ class WebDavFragment : Fragment() {
             mSnackbar.dismiss()
 
             if (onForm) {
-                mBinding.password.error = text
-                mBinding.password.requestFocus()
+                binding.errorHint.error = text
+                binding.password.requestFocus()
             } else {
-                mSnackbar = mBinding.root.makeSnackBar(text, Snackbar.LENGTH_LONG)
+                mSnackbar = binding.root.makeSnackBar(text, Snackbar.LENGTH_LONG)
                 mSnackbar.show()
 
-                mBinding.server.requestFocus()
+                binding.server.requestFocus()
             }
         }
     }
 
     override fun onStop() {
         super.onStop()
+        if (isNameChanged) {
+            binding.name.requestFocus()
+        }
 
         // make sure the snack-bar is gone when this fragment isn't on display anymore
         mSnackbar.dismiss()
@@ -279,18 +488,54 @@ class WebDavFragment : Fragment() {
         Util.hideSoftKeyboard(requireActivity())
     }
 
-    private fun removeProject() {
-        AlertHelper.show(
-            requireContext(),
-            R.string.are_you_sure_you_want_to_remove_this_server_from_the_app,
-            R.string.remove_from_app,
-            buttons = listOf(
-                AlertHelper.positiveButton(R.string.remove) { _, _ ->
+    private fun removeSpace() {
+        val config = DialogConfig(
+            type = DialogType.Warning,
+            title = R.string.remove_from_app.asUiText(),
+            message = R.string.are_you_sure_you_want_to_remove_this_server_from_the_app.asUiText(),
+            icon = UiImage.DrawableResource(R.drawable.ic_trash),
+            destructiveButton = ButtonData(
+                text = UiText.StringResource(R.string.lbl_ok),
+                action = {
                     mSpace.delete()
-                    setFragmentResult(RESP_DELETED, bundleOf())
-                }, AlertHelper.negativeButton()
+                    findNavController().popBackStack()
+                }
+            ),
+            neutralButton = ButtonData(
+                text = UiText.StringResource(R.string.lbl_Cancel),
+                action = {}
             )
         )
+        dialogManager.showDialog(config)
+    }
+
+    private fun setupTextWatchers() {
+        // Create a common TextWatcher for all three fields
+        val textWatcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                updateAuthenticateButtonState()
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                dismissCredentialsError()
+            }
+        }
+
+        binding.server.addTextChangedListener(textWatcher)
+        binding.username.addTextChangedListener(textWatcher)
+        binding.password.addTextChangedListener(textWatcher)
+    }
+
+    private fun updateAuthenticateButtonState() {
+        val url = binding.server.text?.toString()?.trim().orEmpty()
+        val username = binding.username.text?.toString()?.trim().orEmpty()
+        val password = binding.password.text?.toString()?.trim().orEmpty()
+
+        // Enable the button only if none of the fields are empty
+        binding.btAuthenticate.isEnabled =
+            url.isNotEmpty() && username.isNotEmpty() && password.isNotEmpty()
     }
 
     companion object {
@@ -298,9 +543,10 @@ class WebDavFragment : Fragment() {
         const val RESP_SAVED = "web_dav_fragment_resp_saved"
         const val RESP_DELETED = "web_dav_fragment_resp_deleted"
         const val RESP_CANCEL = "web_dav_fragment_resp_cancel"
+        const val RESP_LICENSE = "web_dav_fragment_resp_license"
 
         // factory method parameters (bundle args)
-        const val ARG_SPACE = "space"
+        const val ARG_SPACE_ID = "space_id"
         const val ARG_VAL_NEW_SPACE = -1L
 
         // other internal constants
@@ -309,11 +555,18 @@ class WebDavFragment : Fragment() {
         @JvmStatic
         fun newInstance(spaceId: Long) = WebDavFragment().apply {
             arguments = Bundle().apply {
-                putLong(ARG_SPACE, spaceId)
+                putLong(ARG_SPACE_ID, spaceId)
             }
         }
 
         @JvmStatic
         fun newInstance() = newInstance(ARG_VAL_NEW_SPACE)
+    }
+
+    override fun getToolbarTitle(): String = if (mSpaceId == ARG_VAL_NEW_SPACE) {
+        "Private Server"
+    } else {
+        val space = Space.get(mSpaceId!!)
+        space?.name ?: "Private Server"
     }
 }

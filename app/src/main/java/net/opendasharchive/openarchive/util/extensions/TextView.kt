@@ -44,10 +44,10 @@ fun TextView.setDrawable(drawable: Drawable?, position: Position, scale: Double 
 }
 
 fun TextView.styleAsLink() {
-        setText(SpannableString(text).apply {
-            setSpan(URLSpan(""), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }, TextView.BufferType.SPANNABLE)
+    setText(SpannableString(text).apply {
+        setSpan(URLSpan(""), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    }, TextView.BufferType.SPANNABLE)
 
-        isClickable = true
-        isFocusable = true
+    isClickable = true
+    isFocusable = true
 }

@@ -10,15 +10,17 @@
     android:orientation="vertical"
     android:padding="@dimen/activity_horizontal_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".features.settings.EditFolderActivity"
-    tools:showIn="@layout/activity_edit_folder">
+    tools:context=".features.onboarding.SpaceSetupActivity"
+    tools:background="@color/colorBackground"
+    tools:showIn="@layout/fragment_webdav_setup_license">
 
+    <!-- Main CC License Switch -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/sw_cc"
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/sw_cc_enabled"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
@@ -28,7 +30,8 @@
             android:textOn="@string/answer_yes" />
 
         <TextView
-            android:id="@+id/tv_cc"
+            android:id="@+id/tv_cc_label"
+            android:textFontWeight="500"
             android:layout_width="240dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
@@ -37,23 +40,25 @@
 
     </RelativeLayout>
 
+    <!-- Allow Remix Switch -->
     <RelativeLayout
-        android:id="@+id/row_1"
+        android:id="@+id/row_allow_remix"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/sw_nd"
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/sw_allow_remix"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:checked="false"
+            android:checked="true"
             android:showText="true"
             android:textOff="@string/answer_no"
             android:textOn="@string/answer_yes" />
 
         <TextView
             android:layout_width="wrap_content"
+            android:textFontWeight="500"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:text="@string/info_license_deriv"
@@ -62,13 +67,14 @@
 
     </RelativeLayout>
 
+    <!-- Require Share Alike Switch -->
     <RelativeLayout
-        android:id="@+id/row_2"
+        android:id="@+id/row_share_alike"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/sw_sa"
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/sw_require_share_alike"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
@@ -79,6 +85,7 @@
 
         <TextView
             android:layout_width="wrap_content"
+            android:textFontWeight="500"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:text="@string/info_license_sharealike"
@@ -87,13 +94,14 @@
 
     </RelativeLayout>
 
+    <!-- Allow Commercial Use Switch -->
     <RelativeLayout
-        android:id="@+id/row_3"
+        android:id="@+id/row_commercial_use"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/sw_nc"
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/sw_allow_commercial"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
@@ -104,6 +112,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textFontWeight="500"
             android:layout_centerVertical="true"
             android:text="@string/info_license_comm"
             android:textAppearance="?android:attr/textAppearanceSmall"
@@ -111,19 +120,33 @@
 
     </RelativeLayout>
 
-    <TextView
-        android:id="@+id/tv_license"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        tools:text="https://creativecommons.org" />
 
-    <TextView
-        android:id="@+id/bt_learn_more"
+    <!-- License URL -->
+    <LinearLayout
+        android:layout_marginTop="32dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="@string/learn_more_about_creative_commons"
-        android:textColor="@color/c23_medium_grey" />
+        android:orientation="vertical">
+
+
+        <TextView
+            android:id="@+id/tv_license_url"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/colorTertiary"
+            tools:text="https://creativecommons.org" />
+
+        <TextView
+            android:id="@+id/bt_learn_more"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="@string/learn_more_about_creative_commons"
+            android:textColor="@color/colorTertiary" />
+
+    </LinearLayout>
+
+
 
 </LinearLayout>

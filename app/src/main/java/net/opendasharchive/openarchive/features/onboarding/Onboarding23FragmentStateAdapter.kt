@@ -13,29 +13,36 @@ class Onboarding23FragmentStateAdapter(
     lifecycle: Lifecycle,
     context: Context
 ) : FragmentStateAdapter(fragmentManager, lifecycle) {
-    private val context: Context
 
-    init {
-        this.context = context.applicationContext
-    }
+    private val context: Context = context.applicationContext
 
     override fun createFragment(position: Int): Fragment {
         when (position) {
             0 -> return newInstance(
-                context, R.string.intro_header_share, R.string.intro_text_share
+                context,
+                R.string.intro_header_secure,
+                R.string.intro_text_secure,
             )
 
             1 -> return newInstance(
-                context, R.string.intro_header_archive, R.string.intro_text_archive
+                context,
+                R.string.intro_header_archive,
+                R.string.intro_text_archive,
+                R.string.intro_link_archive,
             )
 
             2 -> return newInstance(
-                context, R.string.intro_header_verify, R.string.intro_text_verify
+                context,
+                R.string.intro_header_verify,
+                R.string.intro_text_verify,
+                R.string.intro_link_verify,
             )
 
             3 -> return newInstance(
-                context, R.string.intro_header_encrypt, R.string.intro_text_encrypt,
-                "org.torproject.android"
+                context,
+                R.string.intro_header_encrypt,
+                R.string.intro_text_encrypt,
+                R.string.intro_link_encrypt,
             )
         }
         throw IndexOutOfBoundsException()

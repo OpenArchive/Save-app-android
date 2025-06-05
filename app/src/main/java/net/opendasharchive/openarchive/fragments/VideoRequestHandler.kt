@@ -1,16 +1,15 @@
 package net.opendasharchive.openarchive.fragments
 
 import android.content.Context
-import kotlin.Throws
 import android.graphics.Bitmap
 import com.squareup.picasso.Picasso
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import com.squareup.picasso.Request
 import com.squareup.picasso.RequestHandler
-import timber.log.Timber
 import java.io.IOException
 import java.lang.Exception
+import androidx.core.net.toUri
 
 class VideoRequestHandler(private val mContext: Context) : RequestHandler() {
     override fun canHandleRequest(data: Request): Boolean {
@@ -22,10 +21,10 @@ class VideoRequestHandler(private val mContext: Context) : RequestHandler() {
     override fun load(data: Request, arg1: Int): Result? {
         val bm: Bitmap?
         try {
-            bm = retrieveVideoFrameFromVideo(mContext, Uri.parse(data.uri.toString().substring(6)))
+            bm = retrieveVideoFrameFromVideo(mContext, data.uri.toString().substring(6).toUri())
             if (bm != null) return Result(bm, Picasso.LoadedFrom.DISK)
         } catch (throwable: Throwable) {
-            Timber.e("VideoRequestHandler load() failed", throwable)
+            throwable.printStackTrace()
         }
         return null
     }

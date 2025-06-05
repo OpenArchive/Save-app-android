@@ -4,46 +4,53 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingStart="32dp"
+    android:paddingStart="24dp"
     android:paddingEnd="128dp"
     android:weightSum="125"
     tools:context=".features.onboarding.Onboarding23SlideFragment">
 
     <View
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="8" />
+
+    <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="80" />
+        android:layout_weight="65" />
 
-    <ScrollView
-        android:layout_width="match_parent"
+
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_weight="30">
+        android:layout_weight="42"
+        android:paddingTop="8dp"
+        android:orientation="vertical">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:text="title"
+            android:textAllCaps="true"
+            android:lineSpacingExtra="0sp"
+            android:textFontWeight="800"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingBottom="8dp"
-                android:text="title"
-                android:textAllCaps="true"
-                android:textFontWeight="900"
-                android:textSize="28sp"
-                android:textStyle="bold"
-                tools:ignore="HardcodedText"
-                tools:targetApi="p" />
+        <TextView
+            android:id="@+id/summary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:lineSpacingExtra="0sp"
+            android:scrollbars="none"
+            android:textColor="@color/colorOnBackground"
+            android:textColorLink="@color/colorOnBackground"
+            android:textSize="16sp"
+            tools:text="@tools:sample/lorem/random" />
 
-            <TextView
-                android:id="@+id/summary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="@tools:sample/lorem/random"
-                android:textSize="16sp" />
-        </LinearLayout>
-    </ScrollView>
+    </LinearLayout>
+
 
 </LinearLayout>

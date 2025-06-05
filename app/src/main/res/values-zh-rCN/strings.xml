@@ -79,7 +79,7 @@
     <string name="get_started">开始</string>
     <string name="refresh">刷新</string>
     <string name="select_all">全选</string>
-    <string name="got_it">知道了</string>
+    <string name="lbl_got_it">知道了</string>
     <string name="skip">跳过</string>
     <string name="retry">重试</string>
 

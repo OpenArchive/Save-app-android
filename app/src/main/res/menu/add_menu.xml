@@ -2,8 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/action_upload_media"
+        android:id="@+id/action_upload_camera"
         android:icon="@drawable/ic_photo_camera"
+        android:title="@string/add_camera" />
+
+    <item
+        android:id="@+id/action_upload_media"
+        android:icon="@drawable/ic_photo_library"
         android:title="@string/add_images_or_video" />
 
     <item

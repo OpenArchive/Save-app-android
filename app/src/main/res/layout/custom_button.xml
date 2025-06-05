@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="top"
+    android:background="@color/transparent">
+
+    <ImageView
+        android:id="@+id/leftIcon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:src="@drawable/logo_drive_2020q4_color_2x_web_64dp" />
+
+    <LinearLayout
+        android:id="@+id/title_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="8dp"
+        app:layout_constraintEnd_toStartOf="@id/rightIcon"
+        app:layout_constraintStart_toEndOf="@id/leftIcon"
+        app:layout_constraintBottom_toBottomOf="@id/leftIcon"
+        app:layout_constraintTop_toTopOf="@id/leftIcon"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:maxLines="1"
+            tools:text="Title" />
+
+        <TextView
+            android:id="@+id/subTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorOnBackgroundTonedDown"
+            android:textSize="12sp"
+            tools:text="Subtitle" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/rightIcon"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginEnd="20dp"
+        app:layout_constraintBottom_toBottomOf="@id/title_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/title_container"
+        app:tint="#999999"
+        tools:src="@drawable/outline_add_link_24" />
+
+    <View
+        android:id="@+id/row_underline"
+        android:layout_width="0dp"
+        android:layout_height="0.5dp"
+        android:visibility="gone"
+        android:background="@color/colorOnBackgroundTonedDown"
+        app:layout_constraintStart_toStartOf="@id/title_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -30,9 +30,7 @@ class GDriveActivity : BaseActivity() {
             if (space != null) removeSpace(space)
         }
 
-        setSupportActionBar(mBinding.toolbar)
-        supportActionBar?.title = getString(R.string.gdrive)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setupToolbar(getString(R.string.gdrive))
 
         mBinding.gdriveId.setText(space?.displayname ?: "")
     }

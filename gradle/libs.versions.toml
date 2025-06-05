@@ -1,0 +1,212 @@
+[versions]
+activity = "1.9.3"
+agp = "8.9.2"
+appcompat = "1.7.0"
+biometric = "1.1.0"
+coil = "3.0.4"
+compose = "1.7.8"
+compose-preference = "1.1.1"
+constraintlayout = "2.2.1"
+constraintlayout-compos = "1.1.1"
+coordinatorlayout = "1.2.0"
+core-splashscreen = "1.0.1"
+coroutines = "1.10.2"
+detekt = "1.23.8"
+detekt-compose = "0.4.22"
+detekt-rules-compose = "1.4.0"
+espresso-core = "3.5.1"
+fragment = "1.8.6"
+glide = "4.16.0"
+gson = "2.11.0"
+junit = "4.13.2"
+koin = "4.1.0-Beta5"
+kotlin = "2.1.20"
+ksp = "2.1.20-2.0.1"
+lifecycle = "2.8.7"
+orhanobut-logger = "2.2.0"
+material = "1.12.0"
+material3 = "1.3.2"
+mixpanel = "8.0.2"
+navigation = "2.8.9"
+okhttp = "4.12.0"
+picasso = "2.71828"
+preference = "1.2.1"
+recyclerview = "1.3.2"
+recyclerview-selection = "1.1.0"
+androidx-security-crypto = "1.1.0-alpha07"
+swiperefreshlayout = "1.1.0"
+retrofit = "2.11.0"
+robolectric = "4.14.1"
+serialization = "1.8.1"
+timber = "5.0.1"
+viewpager2 = "1.1.0"
+work = "2.9.1"
+
+audio-waveform = "1.0.1"
+bitcoinj-core = "0.16.2"
+bouncycastle-bcpkix = "1.72"
+bouncycastle-bcprov = "1.72"
+bouncycastle-bcpg = "1.71"
+circularimageview = "1.4"
+clean-insights = "2.8.0"
+dotsindicator = "5.1.0"
+
+google-play-asset-delivery-ktx = "2.3.0"
+google-play-feature-delivery = "2.1.0"
+google-play-review = "2.0.2"
+google-play-app-update-ktx = "2.1.0"
+guava = "31.0.1-jre"
+guava-listenablefuture = "9999.0-empty-to-avoid-conflict-with-guava"
+j2v8 = "6.2.1@aar"
+netcipher = "2.2.0-alpha"
+permissionx = "1.6.4"
+proofmode = "1.0.27"
+satyan-sugar = "1.5"
+tor-android = "0.4.7.14"
+jtorctl = "0.4.5.7"
+firebase-crashlytics = "19.4.3"
+google-gms-google-services = "4.4.2"
+google-firebase-crashlytics = "3.0.3"
+
+[libraries]
+# AndroidX
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
+androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+androidx-constraintlayout-compose = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version.ref = "constraintlayout-compos" }
+androidx-coordinatorlayout = { group = "androidx.coordinatorlayout", name = "coordinatorlayout", version.ref = "coordinatorlayout" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "core-splashscreen" }
+androidx-fragment-compose = { group = "androidx.fragment", name = "fragment-compose", version.ref = "fragment" }
+androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragment" }
+androidx-lifecycle-livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
+androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
+androidx-navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment-ktx", version.ref = "navigation" }
+androidx-navigation-fragment-compose = { group = "androidx.navigation", name = "navigation-fragment-compose", version.ref = "navigation" }
+androidx-navigation-ui = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigation" }
+androidx-preferences = { group = "androidx.preference", name = "preference-ktx", version.ref = "preference" }
+androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
+androidx-recyclerview-selection = { group = "androidx.recyclerview", name = "recyclerview-selection", version.ref = "recyclerview-selection" }
+androidx-security-crypto = { group = "androidx.security", name = "security-crypto-ktx", version.ref = "androidx-security-crypto" }
+androidx-swiperefresh = { group = "androidx.swiperefreshlayout", name = "swiperefreshlayout", version.ref = "swiperefreshlayout" }
+androidx-viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewpager2" }
+androidx-work = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
+
+# Compose
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "compose" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "compose" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "compose" }
+androidx-compose-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "compose" }
+
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "compose" }
+androidx-compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "compose" }
+
+compose-preferences = { group = "me.zhanghai.compose.preference", name = "library", version.ref = "compose-preference" }
+
+# Google
+google-auth = { group = "com.google.android.gms", name = "play-services-auth", version = "21.3.0" }
+google-drive-api = { group = "com.google.apis", name = "google-api-services-drive", version = "v3-rev136-1.25.0" }
+google-http-client = { group = "com.google.http-client", name = "google-http-client-gson", version = "1.45.2" }
+google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+# Koin
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
+koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
+koin-androidx-navigation = { group = "io.insert-koin", name = "koin-androidx-navigation", version.ref = "koin" }
+koin-compose = { group = "io.insert-koin", name = "koin-compose", version.ref = "koin" }
+koin-compose-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmodel", version.ref = "koin" }
+koin-compose-viewmodel-navigation = { group = "io.insert-koin", name = "koin-compose-viewmodel-navigation", version.ref = "koin" }
+
+# Networking
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+guardianproject-sardine = { group = "com.github.guardianproject", name = "sardine-android", version = "89f7eae512" }
+
+# Images
+coil = { group = "io.coil-kt.coil3", name = "coil", version.ref = "coil" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version .ref= "coil" }
+coil-video = { group = "io.coil-kt.coil3", name = "coil-video", version = "3.0.4" }
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
+picasso = { group = "com.squareup.picasso", name = "picasso", version.ref = "picasso" }
+asafirm-image-picker = {group = "com.github.esafirm", name="android-image-picker", version ="3.0.0"}
+
+# Utilities
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+
+# Logging
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+orhanobut-logger = { module = "com.orhanobut:logger", version.ref = "orhanobut-logger" }
+
+# Test
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+androidx-test-junit = { group = "androidx.test.ext", name = "junit", version = "1.2.1" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version = "1.6.2" }
+work-testing = { group = "androidx.work", name = "work-testing", version.ref = "work" }
+
+detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
+detekt-rules-libraries = { group = "io.gitlab.arturbosch.detekt", name = "detekt-rules-libraries", version.ref = "detekt" }
+detekt-rules-authors = { group = "io.gitlab.arturbosch.detekt", name = "detekt-rules-ruleauthors", version.ref = "detekt" }
+detekt-compose = { group = "io.nlopez.compose.rules", name = "detekt", version.ref = "detekt-compose" }
+detekt-rules-compose = { module = "ru.kode:detekt-rules-compose", version.ref = "detekt-rules-compose" }
+
+
+abdularis-circularimageview = { group = "com.github.abdularis", name = "circularimageview", version.ref = "circularimageview" }
+dotsindicator = { group = "com.tbuonomo", name = "dotsindicator", version.ref = "dotsindicator" }
+permissionx = { group = "com.guolindev.permissionx", name = "permissionx", version.ref = "permissionx" }
+
+bouncycastle-bcpkix = { group = "org.bouncycastle", name = "bcpkix-jdk15to18", version.ref = "bouncycastle-bcpkix" }
+bouncycastle-bcprov = { group = "org.bouncycastle", name = "bcprov-jdk15to18", version.ref = "bouncycastle-bcprov" }
+bouncycastle-bcpg = { group = "org.bouncycastle", name = "bcpg-jdk15to18", version.ref = "bouncycastle-bcpg" }
+
+
+google-play-asset-delivery-ktx = { group = "com.google.android.play", name = "asset-delivery-ktx", version.ref = "google-play-asset-delivery-ktx" }
+google-play-feature-delivery = { group = "com.google.android.play", name = "feature-delivery", version.ref = "google-play-feature-delivery" }
+google-play-feature-delivery-ktx = { group = "com.google.android.play", name = "feature-delivery-ktx", version.ref = "google-play-feature-delivery" }
+google-play-review = { group = "com.google.android.play", name = "review", version.ref = "google-play-review" }
+google-play-review-ktx = { group = "com.google.android.play", name = "review-ktx", version.ref = "google-play-review" }
+google-play-app-update-ktx = { group = "com.google.android.play", name = "app-update-ktx", version.ref = "google-play-app-update-ktx" }
+
+tor-android = { group = "info.guardianproject", name = "tor-android", version.ref = "tor-android" }
+jtorctl = { group = "info.guardianproject", name = "jtorctl", version.ref = "jtorctl" }
+
+bitcoinj-core = { group = "org.bitcoinj", name = "bitcoinj-core", version.ref = "bitcoinj-core" }
+j2v8 = { group = "com.eclipsesource.j2v8", name = "j2v8", version.ref = "j2v8" }
+
+proofmode = { group = "org.proofmode", name = "android-libproofmode", version.ref = "proofmode" }
+
+guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
+guava-listenablefuture = { group = "com.google.guava", name = "listenablefuture", version.ref = "guava-listenablefuture" }
+
+satyan-sugar = { group = "com.github.satyan", name = "sugar", version.ref = "satyan-sugar" }
+audio-waveform = { group = "com.github.derlio", name = "audio-waveform", version.ref = "audio-waveform" }
+
+clean-insights = { group = "org.cleaninsights.sdk", name = "clean-insights-sdk", version.ref = "clean-insights" }
+netcipher = { group = "info.guardianproject.netcipher", name = "netcipher", version.ref = "netcipher" }
+
+mixpanel = { group = "com.mixpanel.android", name = "mixpanel-android", version.ref = "mixpanel" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebase-crashlytics" }
+
+[plugins]
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+navigation-safeargs = { id = "androidx.navigation.safeargs.kotlin", version.ref = "navigation" }
+detekt-plugin = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "google-gms-google-services" }
+google-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "google-firebase-crashlytics" }

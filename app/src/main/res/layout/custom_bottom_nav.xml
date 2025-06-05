@@ -1,0 +1,113 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bottom_bar"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/bottom_nav_height"
+    android:background="@drawable/bottom_nav_background"
+    android:baselineAligned="false"
+    android:orientation="horizontal"
+    android:weightSum="3">
+
+
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/my_media_button"
+            android:layout_width="56dp"
+            android:layout_height="38dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="0dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            app:icon="@drawable/outline_perm_media_24"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="24dp"
+            app:iconTint="@color/white"
+            app:rippleColor="@color/c23_light_grey" />
+
+        <TextView
+            android:id="@+id/my_media_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/my_media_button"
+            android:layout_centerHorizontal="true"
+            android:clickable="true"
+            android:focusable="false"
+            android:padding="0dp"
+            android:soundEffectsEnabled="false"
+            android:text="@string/my_media"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            tools:ignore="KeyboardInaccessibleWidget" />
+
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+
+        <ImageButton
+            android:id="@+id/add_button"
+            android:layout_width="90dp"
+            android:layout_height="38dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/pill_bg"
+            android:backgroundTint="@color/colorAddButton"
+            android:contentDescription="TODO"
+            android:paddingHorizontal="16dp"
+            android:src="@drawable/baseline_add_24"
+            app:rippleColor="@color/c23_light_grey" />
+
+    </FrameLayout>
+
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/settings_button"
+            android:layout_width="56dp"
+            android:layout_height="38dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="0dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:backgroundTint="@color/colorBottomNavbar"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            app:icon="@drawable/ic_settings"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="24dp"
+            app:iconTint="@color/white"
+            app:rippleColor="@color/c23_light_grey" />
+
+        <TextView
+            android:id="@+id/settings_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/settings_button"
+            android:layout_centerHorizontal="true"
+            android:clickable="true"
+            android:focusable="false"
+            android:padding="0dp"
+            android:soundEffectsEnabled="false"
+            android:textColor="@color/white"
+            android:text="@string/action_settings"
+            android:textSize="12sp"
+            tools:ignore="KeyboardInaccessibleWidget" />
+
+    </RelativeLayout>
+
+</LinearLayout>

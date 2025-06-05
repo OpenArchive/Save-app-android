@@ -2,6 +2,7 @@ package net.opendasharchive.openarchive.services.tor
 
 import android.app.Activity
 import android.app.Application
+import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import info.guardianproject.netcipher.proxy.OrbotHelper
 import kotlinx.coroutines.flow.StateFlow
@@ -55,7 +56,10 @@ class TorViewModel(
     }
 
     fun requestTorStatus() {
-        OrbotHelper.get(application).init()
+        val intent = Intent(OrbotHelper.ACTION_STATUS);
+        intent.setPackage(OrbotHelper.ORBOT_PACKAGE_NAME);
+        intent.putExtra(OrbotHelper.EXTRA_PACKAGE_NAME, application.packageName);
+        application.sendBroadcast(intent)
     }
 
     override fun onInstalled() {

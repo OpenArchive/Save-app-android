@@ -180,7 +180,7 @@
     <string name="proofmode">ProofMode</string>
     <string name="no_webbrowser_found_error">لا يوجد تطبيق يمكنه التعامل مع هذا الطلب. الرجاء تثبيت متصفح الانترنت.</string>
 
-    <string name="intro_text_share">
+    <string name="intro_text_secure">
        قم بتحميل الوسائط المتحقق منها إلى الخادم الذي اخترته. أضف ترخيص المشاع الإبداعي للتعبير 
        عن رغباتك للاستخدام المستقبلي.
 </string>
@@ -215,7 +215,7 @@
     <string name="preview_media">معاينة الوسائط</string>
     <string name="add_more">إضافة المزيد</string>
     <string name="select_all">حدد الكل</string>
-    <string name="got_it">فهمت</string>
+    <string name="lbl_got_it">فهمت</string>
     <string name="do_not_show_me_this_again">لا تُظهِر لي هذا مجددا</string>
     <string name="edit_multiple">التعديل المتعدد</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">اضغط مع الإبقاء لتحديد وتعديل وسائط متعددة</string>

@@ -82,7 +82,7 @@
     <string name="get_started">Commençons</string>
     <string name="refresh">Actualiser</string>
     <string name="select_all">Tout sélectionner</string>
-    <string name="got_it">D’accord</string>
+    <string name="lbl_got_it">D’accord</string>
     <string name="skip">Ignorer</string>
     <string name="retry">Ressayer</string>
 

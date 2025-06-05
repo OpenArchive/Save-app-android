@@ -9,34 +9,33 @@
     android:orientation="vertical"
     tools:context="net.opendasharchive.openarchive.services.webdav.WebDavActivity">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.DayNight.ActionBar"
-        app:title="@string/private_server"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
-    <ScrollView
+    <include
+        android:id="@+id/common_app_bar"
+        layout="@layout/common_app_bar" />
+
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/web_dav_nav_host_fragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingBottom="@dimen/activity_vertical_margin"
+        tools:layout="@layout/fragment_web_dav"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar">
+        app:layout_constraintTop_toBottomOf="@id/common_app_bar" />
 
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/web_dav_fragment"
-            android:name="net.opendasharchive.openarchive.services.webdav.WebDavFragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </ScrollView>
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/web_dav_fragment"
+        android:name="net.opendasharchive.openarchive.services.webdav.WebDavFragment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        tools:layout="@layout/fragment_web_dav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/common_app_bar" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
