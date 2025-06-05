@@ -149,6 +149,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 } else {
                     torStatusPref?.setSummary(R.string.prefs_use_tor_ready)
                 }
+            } else if (torStatus == TorStatus.CONNECTING) {
+                if (enabled) {
+                    torStatusPref?.setSummary(R.string.prefs_use_tor_starting)
+                } else {
+                    torStatusPref?.setSummary(R.string.prefs_use_tor_not_starting)
+                }
             } else {
                 if (enabled) {
                     torStatusPref?.setSummary(R.string.prefs_use_tor_disabled)

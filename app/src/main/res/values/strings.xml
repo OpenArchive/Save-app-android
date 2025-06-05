@@ -402,6 +402,8 @@
     <string name="action_continue">Continue</string>
     <string name="prefs_use_tor_enabled">Tor is enabled and Orbot is connected.</string>
     <string name="prefs_use_tor_ready">Tor is not enabled but Orbot is connected.</string>
+    <string name="prefs_use_tor_starting">Tor is enabled and Orbot is starting…</string>
+    <string name="prefs_use_tor_not_starting">Tor is not enabled but Orbot is starting…</string>
     <string name="prefs_use_tor_disabled">Tor is enabled but Orbot is disconnected.</string>
     <string name="prefs_use_tor_not_ready">Tor is not enabled and Orbot is disconnected.</string>
     <string name="prefs_tor_status">Tor Status:</string>
