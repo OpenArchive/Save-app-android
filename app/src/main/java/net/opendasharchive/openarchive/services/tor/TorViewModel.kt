@@ -2,20 +2,21 @@ package net.opendasharchive.openarchive.services.tor
 
 import android.app.Activity
 import android.app.Application
-import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import info.guardianproject.netcipher.proxy.OrbotHelper
 import info.guardianproject.netcipher.proxy.OrbotHelper.InstallCallback
-import info.guardianproject.netcipher.proxy.StatusCallback
 import kotlinx.coroutines.flow.StateFlow
 import timber.log.Timber
 
 
 class TorViewModel(
     private val application: Application,
-    private val torRepository: ITorRepository,
+    torRepository: ITorRepository,
 ) : AndroidViewModel(application), InstallCallback {
 
+    init {
+        OrbotHelper.get(application).addStatusCallback(torRepository)
+    }
     val torStatus: StateFlow<TorStatus> = torRepository.torStatus
 
     fun toggleTorServiceState(activity: Activity, enabled: Boolean) {
@@ -30,7 +31,6 @@ class TorViewModel(
         } else {
             OrbotHelper.get(application).apply {
                 addInstallCallback(this@TorViewModel)
-                addStatusCallback(torRepository)
                 installOrbot(activity)
             }
         }
@@ -58,13 +58,6 @@ class TorViewModel(
 
         activity.startActivity(intent)
         return true
-    }
-
-    fun requestTorStatus() {
-        val intent = Intent(OrbotHelper.ACTION_STATUS);
-        intent.setPackage(OrbotHelper.ORBOT_PACKAGE_NAME);
-        intent.putExtra(OrbotHelper.EXTRA_PACKAGE_NAME, application.packageName);
-        application.sendBroadcast(intent)
     }
 
     override fun onInstalled() {
