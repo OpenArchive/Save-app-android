@@ -275,7 +275,7 @@ dependencies {
     implementation("com.github.derlio:audio-waveform:v1.0.1")
 
     implementation(libs.clean.insights)
-    implementation(libs.netcipher)
+    implementation(fileTree("libs"))
 
     // Mixpanel analytics
     implementation(libs.mixpanel)

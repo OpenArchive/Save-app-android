@@ -301,14 +301,7 @@
         <service
             android:name=".services.snowbird.service.SnowbirdService"
             android:exported="false"
-            android:foregroundServiceType="dataSync"></service>
-
-        <receiver android:name=".services.tor.OrbotStatusReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="org.torproject.android.intent.action.STATUS" />
-            </intent-filter>
-        </receiver>
+            android:foregroundServiceType="dataSync" />
 
     </application>
 

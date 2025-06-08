@@ -76,6 +76,10 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
 
+        flatDir {
+            dirs("libs")
+        }
+
         gradlePluginPortal()
         maven("https://raw.githubusercontent.com/guardianproject/gpmaven/master") {
             content {

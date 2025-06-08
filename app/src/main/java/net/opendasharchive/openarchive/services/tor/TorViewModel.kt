@@ -5,14 +5,16 @@ import android.app.Application
 import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import info.guardianproject.netcipher.proxy.OrbotHelper
+import info.guardianproject.netcipher.proxy.OrbotHelper.InstallCallback
+import info.guardianproject.netcipher.proxy.StatusCallback
 import kotlinx.coroutines.flow.StateFlow
 import timber.log.Timber
 
 
 class TorViewModel(
     private val application: Application,
-    torRepository: ITorRepository,
-) : AndroidViewModel(application), OrbotHelper.InstallCallback {
+    private val torRepository: ITorRepository,
+) : AndroidViewModel(application), InstallCallback {
 
     val torStatus: StateFlow<TorStatus> = torRepository.torStatus
 
@@ -26,8 +28,11 @@ class TorViewModel(
         if (OrbotHelper.isOrbotInstalled(application)) {
             requestOpenOrbot(activity)
         } else {
-            OrbotHelper.get(application).addInstallCallback(this)
-            OrbotHelper.get(application).installOrbot(activity)
+            OrbotHelper.get(application).apply {
+                addInstallCallback(this@TorViewModel)
+                addStatusCallback(torRepository)
+                installOrbot(activity)
+            }
         }
     }
 

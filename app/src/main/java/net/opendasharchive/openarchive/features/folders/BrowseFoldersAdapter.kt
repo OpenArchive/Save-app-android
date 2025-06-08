@@ -7,8 +7,8 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FolderRowBinding
-import java.text.SimpleDateFormat
 import net.opendasharchive.openarchive.features.folders.BrowseFoldersViewModel.Folder
+import java.text.SimpleDateFormat
 
 class BrowseFoldersAdapter(
     private val folders: List<Folder> = emptyList(),
@@ -33,7 +33,7 @@ class BrowseFoldersAdapter(
 
     override fun getItemCount(): Int = folders.size
 
-    inner class FolderViewHolder(private val binding: FolderRowBinding, private val onClick: (folder: BrowseFoldersViewModel.Folder) -> Unit) : RecyclerView.ViewHolder(binding.root) {
+    inner class FolderViewHolder(private val binding: FolderRowBinding, private val onClick: (folder: Folder) -> Unit) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(folder: Folder) {
 

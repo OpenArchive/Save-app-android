@@ -1,6 +1,5 @@
 package net.opendasharchive.openarchive.features.folders
 
-import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
@@ -19,6 +18,7 @@ import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.dialog.showSuccessDialog
+import net.opendasharchive.openarchive.features.folders.BrowseFoldersViewModel.Folder
 import net.opendasharchive.openarchive.util.extensions.toggle
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.Date
@@ -29,7 +29,7 @@ class BrowseFoldersFragment : BaseFragment(), MenuProvider {
     private lateinit var mBinding: FragmentBrowseFoldersBinding
     private val mViewModel: BrowseFoldersViewModel by viewModel()
 
-    private var mSelected: BrowseFoldersViewModel.Folder? = null
+    private var mSelected: Folder? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -68,7 +68,7 @@ class BrowseFoldersFragment : BaseFragment(), MenuProvider {
 
     override fun getToolbarTitle(): String = getString(R.string.browse_existing)
 
-    private fun addFolder(folder: BrowseFoldersViewModel.Folder?) {
+    private fun addFolder(folder: Folder?) {
         if (folder == null) return
         val space = Space.current ?: return
 
