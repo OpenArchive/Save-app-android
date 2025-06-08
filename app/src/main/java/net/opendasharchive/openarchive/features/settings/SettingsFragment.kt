@@ -192,6 +192,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
         }
 
+        torStatusPref?.isVisible = useTorPref?.isChecked == true
+        openOrbot?.isVisible = useTorPref?.isChecked == true
+
         openOrbot?.setOnOpenOrbotListener {
             torViewModel.requestOpenOrInstallOrbot(requireActivity())
         }
