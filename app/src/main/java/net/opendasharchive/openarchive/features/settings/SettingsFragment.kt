@@ -200,16 +200,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 setUseTorText(torViewModel.torStatus.value, enabled)
                 torStatusPref?.isVisible = enabled
                 openOrbot?.isVisible = enabled
-                if (enabled) {
-                    dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-                        type = DialogType.Info
-                        title = UiText.StringResource(R.string.tor_disabled_title)
-                        message = UiText.StringResource(R.string.tor_disabled_message)
-                        positiveButton {
-                            text = UiText.StringResource(android.R.string.ok)
-                        }
-                    }
-                }
                 true
             }
         }
