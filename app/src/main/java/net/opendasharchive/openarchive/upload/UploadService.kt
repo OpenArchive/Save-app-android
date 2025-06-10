@@ -14,6 +14,7 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.work.Configuration
+import info.guardianproject.netcipher.proxy.OrbotHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,11 +24,17 @@ import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.services.Conduit
+import net.opendasharchive.openarchive.services.tor.ITorRepository
+import net.opendasharchive.openarchive.services.tor.TorStatus
 import net.opendasharchive.openarchive.util.Prefs
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import org.koin.core.qualifier.named
+import timber.log.Timber
 import java.io.IOException
 import java.util.*
 
-class UploadService : JobService() {
+class UploadService : JobService(), KoinComponent {
 
     companion object {
         private const val MY_BACKGROUND_JOB = 0
@@ -56,6 +63,8 @@ class UploadService : JobService() {
     private var mRunning = false
     private var mKeepUploading = true
     private val mConduits = ArrayList<Conduit>()
+    private lateinit var notification: Notification
+    private val torRepo: ITorRepository by inject(named("tor"))
 
     override fun onCreate() {
         super.onCreate()
@@ -198,6 +207,10 @@ class UploadService : JobService() {
         (getSystemService(JOB_SCHEDULER_SERVICE) as? JobScheduler)?.schedule(job)
 
         return false
+    }
+
+    private fun isTorAvailable(): Boolean {
+        return torRepo.torStatus.value == TorStatus.CONNECTED
     }
 
     private fun isNetworkAvailable(requireUnmetered: Boolean): Boolean {

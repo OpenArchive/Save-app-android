@@ -174,13 +174,6 @@
             android:theme="@style/SaveAppTheme.NoActionBar" />
 
         <activity
-            android:name=".features.settings.GeneralSettingsActivity"
-            android:exported="false"
-            android:label="@string/general"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
             android:name=".features.settings.ProofModeSettingsActivity"
             android:exported="false"
             android:label="@string/proofmode"
@@ -308,7 +301,7 @@
         <service
             android:name=".services.snowbird.service.SnowbirdService"
             android:exported="false"
-            android:foregroundServiceType="dataSync"></service>
+            android:foregroundServiceType="dataSync" />
 
     </application>
 

@@ -11,17 +11,20 @@ import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.services.SaveClient
 import net.opendasharchive.openarchive.services.gdrive.GDriveConduit
+import org.koin.java.KoinJavaComponent.inject
 import timber.log.Timber
 import java.io.IOException
 import java.util.Date
 
 
 
-data class Folder(val name: String, val modified: Date)
-
 class BrowseFoldersViewModel(private val context: Context) : ViewModel() {
 
+    data class Folder(val name: String, val modified: Date)
+
     private val mFolders = MutableLiveData<List<Folder>>()
+
+    private val client: SaveClient by inject(SaveClient::class.java)
 
     val folders: LiveData<List<Folder>>
         get() = mFolders
@@ -35,7 +38,7 @@ class BrowseFoldersViewModel(private val context: Context) : ViewModel() {
             try {
                 val value = withContext(Dispatchers.IO) {
                     when (space.tType) {
-                        Space.Type.WEBDAV -> getWebDavFolders(context, space)
+                        Space.Type.WEBDAV -> getWebDavFolders(space)
 
                         Space.Type.GDRIVE -> getGDriveFolders(context, space)
 
@@ -57,10 +60,10 @@ class BrowseFoldersViewModel(private val context: Context) : ViewModel() {
     }
 
     @Throws(IOException::class)
-    private suspend fun getWebDavFolders(context: Context, space: Space): List<Folder> {
+    private fun getWebDavFolders(space: Space): List<Folder> {
         val root = space.hostUrl?.encodedPath
 
-        return SaveClient.getSardine(context, space).list(space.host)?.mapNotNull {
+        return client.webdav(space).list(space.host)?.mapNotNull {
             if (it?.isDirectory == true && it.path != root) {
                 Folder(it.name, it.modified ?: Date())
             }
