@@ -259,7 +259,7 @@
         <service
             android:name=".services.snowbird.service.SnowbirdService"
             android:exported="false"
-            android:foregroundServiceType="dataSync"></service>
+            android:foregroundServiceType="dataSync" />
 
     </application>
 
