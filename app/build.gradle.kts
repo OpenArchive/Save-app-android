@@ -28,8 +28,7 @@ fun loadLocalProperties(): Properties = Properties().apply {
 
 android {
 
-    //noinspection GradleDependency
-    compileSdk = 34
+    compileSdk = 35
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -43,8 +42,8 @@ android {
     defaultConfig {
         applicationId = "net.opendasharchive.openarchive"
         minSdk = 29
-        //noinspection OldTargetApi
-        targetSdk = 34
+
+        targetSdk = 35
         versionCode = 30007
         versionName = "0.7.8"
         multiDexEnabled = true

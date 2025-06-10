@@ -3,7 +3,7 @@ package net.opendasharchive.openarchive.features.onboarding
 import android.content.Intent
 import android.os.Bundle
 import androidx.annotation.IdRes
-import androidx.core.bundle.bundleOf
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph
