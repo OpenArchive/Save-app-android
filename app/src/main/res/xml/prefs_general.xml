@@ -96,6 +96,7 @@
 
         <SwitchPreferenceCompat
             android:defaultValue="false"
+            app:defaultValue="false"
             android:icon="@null"
             android:iconSpaceReserved="false"
             android:layout="@layout/custom_preference_switch"
