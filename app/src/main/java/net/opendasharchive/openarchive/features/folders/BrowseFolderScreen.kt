@@ -27,6 +27,7 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import org.koin.androidx.compose.koinViewModel
 import java.util.Date
+import net.opendasharchive.openarchive.features.folders.BrowseFoldersViewModel.Folder
 
 @Composable
 fun BrowseFolderScreen(

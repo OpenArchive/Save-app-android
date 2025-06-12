@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.features.main
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Point
@@ -16,6 +17,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.PopupWindow
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -27,6 +29,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.play.core.review.ReviewException
+import com.google.android.play.core.review.ReviewInfo
+import com.google.android.play.core.review.ReviewManager
+import com.google.android.play.core.review.ReviewManagerFactory
+import com.google.android.play.core.review.model.ReviewErrorCode
+import com.google.android.play.core.review.testing.FakeReviewManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.BuildConfig
@@ -79,6 +87,9 @@ import net.opendasharchive.openarchive.util.extensions.show
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.NumberFormat
+import androidx.core.content.edit
+import kotlinx.coroutines.delay
+import net.opendasharchive.openarchive.util.InAppReviewHelper
 
 
 class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAdapterListener {
@@ -130,6 +141,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     private lateinit var permissionManager: PermissionManager
 
+    private lateinit var reviewManager: ReviewManager
+    private var shouldPromptReview = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         ///enableEdgeToEdge()
@@ -166,6 +179,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         // Initialize the permission manager with this activity and its dialogManager.
         permissionManager = PermissionManager(this, dialogManager)
 
+        // Initialize In App Ratings Helper
+        InAppReviewHelper.init(this)
+
         initMediaLaunchers()
         setupToolbarAndPager()
         setupNavigationDrawer()
@@ -197,6 +213,10 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             // You can start the upload service or update the UI accordingly.
             UploadService.startUploadService(this)
         }
+
+        reviewManager = ReviewManagerFactory.create(this)
+        InAppReviewHelper.requestReviewInfo(this)
+        shouldPromptReview = InAppReviewHelper.onAppLaunched()
     }
 
     override fun onResume() {
@@ -213,6 +233,19 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             serverListOffset = -dims.second.toFloat()
             serverListCurOffset = serverListOffset
         }
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // Only now, after UI is ready, do we fire the in‐app review if needed.
+        if (shouldPromptReview) {
+            lifecycleScope.launch(Dispatchers.Main) {
+                // Wait a small delay so we don’t interrupt initial load (e.g. 2 seconds).
+                delay(2_000)
+                InAppReviewHelper.showReviewIfPossible(this@MainActivity, reviewManager)
+                InAppReviewHelper.markReviewDone()
+                shouldPromptReview = false
+            }
+        }
+        // ─────────────────────────────────────────────────────────────────────────
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -724,6 +757,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         }
         mFolderAdapter.update(projects)
     }
+
+
 
     private fun refreshCurrentProject() {
         val project = getSelectedProject()

@@ -46,7 +46,7 @@ android {
         minSdk = 29
         //noinspection OldTargetApi
         targetSdk = 34
-        versionCode = 30006
+        versionCode = 30008
         versionName = "0.7.8"
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
@@ -85,7 +85,7 @@ android {
     signingConfigs {
         getByName("debug") {
             val props = loadLocalProperties()
-            storeFile = file(props["STOREFILE"] as? String ?: "")
+            storeFile = props["STOREFILE"]?.let { file(it) }
             storePassword = props["STOREPASSWORD"] as? String ?: ""
             keyAlias = props["KEYALIAS"] as? String ?: ""
             keyPassword = props["KEYPASSWORD"] as? String ?: ""
@@ -251,9 +251,9 @@ dependencies {
     implementation("com.google.api-client:google-api-client-android:1.26.0")
     implementation("com.google.apis:google-api-services-drive:v3-rev136-1.25.0")
 
-    // Tor Libraries
-    implementation(libs.tor.android)
-    implementation(libs.jtorctl)
+    // Internal Tor Libraries
+    //implementation(libs.tor.android)
+    //implementation(libs.jtorctl)
 
     implementation(libs.bitcoinj.core)
     implementation("com.eclipsesource.j2v8:j2v8:6.2.1@aar")
@@ -285,7 +285,7 @@ dependencies {
     implementation("com.github.derlio:audio-waveform:v1.0.1")
 
     implementation(libs.clean.insights)
-    implementation(libs.netcipher)
+    implementation(fileTree("libs"))
 
     // Mixpanel analytics
     implementation(libs.mixpanel)

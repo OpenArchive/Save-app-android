@@ -5,9 +5,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.lifecycleScope
+import androidx.preference.EditTextPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.core.UiText
@@ -18,11 +21,14 @@ import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupActivity
+import net.opendasharchive.openarchive.services.tor.TorStatus
+import net.opendasharchive.openarchive.services.tor.TorViewModel
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Theme
 import net.opendasharchive.openarchive.util.extensions.getVersionName
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
@@ -30,8 +36,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private val dialogManager: DialogStateManager by activityViewModel()
 
-
     private var passcodePreference: SwitchPreferenceCompat? = null
+
+    private val torViewModel: TorViewModel by viewModel()
 
     private val activityResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -66,7 +73,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         rootKey: String?
     ) {
         setPreferencesFromResource(R.xml.prefs_general, rootKey)
-
 
         passcodePreference = findPreference(Prefs.PASSCODE_ENABLED)
 
@@ -132,13 +138,56 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
-        findPreference<Preference>(Prefs.USE_TOR)?.setOnPreferenceChangeListener { _, newValue ->
-            Prefs.useTor = (newValue as Boolean)
-            //torViewModel.updateTorServiceState()
-            true
+        val useTorPref = findPreference<SwitchPreferenceCompat>(Prefs.USE_TOR)
+        val torStatusPref = findPreference<EditTextPreference>("tor_status")
+        val openOrbot = findPreference<OpenOrbotPreference>("open_orbot")
+
+        val setUseTorText: (TorStatus, Boolean) -> Unit = { torStatus, enabled ->
+            if (torStatus == TorStatus.CONNECTED) {
+                if (enabled) {
+                    torStatusPref?.setSummary(R.string.prefs_use_tor_enabled)
+                } else {
+                    torStatusPref?.setSummary(R.string.prefs_use_tor_ready)
+                }
+            } else if (torStatus == TorStatus.CONNECTING) {
+                if (enabled) {
+                    torStatusPref?.setSummary(R.string.prefs_use_tor_starting)
+                } else {
+                    torStatusPref?.setSummary(R.string.prefs_use_tor_not_starting)
+                }
+            } else {
+                if (enabled) {
+                    torStatusPref?.setSummary(R.string.prefs_use_tor_disabled)
+                } else {
+                    torStatusPref?.setSummary(R.string.prefs_use_tor_not_ready)
+                }
+            }
         }
 
-        getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_tor)?.isEnabled = false
+        lifecycleScope.launch {
+            torViewModel.torStatus.collect { torStatus ->
+                setUseTorText(torStatus, useTorPref?.isChecked == true)
+            }
+        }
+        useTorPref?.apply {
+
+            setUseTorText(torViewModel.torStatus.value, isChecked)
+            setOnPreferenceChangeListener { _, newValue ->
+                val enabled = newValue as Boolean
+                torViewModel.toggleTorServiceState(requireActivity(), enabled)
+                setUseTorText(torViewModel.torStatus.value, enabled)
+                torStatusPref?.isVisible = enabled
+                openOrbot?.isVisible = enabled
+                true
+            }
+        }
+
+        torStatusPref?.isVisible = useTorPref?.isChecked == true
+        openOrbot?.isVisible = useTorPref?.isChecked == true
+
+        openOrbot?.setOnOpenOrbotListener {
+            torViewModel.requestOpenOrInstallOrbot(requireActivity())
+        }
 
         findPreference<Preference>(Prefs.THEME)?.setOnPreferenceChangeListener { _, newValue ->
             Theme.set(requireActivity(), Theme.get(newValue as? String))
@@ -184,4 +233,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
     }
+
+    override fun onResume() {
+        super.onResume()
+        //torViewModel.requestTorStatus()
+    }
+
 }
