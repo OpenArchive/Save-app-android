@@ -195,7 +195,7 @@ class SnowbirdService : Service() {
 
                     is RetryAttempt.Retry -> {
                         _serviceStatus.value = ServiceStatus.Connecting
-                        updateNotification("Connecting... One moment please.")
+                        updateNotification("Connecting... (Attempt $attemptNumber) One moment please.")
                         Timber.d("Attempt $attemptNumber failed, retrying...")
                     }
 
