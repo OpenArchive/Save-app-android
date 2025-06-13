@@ -14,9 +14,6 @@ class TorViewModel(
     torRepository: ITorRepository,
 ) : AndroidViewModel(application), InstallCallback {
 
-    init {
-        OrbotHelper.get(application).addStatusCallback(torRepository)
-    }
     val torStatus: StateFlow<TorStatus> = torRepository.torStatus
 
     fun toggleTorServiceState(activity: Activity, enabled: Boolean) {
