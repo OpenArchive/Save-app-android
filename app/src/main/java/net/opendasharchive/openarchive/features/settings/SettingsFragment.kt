@@ -139,50 +139,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         val useTorPref = findPreference<SwitchPreferenceCompat>(Prefs.USE_TOR)
-        val torStatusPref = findPreference<EditTextPreference>("tor_status")
         val openOrbot = findPreference<OpenOrbotPreference>("open_orbot")
 
-        val setUseTorText: (TorStatus, Boolean) -> Unit = { torStatus, enabled ->
-            if (torStatus == TorStatus.CONNECTED) {
-                if (enabled) {
-                    torStatusPref?.setSummary(R.string.prefs_use_tor_enabled)
-                } else {
-                    torStatusPref?.setSummary(R.string.prefs_use_tor_ready)
-                }
-            } else if (torStatus == TorStatus.CONNECTING) {
-                if (enabled) {
-                    torStatusPref?.setSummary(R.string.prefs_use_tor_starting)
-                } else {
-                    torStatusPref?.setSummary(R.string.prefs_use_tor_not_starting)
-                }
-            } else {
-                if (enabled) {
-                    torStatusPref?.setSummary(R.string.prefs_use_tor_disabled)
-                } else {
-                    torStatusPref?.setSummary(R.string.prefs_use_tor_not_ready)
-                }
-            }
-        }
-
-        lifecycleScope.launch {
-            torViewModel.torStatus.collect { torStatus ->
-                setUseTorText(torStatus, useTorPref?.isChecked == true)
-            }
-        }
         useTorPref?.apply {
-
-            setUseTorText(torViewModel.torStatus.value, isChecked)
             setOnPreferenceChangeListener { _, newValue ->
                 val enabled = newValue as Boolean
                 torViewModel.toggleTorServiceState(requireActivity(), enabled)
-                setUseTorText(torViewModel.torStatus.value, enabled)
-                torStatusPref?.isVisible = enabled
                 openOrbot?.isVisible = enabled
                 true
             }
         }
 
-        torStatusPref?.isVisible = useTorPref?.isChecked == true
         openOrbot?.isVisible = useTorPref?.isChecked == true
 
         openOrbot?.setOnOpenOrbotListener {

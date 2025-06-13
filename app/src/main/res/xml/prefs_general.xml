@@ -110,19 +110,6 @@
             app:summary="@string/prefs_use_tor_summary"
             app:title="@string/prefs_use_tor_title" />
 
-        <EditTextPreference
-            android:inputType="none"
-            android:textIsSelectable="false"
-            app:allowDividerAbove="false"
-            app:allowDividerBelow="false"
-            app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false"
-            app:key="tor_status"
-            app:selectable="false"
-            app:singleLineTitle="false"
-            app:summary="@string/unavailable"
-            app:title="@string/prefs_tor_status" />
-
         <net.opendasharchive.openarchive.features.settings.OpenOrbotPreference
             android:layout="@layout/prefs_open_orbot"
             app:allowDividerAbove="false"

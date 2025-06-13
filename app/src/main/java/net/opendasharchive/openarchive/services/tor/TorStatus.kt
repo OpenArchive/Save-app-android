@@ -5,4 +5,6 @@ enum class TorStatus {
     CONNECTING,
     CONNECTED,
     DISCONNECTING,
+    TIMEOUT,
+    UNAVAILABLE
 }
