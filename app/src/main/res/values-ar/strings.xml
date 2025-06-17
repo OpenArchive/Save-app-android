@@ -98,13 +98,7 @@
     <string name="prefs_theme_dark">ليلية</string>
     <string name="prefs_use_proofmode_title">تفعيل ProofMode</string>
     <string name="prefs_use_proofmode_summary">‫مشاركة مفتاح ProofMode العمومي</string>
-<!--    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a system that enables authentication and verification of multimedia content, <a href="%1$s" style="text-decoration: underline;">learn more here</a>]]></string>-->
-    <string name="prefs_use_proofmode_description"><![CDATA[يُمكِّن نظام ‫ProofMode من تفعيل الاستيثاق والتحقق من محتوى الوسائط، <a href=\"%1$s\"&gt;<u&gt;تعرَّف على المزيد هنا</u&gt;</a&gt;]]&gt;</string>
-    <!--    <string name="prefs_use_proofmode_description">-->
-<!--        ProofMode is a system that enables authentication and verification of multimedia content, &lt;a href="%1$s" style="text-decoration: underline;"&gt;learn more here&lt;/a&gt;-->
-<!--    </string>-->
-
-
+    <string name="prefs_use_proofmode_description"><![CDATA[يُمكِّن نظام ProofMode من تفعيل الاستيثاق والتحقق من محتوى الوسائط، <a href=\"%1$s\"><u>تعرَّف على المزيد هنا</u></a>]]></string>
     <string name="proof_mode_warning_text">لمساعدتك في التحقق من المكان الذي تم فيه التقاط وسائطك، يجمع ProofMode بيانات من أبراج الخلايا القريبة لإثبات موقعك. لزيادة المصداقية والسياق، فإنه يُدمِج ملفا منفصلا للبيانات الوصفية مع وسائطك. <b>فلا Save ولا OpenArchive يمكنهما الوصول إلى بيانات موقعك ولا حتى تخزينها، سيكون ذلك متاحا فقط لمن له حق الوصول إلى ملفات الخادم.</b> يطلب أندرويد حق الوصول إلى الموقع للحصول على تلك المعلومة.</string>
 
     <string name="prefs_share_proofmode_title">هوية ProofMode</string>
@@ -276,15 +270,15 @@
     <string name="enter_url"><i>إدخال عنوان الصفحة</i></string>
     <string name="account">الحساب</string>
     <string name="general">عام</string>
-    <string name="connectivity_data"><![CDATA[الاتصال والبيانات]]&gt;</string>
+    <string name="connectivity_data"><![CDATA[الاتصال والبيانات]]></string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">‫حمِّل الوسائط عندما تكون متصلا بالشبكة اللاسلكية (Wi-Fi) فقط</string>
     <string name="security">الأمن</string>
     <string name="proofmode">ProofMode</string>
     <string name="no_webbrowser_found_error">لا يوجد تطبيق يمكنه التعامل مع هذا الطلب. الرجاء تثبيت متصفح الانترنت.</string>
 
     <string name="intro_text_secure">أرسل وسائطك بشكل آمن إلى خوادم خاصة، ثم اقفل التطبيق باستخدام رمز.</string>
-    <string name="intro_text_archive"><![CDATA[اجعل وسائطك قابلة للتحقق منها وآمنة ومُنظَّمة على المدى الطويل عبر رفعها على الخوادم الخصوصية أو العمومية مثل NextCloud أو موقع أرشيف الانترنت.<br&gt; عبّر عن نواياك للاستخدام اللاحق عبر إضافة <a href=\"%1$s\"&gt;<u&gt;ترخيص المشاع الإبداعي</u&gt;</a&gt;.]]&gt;</string>
-<string name="intro_text_verify">&lt;![CDATA[‫استوثق من وسائطك وتحقق منها باستخدام تلبيد التجزئة sha256 ووضع &lt;a href=\"%1$s\"&gt;&lt;u&gt;ProofMode&lt;/u&gt;&lt;/a&gt;&lt;![C</string>
+    <string name="intro_text_archive"><![CDATA[اجعل وسائطك قابلة للتحقق منها وآمنة ومُنظَّمة على المدى الطويل عبر رفعها على الخوادم الخصوصية أو العمومية مثل NextCloud أو موقع أرشيف الانترنت.<br> عبّر عن نواياك للاستخدام اللاحق عبر إضافة <a href=\"%1$s\"><u>ترخيص المشاع الإبداعي</u></a>.]]></string>
+    <string name="intro_text_verify"><![CDATA[استوثق من وسائطك وتحقق منها باستخدام تلبيد التجزئة sha256 ووضع <a href=\"%1$s\"><u>ProofMode</u></a>]]></string>
     <string name="intro_text_encrypt_old">حمّل تلقائيا عبر TLS (بروتوكول طبقة النقل الآمن) واستخدم ”أوربوت“ لحماية وسائطك خلال تنقُّلها عبر شبكة تور.</string>
     <string name="next">التالي</string>
     <string name="done">تم</string>
