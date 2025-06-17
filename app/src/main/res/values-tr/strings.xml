@@ -101,7 +101,12 @@
     <string name="prefs_theme_dark">Koyu</string>
     <string name="prefs_use_proofmode_title">ProofMode kullanılsın</string>
     <string name="prefs_use_proofmode_summary">ProofMode herkese açık anahtarını paylaş</string>
-    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode,çoklu ortam içeriklerine izin verilmesini ve doğrulanmasını sağlayan bir sistemdir. <a href=\"%1$s\" style="text-decoration: underline;\"> Ayrıntılı bilgi alın </a>]]></string>
+<!--    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a system that enables authentication and verification of multimedia content, <a href="%1$s" style="text-decoration: underline;">learn more here</a>]]></string>-->
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode, çoklu ortam içeriklerine izin verilmesini ve doğrulanmasını sağlayan bir sistemdir. <a href=\"%1$s\"&gt;<u&gt;Ayrıntılı bilgi alın</u&gt;</a&gt;]]&gt;</string>
+    <!--    <string name="prefs_use_proofmode_description">-->
+<!--        ProofMode is a system that enables authentication and verification of multimedia content, &lt;a href="%1$s" style="text-decoration: underline;"&gt;learn more here&lt;/a&gt;-->
+<!--    </string>-->
+
 
     <string name="proof_mode_warning_text">ProofMode, ortamınızın nerede kaydedildiğini doğrulamaya yardımcı olmak için, konumunuzu doğrulamak amacıyla yakındaki baz istasyonlarından veri toplar. Güvenilirlik ve bağlam eklemek için, ortamınızla birlikte ayrı bir üst veri dosyası bulunur. <b>Ne Save ne de OpenArchive bu konum verilerine erişemez veya depolayamaz. Bu verilere yalnızca sunucu dosyalarına erişimi olanlar erişilebilir.</b> Android üzerinde bu bilgileri toplamak için konuma erişme izni gerekir.</string>
 
@@ -274,16 +279,15 @@
     <string name="enter_url"><i>Adresi yazın</i></string>
     <string name="account">Hesap</string>
     <string name="general">Genel</string>
-    <string name="connectivity_data"><![CDATA[Connectivity & Data]]></string>
+    <string name="connectivity_data"><![CDATA[Connectivity &amp; Data]]&gt;</string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Ortamlar yalnızca Wi-Fi bağlantısı varken yüklensin</string>
     <string name="security">Güvenlik</string>
     <string name="proofmode">ProofMode</string>
     <string name="no_webbrowser_found_error">Bu isteği yerine getirecek bir uygulama yok. Lütfen bir tarayıcı kurun.</string>
 
     <string name="intro_text_secure">Ortamınızı güvenli bir şekilde özel sunuculara gönderin ve uygulamayı bir PIN kodu ile kilitleyin.</string>
-    <string name="intro_text_archive"><![CDATA[Ortamınızı Nextcloud veya Internet Archive gibi özel veya herkese açık sunuculara yükleyerek uzun vadede doğrulanabilir, güvenli ve düzenli kalmasını sağlayın.<br>Bir <a href=\"%1$s\"><u>Creative Commons Lisansı</u></a> ekleyerek ileride kullanılmak üzere amacınızı iletin.]]></string>
-    <string name="intro_text_verify"><![CDATA[Ortamınızı sha256 karmaları ve <a href=\"%1$s\"><u>ProofMode</u></a> ile yetkilendirin ve doğrulayın.]]></string>
-    <string name="intro_text_encrypt_old">TLS (aktarım katmanı güvenliği) ile otomatik olarak yükleyin ve Orbot kullanarak ortamınızı aktarım sırasında Tor ağı ile koruyun.</string>
+    <string name="intro_text_archive">&lt;![ CDATA[Ortamınızı Nextcloud veya Internet Archive gibi özel veya herkese açık sunuculara yükleyerek uzun vadede doğrulanabilir, güvenli ve düzenli kalmasını sağlayın.&lt;br&gt;Bir &lt;a href=\"%1$s\"&gt;&lt;u&gt;Creative Commons Lisansı&lt;/u&gt;&lt;/a&gt; ekleyerek ileride kullanılmak üzere amacınızı iletin.]]&gt;</string>
+<string name="intro_text_encrypt_old">TLS (aktarım katmanı güvenliği) ile otomatik olarak yükleyin ve Orbot kullanarak ortamınızı aktarım sırasında Tor ağı ile koruyun.</string>
     <string name="next">İleri</string>
     <string name="done">Bitti</string>
     <string name="secure_mobile_media_preservation">Güvenli mobil ortam koruma</string>
