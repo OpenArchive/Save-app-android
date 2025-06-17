@@ -283,7 +283,7 @@
     <string name="intro_text_secure">Ortamınızı güvenli bir şekilde özel sunuculara gönderin ve uygulamayı bir PIN kodu ile kilitleyin.</string>
     <string name="intro_text_archive"><![CDATA[Ortamınızı Nextcloud veya Internet Archive gibi özel veya herkese açık sunuculara yükleyerek uzun vadede doğrulanabilir, güvenli ve düzenli kalmasını sağlayın.<br>Bir <a href=\"%1$s\"><u>Creative Commons Lisansı</u></a> ekleyerek ileride kullanılmak üzere amacınızı iletin.]]></string>
     <string name="intro_text_verify"><![CDATA[Ortamınızı sha256 karmaları ve <a href=\"%1$s\"><u>ProofMode</u></a> ile yetkilendirin ve doğrulayın.]]></string>
-    <string name="intro_text_encrypt_old">TLS (aktarım katmanı güvenliği) ile otomatik olarak yükleyin ve Orbot kullanarak ortamınızı aktarım sırasında Tor ağı ile koruyun.</string>
+    <string name="intro_text_encrypt_old">TLS (aktarım katmanı güvenliği) ile otomatik olarak yükleyin ve Orbot kullanarak ortamınızı aktarım sırasında Orbot ağı ile koruyun.</string>
     <string name="next">İleri</string>
     <string name="done">Bitti</string>
     <string name="secure_mobile_media_preservation">Güvenli mobil ortam koruma</string>
