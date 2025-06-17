@@ -285,7 +285,7 @@
     <string name="intro_text_secure">Envía tus medios de manera segura a servidores privados y bloquea la app con un pin.</string>
     <string name="intro_text_archive"><![CDATA[Mantén tus medios verificables, seguros y organizados a largo plazo al subirlos a servidores públicos o privados como Nextcloud o la Internet Archive.<br&gt;Comunica tus intenciones para uso futuro añadiendo una<a href=\"%1$s\"&gt;<u&gt;Licencia Creative Commons</u&gt;</a&gt;.]]></string>
 <string name="intro_text_verify"><![CDATA[Autentica y verifica tus medios con hashes sha256 y <a href=\"%1$s\"&gt;<u&gt;ProofMode</u&gt;</a&gt;.]]></string>
-    <string name="intro_text_encrypt_old">Carga automáticamente sobre TLS (Seguridad de la Capa de Transporte) y usa Orbot para proteger tus medios en tránsito a través de la red de Tor.</string>
+    <string name="intro_text_encrypt_old">Carga automáticamente sobre TLS (Seguridad de la Capa de Transporte) y usa Orbot para proteger tus medios en tránsito a través de la red de Orbot.</string>
     <string name="next">Seguir</string>
     <string name="done">Listo</string>
     <string name="secure_mobile_media_preservation">Preservación Segura de Medios Móviles</string>

@@ -285,7 +285,7 @@
     <string name="intro_text_secure">Envoyez vos médias vers des serveurs privés en toute sécurité et verrouillez l’appli avec un code.</string>
     <string name="intro_text_archive"><![CDATA[Veillez à ce que vos médias soient vérifiables, protégés et classés durablement en les téléversant sur des serveurs privés ou publics tels que Nextcloud ou Internet Archive.<br&gt;Communiquez vos intentions d’utilisation future en ajoutant une <a href=\"%1$s\"&gt;<u&gt;licence Creative Commons</u&gt;</a&gt;.]]&gt;</string>
 <string name="intro_text_verify"><![CDATA[ authentifie et vérifie vos contenus multimédias grâce aux hachages Sha256 et<a href=\"%1$s\"&gt;<u&gt; ProofMode</u&gt;</a&gt;.]]></string>
-    <string name="intro_text_encrypt_old">Téléverser automatiquement par TLS (sécurité de la couche de transport) et utiliser Orbot pour protéger vos médias en transit sur le Réseau Tor.</string>
+    <string name="intro_text_encrypt_old">Téléverser automatiquement par TLS (sécurité de la couche de transport) et utiliser Orbot pour protéger vos médias en transit sur le Réseau Orbot.</string>
     <string name="next">Suivant</string>
     <string name="done">Terminé</string>
     <string name="secure_mobile_media_preservation">Préservation sécurisée des médias sur appareil mobile</string>

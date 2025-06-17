@@ -285,7 +285,7 @@
     <string name="intro_text_secure">رسانه‌های خود را به‌صورت امن به سرورهای خصوصی ارسال کنید و برنامه را با یک پین قفل کنید.</string>
     <string name="intro_text_archive"><![CDATA[با بارگذاری رسانه‌های خود روی سرورهای خصوصی یا عمومی مانند Nextcloud یا Internet Archive، آن‌ها را تصدیق‌پذیر، ایمن و سازمان‌دهی‌شده نگه دارید. <br&gt;قصد خود را برای استفاده‌های آتی با افزودن <a href=\"%1$s\"&gt;<u&gt;پروانهٔ Creative Commons بیان کنید</a&gt;</u&gt;.]]></string>
     <string name="intro_text_verify"><![CDATA[با استفاده از هش‌های sha256 و <a href=\"%1$s\"&gt;<u&gt;حالت اثبات ProofMode</a&gt;</u&gt; رسانه‌های خود را احراز هویت و تأیید کنید.]]>\n\n</string>
-    <string name="intro_text_encrypt_old"> به‌صورت خودکار از طریق TLS (امنیت لایه انتقال) بارگذاری کن و برای حفاظت از رسانه‌های خود در حین انتقال از شبکه Tor، از Orbot استفاده کن.</string>
+    <string name="intro_text_encrypt_old"> به‌صورت خودکار از طریق TLS (امنیت لایه انتقال) بارگذاری کن و برای حفاظت از رسانه‌های خود در حین انتقال از شبکه Orbot، از Orbot استفاده کن.</string>
     <string name="next">بعدی</string>
     <string name="done">انجام شد</string>
     <string name="secure_mobile_media_preservation">نگهداری امن رسانه‌های تلفن همراه</string>
