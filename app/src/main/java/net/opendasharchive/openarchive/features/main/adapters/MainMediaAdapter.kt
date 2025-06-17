@@ -231,38 +231,38 @@ class MainMediaAdapter(
         if (pos < 0 || pos >= media.size) return
 
         val item = media[pos]
-        var undone = false
+//        var undone = false
 
-        val snackbar =
-            Snackbar.make(recyclerView, R.string.confirm_remove_media, Snackbar.LENGTH_LONG)
-        snackbar.setAction(R.string.undo) { _ ->
-            undone = true
-            media.add(pos, item)
+//        val snackbar =
+//            Snackbar.make(recyclerView, R.string.confirm_remove_media, Snackbar.LENGTH_INDEFINITE)
+//        snackbar.setAction(R.string.undo) { _ ->
+//            undone = true
+//            media.add(pos, item)
+//
+//            notifyItemInserted(pos)
+//        }
+//
+//        snackbar.addCallback(object : Snackbar.Callback() {
+//            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+//                if (!undone) {
+//                    val collection = item.collection
+//
+//                    // Delete collection along with the item, if the collection
+//                    // would become empty.
+//                    if ((collection?.size ?: 0) < 2) {
+//                        collection?.delete()
+//                    } else {
+//                        item.delete()
+//                    }
+//
+//                    BroadcastManager.postDelete(recyclerView.context, item.id)
+//                }
+//
+//                super.onDismissed(transientBottomBar, event)
+//            }
+//        })
 
-            notifyItemInserted(pos)
-        }
-
-        snackbar.addCallback(object : Snackbar.Callback() {
-            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                if (!undone) {
-                    val collection = item.collection
-
-                    // Delete collection along with the item, if the collection
-                    // would become empty.
-                    if ((collection?.size ?: 0) < 2) {
-                        collection?.delete()
-                    } else {
-                        item.delete()
-                    }
-
-                    BroadcastManager.postDelete(recyclerView.context, item.id)
-                }
-
-                super.onDismissed(transientBottomBar, event)
-            }
-        })
-
-        snackbar.show()
+        //snackbar.show()
 
         removeItem(item.id)
 
