@@ -1,20 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="title_activity_login">ورود</string>
-    <string name="title_activity_first_start">اولین آغاز</string>
-    <string name="title_media_list">آپلود</string>
+    <string name="navigation_drawer_open">کشو باز</string>
+    <string name="navigation_drawer_close">کشو بسته</string>
+
+    <string name="app_subtext">رسانهٔ خود را آرشیو کنید\n<a href="#">بیشتر یاد بگیرید</a></string>
+<string name="title_activity_login">ورود</string>
+    <string name="title_activity_first_start">اولین شروع</string>
+    <string name="title_media_list">بارگذاری‌ها</string>
 
     <!-- Alert Values -->
 
     <string name="action_settings">تنظیمات</string>
 
     <!-- FirstStartActivity -->
-    <string name="internet_archive">بایگانی اینترنت</string>
+    <string name="internet_archive">Internet Archive</string>
+    <string name="internet_archive_description">رسانهٔ خود را روی حساب عمومی رایگان و یا حساب شخصی پولی در Internet Archive بارگذاری کنید.</string>
+    <string name="dweb_title">سرویس DWeb</string>
+    <string name="dweb_description">به وب غیرمتمرکز متصل شوید</string>
+    <string name="upload_to_gdrive">بارگذاری در Google Drive</string>
+    <string name="sign_in_or_create_an_account_with_gdrive">وارد شوید یا یک حساب کاربری در Google Drive ایجاد کنید</string>
 
     <!--<string name="sign_up_btn">Don\'t have a virtual library card?\n<a href="https://archive.org/account/login.createaccount.php">Register for free.</a></string>-->
 
+    <!-- MainActivity -->
+    <string name="servers">سرورها</string>
+    <string name="add_server">افزودن سرور</string>
+
+    <string name="lbl_rename_folder">تغییر نام پوشه </string>
+    <string name="lbl_select_media">انتخاب رسانه</string>
+    <string name="lbl_remove_folder">حذف پوشه</string>
+
+    <string name="popup_rename_folder">تغییر نام پوشه</string>
+    <string name="popup_select_media">انتخاب رسانه</string>
+    <string name="popup_archive_folder">آرشیوکردن پوشه</string>
+    <string name="popup_remove_folder">حذف پوشه از برنامه</string>
+
+    <string name="folder_empty_warning">نام پوشه نمی‌تواند خالی باشد</string>
+    <string name="folder_rename_success">نام پوشه تغییر کرد</string>
+    <string name="folder_not_found">پوشه پیدا نشد</string>
+    <string name="folder_removed">پوشه حذف شد</string>
+    <string name="folder_archived">پوشه آرشیو شد</string>
+
     <!-- MainFragment -->
+
+    <!-- Settings Fragment -->
+    <string name="disable_passcode_dialog_title">غیرفعال‌کردن گذرواژه</string>
+    <string name="disable_passcode_dialog_msg">آیا مطمئنید که می‌خواهید گذرواژه را غیرفعال کنید؟</string>
 
     <!-- ViewMediaActivity -->
     <string name="iv_content_desc">عکس اصلی</string>
@@ -23,20 +55,27 @@
 
     <!-- Server -->
     <string name="lbl_Cancel">لغو</string>
-    <string name="lbl_ok">قابل قبول</string>
+    <string name="lbl_ok">قبول</string>
+    <string name="lbl_confirm">تأیید</string>
+    <string name="archive_title">تأیید ایمیل</string>
+    <string name="archive_message">لطفاً نشانی ایمیل خود را تأیید کنید و بازگردید تا حساب Internet Archive خود را وصل کنید.</string>
+
     <!-- original CC license questions
     <string name="info_license_deriv">Allow adaptations of your work to be shared?</string>
     <string name="info_license_sharealike">Require modified versions to also share?</string>
     <string name="info_license_comm">Allow commercial uses of your work?</string>
     -->
 
-    <string name="info_license_deriv">به هر کسی اجازه بازنشر و استفاده داده شود؟</string>
-    <string name="info_license_sharealike">بخواه که مانند خودت به اشتراک بگذارند؟</string>
-    <string name="info_license_comm">اجازه استفاده تجاری بده؟</string>
 
-    <string name="menu_delete">حذف فایل رسانه‌ای</string>
+    <string name="license_label">پروانه</string>
+    <string name="info_license_deriv">به هر کسی اجازهٔ تغییردادن و اشتراک‌گذاری رسانه‌ٔ شما داده شود؟</string>
+    <string name="info_license_sharealike">از آن‌ها خواسته شود تا محتوای شما را بدون جرح‌وتعدیل در آن به‌اشتراک بگذارند؟</string>
+    <string name="info_license_comm">اجازهٔ استفادهٔ تجاری داده شود؟</string>
 
-    <string name="hint_flag">برای نشانه‌گذاری به عنوان محتوای مهم، روی پرچم بزنید.</string>
+    <string name="menu_delete">حذف رسانه‌</string>
+    <string name="menu_delete_desc">این رسانه از Save حذف خواهد شد.\nاما روی سرور و گالری شما باقی خواهد ماند.</string>
+
+    <string name="hint_flag">برای علامت‌گذاری به‌عنوان محتوای مهم ضربه بزنید</string>
     <string name="answer_yes">بله</string>
     <string name="answer_no">خیر</string>
 
@@ -44,78 +83,326 @@
 
     <string name="error">خطا</string>
 
+    <string name="prefs_use_tor_title">مسیریابی Onion را فعال کنید</string>
+    <string name="prefs_use_tor_summary">انتقال فقط از طریق شبکهٔ Tor</string>
+    <string name="prefs_install_tor_summary">برای فعال‌سازی لطفاً Orbot را نصب کنید</string>
     <string name="prefs_prohibit_screenshots_title">جلوگیری از اسکرین‌شات گرفتن</string>
-    <string name="prefs_user_interface_title">ارائه</string>
-    <string name="prefs_theme_title">قالب</string>
+    <string name="prefs_prohibit_screenshots_summary">از اسکرین‌شات گرفتن و ضبط صفحه‌نمایش این برنامه جلوگیری شود.</string>
+
+    <string name="prefs_user_interface_title">نما</string>
+    <string name="prefs_theme_title">طرح زمینه</string>
+<!--    <string name="prefs_theme_summary">Change Save\'s theme to light/dark</string>-->
+    <string name="prefs_theme_summary">تغییر قالب Save به روشن/تاریک</string>
+    <string name="prefs_theme_system">تنظیمات سیستم</string>
     <string name="prefs_theme_light">روشن</string>
     <string name="prefs_theme_dark">تاریک</string>
+    <string name="prefs_use_proofmode_title">فعال‌سازی ProofMode</string>
+    <string name="prefs_use_proofmode_summary">اشتراک‌گذاری کلید عمومی ProofMode</string>
+<!--    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a system that enables authentication and verification of multimedia content, <a href="%1$s" style="text-decoration: underline;">learn more here</a>]]></string>-->
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode سامانه‌ای است که امکان احراز هویت و تصدیق محتوای چندرسانه‌ای را فراهم می‌کند، <a href=\"%1$s\"&gt;<u&gt;اینجا در این مورد بیشتر یاد بگیرید</u&gt;</a&gt;]]&gt;</string>
+    <!--    <string name="prefs_use_proofmode_description">-->
+<!--        ProofMode is a system that enables authentication and verification of multimedia content, &lt;a href="%1$s" style="text-decoration: underline;"&gt;learn more here&lt;/a&gt;-->
+<!--    </string>-->
+
+
+    <string name="proof_mode_warning_text"> برای کمک به اینکه محل ضبط رسانه‌های خود را تصدیق کنید، ProofMode داده‌هایی را از دکل‌های سلولی نزدیک جمع‌آوری می‌کند تا موقعیت مکانی شما را تأیید کند. سپس برای افزودن اعتبار و اطلاعات زمینه‌ای، یک فایل فرادادهٔ جداگانه در کنار رسانهٔ شما قرار داده می‌شود. <b>نه Save و نه OpenArchive قادر به ذخیره‌سازی یا دست‌یابی به این داده‌های مکانی نخواهند بود و تنها کسانی که به فایل‌های سرور دسترسی دارند، قادر به مشاهدهٔ آن خواهند بود.</b> Android برای جمع‌آوری این اطلاعات به دسترسی به موقعیت مکانی نیاز دارد.</string>
+
+    <string name="prefs_share_proofmode_title">هویت ProofMode</string>
+    <string name="prefs_share_proofmode_summary">کلید عمومی ProofMode را اشتراک‌گذاری کنید</string>
+
+
+    <!-- Strings for ProofMode Activity -->
+    <string name="phone_permission_required">اجازهٔ دسترسی به موقعیت مکانی لازم است</string>
+
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
-    <string name="prompt_email">نام کاربری</string>
-    <string name="prompt_password">گذرواژه</string>
+    <string name="prompt_username"><i>نام کاربری</i></string>
+    <string name="prompt_email">ایمیل</string>
+    <string name="prompt_password"><i>رمز عبور</i></string>
+
+    <string name="label_username">\@string/prompt_email</string>
+    <string name="placeholder_email_or_username">ایمیل یا نام کاربری خود را وارد کنید</string>
+    <string name="label_password">\@string/prompt_password</string>
+    <string name="placeholder_password">رمز عبور را وارد کنید</string>
+
     <string name="action_sign_in_short">ورود</string>
-    <string name="error_incorrect_username_or_password">نام کاربری یا گذرواژه‌ نادرست است</string>
-    <string name="error_field_required">این فیلد ضروری می باشد</string>
+    <string name="error_incorrect_username_or_password">نام کاربری یا رمز عبور نادرست است</string>
+    <string name="error_incorrect_email_or_password">ایمیل یا رمز عبور نادرست است</string>
+    <string name="error_field_required">این فیلد ضروری است</string>
 
-    <string name="title_welcome">خوش آمدید</string>
+    <string name="importing_media">در حال واردکردن رسانه‌ها…</string>
 
-    <string name="action_privacy">حریم خصوصی</string>
-    <string name="uploads">آپلودها</string>
-    <string name="uploading">بارگذاری.......</string>
-    <string name="action_upload">آپلود</string>
+    <string name="title_welcome">خوش آمدید!</string>
 
+    <string name="action_privacy">سیاست حریم خصوصی</string>
+    <string name="action_about">دربارهٔ %s</string>
+    <string name="add_a_folder">افزودن پوشه</string>
+    <string name="browse_existing_folders">مرور پوشه‌های موجود</string>
+    <string name="browse_existing">مرور موارد موجود</string>
+    <string name="title_activity_upload_manager">مدیر بارگذاری</string>
+
+    <string name="uploads">بارگذاری‌ها</string>
+    <string name="upload_manager_screen_title">ویرایش صف</string>
+    <string name="upload_manager_screen_subtitle">بارگذاری متوقف شده است</string>
+    <string name="uploading">در حال بارگذاری…</string>
+    <string name="uploading_left">در حال بارگذاری… (%d باقیمانده)</string>
+    <string name="uploads_notification_descriptions"> این اعلان‌ها زمانی نمایش داده می‌شوند که این برنامه در حال بارگذاری رسانه‌ها باشد.</string>
+
+    <string name="action_upload">بارگذاری</string>
+
+    <!-- Passcode Settings -->
+    <string name="multiple_failed_attempts_message">برنامه به دلیل تلاش‌های ناموفق متعدد قفل شده است. لطفا بعدا دوباره امتحان کنید.</string>
+    <string name="passcode_not_set">گذرواژه تنظیم نشده است</string>
+    <string name="passcode_remaining_attempts">گذرواژه اشتباه است. %1$d تلاش دیگر باقی مانده است.</string>
+    <string name="passcode_too_many_failed_attempts">تلاش‌های ناموفق بسیاری رخ داد. برنامه قفل‌شده است.</string>
+
+    <string name="passcode_lock_app">برنامه را با گذرواژه قفل کنید</string>
+    <string name="enter_passcode">گذرواژهٔ خود را وارد کنید</string>
+    <string name="passcode_do_not_match">گذرواژه‌ها با هم تطابق ندارند. دوباره امتحان کنید.</string>
+
+    <string name="confirm_passcode">تأیید گذرواژه</string>
+    <string name="set_passcode">تنظیم گذرواژه</string>
+    <string name="set_passcode_warning"> حتماً این پین را به خاطر بسپارید. اگر آن را فراموش کنید، باید برنامه را بازنشانی کنید و تمام داده‌ها پاک خواهند شد.</string>
+
+
+    <!-- Strings related to Settings -->
+
+    <string name="tap_to_add">برای افزودن رسانه روی دکمهٔ زیر ضربه بزنید</string>
+    <string name="tap_to_add_folder">برای افزودن پوشه روی دکمهٔ زیر ضربه بزنید</string>
+    <string name="tap_to_add_server">برای افزودن سرور روی دکمهٔ زیر ضربه بزنید</string>
+    <string name="to_get_started_connect_to_a_server_to_store_your_media">برای شروع، به یک سرور وصل شوید تا رسانه‌های خود را ذخیره کنید</string>
+    <string name="to_get_started_more_hint_dweb">شما می‌توانید در هر زمانی چندین سرور خصوصی و\nیک حساب سرور IA یا DWeb اضافه کنید.</string>
+    <string name="to_get_started_more_hint">شما می‌توانید در هر زمانی چندید سرور و\nیک حساب IA اضافه کنید.</string>
+    <string name="in_the_side_menu_you_can_add_another_server_and_connect_to_multiple_servers">در منوی کناری، می‌توانید سرور دیگری اضافه کنید و به چندین سرور وصل شوید.</string>
+    <string name="send_directly_to_a_private_server">اتصال به یک سرور امن WebDAV</string>
+    <string name="upload_to_the_internet_archive">اتصال به یک سرور عمومی رایگان یا یک سرور خصوصی پولی</string>
+    <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud"> به یک سرور سازگار با WebDAV مانند Nextcloud و ownCloud متصل شوید.</string>
     <string name="action_next">بعدی</string>
     <string name="action_done">انجام شد</string>
     <string name="status_flagged">محتوای مهم</string>
+    <string name="select_where_to_store_your_media">انتخاب کنید رسانه‌های شما کجا ذخیره شوند</string>
+    <string name="you_have_successfully_connected_to_a_private_server">شما با موفقیت به یک سرور خصوصی وصل شدید!</string>
+    <string name="you_have_successfully_connected_to_dropbox">شما با موفقیت به Dropbox وصل شدید!</string>
+    <string name="you_have_successfully_connected_to_the_internet_archive">شما با موفقیت به Internet Archive وصل شدید!</string>
+    <string name="you_have_successfully_connected_to_gdrive">شما با موفقیت به Google Drive وصل شدید!</string>
+    <string name="create_a_new_folder">ایجاد پوشهٔ جدید</string>
+    <string name="create_new_folder_title">لطفاً ابتدا، پوشهٔ خود را نام‌گذاری کنید</string>
+    <string name="create_new_folder_subtitle"> این پوشه در سرور شما ایجاد و به‌صورت خودکار به Save افزوده خواهد شد.</string>
+    <string name="create_new_folder_hint">نام پوشه را وارد کنید</string>
     <string name="edit">ویرایش</string>
     <string name="menu_done">انجام شد</string>
     <string name="remove_from_app">حذف از برنامه</string>
+    <string name="action_remove_project">آیا مطمئنید می‌خواهید پروژه‌یتان را حذف کنید؟</string>
     <string name="remove">حذف </string>
-    <string name="action_archive_project">بایگانی کردن پروژه</string>
-    <string name="action_unarchive_project">خروج پروژه از بایگانی</string>
+    <string name="action_archive_project">آرشیوکردن پروژه</string>
+    <string name="action_unarchive_project">خارج‌کردن پروژه از آرشیو</string>
+    <string name="IA_login_error"> لطفاً با اطلاعات کاربری معتبر Internet Archive وارد شوید.</string>
     <string name="access_key">کلید دسترسی</string>
     <string name="secret_key">کلید خصوصی</string>
-    <string name="action_acquire_keys">به دست آوردن کلیدها</string>
-    <string name="new_folder">New Folder</string>
+    <string name="info_archiveorg_keys"> <b><i>Save</i></b> برای بارگذاری رسانه‌ها به کلیدهای API حساب کاربری Internet Archive شما نیاز دارد.</string>
+    <string name="action_acquire_keys">دریافت کلیدها</string>
+    <string name="new_folder">پوشهٔ جدید</string>
+    <string name="please_do_not_include_special_characters_in_the_name">لطفاً در نام از نویسه‌های خاص استفاده نکنید.</string>
+    <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">آیا مطمئنید که می‌خواهید این سرور را از برنامه پاک کنید؟</string>
+    <string name="folder_name_already_exists">نام پوشه تکراری است.</string>
     <string name="dropbox">Dropbox</string>
-    <string name="metadata">فرا داده</string>
+    <string name="metadata">فراداده</string>
 
-    <string name="popup_flag_title">نشانه‌گذاری محتوای مهم</string>
-    <string name="popup_flag_desc">هنگامی که یک مورد را نشانه‌گذاری می‌کنید، به یک زیرپوشه در پروژه‌ی انتخابی در سرور خصوصی منتقل می‌شود.</string>
+    <string name="btn_lbl_remove_media">حذف رسانه</string>
+    <string name="confirm_remove_media">آیا از حذف این رسانه مطمئن هستید؟</string>
+
+    <string name="popup_flag_title">علامت‌‌گذاری محتوای مهم</string>
+    <string name="popup_flag_desc">هنگامی که یک مورد را علامت‌گذاری می‌کنید، به یک زیرپوشه در پروژهٔ انتخابی در سرور خصوصی منتقل می‌شود.</string>
+
+    <string name="set_creative_commons_license_for_all_folders_on_this_server"> برای پوشه‌های این سرور پروانه‌های Creative Commons تنظیم کنید.</string>
+    <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server"> همان مجوز Creative Commons را برای تمام پوشه‌های این سرور تنظیم کنید.</string>
+    <string name="set_unique_creative_commons_licenses_for_each_individual_folder_on_this_server"> برای هر پوشه به‌صورت جداگانه پروانه‌های Creative Commons منحصر‌به‌فرد تنظیم کنید.</string>
 
     <string name="action_install">نصب</string>
     <string name="login_activity_logging_message">در حال ورود…</string>
-    <string name="folders">پوشه ها</string>
-    <string name="create">ایجاد کردن</string>
+    <string name="you_already_have_a_server_with_these_credentials"> شما از قبل یک سرور با این اطلاعات کاربری دارید</string>
+    <string name="tor_connection_exception">امکان اتصال به Tor/Orbot وجود ندارد.</string>
+    <string name="tor_connection_timeout">امکان اتصال به Tor/Orbot وجود ندارد: اتمام وقت</string>
+    <string name="tor_connection_invalid">امکان اتصال به Tor/Orbot وجود ندارد: نامعتبر</string>
+    <string name="unsecured_internet_connection">یک اتصال اینترنت ناامن شناسایی شد</string>
+    <string name="version__">نسخهٔ %s</string>
+
+    <!-- Space Setup -->
+    <string name="space_setup_title">یک سرور انتخاب کنید</string>
+    <!-- WebDAV related strings -->
+    <string name="private_server">سرور خصوصی</string>
+    <string name="edit_private_server">ویرایش سرور خصوصی</string>
+    <string name="empty_name_warning">نام نباید خالی باشد</string>
+
+    <string name="unsaved_changes">تغییرات ذخیره نشده‌اند!</string>
+    <string name="do_you_want_to_save">می خواهید ذخیر کنید</string>
+    <string name="lbl_save">ذخیره‌سازی</string>
+    <string name="lbl_discard">دور انداختن</string>
+
+    <!-- WebDAV setup License -->
+    <string name="name_your_server">سرور خود را نام‌گذاری کرده و یک پروانه انتخاب کنید</string>
+
+    <!-- Space Setup Success -->
+    <string name="space_setup_success_title">نصب کامل شد</string>
+
+    <!-- Upload Manager Bottom Sheet -->
+    <string name="edit_queue">ویرایش صف</string>
+    <string name="uploading_is_paused">بارگذاری متوقف شده است</string>
+
+    <!-- Clean Insights measurement -->
+    <string name="server_name_optional">نام سرور (اختیاری)</string>
+    <string name="dropbox_id">شناسهٔ Dropbox:</string>
+    <string name="add_another_account">افزودن سرور جدید</string>
+    <string name="prefs_proofmode_key_encryption_title_all">از کلید ProofMode با کمک بیومتریک یا گذرواژهٔ دستگاه حفاظت کنید</string>
+    <string name="prefs_proofmode_key_encryption_title_biometrics">از کلید ProofMode با بیومتریک محافظت کنید</string>
+    <string name="prefs_proofmode_key_encryption_title_passcode">از کلید ProofMode با گذرواژهٔ دستگاه محافظت کنید</string>
+    <string name="prefs_proofmode_key_encryption_summary"> تغییر این گزینه یک کلید جدید ایجاد خواهد کرد! اگر قبلاً از کلید قبلی خروجی گرفته و آن را امضا کرده‌اید، باید دوباره با کلید جدید این کار را انجام دهید.</string>
+    <string name="biometrics_title">بازگشایی کلید ProofMode</string>
+    <string name="folders">پوشه‌ها</string>
+    <string name="create_folder_name">ایجاد نام پوشه</string>
+    <string name="folder_name">نام پوشه</string>
+    <string name="create">ایجاد</string>
     <string name="add">افزودن</string>
+    <string name="no_more_folders">پوشه (بیشتری) وجود ندارد</string>
+
     <string name="upload_to_dropbox">بارگذاری در Dropbox</string>
-    <string name="authenticate">تصدیق کردن</string>
-    <string name="back">برگشت</string>
+    <string name="sign_in_or_create_an_account_with_dropbox">وارد شوید یا در Dropbox یک حساب کاربری ایجاد کنید</string>
+    <string name="authenticate">احراز اصالت</string>
+    <string name="back">بازگشت</string>
+    <string name="my_media">رسانه‌های من</string>
+    <string name="if_you_do_not_have_existing_keys_learn_how_to_acquire_keys"> اگر کلیدی موجود ندارید، نحوهٔ دریافت کلیدها را <b>یاد بگیرید</b>.</string>
+    <string name="server_info">اطلاعات سرور</string>
+    <string name="enter_url"><i>نشانی URL را وارد کنید</i></string>
     <string name="account">حساب کاربری</string>
-    <string name="general">کلی</string>
+    <string name="general">عمومی</string>
+    <string name="connectivity_data"><![CDATA[اتصال‌دهندگی و داده‌ها]]&gt;</string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">فایل‌های رسانه‌ای را تنها زمانی که به Wi-Fi متصل هستید، بارگذاری کنید.</string>
     <string name="security">امنیت</string>
+    <string name="proofmode">ProofMode</string>
+    <string name="no_webbrowser_found_error">هیچ برنامه ای قادر به انجام این درخواست نیست. لطفا یک مرورگر وب نصب کنید.</string>
+
+    <string name="intro_text_secure">رسانه‌های خود را به‌صورت امن به سرورهای خصوصی ارسال کنید و برنامه را با یک پین قفل کنید.</string>
+    <string name="intro_text_archive"><![CDATA[با بارگذاری رسانه‌های خود روی سرورهای خصوصی یا عمومی مانند Nextcloud یا Internet Archive، آن‌ها را تصدیق‌پذیر، ایمن و سازمان‌دهی‌شده نگه دارید. <br&gt;قصد خود را برای استفاده‌های آتی با افزودن <a href=\"%1$s\"&gt;<u&gt;پروانهٔ Creative Commons بیان کنید</a&gt;</u&gt;.]]&gt;</string>
+<string name="intro_text_verify"><![CDATA[با استفاده از هش‌های sha256 و <a href=\"%1$s\"&gt;<u&gt;حالت اثبات ProofMode</a&gt;</u&gt; رسانه‌های خود را احراز هویت و تأیید کنید.]]&gt;\n\n</string>
+    <string name="intro_text_encrypt_old"> به‌صورت خودکار از طریق TLS (امنیت لایه انتقال) بارگذاری کن و برای حفاظت از رسانه‌های خود در حین انتقال از شبکه Tor، از Orbot استفاده کن.</string>
     <string name="next">بعدی</string>
     <string name="done">انجام شد</string>
-    <string name="secure_mobile_media_preservation">حفظ ایمن رسانه‌های موبایل</string>
+    <string name="secure_mobile_media_preservation">نگهداری امن رسانه‌های تلفن همراه</string>
     <string name="get_started">شروع کنید</string>
+    <string name="proofmode_permissions_explanation"> ProofMode برای کمک به تصدیق رسانه‌ها، فراداده‌ها را از دکل‌های سلولی محلی جمع‌آوری می‌کند. Android برای فعال‌کردن این تنظیم نیاز به اجازهٔ دسترسی دارد. Save فقط از این تنظیم برای جمع‌آوری داده‌ها استفاده خواهد کرد و برای برقراری یا مدیریت تماس‌ها به تلفن شما دسترسی پیدا نخواهد کرد.</string>
+    <string name="archived_folders">پوشه‌های آرشیوشده</string>
+    <string name="view_archived_folders">مشاهدهٔ پوشه‌های آرشیوشده</string>
+    <string name="learn_more_about_creative_commons">در مورد Creative Commons بیشتر یاد بگیرید. </string>
     <string name="refresh">تازه‌سازی</string>
+    <string name="to_get_started_please_create_a_folder">برای شروع، لطفاً یک پوشه ایجاد کنید</string>
+    <string name="before_adding_media_create_a_new_folder_first">قبل از افزودن رسانه، ابتدا یک پوشهٔ جدید ایجاد کنید</string>
+    <string name="is_video">ویدئو است</string>
+    <string name="use_upload_chunking_nextcloud_only">از قطعه‌بندی بارگذاری استفاده کنید (فقط برای Nextcloud)</string>
+    <string name="chunking_explanation"> «قطعه‌بندی» رسانه‌ها را به قطعاتی تقسیم می‌کند تا در صورت قطع اتصال، نیازی به از سرگیری بارگذاری نباشد.</string>
+    <string name="preview_media">پیش‌نمایش بارگذاری</string>
+    <string name="add_more">افزودن بیشتر</string>
     <string name="select_all">انتخاب همه</string>
     <string name="lbl_got_it">متوجه شدم</string>
-    <string name="skip">از قلم بینداز</string>
-    <string name="retry">تلاش دوباره</string>
+    <string name="do_not_show_me_this_again">دیگر این را نمایش نده</string>
+    <string name="edit_multiple">ویرایش گروهی</string>
+    <string name="press_and_hold_options_media_screen_title">افزودن رسانه</string>
+    <string name="press_and_hold_options_media_screen_message">برای انتخاب تصویر از گالری روی + ضربه بزنید و یا برای افزودن تصویر از برنامه‌های دیگر روی + ضربه بزنید و نگه دارید.</string>
+    <string name="press_and_hold_to_select_and_edit_multiple_media"> برای انتخاب و ویرایش چندین رسانه، ضربه بزنید و نگه دارید.</string>
+    <string name="once_uploaded_you_will_not_be_able_to_edit_media">وقتی بارگذاری انجام شد، دیگر قادر به ویرایش رسانه نخواهید بود.</string>
+    <string name="edit_media_info">ویرایش اطلاعات رسانه</string>
+    <string name="counter">%1$d/%2$d</string>
+    <string name="add_a_location_optional">افزودن موقعیت مکانی (اختیاری)</string>
+    <string name="add_notes_optional">افزودن یادداشت (اختیاری)</string>
+    <string name="skip">رد کردن</string>
+    <string name="add_camera">افزودن تصاویر از دوربین</string>
+    <string name="add_images_or_video">افزودن تصاویر یا ویدئوها</string>
+    <string name="add_files">افزودن فایل‌ها</string>
 
-    <string name="edit_media">تدوین رسانه</string>
+    <string name="ia_learn_how_title">چگونگی دریافت کلید در ۳ قدم ساده</string>
+    <string name="ia_learn_how_summary_step_1"> مرحله ۱: وارد حساب Internet Archive شوید. اگر حساب کاربری ندارید، یکی بسازید.</string>
+    <string name="ia_learn_how_summary_step_2">مرحله ۲: اگر در حال ایجاد حساب جدید هستید، ایمیل خود را تأیید کنید.</string>
+    <string name="ia_learn_how_summary_step_3">مرحله ۳: کلیدهای API خود را با انتخاب گزینهٔ مربوطه ایجاد کنید تا به‌ صورت خودکار در برنامه بارگذاری شود!</string>
+
+    <string name="upload_unsuccessful">بارگذاری ناموفق بود</string>
+    <string name="upload_unsuccessful_description"> به دلیل خطا در نشست ارتباطی، بارگذاری امکان‌پذیر نیست. لطفاً دوباره امتحان کنید یا با پشتیبانی تماس بگیرید.</string>
+    <string name="retry">امتحان مجدد</string>
+
+    <string name="edit_media">ویرایش رسانه</string>
+
+    <string name="add_media_using">افزودن رسانه از طریق:</string>
+    <string name="camera">دوربین</string>
+    <string name="photo_gallery">گالری عکس</string>
     <string name="files">فايل‌ها</string>
-    <string name="health_checks">بررسی‌های سلامت</string>
-    <string name="help_improve_the_app_by_running_health_checks_when_uploads_fail">با انجام بررسی‌های سلامت در صورت عدم موفقیت در بارگذاری‌ها، به بهبود برنامه کمک کنید.</string>
-    <string name="health_checks_help_us_understand_why_uploads_fail">بررسی‌های سلامت به ما کمک می‌کند تا بفهمیم چرا بارگذاری‌ها ناموفق هستند.</string>
-    <string name="contribute_your_data_to_be_part_of_the_solution">کمک کنید مشارکت داده‌های شما بخشی از راه حل باشند.</string>
-    <string name="with_your_permission_we_ll_run_a_check_each_time_you_encounter_an_error_while_uploading">با اجازه شما، هر بار که هنگام بارگذاری با خطایی مواجه شدید، آن را بررسی خواهیم کرد.</string>
-    <string name="health_checks_capture">یافته‌های بررسی‌های سلامت</string>
-    <string name="allow_health_checks">بررسی سلامت مجاز است؟</string>
-    <string name="no_thanks">نه، ممنون</string>
-    <string name="undo">اصلاح</string>
+    <string name="health_checks">بررسی‌های صحت</string>
+    <string name="help_improve_the_app_by_running_health_checks_when_uploads_fail">با اجرای بررسی‌های صحت هنگام بارگذاری‌های ناموفق، به بهبود برنامه کمک کنید.</string>
+    <string name="health_checks_help_us_understand_why_uploads_fail">بررسی‌های صحت به ما کمک می‌کند تا بفهمیم چرا بارگذاری‌ها ناموفق هستند.</string>
+    <string name="contribute_your_data_to_be_part_of_the_solution">داده‌های خود را به مشارکت دهید تا بخشی از راه حل باشند.</string>
+    <string name="with_your_permission_we_ll_run_a_check_each_time_you_encounter_an_error_while_uploading">با اجازهٔ شما، هر بار که هنگام بارگذاری با خطایی مواجه شدید، آن را بررسی خواهیم کرد.</string>
+    <string name="health_checks_capture">یافته‌های بررسی‌های صحت</string>
+    <string name="error_description">– توضیحات خطا</string>
+    <string name="size_and_type_of_media">– حجم و نوع رسانه</string>
+    <string name="number_of_retries">– تعداد دفعات امتحان مجدد</string>
+    <string name="network_type">– نوع شبکه</string>
+    <string name="locale">– زبان و منطقه</string>
+    <string name="allow_health_checks">اجازهٔ انجام بررسی‌های صحت؟</string>
+    <string name="by_allowing_health_checks_you_give_permission_for_the_app_to_securely_send_health_check_data_to_the_s_team">با اجازه‌دادن به اجرای بررسی‌های صحت به برنامه اجازه می‌دهید داده‌های بررسی صحت را به‌طور امن برای تیم %s ارسال کند.</string>
+    <string name="no_thanks">نه ممنون</string>
+    <string name="undo">واگردانی</string>
+    <string name="gdrive_id">شناسهٔ Google Drive</string>
+    <string name="gdrive_disclaimer_1" formatted="true"> استفاده و انتقال اطلاعات %1$s که از APIهای %2$s دریافت شده‌اند، به هر برنامهٔ دیگر طبق %3$s، شامل الزامات استفادهٔ محدود یا Limited Use صورت می‌گیرد. </string>
+    <string name="gdrive_disclaimer_2" formatted="true">رابط‌های برنامه‌نویسی یا APIها %1$s به شما اجازه می‌دهند که رسانه‌ها را از طریق %3$s به %2$s خود ارسال کنید. با این حال، %3$s قادر به مشاهده یا دسترسی به هیچ چیزی در %2$s شما نیست که شما از ابتدا با %3$s ایجاد نکرده‌اید.</string>
+    <string name="gdrive_auth_insufficient_permissions" formatted="true"> اگر اجازهٔ نوشتن در %2$s خود را ندهید، %1$s به‌درستی کار نخواهد کرد. لطفاً مجدداً فرایند اعطای اجازه را انجام دهید و مطمئن شوید که تمام اجازه‌های فهرست‌شده را اعطا کرده‌اید.</string>
+    <string name="new_user">کاربر جدید</string>
 
+    <!-- Internet Archive Settings -->
+    <string name="label_email">ایمیل</string>
+    <string name="label_screen_name">نام نمایشی</string>
+    <string name="label_login">ورود</string>
+    <string name="label_create_login">ایجادکردن</string>
+    <string name="prompt_no_account">حساب کاربری ندارید؟</string>
+    <string name="action_continue">ادامه دهید</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">قطعهٔ خالی سلام</string>
+    <!-- Preference Titles -->
+    <string name="messages_header">پیام‌ها</string>
+    <string name="sync_header">همگام‌سازی</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">امضای شما</string>
+    <string name="reply_title">عمل پاسخ‌دهی پیش‌فرض</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">همگام‌سازی دوره‌ای ایمیل</string>
+    <string name="attachment_title">بارگیری پیوست‌های ورودی</string>
+    <string name="attachment_summary_on">بارگیری خودکار پیوست‌ها برای ایمیل‌های ورودی</string>
+    <string name="attachment_summary_off">بارگیری پیوست‌ها، فقط در صورت درخواست به‌صورت دستی</string>
+
+    <string name="pref_media_servers">pref_media_servers</string>
+    <string name="pref_media_folders">pref_media_folders</string>
+
+    <string name="pref_title_secure">امن</string>
+    <string name="pref_title_archive">آرشیو</string>
+    <string name="pref_title_privacy_policy">شرایط و سیاست حریم خصوصی ما را بخوانید</string>
+    <string name="pref_title_media_servers">سرورهای رسانه</string>
+    <string name="pref_title_media_folders">پوشه‌های آرشیوشده</string>
+    <string name="pref_summary_media_servers">مدیریت سرورها</string>
+    <string name="pref_summary_media_folders">مدیریت پوشه‌های آرشیوشده</string>
+    <string name="pref_summary_privacy_policy">شرایط و سیاست حریم خصوصی ما را بخوانید</string>
+
+    <string name="pref_key_use_dark_mode">pref_is_dark_mode</string>
+    <!-- General -->
+    <string name="label_success_title">موفقیت!</string>
+    <string name="label_warning_title">هشدار!</string>
+    <string name="label_info_title">اطلاعات!</string>
+    <string name="label_got_it">متوجه شدم</string>
+
+    <!-- Create New Folder -->
+    <string name="create_folder_ok_message">پوشه را با موفقیت اضافه کردید</string>
+    <string name="msg_edit_server_success">تنظیمات سرور را با موفقیت تغییر دادید.</string>
+    <string name="expand">گسترش</string>
+    <string name="lbl_no_servers">هنوز هیچ سروری افزوده نشده است.</string>
+    <string name="lbl_no_archived_folders">هیچ پوشهٔ آرشیوشده‌ای یافت نشد.</string>
+    <string name="error_no_internet">اینترنت در دسترس نیست</string>
+    <string name="unavailable">در دسترس نیست</string>
 </resources>
