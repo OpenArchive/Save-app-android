@@ -99,7 +99,7 @@
     <string name="prefs_use_proofmode_title">Activer ProofMode</string>
     <string name="prefs_use_proofmode_summary">Partager la clé publique ProofMode</string>
 <!--    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a system that enables authentication and verification of multimedia content, <a href="%1$s" style="text-decoration: underline;">learn more here</a>]]></string>-->
-    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode est un système qui permet l’authentification et la vérification de contenus multimédias. <a href=\"%1$s\"&gt;<u&gt;En apprendre davantage</u&gt;</a&gt;]]&gt;</string>
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode est un système qui permet l’authentification et la vérification de contenus multimédias. <a href=\"%1$s\"&gt;<u&gt;En apprendre davantage</u&gt;</a&gt;]]></string>
     <!--    <string name="prefs_use_proofmode_description">-->
 <!--        ProofMode is a system that enables authentication and verification of multimedia content, &lt;a href="%1$s" style="text-decoration: underline;"&gt;learn more here&lt;/a&gt;-->
 <!--    </string>-->
@@ -276,7 +276,7 @@
     <string name="enter_url"><i>Saisissez l’URL</i></string>
     <string name="account">Compte</string>
     <string name="general">Général</string>
-    <string name="connectivity_data"><![CDATA[Connectivité et données]]&gt;</string>
+    <string name="connectivity_data"><![CDATA[Connectivité et données]]></string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Téléverser les médias par Wi-Fi seulement</string>
     <string name="security">Securité</string>
     <string name="proofmode">ProofMode</string>
@@ -284,7 +284,7 @@
 
     <string name="intro_text_secure">Envoyez vos médias vers des serveurs privés en toute sécurité et verrouillez l’appli avec un code.</string>
     <string name="intro_text_archive"><![CDATA[Veillez à ce que vos médias soient vérifiables, protégés et classés durablement en les téléversant sur des serveurs privés ou publics tels que Nextcloud ou Internet Archive.<br&gt;Communiquez vos intentions d’utilisation future en ajoutant une <a href=\"%1$s\"&gt;<u&gt;licence Creative Commons</u&gt;</a&gt;.]]&gt;</string>
-<string name="intro_text_verify"><![CDATA[ authentifie et vérifie vos contenus multimédias grâce aux hachages Sha256 et<a href=\"%1$s\"&gt;<u&gt; ProofMode</u&gt;</a&gt;.]]&gt;</string>
+<string name="intro_text_verify"><![CDATA[ authentifie et vérifie vos contenus multimédias grâce aux hachages Sha256 et<a href=\"%1$s\"&gt;<u&gt; ProofMode</u&gt;</a&gt;.]]></string>
     <string name="intro_text_encrypt_old">Téléverser automatiquement par TLS (sécurité de la couche de transport) et utiliser Orbot pour protéger vos médias en transit sur le Réseau Tor.</string>
     <string name="next">Suivant</string>
     <string name="done">Terminé</string>
