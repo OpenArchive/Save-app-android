@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="app_subtext">أرشِف وسائطك <a href="#">تعرف على المزيد</a></string>
+    <string name="navigation_drawer_open">اللوحة الجانبية مفتوحة</string>
+    <string name="navigation_drawer_close">اللوحة الجانبية مغلقة</string>
 
-    <string name="title_activity_login">تسجيل الدخول</string>
+    <string name="app_subtext">أرشِف وسائطك\n<a href="#">تعرف على المزيد</a></string>
+<string name="title_activity_login">تسجيل الدخول</string>
     <string name="title_activity_first_start">البدء الأول</string>
     <string name="title_media_list">التحميلات</string>
 
@@ -13,21 +15,50 @@
 
     <!-- FirstStartActivity -->
     <string name="internet_archive">‫موقع Internet Archive</string>
+    <string name="internet_archive_description">‫حمّل وسائطك إلى حساب عمومي مجاني أو خصوصي مدفوع على موقع Internet Archive.</string>
+    <string name="dweb_title">‫خدمة DWeb</string>
+    <string name="dweb_description">اتصل بالانترنت اللامركزي</string>
+    <string name="upload_to_gdrive">حمّل إلى Google Drive</string>
+    <string name="sign_in_or_create_an_account_with_gdrive">تسجيل الدخول أو إنشاء حساب مع Google Drive</string>
 
     <!--<string name="sign_up_btn">Don\'t have a virtual library card?\n<a href="https://archive.org/account/login.createaccount.php">Register for free.</a></string>-->
 
+    <!-- MainActivity -->
+    <string name="servers">الخوادم</string>
+    <string name="add_server">إضافة حساب آخر</string>
+
+    <string name="lbl_rename_folder">إعادة تسمية المجلد</string>
+    <string name="lbl_select_media">‮تحديد الوسائط</string>
+    <string name="lbl_remove_folder">إزالة المجلد</string>
+
+    <string name="popup_rename_folder">إعادة تسمية المجلد</string>
+    <string name="popup_select_media">‮تحديد الوسائط</string>
+    <string name="popup_archive_folder">أرشفة المجلد</string>
+    <string name="popup_remove_folder">إزالة المجلد من التطبيق</string>
+
+    <string name="folder_empty_warning">لا يمكن ترك اسم المجلد فارغا</string>
+    <string name="folder_rename_success">تمت إعادة تسمية المجلد</string>
+    <string name="folder_not_found">لم يتم العثور على المجلد</string>
+    <string name="folder_removed">تمت إزالة المجلد</string>
+    <string name="folder_archived">تمت أرشفة المجلد</string>
+
     <!-- MainFragment -->
 
+    <!-- Settings Fragment -->
+    <string name="disable_passcode_dialog_title">تعطيل رمز المرور</string>
+    <string name="disable_passcode_dialog_msg">هل أنت متيقِّن من تعطيل رمز المرور؟</string>
+
     <!-- ViewMediaActivity -->
-    <string name="iv_content_desc">صورة رئيسية</string>
+    <string name="iv_content_desc">صورة رئيسة</string>
 
     <!-- Errors -->
 
     <!-- Server -->
     <string name="lbl_Cancel">إلغاء</string>
     <string name="lbl_ok">موافق</string>
+    <string name="lbl_confirm">تأكيد </string>
     <string name="archive_title">تأكيد البريد الإلكتروني</string>
-    <string name="archive_message">‫يرجى تأكيد عنوان بريدك الإلكتروني والعودة للدخول إلى حسابك في Internet Archive.</string>
+    <string name="archive_message">‫يرجى تأكيد عنوان بريدك الإلكتروني والعودة للدخول إلى حسابك في موقع Internet Archive.</string>
 
     <!-- original CC license questions
     <string name="info_license_deriv">Allow adaptations of your work to be shared?</string>
@@ -35,15 +66,18 @@
     <string name="info_license_comm">Allow commercial uses of your work?</string>
     -->
 
+
+    <string name="license_label">الترخيص</string>
     <string name="info_license_deriv">السماح لأي شخص بالتعديل والمشاركة ؟</string>
-    <string name="info_license_sharealike">اطلب من الأفراد المشاركة مثلما سبق لك أيضا المشاركة ؟</string>
+    <string name="info_license_sharealike">الطلب من الأفراد المشاركة مثلما سبق لك أيضا المشاركة ؟</string>
     <string name="info_license_comm">السماح بالاستخدام التجاري ؟</string>
 
     <string name="menu_delete">أزِل الوسائط</string>
+    <string name="menu_delete_desc">‫سوف يتم حذف هذا الوسيط من Save.\nسيظل في الخادم وفي تطبيق صورك.</string>
 
     <string name="hint_flag">اضغط لإضافة علامة محتوى مميز</string>
-    <string name="answer_yes">نعم</string>
-    <string name="answer_no">لا</string>
+    <string name="answer_yes">‮نعم</string>
+    <string name="answer_no">‮لا</string>
 
     <string name="action_cancel">إلغاء</string>
 
@@ -51,197 +85,256 @@
 
     <string name="prefs_use_tor_title">تشغيل التوجيه البصلي</string>
     <string name="prefs_use_tor_summary">النقل عبر شبكة « تور » فقط</string>
-    <string name="prefs_install_tor_summary">الرجاء تثبيت « أوربوت » لتفعيله</string>
+    <string name="prefs_install_tor_summary">يُرجى تثبيت « أوربوت » لتفعيله</string>
     <string name="prefs_prohibit_screenshots_title">حظر لقطات الشاشة</string>
-    <string name="prefs_prohibit_screenshots_summary">منع أخذ لقطات الشاشة وتسجيل الشاشة لهذا التطبيق.</string>
+    <string name="prefs_prohibit_screenshots_summary">منع حفظ لقطات الشاشة وتسجيل الشاشة لهذا التطبيق.</string>
 
     <string name="prefs_user_interface_title">التقديم</string>
     <string name="prefs_theme_title">السمة</string>
-    <string name="prefs_theme_summary">تغيير سِمة Save إلى نهارية أو ليلية</string>
+<!--    <string name="prefs_theme_summary">Change Save\'s theme to light/dark</string>-->
+    <string name="prefs_theme_summary">‫تغيير سِمة Save إلى نهارية أو ليلية</string>
     <string name="prefs_theme_system">يتحكم فيها النظام</string>
-    <string name="prefs_theme_light">نهاري</string>
-    <string name="prefs_theme_dark">ليلي</string>
+    <string name="prefs_theme_light">نهارية</string>
+    <string name="prefs_theme_dark">ليلية</string>
     <string name="prefs_use_proofmode_title">تفعيل ProofMode</string>
-    <string name="prefs_use_proofmode_summary">التقاط البيانات الوصفية الإضافية وتوثيق جميع الوسائط.</string>
+    <string name="prefs_use_proofmode_summary">‫مشاركة مفتاح ProofMode العمومي</string>
+<!--    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a system that enables authentication and verification of multimedia content, <a href="%1$s" style="text-decoration: underline;">learn more here</a>]]></string>-->
+    <string name="prefs_use_proofmode_description"><![CDATA[يُمكِّن نظام ‫ProofMode من تفعيل الاستيثاق والتحقق من محتوى الوسائط، <a href=\"%1$s\"&gt;<u&gt;تعرَّف على المزيد هنا</u&gt;</a&gt;]]&gt;</string>
+    <!--    <string name="prefs_use_proofmode_description">-->
+<!--        ProofMode is a system that enables authentication and verification of multimedia content, &lt;a href="%1$s" style="text-decoration: underline;"&gt;learn more here&lt;/a&gt;-->
+<!--    </string>-->
+
+
+    <string name="proof_mode_warning_text">لمساعدتك في التحقق من المكان الذي تم فيه التقاط وسائطك، يجمع ProofMode بيانات من أبراج الخلايا القريبة لإثبات موقعك. لزيادة المصداقية والسياق، فإنه يُدمِج ملفا منفصلا للبيانات الوصفية مع وسائطك. <b>فلا Save ولا OpenArchive يمكنهما الوصول إلى بيانات موقعك ولا حتى تخزينها، سيكون ذلك متاحا فقط لمن له حق الوصول إلى ملفات الخادم.</b> يطلب أندرويد حق الوصول إلى الموقع للحصول على تلك المعلومة.</string>
 
     <string name="prefs_share_proofmode_title">هوية ProofMode</string>
     <string name="prefs_share_proofmode_summary">مشاركة مفتاح ProofMode العمومي</string>
 
 
+    <!-- Strings for ProofMode Activity -->
+    <string name="phone_permission_required">إذن معرفة الموقع مطلوبة</string>
+
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
-    <string name="prompt_email">اسم المستخدم</string>
-    <string name="prompt_password">‮كلمة السر</string>
+    <string name="prompt_username"><i>اسم المستخدم</i></string>
+    <string name="prompt_email">عنوان البريد الإلكتروني</string>
+    <string name="prompt_password"><i>كلمة السر</i></string>
+
+    <string name="label_username">‪\@string/prompt_email</string>
+    <string name="placeholder_email_or_username">أدخل عنوان البريد الإلكتروني أو اسم المستخدم</string>
+    <string name="label_password">‪\@string/prompt_password‪</string>
+    <string name="placeholder_password">أدخل كلمة السر</string>
+
     <string name="action_sign_in_short">الولوج</string>
     <string name="error_incorrect_username_or_password">اسم المستخدم أو كلمة السر غير صحيحة</string>
-    <string name="error_field_required">هذا الحقل مطلوب</string>
+    <string name="error_incorrect_email_or_password">عنوان البريد الإلكتروني أو كلمة السر غير صحيحة</string>
+    <string name="error_field_required">هذا الحقل ضروري</string>
 
-    <string name="importing_media">يجري استيراد الوسائط…</string>
+    <string name="importing_media">‫يجري استيراد الوسائط…</string>
 
     <string name="title_welcome">مرحباً</string>
 
     <string name="action_privacy">سياسة الخصوصية</string>
-    <string name="action_about">‫عن %s</string>
+    <string name="action_about">‫‫عن %s</string>
     <string name="add_a_folder">إضافة مجلد</string>
     <string name="browse_existing_folders">تصفح المجلدات الموجودة</string>
     <string name="browse_existing">تصفح الموجودة</string>
     <string name="title_activity_upload_manager">مدير التحميل</string>
 
-    <string name="uploads">الملفات المُحمَّلة</string>
-    <string name="uploading">يجري التحميل…</string>
-    <string name="uploading_left">‫يجري التحميل… (%d متبقية)</string>
+    <string name="uploads">التحميلات</string>
+    <string name="upload_manager_screen_title">تعديل قائمة الانتظار</string>
+    <string name="upload_manager_screen_subtitle">التحميل متوقف مؤقتا</string>
+    <string name="uploading">‫يجري التحميل…</string>
+    <string name="uploading_left">‫‫يجري التحميل… (%d متبقية)</string>
     <string name="uploads_notification_descriptions">تظهر هذه الإشعارات أثناء قيام هذا التطبيق بتحميل الوسائط.</string>
 
-    <string name="action_upload">تحميل</string>
+    <string name="action_upload">رفع</string>
+
+    <!-- Passcode Settings -->
+    <string name="multiple_failed_attempts_message">إن التطبيق مُقفَل بسبب عدة محاولات فاشلة. يرجى المحاولة مرة أخرى لاحقا.</string>
+    <string name="passcode_not_set">لم يتم تعيين رمز للمرور</string>
+    <string name="passcode_remaining_attempts">رمز المرور غير صحيح، بقيت لك %1$d محاولات.</string>
+    <string name="passcode_too_many_failed_attempts">عدد المحاولات الفاشلة كثير. التطبيق مُقفَل.</string>
+
+    <string name="passcode_lock_app">قفل التطبيق برمز مرور</string>
+    <string name="enter_passcode">أدخل رمز مرورك</string>
+    <string name="passcode_do_not_match">رمزا المرور غير متطابقَين، يرجى المحاولة مرة أخرى.</string>
+
+    <string name="confirm_passcode">أكِّد رمز المرور</string>
+    <string name="set_passcode">حدد رمز المرور</string>
+    <string name="set_passcode_warning">تيقَّن من تذكُّر هذا الرمز. إذا نسيته، فسيحتاج الأمر إلى إعادة تعيين التطبيق، وسيتم مسح جميع البيانات.</string>
+
 
     <!-- Strings related to Settings -->
 
-    <string name="tap_to_add">المس الزر أدناه لإضافة الوسائط.</string>
-    <string name="to_get_started_connect_to_a_server_to_store_your_media">لبدء الاستخدام، اتصل بخادم لتخزين وسائطك.</string>
+    <string name="tap_to_add">المس الزر أدناه لإضافة الوسائط</string>
+    <string name="tap_to_add_folder">المس الزر أدناه لإضافة مجلد</string>
+    <string name="tap_to_add_server">المس الزر أدناه لإضافة خادم</string>
+    <string name="to_get_started_connect_to_a_server_to_store_your_media">لبدء الاستخدام، اتصل بخادم لتخزين وسائطك</string>
+    <string name="to_get_started_more_hint_dweb">يمكنك إضافة خوادم خصوصية متعددة\n‫وحساب خادم IA أو حساب DWEB في أي وقت.</string>
+    <string name="to_get_started_more_hint">يمكنك إضافة خوادم خصوصية متعددة\n‫وحساب خادم IA واحد في أي وقت.</string>
     <string name="in_the_side_menu_you_can_add_another_server_and_connect_to_multiple_servers">في القائمة الجانبية، يمكنك إضافة خادم آخر والاتصال بخوادم متعددة</string>
-    <string name="send_directly_to_a_private_server">إرسال إلى خادم webdav</string>
-    <string name="upload_to_the_internet_archive">تحميل إلى IA</string>
-    <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">يتصل <b><i>Save </i></b> فقط بالخوادم المتوافقة مع WebDAV، مثل Nextcloud و ownCloud.</string>
+    <string name="send_directly_to_a_private_server">‫اتصل بخادم WebDAV آمن</string>
+    <string name="upload_to_the_internet_archive">اتصل بخادم عمومي مجاني أو بخادم خصوصي مدفوع الثمن</string>
+    <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">‫اتصل بالخوادم المتوافقة مع WebDAV، على سبيل المثال Nextcloud و ownCloud.</string>
     <string name="action_next">التالي</string>
     <string name="action_done">تم</string>
     <string name="status_flagged">محتوى مميز</string>
     <string name="select_where_to_store_your_media">حدِّد مكان تخزين وسائطك.</string>
     <string name="you_have_successfully_connected_to_a_private_server">لقد اتصلت بخادم خاص بنجاح !</string>
-    <string name="you_have_successfully_connected_to_dropbox">لقد اتصلت بـ Dropbox بنجاح !</string>
-    <string name="you_have_successfully_connected_to_the_internet_archive">لقد اتصلت بـ Internet Archive بنجاح !</string>
+    <string name="you_have_successfully_connected_to_dropbox">‫لقد اتصلت بـ Dropbox بنجاح !</string>
+    <string name="you_have_successfully_connected_to_the_internet_archive">‫لقد اتصلت بـ Internet Archive بنجاح !</string>
+    <string name="you_have_successfully_connected_to_gdrive">‫لقد اتصلت بـ Google Drive بنجاح !</string>
     <string name="create_a_new_folder">إنشاء مجلد جديد</string>
-    <string name="edit">تحرير</string>
+    <string name="create_new_folder_title">أولا، يرجى إطلاق اسم على مجلدك</string>
+    <string name="create_new_folder_subtitle">‫سيتم إنشاء هذا المجلد على خادمك ثم سيُضاف تلقائيا إلى Save</string>
+    <string name="create_new_folder_hint">أدخل اسم المجلد</string>
+    <string name="edit">تعديل</string>
     <string name="menu_done">تم</string>
-    <string name="remove_from_app">أزِل من التطبيق</string>
-    <string name="action_remove_project">هل أنت متأكد من أنك تريد إزالة مشروعك ؟</string>
+    <string name="remove_from_app">إزالة من التطبيق</string>
+    <string name="action_remove_project">هل أنت متيقِّن من أنك تريد إزالة مشروعك ؟</string>
     <string name="remove">إزالة</string>
-    <string name="action_archive_project">حوِّل المشروع إلى الأرشيف</string>
-    <string name="action_unarchive_project">أخرِج المشروع من الأرشيف</string>
+    <string name="action_archive_project">أرشفة المشروع</string>
+    <string name="action_unarchive_project">إلغاء أرشفة المشروع</string>
     <string name="IA_login_error">يرجى تسجيل الدخول باستخدام اعتمادات صالحة لـ Internet Archive.</string>
     <string name="access_key">مفتاح الوصول</string>
     <string name="secret_key">المفتاح السري</string>
-    <string name="info_archiveorg_keys">يحتاج <b><i>Save</i></b> إلى مفاتيح واجهة برمجة التطبيقات الخاصة بحسابك في Internet Archive حتى يتمكن من تحميل الوسائط.</string>
+    <string name="info_archiveorg_keys">‫يحتاج <b><i>Save</i></b> إلى مفاتيح واجهة برمجة التطبيقات (API) الخاصة بحسابك في Internet Archive حتى يتمكن من تحميل الوسائط.</string>
     <string name="action_acquire_keys">اكتسب المفاتيح</string>
     <string name="new_folder">مجلد جديد</string>
     <string name="please_do_not_include_special_characters_in_the_name">يرجى عدم كتابة أحرف خاصة في الاسم.</string>
-    <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">هل أنت متأكد من أنك تريد إزالة هذا الخادم من التطبيق ؟</string>
+    <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">هل أنت متيقِّن من أنك تريد إزالة هذا الخادم من التطبيق ؟</string>
     <string name="folder_name_already_exists">اسم المجلد موجود بالفعل.</string>
     <string name="dropbox">Dropbox</string>
     <string name="metadata">البيانات الوصفية</string>
 
-    <string name="confirm_remove_media">هل أنت متأكد من أنك تريد إزالة هذه الوسائط ؟</string>
+    <string name="btn_lbl_remove_media">أزِل الوسائط</string>
+    <string name="confirm_remove_media">هل أنت متحقِّق من أنك تريد إزالة هذه الوسائط ؟</string>
 
-    <string name="popup_flag_title">علامة على محتوى مميز</string>
-    <string name="popup_flag_desc">عندما تضع العلامة على عنصر ما، يتم وَسْمها على مجلد فرعي داخل مجلد المشروع المختار على الخادم الخاص.</string>
+    <string name="popup_flag_title">أشِّر على المحتوى المميز</string>
+    <string name="popup_flag_desc">عندما تضع العلامة على عنصر ما، يتم توجيهها نحو مجلد فرعي داخل مجلد المشروع المختار على الخادم الخاص.</string>
 
-    <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">تعيين نفس ترخيص المشاع الإبداعي لجميع المجلدات الموجودة على هذا الخادم.</string>
+    <string name="set_creative_commons_license_for_all_folders_on_this_server">تعيين ترخيص المشاع الإبداعي للمجلدات الموجودة على هذا الخادم.</string>
+    <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">‫تعيين نفس ترخيص المشاع الإبداعي لـ** كافة ** المجلدات الموجودة على هذا الخادم.</string>
     <string name="set_unique_creative_commons_licenses_for_each_individual_folder_on_this_server">تعيين تراخيص المشاع الإبداعي فريدة ** لكل مجلد فردي ** على هذا الخادم.</string>
 
     <string name="action_install">تثبيت</string>
-    <string name="login_activity_logging_message">تسجيل الدخول…</string>
+    <string name="login_activity_logging_message">‫تسجيل الدخول…</string>
     <string name="you_already_have_a_server_with_these_credentials">لديك بالفعل خادم بهذه الاعتمادات</string>
     <string name="tor_connection_exception">غير قادر على الاتصال بـ « أوربوت » أو « تور ».</string>
-    <string name="tor_connection_timeout">غير قادر على الاتصال بـ « أوربوت » أو « تور » : انتهت المهلة</string>
-    <string name="tor_connection_invalid">غير قادر على الاتصال بـ « أوربوت » أو « تور » : غير صالح</string>
+    <string name="tor_connection_timeout">‫غير قادر على الاتصال بـ « أوربوت » أو « تور » : ** انتهت المهلة **</string>
+    <string name="tor_connection_invalid">‫غير قادر على الاتصال بـ « أوربوت » أو « تور » : ** غير صالح **</string>
     <string name="unsecured_internet_connection">تم اكتشاف اتصال انترنت غير آمن</string>
     <string name="version__">‫الإصدار %s</string>
 
+    <!-- Space Setup -->
+    <string name="space_setup_title">تحديد خادم</string>
+    <!-- WebDAV related strings -->
+    <string name="private_server">الخادم الخاص</string>
+    <string name="edit_private_server">تعديل الخادم الخاص</string>
+    <string name="empty_name_warning">لا يمكن ترك الاسم فارغا</string>
+
+    <string name="unsaved_changes">‫هناك تغييرات غير محفوظة !</string>
+    <string name="do_you_want_to_save">أ تريد الحفظ</string>
+    <string name="lbl_save">حفظ</string>
+    <string name="lbl_discard">تجاهل</string>
+
+    <!-- WebDAV setup License -->
+    <string name="name_your_server">أطلق اسما على خادمك واختر الترخيص</string>
+
+    <!-- Space Setup Success -->
+    <string name="space_setup_success_title">اكتمل الإعداد</string>
+
+    <!-- Upload Manager Bottom Sheet -->
+    <string name="edit_queue">تعديل قائمة الانتظار</string>
+    <string name="uploading_is_paused">التحميل متوقف مؤقتا</string>
 
     <!-- Clean Insights measurement -->
     <string name="server_name_optional">اسم الخادم (اختياري)</string>
-    <string name="dropbox_id">‫مُعرِّف Dropbox :</string>
-    <string name="add_another_account">إضافة حساب آخر</string>
-    <string name="prefs_proofmode_key_encryption_title_all">أَمِّن مفتاح ProofMode بالمقاييس الحيوية أو رمز مرور الجهاز</string>
-    <string name="prefs_proofmode_key_encryption_title_biometrics">أَمِّن مفتاح ProofMode بالمقاييس الحيوية</string>
-    <string name="prefs_proofmode_key_encryption_title_passcode">أَمِّن مفتاح ProofMode برمز مرور الجهاز</string>
-    <string name="prefs_proofmode_key_encryption_summary">سيؤدي تغيير هذا إلى إنشاء مفتاح جديد ! إذا قمت بتصدير هذا المفتاح وتوقيعه من قبل، فستحتاج إلى القيام بذلك مرة أخرى باستخدام المفتاح الجديد.</string>
-    <string name="biometrics_title">فك قفل مفتاح ProofMode</string>
+    <string name="dropbox_id">‫‫مُعرِّف Dropbox :</string>
+    <string name="add_another_account">إضافة خادم جديد</string>
+    <string name="prefs_proofmode_key_encryption_title_all">‫أَمِّن مفتاح ProofMode بالمقاييس الحيوية أو رمز مرور الجهاز</string>
+    <string name="prefs_proofmode_key_encryption_title_biometrics">‫أَمِّن مفتاح ProofMode بالمقاييس الحيوية</string>
+    <string name="prefs_proofmode_key_encryption_title_passcode">‫أَمِّن مفتاح ProofMode برمز مرور الجهاز</string>
+    <string name="prefs_proofmode_key_encryption_summary">سيؤدي تغيير هذا إلى إنشاء مفتاح جديد ! إذا صدَّرت هذا المفتاح ووقَّعته من قبل، فستحتاج إلى فعل ذلك مرة أخرى باستخدام المفتاح الجديد.</string>
+    <string name="biometrics_title">‫فك قفل مفتاح ProofMode</string>
     <string name="folders">المجلدات</string>
     <string name="create_folder_name">إنشاء اسم المجلد</string>
     <string name="folder_name">اسم المجلد</string>
     <string name="create">إنشاء</string>
     <string name="add">إضافة</string>
     <string name="no_more_folders">لا (مزيد من) المجلدات</string>
-    <string name="private_server">الخادم الخاص</string>
-    <string name="upload_to_dropbox">تحميل إلى Dropbox</string>
-    <string name="sign_in_or_create_an_account_with_dropbox">قم بتسجيل الدخول أو إنشاء حساب مع Dropbox</string>
+
+    <string name="upload_to_dropbox">‫تحميل إلى Dropbox</string>
+    <string name="sign_in_or_create_an_account_with_dropbox">سجِّل الدخول أو أنشِئ حسابا مع Dropbox</string>
     <string name="authenticate">استوثِق</string>
     <string name="back">الرجوع</string>
     <string name="my_media">وسائطي</string>
-    <string name="if_you_do_not_have_existing_keys_learn_how_to_acquire_keys">إذا لم تكن لديك مفاتيح موجودة، <b>تعرف كيفية</b> الحصول على المفاتيح.</string>
+    <string name="if_you_do_not_have_existing_keys_learn_how_to_acquire_keys">إذا لم تكن لديك مفاتيح موجودة، <b>تعرف على كيفية</b> الحصول على المفاتيح.</string>
     <string name="server_info">معلومات الخادم</string>
-    <string name="enter_url">إدخال عنوان الصفحة</string>
+    <string name="enter_url"><i>إدخال عنوان الصفحة</i></string>
     <string name="account">الحساب</string>
     <string name="general">عام</string>
-    <string name="connectivity_data"><![CDATA[الاتصال والبيانات]]></string>
-    <string name="only_upload_media_when_you_are_connected_to_wi_fi">حمِّل الوسائط عندما تكون متصلا بالشبكة اللاسلكية فقط</string>
+    <string name="connectivity_data"><![CDATA[الاتصال والبيانات]]&gt;</string>
+    <string name="only_upload_media_when_you_are_connected_to_wi_fi">‫حمِّل الوسائط عندما تكون متصلا بالشبكة اللاسلكية (Wi-Fi) فقط</string>
     <string name="security">الأمن</string>
     <string name="proofmode">ProofMode</string>
     <string name="no_webbrowser_found_error">لا يوجد تطبيق يمكنه التعامل مع هذا الطلب. الرجاء تثبيت متصفح الانترنت.</string>
 
-    <string name="intro_text_secure">
-       قم بتحميل الوسائط المتحقق منها إلى الخادم الذي اخترته. أضف ترخيص المشاع الإبداعي للتعبير 
-       عن رغباتك للاستخدام المستقبلي.
-</string>
-    <string name="intro_text_archive">
-      حافظ على أمان وسائطك وأبْقِها منظمة على المدى الطويل وقم بإنشاء مجلدات المشروع في التطبيق والتي 
-      تتوافق مع أرشفة وسائطك الشخصية أو وسائط منظمتك.
-</string>
-    <string name="intro_text_verify">
-     استوثِق من وسائطك باستخدام تلبيد التحقق من التعمية SHA-256 وProofMode 
-     الاختياري. أضف البيانات الوصفية المهمة مثل الملاحظات والأشخاص والموقع مع كل عملية تحميل.
-</string>
-    <string name="intro_text_encrypt"><![CDATA[
-       قم بالتحميل تلقائيا عبر TLS (بروتوكول طبقة النقل الآمن) واستخدم « أوربوت » لحماية
-       وسائطك أثناء النقل عبر شبكة « تور ».<br />
-       <br />
-       <a href=\"#\">قم بتثبيت « أوربوت »</a>لتفعيل أمن الشبكة المتقدم.]]>
-</string>
+    <string name="intro_text_secure">أرسل وسائطك بشكل آمن إلى خوادم خاصة، ثم اقفل التطبيق باستخدام رمز.</string>
+    <string name="intro_text_archive"><![CDATA[اجعل وسائطك قابلة للتحقق منها وآمنة ومُنظَّمة على المدى الطويل عبر رفعها على الخوادم الخصوصية أو العمومية مثل NextCloud أو موقع أرشيف الانترنت.<br&gt; عبّر عن نواياك للاستخدام اللاحق عبر إضافة <a href=\"%1$s\"&gt;<u&gt;ترخيص المشاع الإبداعي</u&gt;</a&gt;.]]&gt;</string>
+<string name="intro_text_verify">&lt;![CDATA[‫استوثق من وسائطك وتحقق منها باستخدام تلبيد التجزئة sha256 ووضع &lt;a href=\"%1$s\"&gt;&lt;u&gt;ProofMode&lt;/u&gt;&lt;/a&gt;&lt;![C</string>
+    <string name="intro_text_encrypt_old">حمّل تلقائيا عبر TLS (بروتوكول طبقة النقل الآمن) واستخدم ”أوربوت“ لحماية وسائطك خلال تنقُّلها عبر شبكة تور.</string>
     <string name="next">التالي</string>
     <string name="done">تم</string>
     <string name="secure_mobile_media_preservation">الحفظ الآمن لوسائط المحمول</string>
     <string name="get_started">بدء الاستخدام</string>
-    <string name="proofmode_permissions_explanation">يقوم ProofMode بجمع البيانات الوصفية من الأبراج الخلوية المحلية للمساعدة في التحقق من الوسائط. يتطلب أندرويد إذنًا لتفعيل هذا الإعداد. سيستخدم Save هذا الإعداد فقط لالتقاط البيانات و ** لن ** يتم الوصول إلى هاتفك لإجراء أو إدارة المكالمات.</string>
+    <string name="proofmode_permissions_explanation">‫يقوم ProofMode بجمع البيانات الوصفية من الأبراج الخلوية المحلية للمساعدة في التحقق من الوسائط. يتطلب أندرويد إذنًا لتفعيل هذا الإعداد. سيستخدم Save هذا الإعداد فقط لالتقاط البيانات و ** لن ** يتم الوصول إلى هاتفك لإجراء أو إدارة المكالمات.</string>
     <string name="archived_folders">المجلدات المؤرشفة</string>
     <string name="view_archived_folders">عرض المجلدات المؤرشفة</string>
     <string name="learn_more_about_creative_commons">تعرف على المزيد حول المشاع الإبداعي.</string>
     <string name="refresh">إنعاش</string>
     <string name="to_get_started_please_create_a_folder">لبدء الاستخدام، يُرجى إنشاء مجلد</string>
-    <string name="before_adding_media_create_a_new_folder_first">قبل إضافة الوسائط، قم بإنشاء مجلد جديد أولا.</string>
+    <string name="before_adding_media_create_a_new_folder_first">‫قبل إضافة الوسائط، أنشئ أولا مجلدا جديدا.</string>
     <string name="is_video">هو فيديو</string>
-    <string name="use_upload_chunking_nextcloud_only">استخدام التحميل بالتقطيع (Nextcloud فقط)</string>
+    <string name="use_upload_chunking_nextcloud_only">‫استخدام التحميل بالتقطيع (Nextcloud فقط)</string>
     <string name="chunking_explanation">يقوم ‏؜« التقطيع » بتحميل الوسائط عبر أجزاء حتى لا تضطر إلى إعادة تشغيل التحميل إذا انقطع اتصالك.</string>
-    <string name="preview_media">معاينة الوسائط</string>
+    <string name="preview_media">معاينة التحميل</string>
     <string name="add_more">إضافة المزيد</string>
     <string name="select_all">حدد الكل</string>
-    <string name="lbl_got_it">فهمت</string>
+    <string name="lbl_got_it">مفهوم</string>
     <string name="do_not_show_me_this_again">لا تُظهِر لي هذا مجددا</string>
     <string name="edit_multiple">التعديل المتعدد</string>
-    <string name="press_and_hold_to_select_and_edit_multiple_media">اضغط مع الإبقاء لتحديد وتعديل وسائط متعددة</string>
-    <string name="once_uploaded_you_will_not_be_able_to_edit_media">بمجرد التحميل، لن تتمكن من تعديل الوسائط</string>
+    <string name="press_and_hold_options_media_screen_title">إضافة وسائط</string>
+    <string name="press_and_hold_options_media_screen_message">‫المس علامة + للاختيار من مَعْرِض الصور أو اضغط مع الاستمرار في ذلك لإضافة الوسائط من تطبيقات أخرى.</string>
+    <string name="press_and_hold_to_select_and_edit_multiple_media">اضغط مع الإبقاء لتحديد وتعديل وسائط متعددة.</string>
+    <string name="once_uploaded_you_will_not_be_able_to_edit_media">بمجرد التحميل، لن تتمكن من تعديل الوسائط.</string>
     <string name="edit_media_info">تعديل معلومات الوسائط</string>
-    <string name="counter">‫%1$d من %2$d</string>
+    <string name="counter">‫‫%1$d من %2$d</string>
     <string name="add_a_location_optional">إضافة موقع (اختياري)</string>
     <string name="add_notes_optional">إضافة ملاحظات (اختياري)</string>
     <string name="skip">تخطي</string>
+    <string name="add_camera">إضافة صور من المُصَوِّرة</string>
     <string name="add_images_or_video">إضافة صور أو فيديو</string>
     <string name="add_files">إضافة ملفات</string>
 
     <string name="ia_learn_how_title">كيفية الحصول على مفاتيح في 3 مراحل سهلة</string>
     <string name="ia_learn_how_summary_step_1">المرحلة 1 : قم بتسجيل الدخول إلى Internet Archive. إذا لم يكن لديك حساب، قم بإنشاءه.</string>
-    <string name="ia_learn_how_summary_step_2">المرحلة 2 : إذا كنت ستقوم بإنشاء حساب جديد، فقم بتأكيد بريدك الإلكتروني.</string>
-    <string name="ia_learn_how_summary_step_3">المرحلة 3 : قم بتوليد مفاتيح واجهة برمجة التطبيقات الخاصة بك عن طريق تحديد المربع وسيتم تحميلها تلقائيا في التطبيق !</string>
+    <string name="ia_learn_how_summary_step_2">المرحلة 2 : إذا كنت ستُنشئ حسابا جديدا، تأكَّد من عنوان بريدك الإلكتروني.</string>
+    <string name="ia_learn_how_summary_step_3">‫المرحلة 3 : ولِّد مفاتيح واجهة برمجة تطبيقاتك (API) عن طريق تحديد المربع وسيتم تحميلها تلقائيا في التطبيق !‫</string>
 
     <string name="upload_unsuccessful">التحميل غير ناجح</string>
-    <string name="retry">إعادة المحاولة</string>
+    <string name="upload_unsuccessful_description">لقد تعذر التحميل بسبب خطأ في الجلسة، يرجى المحاولة مرة أخرى أو الاتصال بالدعم.</string>
+    <string name="retry">حاول مجددا</string>
 
     <string name="edit_media">تحرير الوسائط</string>
-    <string name="uploading_is_paused">التحميل متوقف مؤقتا</string>
+
     <string name="add_media_using">إضافة الوسائط باستخدام :</string>
+    <string name="camera">مُصوِّرة</string>
     <string name="photo_gallery">معرض الصور</string>
     <string name="files">الملفات</string>
-    <string name="health_checks">التحقق من سلامة</string>
+    <string name="health_checks">التحقق من السلامة</string>
     <string name="help_improve_the_app_by_running_health_checks_when_uploads_fail">ساعد في تحسين التطبيق من خلال إجراء التحقق من السلامة عند فشل عمليات التحميل.</string>
     <string name="health_checks_help_us_understand_why_uploads_fail">يساعدنا التحقق من السلامة في فهم أسباب فشل عمليات التحميل.</string>
     <string name="contribute_your_data_to_be_part_of_the_solution">ساهم ببياناتك لتكون جزءًا من الحل.</string>
@@ -253,8 +346,63 @@
     <string name="network_type">– نوع الشبكة</string>
     <string name="locale">– التوطين</string>
     <string name="allow_health_checks">السماح بالتحقق من السلامة؟</string>
-    <string name="by_allowing_health_checks_you_give_permission_for_the_app_to_securely_send_health_check_data_to_the_s_team">من خلال السماح بالتحقق من السلامة، فأنت تعطي للتطبيق الإذن بإرسال بيانات التحقق من السلامة بشكل آمن إلى فريق عمل %s.</string>
-    <string name="no_thanks">لا شكراً</string>
-    <string name="undo">تراجَع</string>
+    <string name="by_allowing_health_checks_you_give_permission_for_the_app_to_securely_send_health_check_data_to_the_s_team">‫من خلال السماح بالتحقق من السلامة، فأنت تعطي للتطبيق الإذن بإرسال بيانات التحقق من السلامة بشكل آمن إلى فريق عمل %s.</string>
+    <string name="no_thanks">لا، شكراً</string>
+    <string name="undo">تراجع</string>
+    <string name="gdrive_id">‫مُعرِّف Google Drive</string>
+    <string name="gdrive_disclaimer_1" formatted="true">‫‫إن استخدام %1$s للمعلومات المُستلَمة من واجهة برمجة التطبيقات %2$s إلى أي تطبيقات أخرى، يتوافق مع %3$s. يشمل ذلك متطلبات الاستخدام المحدودة.</string>
+    <string name="gdrive_disclaimer_2" formatted="true">‫تسمح لك واجهة برمجة تطبيقات %1$s بإرسال الوسائط إلى %2$s الخاص بك عبر %3$s. لكن %3$s مع ذلك، لا يمكنه رؤية أي شيء في %2$s الخاص بك، ولا الوصول إليه، بما أنك لم تنشئه بواسطة %3$s من أساسه.</string>
+    <string name="gdrive_auth_insufficient_permissions" formatted="true">‫لا يمكن لـ %1$s أن يعمل بشكل جيد إذا لم تسمح له بالكتابة في %2$s الخاص بك. يُرجى محاولة منح الإذن بذلك مرة أخرى ثم تيقَّن من منح كافة صلاحيات الوصول المُدرَجة.</string>
+    <string name="new_user">مستخدم جديد</string>
 
+    <!-- Internet Archive Settings -->
+    <string name="label_email">عنوان البريد الإلكتروني</string>
+    <string name="label_screen_name">اسم الشاشة</string>
+    <string name="label_login">تسجيل الدخول</string>
+    <string name="label_create_login">إنشاء واحد</string>
+    <string name="prompt_no_account">لا تملك حسابا ؟</string>
+    <string name="action_continue">الاستمرار</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">نص فارغ</string>
+    <!-- Preference Titles -->
+    <string name="messages_header">الرسائل</string>
+    <string name="sync_header">مزامنة</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">توقيعك</string>
+    <string name="reply_title">إجراء الرد الافتراضي</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">مزامنة البريد الإلكتروني دوريا</string>
+    <string name="attachment_title">تنزيل المرفقات الواردة</string>
+    <string name="attachment_summary_on">نزّل المرفقات تلقائيا للرسائل الإلكترونية الواردة</string>
+    <string name="attachment_summary_off">نزّل فقط المرفقات عند طلب ذلك يدويا</string>
+
+    <string name="pref_media_servers">pref_media_servers</string>
+    <string name="pref_media_folders">pref_media_folders</string>
+
+    <string name="pref_title_secure">آمن</string>
+    <string name="pref_title_archive">الأرشفة</string>
+    <string name="pref_title_privacy_policy">اطلع على شروط الاستخدام وسياسة الخصوصية</string>
+    <string name="pref_title_media_servers">خوادم الوسائط</string>
+    <string name="pref_title_media_folders">المجلدات المؤرشفة</string>
+    <string name="pref_summary_media_servers">إدارة خوادمك</string>
+    <string name="pref_summary_media_folders">إدارة مجلداتك المؤرشفة</string>
+    <string name="pref_summary_privacy_policy">اطلع على شروط الاستخدام وسياسة الخصوصية</string>
+
+    <string name="pref_key_use_dark_mode">pref_is_dark_mode</string>
+    <!-- General -->
+    <string name="label_success_title">نجاح !</string>
+    <string name="label_warning_title">تحذير !</string>
+    <string name="label_info_title">معلومة !</string>
+    <string name="label_got_it">مفهوم</string>
+
+    <!-- Create New Folder -->
+    <string name="create_folder_ok_message">لقد أضفت مجلدا بنجاح</string>
+    <string name="msg_edit_server_success">لقد غيرت إعدادات خادمك بنجاح.</string>
+    <string name="expand">تمديد</string>
+    <string name="lbl_no_servers">لم يُضَف أي خادم بعد.</string>
+    <string name="lbl_no_archived_folders">لم يتم العثور على أي مجلد مُؤرشَف.</string>
+    <string name="error_no_internet">الانترنت غير متاح</string>
+    <string name="unavailable">غير متواجد</string>
 </resources>
