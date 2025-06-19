@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -57,7 +59,7 @@ fun ServerOptionItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(100.dp)
+                .heightIn(100.dp)
                 .padding(16.dp),
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
@@ -100,7 +102,7 @@ fun ServerOptionItem(
 
             Icon(
                 modifier = Modifier
-                    .size(24.dp)
+                    .sizeIn(24.dp)
                     .align(Alignment.CenterVertically),
                 painter = painterResource(R.drawable.ic_arrow_forward_ios),
                 contentDescription = null,

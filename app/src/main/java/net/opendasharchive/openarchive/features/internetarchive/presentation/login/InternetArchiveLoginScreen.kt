@@ -41,11 +41,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.AutofillNode
+import androidx.compose.ui.autofill.AutofillType
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalAutofill
+import androidx.compose.ui.platform.LocalAutofillTree
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -74,7 +83,6 @@ import net.opendasharchive.openarchive.features.internetarchive.presentation.com
 import net.opendasharchive.openarchive.features.internetarchive.presentation.components.InternetArchiveHeader
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.CreateLogin
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.Login
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.LoginError
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.UpdatePassword
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.UpdateUsername
 import net.opendasharchive.openarchive.util.NetworkUtils
@@ -116,6 +124,7 @@ fun InternetArchiveLoginScreen(space: Space, onResult: (IAResult) -> Unit) {
     InternetArchiveLoginContent(state, viewModel::dispatch)
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun InternetArchiveLoginContent(
     state: InternetArchiveLoginState, dispatch: Dispatch<Action>
@@ -161,28 +170,22 @@ private fun InternetArchiveLoginContent(
             }
         }
 
-        CustomTextField(
+        LoginUserField(
             value = state.username,
             onValueChange = { dispatch(UpdateUsername(it)) },
-            label = stringResource(R.string.label_username),
             placeholder = stringResource(R.string.prompt_email),
             isError = state.isUsernameError,
             isLoading = state.isBusy,
-            keyboardType = KeyboardType.Email,
-            imeAction = ImeAction.Next,
         )
 
         Spacer(Modifier.height(ThemeDimensions.spacing.large))
 
-        CustomSecureField(
+        LoginSecureField(
             value = state.password,
             onValueChange = { dispatch(UpdatePassword(it)) },
-            label = stringResource(R.string.label_password),
             placeholder = stringResource(R.string.prompt_password),
             isError = state.isPasswordError,
             isLoading = state.isBusy,
-            keyboardType = KeyboardType.Password,
-            imeAction = ImeAction.Done,
         )
 
         Row(
@@ -320,25 +323,70 @@ fun ComposeAppBar(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun CustomTextField(
+fun AutofillField(
+    modifier: Modifier = Modifier,
+    autoFillType: List<AutofillType>,
+    onFill: ((String) -> Unit)? = null,
+    content: @Composable (Modifier) -> Unit
+) {
+    val autofill = LocalAutofill.current
+    val autofillTree = LocalAutofillTree.current
+    var ready by remember { mutableStateOf(value = false) }
+
+    val autofillNode = remember(autoFillType) {
+        AutofillNode(autoFillType, onFill = onFill)
+    }
+
+    LaunchedEffect(autofillNode) {
+        autofillTree += autofillNode
+    }
+
+    content(modifier.onGloballyPositioned {
+        autofillNode.boundingBox = it.boundsInWindow()
+        ready = true
+    }.onFocusChanged { focusState ->
+        autofill?.run {
+            if (!ready) return@onFocusChanged
+            if (focusState.isFocused) {
+                requestAutofillForNode(autofillNode)
+            } else {
+                cancelAutofillForNode(autofillNode)
+            }
+        }
+    })
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun LoginUserField(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
-    label: String,
+    label: String? = null,
     enabled: Boolean = true,
     placeholder: String? = null,
     isError: Boolean = false,
     isLoading: Boolean = false,
-    keyboardType: KeyboardType = KeyboardType.Text,
+    keyboardType: KeyboardType = KeyboardType.Email,
     imeAction: ImeAction = ImeAction.Next,
-) {
-
+) = AutofillField(modifier = modifier, autoFillType = listOf(AutofillType.Username, AutofillType.EmailAddress), onFill = onValueChange) { modifier ->
     OutlinedTextField(
         modifier = modifier.fillMaxWidth(),
         value = value,
         enabled = !isLoading && enabled,
         onValueChange = onValueChange,
+        label = label?.let {
+            {
+                Text(
+                    text = label,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Normal,
+                    fontStyle = FontStyle.Italic
+                )
+            }
+        },
         placeholder = {
             placeholder?.let {
                 Text(
@@ -372,18 +420,19 @@ fun CustomTextField(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun CustomSecureField(
+fun LoginSecureField(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
-    label: String,
+    label: String? = null,
     placeholder: String,
     isError: Boolean = false,
     isLoading: Boolean = false,
-    keyboardType: KeyboardType,
-    imeAction: ImeAction,
-) {
+    keyboardType: KeyboardType = KeyboardType.Password,
+    imeAction: ImeAction = ImeAction.Done
+) = AutofillField(modifier = modifier, autoFillType = listOf(AutofillType.Password), onFill = onValueChange) { modifier ->
 
     var showPassword by rememberSaveable {
         mutableStateOf(false)
@@ -394,6 +443,16 @@ fun CustomSecureField(
         value = value,
         enabled = !isLoading,
         onValueChange = onValueChange,
+        label = label?.let {
+            {
+                Text(
+                    text = label,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Normal,
+                    fontStyle = FontStyle.Italic
+                )
+            }
+        },
         placeholder = {
             Text(
                 text = placeholder,

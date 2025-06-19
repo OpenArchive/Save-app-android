@@ -37,16 +37,36 @@ class SaveClient(private val context: Context) : SimpleStatusCallback(), KoinCom
 
     private fun setup(): OkHttpClient.Builder {
         val cacheInterceptor = Interceptor { chain ->
-            val request = chain.request().newBuilder().addHeader("Connection", "close").build()
-            chain.proceed(request)
+            try {
+                val request = chain.request().newBuilder().addHeader("Connection", "close").build()
+
+                val response = chain.proceed(request)
+                if (response.code == 307 || response.code == 308) {
+                    val location = response.header("Location")
+                    if (location != null) {
+                        val redirectedRequest = request.newBuilder()
+                            .url(location)
+                            .build()
+                        return@Interceptor chain.proceed(redirectedRequest)
+                    }
+                } else if (response.code == 503) {
+                    Timber.e("503 Internet Archive SlowDown")
+                }
+                return@Interceptor response
+
+            } catch (e: Throwable) {
+                Timber.e(e, "Error setting up OkHttp client")
+                chain.proceed(chain.request())
+            }
         }
 
         var builder = OkHttpClient.Builder()
+            .followRedirects(false)
             .addInterceptor(cacheInterceptor)
-            .connectTimeout(40L, TimeUnit.SECONDS)
-            .writeTimeout(40L, TimeUnit.SECONDS)
-            .readTimeout(40L, TimeUnit.SECONDS)
-            .retryOnConnectionFailure(false)
+            .connectTimeout(120, TimeUnit.SECONDS)
+            .writeTimeout(120, TimeUnit.SECONDS)
+            .readTimeout(120, TimeUnit.SECONDS)
+            .retryOnConnectionFailure(true)
             .protocols(arrayListOf(Protocol.HTTP_1_1))
 
         return builder

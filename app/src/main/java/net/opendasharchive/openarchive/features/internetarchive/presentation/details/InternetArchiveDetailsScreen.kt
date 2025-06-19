@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,7 +34,7 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.internetarchive.presentation.components.IAResult
 import net.opendasharchive.openarchive.features.internetarchive.presentation.details.InternetArchiveDetailsViewModel.Action
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.CustomTextField
+import net.opendasharchive.openarchive.features.internetarchive.presentation.login.LoginUserField
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -58,6 +59,7 @@ fun InternetArchiveDetailsScreen(space: Space, onResult: (IAResult) -> Unit) {
     InternetArchiveDetailsContent(state, viewModel::dispatch)
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun InternetArchiveDetailsContent(
     state: InternetArchiveDetailsState,
@@ -77,7 +79,7 @@ private fun InternetArchiveDetailsContent(
 
             Spacer(Modifier.height(ThemeDimensions.spacing.large))
 
-            CustomTextField(
+            LoginUserField(
                 label = stringResource(R.string.label_username),
                 value = state.userName,
                 onValueChange = {},
@@ -86,7 +88,7 @@ private fun InternetArchiveDetailsContent(
 
             Spacer(Modifier.height(ThemeDimensions.spacing.medium))
 
-            CustomTextField(
+            LoginUserField(
                 label = stringResource(R.string.label_screen_name),
                 value = state.screenName,
                 onValueChange = {},
@@ -96,7 +98,7 @@ private fun InternetArchiveDetailsContent(
             Spacer(Modifier.height(ThemeDimensions.spacing.medium))
 
 
-            CustomTextField(
+            LoginUserField(
                 label = stringResource(R.string.label_email),
                 value = state.email,
                 onValueChange = {},

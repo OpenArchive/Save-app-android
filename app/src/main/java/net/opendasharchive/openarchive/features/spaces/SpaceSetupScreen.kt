@@ -1,12 +1,15 @@
 package net.opendasharchive.openarchive.features.spaces
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,13 +36,14 @@ fun SpaceSetupScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .height(IntrinsicSize.Max)
+            .scrollable(rememberScrollState(), Orientation.Vertical)
             .padding(8.dp)
     ) {
         Spacer(modifier = Modifier.height(48.dp))
         // Header texts
         Column(
             modifier = Modifier
-                .fillMaxWidth()
                 .padding(vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
