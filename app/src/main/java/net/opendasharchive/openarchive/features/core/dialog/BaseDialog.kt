@@ -241,6 +241,7 @@ fun DialogHost(dialogStateManager: DialogStateManager) {
         BaseDialog(
             onDismiss = {
                 dialogStateManager.dismissDialog()
+                config.onDismissAction?.invoke()
             },
             icon = config.icon,
             iconColor = config.iconColor,
