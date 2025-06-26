@@ -3,6 +3,7 @@ package net.opendasharchive.openarchive.util
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
+import android.net.Uri
 import android.util.Base64
 import androidx.preference.PreferenceManager
 import org.witness.proofmode.ProofMode
@@ -29,6 +30,8 @@ object Prefs {
     private const val ADD_FOLDER_HINT_SHOWN = "ft.add_folder"
     private const val LICENSE_URL = "archive_pref_share_license_url"
     private const val PROOFMODE_ENCRYPTED_PASSPHRASE = "proof_mode_encrypted_passphrase"
+
+    val TOR_DOWNLOAD_URL = Uri.parse("https://play.google.com/store/apps/details?id=org.torproject.android")
 
     private var prefs: SharedPreferences? = null
 

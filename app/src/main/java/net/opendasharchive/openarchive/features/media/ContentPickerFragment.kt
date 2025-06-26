@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.features.media
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +16,7 @@ class ContentPickerFragment(private val onMediaPicked: (AddMediaType) -> Unit): 
 
     companion object {
         const val TAG = "ModalBottomSheet-ContentPickerFragment"
+        const val KEY_DISMISS = "ContentPickerFragment.Dismiss"
     }
 
     override fun onCreateView(
@@ -42,5 +44,10 @@ class ContentPickerFragment(private val onMediaPicked: (AddMediaType) -> Unit): 
 
 
         return binding.root
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        parentFragmentManager.setFragmentResult(KEY_DISMISS, Bundle())
+        super.onDismiss(dialog)
     }
 }

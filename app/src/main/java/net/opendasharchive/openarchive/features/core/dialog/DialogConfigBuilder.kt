@@ -354,6 +354,7 @@ fun DialogStateManager.showWarningDialog(
         type = DialogType.Warning
         this.title = title
         this.icon = icon
+        iconColor = resourceProvider.getColor(R.color.colorTertiary)
         this.message = message
         positiveButton {
             text = positiveButtonText ?: UiText.StringResource(R.string.lbl_got_it)

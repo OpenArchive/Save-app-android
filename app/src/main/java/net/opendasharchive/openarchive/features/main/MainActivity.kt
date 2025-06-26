@@ -213,6 +213,14 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             UploadService.startUploadService(this)
         }
 
+        supportFragmentManager.setFragmentResultListener(
+            ContentPickerFragment.KEY_DISMISS,
+            this
+        ) { _, _ ->
+            // when the sheet goes away, show your arrow
+            getCurrentMediaFragment()?.setArrowVisible(true)
+        }
+
         reviewManager = ReviewManagerFactory.create(this)
         InAppReviewHelper.requestReviewInfo(this)
         shouldPromptReview = InAppReviewHelper.onAppLaunched()
@@ -356,6 +364,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                     } else if (getSelectedProject() == null) {
                         navigateToAddFolder()
                     } else {
+                        getCurrentMediaFragment()?.setArrowVisible(false)
                         val addMediaBottomSheet =
                             ContentPickerFragment { actionType -> addClicked(actionType) }
                         addMediaBottomSheet.show(supportFragmentManager, ContentPickerFragment.TAG)
