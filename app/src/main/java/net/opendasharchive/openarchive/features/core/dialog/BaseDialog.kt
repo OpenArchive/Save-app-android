@@ -241,6 +241,7 @@ fun DialogHost(dialogStateManager: DialogStateManager) {
         BaseDialog(
             onDismiss = {
                 dialogStateManager.dismissDialog()
+                config.onDismissAction?.invoke()
             },
             icon = config.icon,
             iconColor = config.iconColor,
@@ -322,6 +323,7 @@ private fun TorWarningDialogPreview() {
         BaseDialog(
             onDismiss = {},
             icon = Icons.Default.Info.asUiImage(),
+            iconColor = MaterialTheme.colorScheme.tertiary,
             title = stringResource(R.string.tor_disabled_title),
             message = stringResource(R.string.tor_disabled_message),
             positiveButton = ButtonData(UiText.DynamicString(stringResource(R.string.lbl_ok))),

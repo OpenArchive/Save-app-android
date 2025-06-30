@@ -322,5 +322,11 @@ class MainMediaFragment : BaseFragment() {
         (activity as? MainActivity)?.showUploadManagerFragment()
     }
 
+    fun setArrowVisible(visible: Boolean) {
+        binding.imgWelcomeArrowLayout.visibility =
+            if (visible) View.VISIBLE else View.INVISIBLE
+    }
+
+
     override fun getToolbarTitle(): String = ""
 }

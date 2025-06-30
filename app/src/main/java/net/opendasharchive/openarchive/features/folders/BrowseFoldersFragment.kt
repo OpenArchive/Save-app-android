@@ -92,6 +92,10 @@ class BrowseFoldersFragment : BaseFragment(), MenuProvider {
             positiveButtonText = R.string.label_got_it,
             onDone = {
                 navigateBackWithResult(projectId)
+            },
+            onDismissed = {
+                // If the dialog is dismissed, we still want to navigate back
+                navigateBackWithResult(projectId)
             }
         )
     }
