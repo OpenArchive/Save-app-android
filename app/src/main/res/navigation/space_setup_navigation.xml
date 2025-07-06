@@ -185,8 +185,10 @@
         android:name="net.opendasharchive.openarchive.services.storacha.StorachaLoginFragment"
         tools:layout="@layout/fragment_storacha_login">
         <action
-            android:id="@+id/action_fragment_storacha_login_to_fragment_storacha_email_verification_sent"
-            app:destination="@id/fragment_storacha_email_verification_sent"
+            android:id="@+id/action_fragment_storacha_login_to_fragment_storacha_space_setup_success"
+            app:destination="@id/fragment_storacha_space_setup_success"
+            app:popUpTo="@id/fragment_storacha_login"
+            app:popUpToInclusive="true"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"

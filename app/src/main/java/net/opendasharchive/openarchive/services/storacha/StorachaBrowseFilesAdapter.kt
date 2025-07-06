@@ -7,16 +7,18 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.StorachaDidRowBinding
+import net.opendasharchive.openarchive.services.storacha.model.UploadEntry
 
 class StorachaBrowseFilesAdapter(
-    private val files: List<File> = emptyList(),
-    private val onClick: (file: File) -> Unit,
+    private val files: List<UploadEntry> = emptyList(),
+    private val onClick: (file: UploadEntry) -> Unit,
 ) : RecyclerView.Adapter<StorachaBrowseFilesAdapter.FileViewHolder>() {
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int,
     ): FileViewHolder {
-        val binding = StorachaDidRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding =
+            StorachaDidRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return FileViewHolder(binding, onClick)
     }
 
@@ -31,15 +33,15 @@ class StorachaBrowseFilesAdapter(
 
     inner class FileViewHolder(
         private val binding: StorachaDidRowBinding,
-        private val onClick: (File: File) -> Unit,
+        private val onClick: (file: UploadEntry) -> Unit,
     ) : RecyclerView.ViewHolder(
             binding.root,
         ) {
-        fun bind(file: File) {
+        fun bind(file: UploadEntry) {
             val icon = ContextCompat.getDrawable(binding.icon.context, R.drawable.ic_unknown_file)
             icon?.setTint(ContextCompat.getColor(binding.icon.context, R.color.colorOnBackground))
             binding.icon.setImageDrawable(icon)
-            binding.didKey.text = file.fileName
+            binding.didKey.text = file.cid
             binding.rvTick.visibility = View.GONE
             binding.root.setOnClickListener {
                 onClick.invoke(file)
@@ -47,7 +49,3 @@ class StorachaBrowseFilesAdapter(
         }
     }
 }
-
-data class File(
-    val fileName: String,
-)

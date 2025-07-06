@@ -33,116 +33,116 @@ import retrofit2.http.Query
 
 interface StorachaApiService {
     @POST("auth/login")
-    fun login(
+    suspend fun login(
         @Body request: LoginRequest,
-    ): Call<LoginResponse>
+    ): LoginResponse
 
     @POST("auth/login/did")
-    fun loginWithDid(
+    suspend fun loginWithDid(
         @Body request: DidLoginRequest,
-    ): Call<LoginResponse>
+    ): LoginResponse
 
     @GET("auth/session")
-    fun validateSession(
+    suspend fun validateSession(
         @Header("x-session-id") sessionId: String,
-    ): Call<SessionValidationResponse>
+    ): SessionValidationResponse
 
     @POST("auth/logout")
-    fun logout(
+    suspend fun logout(
         @Header("x-session-id") sessionId: String,
-    ): Call<Void>
+    ): Void
 
     @POST("auth/w3up/logout")
-    fun logoutW3up(
+    suspend fun logoutW3up(
         @Header("x-session-id") sessionId: String,
-    ): Call<Void>
+    ): Void
 
     @GET("auth/sessions")
-    fun listSessions(
+    suspend fun listSessions(
         @Header("x-session-id") sessionId: String,
-    ): Call<List<SessionInfo>>
+    ): List<SessionInfo>
 
     @POST("auth/sessions/{id}/deactivate")
-    fun deactivateSession(
+    suspend fun deactivateSession(
         @Header("x-session-id") sessionId: String,
         @Path("id") id: String,
-    ): Call<Void>
+    ): Void
 
     @POST("auth/sessions/deactivate-all")
-    fun deactivateAllSessions(
+    suspend fun deactivateAllSessions(
         @Header("x-session-id") sessionId: String,
-    ): Call<Void>
+    ): Void
 
     @GET("spaces")
-    fun listSpaces(
+    suspend fun listSpaces(
         @Header("x-user-did") userDid: String,
-    ): Call<List<SpaceInfo>>
+    ): List<SpaceInfo>
 
     @GET("spaces/usage")
-    fun getSpaceUsage(
+    suspend fun getSpaceUsage(
         @Header("x-session-id") sessionId: String,
         @Query("spaceDid") spaceDid: String,
-    ): Call<SpaceUsageResponse>
+    ): SpaceUsageResponse
 
     @GET("spaces/account-usage")
-    fun getAccountUsage(
+    suspend fun getAccountUsage(
         @Header("x-session-id") sessionId: String,
-    ): Call<AccountUsageResponse>
+    ): AccountUsageResponse
 
     @GET("uploads")
-    fun listUploads(
+    suspend fun listUploads(
         @Header("x-user-did") userDid: String,
         @Query("spaceDid") spaceDid: String,
         @Query("cursor") cursor: String? = null,
         @Query("size") size: Int? = null,
-    ): Call<UploadListResponse>
+    ): UploadListResponse
 
     @Multipart
     @POST("upload")
-    fun uploadFile(
+    suspend fun uploadFile(
         @Header("x-user-did") userDid: String,
         @Part file: MultipartBody.Part,
         @Part("spaceDid") spaceDid: RequestBody,
-    ): Call<UploadResponse>
+    ): UploadResponse
 
     @GET("bridge-tokens")
-    fun getBridgeTokens(
+    suspend fun getBridgeTokens(
         @Header("x-user-did") userDid: String,
         @Query("spaceDid") spaceDid: String,
-    ): Call<BridgeTokenResponse>
+    ): BridgeTokenResponse
 
     @GET("delegations/user/spaces")
-    fun getUserSpaces(
+    suspend fun getUserSpaces(
         @Header("x-user-did") userDid: String,
-    ): Call<UserDelegationResponse>
+    ): UserDelegationResponse
 
     @GET("delegations/list")
-    fun listDelegationsByUser(
+    suspend fun listDelegationsByUser(
         @Header("x-session-id") sessionId: String,
         @Query("userDid") userDid: String,
-    ): Call<DelegationListResponse>
+    ): DelegationListResponse
 
     @GET("delegations/list")
-    fun listDelegationsBySpace(
+    suspend fun listDelegationsBySpace(
         @Header("x-session-id") sessionId: String,
         @Query("spaceDid") spaceDid: String,
-    ): Call<DelegationListResponse>
+    ): DelegationListResponse
 
     @POST("delegations/create")
-    fun createDelegation(
+    suspend fun createDelegation(
         @Header("x-session-id") sessionId: String,
         @Body request: DelegationRequest,
-    ): Call<DelegationCreateResponse>
+    ): DelegationCreateResponse
 
     @GET("delegations/get")
-    fun getDelegationDetails(
+    suspend fun getDelegationDetails(
         @Header("x-user-did") userDid: String,
         @Query("spaceDid") spaceDid: String,
-    ): Call<DelegationDetailsResponse>
+    ): DelegationDetailsResponse
 
     @DELETE("delegations/revoke")
-    fun revokeDelegation(
+    suspend fun revokeDelegation(
         @Header("x-session-id") sessionId: String,
         @Body request: DelegationRevokeRequest,
-    ): Call<RevokeDelegationResponse>
+    ): RevokeDelegationResponse
 }

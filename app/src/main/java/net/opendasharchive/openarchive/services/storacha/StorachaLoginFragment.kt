@@ -56,7 +56,7 @@ class StorachaLoginFragment : Fragment() {
                 result.onSuccess {
                     val action =
                         StorachaLoginFragmentDirections
-                            .actionFragmentStorachaLoginToFragmentStorachaEmailVerificationSent()
+                            .actionFragmentStorachaLoginToFragmentStorachaSpaceSetupSuccess()
                     findNavController().navigate(action)
                 }
                 result.onFailure {

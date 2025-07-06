@@ -42,6 +42,7 @@
     -->
 
     <application
+        android:usesCleartextTraffic="true"
         android:name=".SaveApp"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"

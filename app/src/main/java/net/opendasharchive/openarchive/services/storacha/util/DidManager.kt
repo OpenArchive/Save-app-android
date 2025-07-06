@@ -5,6 +5,11 @@ import androidx.core.content.edit
 import org.bitcoinj.core.Base58
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
+import org.bouncycastle.jce.provider.BouncyCastleProvider
+import java.security.Security
+import org.bouncycastle.crypto.generators.Ed25519KeyPairGenerator
+import org.bouncycastle.crypto.params.Ed25519KeyGenerationParameters
+import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters
 
 class DidManager(
     context: Context,
@@ -18,11 +23,21 @@ class DidManager(
         }
 
     private fun generateNewDid(): String {
-        val keyPairGen = KeyPairGenerator.getInstance("Ed25519")
-        keyPairGen.initialize(256, SecureRandom())
-        val keyPair = keyPairGen.generateKeyPair()
-        val pubKey = keyPair.public.encoded
-        val base58PubKey = Base58.encode(pubKey) // Add a Base58 library
+        // Ensure BouncyCastle is registered
+        if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
+            Security.addProvider(BouncyCastleProvider())
+        }
+
+        val random = SecureRandom()
+        val keyPairGenerator = Ed25519KeyPairGenerator()
+        val keyGenParams = Ed25519KeyGenerationParameters(random)
+        keyPairGenerator.init(keyGenParams)
+
+        val keyPair = keyPairGenerator.generateKeyPair()
+        val publicKeyParams = keyPair.public as Ed25519PublicKeyParameters
+        val pubKeyBytes = publicKeyParams.encoded
+
+        val base58PubKey = Base58.encode(pubKeyBytes)
         return "did:key:z$base58PubKey"
     }
 }

@@ -480,4 +480,5 @@
     <string name="no_files_available">No files Available</string>
     <string name="send_directly_to_storacha_server">Connect to Storacha server</string>
     <string name="did_access_key">DID ACCESS KEY</string>
+    <string name="browse_files">Files</string>
 </resources>

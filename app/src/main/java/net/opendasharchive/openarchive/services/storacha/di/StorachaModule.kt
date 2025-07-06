@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder
 import net.opendasharchive.openarchive.services.storacha.service.StorachaApiService
 import net.opendasharchive.openarchive.services.storacha.util.BridgeUploader
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaLoginViewModel
+import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaBrowseSpacesViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.core.module.dsl.viewModelOf
@@ -31,7 +32,7 @@ val storachaModule =
         single {
             Retrofit
                 .Builder()
-                .baseUrl("http://localhost:3000/") // Change to actual API base URL
+                .baseUrl("http://192.168.0.119:3000/") // Change to actual API base URL
                 .client(get())
                 .addConverterFactory(GsonConverterFactory.create(get()))
                 .build()
@@ -44,4 +45,5 @@ val storachaModule =
         single { BridgeUploader(get()) }
 
         viewModelOf(::StorachaLoginViewModel)
+        viewModelOf(::StorachaBrowseSpacesViewModel)
     }

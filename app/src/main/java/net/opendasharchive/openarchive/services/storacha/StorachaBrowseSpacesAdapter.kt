@@ -7,10 +7,11 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.StorachaSpaceRowBinding
+import net.opendasharchive.openarchive.services.storacha.model.SpaceInfo
 
 class StorachaBrowseSpacesAdapter(
-    private val spaces: List<Space> = emptyList(),
-    private val onClick: (space: Space) -> Unit,
+    private val spaces: List<SpaceInfo> = emptyList(),
+    private val onClick: (space: SpaceInfo) -> Unit,
 ) : RecyclerView.Adapter<StorachaBrowseSpacesAdapter.SpaceViewHolder>() {
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -31,11 +32,11 @@ class StorachaBrowseSpacesAdapter(
 
     inner class SpaceViewHolder(
         private val binding: StorachaSpaceRowBinding,
-        private val onClick: (space: Space) -> Unit,
+        private val onClick: (space: SpaceInfo) -> Unit,
     ) : RecyclerView.ViewHolder(
             binding.root,
         ) {
-        fun bind(space: Space) {
+        fun bind(space: SpaceInfo) {
             val icon = ContextCompat.getDrawable(binding.icon.context, R.drawable.ic_folder_new)
             icon?.setTint(ContextCompat.getColor(binding.icon.context, R.color.colorOnBackground))
             binding.rvTick.visibility = View.VISIBLE
@@ -47,7 +48,3 @@ class StorachaBrowseSpacesAdapter(
         }
     }
 }
-
-data class Space(
-    val name: String,
-)

@@ -13,18 +13,19 @@ plugins {
     alias(libs.plugins.google.firebase.crashlytics)
 }
 
-fun loadLocalProperties(): Properties = Properties().apply {
-    val localPropsFile = rootProject.file("local.properties")
-    if (localPropsFile.exists()) {
-        FileInputStream(localPropsFile).use { load(it) }
-    } else {
-        setProperty("MIXPANELKEY", System.getenv("MIXPANEL_KEY") ?: "")
-        setProperty("STOREFILE", System.getenv("STOREFILE") ?: "")
-        setProperty("STOREPASSWORD", System.getenv("STOREPASSWORD") ?: "")
-        setProperty("KEYALIAS", System.getenv("KEYALIAS") ?: "")
-        setProperty("KEYPASSWORD", System.getenv("KEYPASSWORD") ?: "")
+fun loadLocalProperties(): Properties =
+    Properties().apply {
+        val localPropsFile = rootProject.file("local.properties")
+        if (localPropsFile.exists()) {
+            FileInputStream(localPropsFile).use { load(it) }
+        } else {
+            setProperty("MIXPANELKEY", System.getenv("MIXPANEL_KEY") ?: "")
+            setProperty("STOREFILE", System.getenv("STOREFILE") ?: "")
+            setProperty("STOREPASSWORD", System.getenv("STOREPASSWORD") ?: "")
+            setProperty("KEYALIAS", System.getenv("KEYALIAS") ?: "")
+            setProperty("KEYPASSWORD", System.getenv("KEYPASSWORD") ?: "")
+        }
     }
-}
 
 android {
 
@@ -95,9 +96,13 @@ android {
         resources {
             excludes.addAll(
                 listOf(
-                    "META-INF/LICENSE.txt", "META-INF/NOTICE.txt", "META-INF/LICENSE",
-                    "META-INF/NOTICE", "META-INF/DEPENDENCIES", "LICENSE.txt"
-                )
+                    "META-INF/LICENSE.txt",
+                    "META-INF/NOTICE.txt",
+                    "META-INF/LICENSE",
+                    "META-INF/NOTICE",
+                    "META-INF/DEPENDENCIES",
+                    "LICENSE.txt",
+                ),
             )
         }
     }
@@ -116,7 +121,7 @@ android {
 
     configurations.all {
         resolutionStrategy {
-            force("org.bouncycastle:bcprov-jdk15to18:1.72")
+            force("org.bouncycastle:bcprov-jdk15to18:1.70")
             exclude(group = "org.bouncycastle", module = "bcprov-jdk15on")
         }
     }
@@ -127,7 +132,6 @@ dependencies {
     // Core Kotlin and Coroutines
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
-
 
     // AndroidX Libraries
     implementation(libs.androidx.appcompat)
@@ -219,8 +223,8 @@ dependencies {
     implementation(libs.permissionx)
 
     // Barcode Scanning
-    //implementation("com.google.zxing:core:3.5.3")
-    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation(libs.core)
+    implementation(libs.zxing.android.embedded)
 
     // Security and Encryption
     implementation(libs.bouncycastle.bcpkix)
@@ -228,7 +232,7 @@ dependencies {
     api(libs.bouncycastle.bcpg)
 
     // Google Play Services
-    implementation("com.google.android.gms:play-services-auth:21.3.0")
+    implementation(libs.google.auth)
     implementation(libs.google.play.asset.delivery.ktx)
     implementation(libs.google.play.feature.delivery)
     implementation(libs.google.play.feature.delivery.ktx)
@@ -237,20 +241,20 @@ dependencies {
     implementation(libs.google.play.app.update.ktx)
 
     // Google Drive API
-    implementation("com.google.http-client:google-http-client-gson:1.42.3")
-    implementation("com.google.api-client:google-api-client-android:1.26.0")
-    implementation("com.google.apis:google-api-services-drive:v3-rev136-1.25.0")
+    implementation(libs.google.http.client.gson.v1433)
+    implementation(libs.google.api.client.android)
+    implementation(libs.google.drive.api)
 
     // Tor Libraries
     implementation(libs.tor.android)
     implementation(libs.jtorctl)
 
     implementation(libs.bitcoinj.core)
-    implementation("com.eclipsesource.j2v8:j2v8:6.2.1@aar")
+    // implementation(libs.j2v8)
 
     // ProofMode //from here: https://github.com/guardianproject/proofmode
     implementation(libs.proofmode) {
-        //transitive = false
+        // transitive = false
         exclude(group = "org.bitcoinj")
         exclude(group = "com.google.protobuf")
         exclude(group = "org.slf4j")
@@ -270,9 +274,9 @@ dependencies {
     implementation(libs.satyan.sugar)
 
     // adding web dav support: https://github.com/thegrizzlylabs/sardine-android'
-    implementation("com.github.guardianproject:sardine-android:89f7eae512")
+    implementation(libs.guardianproject.sardine)
 
-    implementation("com.github.derlio:audio-waveform:v1.0.1")
+    implementation(libs.audio.waveform.vv101)
 
     implementation(libs.clean.insights)
     implementation(libs.netcipher)
@@ -281,11 +285,11 @@ dependencies {
     implementation(libs.mixpanel)
 
     // Tests
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.robolectric:robolectric:4.14.1")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test:runner:1.6.2")
-    testImplementation("androidx.work:work-testing:2.9.1")
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+    testImplementation(libs.androidx.work.testing.v2102)
 
     // Detekt
     detektPlugins(libs.detekt.formatting)
@@ -305,7 +309,7 @@ detekt {
     config.setFrom(file("$rootDir/config/detekt-config.yml"))
     baseline = file("$rootDir/config/baseline.xml")
     source.setFrom(
-        files("$rootDir/app/src")
+        files("$rootDir/app/src"),
     )
     buildUponDefaultConfig = true
     allRules = false
