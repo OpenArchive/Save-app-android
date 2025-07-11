@@ -13,11 +13,16 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
+import android.view.WindowInsets
+import android.view.WindowInsetsController
+import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -87,8 +92,13 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.NumberFormat
 import androidx.core.content.edit
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import kotlinx.coroutines.delay
 import net.opendasharchive.openarchive.util.InAppReviewHelper
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 
 
 class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAdapterListener {
@@ -144,10 +154,12 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     private var shouldPromptReview = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        ///enableEdgeToEdge()
-
+//        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+//        WindowCompat.setDecorFitsSystemWindows(window, false)
         installSplashScreen()
+
+
 
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 //            window.insetsController?.let {
@@ -162,7 +174,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 //                WindowManager.LayoutParams.FLAG_FULLSCREEN
 //            )
 //        }
-
+//
 //        window.apply {
 //            clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
 //            addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -173,6 +185,26 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
 
         binding = ActivityMainBinding.inflate(layoutInflater)
+
+
+//        binding.contentMain.imgLogo.applyEdgeToEdgeInsets { insets ->
+//            leftMargin = insets.left
+//            rightMargin = insets.right
+//        }
+
+        binding.contentMain.bottomNavBar.applyEdgeToEdgeInsets { insets ->
+            bottomMargin = insets.bottom
+        }
+
+        binding.btnAddFolder.applyEdgeToEdgeInsets { insets ->
+            bottomMargin = insets.bottom
+        }
+
+        binding.drawerContent.applyEdgeToEdgeInsets { insets ->
+            bottomMargin = insets.bottom
+        }
+
+
         setContentView(binding.root)
 
         // Initialize the permission manager with this activity and its dialogManager.
@@ -308,7 +340,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     private fun setupNavigationDrawer() {
         // Drawer listener resets state on close
-        binding.root.addDrawerListener(object : DrawerLayout.DrawerListener {
+        binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerClosed(drawerView: View) {
                 collapseSpacesList()
             }
@@ -578,7 +610,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     // ----- Drawer Helpers -----
     private fun toggleDrawerState() {
-        if (binding.root.isDrawerOpen(binding.drawerContent)) {
+        if (binding.drawerLayout.isDrawerOpen(binding.drawerContent)) {
             closeDrawer()
         } else {
             openDrawer()
@@ -586,11 +618,11 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     }
 
     private fun openDrawer() {
-        binding.root.openDrawer(binding.drawerContent)
+        binding.drawerLayout.openDrawer(binding.drawerContent)
     }
 
     private fun closeDrawer() {
-        binding.root.closeDrawer(binding.drawerContent)
+        binding.drawerLayout.closeDrawer(binding.drawerContent)
     }
 
     private fun toggleSpacesList() {
@@ -924,7 +956,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     // ----- Adapter Listeners -----
     override fun onProjectSelected(project: Project) {
-        binding.root.closeDrawer(binding.drawerContent)
+        binding.drawerLayout.closeDrawer(binding.drawerContent)
         mCurrentPagerItem = mPagerAdapter.projects.indexOf(project)
     }
 
@@ -937,7 +969,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         refreshSpace()
         updateCurrentSpaceAtDrawer()
         collapseSpacesList()
-        binding.root.closeDrawer(binding.drawerContent)
+        binding.drawerLayout.closeDrawer(binding.drawerContent)
     }
 
     override fun onAddNewSpace() {

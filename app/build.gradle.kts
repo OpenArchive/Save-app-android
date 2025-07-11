@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.Properties
@@ -27,25 +29,36 @@ fun loadLocalProperties(): Properties = Properties().apply {
     }
 }
 
+kotlin {
+
+    compilerOptions {
+
+        jvmTarget.set(JvmTarget.JVM_17)
+        languageVersion.set(KotlinVersion.KOTLIN_2_1)
+    }
+}
+
+kotlin {
+    compilerOptions {
+
+        jvmTarget.set(JvmTarget.JVM_17)
+        languageVersion.set(KotlinVersion.KOTLIN_2_1)
+    }
+}
+
 android {
 
-    //noinspection GradleDependency
-    compileSdk = 34
+    compileSdk = 36
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     defaultConfig {
         applicationId = "net.opendasharchive.openarchive"
         minSdk = 29
-        //noinspection OldTargetApi
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 30011
         versionName = "4.0.0"
         multiDexEnabled = true
@@ -163,6 +176,7 @@ dependencies {
     implementation(libs.androidx.swiperefresh)
 
     // Compose Libraries
+    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)

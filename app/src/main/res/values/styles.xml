@@ -34,6 +34,9 @@
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">@bool/dayMode</item>
         <item name="navigationViewStyle">@style/NavigationViewStyle</item>
+        <item name="android:navigationBarColor">@color/colorTertiary</item>
+
+
         <item name="dialogTheme">@style/AppDialogTheme</item>
         <item name="bottomSheetDialogTheme">@style/SaveAppBottomSheetTheme</item>
         <item name="alertDialogTheme">@style/AlertDialogTheme</item>
@@ -65,6 +68,8 @@
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.SaveApp.SmallComponent
         </item>
         <item name="materialSwitchStyle">@style/Widget.SaveApp.Switch</item>
+
+
     </style>
 
     <style name="SaveAppTheme.NoActionBar.Onboarding" parent="SaveAppTheme.NoActionBar">
@@ -188,7 +193,7 @@
     </style>
 
     <style name="NavigationViewStyle" parent="Widget.Material3.NavigationView">
-        <item name="android:background">@color/colorNavigationDrawerBackground</item>
+        <item name="android:background">@color/colorTertiary</item>
     </style>
 
     <style name="AlertDialogTheme" parent="ThemeOverlay.Material3.MaterialAlertDialog">

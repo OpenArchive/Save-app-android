@@ -12,6 +12,7 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivitySpaceSetupBinding
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 
 enum class StartDestination {
     SPACE_TYPE,
@@ -37,6 +38,13 @@ class SpaceSetupActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
 
         binding = ActivitySpaceSetupBinding.inflate(layoutInflater)
+
+        binding.spaceNavHostFragment.applyEdgeToEdgeInsets { insets ->
+            bottomMargin = insets.bottom
+        }
+
+
+
         setContentView(binding.root)
 
         setupToolbar(
