@@ -424,12 +424,12 @@
 
     <string name="pref_title_secure">Secure</string>
     <string name="pref_title_archive">Archive</string>
-    <string name="pref_title_privacy_policy">Read our Terms &amp; Privacy Policy</string>
+    <string name="pref_title_privacy_policy">Terms and Privacy</string>
     <string name="pref_title_media_servers">Media Servers</string>
     <string name="pref_title_media_folders">Archived Folders</string>
     <string name="pref_summary_media_servers">Manage your servers</string>
     <string name="pref_summary_media_folders">Manage your archived folders</string>
-    <string name="pref_summary_privacy_policy">Read our Terms &amp; Privacy Policy</string>
+    <string name="pref_summary_privacy_policy">Read our Terms and Privacy Policy</string>
 
     <string name="pref_app_passcode" translatable="false">passcode_enabled</string>
     <string name="pref_key_proof_mode" translatable="false">pref_proof_mode</string>
@@ -455,4 +455,6 @@
     <string name="lbl_no_archived_folders">No archived folders found.</string>
     <string name="error_no_internet">Internet not available</string>
     <string name="unavailable">unavailable</string>
+    <string name="save_by_open_archive">Save by OpenArchive</string>
+    <string name="discover_the_save_app">Learn More</string>
 </resources>
