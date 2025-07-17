@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import com.google.android.material.appbar.MaterialToolbar
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
@@ -40,6 +41,7 @@ abstract class BaseActivity : AppCompatActivity() {
         // Add ComposeView if not already present
         if (rootView.findViewById<ComposeView>(R.id.compose_dialog_host) == null) {
             ComposeView(this).apply {
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
                 id = R.id.compose_dialog_host
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,

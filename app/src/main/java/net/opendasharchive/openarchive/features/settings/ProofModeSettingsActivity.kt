@@ -23,7 +23,7 @@ import com.permissionx.guolindev.PermissionX
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.databinding.ActivitySettingsContainerBinding
+import net.opendasharchive.openarchive.databinding.ActivityProofmodeSettingsBinding
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.util.Hbks
 import net.opendasharchive.openarchive.util.Prefs
@@ -167,12 +167,12 @@ class ProofModeSettingsActivity : BaseActivity() {
         }
     }
 
-    private lateinit var mBinding: ActivitySettingsContainerBinding
+    private lateinit var mBinding: ActivityProofmodeSettingsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        mBinding = ActivitySettingsContainerBinding.inflate(layoutInflater)
+        mBinding = ActivityProofmodeSettingsBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
         setupToolbar(getString(R.string.proofmode))

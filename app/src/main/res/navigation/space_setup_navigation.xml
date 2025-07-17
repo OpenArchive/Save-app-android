@@ -18,6 +18,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_fragment_space_list_to_fragment_internet_archive_detail"
+            app:destination="@id/fragment_internet_archive_detail"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
 
@@ -32,13 +39,7 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_fragment_space_setup_to_fragment_internet_archive"
-            app:destination="@id/fragment_internet_archive"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+
         <action
             android:id="@+id/action_fragment_space_setup_to_fragment_snowbird"
             app:destination="@id/fragment_snowbird"
@@ -49,6 +50,13 @@
         <action
             android:id="@+id/action_fragment_space_setup_to_fragment_gdrive"
             app:destination="@id/fragment_gdrive"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_fragment_space_setup_to_fragment_internet_archive_login"
+            app:destination="@id/fragment_internet_archive_login"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
@@ -94,23 +102,27 @@
             app:argType="boolean" />
     </fragment>
 
-
     <fragment
-        android:id="@+id/fragment_internet_archive"
-        android:name="net.opendasharchive.openarchive.features.internetarchive.presentation.InternetArchiveFragment">
+        android:id="@+id/fragment_internet_archive_login"
+        android:name="net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginFragment"
+        android:label="InternetArchiveLoginFragment">
         <action
-            android:id="@+id/action_fragment_internet_archive_to_fragment_space_setup_success"
+            android:id="@+id/action_fragment_internet_archive_login_to_fragment_space_setup_success"
             app:destination="@id/fragment_space_setup_success"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+    <fragment
+        android:id="@+id/fragment_internet_archive_detail"
+        android:name="net.opendasharchive.openarchive.features.internetarchive.presentation.details.InternetArchiveDetailsFragment"
+        android:label="InternetArchiveDetailsFragment">
         <argument
             android:name="space_id"
             android:defaultValue="-1L"
             app:argType="long" />
     </fragment>
-
 
     <fragment
         android:id="@+id/fragment_snowbird"
@@ -260,10 +272,38 @@
             app:argType="string" />
     </fragment>
 
+    <fragment
+        android:id="@+id/fragment_folder_list"
+        android:name="net.opendasharchive.openarchive.features.settings.FolderListFragment"
+        tools:layout="@layout/fragment_folder_list">
+
+        <action
+            android:id="@+id/action_fragment_folder_list_to_fragment_edit_folder"
+            app:destination="@id/fragment_edit_folder"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <argument
+            android:name="show_archived_folders"
+            android:defaultValue="true"
+            app:argType="boolean" />
+        <argument
+            android:name="space_id"
+            android:defaultValue="-1L"
+            app:argType="long" />
+        <argument
+            android:name="folder_id"
+            android:defaultValue="-1L"
+            app:argType="long" />
+
+    </fragment>
+
     <composable
         android:id="@+id/fragment_add_folder"
         android:name="net.opendasharchive.openarchive.features.folders.AddFolderScreenKt\$AddFolderScreen"
-        android:label="@string/add_a_folder" >
+        android:label="@string/add_a_folder">
 
         <action
             android:id="@+id/fragment_add_folder_to_fragment_browse_folders"
@@ -282,15 +322,22 @@
             app:popExitAnim="@anim/slide_out_right" />
     </composable>
 
-
     <fragment
         android:id="@+id/fragment_browse_folders"
         android:name="net.opendasharchive.openarchive.features.folders.BrowseFoldersFragment"
-        tools:layout="@layout/fragment_browse_folders">
-    </fragment>
+        tools:layout="@layout/fragment_browse_folders" />
 
     <fragment
         android:id="@+id/fragment_create_new_folder"
         android:name="net.opendasharchive.openarchive.features.folders.CreateNewFolderFragment"
-        tools:layout="@layout/fragment_create_new_folder"/>
+        tools:layout="@layout/fragment_create_new_folder" />
+
+    <fragment
+        android:id="@+id/fragment_edit_folder"
+        android:name="net.opendasharchive.openarchive.features.settings.EditFolderFragment"
+        tools:layout="@layout/fragment_edit_folder">
+        <argument
+            android:name="folder_id"
+            app:argType="long" />
+    </fragment>
 </navigation>

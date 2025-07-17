@@ -1,6 +1,6 @@
 [versions]
 activity = "1.9.3"
-agp = "8.9.2"
+agp = "8.10.0"
 appcompat = "1.7.0"
 biometric = "1.1.0"
 coil = "3.0.4"
@@ -194,7 +194,6 @@ satyan-sugar = { group = "com.github.satyan", name = "sugar", version.ref = "sat
 audio-waveform = { group = "com.github.derlio", name = "audio-waveform", version.ref = "audio-waveform" }
 
 clean-insights = { group = "org.cleaninsights.sdk", name = "clean-insights-sdk", version.ref = "clean-insights" }
-netcipher = { group = "info.guardianproject.netcipher", name = "netcipher", version.ref = "netcipher" }
 
 mixpanel = { group = "com.mixpanel.android", name = "mixpanel-android", version.ref = "mixpanel" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebase-crashlytics" }

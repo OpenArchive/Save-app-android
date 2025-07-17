@@ -33,42 +33,28 @@ class SpaceSetupFragment : BaseFragment() {
 
         // Prepare click lambdas that use the fragment’s business logic.
         val onWebDavClick = {
-            if (isJetpackNavigation) {
-                findNavController().navigate(R.id.action_fragment_space_setup_to_fragment_web_dav)
-            } else {
-                setFragmentResult(
-                    RESULT_REQUEST_KEY,
-                    bundleOf(RESULT_BUNDLE_KEY to RESULT_VAL_WEBDAV)
-                )
-            }
+
+            val action = SpaceSetupFragmentDirections.actionFragmentSpaceSetupToFragmentWebDav()
+                findNavController().navigate(action)
+
         }
         // Only enable Internet Archive if not already present
         val isInternetArchiveAllowed = !Space.has(Space.Type.INTERNET_ARCHIVE)
         val onInternetArchiveClick = {
-            if (isJetpackNavigation) {
+
                 val action =
-                    SpaceSetupFragmentDirections.actionFragmentSpaceSetupToFragmentInternetArchive()
+                    SpaceSetupFragmentDirections.actionFragmentSpaceSetupToFragmentInternetArchiveLogin()
                 findNavController().navigate(action)
-            } else {
-                setFragmentResult(
-                    RESULT_REQUEST_KEY,
-                    bundleOf(RESULT_BUNDLE_KEY to RESULT_VAL_INTERNET_ARCHIVE)
-                )
-            }
+
         }
         // Show/hide Snowbird based on config
         val isDwebEnabled = appConfig.isDwebEnabled
         val onDwebClicked = {
-            if (isJetpackNavigation) {
+
                 val action =
                     SpaceSetupFragmentDirections.actionFragmentSpaceSetupToFragmentSnowbird()
                 findNavController().navigate(action)
-            } else {
-                setFragmentResult(
-                    RESULT_REQUEST_KEY,
-                    bundleOf(RESULT_BUNDLE_KEY to RESULT_VAL_RAVEN)
-                )
-            }
+
         }
 
         SaveAppTheme {
@@ -81,16 +67,6 @@ class SpaceSetupFragment : BaseFragment() {
             )
         }
 
-    }
-
-    companion object {
-        const val RESULT_REQUEST_KEY = "space_setup_fragment_result"
-        const val RESULT_BUNDLE_KEY = "space_setup_result_key"
-        const val RESULT_VAL_DROPBOX = "dropbox"
-        const val RESULT_VAL_WEBDAV = "webdav"
-        const val RESULT_VAL_RAVEN = "raven"
-        const val RESULT_VAL_INTERNET_ARCHIVE = "internet_archive"
-        const val RESULT_VAL_GDRIVE = "gdrive"
     }
 
     override fun getToolbarTitle() = getString(R.string.space_setup_title)

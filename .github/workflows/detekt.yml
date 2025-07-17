@@ -16,6 +16,7 @@ on:
 
 jobs:
   detekt:
+    concurrency: detekt-${{ github.ref }}
     name: Static Code Analysis with Detekt
     runs-on: ubuntu-latest
 

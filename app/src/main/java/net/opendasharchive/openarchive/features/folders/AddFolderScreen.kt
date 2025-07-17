@@ -43,6 +43,8 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 
+// This screen is used in space_setup_navigation.xml nav graph
+@Suppress("unused")
 @Composable
 fun AddFolderScreen() {
 

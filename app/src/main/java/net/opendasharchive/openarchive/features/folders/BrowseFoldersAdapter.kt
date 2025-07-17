@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FolderRowBinding
+import net.opendasharchive.openarchive.features.folders.BrowseFoldersViewModel.Folder
 import java.text.SimpleDateFormat
 
 class BrowseFoldersAdapter(
