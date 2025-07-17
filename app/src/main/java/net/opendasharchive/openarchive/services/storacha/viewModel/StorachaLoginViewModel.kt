@@ -1,8 +1,9 @@
 package net.opendasharchive.openarchive.services.storacha.viewModel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.services.storacha.model.LoginRequest
@@ -10,8 +11,9 @@ import net.opendasharchive.openarchive.services.storacha.model.LoginResponse
 import net.opendasharchive.openarchive.services.storacha.service.StorachaApiService
 
 class StorachaLoginViewModel(
+    application: Application,
     private val apiService: StorachaApiService,
-) : ViewModel() {
+) : AndroidViewModel(application) {
     private val _loginResult = MutableLiveData<Result<LoginResponse>>()
     val loginResult: LiveData<Result<LoginResponse>> = _loginResult
 

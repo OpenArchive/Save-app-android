@@ -45,7 +45,10 @@ class StorachaBrowseSpacesFragment : BaseFragment() {
             mBinding.rvFolderList.adapter =
                 StorachaBrowseSpacesAdapter(list) { space ->
                     val action =
-                        StorachaBrowseSpacesFragmentDirections.actionFragmentStorachaBrowseSpacesToFragmentStorachaMedia()
+                        StorachaBrowseSpacesFragmentDirections.actionFragmentStorachaBrowseSpacesToFragmentStorachaMedia(
+                            spaceDid = space.did,
+                            spaceName = space.name,
+                        )
                     findNavController().navigate(action)
                 }
         }

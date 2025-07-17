@@ -1,6 +1,7 @@
 package net.opendasharchive.openarchive.services.storacha
 
 import android.os.Bundle
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,14 +13,11 @@ import net.opendasharchive.openarchive.databinding.FragmentStorachaLoginBinding
 import net.opendasharchive.openarchive.services.storacha.util.DidManager
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaLoginViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import androidx.core.content.edit
 
 class StorachaLoginFragment : Fragment() {
     private lateinit var viewBinding: FragmentStorachaLoginBinding
     private val viewModel: StorachaLoginViewModel by viewModel()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,16 +51,25 @@ class StorachaLoginFragment : Fragment() {
         viewModel.loginResult.observe(
             viewLifecycleOwner,
             Observer { result ->
-                result.onSuccess {
+                result.onSuccess { loginResponse ->
+                    val prefs = requireContext().getSharedPreferences("storacha_prefs", Context.MODE_PRIVATE)
+                    prefs.edit { putString("session_id", loginResponse.sessionId) }
+
                     val action =
-                        StorachaLoginFragmentDirections
-                            .actionFragmentStorachaLoginToFragmentStorachaSpaceSetupSuccess()
+                        if (loginResponse.verified) {
+                            StorachaLoginFragmentDirections.actionFragmentStorachaLoginToFragmentStorachaSpaceSetupSuccess()
+                        } else {
+                            StorachaLoginFragmentDirections.actionFragmentStorachaLoginToFragmentStorachaEmailVerificationSent()
+                        }
                     findNavController().navigate(action)
                 }
                 result.onFailure {
                     Toast
-                        .makeText(requireContext(), "Login failed: ${it.message}", Toast.LENGTH_LONG)
-                        .show()
+                        .makeText(
+                            requireContext(),
+                            "Login failed: ${it.message}",
+                            Toast.LENGTH_LONG,
+                        ).show()
                 }
             },
         )

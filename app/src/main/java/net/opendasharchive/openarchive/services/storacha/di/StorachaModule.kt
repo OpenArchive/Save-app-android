@@ -3,10 +3,13 @@ package net.opendasharchive.openarchive.services.storacha.di
 import com.google.gson.GsonBuilder
 import net.opendasharchive.openarchive.services.storacha.service.StorachaApiService
 import net.opendasharchive.openarchive.services.storacha.util.BridgeUploader
-import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaLoginViewModel
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaBrowseSpacesViewModel
+import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaEmailVerificationSentViewModel
+import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaLoginViewModel
+import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaMediaViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import retrofit2.Retrofit
@@ -46,4 +49,11 @@ val storachaModule =
 
         viewModelOf(::StorachaLoginViewModel)
         viewModelOf(::StorachaBrowseSpacesViewModel)
+        viewModelOf(::StorachaMediaViewModel)
+        viewModel { (sessionId: String) ->
+            StorachaEmailVerificationSentViewModel(
+                get(),
+                sessionId,
+            )
+        }
     }
