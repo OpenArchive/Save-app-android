@@ -143,8 +143,8 @@
             android:key="@string/pref_key_about_app"
             android:layout="@layout/custom_preference"
             android:singleLineTitle="true"
-            android:summary="Discover the Save app"
-            android:title="Save by Open Archive"
+            android:summary="@string/discover_the_save_app"
+            android:title="@string/save_by_open_archive"
             app:enabled="true"
             app:iconSpaceReserved="false">
             <intent
