@@ -1,4 +1,5 @@
 import java.io.FileInputStream
+import java.text.SimpleDateFormat
 import java.util.Properties
 
 plugins {
@@ -46,8 +47,8 @@ android {
         minSdk = 29
         //noinspection OldTargetApi
         targetSdk = 34
-        versionCode = 30006
-        versionName = "0.7.8"
+        versionCode = 30013
+        versionName = "4.0.1"
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

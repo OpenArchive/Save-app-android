@@ -155,6 +155,7 @@ open class UploadManagerFragment : SKBottomSheetDialogFragment() {
                     parentFragmentManager.setFragmentResult("uploadRetry", resultBundle)
                 }
             }
+
             destructiveButton {
                 text = UiText.StringResource(R.string.btn_lbl_remove_media)
                 action = {
