@@ -72,7 +72,9 @@ class WebDavFragment : BaseFragment() {
         // Inflate the layout for this fragment
         binding = FragmentWebDavBinding.inflate(inflater)
 
-        binding.buttonBar.applyEdgeToEdgeInsets(typeMask = WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()) { insets ->
+        binding.buttonBar.applyEdgeToEdgeInsets(
+            typeMask = WindowInsetsCompat.Type.navigationBars()
+        ) { insets ->
 
             bottomMargin = insets.bottom
         }

@@ -39,12 +39,6 @@ class SpaceSetupActivity : BaseActivity() {
 
         binding = ActivitySpaceSetupBinding.inflate(layoutInflater)
 
-        binding.spaceNavHostFragment.applyEdgeToEdgeInsets { insets ->
-            bottomMargin = insets.bottom
-        }
-
-
-
         setContentView(binding.root)
 
         setupToolbar(

@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.core.os.bundleOf
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
@@ -15,6 +16,7 @@ import net.opendasharchive.openarchive.databinding.FragmentWebdavSetupLicenseBin
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import kotlin.properties.Delegates
 
 class WebDavSetupLicenseFragment: BaseFragment() {
@@ -32,6 +34,13 @@ class WebDavSetupLicenseFragment: BaseFragment() {
     ): View {
 
         binding = FragmentWebdavSetupLicenseBinding.inflate(layoutInflater)
+
+        binding.buttonBar.applyEdgeToEdgeInsets(
+            typeMask = WindowInsetsCompat.Type.navigationBars()
+        ) { insets ->
+            bottomMargin = insets.bottom
+        }
+
         mSpaceId = arguments?.getLong(ARG_SPACE_ID)!!
         mSpace = Space.get(mSpaceId) ?: Space(Space.Type.WEBDAV)
 

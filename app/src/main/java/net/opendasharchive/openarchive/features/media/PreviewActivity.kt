@@ -7,6 +7,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivityPreviewBinding
@@ -18,7 +19,6 @@ import net.opendasharchive.openarchive.features.core.asUiImage
 import net.opendasharchive.openarchive.features.core.asUiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
-import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
@@ -70,7 +70,11 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
 
         mBinding = ActivityPreviewBinding.inflate(layoutInflater)
 
-        mBinding.btAddMoreLayout.applyEdgeToEdgeInsets { insets ->
+        mBinding.btAddMoreLayout.applyEdgeToEdgeInsets(WindowInsetsCompat.Type.navigationBars()) { insets ->
+            bottomMargin = insets.bottom
+        }
+
+        mBinding.bottomBar.applyEdgeToEdgeInsets(WindowInsetsCompat.Type.navigationBars()) { insets ->
             bottomMargin = insets.bottom
         }
 
