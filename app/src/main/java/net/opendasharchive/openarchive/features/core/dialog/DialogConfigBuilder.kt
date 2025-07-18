@@ -111,6 +111,10 @@ class DialogBuilder {
             .build(defaultText = defaultDestructiveText())
     }
 
+    fun onDismissAction(block: () -> Unit) {
+        _onDismissAction = block
+    }
+
     // Default texts based on type.
     private fun defaultPositiveTextFor(type: DialogType): UiText = when (type) {
         DialogType.Success -> UiText.StringResource(R.string.lbl_ok)
@@ -211,6 +215,7 @@ class DialogBuilder {
             positiveButton = _positiveButton, //?: ButtonData(defaultPositiveTextFor(type)),
             neutralButton = _neutralButton,
             destructiveButton = _destructiveButton,
+            onDismissAction = _onDismissAction,
             showCheckbox = showCheckbox,
             checkboxText = checkboxText,
             onCheckboxChanged = onCheckboxChanged,
@@ -267,6 +272,7 @@ fun DialogStateManager.showSuccessDialog(
     @StringRes positiveButtonText: Int? = null,
     icon: UiImage? = null,
     onDone: () -> Unit = {},
+    onDismissed: () -> Unit = {}
 ) {
     val resourceProvider = this.requireResourceProvider()
 
@@ -279,6 +285,9 @@ fun DialogStateManager.showSuccessDialog(
         positiveButton {
             text = UiText.StringResource(positiveButtonText ?: R.string.lbl_got_it)
             action = onDone
+        }
+        onDismissAction {
+            onDismissed()
         }
     }
 }
@@ -345,6 +354,7 @@ fun DialogStateManager.showWarningDialog(
         type = DialogType.Warning
         this.title = title
         this.icon = icon
+        iconColor = resourceProvider.getColor(R.color.colorTertiary)
         this.message = message
         positiveButton {
             text = positiveButtonText ?: UiText.StringResource(R.string.lbl_got_it)
