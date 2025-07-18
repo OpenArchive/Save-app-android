@@ -2,10 +2,10 @@ package net.opendasharchive.openarchive.features.media
 
 import android.content.Intent
 import androidx.activity.result.ActivityResultLauncher
-import com.esafirm.imagepicker.features.ImagePickerLauncher
+import androidx.activity.result.PickVisualMediaRequest
 
 data class MediaLaunchers(
-    val imagePickerLauncher: ImagePickerLauncher,
+    val galleryLauncher: ActivityResultLauncher<PickVisualMediaRequest>, // Changed
     val filePickerLauncher: ActivityResultLauncher<Intent>,
     val cameraLauncher: ActivityResultLauncher<Intent>
 )

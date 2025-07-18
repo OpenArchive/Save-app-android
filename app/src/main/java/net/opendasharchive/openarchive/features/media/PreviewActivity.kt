@@ -179,7 +179,7 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
         when (view) {
             mBinding.btAddMore -> {
                 permissionManager.checkMediaPermissions {
-                    Picker.pickMedia(mediaLaunchers.imagePickerLauncher)
+                    Picker.pickMedia(mediaLaunchers.galleryLauncher)
                 }
             }
 

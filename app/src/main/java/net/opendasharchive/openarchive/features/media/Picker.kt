@@ -4,25 +4,18 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.net.Uri
-import android.os.Environment
 import android.provider.MediaStore
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
-import com.esafirm.imagepicker.features.ImagePickerConfig
-import com.esafirm.imagepicker.features.ImagePickerLauncher
-import com.esafirm.imagepicker.features.ImagePickerMode
-import com.esafirm.imagepicker.features.ImagePickerSavePath
-import com.esafirm.imagepicker.features.ReturnMode
-import com.esafirm.imagepicker.features.registerImagePicker
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -50,14 +43,15 @@ object Picker {
         completed: (List<Media>) -> Unit
     ): MediaLaunchers {
 
-        val mpl = activity.registerImagePicker { result ->
+        // Official Gallery Picker (Replaces custom image picker)
+        val galleryLauncher = activity.registerForActivityResult(
+            ActivityResultContracts.PickMultipleVisualMedia(10) // Supports multiple selection
+        ) { uris: List<Uri>? ->
+            if (uris.isNullOrEmpty()) return@registerForActivityResult
 
             val snackbar = showProgressSnackBar(activity, root, activity.getString(R.string.importing_media))
-
             activity.lifecycleScope.launch(Dispatchers.IO) {
-                // We don't generate proof for media picker files.
-                val media = import(activity, project(), result.map { it.uri },false)
-
+                val media = import(activity, project(), uris, false)
                 activity.lifecycleScope.launch(Dispatchers.Main) {
                     snackbar.dismiss()
                     completed(media)
@@ -104,26 +98,15 @@ object Picker {
         }
 
         return MediaLaunchers(
-            imagePickerLauncher = mpl,
+            galleryLauncher = galleryLauncher, // Updated
             filePickerLauncher = fpl,
             cameraLauncher = cpl
         )
     }
 
-    fun pickMedia(launcher: ImagePickerLauncher) {
-
-        val config = ImagePickerConfig {
-            mode = ImagePickerMode.MULTIPLE
-            isShowCamera = false
-            returnMode = ReturnMode.NONE
-            isFolderMode = true
-            isIncludeVideo = true
-            arrowColor = Color.WHITE
-            limit = 99
-            savePath = ImagePickerSavePath(Environment.getExternalStorageDirectory().path, false)
-        }
-
-        launcher.launch(config)
+    fun pickMedia(launcher: ActivityResultLauncher<PickVisualMediaRequest>) {
+        val request = PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
+        launcher.launch(request)
     }
 
     fun canPickFiles(context: Context): Boolean {

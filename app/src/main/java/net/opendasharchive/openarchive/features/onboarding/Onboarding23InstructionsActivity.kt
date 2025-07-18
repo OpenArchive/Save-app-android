@@ -17,6 +17,7 @@ import net.opendasharchive.openarchive.databinding.ActivityOnboarding23Instructi
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.util.Prefs
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 
 class Onboarding23InstructionsActivity : BaseActivity() {
 
@@ -32,6 +33,11 @@ class Onboarding23InstructionsActivity : BaseActivity() {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
 
         mBinding = ActivityOnboarding23InstructionsBinding.inflate(layoutInflater)
+
+        mBinding.fab.applyEdgeToEdgeInsets { insets ->
+            bottomMargin = insets.bottom
+        }
+
         setContentView(mBinding.root)
 
         mBinding.skipButton.setOnClickListener {
@@ -69,7 +75,7 @@ class Onboarding23InstructionsActivity : BaseActivity() {
                     mBinding.skipButton.visibility = View.INVISIBLE
                     mBinding.fab.setImageDrawable(
                         ContextCompat.getDrawable(
-                            mBinding.fab.context, com.esafirm.imagepicker.R.drawable.ef_ic_done_white,
+                            mBinding.fab.context, R.drawable.ic_done,
                         )
                     )
                 } else {

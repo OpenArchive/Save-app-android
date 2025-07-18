@@ -9,9 +9,9 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
-import com.bumptech.glide.Glide
+import androidx.core.net.toUri
+import coil3.load
 import com.github.derlio.waveform.SimpleWaveformView
-import com.squareup.picasso.Picasso
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivityReviewBinding
 import net.opendasharchive.openarchive.db.Media
@@ -19,7 +19,6 @@ import net.opendasharchive.openarchive.db.UploadMediaViewHolder
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
-import net.opendasharchive.openarchive.fragments.VideoRequestHandler
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.hide
@@ -323,18 +322,11 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
         waveform?.hide()
 
         if (media?.mimeType?.startsWith("image") == true) {
-            Glide.with(this)
-                .load(media.fileUri)
-                .into(imageView)
+            imageView.load(media.fileUri)
         }
         else if (media?.mimeType?.startsWith("video") == true) {
-            Picasso.Builder(this)
-                .addRequestHandler(VideoRequestHandler(this))
-                .build()
-                .load(VideoRequestHandler.SCHEME_VIDEO + ":" + media.originalFilePath)
-                ?.fit()
-                ?.centerCrop()
-                ?.into(imageView)
+
+            imageView.load(media.originalFilePath.toUri())
         }
         else if (media?.mimeType?.startsWith("audio") == true) {
             imageView.setImageResource(R.drawable.audio_waveform)

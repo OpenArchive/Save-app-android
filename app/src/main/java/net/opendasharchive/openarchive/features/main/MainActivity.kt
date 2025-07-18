@@ -1,6 +1,5 @@
 package net.opendasharchive.openarchive.features.main
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Point
@@ -13,16 +12,10 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
-import android.view.WindowInsets
-import android.view.WindowInsetsController
-import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.PopupWindow
-import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -34,13 +27,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.play.core.review.ReviewException
-import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
-import com.google.android.play.core.review.model.ReviewErrorCode
-import com.google.android.play.core.review.testing.FakeReviewManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.BuildConfig
 import net.opendasharchive.openarchive.R
@@ -80,10 +70,12 @@ import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import net.opendasharchive.openarchive.upload.UploadManagerFragment
 import net.opendasharchive.openarchive.upload.UploadService
+import net.opendasharchive.openarchive.util.InAppReviewHelper
 import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.ProofModeHelper
 import net.opendasharchive.openarchive.util.extensions.Position
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.cloak
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.scaleAndTintDrawable
@@ -91,14 +83,6 @@ import net.opendasharchive.openarchive.util.extensions.show
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.NumberFormat
-import androidx.core.content.edit
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
-import kotlinx.coroutines.delay
-import net.opendasharchive.openarchive.util.InAppReviewHelper
-import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 
 
 class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAdapterListener {
@@ -863,7 +847,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
                         AddMediaType.GALLERY -> {
                             permissionManager.checkMediaPermissions {
-                                Picker.pickMedia(mediaLaunchers.imagePickerLauncher)
+                                Picker.pickMedia(mediaLaunchers.galleryLauncher)
                             }
                         }
 

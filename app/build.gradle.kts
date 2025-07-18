@@ -209,13 +209,10 @@ dependencies {
     implementation(libs.koin.compose.viewmodel.navigation)
 
     // Image Libraries
-    implementation(libs.glide)
-    annotationProcessor(libs.glide.compiler)
-    implementation(libs.asafirm.image.picker)
-    implementation(libs.picasso)
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
+    implementation(libs.coil.network)
 
     // Networking and Data
     // Networking
@@ -243,7 +240,7 @@ dependencies {
     api(libs.bouncycastle.bcpg)
 
     // Google Play Services
-    implementation("com.google.android.gms:play-services-auth:21.3.0")
+    implementation(libs.google.auth)
     implementation(libs.google.play.asset.delivery.ktx)
     implementation(libs.google.play.feature.delivery)
     implementation(libs.google.play.feature.delivery.ktx)
@@ -252,9 +249,9 @@ dependencies {
     implementation(libs.google.play.app.update.ktx)
 
     // Google Drive API
-    implementation("com.google.http-client:google-http-client-gson:1.42.3")
-    implementation("com.google.api-client:google-api-client-android:1.26.0")
-    implementation("com.google.apis:google-api-services-drive:v3-rev136-1.25.0")
+    implementation(libs.google.http.client.gson)
+    implementation(libs.google.api.client.android)
+    implementation(libs.google.drive.api)
 
     // Tor Libraries
     implementation(libs.tor.android)
@@ -296,11 +293,11 @@ dependencies {
     implementation(libs.mixpanel)
 
     // Tests
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.robolectric:robolectric:4.14.1")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test:runner:1.6.2")
-    testImplementation("androidx.work:work-testing:2.9.1")
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+    testImplementation(libs.work.testing)
 
     // Detekt
     detektPlugins(libs.detekt.formatting)
