@@ -19,27 +19,27 @@
         app:layout_constraintTop_toBottomOf="@id/common_app_bar" />
 
     <LinearLayout
-        android:layout_marginVertical="24dp"
         android:id="@+id/bt_add_more_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:weightSum="5"
-        android:orientation="horizontal"
-        android:gravity="center_horizontal"
+        android:layout_marginVertical="24dp"
         android:drawableTint="@color/colorOnBackground"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:weightSum="5"
         app:layout_constraintBottom_toTopOf="@id/bottom_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.button.MaterialButton
-            android:layout_weight="2.5"
             android:id="@+id/bt_add_more"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="2.5"
             android:text="@string/add_more"
+            app:backgroundTint="@color/colorTertiary"
             app:icon="@drawable/baseline_add_24"
             app:iconTint="@color/black"
-            app:backgroundTint="@color/colorTertiary"
             app:layout_constraintBottom_toTopOf="@id/bottom_bar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -47,12 +47,11 @@
     </LinearLayout>
 
 
-
     <LinearLayout
         android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
-        android:layout_marginVertical="24dp"
         android:layout_height="wrap_content"
+        android:layout_marginVertical="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -60,30 +59,30 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/bt_batch_edit"
             style="?android:attr/buttonBarButtonStyle"
-            app:iconTint="@color/colorTertiary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            app:icon="@drawable/ic_batchedit" />
+            app:icon="@drawable/ic_batchedit"
+            app:iconTint="@color/colorTertiary" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/bt_select_all"
             style="?android:attr/buttonBarButtonStyle"
-            android:textColor="@color/colorTertiary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/select_all" />
+            android:text="@string/select_all"
+            android:textColor="@color/colorTertiary" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/bt_remove"
             style="?android:attr/buttonBarButtonStyle"
-            app:iconTint="@color/colorTertiary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            app:icon="@drawable/ic_delete"
             app:iconGravity="end"
-            app:icon="@drawable/ic_delete" />
+            app:iconTint="@color/colorTertiary" />
 
     </LinearLayout>
 

@@ -31,10 +31,10 @@
 
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@color/colorTertiary</item>
-        <item name="android:windowLightStatusBar">false</item>
+<!--        <item name="android:windowLightStatusBar">false</item>-->
         <item name="android:windowLightNavigationBar">@bool/dayMode</item>
-        <item name="navigationViewStyle">@style/NavigationViewStyle</item>
-        <item name="android:navigationBarColor">@color/colorTertiary</item>
+<!--        <item name="navigationViewStyle">@style/NavigationViewStyle</item>-->
+<!--        <item name="android:navigationBarColor">@color/colorNavigationDrawerBackground</item>-->
 
 
         <item name="dialogTheme">@style/AppDialogTheme</item>
@@ -192,9 +192,9 @@
         <item name="colorSurfaceVariant">@color/red</item>
     </style>
 
-    <style name="NavigationViewStyle" parent="Widget.Material3.NavigationView">
-        <item name="android:background">@color/colorTertiary</item>
-    </style>
+<!--    <style name="NavigationViewStyle" parent="Widget.Material3.NavigationView">-->
+<!--        <item name="android:background">@color/colorNavigationDrawerBackground</item>-->
+<!--    </style>-->
 
     <style name="AlertDialogTheme" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>

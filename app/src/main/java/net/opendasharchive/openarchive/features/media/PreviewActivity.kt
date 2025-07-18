@@ -21,6 +21,7 @@ import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show
 import net.opendasharchive.openarchive.util.extensions.toggle
@@ -68,6 +69,11 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
         super.onCreate(savedInstanceState)
 
         mBinding = ActivityPreviewBinding.inflate(layoutInflater)
+
+        mBinding.btAddMoreLayout.applyEdgeToEdgeInsets { insets ->
+            bottomMargin = insets.bottom
+        }
+
         setContentView(mBinding.root)
 
         permissionManager = PermissionManager(this, dialogManager)

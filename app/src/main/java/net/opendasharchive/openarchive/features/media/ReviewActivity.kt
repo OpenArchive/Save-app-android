@@ -21,6 +21,7 @@ import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.fragments.VideoRequestHandler
 import net.opendasharchive.openarchive.util.Prefs
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show
 import net.opendasharchive.openarchive.util.extensions.toggle
@@ -65,6 +66,10 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
 
         mBinding = ActivityReviewBinding.inflate(layoutInflater)
+
+        mBinding.descriptionContainer.applyEdgeToEdgeInsets { insets ->
+            bottomMargin = insets.bottom
+        }
         setContentView(mBinding.root)
 
         mBatchMode = intent.getBooleanExtra(EXTRA_BATCH_MODE, false)
