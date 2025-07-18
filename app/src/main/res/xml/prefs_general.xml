@@ -95,43 +95,17 @@
         android:title="Encrypt">
 
         <SwitchPreferenceCompat
-            android:defaultValue="false"
-            app:defaultValue="false"
-            android:icon="@null"
+            android:enabled="false"
             android:iconSpaceReserved="false"
+            android:key="@string/pref_key_use_tor"
             android:layout="@layout/custom_preference_switch"
             android:singleLineTitle="false"
+            android:summary="@string/prefs_use_tor_summary"
+            android:title="@string/prefs_use_tor_title"
             android:widgetLayout="@layout/custom_preference_widget_switch"
-            app:allowDividerAbove="false"
-            app:allowDividerBelow="false"
-            app:icon="@null"
-            app:iconSpaceReserved="false"
-            app:key="@string/pref_key_use_tor"
-            app:summary="@string/prefs_use_tor_summary"
-            app:title="@string/prefs_use_tor_title" />
-
-        <EditTextPreference
-            android:inputType="none"
-            android:textIsSelectable="false"
-            app:allowDividerAbove="false"
-            app:allowDividerBelow="false"
-            app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false"
-            app:key="tor_status"
-            app:selectable="false"
-            app:singleLineTitle="false"
-            app:summary="@string/unavailable"
-            app:title="@string/prefs_tor_status" />
-
-        <net.opendasharchive.openarchive.features.settings.OpenOrbotPreference
-            android:layout="@layout/prefs_open_orbot"
-            app:allowDividerAbove="false"
-            app:allowDividerBelow="true"
-            app:iconSpaceReserved="false"
-            app:isPreferenceVisible="false"
-            app:key="open_orbot"
-            app:singleLineTitle="false" />
-
+            app:defaultValue="false"
+            app:enabled="true"
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
 

@@ -8,22 +8,20 @@ import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.services.Conduit
 import net.opendasharchive.openarchive.services.SaveClient
 import okhttp3.HttpUrl
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import java.io.IOException
+import java.util.*
 
 
-class WebDavConduit(media: Media, context: Context) : Conduit(media, context), KoinComponent {
+class WebDavConduit(media: Media, context: Context) : Conduit(media, context) {
 
-    private val client: SaveClient by inject()
-
-    private val space = mMedia.space!!
-
-    private var webdav = client.webdav(space)
+    private lateinit var mClient: OkHttpSardine
 
     override suspend fun upload(): Boolean {
+        val space = mMedia.space ?: return false
         val base = space.hostUrl ?: return false
         val path = getPath() ?: return false
+
+        mClient = SaveClient.getSardine(mContext, space)
 
         sanitize()
 
@@ -32,7 +30,7 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context), K
         try {
             createFolders(base, path)
 
-            webdav.uploadMetadata(base, path, fileName)
+            uploadMetadata(base, path, fileName)
         }
         catch (e: Throwable) {
             jobFailed(e)
@@ -46,14 +44,14 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context), K
 
         AppLogger.i("Begin media file upload...")
         if (mMedia.contentLength > CHUNK_FILESIZE_THRESHOLD) {
-            return webdav.uploadChunked(base, path, fileName)
+            return uploadChunked(base, path, fileName)
         }
 
         val fullPath = construct(base, path, fileName)
         AppLogger.i("Uploading started for single file upload...", "filePath: $fullPath")
 
         try {
-            webdav.put(mContext.contentResolver,
+            mClient.put(mContext.contentResolver,
                 fullPath,
                 mMedia.fileUri,
                 mMedia.contentLength,
@@ -89,17 +87,16 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context), K
     }
 
     override suspend fun createFolder(url: String) {
-        if (!webdav.exists(url)) {
-            webdav.createDirectory(url)
+        if (!mClient.exists(url)) {
+            mClient.createDirectory(url)
         } else {
             AppLogger.i("folder already exists: ", url)
         }
     }
 
     @Throws(IOException::class)
-    private suspend fun OkHttpSardine.uploadChunked(base: HttpUrl, path: List<String>, fileName: String): Boolean {
+    private suspend fun uploadChunked(base: HttpUrl, path: List<String>, fileName: String): Boolean {
         AppLogger.i("Uploading started as chunked upload...")
-
         val space = mMedia.space ?: return false
         val url = space.hostUrl ?: return false
 
@@ -138,17 +135,17 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context), K
                     val total = offset + length
 
                     val chunkPath = construct(tmpBase, tmpPath, "$offset-$total")
-                    val chunkExists = exists(chunkPath)
+                    val chunkExists = mClient.exists(chunkPath)
                     var chunkLengthMatches = false
 
                     if (chunkExists) {
-                        val dirList = list(chunkPath)
+                        val dirList = mClient.list(chunkPath)
                         chunkLengthMatches =
                             !dirList.isNullOrEmpty() && dirList.first().contentLength == length.toLong()
                     }
 
                     if (!chunkExists || !chunkLengthMatches) {
-                        put(
+                        mClient.put(
                             chunkPath,
                             buffer,
                             mMedia.mimeType,
@@ -173,7 +170,7 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context), K
             val dest = mutableListOf("files", space.username)
             dest.addAll(path)
 
-            move(construct(tmpBase, tmpPath, ".file"), construct(tmpBase, dest, fileName))
+            mClient.move(construct(tmpBase, tmpPath, ".file"), construct(tmpBase, dest, fileName))
 
             mMedia.serverUrl = construct(base, path, fileName)
 
@@ -188,13 +185,13 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context), K
         }
     }
 
-    private fun OkHttpSardine.uploadMetadata(base: HttpUrl, path: List<String>, fileName: String) {
+    private fun uploadMetadata(base: HttpUrl, path: List<String>, fileName: String) {
         AppLogger.i("Uploading metadata....")
         val metadata = getMetadata()
 
         if (mCancelled) throw Exception("Cancelled")
 
-        put(
+        mClient.put(
             construct(base, path, "$fileName.meta.json"),
             metadata.toByteArray(),
             "text/plain",
@@ -205,7 +202,7 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context), K
         for (file in getProof()) {
             if (mCancelled) throw Exception("Cancelled")
 
-            put(
+            mClient.put(
                 construct(base, path, file.name), file, "text/plain",
                 false, null)
         }

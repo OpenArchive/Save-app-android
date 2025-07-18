@@ -22,6 +22,7 @@ import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeManager
 import net.opendasharchive.openarchive.util.Analytics
 import net.opendasharchive.openarchive.util.Prefs
+import net.opendasharchive.openarchive.util.Theme
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -68,7 +69,7 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory {
         Prefs.load(this)
         applyTheme()
 
-        initNetCipher()
+        if (Prefs.useTor) initNetCipher()
 
         CleanInsightsManager.init(this)
 
@@ -77,17 +78,13 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory {
 
     private fun initNetCipher() {
         AppLogger.d("Initializing NetCipher client")
+        val oh = OrbotHelper.get(this)
 
-        OrbotHelper.get(this).apply {
-            if (BuildConfig.DEBUG) {
-                skipOrbotValidation()
-            }
-            init()
+        if (BuildConfig.DEBUG) {
+            oh.skipOrbotValidation()
         }
 
-        if (Prefs.useTor) {
-            OrbotHelper.requestStartTor(this@SaveApp)
-        }
+//        oh.init()
     }
 
     private fun createSnowbirdNotificationChannel() {

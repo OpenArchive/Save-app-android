@@ -20,7 +20,7 @@ import com.google.api.services.drive.model.File
 import info.guardianproject.netcipher.proxy.OrbotHelper
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.features.folders.BrowseFoldersViewModel.Folder
+import net.opendasharchive.openarchive.features.folders.Folder
 import net.opendasharchive.openarchive.services.Conduit
 import net.opendasharchive.openarchive.util.Prefs
 import org.apache.http.conn.ClientConnectionManager

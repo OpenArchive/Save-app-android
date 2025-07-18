@@ -45,10 +45,8 @@ import net.opendasharchive.openarchive.util.extensions.makeSnackBar
 import net.opendasharchive.openarchive.util.extensions.show
 import okhttp3.Call
 import okhttp3.Callback
-import okhttp3.Credentials
 import okhttp3.Request
 import okhttp3.Response
-import org.koin.java.KoinJavaComponent.inject
 import java.io.IOException
 import kotlin.coroutines.suspendCoroutine
 
@@ -61,8 +59,6 @@ class WebDavFragment : BaseFragment() {
 
     private var originalName: String? = null
     private var isNameChanged = false
-
-    private val client: SaveClient by inject(SaveClient::class.java)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -433,9 +429,10 @@ class WebDavFragment : BaseFragment() {
     private suspend fun testConnection() {
         val url = mSpace.hostUrl ?: throw IOException("400 Bad Request")
 
+        val client = SaveClient.get(requireContext(), mSpace.username, mSpace.password)
+
         val request =
             Request.Builder().url(url).method("GET", null).addHeader("OCS-APIRequest", "true")
-                .addHeader("Authorization", Credentials.basic(mSpace.username, mSpace.password))
                 .addHeader("Accept", "application/json").build()
 
         return suspendCoroutine {

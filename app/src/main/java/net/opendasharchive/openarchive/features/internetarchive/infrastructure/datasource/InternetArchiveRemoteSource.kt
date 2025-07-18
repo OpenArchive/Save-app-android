@@ -1,5 +1,7 @@
 package net.opendasharchive.openarchive.features.internetarchive.infrastructure.datasource
 
+import android.content.Context
+import net.opendasharchive.openarchive.core.infrastructure.client.enqueueResult
 import net.opendasharchive.openarchive.features.internetarchive.InternetArchiveGson
 import net.opendasharchive.openarchive.features.internetarchive.domain.model.InternetArchive
 import net.opendasharchive.openarchive.features.internetarchive.infrastructure.model.InternetArchiveLoginRequest
@@ -12,11 +14,11 @@ import okhttp3.Request
 private const val LOGIN_URI = "https://archive.org/services/xauthn?op=login"
 
 class InternetArchiveRemoteSource(
-    private val client: SaveClient,
+    private val context: Context,
     private val gson: InternetArchiveGson
 ) {
     suspend fun login(request: InternetArchiveLoginRequest): Result<InternetArchiveLoginResponse> =
-        client.enqueue(
+        SaveClient.get(context).enqueueResult(
             Request.Builder()
                 .url(LOGIN_URI)
                 .post(
@@ -25,21 +27,22 @@ class InternetArchiveRemoteSource(
                         .add("password", request.password).build()
                 )
                 .build()
-        ).map { response ->
-            gson.fromJson(
+        ) { response ->
+            val data = gson.fromJson(
                 response.body?.string(),
                 InternetArchiveLoginResponse::class.java
             )
+            Result.success(data)
         }
 
     suspend fun testConnection(auth: InternetArchive.Auth): Result<Boolean> =
-        client.enqueue(
+        SaveClient.get(context).enqueueResult(
             Request.Builder()
                 .url(ARCHIVE_API_ENDPOINT)
                 .method("GET", null)
                 .addHeader("Authorization", "LOW ${auth.access}:${auth.secret}")
                 .build()
-        ).map { response ->
-            response.isSuccessful
+        ) { response ->
+            Result.success(response.isSuccessful)
         }
 }

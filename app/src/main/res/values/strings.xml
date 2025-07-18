@@ -60,9 +60,6 @@
     <string name="disable_passcode_dialog_title">Disable Passcode</string>
     <string name="disable_passcode_dialog_msg">Are you sure you want to disable the passcode?</string>
 
-    <string name="tor_disabled_title">Onion routing under development</string>
-    <string name="tor_disabled_message">This feature is currently under development. For now, you can use Orbot or any VPN of your choice to enhance your privacy and security.</string>
-
     <!-- ViewMediaActivity -->
     <string name="iv_content_desc">Main Image</string>
 
@@ -402,14 +399,6 @@
     <string name="label_create_login">Create one</string>
     <string name="prompt_no_account">No account?</string>
     <string name="action_continue">Continue</string>
-    <string name="prefs_use_tor_enabled">Tor is enabled and Orbot is connected.</string>
-    <string name="prefs_use_tor_ready">Tor is not enabled but Orbot is connected.</string>
-    <string name="prefs_use_tor_starting">Tor is enabled and Orbot is starting…</string>
-    <string name="prefs_use_tor_not_starting">Tor is not enabled but Orbot is starting…</string>
-    <string name="prefs_use_tor_disabled">Tor is enabled but Orbot is disconnected.</string>
-    <string name="prefs_use_tor_not_ready">Tor is not enabled and Orbot is disconnected.</string>
-    <string name="prefs_tor_status">Tor Status:</string>
-    <string name="open_orbot">Open Orbot</string>
 
     <!-- DWeb Strings -->
     <string name="dweb_create_group_screen_title">Name your group and pick a user name</string>
@@ -475,5 +464,4 @@
     <string name="lbl_no_servers">No servers added yet.</string>
     <string name="lbl_no_archived_folders">No archived folders found.</string>
     <string name="error_no_internet">Internet not available</string>
-    <string name="unavailable">unavailable</string>
 </resources>

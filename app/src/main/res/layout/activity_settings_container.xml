@@ -7,7 +7,8 @@
     android:layout_height="match_parent"
     android:filterTouchesWhenObscured="true"
     android:gravity="center_horizontal"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".features.settings.GeneralSettingsActivity">
 
     <include
         android:id="@+id/common_app_bar"

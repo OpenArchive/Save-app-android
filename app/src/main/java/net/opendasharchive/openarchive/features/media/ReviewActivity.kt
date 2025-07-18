@@ -2,7 +2,6 @@ package net.opendasharchive.openarchive.features.media
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -26,7 +25,6 @@ import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show
 import net.opendasharchive.openarchive.util.extensions.toggle
 import java.text.NumberFormat
-import kotlin.arrayOf
 import kotlin.math.max
 import kotlin.math.min
 
@@ -61,12 +59,6 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
 
     private val mMedia
         get() = mStore.getOrNull(mIndex)
-
-    private val mPicasso by lazy {
-        Picasso.Builder(this)
-            .addRequestHandler(VideoRequestHandler(this))
-            .build()
-    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -331,7 +323,9 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
                 .into(imageView)
         }
         else if (media?.mimeType?.startsWith("video") == true) {
-            mPicasso
+            Picasso.Builder(this)
+                .addRequestHandler(VideoRequestHandler(this))
+                .build()
                 .load(VideoRequestHandler.SCHEME_VIDEO + ":" + media.originalFilePath)
                 ?.fit()
                 ?.centerCrop()

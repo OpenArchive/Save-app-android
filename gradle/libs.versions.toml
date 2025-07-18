@@ -198,6 +198,7 @@ satyan-sugar = { group = "com.github.satyan", name = "sugar", version.ref = "sat
 audio-waveform = { group = "com.github.derlio", name = "audio-waveform", version.ref = "audio-waveform" }
 
 clean-insights = { group = "org.cleaninsights.sdk", name = "clean-insights-sdk", version.ref = "clean-insights" }
+netcipher = { group = "info.guardianproject.netcipher", name = "netcipher", version.ref = "netcipher" }
 
 mixpanel = { group = "com.mixpanel.android", name = "mixpanel-android", version.ref = "mixpanel" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebase-crashlytics" }
