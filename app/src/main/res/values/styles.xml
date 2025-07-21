@@ -87,7 +87,6 @@
     </style>
 
     <style name="SaveApp.Preference.Information" parent="@style/Preference.Information">
-        <item name="textSize">11sp</item>
         <item name="android:textSize">11sp</item>
     </style>
 

@@ -21,7 +21,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <uses-feature android:name="android.hardware.camera.any" android:required="true" />
 
     <queries>
         <package android:name="org.torproject.android" />
@@ -31,6 +30,10 @@
             <action android:name="android.intent.action.OPEN_DOCUMENT" />
             <category android:name="android.intent.category.OPENABLE" />
             <data android:mimeType="application/*" />
+        </intent>
+
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
         </intent>
     </queries>
 

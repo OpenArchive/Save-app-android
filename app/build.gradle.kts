@@ -225,8 +225,8 @@ dependencies {
 
     // Utility Libraries
     implementation(libs.timber)
-    implementation(libs.orhanobut.logger)
-    implementation(libs.abdularis.circularimageview)
+    //implementation(libs.orhanobut.logger)
+    //implementation(libs.abdularis.circularimageview)
     implementation(libs.dotsindicator)
     implementation(libs.permissionx)
 
@@ -258,7 +258,7 @@ dependencies {
     implementation(libs.jtorctl)
 
     implementation(libs.bitcoinj.core)
-    implementation("com.eclipsesource.j2v8:j2v8:6.2.1@aar")
+    //implementation("com.eclipsesource.j2v8:j2v8:6.2.1@aar")
 
     // ProofMode //from here: https://github.com/guardianproject/proofmode
     implementation(libs.proofmode) {

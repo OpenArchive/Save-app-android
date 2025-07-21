@@ -18,27 +18,25 @@ detekt-compose = "0.4.23"
 detekt-rules-compose = "1.4.0"
 espresso-core = "3.5.1"
 fragment = "1.8.8"
-glide = "4.16.0"
 google-api-client-android = "1.26.0"
 google-http-client-gson = "1.42.3"
 gson = "2.13.1"
 junit = "4.13.2"
+junit-android = "1.2.1"
+androidx-test-runner = "1.6.2"
 koin = "4.1.0"
 kotlin = "2.2.0"
 ksp = "2.2.0-2.0.2"
 lifecycle = "2.9.2"
-orhanobut-logger = "2.2.0"
 material = "1.12.0"
 material3 = "1.4.0-alpha18"
 mixpanel = "8.2.0"
 navigation = "2.9.2"
 okhttp = "5.1.0"
-picasso = "2.71828"
 preference = "1.2.1"
 recyclerview = "1.4.0"
 recyclerview-selection = "1.2.0"
 androidx-security-crypto = "1.1.0-beta01"
-robolectric-version = "4.14.1"
 swiperefreshlayout = "1.1.0"
 retrofit = "3.0.0"
 robolectric = "4.15.1"
@@ -52,7 +50,6 @@ bitcoinj-core = "0.16.2"
 bouncycastle-bcpkix = "1.72"
 bouncycastle-bcprov = "1.72"
 bouncycastle-bcpg = "1.71"
-circularimageview = "1.4"
 clean-insights = "2.8.0"
 dotsindicator = "5.1.0"
 
@@ -143,9 +140,6 @@ coil = { group = "io.coil-kt.coil3", name = "coil", version.ref = "coil" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version .ref= "coil" }
 coil-video = { group = "io.coil-kt.coil3", name = "coil-video", version.ref = "coil" }
 coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
-glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
-glide-compiler = { group = "com.github.bumptech.glide", name = "compiler", version.ref = "glide" }
-picasso = { group = "com.squareup.picasso", name = "picasso", version.ref = "picasso" }
 
 # Utilities
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
@@ -154,13 +148,12 @@ gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 
 # Logging
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
-orhanobut-logger = { module = "com.orhanobut:logger", version.ref = "orhanobut-logger" }
 
 # Test
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
-androidx-test-junit = { group = "androidx.test.ext", name = "junit", version = "1.2.1" }
-androidx-test-runner = { group = "androidx.test", name = "runner", version = "1.6.2" }
+androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit-android" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidx-test-runner" }
 work-testing = { group = "androidx.work", name = "work-testing", version.ref = "work" }
 
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
@@ -169,8 +162,6 @@ detekt-rules-authors = { group = "io.gitlab.arturbosch.detekt", name = "detekt-r
 detekt-compose = { group = "io.nlopez.compose.rules", name = "detekt", version.ref = "detekt-compose" }
 detekt-rules-compose = { module = "ru.kode:detekt-rules-compose", version.ref = "detekt-rules-compose" }
 
-
-abdularis-circularimageview = { group = "com.github.abdularis", name = "circularimageview", version.ref = "circularimageview" }
 dotsindicator = { group = "com.tbuonomo", name = "dotsindicator", version.ref = "dotsindicator" }
 permissionx = { group = "com.guolindev.permissionx", name = "permissionx", version.ref = "permissionx" }
 

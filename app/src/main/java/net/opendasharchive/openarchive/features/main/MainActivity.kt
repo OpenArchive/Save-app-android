@@ -841,7 +841,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                     when (mediaType) {
                         AddMediaType.CAMERA -> {
                             //permissionManager.checkCameraPermission {
-                                Picker.takePhoto(this@MainActivity, mediaLaunchers.cameraLauncher)
+                                //Picker.takePhoto(this@MainActivity, mediaLaunchers.cameraLauncher)
+                                Picker.takePhotoModern(this@MainActivity, mediaLaunchers.modernCameraLauncher)
                             //}
                         }
 

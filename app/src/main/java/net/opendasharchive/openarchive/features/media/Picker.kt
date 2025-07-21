@@ -43,7 +43,7 @@ object Picker {
         completed: (List<Media>) -> Unit
     ): MediaLaunchers {
 
-        // Official Gallery Picker (Replaces custom image picker)
+        // Official Gallery Picker
         val galleryLauncher = activity.registerForActivityResult(
             ActivityResultContracts.PickMultipleVisualMedia(10) // Supports multiple selection
         ) { uris: List<Uri>? ->
@@ -59,7 +59,7 @@ object Picker {
             }
         }
 
-        val fpl = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val filePickerLauncher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode != AppCompatActivity.RESULT_OK) return@registerForActivityResult
 
             val uri = result.data?.data ?: return@registerForActivityResult
@@ -77,7 +77,7 @@ object Picker {
             }
         }
 
-        val cpl = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val legacyCameraLauncher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == AppCompatActivity.RESULT_OK) {
                 currentPhotoUri?.let { uri ->
 
@@ -97,10 +97,43 @@ object Picker {
             }
         }
 
+        // Modern camera launcher using TakePicture contract
+        val modernCameraLauncher = activity.registerForActivityResult(
+            ActivityResultContracts.TakePicture()
+        ) { success ->
+            if (success && currentPhotoUri != null) {
+                val capturedImageUri: Uri = currentPhotoUri!!
+                val snackbar = showProgressSnackBar(activity, root, activity.getString(R.string.importing_media))
+
+                activity.lifecycleScope.launch(Dispatchers.IO) {
+                    try {
+                        // Import the captured photo with proof generation enabled
+                        val media = import(activity, project(), listOf(capturedImageUri), true)
+
+                        activity.lifecycleScope.launch(Dispatchers.Main) {
+                            snackbar.dismiss()
+                            completed(media)
+                        }
+                    } catch (e: Exception) {
+                        AppLogger.e("Error processing camera capture", e)
+                        activity.lifecycleScope.launch(Dispatchers.Main) {
+                            snackbar.dismiss()
+                            Toast.makeText(activity, "Failed to process photo", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            } else {
+                // Camera capture failed or was cancelled
+                AppLogger.w("Camera capture failed or cancelled")
+                currentPhotoUri = null
+            }
+        }
+
         return MediaLaunchers(
-            galleryLauncher = galleryLauncher, // Updated
-            filePickerLauncher = fpl,
-            cameraLauncher = cpl
+            galleryLauncher = galleryLauncher,
+            filePickerLauncher = filePickerLauncher,
+            cameraLauncher = legacyCameraLauncher,
+            modernCameraLauncher = modernCameraLauncher
         )
     }
 
@@ -122,73 +155,39 @@ object Picker {
         type = "application/*"
     }
 
-    private fun import(context: Context, project: Project?, uris: List<Uri>, generateProof: Boolean): ArrayList<Media> {
-        val result = ArrayList<Media>()
+    /**
+     * Modern camera photo capture using TakePicture contract.
+     * This is the recommended approach for new implementations.
+     */
+    fun takePhotoModern(activity: Activity, launcher: ActivityResultLauncher<Uri>) {
+        try {
+            val file = Utility.getOutputMediaFileByCache(activity, "IMG_${System.currentTimeMillis()}.jpg")
 
-        for (uri in uris) {
-            try {
-                //Simply pass the generate proof boolean for single file import which is looped here
-                val media = import(context, project, uri, generateProof)
-                if (media != null) result.add(media)
-            } catch (e: Exception) {
-                AppLogger.e( "Error importing media", e)
+            file?.let {
+                val uri = FileProvider.getUriForFile(
+                    activity,
+                    "${activity.packageName}.provider",
+                    it
+                )
+
+                currentPhotoUri = uri
+                AppLogger.d("Taking photo with modern launcher, URI: $uri")
+                launcher.launch(uri)
+            } ?: run {
+                AppLogger.e("Failed to create temp file for camera")
+                Toast.makeText(activity, "Failed to prepare camera", Toast.LENGTH_SHORT).show()
             }
+        } catch (e: Exception) {
+            AppLogger.e("Error setting up camera", e)
+            Toast.makeText(activity, "Camera setup failed", Toast.LENGTH_SHORT).show()
         }
-
-        return result
     }
 
-    fun import(context: Context, project: Project?, uri: Uri, generateProof: Boolean): Media? {
-        @Suppress("NAME_SHADOWING")
-        val project = project ?: return null
-
-        val title = Utility.getUriDisplayName(context, uri) ?: ""
-        val file = Utility.getOutputMediaFileByCache(context, title)
-
-        if (!Utility.writeStreamToFile(context.contentResolver.openInputStream(uri), file)) {
-            return null
-        }
-
-        // create media
-        val media = Media()
-
-        val coll = project.openCollection
-
-        media.collectionId = coll.id
-
-        val fileSource = uri.path?.let { File(it) }
-        var createDate = Date()
-
-        if (fileSource?.exists() == true) {
-            createDate = Date(fileSource.lastModified())
-            media.contentLength = fileSource.length()
-        }
-        else {
-            media.contentLength = file?.length() ?: 0
-        }
-
-        media.originalFilePath = Uri.fromFile(file).toString()
-        media.mimeType = Utility.getMimeType(context, uri) ?: ""
-        media.createDate = createDate
-        media.updateDate = media.createDate
-        media.sStatus = Media.Status.Local
-        //We generate hash regardless if proof is on or off because we don't want unexpected behaviour when we are looking for proof files when uploaded later.
-        media.mediaHashString = HashUtils.getSHA256FromFileContent(context.contentResolver.openInputStream(uri))
-        media.projectId = project.id
-        media.title = title
-        media.save()
-        if (generateProof && Prefs.useProofMode) {
-            //If Proof mode is on we need this to be on always
-            Prefs.proofModeLocation = true
-            Prefs.proofModeNetwork = true
-            //Generate proof for camera photos and also always track location
-            ProofMode.generateProof(context, uri, media.mediaHashString)
-        } else {
-            Timber.w("Skipping proof generation")
-        }
-        return media
-    }
-
+    /**
+     * Legacy camera photo capture (kept for backward compatibility).
+     * Use takePhotoModern() for new implementations.
+     */
+    @Deprecated("Use takePhotoModern() instead")
     fun takePhoto(activity: Activity, launcher: ActivityResultLauncher<Intent>) {
         val file = Utility.getOutputMediaFileByCache(activity, "IMG_${System.currentTimeMillis()}.jpg")
 
@@ -212,6 +211,102 @@ object Picker {
             }
         }
     }
+
+    private fun import(context: Context, project: Project?, uris: List<Uri>, generateProof: Boolean): ArrayList<Media> {
+        val result = ArrayList<Media>()
+
+        for (uri in uris) {
+            try {
+                //Simply pass the generate proof boolean for single file import which is looped here
+                val media = import(context, project, uri, generateProof)
+                if (media != null) result.add(media)
+            } catch (e: Exception) {
+                AppLogger.e( "Error importing media", e)
+            }
+        }
+
+        return result
+    }
+
+    fun import(context: Context, project: Project?, uri: Uri, generateProof: Boolean): Media? {
+
+        val project = project ?: return null
+
+        val title = Utility.getUriDisplayName(context, uri) ?: ""
+        val file = Utility.getOutputMediaFileByCache(context, title)
+
+        if (!Utility.writeStreamToFile(context.contentResolver.openInputStream(uri), file)) {
+            AppLogger.e("Failed to write stream to file for URI: $uri")
+            return null
+        }
+
+        // Create media object
+        val media = Media()
+        val coll = project.openCollection
+        media.collectionId = coll.id
+
+        val fileSource = uri.path?.let { File(it) }
+        var createDate = Date()
+
+        if (fileSource?.exists() == true) {
+            createDate = Date(fileSource.lastModified())
+            media.contentLength = fileSource.length()
+        }
+        else {
+            media.contentLength = file?.length() ?: 0
+        }
+
+        media.originalFilePath = Uri.fromFile(file).toString()
+        media.mimeType = Utility.getMimeType(context, uri) ?: ""
+        media.createDate = createDate
+        media.updateDate = media.createDate
+        media.sStatus = Media.Status.Local
+
+        //We generate hash regardless if proof is on or off because we don't want unexpected behaviour when we are looking for proof files when uploaded later.
+        // Generate hash regardless of proof mode setting for consistency
+        try {
+            media.mediaHashString = HashUtils.getSHA256FromFileContent(
+                context.contentResolver.openInputStream(uri)
+            )
+        } catch (e: Exception) {
+            AppLogger.e("Failed to generate hash for media", e)
+            media.mediaHashString = ""
+        }
+
+        media.projectId = project.id
+        media.title = title
+        media.save()
+
+        // Generate ProofMode data if enabled
+        if (generateProof && Prefs.useProofMode) {
+
+            try {
+                //If Proof mode is on we need this to be on always
+                // Ensure location and network tracking are enabled for camera captures
+                // Only enabled for camera captures (generateProof = true)
+                Prefs.proofModeLocation = true
+                Prefs.proofModeNetwork = true
+
+                AppLogger.d("Generating ProofMode data for URI: $uri, Hash: ${media.mediaHashString}")
+
+                // Generate proof using the ProofMode library
+                ProofMode.generateProof(context, uri, media.mediaHashString)
+
+                AppLogger.i("ProofMode generation completed for media: ${media.title}")
+            } catch (e: Exception) {
+                AppLogger.e("Failed to generate ProofMode data", e)
+                Timber.w("ProofMode generation failed: ${e.message}")
+            }
+        } else {
+            if (generateProof) {
+                AppLogger.w("ProofMode generation requested but useProofMode is disabled")
+            }
+            Timber.w("Skipping proof generation - generateProof: $generateProof, useProofMode: ${Prefs.useProofMode}")
+        }
+        return media
+    }
+
+
 
     @SuppressLint("RestrictedApi")
     private fun showProgressSnackBar(activity: Activity, root: View, message: String): Snackbar {
