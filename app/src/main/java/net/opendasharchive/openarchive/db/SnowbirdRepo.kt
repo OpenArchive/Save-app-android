@@ -21,6 +21,8 @@ data class FetchRepoResponse(
 data class CreateRepoResponse(
     val key: String,
     val name: String,
+    @SerialName("can_write")
+    val canWrite: Boolean? = null,
     @SerialName("created_at")
     val createdAt: String? = null,
 ) : SerializableMarker
@@ -39,7 +41,7 @@ fun CreateRepoResponse.toRepo(groupKey: String): SnowbirdRepo {
         key = key,
         name = name,
         groupKey = groupKey,
-        permissions = "READ_WRITE",
+        permissions = if (canWrite == true) "READ_WRITE" else "READ_ONLY",
         createdAt = createdAt
     )
 }

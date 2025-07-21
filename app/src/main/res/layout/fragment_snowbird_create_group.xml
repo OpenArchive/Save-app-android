@@ -92,6 +92,37 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/repo_name_textfield_container" />
 
+        <TextView
+            android:visibility="gone"
+            android:focusable="false"
+            android:id="@+id/files_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="App Files Directory:"
+            android:textFontWeight="600"
+            android:textSize="12sp"
+            android:layout_marginTop="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/summary" />
+
+        <ListView
+            android:visibility="gone"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:descendantFocusability="blocksDescendants"
+            android:clickable="false"
+            android:id="@+id/files_list"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:layout_marginTop="8dp"
+            android:background="@android:color/white"
+            android:divider="@android:color/darker_gray"
+            android:dividerHeight="1dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/files_label" />
+
         <LinearLayout
             android:id="@+id/button_bar"
             android:layout_width="match_parent"

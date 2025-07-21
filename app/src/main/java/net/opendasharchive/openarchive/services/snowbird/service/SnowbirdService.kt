@@ -212,7 +212,7 @@ class SnowbirdService : Service() {
 
     private fun startServer(baseDirectory: String, socketPath: String) {
         serverJob = serviceScope.launch {
-            Timber.d("Starting Raven Service")
+            Timber.d("Starting Raven Service @$socketPath")
             val result = SnowbirdBridge.getInstance()
                 .startServer(applicationContext, baseDirectory, socketPath)
             Timber.d("Raven Service: $result")

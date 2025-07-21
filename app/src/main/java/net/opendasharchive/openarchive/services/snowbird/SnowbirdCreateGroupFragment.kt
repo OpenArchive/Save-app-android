@@ -6,12 +6,14 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.BuildConfig
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdCreateGroupBinding
@@ -20,6 +22,7 @@ import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.db.SnowbirdRepo
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.util.FullScreenOverlayCreateGroupManager
+import java.io.File
 
 class SnowbirdCreateGroupFragment : BaseFragment() {
 
@@ -43,8 +46,15 @@ class SnowbirdCreateGroupFragment : BaseFragment() {
             dismissKeyboard(it)
         }
 
+        binding.btnCancel.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
         initializeViewModelObservers()
         setupTextWatchers()
+        if (BuildConfig.DEBUG) {
+            setupFilesList()
+        }
     }
 
     private fun initializeViewModelObservers() {
@@ -177,6 +187,66 @@ class SnowbirdCreateGroupFragment : BaseFragment() {
 
     private fun dismissCredentialsError() {
         //binding.errorHint.hide()
+    }
+
+    private fun setupFilesList() {
+        try {
+            val filesDir = requireContext().filesDir
+            val files = filesDir.listFiles()
+            
+            val fileInfoList = mutableListOf<String>()
+            
+            if (files != null) {
+                // Add socket file specifically if it exists
+                val socketFile = File(filesDir, "rust_server.sock")
+                if (socketFile.exists()) {
+                    fileInfoList.add("🔗 rust_server.sock (${formatFileSize(socketFile.length())})")
+                }
+                
+                // Add other files
+                files.filter { it.name != "rust_server.sock" }.forEach { file ->
+                    val icon = if (file.isDirectory()) "📁" else "📄"
+                    val size = if (file.isDirectory()) "" else " (${formatFileSize(file.length())})"
+                    fileInfoList.add("$icon ${file.name}$size")
+                }
+                
+                if (fileInfoList.isEmpty()) {
+                    fileInfoList.add("(No files found)")
+                }
+            } else {
+                fileInfoList.add("(Unable to access files directory)")
+            }
+            
+            // Update the label to show directory path
+            binding.filesLabel.text = "App Files Directory (${filesDir.absolutePath}):"
+            binding.filesList.visibility = View.VISIBLE
+            val adapter = ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_list_item_1,
+                fileInfoList
+            )
+            binding.filesList.adapter = adapter
+            binding.filesList.visibility = View.VISIBLE
+            
+        } catch (e: Exception) {
+            AppLogger.e("Error listing app files", e)
+            val errorList = listOf("Error loading files: ${e.message}")
+            val adapter = ArrayAdapter(
+                requireContext(),
+                android.R.layout.simple_list_item_1,
+                errorList
+            )
+            binding.filesList.adapter = adapter
+            binding.filesList.visibility = View.VISIBLE
+        }
+    }
+    
+    private fun formatFileSize(bytes: Long): String {
+        return when {
+            bytes >= 1024 * 1024 -> "${bytes / (1024 * 1024)} MB"
+            bytes >= 1024 -> "${bytes / 1024} KB"
+            else -> "$bytes bytes"
+        }
     }
 
     override fun getToolbarTitle(): String {

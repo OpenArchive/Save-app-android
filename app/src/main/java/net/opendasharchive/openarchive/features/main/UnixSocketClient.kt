@@ -34,8 +34,52 @@ enum class HttpMethod(val value: String) {
 //}
 
 class UnixSocketClient(context: Context) {
+    private val context = context
     val socketPath: String = File(context.filesDir, "rust_server.sock").absolutePath
     val json = Json { ignoreUnknownKeys = true }
+
+    init {
+        // Log the socket path for debugging
+        Timber.d("Unix socket path: $socketPath")
+        logFileDirectoryStatus()
+    }
+
+    private fun logFileDirectoryStatus() {
+        try {
+            val filesDir = context.filesDir
+            Timber.d("App files directory: ${filesDir.absolutePath}")
+            Timber.d("Files directory exists: ${filesDir.exists()}")
+            Timber.d("Files directory readable: ${filesDir.canRead()}")
+            Timber.d("Files directory writable: ${filesDir.canWrite()}")
+            
+            val socketFile = File(socketPath)
+            Timber.d("Socket file exists: ${socketFile.exists()}")
+            if (socketFile.exists()) {
+                Timber.d("Socket file readable: ${socketFile.canRead()}")
+                Timber.d("Socket file writable: ${socketFile.canWrite()}")
+                Timber.d("Socket file size: ${socketFile.length()} bytes")
+                Timber.d("Socket file last modified: ${socketFile.lastModified()}")
+            }
+            
+            // List all files in the directory for debugging
+            val files = filesDir.listFiles()
+            if (files != null) {
+                Timber.d("Files in app directory (${files.size} total):")
+                files.forEach { file ->
+                    Timber.d("  - ${file.name} (${if (file.isDirectory()) "dir" else "file"}, ${file.length()} bytes)")
+                }
+            } else {
+                Timber.w("Unable to list files in directory: ${filesDir.absolutePath}")
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error checking file directory status")
+        }
+    }
+
+    private fun logConnectionDiagnostics() {
+        Timber.w("Connection failed - running diagnostics:")
+        logFileDirectoryStatus()
+    }
 
     suspend inline fun <reified REQUEST : SerializableMarker, reified RESPONSE : SerializableMarker> sendRequest(
         endpoint: String,
@@ -77,13 +121,25 @@ class UnixSocketClient(context: Context) {
                 }
             }
         } catch (e: SocketTimeoutException) {
-            e.printStackTrace()
-            throw e
+            Timber.e(e, "Socket timeout when connecting to Unix socket")
+            logConnectionDiagnostics()
+            throw IOException("Connection timeout to Unix socket at $socketPath. Check if the server is running.")
         } catch (e: IOException) {
-            e.printStackTrace()
-            throw e
+            Timber.e(e, "IO error when connecting to Unix socket")
+            logConnectionDiagnostics()
+            
+            val errorMessage = when {
+                e.message?.contains("Connection refused") == true -> 
+                    "Connection refused to Unix socket at $socketPath. Server may not be running or socket file may not exist."
+                e.message?.contains("No such file") == true -> 
+                    "Socket file not found at $socketPath. Server may not be started yet."
+                else -> 
+                    "Failed to connect to Unix socket at $socketPath: ${e.message}"
+            }
+            throw IOException(errorMessage)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.e(e, "Unexpected error during Unix socket communication")
+            logConnectionDiagnostics()
             throw IOException("Unexpected error during Unix socket communication: ${e.message}")
         }
     }
