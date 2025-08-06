@@ -1,22 +1,18 @@
 package net.opendasharchive.openarchive.services.storacha
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaClientQrBinding
+import net.opendasharchive.openarchive.extensions.asQRCode
 import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.services.storacha.util.DidManager
 
 class StorachaClientQRFragment : BaseFragment() {
     private lateinit var viewBinding: FragmentStorachaClientQrBinding
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,10 +28,22 @@ class StorachaClientQRFragment : BaseFragment() {
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
-        Handler(Looper.getMainLooper()).postDelayed({
-            val action = StorachaClientQRFragmentDirections.actionFragmentStorachaClientQrToFragmentStorachaBrowseSpaces()
-            findNavController().navigate(action)
-        }, 2000)
+
+        // Generate and display DID as QR code
+        val userDid = DidManager(requireContext()).getOrCreateDid()
+        val qrCode = userDid.asQRCode(size = 1024)
+        viewBinding.qrCode.setImageBitmap(qrCode)
+
+        // Display the DID text for easy copying
+        viewBinding.tvDid.text = userDid
+
+        // Set up button click listener to navigate to spaces
+        viewBinding.btnContinue
+            .setOnClickListener {
+                val action =
+                    StorachaClientQRFragmentDirections.actionFragmentStorachaClientQrToFragmentStorachaBrowseSpaces()
+                findNavController().navigate(action)
+            }
     }
 
     override fun getToolbarTitle(): String = getString(R.string.join_space)

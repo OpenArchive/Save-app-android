@@ -18,9 +18,10 @@ import net.opendasharchive.openarchive.services.storacha.model.SpaceUsageRespons
 import net.opendasharchive.openarchive.services.storacha.model.UploadListResponse
 import net.opendasharchive.openarchive.services.storacha.model.UploadResponse
 import net.opendasharchive.openarchive.services.storacha.model.UserDelegationResponse
+import net.opendasharchive.openarchive.services.storacha.model.VerifyRequest
+import net.opendasharchive.openarchive.services.storacha.model.VerifyResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -41,6 +42,11 @@ interface StorachaApiService {
     suspend fun loginWithDid(
         @Body request: DidLoginRequest,
     ): LoginResponse
+
+    @POST("auth/verify")
+    suspend fun verify(
+        @Body request: VerifyRequest,
+    ): VerifyResponse
 
     @GET("auth/session")
     suspend fun validateSession(
@@ -75,12 +81,14 @@ interface StorachaApiService {
 
     @GET("spaces")
     suspend fun listSpaces(
-        @Header("x-user-did") userDid: String,
+        @Header("x-user-did") userDid: String? = null,
+        @Header("x-session-id") sessionId: String? = null,
     ): List<SpaceInfo>
 
     @GET("spaces/usage")
     suspend fun getSpaceUsage(
-        @Header("x-session-id") sessionId: String,
+        @Header("x-session-id") sessionId: String? = null,
+        @Header("x-user-did") userDid: String? = null,
         @Query("spaceDid") spaceDid: String,
     ): SpaceUsageResponse
 

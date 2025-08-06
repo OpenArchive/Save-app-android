@@ -41,10 +41,12 @@
             tools:layout_editor_absoluteY="186dp" />
 
     <TextView
+        android:id="@+id/tv_sign_up_link"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:gravity="center"
         android:text="@string/sign_up_storacha"
+        android:linksClickable="true"
         android:layout_weight="1"/>
 
 </LinearLayout>

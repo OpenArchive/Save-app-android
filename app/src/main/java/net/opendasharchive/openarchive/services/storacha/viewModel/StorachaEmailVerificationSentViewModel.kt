@@ -25,7 +25,7 @@ class StorachaEmailVerificationSentViewModel(
             while (true) {
                 try {
                     val response: SessionValidationResponse = apiService.validateSession(sessionId)
-                    if (response.valid && response.verified) {
+                    if (response.valid && response.verified == 1) {
                         _navigateNext.postValue(Unit)
                         break
                     }

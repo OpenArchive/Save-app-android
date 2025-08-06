@@ -5,5 +5,7 @@ data class LoginResponse(
     val sessionId: String,
     val did: String,
     val verified: Boolean,
+    val challenge: String? = null,
+    val challengeId: String? = null,
     val spaces: List<SpaceInfo>? = null
 )

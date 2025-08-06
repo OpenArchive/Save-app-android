@@ -25,13 +25,31 @@
         android:src="@drawable/qr_code"/>
 
     <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_did"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="10dp"
+        android:textSize="12sp"
+        android:textIsSelectable="true"
+        android:fontFamily="monospace"
+        android:layout_marginTop="10dp" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_instructions"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="top|center"
         android:text="@string/this_is_your_qr_code_to_request_access_please_ask_the_admin_to_scab_your_code_to_gain_access_to_soace"
-        android:padding="20dp"
-        android:textSize="18sp"
-        android:layout_marginTop="20dp" />
+        android:textSize="18sp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_continue"
+        style="@style/OAMaterialSignInButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/action_continue" />
 
 </LinearLayout>

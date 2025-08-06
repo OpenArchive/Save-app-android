@@ -2,25 +2,34 @@ package net.opendasharchive.openarchive.services.storacha.util
 
 import android.content.Context
 import androidx.core.content.edit
-import org.bitcoinj.core.Base58
-import java.security.KeyPairGenerator
-import java.security.SecureRandom
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
-import org.bouncycastle.crypto.generators.Ed25519KeyPairGenerator
-import org.bouncycastle.crypto.params.Ed25519KeyGenerationParameters
-import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters
 
 class DidManager(
-    context: Context,
+    private val context: Context,
 ) {
     private val prefs = context.getSharedPreferences("storacha_prefs", Context.MODE_PRIVATE)
     private val key = "device_did"
+    private val keyStorage = KeyStorage(context)
 
-    fun getOrCreateDid(): String =
-        prefs.getString(key, null) ?: generateNewDid().also {
-            prefs.edit { putString(key, it) }
+    fun getOrCreateDid(): String {
+        // First check if we have a DID in secure storage
+        val existingDid = keyStorage.getDid()
+        if (existingDid != null) {
+            return existingDid
         }
+        
+        // Check if we have one in old prefs (for migration)
+        val legacyDid = prefs.getString(key, null)
+        if (legacyDid != null) {
+            // For legacy DIDs without stored keys, generate new ones
+            // This will replace the old DID with a new one that has proper keys
+            prefs.edit { remove(key) }
+        }
+        
+        // Generate new DID with keys
+        return generateNewDid()
+    }
 
     private fun generateNewDid(): String {
         // Ensure BouncyCastle is registered
@@ -28,17 +37,18 @@ class DidManager(
             Security.addProvider(BouncyCastleProvider())
         }
 
-        val random = SecureRandom()
-        val keyPairGenerator = Ed25519KeyPairGenerator()
-        val keyGenParams = Ed25519KeyGenerationParameters(random)
-        keyPairGenerator.init(keyGenParams)
-
-        val keyPair = keyPairGenerator.generateKeyPair()
-        val publicKeyParams = keyPair.public as Ed25519PublicKeyParameters
-        val pubKeyBytes = publicKeyParams.encoded
-
-        val base58PubKey = Base58.encode(pubKeyBytes)
-        return "did:key:z$base58PubKey"
+        // Generate and store new key pair securely
+        return keyStorage.generateAndStoreKeyPair()
+    }
+    
+    fun regenerateDid(): String {
+        keyStorage.clearKeys()
+        prefs.edit { remove(key) }
+        return generateNewDid()
+    }
+    
+    fun hasDid(): Boolean {
+        return keyStorage.hasKeys()
     }
 }
 

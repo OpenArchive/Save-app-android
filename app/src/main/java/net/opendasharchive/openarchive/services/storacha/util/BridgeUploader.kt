@@ -1,5 +1,7 @@
 package net.opendasharchive.openarchive.services.storacha.util
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -9,34 +11,37 @@ import org.json.JSONObject
 class BridgeUploader(
     private val client: OkHttpClient = OkHttpClient(),
 ) {
-    fun fetchBridgeTokens(
+    suspend fun fetchBridgeTokens(
         userDid: String,
         spaceDid: String,
-    ): JSONObject {
-        val url = "https://your-token-service.com/bridge-tokens?spaceDid=$spaceDid"
-        val request =
-            Request
-                .Builder()
-                .url(url)
-                .addHeader("x-user-did", userDid)
-                .build()
-        val response = client.newCall(request).execute()
-        return JSONObject(response.body?.string() ?: "")
-    }
+    ): JSONObject =
+        withContext(Dispatchers.IO) {
+            val url = "http://192.168.0.200:3000/bridge-tokens?spaceDid=$spaceDid"
+            val request =
+                Request
+                    .Builder()
+                    .url(url)
+                    .addHeader("x-user-did", userDid)
+                    .build()
+            val response = client.newCall(request).execute()
+            JSONObject(response.body?.string() ?: "")
+        }
 
-    fun uploadCarFile(
+    suspend fun uploadCarFile(
         carData: ByteArray,
         authHeaders: JSONObject,
-    ): JSONObject {
-        val request =
-            Request
-                .Builder()
-                .url("https://up.storacha.network/bridge")
-                .post(carData.toRequestBody("application/vnd.ipld.car".toMediaType()))
-                .addHeader("X-Auth-Secret", authHeaders.getString("X-Auth-Secret"))
-                .addHeader("Authorization", authHeaders.getString("Authorization"))
-                .build()
-        val response = client.newCall(request).execute()
-        return JSONObject(response.body?.string() ?: "")
-    }
+    ): JSONObject =
+        withContext(Dispatchers.IO) {
+            val headers = authHeaders.getJSONObject("headers")
+            val request =
+                Request
+                    .Builder()
+                    .url("https://up.storacha.network/bridge")
+                    .post(carData.toRequestBody("application/vnd.ipld.car".toMediaType()))
+                    .addHeader("X-Auth-Secret", headers.getString("X-Auth-Secret"))
+                    .addHeader("Authorization", headers.getString("Authorization"))
+                    .build()
+            val response = client.newCall(request).execute()
+            JSONObject(response.body?.string() ?: "")
+        }
 }

@@ -8,11 +8,11 @@ import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.services.storacha.model.UploadEntry
 import net.opendasharchive.openarchive.services.storacha.model.UploadResponse
 import net.opendasharchive.openarchive.services.storacha.service.StorachaApiService
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
+import net.opendasharchive.openarchive.services.storacha.util.BridgeUploader
 
 class StorachaMediaViewModel(
     private val apiService: StorachaApiService,
+    private val bridgeUploader: BridgeUploader = BridgeUploader(),
 ) : ViewModel() {
     private val _media = MutableLiveData<List<UploadEntry>>(emptyList())
     val media: LiveData<List<UploadEntry>> get() = _media
@@ -69,13 +69,20 @@ class StorachaMediaViewModel(
 
     fun uploadFile(
         userDid: String,
-        spaceDid: RequestBody,
-        filePart: MultipartBody.Part,
+        spaceDid: String,
+        carData: ByteArray,
     ) {
         viewModelScope.launch {
             try {
-                val response = apiService.uploadFile(userDid, filePart, spaceDid)
-                _uploadResult.value = Result.success(response)
+                val authHeaders = bridgeUploader.fetchBridgeTokens(userDid, spaceDid)
+                val response = bridgeUploader.uploadCarFile(carData, authHeaders)
+                val uploadResponse =
+                    UploadResponse(
+                        success = true,
+                        cid = response.optString("cid", ""),
+                        size = carData.size.toLong(),
+                    )
+                _uploadResult.value = Result.success(uploadResponse)
             } catch (e: Exception) {
                 _uploadResult.value = Result.failure(e)
             }

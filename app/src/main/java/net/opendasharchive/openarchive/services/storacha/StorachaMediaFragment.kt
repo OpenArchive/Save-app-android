@@ -17,6 +17,7 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaMediaBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.services.storacha.model.UploadEntry
+import net.opendasharchive.openarchive.services.storacha.util.CarFileCreator
 import net.opendasharchive.openarchive.services.storacha.util.DidManager
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaMediaViewModel
 import net.opendasharchive.openarchive.util.extensions.toggle
@@ -145,18 +146,21 @@ class StorachaMediaFragment :
         val userDid = DidManager(requireContext()).getOrCreateDid()
         val spaceDid = arguments?.getString("spaceDid") ?: return
 
-        val carFile = File(requireContext().cacheDir, "upload-${System.currentTimeMillis()}.car")
+        // Create temporary file from URI
+        val tempFile = File(requireContext().cacheDir, "temp-${System.currentTimeMillis()}")
         requireContext().contentResolver.openInputStream(uri)?.use { input ->
-            FileOutputStream(carFile).use { output ->
+            FileOutputStream(tempFile).use { output ->
                 input.copyTo(output)
             }
         }
 
-        val requestFile = carFile.asRequestBody("application/vnd.ipld.car".toMediaTypeOrNull())
-        val filePart = MultipartBody.Part.createFormData("file", carFile.name, requestFile)
-        val spaceRequestBody = spaceDid.toRequestBody("text/plain".toMediaTypeOrNull())
+        // Generate proper CAR file from the temporary file
+        val carData = CarFileCreator.createCarFile(tempFile)
+        
+        // Clean up temporary file
+        //tempFile.delete()
 
-        viewModel.uploadFile(userDid, spaceRequestBody, filePart)
+        viewModel.uploadFile(userDid, spaceDid, carData)
     }
 
     private fun handleSelectedFiles(uris: List<Uri>) {

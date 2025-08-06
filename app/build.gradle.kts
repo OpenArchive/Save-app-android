@@ -230,6 +230,9 @@ dependencies {
     implementation(libs.bouncycastle.bcpkix)
     implementation(libs.bouncycastle.bcprov)
     api(libs.bouncycastle.bcpg)
+    
+    // Ed25519 for DID signature authentication
+    implementation("org.bouncycastle:bcprov-jdk15to18:1.70")
 
     // Google Play Services
     implementation(libs.google.auth)

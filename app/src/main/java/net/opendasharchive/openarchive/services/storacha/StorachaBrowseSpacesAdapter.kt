@@ -42,6 +42,7 @@ class StorachaBrowseSpacesAdapter(
             binding.rvTick.visibility = View.VISIBLE
             binding.icon.setImageDrawable(icon)
             binding.name.text = space.name
+            binding.didKey.text = space.did
             binding.root.setOnClickListener {
                 onClick.invoke(space)
             }
