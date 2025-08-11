@@ -7,7 +7,9 @@ import android.view.Window
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.enableEdgeToEdge
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import net.opendasharchive.openarchive.R
@@ -15,20 +17,27 @@ import net.opendasharchive.openarchive.databinding.ActivityOnboarding23Instructi
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.util.Prefs
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 
 class Onboarding23InstructionsActivity : BaseActivity() {
 
     private lateinit var mBinding: ActivityOnboarding23InstructionsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         window.setFlags(
             WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE
         )
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
 
         mBinding = ActivityOnboarding23InstructionsBinding.inflate(layoutInflater)
+
+        mBinding.fab.applyEdgeToEdgeInsets { insets ->
+            bottomMargin = insets.bottom
+        }
+
         setContentView(mBinding.root)
 
         mBinding.skipButton.setOnClickListener {
@@ -66,7 +75,7 @@ class Onboarding23InstructionsActivity : BaseActivity() {
                     mBinding.skipButton.visibility = View.INVISIBLE
                     mBinding.fab.setImageDrawable(
                         ContextCompat.getDrawable(
-                            mBinding.fab.context, com.esafirm.imagepicker.R.drawable.ef_ic_done_white,
+                            mBinding.fab.context, R.drawable.ic_done,
                         )
                     )
                 } else {

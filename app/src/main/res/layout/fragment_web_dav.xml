@@ -249,7 +249,6 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:paddingTop="@dimen/activity_vertical_margin"
-        android:visibility="visible"
         android:weightSum="2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -11,7 +11,9 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.core.dialog.DialogHost
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
+import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.util.Prefs
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import org.koin.androidx.compose.koinViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -57,6 +59,7 @@ abstract class BaseActivity : AppCompatActivity() {
                 }
             }
         }
+
     }
 
     override fun dispatchTouchEvent(event: MotionEvent?): Boolean {

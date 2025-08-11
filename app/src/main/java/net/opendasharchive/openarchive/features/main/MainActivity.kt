@@ -1,6 +1,5 @@
 package net.opendasharchive.openarchive.features.main
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Point
@@ -17,7 +16,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.PopupWindow
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -29,13 +27,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.play.core.review.ReviewException
-import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
-import com.google.android.play.core.review.model.ReviewErrorCode
-import com.google.android.play.core.review.testing.FakeReviewManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.BuildConfig
 import net.opendasharchive.openarchive.R
@@ -75,10 +70,12 @@ import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import net.opendasharchive.openarchive.upload.UploadManagerFragment
 import net.opendasharchive.openarchive.upload.UploadService
+import net.opendasharchive.openarchive.util.InAppReviewHelper
 import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.ProofModeHelper
 import net.opendasharchive.openarchive.util.extensions.Position
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.cloak
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.scaleAndTintDrawable
@@ -86,9 +83,6 @@ import net.opendasharchive.openarchive.util.extensions.show
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.NumberFormat
-import androidx.core.content.edit
-import kotlinx.coroutines.delay
-import net.opendasharchive.openarchive.util.InAppReviewHelper
 
 
 class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAdapterListener {
@@ -144,10 +138,12 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     private var shouldPromptReview = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        ///enableEdgeToEdge()
-
+//        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+//        WindowCompat.setDecorFitsSystemWindows(window, false)
         installSplashScreen()
+
+
 
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 //            window.insetsController?.let {
@@ -162,7 +158,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 //                WindowManager.LayoutParams.FLAG_FULLSCREEN
 //            )
 //        }
-
+//
 //        window.apply {
 //            clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
 //            addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -173,6 +169,26 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
 
         binding = ActivityMainBinding.inflate(layoutInflater)
+
+
+//        binding.contentMain.imgLogo.applyEdgeToEdgeInsets { insets ->
+//            leftMargin = insets.left
+//            rightMargin = insets.right
+//        }
+
+        binding.contentMain.bottomNavBar.applyEdgeToEdgeInsets { insets ->
+            bottomMargin = insets.bottom
+        }
+
+        binding.btnAddFolder.applyEdgeToEdgeInsets { insets ->
+            bottomMargin = insets.bottom
+        }
+
+        binding.drawerContent.applyEdgeToEdgeInsets { insets ->
+            bottomMargin = insets.bottom
+        }
+
+
         setContentView(binding.root)
 
         // Initialize the permission manager with this activity and its dialogManager.
@@ -308,7 +324,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     private fun setupNavigationDrawer() {
         // Drawer listener resets state on close
-        binding.root.addDrawerListener(object : DrawerLayout.DrawerListener {
+        binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerClosed(drawerView: View) {
                 collapseSpacesList()
             }
@@ -578,7 +594,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     // ----- Drawer Helpers -----
     private fun toggleDrawerState() {
-        if (binding.root.isDrawerOpen(binding.drawerContent)) {
+        if (binding.drawerLayout.isDrawerOpen(binding.drawerContent)) {
             closeDrawer()
         } else {
             openDrawer()
@@ -586,11 +602,11 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     }
 
     private fun openDrawer() {
-        binding.root.openDrawer(binding.drawerContent)
+        binding.drawerLayout.openDrawer(binding.drawerContent)
     }
 
     private fun closeDrawer() {
-        binding.root.closeDrawer(binding.drawerContent)
+        binding.drawerLayout.closeDrawer(binding.drawerContent)
     }
 
     private fun toggleSpacesList() {
@@ -825,13 +841,14 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                     when (mediaType) {
                         AddMediaType.CAMERA -> {
                             //permissionManager.checkCameraPermission {
-                                Picker.takePhoto(this@MainActivity, mediaLaunchers.cameraLauncher)
+                                //Picker.takePhoto(this@MainActivity, mediaLaunchers.cameraLauncher)
+                                Picker.takePhotoModern(this@MainActivity, mediaLaunchers.modernCameraLauncher)
                             //}
                         }
 
                         AddMediaType.GALLERY -> {
                             permissionManager.checkMediaPermissions {
-                                Picker.pickMedia(mediaLaunchers.imagePickerLauncher)
+                                Picker.pickMedia(mediaLaunchers.galleryLauncher)
                             }
                         }
 
@@ -924,7 +941,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     // ----- Adapter Listeners -----
     override fun onProjectSelected(project: Project) {
-        binding.root.closeDrawer(binding.drawerContent)
+        binding.drawerLayout.closeDrawer(binding.drawerContent)
         mCurrentPagerItem = mPagerAdapter.projects.indexOf(project)
     }
 
@@ -937,7 +954,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         refreshSpace()
         updateCurrentSpaceAtDrawer()
         collapseSpacesList()
-        binding.root.closeDrawer(binding.drawerContent)
+        binding.drawerLayout.closeDrawer(binding.drawerContent)
     }
 
     override fun onAddNewSpace() {

@@ -21,6 +21,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.INTERNET" />
 
+
     <queries>
         <package android:name="org.torproject.android" />
         <package android:name="com.dropbox.android" />
@@ -29,6 +30,10 @@
             <action android:name="android.intent.action.OPEN_DOCUMENT" />
             <category android:name="android.intent.category.OPENABLE" />
             <data android:mimeType="application/*" />
+        </intent>
+
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
         </intent>
     </queries>
 
@@ -64,7 +69,9 @@
             android:name=".features.main.MainActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan">
+            android:windowSoftInputMode="adjustPan"
+            android:theme="@style/SaveAppTheme.NoActionBar"
+            tools:ignore="DiscouragedApi">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -104,8 +111,7 @@
         <activity
             android:name=".features.main.HomeActivity"
             android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/SaveAppTheme.NoActionBar">
+            android:screenOrientation="portrait">
             <!--            <intent-filter>-->
             <!--                <action android:name="android.intent.action.MAIN" />-->
 
@@ -308,7 +314,7 @@
         <service
             android:name=".services.snowbird.service.SnowbirdService"
             android:exported="false"
-            android:foregroundServiceType="dataSync"></service>
+            android:foregroundServiceType="dataSync" />
 
     </application>
 

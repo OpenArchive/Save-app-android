@@ -8,19 +8,15 @@
     tools:background="@color/colorBackground"
     tools:context=".features.folders.BrowseFoldersFragment">
 
-    <LinearLayout
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_folder_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:paddingHorizontal="8dp"
+        tools:listitem="@layout/folder_row" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_folder_list"
-            android:paddingHorizontal="8dp"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:listitem="@layout/folder_row" />
 
-    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progress_bar"
@@ -42,6 +38,7 @@
         android:text="@string/no_more_folders"
         android:textSize="18sp"
         android:visibility="gone"
+        tools:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

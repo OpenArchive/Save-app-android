@@ -5,12 +5,11 @@ import android.app.NotificationManager
 import android.app.UiModeManager
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
-import coil3.util.Logger
+import coil3.video.VideoFrameDecoder
 import com.orm.SugarApp
 import info.guardianproject.netcipher.proxy.OrbotHelper
 import net.opendasharchive.openarchive.core.di.coreModule
@@ -22,12 +21,10 @@ import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeManager
 import net.opendasharchive.openarchive.util.Analytics
 import net.opendasharchive.openarchive.util.Prefs
-import net.opendasharchive.openarchive.util.Theme
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
-import timber.log.Timber
 
 class SaveApp : SugarApp(), SingletonImageLoader.Factory {
 
@@ -117,18 +114,11 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory {
     }
 
     override fun newImageLoader(context: PlatformContext): ImageLoader {
-        return ImageLoader.Builder(this).logger(object : Logger {
-            override var minLevel: Logger.Level = Logger.Level.Verbose
-
-            override fun log(
-                tag: String,
-                level: Logger.Level,
-                message: String?,
-                throwable: Throwable?
-            ) {
-                Timber.tag("Coil3:$tag").log(level.ordinal, throwable, message)
+        return ImageLoader.Builder(this)
+            .components {
+                add(VideoFrameDecoder.Factory())
             }
-        })
+            .logger(AppLogger.imageLogger)
             .build()
     }
 }
