@@ -6,14 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.setFragmentResult
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentSpaceSetupSuccessBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.main.MainActivity
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 
 class SpaceSetupSuccessFragment : BaseFragment() {
-    private lateinit var mBinding: FragmentSpaceSetupSuccessBinding
+    private lateinit var binding: FragmentSpaceSetupSuccessBinding
     private var message = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,13 +29,25 @@ class SpaceSetupSuccessFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        mBinding = FragmentSpaceSetupSuccessBinding.inflate(inflater)
+        binding = FragmentSpaceSetupSuccessBinding.inflate(inflater)
 
-        if (message.isNotEmpty()) {
-            mBinding.successMessage.text = message
+        binding.mainContainer.applyEdgeToEdgeInsets(
+            typeMask = WindowInsetsCompat.Type.navigationBars()
+        ) { insets ->
+            bottomMargin = insets.bottom
         }
 
-        mBinding.btAuthenticate.setOnClickListener { _ ->
+        binding.buttonBar.applyEdgeToEdgeInsets(
+            typeMask = WindowInsetsCompat.Type.navigationBars()
+        ) { insets ->
+            bottomMargin = insets.bottom
+        }
+
+        if (message.isNotEmpty()) {
+            binding.successMessage.text = message
+        }
+
+        binding.btAuthenticate.setOnClickListener { _ ->
             if (isJetpackNavigation) {
                 val intent = Intent(requireActivity(), MainActivity::class.java)
                 intent.flags =
@@ -44,7 +58,7 @@ class SpaceSetupSuccessFragment : BaseFragment() {
             }
         }
 
-        return mBinding.root
+        return binding.root
     }
 
     companion object {

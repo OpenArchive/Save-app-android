@@ -14,6 +14,7 @@ import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
+import net.opendasharchive.openarchive.features.core.dialog.showWarningDialog
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
@@ -138,7 +139,34 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
-        getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_tor)?.isEnabled = false
+        getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_tor)?.apply {
+            isEnabled = true
+
+            setOnPreferenceClickListener {
+                dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+                    type = DialogType.Info
+                    iconColor = dialogManager.requireResourceProvider().getColor(R.color.colorTertiary)
+                    title = UiText.StringResource(R.string.tor_disabled_title)
+                    message = UiText.StringResource(R.string.tor_disabled_message)
+                    positiveButton {
+                        text = UiText.StringResource(R.string.tor_download_btn_label)
+                        action = {
+                            // Launch the Tor download activity
+                            val intent = Intent(Intent.ACTION_VIEW, Prefs.TOR_DOWNLOAD_URL)
+                            startActivity(intent)
+                        }
+                    }
+                    neutralButton {
+                        text = UiText.StringResource(android.R.string.cancel)
+                    }
+                }
+                true
+            }
+
+            setOnPreferenceChangeListener { _, newValue ->
+                false
+            }
+        }
 
         findPreference<Preference>(Prefs.THEME)?.setOnPreferenceChangeListener { _, newValue ->
             Theme.set(requireActivity(), Theme.get(newValue as? String))

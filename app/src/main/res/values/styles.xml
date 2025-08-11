@@ -31,9 +31,12 @@
 
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@color/colorTertiary</item>
-        <item name="android:windowLightStatusBar">false</item>
+<!--        <item name="android:windowLightStatusBar">false</item>-->
         <item name="android:windowLightNavigationBar">@bool/dayMode</item>
-        <item name="navigationViewStyle">@style/NavigationViewStyle</item>
+<!--        <item name="navigationViewStyle">@style/NavigationViewStyle</item>-->
+<!--        <item name="android:navigationBarColor">@color/colorNavigationDrawerBackground</item>-->
+
+
         <item name="dialogTheme">@style/AppDialogTheme</item>
         <item name="bottomSheetDialogTheme">@style/SaveAppBottomSheetTheme</item>
         <item name="alertDialogTheme">@style/AlertDialogTheme</item>
@@ -65,6 +68,8 @@
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.SaveApp.SmallComponent
         </item>
         <item name="materialSwitchStyle">@style/Widget.SaveApp.Switch</item>
+
+
     </style>
 
     <style name="SaveAppTheme.NoActionBar.Onboarding" parent="SaveAppTheme.NoActionBar">
@@ -82,7 +87,6 @@
     </style>
 
     <style name="SaveApp.Preference.Information" parent="@style/Preference.Information">
-        <item name="textSize">11sp</item>
         <item name="android:textSize">11sp</item>
     </style>
 
@@ -187,9 +191,9 @@
         <item name="colorSurfaceVariant">@color/red</item>
     </style>
 
-    <style name="NavigationViewStyle" parent="Widget.Material3.NavigationView">
-        <item name="android:background">@color/colorNavigationDrawerBackground</item>
-    </style>
+<!--    <style name="NavigationViewStyle" parent="Widget.Material3.NavigationView">-->
+<!--        <item name="android:background">@color/colorNavigationDrawerBackground</item>-->
+<!--    </style>-->
 
     <style name="AlertDialogTheme" parent="ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>

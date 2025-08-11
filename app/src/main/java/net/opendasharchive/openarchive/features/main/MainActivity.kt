@@ -27,7 +27,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.play.core.review.ReviewManager
+import com.google.android.play.core.review.ReviewManagerFactory
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.BuildConfig
 import net.opendasharchive.openarchive.R
@@ -67,10 +70,12 @@ import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import net.opendasharchive.openarchive.upload.UploadManagerFragment
 import net.opendasharchive.openarchive.upload.UploadService
+import net.opendasharchive.openarchive.util.InAppReviewHelper
 import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.ProofModeHelper
 import net.opendasharchive.openarchive.util.extensions.Position
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.cloak
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.scaleAndTintDrawable
@@ -129,12 +134,16 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     private lateinit var permissionManager: PermissionManager
 
+    private lateinit var reviewManager: ReviewManager
+    private var shouldPromptReview = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        ///enableEdgeToEdge()
-
+//        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+//        WindowCompat.setDecorFitsSystemWindows(window, false)
         installSplashScreen()
+
+
 
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 //            window.insetsController?.let {
@@ -149,7 +158,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 //                WindowManager.LayoutParams.FLAG_FULLSCREEN
 //            )
 //        }
-
+//
 //        window.apply {
 //            clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
 //            addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -160,10 +169,33 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
 
         binding = ActivityMainBinding.inflate(layoutInflater)
+
+
+//        binding.contentMain.imgLogo.applyEdgeToEdgeInsets { insets ->
+//            leftMargin = insets.left
+//            rightMargin = insets.right
+//        }
+
+        binding.contentMain.bottomNavBar.applyEdgeToEdgeInsets { insets ->
+            bottomMargin = insets.bottom
+        }
+
+        binding.btnAddFolder.applyEdgeToEdgeInsets { insets ->
+            bottomMargin = insets.bottom
+        }
+
+        binding.drawerContent.applyEdgeToEdgeInsets { insets ->
+            bottomMargin = insets.bottom
+        }
+
+
         setContentView(binding.root)
 
         // Initialize the permission manager with this activity and its dialogManager.
         permissionManager = PermissionManager(this, dialogManager)
+
+        // Initialize In App Ratings Helper
+        InAppReviewHelper.init(this)
 
         initMediaLaunchers()
         setupToolbarAndPager()
@@ -196,6 +228,18 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             // You can start the upload service or update the UI accordingly.
             UploadService.startUploadService(this)
         }
+
+        supportFragmentManager.setFragmentResultListener(
+            ContentPickerFragment.KEY_DISMISS,
+            this
+        ) { _, _ ->
+            // when the sheet goes away, show your arrow
+            getCurrentMediaFragment()?.setArrowVisible(true)
+        }
+
+        reviewManager = ReviewManagerFactory.create(this)
+        InAppReviewHelper.requestReviewInfo(this)
+        shouldPromptReview = InAppReviewHelper.onAppLaunched()
     }
 
     override fun onResume() {
@@ -212,6 +256,19 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             serverListOffset = -dims.second.toFloat()
             serverListCurOffset = serverListOffset
         }
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // Only now, after UI is ready, do we fire the in‐app review if needed.
+        if (shouldPromptReview) {
+            lifecycleScope.launch(Dispatchers.Main) {
+                // Wait a small delay so we don’t interrupt initial load (e.g. 2 seconds).
+                delay(2_000)
+                InAppReviewHelper.showReviewIfPossible(this@MainActivity, reviewManager)
+                InAppReviewHelper.markReviewDone()
+                shouldPromptReview = false
+            }
+        }
+        // ─────────────────────────────────────────────────────────────────────────
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -267,7 +324,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     private fun setupNavigationDrawer() {
         // Drawer listener resets state on close
-        binding.root.addDrawerListener(object : DrawerLayout.DrawerListener {
+        binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerClosed(drawerView: View) {
                 collapseSpacesList()
             }
@@ -323,6 +380,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                     } else if (getSelectedProject() == null) {
                         navigateToAddFolder()
                     } else {
+                        getCurrentMediaFragment()?.setArrowVisible(false)
                         val addMediaBottomSheet =
                             ContentPickerFragment { actionType -> addClicked(actionType) }
                         addMediaBottomSheet.show(supportFragmentManager, ContentPickerFragment.TAG)
@@ -536,7 +594,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     // ----- Drawer Helpers -----
     private fun toggleDrawerState() {
-        if (binding.root.isDrawerOpen(binding.drawerContent)) {
+        if (binding.drawerLayout.isDrawerOpen(binding.drawerContent)) {
             closeDrawer()
         } else {
             openDrawer()
@@ -544,11 +602,11 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     }
 
     private fun openDrawer() {
-        binding.root.openDrawer(binding.drawerContent)
+        binding.drawerLayout.openDrawer(binding.drawerContent)
     }
 
     private fun closeDrawer() {
-        binding.root.closeDrawer(binding.drawerContent)
+        binding.drawerLayout.closeDrawer(binding.drawerContent)
     }
 
     private fun toggleSpacesList() {
@@ -719,6 +777,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         mFolderAdapter.update(projects)
     }
 
+
+
     private fun refreshCurrentProject() {
         val project = getSelectedProject()
 
@@ -781,13 +841,14 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                     when (mediaType) {
                         AddMediaType.CAMERA -> {
                             //permissionManager.checkCameraPermission {
-                                Picker.takePhoto(this@MainActivity, mediaLaunchers.cameraLauncher)
+                                //Picker.takePhoto(this@MainActivity, mediaLaunchers.cameraLauncher)
+                                Picker.takePhotoModern(this@MainActivity, mediaLaunchers.modernCameraLauncher)
                             //}
                         }
 
                         AddMediaType.GALLERY -> {
                             permissionManager.checkMediaPermissions {
-                                Picker.pickMedia(mediaLaunchers.imagePickerLauncher)
+                                Picker.pickMedia(mediaLaunchers.galleryLauncher)
                             }
                         }
 
@@ -880,7 +941,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     // ----- Adapter Listeners -----
     override fun onProjectSelected(project: Project) {
-        binding.root.closeDrawer(binding.drawerContent)
+        binding.drawerLayout.closeDrawer(binding.drawerContent)
         mCurrentPagerItem = mPagerAdapter.projects.indexOf(project)
     }
 
@@ -893,7 +954,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         refreshSpace()
         updateCurrentSpaceAtDrawer()
         collapseSpacesList()
-        binding.root.closeDrawer(binding.drawerContent)
+        binding.drawerLayout.closeDrawer(binding.drawerContent)
     }
 
     override fun onAddNewSpace() {

@@ -155,7 +155,7 @@ class HomeActivity: FragmentActivity() {
                 }
                 AddMediaType.GALLERY -> {
                     // Launch the gallery/image picker.
-                    Picker.pickMedia(mediaLaunchers.imagePickerLauncher)
+                    Picker.pickMedia(mediaLaunchers.galleryLauncher)
                 }
                 AddMediaType.FILES -> {
                     // Launch the file picker.

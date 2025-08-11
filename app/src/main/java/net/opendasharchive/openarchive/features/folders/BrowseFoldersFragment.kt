@@ -1,6 +1,5 @@
 package net.opendasharchive.openarchive.features.folders
 
-import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
@@ -11,6 +10,9 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.MenuProvider
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import net.opendasharchive.openarchive.R
@@ -26,7 +28,7 @@ import java.util.Date
 
 class BrowseFoldersFragment : BaseFragment(), MenuProvider {
 
-    private lateinit var mBinding: FragmentBrowseFoldersBinding
+    private lateinit var binding: FragmentBrowseFoldersBinding
     private val mViewModel: BrowseFoldersViewModel by viewModel()
 
     private var mSelected: Folder? = null
@@ -36,11 +38,17 @@ class BrowseFoldersFragment : BaseFragment(), MenuProvider {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        mBinding = FragmentBrowseFoldersBinding.inflate(layoutInflater)
+        binding = FragmentBrowseFoldersBinding.inflate(layoutInflater)
 
-        mBinding.rvFolderList.layoutManager = LinearLayoutManager(requireContext())
+//        binding.rvFolderList.applyEdgeToEdgeInsets(
+//            typeMask = WindowInsetsCompat.Type.navigationBars()
+//        ) { insets ->
+//            bottomMargin = insets.bottom
+//        }
 
-        return mBinding.root
+        binding.rvFolderList.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvFolderList.clipToPadding = false
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -48,20 +56,30 @@ class BrowseFoldersFragment : BaseFragment(), MenuProvider {
 
         activity?.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.rvFolderList) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
+
+            view.updatePadding(
+                bottom = insets.bottom + view.paddingBottom
+            )
+
+            windowInsets
+        }
+
         val space = Space.current
         if (space != null) mViewModel.getFiles(space)
 
         mViewModel.folders.observe(viewLifecycleOwner) {
-            mBinding.projectsEmpty.toggle(it.isEmpty())
+            binding.projectsEmpty.toggle(it.isEmpty())
 
-            mBinding.rvFolderList.adapter = BrowseFoldersAdapter(it) { folder ->
+            binding.rvFolderList.adapter = BrowseFoldersAdapter(it) { folder ->
                 this.mSelected = folder
                 activity?.invalidateOptionsMenu()
             }
         }
 
         mViewModel.progressBarFlag.observe(viewLifecycleOwner) {
-            mBinding.progressBar.toggle(it)
+            binding.progressBar.toggle(it)
         }
     }
 
@@ -91,6 +109,10 @@ class BrowseFoldersFragment : BaseFragment(), MenuProvider {
             message = R.string.create_folder_ok_message,
             positiveButtonText = R.string.label_got_it,
             onDone = {
+                navigateBackWithResult(projectId)
+            },
+            onDismissed = {
+                // If the dialog is dismissed, we still want to navigate back
                 navigateBackWithResult(projectId)
             }
         )

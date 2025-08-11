@@ -1,4 +1,7 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import java.io.FileInputStream
+import java.text.SimpleDateFormat
 import java.util.Properties
 
 plugins {
@@ -13,41 +16,51 @@ plugins {
     alias(libs.plugins.google.firebase.crashlytics)
 }
 
-fun loadLocalProperties(): Properties =
-    Properties().apply {
-        val localPropsFile = rootProject.file("local.properties")
-        if (localPropsFile.exists()) {
-            FileInputStream(localPropsFile).use { load(it) }
-        } else {
-            setProperty("MIXPANELKEY", System.getenv("MIXPANEL_KEY") ?: "")
-            setProperty("STOREFILE", System.getenv("STOREFILE") ?: "")
-            setProperty("STOREPASSWORD", System.getenv("STOREPASSWORD") ?: "")
-            setProperty("KEYALIAS", System.getenv("KEYALIAS") ?: "")
-            setProperty("KEYPASSWORD", System.getenv("KEYPASSWORD") ?: "")
-        }
+fun loadLocalProperties(): Properties = Properties().apply {
+    val localPropsFile = rootProject.file("local.properties")
+    if (localPropsFile.exists()) {
+        FileInputStream(localPropsFile).use { load(it) }
+    } else {
+        setProperty("MIXPANELKEY", System.getenv("MIXPANEL_KEY") ?: "")
+        setProperty("STOREFILE", System.getenv("STOREFILE") ?: "")
+        setProperty("STOREPASSWORD", System.getenv("STOREPASSWORD") ?: "")
+        setProperty("KEYALIAS", System.getenv("KEYALIAS") ?: "")
+        setProperty("KEYPASSWORD", System.getenv("KEYPASSWORD") ?: "")
     }
+}
+
+kotlin {
+
+    compilerOptions {
+
+        jvmTarget.set(JvmTarget.JVM_17)
+        languageVersion.set(KotlinVersion.KOTLIN_2_1)
+    }
+}
+
+kotlin {
+    compilerOptions {
+
+        jvmTarget.set(JvmTarget.JVM_17)
+        languageVersion.set(KotlinVersion.KOTLIN_2_1)
+    }
+}
 
 android {
 
-    //noinspection GradleDependency
-    compileSdk = 34
+    compileSdk = 36
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     defaultConfig {
         applicationId = "net.opendasharchive.openarchive"
         minSdk = 29
-        //noinspection OldTargetApi
-        targetSdk = 34
-        versionCode = 30012
-        versionName = "4.0.0"
+        targetSdk = 36
+        versionCode = 30014
+        versionName = "4.0.2"
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -121,7 +134,7 @@ android {
 
     configurations.all {
         resolutionStrategy {
-            force("org.bouncycastle:bcprov-jdk15to18:1.70")
+            force("org.bouncycastle:bcprov-jdk15to18:1.72")
             exclude(group = "org.bouncycastle", module = "bcprov-jdk15on")
         }
     }
@@ -166,6 +179,7 @@ dependencies {
     implementation(libs.androidx.swiperefresh)
 
     // Compose Libraries
+    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
@@ -198,13 +212,10 @@ dependencies {
     implementation(libs.koin.compose.viewmodel.navigation)
 
     // Image Libraries
-    implementation(libs.glide)
-    annotationProcessor(libs.glide.compiler)
-    implementation(libs.asafirm.image.picker)
-    implementation(libs.picasso)
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
+    implementation(libs.coil.network)
 
     // Networking and Data
     // Networking
@@ -217,8 +228,8 @@ dependencies {
 
     // Utility Libraries
     implementation(libs.timber)
-    implementation(libs.orhanobut.logger)
-    implementation(libs.abdularis.circularimageview)
+    //implementation(libs.orhanobut.logger)
+    //implementation(libs.abdularis.circularimageview)
     implementation(libs.dotsindicator)
     implementation(libs.permissionx)
 
@@ -230,7 +241,7 @@ dependencies {
     implementation(libs.bouncycastle.bcpkix)
     implementation(libs.bouncycastle.bcprov)
     api(libs.bouncycastle.bcpg)
-    
+
     // Ed25519 for DID signature authentication
     implementation("org.bouncycastle:bcprov-jdk15to18:1.70")
 
@@ -244,7 +255,7 @@ dependencies {
     implementation(libs.google.play.app.update.ktx)
 
     // Google Drive API
-    implementation(libs.google.http.client.gson.v1433)
+    implementation(libs.google.http.client.gson)
     implementation(libs.google.api.client.android)
     implementation(libs.google.drive.api)
 
@@ -292,7 +303,7 @@ dependencies {
     testImplementation(libs.robolectric)
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.androidx.test.runner)
-    testImplementation(libs.androidx.work.testing.v2102)
+    testImplementation(libs.work.testing)
 
     // Detekt
     detektPlugins(libs.detekt.formatting)
@@ -312,7 +323,7 @@ detekt {
     config.setFrom(file("$rootDir/config/detekt-config.yml"))
     baseline = file("$rootDir/config/baseline.xml")
     source.setFrom(
-        files("$rootDir/app/src"),
+        files("$rootDir/app/src")
     )
     buildUponDefaultConfig = true
     allRules = false

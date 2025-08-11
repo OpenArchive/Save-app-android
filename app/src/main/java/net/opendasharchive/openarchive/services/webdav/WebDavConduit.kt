@@ -9,7 +9,6 @@ import net.opendasharchive.openarchive.services.Conduit
 import net.opendasharchive.openarchive.services.SaveClient
 import okhttp3.HttpUrl
 import java.io.IOException
-import java.util.*
 
 
 class WebDavConduit(media: Media, context: Context) : Conduit(media, context) {

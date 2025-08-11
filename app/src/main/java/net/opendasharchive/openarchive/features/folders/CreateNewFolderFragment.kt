@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.core.view.MenuProvider
+import androidx.core.view.WindowInsetsCompat
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentCreateNewFolderBinding
 import net.opendasharchive.openarchive.db.Project
@@ -20,6 +21,7 @@ import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.dialog.showSuccessDialog
 import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.hide
 import java.util.Date
 
@@ -37,6 +39,12 @@ class CreateNewFolderFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentCreateNewFolderBinding.inflate(layoutInflater)
+
+        binding.buttonBar.applyEdgeToEdgeInsets(
+            typeMask = WindowInsetsCompat.Type.navigationBars()
+        ) { insets ->
+            bottomMargin = insets.bottom
+        }
 
         return binding.root
     }

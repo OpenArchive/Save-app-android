@@ -10,7 +10,7 @@ fun PackageManager.getVersionName(packageName: String): String {
         }
         else {
             getPackageInfo(packageName, 0)
-        }.versionName
+        }.versionName ?: "unknown"
 
     } catch (e: PackageManager.NameNotFoundException) {
         "unknown"
