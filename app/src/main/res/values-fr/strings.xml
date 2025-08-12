@@ -15,7 +15,7 @@
 
     <!-- FirstStartActivity -->
     <string name="internet_archive">« Internet Archive »</string>
-    <string name="internet_archive_description">Téléversez vos médias vers un compte public gratuit ou privé payant sur « Internet Archive ».</string>
+    <string name="internet_archive_description">Téléversez vos médias vers un compte public gratuit sur « Internet Archive ».</string>
     <string name="dweb_title">Service DWeb</string>
     <string name="dweb_description">Connectez-vous au Web décentralisé</string>
     <string name="upload_to_gdrive">Téléverser vers le Disque Google Drive</string>

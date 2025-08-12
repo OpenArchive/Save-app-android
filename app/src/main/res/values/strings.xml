@@ -25,7 +25,7 @@
 
     <!-- FirstStartActivity -->
     <string name="internet_archive">Internet Archive</string>
-    <string name="internet_archive_description">Upload your media to a free public or paid private account on the Internet Archive.</string>
+    <string name="internet_archive_description">Upload your media to a free public account on the Internet Archive.</string>
     <string name="dweb_title">DWeb Service</string>
     <string name="dweb_description">Connect to the decentralized web</string>
     <string name="gdrive" translatable="false">Google Drive</string>

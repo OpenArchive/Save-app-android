@@ -15,7 +15,7 @@
 
     <!-- FirstStartActivity -->
     <string name="internet_archive">Internet Archive</string>
-    <string name="internet_archive_description">Ortamınızı ücretsiz ve herkese açık ya da ücretli bir Internet Archive hesabına yükleyin.</string>
+    <string name="internet_archive_description">Ortamınızı ücretsiz ve herkese açık bir Internet Archive hesabına yükleyin.</string>
     <string name="dweb_title">DWeb hizmeti</string>
     <string name="dweb_description">Merkezi olmayan internet bağlantısı kurun</string>
     <string name="upload_to_gdrive">Google Drive üzerine yükle</string>
