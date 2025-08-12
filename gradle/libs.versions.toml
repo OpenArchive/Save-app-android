@@ -5,7 +5,7 @@ appcompat = "1.7.1"
 audio-waveform-version = "v1.0.1"
 biometric = "1.1.0"
 coil = "3.3.0"
-compose = "1.9.0-beta03"
+compose = "1.9.0-rc01"
 compose-material-icons = "1.7.8"
 compose-preference = "1.1.1"
 constraintlayout = "2.2.1"
@@ -13,10 +13,11 @@ constraintlayout-compos = "1.1.1"
 coordinatorlayout = "1.3.0"
 core = "1.16.0"
 zxing-core = "3.5.3"
+zxing-android = "4.3.0"
 core-splashscreen = "1.0.1"
 coroutines = "1.10.2"
 detekt = "1.23.8"
-detekt-compose = "0.4.26"
+detekt-compose = "0.4.27"
 detekt-rules-compose = "1.4.0"
 espresso-core = "3.5.1"
 fragment = "1.8.8"
@@ -25,20 +26,20 @@ google-http-client-gson = "1.42.3"
 gson = "2.13.1"
 junit = "4.13.2"
 junit-android = "1.3.0"
-androidx-test-runner = "1.6.2"
+androidx-test-runner = "1.7.0"
 koin = "4.1.0"
 kotlin = "2.2.0"
 ksp = "2.2.0-2.0.2"
 lifecycle = "2.9.2"
 material = "1.12.0"
 material3 = "1.4.0-beta01"
-mixpanel = "8.2.0"
+mixpanel = "8.2.1"
 navigation = "2.9.3"
 okhttp = "4.12.0"
 preference = "1.2.1"
 recyclerview = "1.4.0"
 recyclerview-selection = "1.2.0"
-androidx-security-crypto = "1.1.0-beta01"
+androidx-security-crypto = "1.1.0"
 swiperefreshlayout = "1.1.0"
 retrofit = "3.0.0"
 robolectric = "4.15.1"
@@ -70,7 +71,7 @@ tor-android = "0.4.7.14"
 jtorctl = "0.4.5.7"
 firebase-crashlytics = "20.0.0"
 google-gms-google-services = "4.4.3"
-google-firebase-crashlytics = "3.0.5"
+google-firebase-crashlytics = "3.0.6"
 
 [libraries]
 # AndroidX
@@ -113,10 +114,11 @@ androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime
 androidx-compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "compose" }
 
 compose-preferences = { group = "me.zhanghai.compose.preference", name = "library", version.ref = "compose-preference" }
-audio-waveform-vv101 = { module = "com.github.derlio:audio-waveform", version.ref = "audio-waveform-version" }
 
 # Google
-core = { module = "com.google.zxing:core", version.ref = "zxing-core" }
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing-core" }
+zxing-android-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxing-android" }
+
 google-api-client-android = { module = "com.google.api-client:google-api-client-android", version.ref = "google-api-client-android" }
 google-auth = { group = "com.google.android.gms", name = "play-services-auth", version = "21.3.0" }
 google-drive-api = { group = "com.google.apis", name = "google-api-services-drive", version = "v3-rev136-1.25.0" }
@@ -185,7 +187,7 @@ tor-android = { group = "info.guardianproject", name = "tor-android", version.re
 jtorctl = { group = "info.guardianproject", name = "jtorctl", version.ref = "jtorctl" }
 
 bitcoinj-core = { group = "org.bitcoinj", name = "bitcoinj-core", version.ref = "bitcoinj-core" }
-j2v8 = { group = "com.eclipsesource.j2v8", name = "j2v8", version.ref = "j2v8" }
+
 
 proofmode = { group = "org.proofmode", name = "android-libproofmode", version.ref = "proofmode" }
 
@@ -200,7 +202,7 @@ netcipher = { group = "info.guardianproject.netcipher", name = "netcipher", vers
 
 mixpanel = { group = "com.mixpanel.android", name = "mixpanel-android", version.ref = "mixpanel" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebase-crashlytics" }
-zxing-android-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxing-android-embedded" }
+
 
 [plugins]
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

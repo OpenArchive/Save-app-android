@@ -234,16 +234,14 @@ dependencies {
     implementation(libs.permissionx)
 
     // Barcode Scanning
-    implementation(libs.core)
+    implementation(libs.zxing.core)
     implementation(libs.zxing.android.embedded)
 
     // Security and Encryption
     implementation(libs.bouncycastle.bcpkix)
+    // Ed25519 for DID signature authentication
     implementation(libs.bouncycastle.bcprov)
     api(libs.bouncycastle.bcpg)
-
-    // Ed25519 for DID signature authentication
-    implementation("org.bouncycastle:bcprov-jdk15to18:1.70")
 
     // Google Play Services
     implementation(libs.google.auth)
@@ -290,7 +288,7 @@ dependencies {
     // adding web dav support: https://github.com/thegrizzlylabs/sardine-android'
     implementation(libs.guardianproject.sardine)
 
-    implementation(libs.audio.waveform.vv101)
+    implementation(libs.audio.waveform)
 
     implementation(libs.clean.insights)
     implementation(libs.netcipher)
@@ -312,7 +310,7 @@ dependencies {
     detektPlugins(libs.detekt.compose)
     detektPlugins(libs.detekt.rules.compose)
 
-//    debugImplementation("com.squareup.leakcanary:leakcanary-android:3.0-alpha-8")
+    //debugImplementation("com.squareup.leakcanary:leakcanary-android:3.0-alpha-8")
 }
 
 configurations.all {
