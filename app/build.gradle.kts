@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.Properties
@@ -28,27 +30,38 @@ fun loadLocalProperties(): Properties = Properties().apply {
     }
 }
 
+kotlin {
+
+    compilerOptions {
+
+        jvmTarget.set(JvmTarget.JVM_17)
+        languageVersion.set(KotlinVersion.KOTLIN_2_1)
+    }
+}
+
+kotlin {
+    compilerOptions {
+
+        jvmTarget.set(JvmTarget.JVM_17)
+        languageVersion.set(KotlinVersion.KOTLIN_2_1)
+    }
+}
+
 android {
 
-    //noinspection GradleDependency
-    compileSdk = 34
+    compileSdk = 36
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     defaultConfig {
         applicationId = "net.opendasharchive.openarchive"
         minSdk = 29
-        //noinspection OldTargetApi
-        targetSdk = 34
-        versionCode = 30013
-        versionName = "4.0.1"
+        targetSdk = 36
+        versionCode = 30016
+        versionName = "4.0.2"
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -168,6 +181,7 @@ dependencies {
     implementation(libs.androidx.swiperefresh)
 
     // Compose Libraries
+    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
@@ -205,13 +219,10 @@ dependencies {
     implementation(libs.koin.compose.viewmodel.navigation)
 
     // Image Libraries
-    implementation(libs.glide)
-    annotationProcessor(libs.glide.compiler)
-    implementation(libs.asafirm.image.picker)
-    implementation(libs.picasso)
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
+    implementation(libs.coil.network)
 
     // Networking and Data
     // Networking
@@ -224,8 +235,8 @@ dependencies {
 
     // Utility Libraries
     implementation(libs.timber)
-    implementation(libs.orhanobut.logger)
-    implementation(libs.abdularis.circularimageview)
+    //implementation(libs.orhanobut.logger)
+    //implementation(libs.abdularis.circularimageview)
     implementation(libs.dotsindicator)
     implementation(libs.permissionx)
 
@@ -239,7 +250,7 @@ dependencies {
     api(libs.bouncycastle.bcpg)
 
     // Google Play Services
-    implementation("com.google.android.gms:play-services-auth:21.3.0")
+    implementation(libs.google.auth)
     implementation(libs.google.play.asset.delivery.ktx)
     implementation(libs.google.play.feature.delivery)
     implementation(libs.google.play.feature.delivery.ktx)
@@ -248,16 +259,16 @@ dependencies {
     implementation(libs.google.play.app.update.ktx)
 
     // Google Drive API
-    implementation("com.google.http-client:google-http-client-gson:1.42.3")
-    implementation("com.google.api-client:google-api-client-android:1.26.0")
-    implementation("com.google.apis:google-api-services-drive:v3-rev136-1.25.0")
+    implementation(libs.google.http.client.gson)
+    implementation(libs.google.api.client.android)
+    implementation(libs.google.drive.api)
 
     // Tor Libraries
     implementation(libs.tor.android)
     implementation(libs.jtorctl)
 
     implementation(libs.bitcoinj.core)
-    implementation("com.eclipsesource.j2v8:j2v8:6.2.1@aar")
+    //implementation("com.eclipsesource.j2v8:j2v8:6.2.1@aar")
 
     // ProofMode //from here: https://github.com/guardianproject/proofmode
     implementation(libs.proofmode) {
@@ -292,11 +303,11 @@ dependencies {
     implementation(libs.mixpanel)
 
     // Tests
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.robolectric:robolectric:4.14.1")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test:runner:1.6.2")
-    testImplementation("androidx.work:work-testing:2.9.1")
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+    testImplementation(libs.work.testing)
 
     // Detekt
     detektPlugins(libs.detekt.formatting)

@@ -1,12 +1,7 @@
 package net.opendasharchive.openarchive.core.logger
 
 import android.content.Context
-import com.orhanobut.logger.AndroidLogAdapter
-import com.orhanobut.logger.DiskLogAdapter
-import com.orhanobut.logger.FormatStrategy
-import com.orhanobut.logger.Logger
-import com.orhanobut.logger.PrettyFormatStrategy
-import net.opendasharchive.openarchive.BuildConfig
+import net.opendasharchive.openarchive.core.logger.AppLogger.init
 import net.opendasharchive.openarchive.util.Analytics
 import timber.log.Timber
 
@@ -102,6 +97,20 @@ object AppLogger {
         override fun createStackElementTag(element: StackTraceElement): String? {
             // Customize the tag to include the class name and line number
             return "${element.fileName}:${element.lineNumber}"
+        }
+    }
+
+
+    val imageLogger = object : coil3.util.Logger {
+        override var minLevel: coil3.util.Logger.Level = coil3.util.Logger.Level.Verbose
+
+        override fun log(
+            tag: String,
+            level: coil3.util.Logger.Level,
+            message: String?,
+            throwable: Throwable?
+        ) {
+            Timber.tag("Coil3:$tag").log(level.ordinal, throwable, message)
         }
     }
 }

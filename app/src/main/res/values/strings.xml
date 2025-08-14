@@ -25,7 +25,7 @@
 
     <!-- FirstStartActivity -->
     <string name="internet_archive">Internet Archive</string>
-    <string name="internet_archive_description">Upload your media to a free public or paid private account on the Internet Archive.</string>
+    <string name="internet_archive_description">Upload your media to a free public account on the Internet Archive.</string>
     <string name="dweb_title">DWeb Service</string>
     <string name="dweb_description">Connect to the decentralized web</string>
     <string name="gdrive" translatable="false">Google Drive</string>
@@ -196,7 +196,7 @@
     <string name="to_get_started_more_hint">You can add multiple private servers and\none IA account at any time.</string>
     <string name="in_the_side_menu_you_can_add_another_server_and_connect_to_multiple_servers">In the side menu, you can add another server and connect to multiple servers</string>
     <string name="send_directly_to_a_private_server">Connect to a secure WebDAV server</string>
-    <string name="upload_to_the_internet_archive">Connect to a free public or paid private server</string>
+    <string name="upload_to_the_internet_archive">Connect to a free public server</string>
     <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">Connect to a WebDAV-compatible servers, e.g. Nexcloud and ownCloud.</string>
     <string name="action_next">Next</string>
     <string name="action_done">Done</string>
