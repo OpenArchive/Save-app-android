@@ -21,10 +21,6 @@ import net.opendasharchive.openarchive.services.storacha.util.CarFileCreator
 import net.opendasharchive.openarchive.services.storacha.util.DidManager
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaMediaViewModel
 import net.opendasharchive.openarchive.util.extensions.toggle
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 import java.io.File
@@ -75,8 +71,7 @@ class StorachaMediaFragment :
         }
 
         mBinding.rvMediaList.addOnScrollListener(
-            object :
-                androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
+            object : androidx.recyclerview.widget.RecyclerView.OnScrollListener() {
                 override fun onScrolled(
                     recyclerView: androidx.recyclerview.widget.RecyclerView,
                     dx: Int,
@@ -146,8 +141,12 @@ class StorachaMediaFragment :
         val userDid = DidManager(requireContext()).getOrCreateDid()
         val spaceDid = arguments?.getString("spaceDid") ?: return
 
-        // Create temporary file from URI
-        val tempFile = File(requireContext().cacheDir, "temp-${System.currentTimeMillis()}")
+        // Create temporary file from URI with original extension
+        val originalName = getFileName(uri) ?: "unknown"
+        val extension = originalName.substringAfterLast('.', "")
+        val fileName =
+            if (extension.isNotEmpty()) "temp-${System.currentTimeMillis()}.$extension" else "temp-${System.currentTimeMillis()}"
+        val tempFile = File(requireContext().cacheDir, fileName)
         requireContext().contentResolver.openInputStream(uri)?.use { input ->
             FileOutputStream(tempFile).use { output ->
                 input.copyTo(output)
@@ -156,9 +155,15 @@ class StorachaMediaFragment :
 
         // Generate proper CAR file from the temporary file
         val carData = CarFileCreator.createCarFile(tempFile)
-        
+
+        // Debug: Save CAR data to file for inspection
+        val carFile =
+            File(requireContext().cacheDir, "car_files/temp-${System.currentTimeMillis()}.car")
+        carFile.parentFile?.mkdirs()
+        carFile.writeBytes(carData)
+
         // Clean up temporary file
-        //tempFile.delete()
+        // tempFile.delete()
 
         viewModel.uploadFile(userDid, spaceDid, carData)
     }
@@ -185,7 +190,12 @@ class StorachaMediaFragment :
         getMultipleContentsLauncher.launch("*/*")
     }
 
-    override fun getToolbarTitle(): String {
-        return arguments?.getString("spaceName") ?: getString(R.string.browse_files)
-    }
+    private fun getFileName(uri: Uri): String? =
+        requireContext().contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+            cursor.moveToFirst()
+            cursor.getString(nameIndex)
+        }
+
+    override fun getToolbarTitle(): String = arguments?.getString("spaceName") ?: getString(R.string.browse_files)
 }
