@@ -17,6 +17,6 @@ class SnowbirdGroupOverviewFragment private constructor(): BaseFragment() {
     }
 
     override fun getToolbarTitle(): String {
-        return "Raven Group Overview"
+        return "DWeb Group Overview"
     }
 }

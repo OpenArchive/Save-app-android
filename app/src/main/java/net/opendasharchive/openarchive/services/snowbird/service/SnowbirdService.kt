@@ -151,7 +151,7 @@ class SnowbirdService : Service() {
         }
 
         return NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Raven Service")
+            .setContentTitle("DWeb Service")
             .setContentText(text)
             .setSmallIcon(R.drawable.ic_app_notify)
             .setContentIntent(pendingIntent)

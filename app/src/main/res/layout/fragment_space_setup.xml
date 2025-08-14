@@ -235,7 +235,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
                         android:gravity="center_vertical"
-                        android:text="Raven"
+                        android:text="DWeb"
                         android:textSize="16sp" />
 
                 </LinearLayout>

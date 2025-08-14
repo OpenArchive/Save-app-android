@@ -177,7 +177,7 @@ class SnowbirdFragment : BaseFragment() {
     }
 
     override fun getToolbarTitle(): String {
-        return "Raven"
+        return "DWeb Service"
     }
 }
 

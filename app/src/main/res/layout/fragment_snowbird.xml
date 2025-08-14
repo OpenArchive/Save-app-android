@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
                 android:lines="3"
-                android:text="Raven is OpenArchive's decentralized web (DWeb) service built with Iroh and Veilid."
+                android:text="DWeb is OpenArchive's decentralized web service built with Iroh and Veilid."
                 android:textColor="@color/colorSectionHeaderText"
                 android:textSize="16sp"
                 app:layout_constraintStart_toEndOf="@id/snowbird_logo"

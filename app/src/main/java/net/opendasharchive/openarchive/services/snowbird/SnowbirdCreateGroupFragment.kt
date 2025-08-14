@@ -250,7 +250,7 @@ class SnowbirdCreateGroupFragment : BaseFragment() {
     }
 
     override fun getToolbarTitle(): String {
-        return "Create Raven Group"
+        return "Create DWeb Group"
     }
 
     companion object {

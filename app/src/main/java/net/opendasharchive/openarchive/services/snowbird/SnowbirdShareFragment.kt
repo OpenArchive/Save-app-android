@@ -50,7 +50,7 @@ class SnowbirdShareFragment: BaseFragment() {
     }
 
     override fun getToolbarTitle(): String {
-        return "Share Raven Group"
+        return "Share DWeb Group"
     }
 
     companion object {
