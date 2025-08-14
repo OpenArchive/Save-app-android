@@ -87,13 +87,13 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory {
     private fun createSnowbirdNotificationChannel() {
         val silentChannel = NotificationChannel(
             SNOWBIRD_SERVICE_CHANNEL_SILENT,
-            "Raven Service",
+            "Dweb Service",
             NotificationManager.IMPORTANCE_LOW
         )
 
         val chimeChannel = NotificationChannel(
             SNOWBIRD_SERVICE_CHANNEL_CHIME,
-            "Raven Service",
+            "Dweb Service",
             NotificationManager.IMPORTANCE_DEFAULT
         )
 
