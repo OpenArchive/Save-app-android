@@ -72,7 +72,7 @@ data class Space(
         WEBDAV(0, "Private Server"),
         INTERNET_ARCHIVE(1, IaConduit.NAME),
         GDRIVE(4, GDriveConduit.NAME),
-        RAVEN(5, "DWeb Service"),
+        RAVEN(5, "DWeb Storage"),
     }
 
     enum class IconStyle {

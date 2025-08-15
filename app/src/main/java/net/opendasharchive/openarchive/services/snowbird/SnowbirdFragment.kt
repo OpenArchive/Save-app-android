@@ -177,7 +177,7 @@ class SnowbirdFragment : BaseFragment() {
     }
 
     override fun getToolbarTitle(): String {
-        return "DWeb Service"
+        return "DWeb Storage"
     }
 }
 
@@ -198,7 +198,7 @@ fun SnowbirdScreen(
 
         // Header texts
         SpaceAuthHeader(
-            description = "Preserve your media on the decentralized web (DWeb).",
+            description = "Preserve your media on the decentralized web (DWeb) Storage.",
             imagePainter = painterResource(R.drawable.ic_dweb),
             modifier = Modifier
                 .padding(vertical = 48.dp)
