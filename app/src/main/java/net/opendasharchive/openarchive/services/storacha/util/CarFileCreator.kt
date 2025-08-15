@@ -130,18 +130,18 @@ object CarFileCreator {
     ): ByteArray {
         val output = ByteArrayOutputStream()
 
+        // Field 1: UnixFS data (DAG-PB field 1 = Data)
+        val unixfsData = createUnixFsData(fileSize, mimeType)
+        output.write(0x0A) // field 1, wire type 2 (length-delimited)
+        output.write(encodeVarInt(unixfsData.size))
+        output.write(unixfsData)
+
         // Field 2: Links array with one link to raw block (DAG-PB field 2 = Links)
         output.write(0x12) // field 2, wire type 2 (length-delimited)
 
         val linkData = createPbLink(rawBlockCid, fileName, fileSize)
         output.write(encodeVarInt(linkData.size))
         output.write(linkData)
-
-        // Field 1: UnixFS data (DAG-PB field 1 = Data)
-        val unixfsData = createUnixFsData(fileSize, mimeType)
-        output.write(0x0A) // field 1, wire type 2 (length-delimited)
-        output.write(encodeVarInt(unixfsData.size))
-        output.write(unixfsData)
 
         return output.toByteArray()
     }
@@ -322,7 +322,7 @@ object CarFileCreator {
         output.write(0x58)
         output.write(0x25) // 37 = 1 (multibase) + 36 (CID bytes)
 
-        // 00 = multibase identity prefix
+        // 00 = multibase identity prefix (required for CBOR tag 42)
         output.write(0x00)
 
         // CID bytes (36 bytes: 1 + 1 + 2 + 32)
