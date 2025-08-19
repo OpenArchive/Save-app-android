@@ -6,9 +6,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.WindowInsetsCompat
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaAccountDetailsBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 
 class StorachaAccountDetailsFragment : BaseFragment() {
 
@@ -28,6 +30,13 @@ class StorachaAccountDetailsFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentStorachaAccountDetailsBinding.inflate(layoutInflater)
+
+        binding.buttonBar.applyEdgeToEdgeInsets(
+            typeMask = WindowInsetsCompat.Type.navigationBars()
+        ) { insets ->
+            bottomMargin = insets.bottom
+        }
+
         return binding.root
     }
 
