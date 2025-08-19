@@ -35,7 +35,7 @@ val storachaModule =
         single {
             Retrofit
                 .Builder()
-                .baseUrl("http://192.168.0.55:3000/") // Change to actual API base URL
+                .baseUrl("http://192.168.1.46:3000/") // Change to actual API base URL
                 .client(get())
                 .addConverterFactory(GsonConverterFactory.create(get()))
                 .build()
