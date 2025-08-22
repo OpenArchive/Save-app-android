@@ -221,9 +221,14 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
-    implementation(libs.guardianproject.sardine)
+    // adding web dav support: https://github.com/thegrizzlylabs/sardine-android'
+    //implementation(libs.guardianproject.sardine)
+    //implementation(libs.thegrizzlylabs.sardine)
+    implementation("com.github.elelan:sardine-android:0.1.0-alpha03")
 
-    // Utility Libraries
+
+
+// Utility Libraries
     implementation(libs.timber)
     //implementation(libs.orhanobut.logger)
     //implementation(libs.abdularis.circularimageview)
@@ -281,8 +286,7 @@ dependencies {
 
     implementation(libs.satyan.sugar)
 
-    // adding web dav support: https://github.com/thegrizzlylabs/sardine-android'
-    implementation("com.github.guardianproject:sardine-android:89f7eae512")
+
 
     implementation("com.github.derlio:audio-waveform:v1.0.1")
 

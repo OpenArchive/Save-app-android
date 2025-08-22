@@ -89,6 +89,8 @@ dependencyResolutionManagement {
                 includeModule("com.github.derlio", "audio-waveform")
                 includeModule("com.github.abdularis", "circularimageview")
                 includeModule("com.github.guardianproject", "sardine-android")
+                includeModule("com.github.thegrizzlylabs", "sardine-android")
+                includeModule("com.github.elelan", "sardine-android")
             }
         }
     }
