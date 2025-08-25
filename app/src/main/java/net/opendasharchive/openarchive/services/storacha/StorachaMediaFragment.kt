@@ -55,8 +55,10 @@ class StorachaMediaFragment :
 
         val spaceDid = arguments?.getString("spaceDid") ?: return
         val userDid = DidManager(requireContext()).getOrCreateDid()
+        val prefs = requireContext().getSharedPreferences("storacha_prefs", android.content.Context.MODE_PRIVATE)
+        val sessionId = prefs.getString("session_id", "") ?: ""
         viewModel.reset()
-        viewModel.loadMoreMediaEntries(userDid, spaceDid)
+        viewModel.loadMoreMediaEntries(userDid, spaceDid, sessionId)
 
         viewModel.loading.observe(viewLifecycleOwner) {
             mBinding.progressBar.toggle(it)
@@ -82,7 +84,7 @@ class StorachaMediaFragment :
                         val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
                         val totalItemCount = layoutManager.itemCount
                         if (lastVisibleItem >= totalItemCount - 1) {
-                            viewModel.loadMoreMediaEntries(userDid, spaceDid)
+                            viewModel.loadMoreMediaEntries(userDid, spaceDid, sessionId)
                         }
                     }
                 }
@@ -164,8 +166,9 @@ class StorachaMediaFragment :
 
         // Clean up temporary file
         // tempFile.delete()
-
-        viewModel.uploadFile(userDid, spaceDid, carData)
+        val prefs = requireContext().getSharedPreferences("storacha_prefs", android.content.Context.MODE_PRIVATE)
+        val sessionId = prefs.getString("session_id", "") ?: ""
+        viewModel.uploadFile(userDid, spaceDid, carData, sessionId)
     }
 
     private fun handleSelectedFiles(uris: List<Uri>) {

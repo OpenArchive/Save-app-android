@@ -36,6 +36,7 @@ class StorachaMediaViewModel(
     fun loadMoreMediaEntries(
         userDid: String,
         spaceDid: String,
+        sessionId: String,
     ) {
         if (isLoading || !hasMoreData) return
 
@@ -50,6 +51,7 @@ class StorachaMediaViewModel(
                         spaceDid = spaceDid,
                         cursor = currentCursor,
                         size = 20, // adjust page size as needed
+                        sessionId = sessionId,
                     )
 
                 val newEntries = response.uploads
@@ -71,10 +73,11 @@ class StorachaMediaViewModel(
         userDid: String,
         spaceDid: String,
         carData: ByteArray,
+        sessionId: String,
     ) {
         viewModelScope.launch {
             try {
-                val authHeaders = bridgeUploader.fetchBridgeTokens(userDid, spaceDid)
+                val authHeaders = bridgeUploader.fetchBridgeTokens(userDid, spaceDid, sessionId)
                 val response = bridgeUploader.uploadCarFile(carData, authHeaders)
                 val uploadResponse =
                     UploadResponse(

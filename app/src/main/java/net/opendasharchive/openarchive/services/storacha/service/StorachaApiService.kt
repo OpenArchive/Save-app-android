@@ -81,14 +81,14 @@ interface StorachaApiService {
 
     @GET("spaces")
     suspend fun listSpaces(
-        @Header("x-user-did") userDid: String? = null,
-        @Header("x-session-id") sessionId: String? = null,
+        @Header("x-user-did") userDid: String,
+        @Header("x-session-id") sessionId: String,
     ): List<SpaceInfo>
 
     @GET("spaces/usage")
     suspend fun getSpaceUsage(
-        @Header("x-session-id") sessionId: String? = null,
-        @Header("x-user-did") userDid: String? = null,
+        @Header("x-session-id") sessionId: String,
+        @Header("x-user-did") userDid: String,
         @Query("spaceDid") spaceDid: String,
     ): SpaceUsageResponse
 
@@ -100,6 +100,7 @@ interface StorachaApiService {
     @GET("uploads")
     suspend fun listUploads(
         @Header("x-user-did") userDid: String,
+        @Header("x-session-id") sessionId: String,
         @Query("spaceDid") spaceDid: String,
         @Query("cursor") cursor: String? = null,
         @Query("size") size: Int? = null,
