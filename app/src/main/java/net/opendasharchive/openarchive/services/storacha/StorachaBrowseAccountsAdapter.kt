@@ -1,6 +1,7 @@
 package net.opendasharchive.openarchive.services.storacha
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -9,6 +10,7 @@ import net.opendasharchive.openarchive.databinding.StorachaDidRowBinding
 
 class StorachaBrowseAccountsAdapter(
     private val accounts: List<Account> = emptyList(),
+    private val isDid: Boolean,
     private val onClick: (account: Account) -> Unit,
 ) : RecyclerView.Adapter<StorachaBrowseAccountsAdapter.AccountViewHolder>() {
     override fun onCreateViewHolder(
@@ -35,11 +37,19 @@ class StorachaBrowseAccountsAdapter(
             binding.root,
         ) {
         fun bind(account: Account) {
-            val icon = ContextCompat.getDrawable(binding.icon.context, R.drawable.ic_account_circle)
-            icon?.setTint(ContextCompat.getColor(binding.icon.context, R.color.colorOnBackground))
-            binding.icon.setImageDrawable(icon)
+            if (!isDid) {
+                val icon = ContextCompat.getDrawable(binding.icon.context, R.drawable.ic_account_circle)
+                icon?.setTint(ContextCompat.getColor(binding.icon.context, R.color.colorOnBackground))
+                binding.icon.setImageDrawable(icon)
+            } else {
+                binding.icon.visibility = View.GONE
+                binding.rvTick.setImageResource(R.drawable.ic_delete_danger_24dp)
+                binding.rvTick.imageTintList =
+                    android.content.res.ColorStateList
+                        .valueOf(ContextCompat.getColor(binding.rvTick.context, R.color.red))
+            }
             binding.didKey.text = account.email
-            binding.root.setOnClickListener {
+            binding.rvTick.setOnClickListener {
                 onClick.invoke(account)
             }
         }

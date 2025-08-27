@@ -16,6 +16,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaViewDidsBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.features.core.UiImage
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.folders.Folder
 import net.opendasharchive.openarchive.util.extensions.toggle
 
@@ -44,8 +48,32 @@ class StorachaViewDIDsFragment : BaseFragment(), MenuProvider {
             mBinding.projectsEmpty.toggle(false)
             mBinding.progressBar.toggle(false)
             mBinding.rvFolderList.adapter =
-                StorachaBrowseAccountsAdapter(listOf(Account("did:key:z6MkhMZsRrTyfxGq9pRwTW6vZK7ZTVqCGTTgzs2342342"),Account("did:key:z6MkhMZsRrTyfxGq9pRwTW6vZK7ZTVqCGTTgzsZfuAqS8a6D"),Account("did:key:z6MkhMZsRrTyfxGq9pRwTW6vZK7ZTVqCGTTgzsZ234234"),Account("did:key:z6MkhMZsRrTyfxGq9pRwTW6vZK7ZTVqCGTTgzsZf234234"))) { account ->
-
+                StorachaBrowseAccountsAdapter(
+                    listOf(
+                        Account("did:key:z6MkhMZsRrTyfxGq9pRwTW6vZK7ZTVqCGTTgzs2342342"),
+                        Account("did:key:z6MkhMZsRrTyfxGq9pRwTW6vZK7ZTVqCGTTgzsZfuAqS8a6D"),
+                        Account("did:key:z6MkhMZsRrTyfxGq9pRwTW6vZK7ZTVqCGTTgzsZ234234"),
+                        Account("did:key:z6MkhMZsRrTyfxGq9pRwTW6vZK7ZTVqCGTTgzsZf234234"),
+                    ),
+                    true,
+                ) { account ->
+                    dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+                        type = DialogType.Error
+                        icon = UiImage.DrawableResource(R.drawable.ic_trash)
+                        title = UiText.StringResource(R.string.revoke_access)
+                        message = UiText.StringResource(R.string.revoke_access_prompt)
+                        destructiveButton {
+                            text = UiText.StringResource(R.string.revoke)
+                            action = {
+                            }
+                        }
+                        neutralButton {
+                            text = UiText.StringResource(R.string.lbl_Cancel)
+                            action = {
+                                dialogManager.dismissDialog()
+                            }
+                        }
+                    }
                 }
         }, 500)
 

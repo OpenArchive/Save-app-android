@@ -51,6 +51,7 @@ class StorachaViewAccountsFragment :
                         Account("elelan@gmail.com"),
                         Account("navoda@gmail.com"),
                     ),
+                    false,
                 ) { account ->
                     val action =
                         StorachaViewAccountsFragmentDirections.fragmentStorachaAccountsToFragmentStorachaAccountDetails()

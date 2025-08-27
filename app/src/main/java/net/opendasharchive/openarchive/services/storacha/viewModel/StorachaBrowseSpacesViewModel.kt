@@ -26,19 +26,6 @@ class StorachaBrowseSpacesViewModel(
             try {
                 val spaceInfos = apiService.listSpaces(userDid, sessionId)
                 _spaces.value = spaceInfos
-//                _spaces.value =
-//                    listOf(
-//                        SpaceInfo(
-//                            did = "did:key:z6MkmQsS7ahy4AVJ7EwsRA3KEZqznoqL1YUeME9knkZNLcdc",
-//                            name = "did:key:z6MkmQsS7ahy4AVJ7EwsRA3KEZqznoqL1YUeME9knkZNLcdc",
-//                            isAdmin = true,
-//                        ),
-//                        SpaceInfo(
-//                            did = "did:key:z6MkmEAAZ8exQhxHJRf1Y9xY47kSoSrDmiDy6nEz8BidBrWJ",
-//                            name = "did:key:z6MkmEAAZ8exQhxHJRf1Y9xY47kSoSrDmiDy6nEz8BidBrWJ",
-//                            isAdmin = true,
-//                        ),
-//                    )
             } catch (e: Exception) {
                 _spaces.value = emptyList()
             } finally {

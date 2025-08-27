@@ -17,7 +17,7 @@ class BridgeUploader(
         sessionId: String,
     ): JSONObject =
         withContext(Dispatchers.IO) {
-            val url = "http://192.168.120.88:3000/bridge-tokens?spaceDid=$spaceDid"
+            val url = "http://192.168.0.55:3000/bridge-tokens?spaceDid=$spaceDid"
             val request =
                 Request
                     .Builder()

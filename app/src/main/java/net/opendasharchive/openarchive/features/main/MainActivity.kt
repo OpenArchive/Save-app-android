@@ -701,7 +701,13 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             binding.spaceNameLayout.visibility = View.INVISIBLE
         }
 
-        mSpaceAdapter.update(Space.getAll().asSequence().toList())
+        val spaces = Space.getAll().asSequence().toMutableList()
+        val prefs = getSharedPreferences("storacha_prefs", android.content.Context.MODE_PRIVATE)
+        val sessionId = prefs.getString("session_id", "") ?: ""
+        if (sessionId != "") {
+            spaces.add(Space(type = Space.Type.STORACHA.id, name = "Storacha Service"))
+        }
+        mSpaceAdapter.update(spaces)
         updateCurrentSpaceAtDrawer()
         refreshProjects()
         refreshCurrentProject()
@@ -894,6 +900,11 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         updateCurrentSpaceAtDrawer()
         collapseSpacesList()
         binding.root.closeDrawer(binding.drawerContent)
+        if (space.type == Space.Type.STORACHA.id) {
+            val intent = Intent(this, SpaceSetupActivity::class.java)
+            intent.putExtra("start_destination", "STORACHA")
+            startActivity(intent)
+        }
     }
 
     override fun onAddNewSpace() {
