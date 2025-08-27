@@ -4,12 +4,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaClientQrBinding
 import net.opendasharchive.openarchive.extensions.asQRCode
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.services.storacha.util.DidManager
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 
 class StorachaClientQRFragment : BaseFragment() {
     private lateinit var viewBinding: FragmentStorachaClientQrBinding
@@ -20,6 +22,13 @@ class StorachaClientQRFragment : BaseFragment() {
         savedInstanceState: Bundle?,
     ): View {
         viewBinding = FragmentStorachaClientQrBinding.inflate(inflater)
+
+        viewBinding.btnContinue.applyEdgeToEdgeInsets(
+            typeMask = WindowInsetsCompat.Type.navigationBars()
+        ) { insets ->
+            bottomMargin = insets.bottom
+        }
+
         return viewBinding.root
     }
 

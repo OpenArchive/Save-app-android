@@ -25,7 +25,7 @@
 
     <!-- FirstStartActivity -->
     <string name="internet_archive">Internet Archive</string>
-    <string name="internet_archive_description">Upload your media to a free public or paid private account on the Internet Archive.</string>
+    <string name="internet_archive_description">Upload your media to a free public account on the Internet Archive.</string>
     <string name="dweb_title">DWeb Service</string>
     <string name="dweb_description">Connect to the decentralized web</string>
     <string name="gdrive" translatable="false">Google Drive</string>
@@ -59,6 +59,10 @@
     <!-- Settings Fragment -->
     <string name="disable_passcode_dialog_title">Disable Passcode</string>
     <string name="disable_passcode_dialog_msg">Are you sure you want to disable the passcode?</string>
+
+    <string name="tor_disabled_title">Onion routing under development</string>
+    <string name="tor_disabled_message">This feature is currently under development. For now, you can use Orbot or any VPN of your choice to enhance your privacy and security.</string>
+    <string name="tor_download_btn_label">"Download Orbot"</string>
 
     <!-- ViewMediaActivity -->
     <string name="iv_content_desc">Main Image</string>
@@ -192,7 +196,7 @@
     <string name="to_get_started_more_hint">You can add multiple private servers and\none IA account at any time.</string>
     <string name="in_the_side_menu_you_can_add_another_server_and_connect_to_multiple_servers">In the side menu, you can add another server and connect to multiple servers</string>
     <string name="send_directly_to_a_private_server">Connect to a secure WebDAV server</string>
-    <string name="upload_to_the_internet_archive">Connect to a free public or paid private server</string>
+    <string name="upload_to_the_internet_archive">Connect to a free public server</string>
     <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">Connect to a WebDAV-compatible servers, e.g. Nexcloud and ownCloud.</string>
     <string name="action_next">Next</string>
     <string name="action_done">Done</string>
@@ -310,12 +314,12 @@
     <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href=\"%1$s\"><u>ProofMode</u></a>.]]></string>
     <string name="intro_link_verify" translatable="false">https://proofmode.org</string>
     <string name="intro_text_encrypt_old">Automatically upload over TLS (Transport Layer Security) and use Orbot to protect your media in transit over the Tor network.</string>
-    <string name="intro_text_encrypt" translatable="false"><![CDATA[<b><i>Save</i></b> always uploads over TLS (Transport Layer Security) to protect your media in transit.<br>To further enhance security, enable <a href=\"%1$s\"><u>Tor</u></a> to prevent interception of your media from your phone to the server.]]></string>
+    <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> always uploads over TLS (Transport Layer Security) to protect your media in transit.<br>To further enhance security, enable <a href=\"%1$s\"><u>Orbot</u></a> to prevent interception of your media from your phone to the server.]]></string>
 <!--    <string name="intro_text_encrypt">-->
 <!--        &lt;b&gt;&lt;i&gt;Save&lt;/i&gt;&lt;/b&gt; always uploads over TLS (Transport Layer Security) to protect your media in transit.&lt;br&gt;-->
 <!--        To further enhance security, enable &lt;a href="%1$s" style="text-decoration: underline;"&gt;Tor&lt;/a&gt; to prevent interception of your media from your phone to the server.-->
 <!--    </string>-->
-    <string name="intro_link_encrypt" translatable="false">https://www.torproject.org</string>
+    <string name="intro_link_encrypt" translatable="false">https://orbot.app/</string>
 
     <string name="next">Next</string>
     <string name="done">Done</string>
@@ -450,8 +454,11 @@
     <string name="lbl_no_servers">No servers added yet.</string>
     <string name="lbl_no_archived_folders">No archived folders found.</string>
     <string name="error_no_internet">Internet not available</string>
+    <string name="unavailable">unavailable</string>
+    <string name="save_by_open_archive">Save by OpenArchive</string>
+    <string name="discover_the_save_app">Learn More</string>
 
-
+    <!-- Storacha -->
     <string name="storacha">Storacha</string>
     <string name="manage_accounts">Manage Accounts</string>
     <string name="my_spaces">My Spaces</string>

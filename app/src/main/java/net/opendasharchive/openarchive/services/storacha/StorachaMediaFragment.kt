@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuProvider
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -21,6 +22,7 @@ import net.opendasharchive.openarchive.services.storacha.model.UploadEntry
 import net.opendasharchive.openarchive.services.storacha.util.CarFileCreator
 import net.opendasharchive.openarchive.services.storacha.util.DidManager
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaMediaViewModel
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.toggle
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
@@ -40,6 +42,13 @@ class StorachaMediaFragment :
         savedInstanceState: Bundle?,
     ): View {
         mBinding = FragmentStorachaMediaBinding.inflate(layoutInflater)
+
+        mBinding.addButton.applyEdgeToEdgeInsets(
+            typeMask = WindowInsetsCompat.Type.navigationBars()
+        ) { insets ->
+            bottomMargin = insets.bottom
+        }
+
         mBinding.rvMediaList.layoutManager = LinearLayoutManager(requireContext())
         return mBinding.root
     }

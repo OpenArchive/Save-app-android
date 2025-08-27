@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -24,7 +25,6 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import net.opendasharchive.openarchive.BuildConfig
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.FragmentWebDavBinding
@@ -40,6 +40,7 @@ import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
 import net.opendasharchive.openarchive.services.SaveClient
 import net.opendasharchive.openarchive.services.internetarchive.Util
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.makeSnackBar
 import net.opendasharchive.openarchive.util.extensions.show
@@ -70,6 +71,13 @@ class WebDavFragment : BaseFragment() {
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentWebDavBinding.inflate(inflater)
+
+        binding.buttonBar.applyEdgeToEdgeInsets(
+            typeMask = WindowInsetsCompat.Type.navigationBars()
+        ) { insets ->
+
+            bottomMargin = insets.bottom
+        }
 
         mSpaceId = arguments?.getLong(ARG_SPACE_ID) ?: ARG_VAL_NEW_SPACE
 
