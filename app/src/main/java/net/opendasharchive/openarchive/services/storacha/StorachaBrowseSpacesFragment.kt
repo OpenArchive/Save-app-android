@@ -48,8 +48,9 @@ class StorachaBrowseSpacesFragment : BaseFragment() {
                 StorachaBrowseSpacesAdapter(list) { space ->
                     val action =
                         StorachaBrowseSpacesFragmentDirections.actionFragmentStorachaBrowseSpacesToFragmentStorachaMedia(
-                            spaceDid = space.did,
+                            spaceId = space.did,
                             spaceName = space.name,
+                            sessionId = sessionId,
                         )
                     findNavController().navigate(action)
                 }

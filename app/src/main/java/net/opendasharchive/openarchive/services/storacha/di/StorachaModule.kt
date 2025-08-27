@@ -7,6 +7,8 @@ import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaBrows
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaEmailVerificationSentViewModel
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaLoginViewModel
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaMediaViewModel
+import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaViewDIDsViewModel
+import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaDIDAccessViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.core.module.dsl.viewModel
@@ -50,6 +52,8 @@ val storachaModule =
         viewModelOf(::StorachaLoginViewModel)
         viewModelOf(::StorachaBrowseSpacesViewModel)
         viewModelOf(::StorachaMediaViewModel)
+        viewModelOf(::StorachaViewDIDsViewModel)
+        viewModelOf(::StorachaDIDAccessViewModel)
         viewModel { (sessionId: String) ->
             StorachaEmailVerificationSentViewModel(
                 get(),
