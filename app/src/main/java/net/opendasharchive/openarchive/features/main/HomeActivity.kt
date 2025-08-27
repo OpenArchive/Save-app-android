@@ -151,7 +151,7 @@ class HomeActivity: FragmentActivity() {
             when (mediaType) {
                 AddMediaType.CAMERA -> {
                     // Launch the camera using Picker.
-                    Picker.takePhoto(this, mediaLaunchers.cameraLauncher)
+                    Picker.takePhotoModern(this, mediaLaunchers.modernCameraLauncher)
                 }
                 AddMediaType.GALLERY -> {
                     // Launch the gallery/image picker.
