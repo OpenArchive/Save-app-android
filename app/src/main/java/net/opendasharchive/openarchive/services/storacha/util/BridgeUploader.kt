@@ -14,6 +14,7 @@ class BridgeUploader(
     suspend fun fetchBridgeTokens(
         userDid: String,
         spaceDid: String,
+        sessionId: String,
     ): JSONObject =
         withContext(Dispatchers.IO) {
             val url = "http://192.168.0.55:3000/bridge-tokens?spaceDid=$spaceDid"
@@ -22,6 +23,7 @@ class BridgeUploader(
                     .Builder()
                     .url(url)
                     .addHeader("x-user-did", userDid)
+                    .addHeader("x-session-id", sessionId)
                     .build()
             val response = client.newCall(request).execute()
             JSONObject(response.body?.string() ?: "")

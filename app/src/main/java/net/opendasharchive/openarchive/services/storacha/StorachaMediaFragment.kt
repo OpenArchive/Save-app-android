@@ -13,6 +13,7 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaMediaBinding
@@ -33,6 +34,7 @@ class StorachaMediaFragment :
     MenuProvider {
     private lateinit var mBinding: FragmentStorachaMediaBinding
     private val viewModel: StorachaMediaViewModel by viewModel()
+    private val args: StorachaMediaFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -62,10 +64,11 @@ class StorachaMediaFragment :
             openFilePicker()
         }
 
-        val spaceDid = arguments?.getString("spaceDid") ?: return
+        val spaceDid = args.spaceId
+        val sessionId = args.sessionId
         val userDid = DidManager(requireContext()).getOrCreateDid()
         viewModel.reset()
-        viewModel.loadMoreMediaEntries(userDid, spaceDid)
+        viewModel.loadMoreMediaEntries(userDid, spaceDid, sessionId)
 
         viewModel.loading.observe(viewLifecycleOwner) {
             mBinding.progressBar.toggle(it)
@@ -91,7 +94,7 @@ class StorachaMediaFragment :
                         val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
                         val totalItemCount = layoutManager.itemCount
                         if (lastVisibleItem >= totalItemCount - 1) {
-                            viewModel.loadMoreMediaEntries(userDid, spaceDid)
+                            viewModel.loadMoreMediaEntries(userDid, spaceDid, sessionId)
                         }
                     }
                 }
@@ -119,7 +122,10 @@ class StorachaMediaFragment :
         when (menuItem.itemId) {
             R.id.action_add -> {
                 val action =
-                    StorachaMediaFragmentDirections.actionFragmentStorachaMediaToFragmentStorachaViewDids()
+                    StorachaMediaFragmentDirections.actionFragmentStorachaMediaToFragmentStorachaViewDids(
+                        spaceId = args.spaceId,
+                        sessionId = args.sessionId,
+                    )
                 findNavController().navigate(action)
                 true
             }
@@ -148,7 +154,7 @@ class StorachaMediaFragment :
         Timber.d("Going to upload file: $uri")
 
         val userDid = DidManager(requireContext()).getOrCreateDid()
-        val spaceDid = arguments?.getString("spaceDid") ?: return
+        val spaceDid = args.spaceId
 
         // Create temporary file from URI with original extension
         val originalName = getFileName(uri) ?: "unknown"
@@ -173,8 +179,8 @@ class StorachaMediaFragment :
 
         // Clean up temporary file
         // tempFile.delete()
-
-        viewModel.uploadFile(userDid, spaceDid, carData)
+        val sessionId = args.sessionId
+        viewModel.uploadFile(userDid, spaceDid, carData, sessionId)
     }
 
     private fun handleSelectedFiles(uris: List<Uri>) {
@@ -206,5 +212,5 @@ class StorachaMediaFragment :
             cursor.getString(nameIndex)
         }
 
-    override fun getToolbarTitle(): String = arguments?.getString("spaceName") ?: getString(R.string.browse_files)
+    override fun getToolbarTitle(): String = arguments?.getString("space_name") ?: getString(R.string.browse_files)
 }

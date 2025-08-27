@@ -489,4 +489,7 @@
     <string name="did_access_key">DID ACCESS KEY</string>
     <string name="browse_files">Files</string>
     <string name="no_media_available">No Media Available</string>
+    <string name="revoke_access">Revoke Access?\n</string>
+    <string name="revoke_access_prompt">"This will revoke access to this DID for this Space\n "</string>
+    <string name="revoke">Revoke</string>
 </resources>

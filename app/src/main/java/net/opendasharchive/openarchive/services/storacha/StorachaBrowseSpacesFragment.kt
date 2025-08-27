@@ -34,7 +34,9 @@ class StorachaBrowseSpacesFragment : BaseFragment() {
     ) {
         super.onViewCreated(view, savedInstanceState)
         val did = DidManager(requireContext()).getOrCreateDid()
-        viewModel.loadSpaces(did)
+        val prefs = requireContext().getSharedPreferences("storacha_prefs", android.content.Context.MODE_PRIVATE)
+        val sessionId = prefs.getString("session_id", "") ?: ""
+        viewModel.loadSpaces(did, sessionId)
 
         viewModel.loading.observe(viewLifecycleOwner) {
             mBinding.progressBar.toggle(it)
@@ -46,8 +48,9 @@ class StorachaBrowseSpacesFragment : BaseFragment() {
                 StorachaBrowseSpacesAdapter(list) { space ->
                     val action =
                         StorachaBrowseSpacesFragmentDirections.actionFragmentStorachaBrowseSpacesToFragmentStorachaMedia(
-                            spaceDid = space.did,
+                            spaceId = space.did,
                             spaceName = space.name,
+                            sessionId = sessionId,
                         )
                     findNavController().navigate(action)
                 }

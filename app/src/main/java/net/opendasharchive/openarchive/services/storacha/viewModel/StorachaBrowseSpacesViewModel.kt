@@ -17,25 +17,15 @@ class StorachaBrowseSpacesViewModel(
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> get() = _loading
 
-    fun loadSpaces(userDid: String) {
+    fun loadSpaces(
+        userDid: String,
+        sessionId: String,
+    ) {
         _loading.value = true
         viewModelScope.launch {
             try {
-                val spaceInfos = apiService.listSpaces(userDid)
-//                _spaces.value = spaceInfos
-                _spaces.value =
-                    listOf(
-                        SpaceInfo(
-                            did = "did:key:z6MkmQsS7ahy4AVJ7EwsRA3KEZqznoqL1YUeME9knkZNLcdc",
-                            name = "did:key:z6MkmQsS7ahy4AVJ7EwsRA3KEZqznoqL1YUeME9knkZNLcdc",
-                            isAdmin = true,
-                        ),
-                        SpaceInfo(
-                            did = "did:key:z6MkmEAAZ8exQhxHJRf1Y9xY47kSoSrDmiDy6nEz8BidBrWJ",
-                            name = "did:key:z6MkmEAAZ8exQhxHJRf1Y9xY47kSoSrDmiDy6nEz8BidBrWJ",
-                            isAdmin = true,
-                        ),
-                    )
+                val spaceInfos = apiService.listSpaces(userDid, sessionId)
+                _spaces.value = spaceInfos
             } catch (e: Exception) {
                 _spaces.value = emptyList()
             } finally {

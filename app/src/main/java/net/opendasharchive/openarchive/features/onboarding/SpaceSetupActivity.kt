@@ -19,7 +19,8 @@ enum class StartDestination {
     SPACE_LIST,
     DWEB_DASHBOARD,
     ADD_FOLDER,
-    ADD_NEW_FOLDER
+    ADD_NEW_FOLDER,
+    STORACHA
 }
 
 class SpaceSetupActivity : BaseActivity() {
@@ -81,6 +82,9 @@ class SpaceSetupActivity : BaseActivity() {
             }
             StartDestination.ADD_NEW_FOLDER -> {
                 navGraph.setStartDestination(R.id.fragment_create_new_folder)
+            }
+            StartDestination.STORACHA -> {
+                navGraph.setStartDestination(R.id.fragment_storacha)
             }
             else -> {
                 navGraph.setStartDestination(R.id.fragment_space_setup)
