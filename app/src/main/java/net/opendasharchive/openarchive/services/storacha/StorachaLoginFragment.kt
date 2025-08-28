@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaLoginBinding
 import net.opendasharchive.openarchive.services.storacha.util.DidManager
+import net.opendasharchive.openarchive.services.storacha.util.StorachaAccountManager
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaLoginViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -71,12 +72,9 @@ class StorachaLoginFragment : Fragment() {
             viewLifecycleOwner,
             Observer { result ->
                 result.onSuccess { loginResponse ->
-                    val prefs =
-                        requireContext().getSharedPreferences(
-                            "storacha_prefs",
-                            Context.MODE_PRIVATE,
-                        )
-                    prefs.edit { putString("session_id", loginResponse.sessionId) }
+                    val email = viewBinding.tvEmail.text.toString().trim()
+                    val accountManager = StorachaAccountManager(requireContext())
+                    accountManager.addAccount(email, loginResponse.sessionId)
 
                     val action =
                         if (loginResponse.verified) {

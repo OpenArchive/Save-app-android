@@ -20,6 +20,7 @@ import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaViewDIDsViewModel
+import net.opendasharchive.openarchive.services.storacha.viewModel.DidAccount
 import net.opendasharchive.openarchive.util.extensions.toggle
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -57,12 +58,16 @@ class StorachaViewDIDsFragment :
 
         viewModel.dids.observe(viewLifecycleOwner) { dids ->
             mBinding.projectsEmpty.toggle(dids.isEmpty())
+            // Convert DidAccount to Account for the adapter
+            val accounts = dids.map { Account(it.did, "") } // Empty sessionId since DIDs don't need it
             mBinding.rvFolderList.adapter =
                 StorachaBrowseAccountsAdapter(
-                    dids,
+                    accounts,
                     true,
                 ) { account ->
-                    showRevokeDialog(account)
+                    // Convert back to DidAccount for the dialog
+                    val didAccount = dids.find { it.did == account.email } ?: return@StorachaBrowseAccountsAdapter
+                    showRevokeDialog(didAccount)
                 }
         }
 
@@ -74,7 +79,7 @@ class StorachaViewDIDsFragment :
         }
     }
 
-    private fun showRevokeDialog(account: Account) {
+    private fun showRevokeDialog(account: DidAccount) {
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Error
             icon = UiImage.DrawableResource(R.drawable.ic_trash)

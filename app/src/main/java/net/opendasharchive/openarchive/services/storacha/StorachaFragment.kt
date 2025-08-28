@@ -8,6 +8,7 @@ import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.services.storacha.util.StorachaAccountManager
 
 class StorachaFragment : BaseFragment() {
     private lateinit var viewBinding: FragmentStorachaBinding
@@ -39,16 +40,36 @@ class StorachaFragment : BaseFragment() {
         }
 
         viewBinding.btnManageAccounts.setOnClickListener {
-            val action = StorachaFragmentDirections.actionFragmentStorachaToFragmentStorachaLogin()
-            findNavController().navigate(action)
+            navigateToAccountManagement()
         }
-
-        viewBinding.btnManageAccounts.setOnLongClickListener {
-            val action = StorachaFragmentDirections.actionFragmentStorachaToFragmentStorachaAccounts()
-            findNavController().navigate(action)
-            true
-        }
+        
+        updateButtonStates()
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        // Update button states when returning to this fragment
+        updateButtonStates()
+    }
+    
+    private fun updateButtonStates() {
+        val accountManager = StorachaAccountManager(requireContext())
+        val hasAccounts = accountManager.hasLoggedInAccounts()
+        
+        // Disable My Spaces button if no accounts are logged in
+        viewBinding.btnMySpaces.isEnabled = hasAccounts
+        viewBinding.btnMySpaces.alpha = if (hasAccounts) 1.0f else 0.5f
     }
 
     override fun getToolbarTitle(): String = getString(R.string.storacha)
+    
+    private fun navigateToAccountManagement() {
+        val accountManager = StorachaAccountManager(requireContext())
+        val action = if (accountManager.hasLoggedInAccounts()) {
+            StorachaFragmentDirections.actionFragmentStorachaToFragmentStorachaAccounts()
+        } else {
+            StorachaFragmentDirections.actionFragmentStorachaToFragmentStorachaLogin()
+        }
+        findNavController().navigate(action)
+    }
 }

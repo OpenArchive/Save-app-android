@@ -5,14 +5,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import net.opendasharchive.openarchive.services.storacha.Account
 import net.opendasharchive.openarchive.services.storacha.service.StorachaApiService
+
+data class DidAccount(
+    val did: String,
+)
 
 class StorachaViewDIDsViewModel(
     private val apiService: StorachaApiService,
 ) : ViewModel() {
-    private val _dids = MutableLiveData<List<Account>>()
-    val dids: LiveData<List<Account>> get() = _dids
+    private val _dids = MutableLiveData<List<DidAccount>>()
+    val dids: LiveData<List<DidAccount>> get() = _dids
 
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> get() = _loading
@@ -33,7 +36,7 @@ class StorachaViewDIDsViewModel(
                         sessionId = sessionId,
                         spaceDid = spaceDid,
                     )
-                val didAccounts = response.users?.map { Account(it) } ?: emptyList()
+                val didAccounts = response.users?.map { DidAccount(it) } ?: emptyList()
                 _dids.value = didAccounts
             } catch (e: Exception) {
                 _error.value = e.message ?: "Failed to load DIDs"
@@ -47,13 +50,13 @@ class StorachaViewDIDsViewModel(
     fun revokeDID(
         sessionId: String,
         spaceDid: String,
-        account: Account,
+        account: DidAccount,
     ) {
         viewModelScope.launch {
             try {
                 val request =
                     net.opendasharchive.openarchive.services.storacha.model.DelegationRevokeRequest(
-                        userDid = account.email, // email field contains the DID
+                        userDid = account.did,
                         spaceDid = spaceDid,
                     )
                 apiService.revokeDelegation(sessionId, request)

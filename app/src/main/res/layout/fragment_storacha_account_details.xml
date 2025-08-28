@@ -21,6 +21,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_email"
                 android:gravity="center"
+                android:enabled="false"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="prathieshnav@gmail.com"
@@ -48,7 +49,8 @@
                 android:layout_height="wrap_content"
                 android:text="Business"
                 android:textFontWeight="600"
-                android:textSize="18sp" />
+                android:textSize="18sp"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/tv_allocation_billing"
@@ -56,14 +58,15 @@
                 android:layout_height="wrap_content"
                 android:textStyle="italic"
                 android:text="2TiB and $0.03/over that"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/tv_utilisation"
                 android:layout_marginTop="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Used: 1024 GiB / 2048 GiB"
+                android:text="Used:"
                 android:textSize="14sp" />
 
 
@@ -78,7 +81,6 @@
             android:indeterminate="false"
             android:indeterminateBehavior="cycle"
             android:max="100"
-            android:progress="50"
             tools:visibility="visible"
             app:indicatorColor="@color/colorTertiary"
             app:indicatorSize="75dp"

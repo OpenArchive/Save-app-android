@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaAccountsBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.services.storacha.util.StorachaAccountManager
 import net.opendasharchive.openarchive.util.extensions.toggle
 
 class StorachaViewAccountsFragment :
@@ -38,28 +39,43 @@ class StorachaViewAccountsFragment :
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
+        loadLoggedInAccounts()
+        activity?.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        // Refresh accounts when returning from account details (in case account was logged out)
+        loadLoggedInAccounts()
+    }
+
+    private fun loadLoggedInAccounts() {
         mBinding.progressBar.toggle(true)
 
         Handler(Looper.getMainLooper()).postDelayed({
-            mBinding.projectsEmpty.toggle(false)
+            val accountManager = StorachaAccountManager(requireContext())
+            val loggedInAccounts = accountManager.getLoggedInAccounts()
+            
+            if (loggedInAccounts.isEmpty()) {
+                mBinding.projectsEmpty.toggle(true)
+                mBinding.rvAccountList.adapter = null
+            } else {
+                mBinding.projectsEmpty.toggle(false)
+                mBinding.rvAccountList.adapter =
+                    StorachaBrowseAccountsAdapter(
+                        loggedInAccounts.map { Account(it.email, it.sessionId) },
+                        false,
+                    ) { account ->
+                        val action =
+                            StorachaViewAccountsFragmentDirections.fragmentStorachaAccountsToFragmentStorachaAccountDetails(
+                                email = account.email,
+                                sessionId = account.sessionId
+                            )
+                        findNavController().navigate(action)
+                    }
+            }
             mBinding.progressBar.toggle(false)
-            mBinding.rvAccountList.adapter =
-                StorachaBrowseAccountsAdapter(
-                    listOf(
-                        Account("prathieshna@gmail.com"),
-                        Account("upul@gmail.com"),
-                        Account("elelan@gmail.com"),
-                        Account("navoda@gmail.com"),
-                    ),
-                    false,
-                ) { account ->
-                    val action =
-                        StorachaViewAccountsFragmentDirections.fragmentStorachaAccountsToFragmentStorachaAccountDetails()
-                    findNavController().navigate(action)
-                }
         }, 500)
-
-        activity?.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     override fun getToolbarTitle(): String = getString(R.string.accounts)

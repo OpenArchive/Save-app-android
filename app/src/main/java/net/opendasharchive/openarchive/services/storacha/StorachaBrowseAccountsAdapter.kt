@@ -58,4 +58,5 @@ class StorachaBrowseAccountsAdapter(
 
 data class Account(
     val email: String,
+    val sessionId: String,
 )
