@@ -200,6 +200,11 @@ class ProofModeSettingsActivity : BaseActivity() {
         mBinding.proofModeLearnMode.movementMethod =
             LinkMovementMethod.getInstance() // Enable link clicks
 
+        mBinding.infoCardText.text = HtmlCompat.fromHtml(
+            getString(R.string.proof_mode_warning_text),
+            HtmlCompat.FROM_HTML_MODE_COMPACT
+        )
+
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
