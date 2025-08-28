@@ -119,7 +119,7 @@
     <string name="prefs_use_proofmode_title">Enable ProofMode</string>
     <string name="prefs_use_proofmode_summary">Share ProofMode public key</string>
 <!--    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a system that enables authentication and verification of multimedia content, <a href="%1$s" style="text-decoration: underline;">learn more here</a>]]></string>-->
-    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a way to enhance the  authentication and verification of multimedia content. <a href=\"%1$s\"><u>learn more here.</u></a>]]></string>
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a way to enhance the authentication and verification of multimedia content. <a href=\"%1$s\"><u>learn more here.</u></a>]]></string>
     <!--    <string name="prefs_use_proofmode_description">-->
 <!--        ProofMode is a system that enables authentication and verification of multimedia content, &lt;a href="%1$s" style="text-decoration: underline;"&gt;learn more here&lt;/a&gt;-->
 <!--    </string>-->
