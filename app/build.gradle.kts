@@ -214,6 +214,18 @@ dependencies {
     implementation(libs.coil.video)
     implementation(libs.coil.network)
 
+    // CameraX
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.video)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.camera.extensions)
+
+    // Media3 ExoPlayer for video playback in camera preview
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
+
     // Networking and Data
     // Networking
     implementation(libs.retrofit)

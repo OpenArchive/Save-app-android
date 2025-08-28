@@ -62,6 +62,7 @@ import net.opendasharchive.openarchive.features.media.ContentPickerFragment
 import net.opendasharchive.openarchive.features.media.MediaLaunchers
 import net.opendasharchive.openarchive.features.media.Picker
 import net.opendasharchive.openarchive.features.media.PreviewActivity
+import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.features.onboarding.Onboarding23Activity
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.features.onboarding.StartDestination
@@ -840,10 +841,17 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 if (Prefs.addMediaHint) {
                     when (mediaType) {
                         AddMediaType.CAMERA -> {
-                            //permissionManager.checkCameraPermission {
-                                //Picker.takePhoto(this@MainActivity, mediaLaunchers.cameraLauncher)
-                                Picker.takePhotoModern(this@MainActivity, mediaLaunchers.modernCameraLauncher)
-                            //}
+                            // Use custom camera instead of system camera
+                            val cameraConfig = CameraConfig(
+                                allowVideoCapture = true,
+                                allowPhotoCapture = true,
+                                allowMultipleCapture = false,
+                                enablePreview = true,
+                                showFlashToggle = true,
+                                showGridToggle = true,
+                                showCameraSwitch = true
+                            )
+                            Picker.launchCustomCamera(this@MainActivity, mediaLaunchers.customCameraLauncher, cameraConfig)
                         }
 
                         AddMediaType.GALLERY -> {
