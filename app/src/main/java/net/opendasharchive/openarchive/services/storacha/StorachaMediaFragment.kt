@@ -114,8 +114,12 @@ class StorachaMediaFragment :
     override fun onPrepareMenu(menu: Menu) {
         super.onPrepareMenu(menu)
         val addMenuItem = menu.findItem(R.id.action_add)
-        addMenuItem?.isVisible = true
-        addMenuItem?.title = "Manage Access"
+        if (args.isAdmin) {
+            addMenuItem?.isVisible = true
+            addMenuItem?.title = "Manage Access"
+        } else {
+            addMenuItem?.isVisible = false
+        }
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean =

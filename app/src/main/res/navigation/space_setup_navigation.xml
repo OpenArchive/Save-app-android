@@ -334,6 +334,9 @@
         <argument
             android:name="session_id"
             app:argType="string" />
+        <argument
+            android:name="is_admin"
+            app:argType="boolean" />
         <action
             android:id="@+id/action_fragment_storacha_media_to_fragment_storacha_view_dids"
             app:destination="@id/fragment_storacha_view_dids" />

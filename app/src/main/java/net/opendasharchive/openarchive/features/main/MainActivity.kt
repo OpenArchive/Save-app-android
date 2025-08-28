@@ -68,6 +68,7 @@ import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
+import net.opendasharchive.openarchive.services.storacha.util.DidManager
 import net.opendasharchive.openarchive.upload.UploadManagerFragment
 import net.opendasharchive.openarchive.upload.UploadService
 import net.opendasharchive.openarchive.util.InAppReviewHelper
@@ -760,9 +761,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         }
 
         val spaces = Space.getAll().asSequence().toMutableList()
-        val prefs = getSharedPreferences("storacha_prefs", android.content.Context.MODE_PRIVATE)
-        val sessionId = prefs.getString("session_id", "") ?: ""
-        if (sessionId != "") {
+        if (DidManager(this).hasDid()) {
             spaces.add(Space(type = Space.Type.STORACHA.id, name = "Storacha Service"))
         }
         mSpaceAdapter.update(spaces)

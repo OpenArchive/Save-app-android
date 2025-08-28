@@ -51,6 +51,7 @@ class StorachaBrowseSpacesFragment : BaseFragment() {
                             spaceId = space.did,
                             spaceName = space.name,
                             sessionId = sessionId,
+                            isAdmin = space.isAdmin,
                         )
                     findNavController().navigate(action)
                 }
