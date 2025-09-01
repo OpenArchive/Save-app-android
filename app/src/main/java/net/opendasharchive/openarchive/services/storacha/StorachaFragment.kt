@@ -8,6 +8,7 @@ import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.services.storacha.util.DidManager
 import net.opendasharchive.openarchive.services.storacha.util.StorachaAccountManager
 
 class StorachaFragment : BaseFragment() {
@@ -54,7 +55,7 @@ class StorachaFragment : BaseFragment() {
     
     private fun updateButtonStates() {
         val accountManager = StorachaAccountManager(requireContext())
-        val hasAccounts = accountManager.hasLoggedInAccounts()
+        val hasAccounts = DidManager(requireContext()).hasDid()
         
         // Disable My Spaces button if no accounts are logged in
         viewBinding.btnMySpaces.isEnabled = hasAccounts

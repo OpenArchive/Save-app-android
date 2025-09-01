@@ -11,13 +11,15 @@ import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaEmailVerificationSentBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.services.storacha.util.StorachaAccountManager
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaEmailVerificationSentViewModel
 
 class StorachaEmailVerificationSentFragment : BaseFragment() {
     private lateinit var mBinding: FragmentStorachaEmailVerificationSentBinding
     private val viewModel: StorachaEmailVerificationSentViewModel by viewModel {
-        val prefs = requireContext().getSharedPreferences("storacha_prefs", android.content.Context.MODE_PRIVATE)
-        val sessionId = prefs.getString("session_id", "") ?: ""
+        val accountManager = StorachaAccountManager(requireContext())
+        val currentAccount = accountManager.getCurrentAccount()
+        val sessionId = currentAccount?.sessionId ?: ""
         parametersOf(sessionId)
     }
 
