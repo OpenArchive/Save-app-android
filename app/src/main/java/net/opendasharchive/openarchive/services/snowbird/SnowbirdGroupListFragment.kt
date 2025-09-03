@@ -74,6 +74,7 @@ class SnowbirdGroupListFragment : BaseFragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.action_add -> {
+
                             val action =
                                 SnowbirdGroupListFragmentDirections.actionFragmentSnowbirdGroupListToFragmentSnowbirdCreateGroup()
                             findNavController().navigate(action)

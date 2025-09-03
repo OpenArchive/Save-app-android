@@ -251,14 +251,5 @@ class SnowbirdFileListFragment : BaseFragment() {
     companion object {
         const val RESULT_VAL_RAVEN_GROUP_KEY = "dweb_group_key"
         const val RESULT_VAL_RAVEN_REPO_KEY = "dweb_repo_key"
-
-        @JvmStatic
-        fun newInstance(groupKey: String, repoKey: String) =
-            SnowbirdFileListFragment().apply {
-                arguments = Bundle().apply {
-                    putString(RESULT_VAL_RAVEN_GROUP_KEY, groupKey)
-                    putString(RESULT_VAL_RAVEN_REPO_KEY, repoKey)
-                }
-            }
     }
 }

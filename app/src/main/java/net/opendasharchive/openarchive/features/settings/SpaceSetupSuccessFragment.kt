@@ -57,14 +57,10 @@ class SpaceSetupSuccessFragment : BaseFragment() {
         }
 
         binding.btAuthenticate.setOnClickListener { _ ->
-            if (isJetpackNavigation) {
-                val intent = Intent(requireActivity(), MainActivity::class.java)
-                intent.flags =
-                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK // Clears backstack
-                startActivity(intent)
-            } else {
-                setFragmentResult(RESP_DONE, bundleOf())
-            }
+            val intent = Intent(requireActivity(), MainActivity::class.java)
+            intent.flags =
+                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK // Clears backstack
+            startActivity(intent)
         }
 
         return binding.root
@@ -103,20 +99,9 @@ class SpaceSetupSuccessFragment : BaseFragment() {
     }
 
     companion object {
-        const val RESP_DONE = "space_setup_success_fragment_resp_done"
-
         const val ARG_MESSAGE = "message"
         const val IS_DWEB = "is_dweb"
         const val DWEB_GROUP_KEY = "dweb_group_key"
-
-
-        @JvmStatic
-        fun newInstance(message: String) =
-            SpaceSetupSuccessFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_MESSAGE, message)
-                }
-            }
     }
 
     override fun getToolbarTitle() = getString(R.string.space_setup_success_title)

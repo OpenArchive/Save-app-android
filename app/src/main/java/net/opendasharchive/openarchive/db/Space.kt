@@ -150,7 +150,7 @@ data class Space(
     var tType: Type
         get() = Type.entries.first { it.id == type }
         set(value) {
-            type = (value ?: Type.WEBDAV).id
+            type = value.id
         }
 
     var license: String?

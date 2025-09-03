@@ -21,6 +21,7 @@ import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -52,7 +53,7 @@ import java.io.IOException
 import kotlin.coroutines.suspendCoroutine
 
 class WebDavFragment : BaseFragment() {
-    private var mSpaceId: Long? = null
+
     private lateinit var mSpace: Space
 
     private lateinit var mSnackbar: Snackbar
@@ -61,10 +62,7 @@ class WebDavFragment : BaseFragment() {
     private var originalName: String? = null
     private var isNameChanged = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        mSpaceId = arguments?.getLong(ARG_SPACE_ID) ?: ARG_VAL_NEW_SPACE
-    }
+    private val args: WebDavFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -79,12 +77,10 @@ class WebDavFragment : BaseFragment() {
             bottomMargin = insets.bottom
         }
 
-        mSpaceId = arguments?.getLong(ARG_SPACE_ID) ?: ARG_VAL_NEW_SPACE
-
-        if (mSpaceId != ARG_VAL_NEW_SPACE) {
+        if (args.spaceId != ARG_VAL_NEW_SPACE) {
             // setup views for editing an existing space
 
-            mSpace = Space.get(mSpaceId!!) ?: Space(Space.Type.WEBDAV)
+            mSpace = Space.get(args.spaceId) ?: Space(Space.Type.WEBDAV)
 
             binding.header.visibility = View.GONE
             binding.buttonBar.visibility = View.GONE
@@ -165,7 +161,7 @@ class WebDavFragment : BaseFragment() {
                     requireActivity().invalidateOptionsMenu() // Refresh menu to show confirm button
                 }
 
-                override fun afterTextChanged(s: android.text.Editable?) {}
+                override fun afterTextChanged(s: Editable?) {}
             })
 
             CreativeCommonsLicenseManager.initialize(binding.cc, mSpace.license) {
@@ -190,11 +186,7 @@ class WebDavFragment : BaseFragment() {
         binding.btAuthenticate.setOnClickListener { attemptLogin() }
 
         binding.btCancel.setOnClickListener {
-            if (isJetpackNavigation) {
-                findNavController().popBackStack()
-            } else {
-                setFragmentResult(RESP_CANCEL, bundleOf())
-            }
+            findNavController().popBackStack()
         }
 
         binding.server.setOnFocusChangeListener { _, hasFocus ->
@@ -218,7 +210,7 @@ class WebDavFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         mSnackbar = binding.root.makeSnackBar(getString(R.string.login_activity_logging_message))
 
-        if (mSpaceId != ARG_VAL_NEW_SPACE) {
+        if (args.spaceId != ARG_VAL_NEW_SPACE) {
             val menuProvider = object : MenuProvider {
                 override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                     menuInflater.inflate(R.menu.menu_confirm, menu)
@@ -417,21 +409,12 @@ class WebDavFragment : BaseFragment() {
     }
 
     private fun navigate(spaceId: Long) = CoroutineScope(Dispatchers.Main).launch {
-//        Utility.showMaterialMessage(
-//            context = requireContext(),
-//            title = "Success",
-//            message = "You have successfully authenticated! Now let's continue setting up your media server."
-//        ) {}
-        if (isJetpackNavigation) {
             val action =
-                WebDavFragmentDirections.actionFragmentWebDavToFragmentWebDavSetupLicense(
-                    spaceId = spaceId
+                WebDavFragmentDirections.actionFragmentWebDavToFragmentSetupLicense(
+                    spaceId = spaceId,
+                    spaceType = Space.Type.WEBDAV
                 )
             findNavController().navigate(action)
-        } else {
-            setFragmentResult(RESP_SAVED, bundleOf(ARG_SPACE_ID to spaceId))
-        }
-
     }
 
     private suspend fun testConnection() {
@@ -544,34 +527,16 @@ class WebDavFragment : BaseFragment() {
     }
 
     companion object {
-        // events emitted by this fragment
-        const val RESP_SAVED = "web_dav_fragment_resp_saved"
-        const val RESP_DELETED = "web_dav_fragment_resp_deleted"
-        const val RESP_CANCEL = "web_dav_fragment_resp_cancel"
-        const val RESP_LICENSE = "web_dav_fragment_resp_license"
-
-        // factory method parameters (bundle args)
-        const val ARG_SPACE_ID = "space_id"
         const val ARG_VAL_NEW_SPACE = -1L
 
         // other internal constants
         const val REMOTE_PHP_ADDRESS = "/remote.php/webdav/"
-
-        @JvmStatic
-        fun newInstance(spaceId: Long) = WebDavFragment().apply {
-            arguments = Bundle().apply {
-                putLong(ARG_SPACE_ID, spaceId)
-            }
-        }
-
-        @JvmStatic
-        fun newInstance() = newInstance(ARG_VAL_NEW_SPACE)
     }
 
-    override fun getToolbarTitle(): String = if (mSpaceId == ARG_VAL_NEW_SPACE) {
+    override fun getToolbarTitle(): String = if (args.spaceId == ARG_VAL_NEW_SPACE) {
         "Private Server"
     } else {
-        val space = Space.get(mSpaceId!!)
+        val space = Space.get(args.spaceId)
         space?.name ?: "Private Server"
     }
 }

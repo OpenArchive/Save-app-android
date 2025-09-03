@@ -253,18 +253,4 @@ class SnowbirdCreateGroupFragment : BaseFragment() {
         return "Create DWeb Storage Group"
     }
 
-    companion object {
-
-        const val RESULT_REQUEST_KEY = "create_group_result"
-
-        const val RESULT_NAVIGATION_KEY = "create_group_navigation"
-
-        const val RESULT_NAVIGATION_VAL_SHARE_SCREEN = "share_screen"
-
-        const val RESULT_BUNDLE_GROUP_KEY = "raven_create_group_fragment_bundle_group_id"
-
-        @JvmStatic
-        fun newInstance() = SnowbirdCreateGroupFragment()
-    }
-
 }
