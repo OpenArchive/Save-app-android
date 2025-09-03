@@ -51,6 +51,5 @@ val featuresModule = module {
         )
     }
 
-
     viewModelOf(::SpaceListViewModel)
 }

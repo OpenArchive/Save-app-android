@@ -32,5 +32,3 @@ val coreModule = module {
         )
     }
 }
-
-

@@ -9,8 +9,8 @@ import net.opendasharchive.openarchive.db.RequestName
 import net.opendasharchive.openarchive.db.SnowbirdFileList
 import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.db.SnowbirdGroupList
-import net.opendasharchive.openarchive.db.SnowbirdRepo
 import net.opendasharchive.openarchive.db.SnowbirdRepoList
+import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
@@ -39,8 +39,8 @@ interface RetrofitClient {
     suspend fun uploadFile(
         @Path("groupKey") groupKey: String,
         @Path("repoKey") repoKey: String,
-        @Path("filename") filename: String,
-        // @Body imageData: RequestBody
+        @Path(value = "filename", encoded = true) filename: String,
+        @Body imageData: RequestBody
     ): FileUploadResult
 
     // Groups

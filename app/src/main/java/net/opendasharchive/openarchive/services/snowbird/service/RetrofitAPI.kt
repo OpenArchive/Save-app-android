@@ -14,6 +14,11 @@ import net.opendasharchive.openarchive.db.SnowbirdGroupList
 import net.opendasharchive.openarchive.db.SnowbirdRepo
 import net.opendasharchive.openarchive.db.SnowbirdRepoList
 import net.opendasharchive.openarchive.extensions.getFilename
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
+import okio.BufferedSink
+import okio.source
 
 class RetrofitAPI(private var context: Context, private val client: RetrofitClient) : ISnowbirdAPI {
 
@@ -33,7 +38,32 @@ class RetrofitAPI(private var context: Context, private val client: RetrofitClie
     }
 
     override suspend fun uploadFile(groupKey: String, repoKey: String, uri: Uri): FileUploadResult {
-        return client.uploadFile(groupKey, repoKey, uri.getFilename(context)!!)
+        val resolver = context.contentResolver
+        val mediaType = resolver.getType(uri)?.toMediaTypeOrNull() ?: "application/octet-stream".toMediaType()
+        val length = resolver.openAssetFileDescriptor(uri, "r")?.use { afd ->
+            val l = afd.length
+            if (l > 0) l else -1L
+        } ?: -1L
+
+        val requestBody = object : RequestBody() {
+            override fun contentType() = mediaType
+            override fun contentLength(): Long = length
+            override fun writeTo(sink: BufferedSink) {
+                resolver.openInputStream(uri)?.use { input ->
+                    sink.writeAll(input.source())
+                }
+            }
+        }
+
+        // Encode for the path segment Rust expects as {file_name}
+        val encodedFilename = Uri.encode(uri.getFilename(context) ?: "upload.bin")
+
+        return client.uploadFile(
+            groupKey = groupKey,
+            repoKey = repoKey,
+            filename = encodedFilename,
+            imageData = requestBody
+        )
     }
 
 

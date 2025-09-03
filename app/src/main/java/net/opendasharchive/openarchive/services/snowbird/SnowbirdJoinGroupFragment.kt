@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -23,6 +24,7 @@ import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.util.FullScreenOverlayCreateGroupManager
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import timber.log.Timber
 
 class SnowbirdJoinGroupFragment: BaseFragment() {
@@ -42,6 +44,11 @@ class SnowbirdJoinGroupFragment: BaseFragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentSnowbirdJoinGroupBinding.inflate(inflater)
+
+
+        binding.buttonBar.applyEdgeToEdgeInsets(WindowInsetsCompat.Type.navigationBars()) { insets ->
+            bottomMargin = insets.bottom
+        }
 
         return binding.root
     }
