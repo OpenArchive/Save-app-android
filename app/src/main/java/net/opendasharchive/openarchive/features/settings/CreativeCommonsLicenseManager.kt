@@ -10,6 +10,42 @@ object CreativeCommonsLicenseManager {
     private const val CC_DOMAIN = "creativecommons.org"
     private const val CC_LICENSE_URL_FORMAT = "https://%s/licenses/%s/4.0/"
 
+    /**
+     * Generates a Creative Commons license URL based on the provided options
+     * @param ccEnabled Whether Creative Commons licensing is enabled
+     * @param allowRemix Whether derivative works are allowed
+     * @param requireShareAlike Whether derivative works must be shared under the same license (only applies if allowRemix is true)
+     * @param allowCommercial Whether commercial use is allowed
+     * @return The generated license URL, or null if CC is not enabled
+     */
+    fun generateLicenseUrl(
+        ccEnabled: Boolean,
+        allowRemix: Boolean,
+        requireShareAlike: Boolean,
+        allowCommercial: Boolean
+    ): String? {
+        if (!ccEnabled) return null
+        
+        var license = "by"
+        
+        if (allowRemix) {
+            if (!allowCommercial) {
+                license += "-nc"
+            }
+            if (requireShareAlike) {
+                license += "-sa"
+            }
+        } else {
+            // When remix is not allowed, ShareAlike should be automatically disabled
+            if (!allowCommercial) {
+                license += "-nc"
+            }
+            license += "-nd"
+        }
+        
+        return String.format(CC_LICENSE_URL_FORMAT, CC_DOMAIN, license)
+    }
+
     fun initialize(
         binding: ContentCcBinding,
         currentLicense: String? = null,
@@ -76,32 +112,16 @@ object CreativeCommonsLicenseManager {
     }
 
     fun getSelectedLicenseUrl(cc: ContentCcBinding): String? {
-        var license: String? = null
+        val license = generateLicenseUrl(
+            ccEnabled = cc.swCcEnabled.isChecked,
+            allowRemix = cc.swAllowRemix.isChecked,
+            requireShareAlike = cc.swRequireShareAlike.isChecked,
+            allowCommercial = cc.swAllowCommercial.isChecked
+        )
 
-        if (cc.swCcEnabled.isChecked) {
-            license = "by"
-
-            if (cc.swAllowRemix.isChecked) {
-                if (!cc.swAllowCommercial.isChecked) {
-                    license += "-nc"
-                }
-
-                if (cc.swRequireShareAlike.isChecked) {
-                    license += "-sa"
-                }
-            } else {
-                cc.swRequireShareAlike.isChecked = false
-
-                if (!cc.swAllowCommercial.isChecked) {
-                    license += "-nc"
-                }
-
-                license += "-nd"
-            }
-        }
-
-        if (license != null) {
-            license = String.format(CC_LICENSE_URL_FORMAT, CC_DOMAIN, license)
+        // Auto-disable ShareAlike when Remix is disabled (preserve existing behavior)
+        if (!cc.swAllowRemix.isChecked) {
+            cc.swRequireShareAlike.isChecked = false
         }
 
         cc.tvLicenseUrl.text = license

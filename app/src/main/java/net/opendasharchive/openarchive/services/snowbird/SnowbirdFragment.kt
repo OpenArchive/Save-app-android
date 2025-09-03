@@ -60,29 +60,16 @@ class SnowbirdFragment : BaseFragment() {
 
         viewBinding.myGroupsButton.setOnClickListener {
 
-            if (isJetpackNavigation) {
-                val action =
+            val action =
                     SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdGroupList()
                 findNavController().navigate(action)
-            } else {
-                setFragmentResult(
-                    RESULT_REQUEST_KEY,
-                    bundleOf(RESULT_BUNDLE_KEY to RESULT_VAL_RAVEN_MY_GROUPS)
-                )
-            }
         }
 
         viewBinding.createGroupButton.setOnClickListener {
-            if (isJetpackNavigation) {
                 val action =
                     SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdCreateGroup()
                 findNavController().navigate(action)
-            } else {
-                setFragmentResult(
-                    RESULT_REQUEST_KEY,
-                    bundleOf(RESULT_BUNDLE_KEY to RESULT_VAL_RAVEN_CREATE_GROUP)
-                )
-            }
+
         }
 
         initializeViewModelObservers()
@@ -153,34 +140,13 @@ class SnowbirdFragment : BaseFragment() {
             return
         }
 
-        if (isJetpackNavigation) {
+
             val action =
                 SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdJoinGroup(
                     uriString
                 )
             findNavController().navigate(action)
-        } else {
 
-            setFragmentResult(
-                RESULT_REQUEST_KEY,
-                bundleOf(
-                    RESULT_BUNDLE_KEY to RESULT_VAL_RAVEN_JOIN_GROUPS,
-                    RESULT_VAL_RAVEN_JOIN_GROUPS_ARG to uriString
-                )
-            )
-        }
-    }
-
-    companion object {
-        const val RESULT_REQUEST_KEY = "raven_fragment_result"
-        const val RESULT_BUNDLE_KEY = "raven_fragment_result_key"
-        const val RESULT_VAL_RAVEN_MY_GROUPS = "raven_my_group"
-        const val RESULT_VAL_RAVEN_JOIN_GROUPS = "raven_join_group"
-        const val RESULT_VAL_RAVEN_JOIN_GROUPS_ARG = "raven_join_group_argument_uri"
-        const val RESULT_VAL_RAVEN_CREATE_GROUP = "raven_create_group"
-
-        @JvmStatic
-        fun newInstance() = SnowbirdFragment()
     }
 
     override fun getToolbarTitle(): String {

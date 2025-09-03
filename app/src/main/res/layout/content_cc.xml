@@ -12,7 +12,7 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".features.onboarding.SpaceSetupActivity"
     tools:background="@color/colorBackground"
-    tools:showIn="@layout/fragment_webdav_setup_license">
+    tools:showIn="@layout/fragment_setup_license">
 
     <!-- Main CC License Switch -->
     <RelativeLayout
@@ -35,7 +35,7 @@
             android:layout_width="240dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:text="@string/set_unique_creative_commons_licenses_for_each_individual_folder_on_this_server"
+            android:text="@string/set_creative_commons_license_for_all_folders_on_this_server"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
     </RelativeLayout>

@@ -2,8 +2,11 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-
     android:id="@+id/space_setup_navigation"
+    app:enterAnim="@anim/slide_in_right"
+    app:exitAnim="@anim/slide_out_left"
+    app:popEnterAnim="@anim/slide_in_left"
+    app:popExitAnim="@anim/slide_out_right"
     app:startDestination="@id/fragment_space_setup">
 
     <fragment
@@ -14,6 +17,13 @@
         <action
             android:id="@+id/action_fragment_space_list_to_fragment_web_dav"
             app:destination="@id/fragment_web_dav"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_fragment_space_list_to_internet_archive_details"
+            app:destination="@id/fragment_internet_archive_details"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
@@ -33,12 +43,13 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
         <action
-            android:id="@+id/action_fragment_space_setup_to_fragment_internet_archive"
-            app:destination="@id/fragment_internet_archive"
+            android:id="@+id/action_fragment_space_setup_to_internet_archive_login"
+            app:destination="@id/fragment_internet_archive_login"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+
         <action
             android:id="@+id/action_fragment_space_setup_to_fragment_snowbird"
             app:destination="@id/fragment_snowbird"
@@ -53,6 +64,7 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+
     </fragment>
 
 
@@ -61,8 +73,8 @@
         android:name="net.opendasharchive.openarchive.services.webdav.WebDavFragment"
         tools:layout="@layout/fragment_web_dav">
         <action
-            android:id="@+id/action_fragment_web_dav_to_fragment_web_dav_setup_license"
-            app:destination="@id/fragment_web_dav_setup_license"
+            android:id="@+id/action_fragment_web_dav_to_fragment_setup_license"
+            app:destination="@id/fragment_setup_license"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
@@ -74,11 +86,11 @@
     </fragment>
 
     <fragment
-        android:id="@+id/fragment_web_dav_setup_license"
-        android:name="net.opendasharchive.openarchive.services.webdav.WebDavSetupLicenseFragment"
-        tools:layout="@layout/fragment_webdav_setup_license">
+        android:id="@+id/fragment_setup_license"
+        android:name="net.opendasharchive.openarchive.services.webdav.SetupLicenseFragment"
+        tools:layout="@layout/fragment_setup_license">
         <action
-            android:id="@+id/action_fragment_web_dav_setup_license_to_fragment_space_setup_success"
+            android:id="@+id/action_fragment_setup_license_to_fragment_space_setup_success"
             app:destination="@id/fragment_space_setup_success"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
@@ -92,19 +104,30 @@
             android:name="is_editing"
             android:defaultValue="false"
             app:argType="boolean" />
+        <argument
+            android:name="space_type"
+            app:argType="net.opendasharchive.openarchive.db.Space$Type" />
     </fragment>
 
 
     <fragment
-        android:id="@+id/fragment_internet_archive"
-        android:name="net.opendasharchive.openarchive.features.internetarchive.presentation.InternetArchiveFragment">
+        android:id="@+id/fragment_internet_archive_login"
+        android:name="net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginFragment"
+        android:label="Internet Archive">
+
+        <argument
+            android:name="space_id"
+            android:defaultValue="-1L"
+            app:argType="long" />
         <action
-            android:id="@+id/action_fragment_internet_archive_to_fragment_space_setup_success"
-            app:destination="@id/fragment_space_setup_success"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            android:id="@+id/action_fragment_internet_archive_login_to_fragment_setup_license"
+            app:destination="@id/fragment_setup_license" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_internet_archive_details"
+        android:name="net.opendasharchive.openarchive.features.internetarchive.presentation.details.InternetArchiveDetailFragment"
+        android:label="Internet Archive">
         <argument
             android:name="space_id"
             android:defaultValue="-1L"
@@ -263,7 +286,7 @@
     <composable
         android:id="@+id/fragment_add_folder"
         android:name="net.opendasharchive.openarchive.features.folders.AddFolderScreenKt\$AddFolderScreen"
-        android:label="@string/add_a_folder" >
+        android:label="@string/add_a_folder">
 
         <action
             android:id="@+id/fragment_add_folder_to_fragment_browse_folders"
@@ -286,11 +309,10 @@
     <fragment
         android:id="@+id/fragment_browse_folders"
         android:name="net.opendasharchive.openarchive.features.folders.BrowseFoldersFragment"
-        tools:layout="@layout/fragment_browse_folders">
-    </fragment>
+        tools:layout="@layout/fragment_browse_folders"></fragment>
 
     <fragment
         android:id="@+id/fragment_create_new_folder"
         android:name="net.opendasharchive.openarchive.features.folders.CreateNewFolderFragment"
-        tools:layout="@layout/fragment_create_new_folder"/>
+        tools:layout="@layout/fragment_create_new_folder" />
 </navigation>

@@ -11,10 +11,7 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.core.dialog.DialogHost
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
-import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.util.Prefs
-import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
-import org.koin.androidx.compose.koinViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 abstract class BaseActivity : AppCompatActivity() {
@@ -52,9 +49,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
                 setContent {
                     SaveAppTheme {
-                        // Get ViewModel scoped to this activity
-                        val dialogManager: DialogStateManager = koinViewModel()
-                        DialogHost(dialogStateManager = dialogManager)
+                        DialogHost(dialogStateManager = this@BaseActivity.dialogManager)
                     }
                 }
             }

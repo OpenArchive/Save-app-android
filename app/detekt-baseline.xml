@@ -388,7 +388,6 @@
     <ID>FinalNewline:Utility.kt$net.opendasharchive.openarchive.util.Utility.kt</ID>
     <ID>FinalNewline:ViewExtension.kt$net.opendasharchive.openarchive.extensions.ViewExtension.kt</ID>
     <ID>FinalNewline:WebDAVModel.kt$net.opendasharchive.openarchive.db.WebDAVModel.kt</ID>
-    <ID>FinalNewline:WebDavActivity.kt$net.opendasharchive.openarchive.services.webdav.WebDavActivity.kt</ID>
     <ID>FinalNewline:WebDavConduit.kt$net.opendasharchive.openarchive.services.webdav.WebDavConduit.kt</ID>
     <ID>FinalNewline:WebDavFragment.kt$net.opendasharchive.openarchive.services.webdav.WebDavFragment.kt</ID>
     <ID>FinalNewline:WebDavSetupLicenseFragment.kt$net.opendasharchive.openarchive.services.webdav.WebDavSetupLicenseFragment.kt</ID>

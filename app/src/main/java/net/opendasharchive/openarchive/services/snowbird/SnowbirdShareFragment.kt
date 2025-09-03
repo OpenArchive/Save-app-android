@@ -49,14 +49,5 @@ class SnowbirdShareFragment: BaseFragment() {
     companion object {
 
         const val RESULT_VAL_RAVEN_GROUP_KEY = "dweb_group_key"
-
-        @JvmStatic
-        fun newInstance(groupKey: String): SnowbirdShareFragment {
-            return SnowbirdShareFragment().apply {
-                arguments = Bundle().apply {
-                    putString(RESULT_VAL_RAVEN_GROUP_KEY, groupKey)
-                }
-            }
-        }
     }
 }
