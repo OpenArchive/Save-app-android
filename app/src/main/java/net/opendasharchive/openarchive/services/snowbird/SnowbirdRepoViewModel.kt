@@ -56,7 +56,7 @@ class SnowbirdRepoViewModel(
         viewModelScope.launch {
             _repoState.value = RepoState.Loading
             try {
-                val result = processingTracker.trackProcessingWithTimeout(30_000, "fetch_repos") {
+                val result = processingTracker.trackProcessingWithTimeout(60_000, "fetch_repos") {
                     repository.fetchRepos(groupKey, forceRefresh)
                 }
 
@@ -78,7 +78,7 @@ class SnowbirdRepoViewModel(
         viewModelScope.launch {
             _repoState.value = RepoState.Loading
             try {
-                val result = processingTracker.trackProcessingWithTimeout(30_000, "fetch_groups") {
+                val result = processingTracker.trackProcessingWithTimeout(120_000, "fetch_groups") {
                     repository.refreshGroupContent(groupKey)
                 }
 

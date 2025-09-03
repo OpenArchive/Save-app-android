@@ -11,6 +11,7 @@ import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.db.SnowbirdGroupList
 import net.opendasharchive.openarchive.db.SnowbirdRepoList
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
@@ -32,7 +33,7 @@ interface RetrofitClient {
         @Path("groupKey") groupKey: String,
         @Path("repoKey") repoKey: String,
         @Path("filename") filename: String
-    ): ByteArray
+    ): ResponseBody
 
     @POST("groups/{groupKey}/repos/{repoKey}/media/{filename}")
     @Headers("Content-Type: application/octet-stream")

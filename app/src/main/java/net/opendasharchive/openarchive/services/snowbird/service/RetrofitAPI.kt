@@ -34,7 +34,8 @@ class RetrofitAPI(private var context: Context, private val client: RetrofitClie
     }
 
     override suspend fun downloadFile(groupKey: String, repoKey: String, filename: String): ByteArray {
-        return client.downloadFile(groupKey, repoKey, filename)
+        val responseBody = client.downloadFile(groupKey, repoKey, filename)
+        return responseBody.bytes()
     }
 
     override suspend fun uploadFile(groupKey: String, repoKey: String, uri: Uri): FileUploadResult {

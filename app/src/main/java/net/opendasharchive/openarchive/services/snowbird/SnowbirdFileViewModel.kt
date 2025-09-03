@@ -47,7 +47,7 @@ class SnowbirdFileViewModel(
         viewModelScope.launch {
             _mediaState.value = State.Loading
             try {
-                val result = processingTracker.trackProcessingWithTimeout(30_000, "download_file") {
+                val result = processingTracker.trackProcessingWithTimeout(120_000, "download_file") {
                     repository.downloadFile(groupKey, repoKey, filename)
                 }
 
@@ -88,7 +88,7 @@ class SnowbirdFileViewModel(
         viewModelScope.launch {
             _mediaState.value = State.Loading
             try {
-                val result = processingTracker.trackProcessingWithTimeout(30_000, "upload_file") {
+                val result = processingTracker.trackProcessingWithTimeout(120_000, "upload_file") {
                     repository.uploadFile(groupKey, repoKey, uri)
                 }
 
@@ -154,7 +154,7 @@ class SnowbirdFileViewModel(
                 put(MediaStore.Images.Media.DISPLAY_NAME, displayName)
                 put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
                 // put it in Pictures/YourApp (no extra permission)
-                put(MediaStore.Images.Media.RELATIVE_PATH, "${Environment.DIRECTORY_PICTURES}/YourApp")
+                put(MediaStore.Images.Media.RELATIVE_PATH, "${Environment.DIRECTORY_PICTURES}/Save")
                 put(MediaStore.Images.Media.IS_PENDING, 1)
             }
 
