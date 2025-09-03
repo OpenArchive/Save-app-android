@@ -10,7 +10,6 @@
         app:iconSpaceReserved="false"
         app:key="@string/pref_key_use_proof_mode"
         app:singleLineTitle="false"
-        app:summary="@string/prefs_use_proofmode_summary"
         app:title="@string/prefs_use_proofmode_title" />
 
 </PreferenceScreen>

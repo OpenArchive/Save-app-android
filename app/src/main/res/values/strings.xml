@@ -119,13 +119,17 @@
     <string name="prefs_use_proofmode_title">Enable ProofMode</string>
     <string name="prefs_use_proofmode_summary">Share ProofMode public key</string>
 <!--    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a system that enables authentication and verification of multimedia content, <a href="%1$s" style="text-decoration: underline;">learn more here</a>]]></string>-->
-    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a system that enables authentication and verification of multimedia content, <a href=\"%1$s\"><u>learn more here</u></a>]]></string>
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a way to enhance the authentication and verification of multimedia content. <a href=\"%1$s\"><u>learn more here.</u></a>]]></string>
     <!--    <string name="prefs_use_proofmode_description">-->
 <!--        ProofMode is a system that enables authentication and verification of multimedia content, &lt;a href="%1$s" style="text-decoration: underline;"&gt;learn more here&lt;/a&gt;-->
 <!--    </string>-->
 
 
-    <string name="proof_mode_warning_text">To help verify where your media was captured, ProofMode gathers data from nearby cell towers to corroborate your location. To add credibility and context, it then includes a separate metadata file with your media. <b>Neither Save nor OpenArchive will be able to access or store this location data, it will only be accessible to those with access to the server files.</b> Android requires location access to collect this information.</string>
+    <string name="proof_mode_warning_text"><![CDATA[
+    To help verify where your media was captured, ProofMode gathers data from nearby cell towers to corroborate your location. To add credibility and context, it then includes a separate metadata file with your media*. Android requires location access to collect this information.<br/><br/>
+    <b>*Neither <i>Save</i> nor <i>OpenArchive</i> will be able to access or store this location data, it will only be accessible to those with access to the server files.</b>
+    ]]>
+    </string>
 
     <string name="prefs_share_proofmode_title">ProofMode Identity</string>
     <string name="prefs_share_proofmode_summary">Share ProofMode Public Key</string>
@@ -201,7 +205,7 @@
     <string name="action_next">Next</string>
     <string name="action_done">Done</string>
     <string name="status_flagged">Significant Content</string>
-    <string name="select_where_to_store_your_media">Select where to store your media.</string>
+    <string name="select_where_to_store_your_media">Choose a new or existing folder to save your media in.</string>
     <string name="you_have_successfully_connected_to_a_private_server">You have successfully connected to a private server!</string>
     <string name="you_have_successfully_connected_to_dropbox">You have successfully connected to Dropbox!</string>
     <string name="you_have_successfully_connected_to_the_internet_archive">You have successfully connected to the Internet Archive!</string>
@@ -209,8 +213,8 @@
     <string name="you_have_successfully_created_dweb">You have successfully created a group via DWeb Storage!</string>
     <string name="you_have_successfully_joined_dweb">You have successfully joined a group via DWeb Storage!</string>
     <string name="create_a_new_folder">Create a New Folder</string>
-    <string name="create_new_folder_title">First, please name your folder</string>
-    <string name="create_new_folder_subtitle">This folder will be created on your server and automatically added on Save</string>
+    <string name="create_new_folder_title">Please name your folder</string>
+    <string name="create_new_folder_subtitle">This folder will be created on your server and added to Save.</string>
     <string name="create_new_folder_hint">Enter folder name</string>
     <string name="edit">Edit</string>
     <string name="menu_done">Done</string>

@@ -157,7 +157,7 @@ private fun SpaceListScreenPreview() {
 
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
-private fun SpaceListScreenPreview2() {
+private fun SpaceListEmptyScreenPreview() {
 
     DefaultScaffoldPreview {
 
