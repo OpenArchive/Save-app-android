@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -20,8 +21,10 @@ import net.opendasharchive.openarchive.databinding.FragmentSnowbirdCreateGroupBi
 import net.opendasharchive.openarchive.db.SnowbirdError
 import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.db.SnowbirdRepo
+import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.util.FullScreenOverlayCreateGroupManager
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import java.io.File
 
 class SnowbirdCreateGroupFragment : BaseFragment() {
@@ -34,6 +37,10 @@ class SnowbirdCreateGroupFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentSnowbirdCreateGroupBinding.inflate(inflater)
+
+        binding.buttonBar.applyEdgeToEdgeInsets(WindowInsetsCompat.Type.navigationBars()) { insets ->
+            bottomMargin = insets.bottom
+        }
 
         return binding.root
     }
@@ -153,7 +160,7 @@ class SnowbirdCreateGroupFragment : BaseFragment() {
         val action = SnowbirdCreateGroupFragmentDirections
             .actionFragmentSnowbirdCreateGroupToFragmentSpaceSetupSuccess(
                 message = getString(R.string.you_have_successfully_created_dweb),
-                isDweb = true,
+                spaceType = Space.Type.RAVEN,
                 dwebGroupKey = group.key,
             )
         findNavController().navigate(action)

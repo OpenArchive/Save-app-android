@@ -1,5 +1,8 @@
 package net.opendasharchive.openarchive.services.snowbird
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -44,6 +47,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.fragment.findNavController
+import com.google.zxing.BinaryBitmap
+import com.google.zxing.DecodeHintType
+import com.google.zxing.MultiFormatReader
+import com.google.zxing.RGBLuminanceSource
+import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.integration.android.IntentIntegrator
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
@@ -72,6 +80,12 @@ class SnowbirdFragment : BaseFragment() {
         }
     }
 
+    private val imagePickerLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let { processImageForQR(it) }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -79,7 +93,7 @@ class SnowbirdFragment : BaseFragment() {
     ): View {
 
         val onJoinGroup: () -> Unit = {
-            startQRScanner()
+            showQRScanOptions()
         }
 
         val onCreateGroup = {
@@ -129,6 +143,26 @@ class SnowbirdFragment : BaseFragment() {
         }
     }
 
+    private fun showQRScanOptions() {
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Info
+            title = UiText.DynamicString("Scan QR Code")
+            message = UiText.DynamicString("Choose how you want to scan the QR code")
+            positiveButton {
+                text = UiText.DynamicString("Camera")
+                action = { startQRScanner() }
+            }
+            neutralButton {
+                text = UiText.DynamicString("Gallery")
+                action = { startImagePicker() }
+            }
+        }
+    }
+
+    private fun startImagePicker() {
+        imagePickerLauncher.launch("image/*")
+    }
+
     private fun startQRScanner() {
         val integrator = IntentIntegrator(requireActivity())
         integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
@@ -141,6 +175,58 @@ class SnowbirdFragment : BaseFragment() {
         val scanningIntent = integrator.createScanIntent()
 
         qrCodeLauncher.launch(scanningIntent)
+    }
+
+    private fun processImageForQR(imageUri: Uri) {
+        try {
+            val inputStream = requireContext().contentResolver.openInputStream(imageUri)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            inputStream?.close()
+
+            if (bitmap != null) {
+                val qrContent = decodeQRFromBitmap(bitmap)
+                if (qrContent != null) {
+                    processScannedData(qrContent)
+                } else {
+                    showQRNotFoundDialog()
+                }
+            } else {
+                showQRNotFoundDialog()
+            }
+        } catch (e: Exception) {
+            AppLogger.e("Error processing image for QR: ${e.message}")
+            showQRNotFoundDialog()
+        }
+    }
+
+    private fun decodeQRFromBitmap(bitmap: Bitmap): String? {
+        val intArray = IntArray(bitmap.width * bitmap.height)
+        bitmap.getPixels(intArray, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+        
+        val source = RGBLuminanceSource(bitmap.width, bitmap.height, intArray)
+        val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
+        
+        val reader = MultiFormatReader()
+        val hints = mapOf(DecodeHintType.POSSIBLE_FORMATS to listOf(com.google.zxing.BarcodeFormat.QR_CODE))
+        reader.setHints(hints)
+        
+        return try {
+            val result = reader.decode(binaryBitmap)
+            result.text
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun showQRNotFoundDialog() {
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Warning
+            title = UiText.DynamicString("No QR Code Found")
+            message = UiText.DynamicString("Could not find a valid QR code in the selected image. Please try another image.")
+            positiveButton {
+                text = UiText.StringResource(R.string.lbl_ok)
+            }
+        }
     }
 
     private fun processScannedData(uriString: String) {

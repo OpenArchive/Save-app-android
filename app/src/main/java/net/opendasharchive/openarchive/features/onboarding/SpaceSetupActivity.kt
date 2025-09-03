@@ -24,10 +24,6 @@ enum class StartDestination {
 
 class SpaceSetupActivity : BaseActivity() {
 
-    companion object {
-        const val FRAGMENT_TAG = "ssa_fragment"
-    }
-
     private lateinit var binding: ActivitySpaceSetupBinding
 
     private lateinit var navController: NavController

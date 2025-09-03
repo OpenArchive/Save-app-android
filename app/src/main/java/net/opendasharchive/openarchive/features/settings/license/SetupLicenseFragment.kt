@@ -15,8 +15,6 @@ import net.opendasharchive.openarchive.databinding.FragmentSetupLicenseBinding
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
-import net.opendasharchive.openarchive.services.webdav.SetupLicenseFragmentArgs
-import net.opendasharchive.openarchive.services.webdav.SetupLicenseFragmentDirections
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 
 class SetupLicenseFragment : BaseFragment() {
@@ -61,13 +59,13 @@ class SetupLicenseFragment : BaseFragment() {
             when (args.spaceType) {
                 Space.Type.WEBDAV -> {
                     val message = getString(R.string.you_have_successfully_connected_to_a_private_server)
-                    val action = SetupLicenseFragmentDirections.actionFragmentSetupLicenseToFragmentSpaceSetupSuccess(message)
+                    val action = SetupLicenseFragmentDirections.actionFragmentSetupLicenseToFragmentSpaceSetupSuccess(message, args.spaceType)
                     findNavController().navigate(action)
                 }
 
                 Space.Type.INTERNET_ARCHIVE -> {
                     val message = getString(R.string.you_have_successfully_connected_to_the_internet_archive)
-                    val action = SetupLicenseFragmentDirections.actionFragmentSetupLicenseToFragmentSpaceSetupSuccess(message)
+                    val action = SetupLicenseFragmentDirections.actionFragmentSetupLicenseToFragmentSpaceSetupSuccess(message, args.spaceType)
                     findNavController().navigate(action)
                 }
                 else -> Unit

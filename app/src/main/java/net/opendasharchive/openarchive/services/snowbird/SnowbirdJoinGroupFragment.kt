@@ -17,6 +17,7 @@ import net.opendasharchive.openarchive.databinding.FragmentSnowbirdJoinGroupBind
 import net.opendasharchive.openarchive.db.SnowbirdError
 import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.db.SnowbirdRepo
+import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.extensions.getQueryParameter
 import net.opendasharchive.openarchive.extensions.showKeyboard
 import net.opendasharchive.openarchive.features.core.BaseFragment
@@ -139,7 +140,7 @@ class SnowbirdJoinGroupFragment: BaseFragment() {
 
                     val action = SnowbirdJoinGroupFragmentDirections.actionFragmentSnowbirdJoinGroupToFragmentSpaceSetupSuccess(
                         message = getString(R.string.you_have_successfully_joined_dweb),
-                        isDweb = true,
+                        spaceType = Space.Type.RAVEN,
                         dwebGroupKey = groupKey
                     )
 

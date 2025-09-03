@@ -91,7 +91,7 @@
 
     <fragment
         android:id="@+id/fragment_setup_license"
-        android:name="net.opendasharchive.openarchive.services.webdav.SetupLicenseFragment"
+        android:name="net.opendasharchive.openarchive.features.settings.license.SetupLicenseFragment"
         tools:layout="@layout/fragment_setup_license">
         <action
             android:id="@+id/action_fragment_setup_license_to_fragment_space_setup_success"
@@ -289,9 +289,8 @@
             android:name="message"
             app:argType="string" />
         <argument
-            android:name="is_dweb"
-            app:argType="boolean"
-            android:defaultValue="false" />
+            android:name="space_type"
+            app:argType="net.opendasharchive.openarchive.db.Space$Type" />
         <argument
             android:name="dweb_group_key"
             app:argType="string"
@@ -300,6 +299,10 @@
         <action
             android:id="@+id/action_fragment_space_setup_success_to_fragment_snowbird_share_group"
             app:destination="@id/fragment_snowbird_share_group" />
+        <action
+            android:id="@+id/action_fragment_space_setup_success_to_fragment_snowbird"
+            app:destination="@id/fragment_snowbird" />
+
     </fragment>
 
     <composable

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.navArgs
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdShareGroupBinding
 import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.extensions.asQRCode
@@ -11,17 +12,11 @@ import net.opendasharchive.openarchive.extensions.urlEncode
 import net.opendasharchive.openarchive.features.core.BaseFragment
 
 class SnowbirdShareFragment: BaseFragment() {
+
     private lateinit var binding: FragmentSnowbirdShareGroupBinding
-    private lateinit var groupKey: String
     private var isSetupOngoing: Boolean = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        arguments?.let {
-            groupKey = it.getString(RESULT_VAL_RAVEN_GROUP_KEY, "")
-        }
-    }
+    private val args: SnowbirdShareFragmentArgs by navArgs()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentSnowbirdShareGroupBinding.inflate(inflater)
@@ -38,12 +33,12 @@ class SnowbirdShareFragment: BaseFragment() {
             binding.buttonBar.visibility = View.GONE
         }
 
-        val group = SnowbirdGroup.get(groupKey)
+        val group = SnowbirdGroup.get(args.dwebGroupKey)
         val groupName = group?.name ?: "Unknown group"
 
         binding.groupName.text = groupName
 
-        SnowbirdGroup.get(groupKey)?.uri?.let { uriString ->
+        SnowbirdGroup.get(args.dwebGroupKey)?.uri?.let { uriString ->
             val qrCode = "$uriString&name=${groupName.urlEncode()}".asQRCode(size = 1024)
             binding.qrCode.setImageBitmap(qrCode)
         }
@@ -51,9 +46,5 @@ class SnowbirdShareFragment: BaseFragment() {
 
     override fun getToolbarTitle(): String {
         return "Share DWeb Storage Group"
-    }
-
-    companion object {
-        const val RESULT_VAL_RAVEN_GROUP_KEY = "dweb_group_key"
     }
 }

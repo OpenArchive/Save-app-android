@@ -13,26 +13,19 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import androidx.navigation.navOptions
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentSpaceSetupSuccessBinding
+import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 
 class SpaceSetupSuccessFragment : BaseFragment() {
-    private lateinit var binding: FragmentSpaceSetupSuccessBinding
-    private var message = ""
-    private var isDweb = false
-    private var dwebGroupKey: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            message = it.getString(ARG_MESSAGE, "")
-            isDweb = it.getBoolean(IS_DWEB, false)
-            dwebGroupKey = it.getString(DWEB_GROUP_KEY)
-        }
-    }
+    private lateinit var binding: FragmentSpaceSetupSuccessBinding
+    private val args: SpaceSetupSuccessFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,15 +45,38 @@ class SpaceSetupSuccessFragment : BaseFragment() {
             bottomMargin = insets.bottom
         }
 
-        if (message.isNotEmpty()) {
-            binding.successMessage.text = message
+        if (args.message.isNotEmpty()) {
+            binding.successMessage.text = args.message
         }
 
         binding.btAuthenticate.setOnClickListener { _ ->
-            val intent = Intent(requireActivity(), MainActivity::class.java)
-            intent.flags =
-                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK // Clears backstack
-            startActivity(intent)
+            if (args.spaceType == Space.Type.RAVEN) {
+                val navController = findNavController()
+                // Let's clear and navigate to snowbird fragment
+                val popped = navController.popBackStack(R.id.fragment_snowbird, false)
+                if (!popped) {
+                    navController.navigate(
+                        R.id.fragment_snowbird,
+                        null,
+                        navOptions {
+                            popUpTo(R.id.fragment_snowbird) { inclusive = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    )
+                } else {
+                    val intent = Intent(requireActivity(), MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                }
+                //val action = SpaceSetupSuccessFragmentDirections.actionFragmentSpaceSetupSuccessToFragmentSnowbird()
+                //navController.navigate(action)
+            } else {
+                val intent = Intent(requireActivity(), MainActivity::class.java)
+                intent.flags =
+                    Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK // Clears backstack
+                startActivity(intent)
+            }
         }
 
         return binding.root
@@ -69,7 +85,7 @@ class SpaceSetupSuccessFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if (isDweb) {
+        if (args.spaceType == Space.Type.RAVEN) {
             // Add the menu provider
             requireActivity().addMenuProvider(object : MenuProvider {
                 override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -79,10 +95,10 @@ class SpaceSetupSuccessFragment : BaseFragment() {
                 override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                     return when (menuItem.itemId) {
                         R.id.action_share_group -> {
-                            if (dwebGroupKey != null) {
+                            if (args.dwebGroupKey != null) {
                                 val action =
                                     SpaceSetupSuccessFragmentDirections.actionFragmentSpaceSetupSuccessToFragmentSnowbirdShareGroup(
-                                        dwebGroupKey = dwebGroupKey!!,
+                                        dwebGroupKey = args.dwebGroupKey!!,
                                         isSetupOngoing = true
                                     )
 
@@ -96,12 +112,6 @@ class SpaceSetupSuccessFragment : BaseFragment() {
                 }
             }, viewLifecycleOwner)
         }
-    }
-
-    companion object {
-        const val ARG_MESSAGE = "message"
-        const val IS_DWEB = "is_dweb"
-        const val DWEB_GROUP_KEY = "dweb_group_key"
     }
 
     override fun getToolbarTitle() = getString(R.string.space_setup_success_title)

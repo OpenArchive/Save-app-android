@@ -81,7 +81,7 @@ class GDriveFragment : BaseFragment() {
         } else {
             // permission was already granted, we're already signed in, continue.
                 val message = getString(R.string.you_have_successfully_connected_to_gdrive)
-                val action = GDriveFragmentDirections.actionFragmentGdriveToFragmentSpaceSetupSuccess(message)
+                val action = GDriveFragmentDirections.actionFragmentGdriveToFragmentSpaceSetupSuccess(message, spaceType = Space.Type.GDRIVE)
                 findNavController().navigate(action)
 
         }
