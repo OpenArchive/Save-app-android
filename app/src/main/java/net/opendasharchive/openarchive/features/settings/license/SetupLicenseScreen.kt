@@ -120,6 +120,7 @@ fun SetupLicenseScreenContent(
                     allowRemix = state.allowRemix,
                     requireShareAlike = state.requireShareAlike,
                     allowCommercial = state.allowCommercial,
+                    cc0Enabled = state.cc0Enabled,
                     licenseUrl = state.licenseUrl
                 ),
                 licenseCallbacks = object :
@@ -138,6 +139,10 @@ fun SetupLicenseScreenContent(
 
                     override fun onAllowCommercialChange(allowed: Boolean) {
                         onAction(SetupLicenseAction.UpdateAllowCommercial(allowed))
+                    }
+
+                    override fun onCc0EnabledChange(enabled: Boolean) {
+                        onAction(SetupLicenseAction.UpdateCc0Enabled(enabled))
                     }
                 },
                 ccLabelText = stringResource(R.string.set_creative_commons_license_for_all_folders_on_this_server)
@@ -241,16 +246,26 @@ class SetupLicenseViewModel(
 
             is SetupLicenseAction.UpdateCcEnabled -> {
                 _uiState.update { currentState ->
-                    currentState.copy(ccEnabled = action.enabled).let { newState ->
-                        if (!action.enabled) {
-                            // Reset other switches when CC is disabled
-                            newState.copy(
-                                requireShareAlike = false,
-                                licenseUrl = null
-                            )
-                        } else {
-                            newState
-                        }
+                    if (action.enabled) {
+                        // When CC is enabled, start fresh with no options selected
+                        currentState.copy(
+                            ccEnabled = true,
+                            cc0Enabled = false,
+                            allowRemix = false,
+                            requireShareAlike = false,
+                            allowCommercial = false,
+                            licenseUrl = null
+                        )
+                    } else {
+                        // When CC is disabled, reset all other CC options
+                        currentState.copy(
+                            ccEnabled = false,
+                            allowRemix = false,
+                            requireShareAlike = false,
+                            allowCommercial = false,
+                            cc0Enabled = false,
+                            licenseUrl = null
+                        )
                     }
                 }
                 generateAndUpdateLicense()
@@ -258,25 +273,50 @@ class SetupLicenseViewModel(
 
             is SetupLicenseAction.UpdateAllowRemix -> {
                 _uiState.update { currentState ->
-                    currentState.copy(allowRemix = action.allowed).let { newState ->
-                        if (!action.allowed) {
-                            // Auto-disable ShareAlike when Remix is disabled
-                            newState.copy(requireShareAlike = false)
-                        } else {
-                            newState
-                        }
-                    }
+                    currentState.copy(
+                        allowRemix = action.allowed,
+                        cc0Enabled = if (action.allowed) false else currentState.cc0Enabled,  // Disable CC0 if remix is enabled
+                        requireShareAlike = if (!action.allowed) false else currentState.requireShareAlike  // Auto-disable ShareAlike when Remix is disabled
+                    )
                 }
                 generateAndUpdateLicense()
             }
 
             is SetupLicenseAction.UpdateRequireShareAlike -> {
-                _uiState.update { it.copy(requireShareAlike = action.required) }
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        requireShareAlike = action.required,
+                        cc0Enabled = if (action.required) false else currentState.cc0Enabled  // Disable CC0 if share alike is enabled
+                    )
+                }
                 generateAndUpdateLicense()
             }
 
             is SetupLicenseAction.UpdateAllowCommercial -> {
-                _uiState.update { it.copy(allowCommercial = action.allowed) }
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        allowCommercial = action.allowed,
+                        cc0Enabled = if (action.allowed) false else currentState.cc0Enabled  // Disable CC0 if commercial is enabled
+                    )
+                }
+                generateAndUpdateLicense()
+            }
+
+            is SetupLicenseAction.UpdateCc0Enabled -> {
+                _uiState.update { currentState ->
+                    if (action.enabled) {
+                        // When CC0 is enabled, disable CC and reset all other options
+                        currentState.copy(
+                            cc0Enabled = true,
+                            ccEnabled = false,
+                            allowRemix = false,
+                            requireShareAlike = false,
+                            allowCommercial = false
+                        )
+                    } else {
+                        currentState.copy(cc0Enabled = false)
+                    }
+                }
                 generateAndUpdateLicense()
             }
         }
@@ -298,6 +338,7 @@ class SetupLicenseViewModel(
                     allowRemix = licenseState.allowRemix,
                     requireShareAlike = licenseState.requireShareAlike,
                     allowCommercial = licenseState.allowCommercial,
+                    cc0Enabled = licenseState.cc0Enabled,
                     licenseUrl = licenseState.licenseUrl
                 )
             }
@@ -309,21 +350,37 @@ class SetupLicenseViewModel(
     }
 
     private fun initializeLicenseState(currentLicense: String?): SetupLicenseState {
-        val isActive = currentLicense?.contains("creativecommons.org", true) ?: false
-        return if (isActive && currentLicense != null) {
+        val isCc0 = currentLicense?.contains("publicdomain/zero", true) ?: false
+        val isCC = currentLicense?.contains("creativecommons.org/licenses", true) ?: false
+        
+        return if (isCc0) {
+            // CC0 license detected
             SetupLicenseState(
                 ccEnabled = true,
+                cc0Enabled = true,
+                allowRemix = false,
+                allowCommercial = false,
+                requireShareAlike = false,
+                licenseUrl = currentLicense
+            )
+        } else if (isCC && currentLicense != null) {
+            // Regular CC license detected
+            SetupLicenseState(
+                ccEnabled = true,
+                cc0Enabled = false,
                 allowRemix = !(currentLicense.contains("-nd", true)),
                 allowCommercial = !(currentLicense.contains("-nc", true)),
                 requireShareAlike = !(currentLicense.contains("-nd", true)) && currentLicense.contains("-sa", true),
                 licenseUrl = currentLicense
             )
         } else {
+            // No license
             SetupLicenseState(
                 ccEnabled = false,
-                allowRemix = true,  // XML default
-                allowCommercial = false,  // XML default
-                requireShareAlike = false,  // XML default
+                cc0Enabled = false,
+                allowRemix = false,  // Changed from true to fix auto-enable bug
+                allowCommercial = false,
+                requireShareAlike = false,
                 licenseUrl = null
             )
         }
@@ -335,7 +392,8 @@ class SetupLicenseViewModel(
             ccEnabled = currentState.ccEnabled,
             allowRemix = currentState.allowRemix,
             requireShareAlike = currentState.requireShareAlike,
-            allowCommercial = currentState.allowCommercial
+            allowCommercial = currentState.allowCommercial,
+            cc0Enabled = currentState.cc0Enabled
         )
         
         _uiState.update { it.copy(licenseUrl = newLicense) }
@@ -353,9 +411,10 @@ data class SetupLicenseState(
     val isEditing: Boolean = false,
     // Creative Commons License state
     val ccEnabled: Boolean = false,
-    val allowRemix: Boolean = true,
+    val allowRemix: Boolean = false,
     val requireShareAlike: Boolean = false,
     val allowCommercial: Boolean = false,
+    val cc0Enabled: Boolean = false,
     val licenseUrl: String? = null,
     val isLoading: Boolean = false
 )
@@ -369,6 +428,7 @@ sealed interface SetupLicenseAction {
     data class UpdateAllowRemix(val allowed: Boolean) : SetupLicenseAction
     data class UpdateRequireShareAlike(val required: Boolean) : SetupLicenseAction
     data class UpdateAllowCommercial(val allowed: Boolean) : SetupLicenseAction
+    data class UpdateCc0Enabled(val enabled: Boolean) : SetupLicenseAction
 }
 
 sealed interface SetupLicenseEvent {
