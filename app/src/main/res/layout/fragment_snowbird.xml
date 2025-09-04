@@ -24,7 +24,7 @@
                 android:id="@+id/snowbird_logo"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:background="@drawable/snowbird"
+                android:background="@drawable/ic_dweb"
                 android:contentDescription="@string/dweb_title"
                 app:iconSize="50dp"
                 app:layout_constraintStart_toStartOf="parent"
