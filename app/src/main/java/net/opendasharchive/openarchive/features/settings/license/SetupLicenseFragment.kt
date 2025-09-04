@@ -53,21 +53,34 @@ class SetupLicenseFragment : BaseFragment() {
 
         if (args.spaceType == Space.Type.INTERNET_ARCHIVE) {
             binding.serverNameLayout.visibility = View.GONE
+            binding.descriptionText.text = getString(R.string.choose_license)
+        } else {
+            binding.serverNameLayout.visibility = View.VISIBLE
+            binding.descriptionText.text = getString(R.string.name_your_server)
         }
 
         binding.btNext.setOnClickListener {
             when (args.spaceType) {
                 Space.Type.WEBDAV -> {
-                    val message = getString(R.string.you_have_successfully_connected_to_a_private_server)
-                    val action = SetupLicenseFragmentDirections.actionFragmentSetupLicenseToFragmentSpaceSetupSuccess(message, args.spaceType)
+                    val message =
+                        getString(R.string.you_have_successfully_connected_to_a_private_server)
+                    val action =
+                        SetupLicenseFragmentDirections.actionFragmentSetupLicenseToFragmentSpaceSetupSuccess(
+                            message
+                        )
                     findNavController().navigate(action)
                 }
 
                 Space.Type.INTERNET_ARCHIVE -> {
-                    val message = getString(R.string.you_have_successfully_connected_to_the_internet_archive)
-                    val action = SetupLicenseFragmentDirections.actionFragmentSetupLicenseToFragmentSpaceSetupSuccess(message, args.spaceType)
+                    val message =
+                        getString(R.string.you_have_successfully_connected_to_the_internet_archive)
+                    val action =
+                        SetupLicenseFragmentDirections.actionFragmentSetupLicenseToFragmentSpaceSetupSuccess(
+                            message
+                        )
                     findNavController().navigate(action)
                 }
+
                 else -> Unit
             }
 
@@ -124,7 +137,11 @@ class SetupLicenseFragment : BaseFragment() {
             })
     }
 
-    override fun getToolbarTitle() = getString(R.string.private_server)
+    override fun getToolbarTitle() =
+        if (args.spaceType == Space.Type.INTERNET_ARCHIVE) getString(R.string.internet_archive) else getString(
+            R.string.private_server
+        )
+
     override fun getToolbarSubtitle(): String? = null
     override fun shouldShowBackButton() = false
 }

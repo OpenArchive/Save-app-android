@@ -198,6 +198,14 @@
         tools:layout="@layout/fragment_snowbird_create_group">
 
         <action
+            android:id="@+id/action_fragment_snowbird_create_group_to_fragment_snowbird_share_group"
+            app:destination="@id/fragment_snowbird_share_group"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+
+        <action
             android:id="@+id/action_fragment_snowbird_create_group_to_fragment_space_setup_success"
             app:destination="@id/fragment_space_setup_success" />
     </fragment>
