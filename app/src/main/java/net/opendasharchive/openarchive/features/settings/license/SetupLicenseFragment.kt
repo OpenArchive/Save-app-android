@@ -66,7 +66,8 @@ class SetupLicenseFragment : BaseFragment() {
                         getString(R.string.you_have_successfully_connected_to_a_private_server)
                     val action =
                         SetupLicenseFragmentDirections.actionFragmentSetupLicenseToFragmentSpaceSetupSuccess(
-                            message
+                            message,
+                            spaceType = Space.Type.WEBDAV,
                         )
                     findNavController().navigate(action)
                 }
@@ -76,7 +77,8 @@ class SetupLicenseFragment : BaseFragment() {
                         getString(R.string.you_have_successfully_connected_to_the_internet_archive)
                     val action =
                         SetupLicenseFragmentDirections.actionFragmentSetupLicenseToFragmentSpaceSetupSuccess(
-                            message
+                            message,
+                            spaceType = Space.Type.INTERNET_ARCHIVE,
                         )
                     findNavController().navigate(action)
                 }
