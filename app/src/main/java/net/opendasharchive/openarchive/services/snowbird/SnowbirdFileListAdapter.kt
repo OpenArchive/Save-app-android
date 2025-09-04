@@ -36,7 +36,7 @@ class SnowbirdFileListAdapter(
         with (holder.binding) {
             val context = button.context
 
-            button.setLeftIcon(ContextCompat.getDrawable(context, R.drawable.snowbird)?.scaled(40, context))
+            button.setLeftIcon(ContextCompat.getDrawable(context, R.drawable.ic_dweb)?.scaled(40, context))
             //button.setBackgroundResource(R.drawable.button_outlined_ripple)
             button.setTitle(item.name ?: "No name provided")
 

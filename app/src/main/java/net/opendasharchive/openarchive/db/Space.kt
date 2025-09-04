@@ -220,7 +220,7 @@ data class Space(
                 R.drawable.logo_gdrive_outline
             ) // ?.tint(color)
 
-            Type.RAVEN -> ContextCompat.getDrawable(context, R.drawable.snowbird) // ?.tint(color)
+            Type.RAVEN -> ContextCompat.getDrawable(context, R.drawable.ic_dweb) // ?.tint(color)
 
             else -> {
                 val color = ContextCompat.getColor(context, R.color.colorOnBackground)
