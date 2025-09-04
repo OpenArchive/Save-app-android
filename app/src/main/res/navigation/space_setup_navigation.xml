@@ -33,6 +33,9 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_fragment_space_list_to_fragment_space_setup"
+            app:destination="@id/fragment_space_setup" />
     </fragment>
 
     <fragment

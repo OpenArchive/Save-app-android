@@ -84,6 +84,7 @@
 
 
     <string name="license_label">License</string>
+    <string name="info_license_cc0">Waive all restrictions, requirements, and attribution (CC0)</string>
     <string name="info_license_deriv">Allow anyone to remix and share?</string>
     <string name="info_license_sharealike">Require them to share like you have?</string>
     <string name="info_license_comm">Allow commercial use?</string>

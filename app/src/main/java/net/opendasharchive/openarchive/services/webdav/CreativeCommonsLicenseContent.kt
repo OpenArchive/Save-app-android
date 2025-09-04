@@ -65,6 +65,14 @@ fun CreativeCommonsLicenseContent(
         if (licenseState.ccEnabled) {
             Spacer(modifier = Modifier.height(8.dp))
             
+            // CC0 License Switch - waive all restrictions, requirements, and attribution (first option)
+            LicenseOptionRow(
+                text = stringResource(R.string.info_license_cc0),
+                checked = licenseState.cc0Enabled,
+                onCheckedChange = licenseCallbacks::onCc0EnabledChange,
+                enabled = enabled
+            )
+            
             // Allow Remix Switch - matches RelativeLayout lines 44-68 in content_cc.xml
             LicenseOptionRow(
                 text = stringResource(R.string.info_license_deriv),
@@ -88,7 +96,10 @@ fun CreativeCommonsLicenseContent(
                 onCheckedChange = licenseCallbacks::onAllowCommercialChange,
                 enabled = enabled
             )
+        }
 
+        // Show license URL when CC is enabled
+        if (licenseState.ccEnabled) {
             Spacer(modifier = Modifier.height(32.dp))
 
             // License URL - matches TextView lines 132-138 in content_cc.xml  
@@ -103,7 +114,6 @@ fun CreativeCommonsLicenseContent(
                         .padding(vertical = 4.dp)
                 )
             }
-
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -174,6 +184,7 @@ fun CreativeCommonsLicenseContentPreview() {
                 override fun onAllowRemixChange(allowed: Boolean) {}
                 override fun onRequireShareAlikeChange(required: Boolean) {}
                 override fun onAllowCommercialChange(allowed: Boolean) {}
+                override fun onCc0EnabledChange(enabled: Boolean) {}
             },
             enabled = true,
         )
@@ -197,6 +208,7 @@ fun CreativeCommonsLicenseContentWithLicensePreview() {
                 override fun onAllowRemixChange(allowed: Boolean) {}
                 override fun onRequireShareAlikeChange(required: Boolean) {}
                 override fun onAllowCommercialChange(allowed: Boolean) {}
+                override fun onCc0EnabledChange(enabled: Boolean) {}
             },
             enabled = true,
         )

@@ -157,6 +157,7 @@ private fun InternetArchiveDetailsContent(
                     allowRemix = state.allowRemix,
                     requireShareAlike = state.requireShareAlike,
                     allowCommercial = state.allowCommercial,
+                    cc0Enabled = state.cc0Enabled,
                     licenseUrl = state.licenseUrl
                 ),
                 licenseCallbacks = object : LicenseCallbacks {
@@ -174,6 +175,10 @@ private fun InternetArchiveDetailsContent(
 
                     override fun onAllowCommercialChange(allowed: Boolean) {
                         onAction(InternetArchiveDetailsAction.UpdateAllowCommercial(allowed))
+                    }
+
+                    override fun onCc0EnabledChange(enabled: Boolean) {
+                        onAction(InternetArchiveDetailsAction.UpdateCc0Enabled(enabled))
                     }
                 },
                 ccLabelText = stringResource(R.string.set_creative_commons_license_for_all_folders_on_this_server)

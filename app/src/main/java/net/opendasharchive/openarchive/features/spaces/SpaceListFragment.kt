@@ -47,6 +47,11 @@ class SpaceListFragment : BaseFragment() {
                     onSpaceClicked = { space ->
                         startSpaceAuthActivity(space.id)
                     },
+                    onAddServerClicked = {
+                        val action =
+                            SpaceListFragmentDirections.actionFragmentSpaceListToFragmentSpaceSetup()
+                        findNavController().navigate(action)
+                    }
                 )
             }
 

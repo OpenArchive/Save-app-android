@@ -8,6 +8,7 @@ data class LicenseState(
     val allowRemix: Boolean = true,
     val requireShareAlike: Boolean = false,
     val allowCommercial: Boolean = false,
+    val cc0Enabled: Boolean = false,
     val licenseUrl: String? = null
 )
 
@@ -16,4 +17,5 @@ interface LicenseCallbacks {
     fun onAllowRemixChange(allowed: Boolean)
     fun onRequireShareAlikeChange(required: Boolean)
     fun onAllowCommercialChange(allowed: Boolean)
+    fun onCc0EnabledChange(enabled: Boolean)
 }
