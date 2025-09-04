@@ -87,7 +87,7 @@
 
     <fragment
         android:id="@+id/fragment_setup_license"
-        android:name="net.opendasharchive.openarchive.services.webdav.SetupLicenseFragment"
+        android:name="net.opendasharchive.openarchive.features.settings.license.SetupLicenseFragment"
         tools:layout="@layout/fragment_setup_license">
         <action
             android:id="@+id/action_fragment_setup_license_to_fragment_space_setup_success"
@@ -309,7 +309,7 @@
     <fragment
         android:id="@+id/fragment_browse_folders"
         android:name="net.opendasharchive.openarchive.features.folders.BrowseFoldersFragment"
-        tools:layout="@layout/fragment_browse_folders"></fragment>
+        tools:layout="@layout/fragment_browse_folders"/>
 
     <fragment
         android:id="@+id/fragment_create_new_folder"

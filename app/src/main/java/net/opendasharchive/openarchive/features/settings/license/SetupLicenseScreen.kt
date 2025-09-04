@@ -33,6 +33,9 @@ import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
+import net.opendasharchive.openarchive.services.webdav.CreativeCommonsLicenseContent
+import net.opendasharchive.openarchive.services.webdav.LicenseCallbacks
+import net.opendasharchive.openarchive.services.webdav.LicenseState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,14 +108,14 @@ fun SetupLicenseScreenContent(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    focusedLabelColor = MaterialTheme.colorScheme.primary
+                    focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                    focusedLabelColor = MaterialTheme.colorScheme.tertiary
                 )
             )
 
             // Creative Commons License Section
-            _root_ide_package_.net.opendasharchive.openarchive.services.webdav.CreativeCommonsLicenseContent(
-                licenseState = _root_ide_package_.net.opendasharchive.openarchive.services.webdav.LicenseState(
+            CreativeCommonsLicenseContent(
+                licenseState = LicenseState(
                     ccEnabled = state.ccEnabled,
                     allowRemix = state.allowRemix,
                     requireShareAlike = state.requireShareAlike,
@@ -120,7 +123,7 @@ fun SetupLicenseScreenContent(
                     licenseUrl = state.licenseUrl
                 ),
                 licenseCallbacks = object :
-                    net.opendasharchive.openarchive.services.webdav.LicenseCallbacks {
+                    LicenseCallbacks {
                     override fun onCcEnabledChange(enabled: Boolean) {
                         onAction(SetupLicenseAction.UpdateCcEnabled(enabled))
                     }

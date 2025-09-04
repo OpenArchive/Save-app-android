@@ -266,6 +266,7 @@
 
     <!-- WebDAV setup License -->
     <string name="name_your_server">Name your server and choose a license</string>
+    <string name="choose_license">Choose a license</string>
 
     <!-- Space Setup Success -->
     <string name="space_setup_success_title">Setup Complete</string>

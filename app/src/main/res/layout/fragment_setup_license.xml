@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:fillViewport="true"
     tools:background="@color/colorBackground"
-    tools:context=".services.webdav.SetupLicenseFragment">
+    tools:context=".features.settings.license.SetupLicenseFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -64,6 +64,7 @@
             android:id="@+id/button_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:baselineAligned="false"
             android:orientation="horizontal"
             android:paddingTop="@dimen/activity_vertical_margin"
             android:weightSum="2"

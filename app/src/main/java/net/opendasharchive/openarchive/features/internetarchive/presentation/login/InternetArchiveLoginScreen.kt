@@ -73,22 +73,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.findNavController
 import kotlinx.coroutines.delay
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeColors
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
-import net.opendasharchive.openarchive.features.internetarchive.presentation.components.InternetArchiveHeader
-import net.opendasharchive.openarchive.util.NetworkUtils
-import androidx.navigation.NavController
-import androidx.navigation.findNavController
-import androidx.compose.ui.platform.LocalView
-import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.internetarchive.presentation.components.InternetArchiveHeader
+import net.opendasharchive.openarchive.util.NetworkUtils
 import org.koin.androidx.compose.koinViewModel
-
 
 
 class InternetArchiveLoginFragment : BaseFragment(), ToolbarConfigurable {
@@ -104,11 +102,12 @@ class InternetArchiveLoginFragment : BaseFragment(), ToolbarConfigurable {
                 SaveAppTheme {
                     InternetArchiveLoginScreen(
                         onLoginSuccess = { spaceId ->
-                            val action = InternetArchiveLoginFragmentDirections.actionFragmentInternetArchiveLoginToFragmentSetupLicense(
-                                spaceId = spaceId,
-                                isEditing = false,
-                                spaceType = Space.Type.INTERNET_ARCHIVE
-                            )
+                            val action =
+                                InternetArchiveLoginFragmentDirections.actionFragmentInternetArchiveLoginToFragmentSetupLicense(
+                                    spaceId = spaceId,
+                                    isEditing = false,
+                                    spaceType = Space.Type.INTERNET_ARCHIVE
+                                )
                             findNavController().navigate(action)
                         },
                         onCancel = {
@@ -134,8 +133,8 @@ private fun InternetArchiveLoginScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     val launcher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartActivityForResult(),
-            onResult = {}
+        contract = ActivityResultContracts.StartActivityForResult(),
+        onResult = {}
     )
 
     LaunchedEffect(Unit) {
@@ -167,7 +166,7 @@ private fun InternetArchiveLoginScreen(
 
 @Composable
 private fun InternetArchiveLoginContent(
-    state: InternetArchiveLoginState, 
+    state: InternetArchiveLoginState,
     onAction: (InternetArchiveLoginAction) -> Unit
 ) {
 
@@ -487,4 +486,61 @@ fun CustomSecureField(
             }
         },
     )
+}
+
+
+@Composable
+fun ButtonBar(
+    modifier: Modifier = Modifier,
+    backButtonText: UiText = UiText.StringResource(R.string.back),
+    nextButtonText: UiText = UiText.StringResource(R.string.next),
+    isBackEnabled: Boolean = false,
+    isNextEnabled: Boolean = false,
+    isLoading: Boolean = false,
+    onBack: () -> Unit,
+    onNext: () -> Unit
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom)),
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        TextButton(
+            modifier = Modifier
+                .padding(8.dp)
+                .heightIn(ThemeDimensions.touchable)
+                .weight(1f),
+            colors = ButtonDefaults.textButtonColors(
+                contentColor = colorResource(R.color.colorOnBackground)
+            ),
+            enabled = isBackEnabled,
+            shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
+            onClick = onBack
+        ) {
+            Text(backButtonText.asString())
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Button(
+            modifier = Modifier
+                .padding(8.dp)
+                .heightIn(ThemeDimensions.touchable)
+                .weight(1f),
+            enabled = isNextEnabled,
+            shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.tertiary,
+                disabledContainerColor = colorResource(R.color.grey_50),
+                disabledContentColor = colorResource(R.color.extra_light_grey)//MaterialTheme.colorScheme.onBackground
+            ),
+            onClick = onNext,
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(color = ThemeColors.material.primary)
+            } else {
+                Text(nextButtonText.asString())
+            }
+        }
+    }
 }
