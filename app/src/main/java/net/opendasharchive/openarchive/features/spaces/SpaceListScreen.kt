@@ -116,7 +116,8 @@ fun SpaceListScreenContent(
             onClick = onAddServerClicked,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(24.dp),
+                .fillMaxWidth(0.7f)
+                .padding(bottom = 24.dp),
             shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.tertiary,
@@ -124,7 +125,8 @@ fun SpaceListScreenContent(
         ) {
             Text(
                 text = "+ Add Server",
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
             )
         }
     }

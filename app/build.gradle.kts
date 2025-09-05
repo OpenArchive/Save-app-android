@@ -35,7 +35,7 @@ kotlin {
     compilerOptions {
 
         jvmTarget.set(JvmTarget.JVM_17)
-        languageVersion.set(KotlinVersion.KOTLIN_2_1)
+        languageVersion.set(KotlinVersion.KOTLIN_2_2)
     }
 }
 
@@ -43,7 +43,7 @@ kotlin {
     compilerOptions {
 
         jvmTarget.set(JvmTarget.JVM_17)
-        languageVersion.set(KotlinVersion.KOTLIN_2_1)
+        languageVersion.set(KotlinVersion.KOTLIN_2_2)
     }
 }
 
