@@ -21,12 +21,10 @@ class InternetArchiveDetailsViewModel(
     savedStateHandle: SavedStateHandle
 ) : ViewModel(), KoinComponent {
 
-    private val spaceId: Long = savedStateHandle.get<Long>("space_id") ?: -1L
-    private val space: Space = if (spaceId == -1L) {
-        getInternetArchiveSpace() ?: Space(Space.Type.INTERNET_ARCHIVE)
-    } else {
-        Space.get(spaceId) ?: Space(Space.Type.INTERNET_ARCHIVE)
-    }
+    private val args = InternetArchiveDetailFragmentArgs.fromSavedStateHandle(savedStateHandle)
+
+    private val space: Space = Space.get(args.spaceId)!!
+
 
     private val _uiState = MutableStateFlow(InternetArchiveDetailsState())
     val uiState: StateFlow<InternetArchiveDetailsState> = _uiState.asStateFlow()

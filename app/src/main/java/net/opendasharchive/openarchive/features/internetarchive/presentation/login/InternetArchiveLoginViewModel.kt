@@ -19,16 +19,9 @@ import org.koin.core.parameter.parametersOf
 
 class InternetArchiveLoginViewModel(
     private val validateLoginCredentials: ValidateLoginCredentialsUseCase,
-    savedStateHandle: SavedStateHandle,
 ) : ViewModel(), KoinComponent {
 
-    private val spaceId: Long = savedStateHandle.get<Long>("space_id") ?: -1L
-
-    val space: Space = if (spaceId == -1L) {
-        Space(Space.Type.INTERNET_ARCHIVE)
-    } else {
-        Space.get(spaceId) ?: Space(Space.Type.INTERNET_ARCHIVE)
-    }
+    val space = Space(Space.Type.INTERNET_ARCHIVE)
 
     private val loginUseCase: InternetArchiveLoginUseCase by inject {
         parametersOf(space)
