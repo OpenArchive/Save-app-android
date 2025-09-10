@@ -12,7 +12,7 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".features.onboarding.SpaceSetupActivity"
     tools:background="@color/colorBackground"
-    tools:showIn="@layout/fragment_webdav_setup_license">
+    tools:showIn="@layout/fragment_setup_license">
 
     <!-- Main CC License Switch -->
     <RelativeLayout
@@ -35,7 +35,33 @@
             android:layout_width="240dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:text="@string/set_unique_creative_commons_licenses_for_each_individual_folder_on_this_server"
+            android:text="@string/set_creative_commons_license_for_all_folders_on_this_server"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    </RelativeLayout>
+
+    <!-- CC0 License Switch -->
+    <RelativeLayout
+        android:id="@+id/row_cc0"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/sw_cc0_enabled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:checked="false"
+            android:showText="true"
+            android:textOff="@string/answer_no"
+            android:textOn="@string/answer_yes" />
+
+        <TextView
+            android:layout_width="240dp"
+            android:layout_height="wrap_content"
+            android:textFontWeight="500"
+            android:layout_centerVertical="true"
+            android:text="@string/info_license_cc0"
             android:textAppearance="?android:attr/textAppearanceSmall" />
 
     </RelativeLayout>
@@ -51,7 +77,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:checked="true"
+            android:checked="false"
             android:showText="true"
             android:textOff="@string/answer_no"
             android:textOn="@string/answer_yes" />

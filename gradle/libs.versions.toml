@@ -1,8 +1,7 @@
 [versions]
 activity = "1.10.1"
-agp = "8.12.1"
+agp = "8.13.0"
 appcompat = "1.7.1"
-audio-waveform-version = "v1.0.1"
 biometric = "1.1.0"
 coil = "3.3.0"
 compose = "1.9.0"
@@ -23,17 +22,18 @@ espresso-core = "3.5.1"
 fragment = "1.8.9"
 google-api-client-android = "1.26.0"
 google-http-client-gson = "1.42.3"
+google-gms-auth = "21.3.0"
 gson = "2.13.1"
 junit = "4.13.2"
 junit-android = "1.3.0"
 androidx-test-runner = "1.7.0"
-koin = "4.1.0"
-kotlin = "2.2.10"
+koin = "4.1.1"
+kotlin = "2.2.20"
 ksp = "2.2.10-2.0.2"
-lifecycle = "2.9.2"
-material = "1.12.0"
-material3 = "1.4.0-beta02"
-mixpanel = "8.2.1"
+lifecycle = "2.9.3"
+material = "1.13.0"
+material3 = "1.4.0-beta03"
+mixpanel = "8.2.2"
 navigation = "2.9.3"
 #noinspection NewerVersionAvailable
 okhttp = "4.12.0" # Cannot update to 5.x.x due to sardine client (com.github.guardianproject)
@@ -43,7 +43,7 @@ recyclerview-selection = "1.2.0"
 androidx-security-crypto = "1.1.0"
 swiperefreshlayout = "1.1.0"
 retrofit = "3.0.0"
-robolectric = "4.15.1"
+robolectric = "4.16"
 serialization = "1.9.0"
 timber = "5.0.1"
 viewpager2 = "1.1.0"
@@ -68,9 +68,9 @@ netcipher = "2.2.0-alpha"
 permissionx = "1.8.1"
 proofmode = "1.0.30"
 satyan-sugar = "1.5"
-tor-android = "0.4.7.14"
+tor-android = "0.4.8.17.2"
 jtorctl = "0.4.5.7"
-firebase-crashlytics = "20.0.0"
+firebase-crashlytics = "20.0.1"
 google-gms-google-services = "4.4.3"
 google-firebase-crashlytics = "3.0.6"
 
@@ -78,7 +78,7 @@ google-firebase-crashlytics = "3.0.6"
 # AndroidX
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
 androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
-androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
@@ -121,7 +121,7 @@ zxing-core = { module = "com.google.zxing:core", version.ref = "zxing-core" }
 zxing-android-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxing-android" }
 
 google-api-client-android = { module = "com.google.api-client:google-api-client-android", version.ref = "google-api-client-android" }
-google-auth = { group = "com.google.android.gms", name = "play-services-auth", version = "21.3.0" }
+google-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "google-gms-auth" }
 google-drive-api = { group = "com.google.apis", name = "google-api-services-drive", version = "v3-rev136-1.25.0" }
 google-http-client-gson = { group = "com.google.http-client", name = "google-http-client-gson", version.ref = "google-http-client-gson" }
 google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }

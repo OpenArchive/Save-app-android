@@ -1,6 +1,10 @@
 package net.opendasharchive.openarchive.features.internetarchive.presentation.login
 
 import android.content.Intent
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -51,6 +55,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -68,61 +73,101 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.findNavController
 import kotlinx.coroutines.delay
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeColors
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
-import net.opendasharchive.openarchive.core.state.Dispatch
 import net.opendasharchive.openarchive.db.Space
-import net.opendasharchive.openarchive.features.internetarchive.presentation.components.IAResult
+import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
+import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.internetarchive.presentation.components.InternetArchiveHeader
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.CreateLogin
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.Login
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.UpdatePassword
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.UpdateUsername
 import net.opendasharchive.openarchive.util.NetworkUtils
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.parameter.parametersOf
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction as Action
 
-@Composable
-fun InternetArchiveLoginScreen(space: Space, onResult: (IAResult) -> Unit) {
-    val viewModel: InternetArchiveLoginViewModel = koinViewModel {
-        parametersOf(space)
-    }
 
-    val state by viewModel.state.collectAsStateWithLifecycle()
+class InternetArchiveLoginFragment : BaseFragment(), ToolbarConfigurable {
 
-    val launcher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartActivityForResult(),
-            onResult = {})
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
 
-    LaunchedEffect(Unit) {
-        viewModel.actions.collect { action ->
-            when (action) {
-                is CreateLogin -> launcher.launch(
-                    Intent(
-                        Intent.ACTION_VIEW, CreateLogin.URI.toUri()
+        return ComposeView(requireContext()).apply {
+            setContent {
+                SaveAppTheme {
+                    InternetArchiveLoginScreen(
+                        onLoginSuccess = { spaceId ->
+                            val action =
+                                InternetArchiveLoginFragmentDirections.actionFragmentInternetArchiveLoginToFragmentSetupLicense(
+                                    spaceId = spaceId,
+                                    isEditing = false,
+                                    spaceType = Space.Type.INTERNET_ARCHIVE
+                                )
+                            findNavController().navigate(action)
+                        },
+                        onCancel = {
+                            findNavController().popBackStack()
+                        }
                     )
-                )
-
-                is Action.Cancel -> onResult(IAResult.Cancelled)
-
-                is Action.LoginSuccess -> onResult(IAResult.Saved)
-
-                else -> Unit
+                }
             }
         }
     }
 
-    InternetArchiveLoginContent(state, viewModel::dispatch)
+    override fun getToolbarTitle() = getString(R.string.internet_archive)
+    override fun shouldShowBackButton() = true
+}
+
+@Composable
+private fun InternetArchiveLoginScreen(
+    onLoginSuccess: (Long) -> Unit,
+    onCancel: () -> Unit
+) {
+    val viewModel: InternetArchiveLoginViewModel = koinViewModel()
+
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+        onResult = {}
+    )
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is InternetArchiveLoginEvent.NavigateToSignup -> {
+                    launcher.launch(
+                        Intent(
+                            Intent.ACTION_VIEW, "https://archive.org/account/signup".toUri()
+                        )
+                    )
+                }
+
+                is InternetArchiveLoginEvent.NavigateBack -> onCancel()
+
+                is InternetArchiveLoginEvent.LoginSuccess -> {
+                    onLoginSuccess(event.spaceId)
+                }
+
+                is InternetArchiveLoginEvent.LoginError -> {
+                    // Error handling can be done here if needed
+                }
+            }
+        }
+    }
+
+    InternetArchiveLoginContent(state, viewModel::onAction)
 }
 
 @Composable
 private fun InternetArchiveLoginContent(
-    state: InternetArchiveLoginState, dispatch: Dispatch<Action>
+    state: InternetArchiveLoginState,
+    onAction: (InternetArchiveLoginAction) -> Unit
 ) {
 
     val context = LocalContext.current
@@ -130,7 +175,7 @@ private fun InternetArchiveLoginContent(
     LaunchedEffect(state.isLoginError) {
         while (state.isLoginError) {
             delay(3000)
-            dispatch(Action.ErrorClear)
+            onAction(InternetArchiveLoginAction.ErrorClear)
         }
     }
 
@@ -167,7 +212,7 @@ private fun InternetArchiveLoginContent(
 
         CustomTextField(
             value = state.username,
-            onValueChange = { dispatch(UpdateUsername(it)) },
+            onValueChange = { onAction(InternetArchiveLoginAction.UpdateUsername(it)) },
             label = stringResource(R.string.label_username),
             placeholder = stringResource(R.string.prompt_email),
             isError = state.isUsernameError,
@@ -180,7 +225,7 @@ private fun InternetArchiveLoginContent(
 
         CustomSecureField(
             value = state.password,
-            onValueChange = { dispatch(UpdatePassword(it)) },
+            onValueChange = { onAction(InternetArchiveLoginAction.UpdatePassword(it)) },
             label = stringResource(R.string.label_password),
             placeholder = stringResource(R.string.prompt_password),
             isError = state.isPasswordError,
@@ -222,7 +267,7 @@ private fun InternetArchiveLoginContent(
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.tertiary
                 ),
-                onClick = { dispatch(CreateLogin) }
+                onClick = { onAction(InternetArchiveLoginAction.CreateLogin) }
             ) {
                 Text(
                     text = stringResource(R.string.label_create_login),
@@ -251,7 +296,7 @@ private fun InternetArchiveLoginContent(
                 ),
                 enabled = !state.isBusy,
                 shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
-                onClick = { dispatch(Action.Cancel) }) {
+                onClick = { onAction(InternetArchiveLoginAction.Cancel) }) {
                 Text(stringResource(R.string.back))
             }
             Spacer(modifier = Modifier.width(8.dp))
@@ -269,7 +314,7 @@ private fun InternetArchiveLoginContent(
                 ),
                 onClick = {
                     if (NetworkUtils.isNetworkAvailable(context)) {
-                        dispatch(Login)
+                        onAction(InternetArchiveLoginAction.Login)
                     } else {
                         Toast.makeText(context, R.string.error_no_internet, Toast.LENGTH_LONG)
                             .show()
@@ -296,8 +341,9 @@ private fun InternetArchiveLoginPreview() {
                 username = "",
                 password = "",
                 isLoginError = true
-            )
-        ) {}
+            ),
+            onAction = {}
+        )
     }
 }
 
@@ -440,4 +486,61 @@ fun CustomSecureField(
             }
         },
     )
+}
+
+
+@Composable
+fun ButtonBar(
+    modifier: Modifier = Modifier,
+    backButtonText: UiText = UiText.StringResource(R.string.back),
+    nextButtonText: UiText = UiText.StringResource(R.string.next),
+    isBackEnabled: Boolean = false,
+    isNextEnabled: Boolean = false,
+    isLoading: Boolean = false,
+    onBack: () -> Unit,
+    onNext: () -> Unit
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom)),
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        TextButton(
+            modifier = Modifier
+                .padding(8.dp)
+                .heightIn(ThemeDimensions.touchable)
+                .weight(1f),
+            colors = ButtonDefaults.textButtonColors(
+                contentColor = colorResource(R.color.colorOnBackground)
+            ),
+            enabled = isBackEnabled,
+            shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
+            onClick = onBack
+        ) {
+            Text(backButtonText.asString())
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        Button(
+            modifier = Modifier
+                .padding(8.dp)
+                .heightIn(ThemeDimensions.touchable)
+                .weight(1f),
+            enabled = isNextEnabled,
+            shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.tertiary,
+                disabledContainerColor = colorResource(R.color.grey_50),
+                disabledContentColor = colorResource(R.color.extra_light_grey)//MaterialTheme.colorScheme.onBackground
+            ),
+            onClick = onNext,
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(color = ThemeColors.material.primary)
+            } else {
+                Text(nextButtonText.asString())
+            }
+        }
+    }
 }
