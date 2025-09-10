@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import java.io.FileInputStream
-import java.text.SimpleDateFormat
 import java.util.Properties
 
 plugins {
