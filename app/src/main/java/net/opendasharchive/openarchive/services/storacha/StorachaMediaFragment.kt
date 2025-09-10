@@ -20,6 +20,7 @@ import net.opendasharchive.openarchive.databinding.FragmentStorachaMediaBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.services.storacha.model.UploadEntry
 import net.opendasharchive.openarchive.services.storacha.util.CarFileCreator
+import net.opendasharchive.openarchive.services.storacha.util.CarFileResult
 import net.opendasharchive.openarchive.services.storacha.util.DidManager
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaMediaViewModel
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
@@ -80,6 +81,18 @@ class StorachaMediaFragment :
                 StorachaBrowseFilesAdapter(mediaList as List<UploadEntry>) { file ->
                     Timber.d("Selected: ${file.cid}")
                 }
+        }
+
+        viewModel.uploadResult.observe(viewLifecycleOwner) { result ->
+            result.fold(
+                onSuccess = { uploadResponse ->
+                    Timber.d("Upload successful: CID=${uploadResponse.cid}, Size=${uploadResponse.size}")
+                },
+                onFailure = { error ->
+                    Timber.e(error, "Upload failed")
+                    // You could show a toast or snackbar here
+                }
+            )
         }
 
         mBinding.rvMediaList.addOnScrollListener(
@@ -173,18 +186,18 @@ class StorachaMediaFragment :
         }
 
         // Generate proper CAR file from the temporary file
-        val carData = CarFileCreator.createCarFile(tempFile)
+        val carResult = CarFileCreator.createCarFile(tempFile)
 
         // Debug: Save CAR data to file for inspection
         val carFile =
             File(requireContext().cacheDir, "car_files/temp-${System.currentTimeMillis()}.car")
         carFile.parentFile?.mkdirs()
-        carFile.writeBytes(carData)
+        carFile.writeBytes(carResult.carData)
 
         // Clean up temporary file
         // tempFile.delete()
         val sessionId = args.sessionId
-        viewModel.uploadFile(userDid, spaceDid, carData, sessionId)
+        viewModel.uploadFile(tempFile, carResult, userDid, spaceDid, sessionId)
     }
 
     private fun handleSelectedFiles(uris: List<Uri>) {
