@@ -163,20 +163,6 @@
             android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar" />
 
-
-        <activity
-            android:name=".services.webdav.WebDavActivity"
-            android:label="@string/title_activity_login"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan" />
-
-        <activity
-            android:name=".features.internetarchive.presentation.InternetArchiveActivity"
-            android:label="@string/title_activity_login"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
         <activity
             android:name=".services.gdrive.GDriveActivity"
             android:theme="@style/SaveAppTheme.NoActionBar" />
