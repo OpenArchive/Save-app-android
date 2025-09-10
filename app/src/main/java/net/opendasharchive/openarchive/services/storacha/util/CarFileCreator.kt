@@ -46,7 +46,7 @@ object CarFileCreator {
         val carData = createCar(rootDagPbBlock.cid, blocks)
         
         // Create CIDs in proper format
-        val rootCid = cidBytesToString(rootDagPbBlock.cid, "bafy")
+        val rootCid = cidBytesToString(rootDagPbBlock.cid, "b")
         val carCid = createCarCid(carData)
         
         return CarFileResult(carData, carCid, rootCid)
@@ -118,7 +118,7 @@ object CarFileCreator {
         val carData = createCar(rootDagPbBlock.cid, blocks)
         
         // Create CIDs in proper format
-        val rootCid = cidBytesToString(rootDagPbBlock.cid, "bafy")
+        val rootCid = cidBytesToString(rootDagPbBlock.cid, "b")
         val carCid = createCarCid(carData)
         
         return CarFileResult(carData, carCid, rootCid)

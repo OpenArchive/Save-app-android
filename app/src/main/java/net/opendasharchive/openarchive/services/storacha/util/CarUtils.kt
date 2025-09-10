@@ -57,7 +57,7 @@ object CarUtils {
         if (offset + 36 > data.size) return ""
         
         val cidBytes = data.sliceArray(offset until offset + 36)
-        return encodeCidAsString(cidBytes, "bafy")
+        return encodeCidAsString(cidBytes, "b")
     }
     
     private fun readVarInt(data: ByteArray, offset: Int): Pair<Int, Int> {
