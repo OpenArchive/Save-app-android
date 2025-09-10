@@ -83,14 +83,31 @@ android {
             signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
             isShrinkResources = false
-            applicationIdSuffix = ".release"
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
 
         getByName("debug") {
             signingConfig = signingConfigs.getByName("debug")
-            applicationIdSuffix = ".debug"
             isMinifyEnabled = false
+        }
+    }
+
+    flavorDimensions += "env"
+
+    productFlavors {
+        create("dev") {
+            dimension = "env"
+            versionNameSuffix = "-dev"
+            applicationIdSuffix = ".debug"
+        }
+        create("staging") {
+            dimension = "env"
+            versionNameSuffix = "-staging"
+            applicationIdSuffix = ".debug"
+        }
+        create("prod") {
+            dimension = "env"
+            applicationIdSuffix = ".release"
         }
     }
 
