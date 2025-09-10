@@ -188,7 +188,7 @@
 
     <string name="confirm_passcode">Confirm Passcode</string>
     <string name="set_passcode">Set Passcode</string>
-    <string name="set_passcode_warning">Make sure you remember this pin. If you forget it, you will need to reset the app, and all data will be erased.</string>
+    <string name="set_passcode_warning">Make sure you remember this pin. If you forget it, you will need to reset the app, and all in-app data will be erased.</string>
 
 
     <!-- Strings related to Settings -->
