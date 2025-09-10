@@ -23,12 +23,6 @@ abstract class BaseFragment : Fragment(), ToolbarConfigurable {
     val snowbirdGroupViewModel: SnowbirdGroupViewModel by androidViewModel()
     val snowbirdRepoViewModel: SnowbirdRepoViewModel by androidViewModel()
 
-    val isJetpackNavigation: Boolean
-        get() {
-            val parentFragmentManager = parentFragmentManager
-            return parentFragmentManager.findFragmentById(R.id.space_nav_host_fragment) != null
-        }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         ensureComposeDialogHost()

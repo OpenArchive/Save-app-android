@@ -150,16 +150,8 @@ class SnowbirdJoinGroupFragment: BaseFragment() {
 
     companion object {
 
-
         const val ARG_RAVEN_GROUP_URI_STRING = "space_setup_success_fragment_arg_message"
 
-        @JvmStatic
-        fun newInstance(uriString: String) =
-            SnowbirdJoinGroupFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_RAVEN_GROUP_URI_STRING, uriString)
-                }
-            }
     }
 
     override fun getToolbarTitle(): String {
