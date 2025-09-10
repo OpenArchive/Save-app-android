@@ -39,7 +39,7 @@ class SpaceSetupFragment : BaseFragment() {
         // Only enable Internet Archive if not already present
         val isInternetArchiveAllowed = !Space.has(Space.Type.INTERNET_ARCHIVE)
         val onInternetArchiveClick = {
-            val action = SpaceSetupFragmentDirections.actionFragmentSpaceSetupToInternetArchiveLogin(-1L)
+            val action = SpaceSetupFragmentDirections.actionFragmentSpaceSetupToInternetArchiveLogin()
             findNavController().navigate(action)
         }
 

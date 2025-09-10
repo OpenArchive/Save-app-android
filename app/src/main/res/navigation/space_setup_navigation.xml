@@ -122,10 +122,6 @@
         android:name="net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginFragment"
         android:label="Internet Archive">
 
-        <argument
-            android:name="space_id"
-            android:defaultValue="-1L"
-            app:argType="long" />
         <action
             android:id="@+id/action_fragment_internet_archive_login_to_fragment_setup_license"
             app:destination="@id/fragment_setup_license" />
@@ -137,7 +133,6 @@
         android:label="Internet Archive">
         <argument
             android:name="space_id"
-            android:defaultValue="-1L"
             app:argType="long" />
     </fragment>
 
