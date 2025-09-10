@@ -14,7 +14,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaMediaBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
@@ -26,6 +26,8 @@ import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaMedia
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.toggle
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.android.ext.android.inject
+import okhttp3.OkHttpClient
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
@@ -36,6 +38,7 @@ class StorachaMediaFragment :
     private lateinit var mBinding: FragmentStorachaMediaBinding
     private val viewModel: StorachaMediaViewModel by viewModel()
     private val args: StorachaMediaFragmentArgs by navArgs()
+    private val okHttpClient: OkHttpClient by inject()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -50,7 +53,7 @@ class StorachaMediaFragment :
             bottomMargin = insets.bottom
         }
 
-        mBinding.rvMediaList.layoutManager = LinearLayoutManager(requireContext())
+        mBinding.rvMediaList.layoutManager = GridLayoutManager(requireContext(), 3)
         return mBinding.root
     }
 
@@ -78,7 +81,7 @@ class StorachaMediaFragment :
         viewModel.media.observe(viewLifecycleOwner) { mediaList ->
             mBinding.projectsEmpty.toggle(mediaList.isEmpty())
             mBinding.rvMediaList.adapter =
-                StorachaBrowseFilesAdapter(mediaList as List<UploadEntry>) { file ->
+                StorachaMediaGridAdapter(mediaList as List<UploadEntry>, okHttpClient) { file ->
                     Timber.d("Selected: ${file.cid}")
                 }
         }
@@ -103,7 +106,7 @@ class StorachaMediaFragment :
                     dy: Int,
                 ) {
                     if (dy > 0) {
-                        val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                        val layoutManager = recyclerView.layoutManager as GridLayoutManager
                         val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
                         val totalItemCount = layoutManager.itemCount
                         if (lastVisibleItem >= totalItemCount - 1) {
@@ -173,11 +176,16 @@ class StorachaMediaFragment :
         val userDid = DidManager(requireContext()).getOrCreateDid()
         val spaceDid = args.spaceId
 
-        // Create temporary file from URI with original extension
-        val originalName = getFileName(uri) ?: "unknown"
+        // Create temporary file from URI preserving original filename
+        val originalName = getFileName(uri) ?: "unknown_${System.currentTimeMillis()}"
         val extension = originalName.substringAfterLast('.', "")
-        val fileName =
-            if (extension.isNotEmpty()) "temp-${System.currentTimeMillis()}.$extension" else "temp-${System.currentTimeMillis()}"
+        
+        // Use original filename, but add timestamp if there's no extension to avoid conflicts
+        val fileName = if (extension.isNotEmpty()) {
+            originalName
+        } else {
+            "${originalName}_${System.currentTimeMillis()}"
+        }
         val tempFile = File(requireContext().cacheDir, fileName)
         requireContext().contentResolver.openInputStream(uri)?.use { input ->
             FileOutputStream(tempFile).use { output ->
@@ -189,8 +197,8 @@ class StorachaMediaFragment :
         val carResult = CarFileCreator.createCarFile(tempFile)
 
         // Debug: Save CAR data to file for inspection
-        val carFile =
-            File(requireContext().cacheDir, "car_files/temp-${System.currentTimeMillis()}.car")
+        val carFileName = "${originalName.substringBeforeLast('.', originalName)}_${System.currentTimeMillis()}.car"
+        val carFile = File(requireContext().cacheDir, "car_files/$carFileName")
         carFile.parentFile?.mkdirs()
         carFile.writeBytes(carResult.carData)
 

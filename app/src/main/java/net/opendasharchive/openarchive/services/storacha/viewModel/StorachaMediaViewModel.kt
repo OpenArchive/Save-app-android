@@ -79,6 +79,7 @@ class StorachaMediaViewModel(
         sessionId: String,
     ) {
         viewModelScope.launch {
+            _loading.value = true
             try {
                 // Use the complete bridge workflow with CAR files
                 val bridgeResult =
@@ -105,6 +106,8 @@ class StorachaMediaViewModel(
                 loadMoreMediaEntries(userDid, spaceDid, sessionId)
             } catch (e: Exception) {
                 _uploadResult.value = Result.failure(e)
+            } finally {
+                _loading.value = false
             }
         }
     }

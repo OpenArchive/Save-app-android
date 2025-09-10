@@ -2,7 +2,9 @@ package net.opendasharchive.openarchive.services.storacha.util
 
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import net.opendasharchive.openarchive.services.storacha.model.BridgeTaskRequest
 import net.opendasharchive.openarchive.services.storacha.model.BridgeTokenRequest
 import net.opendasharchive.openarchive.services.storacha.model.BridgeTokens
@@ -224,20 +226,42 @@ class BridgeUploader(
                 .put(carData.toRequestBody("application/vnd.ipld.car".toMediaType()))
 
         // Add explicit Content-Length header - S3 requires exact match
-//        requestBuilder.addHeader("Content-Length", carData.size.toString())
+        requestBuilder.addHeader("Content-Length", carData.size.toString())
 
         headers.forEach { (key, value) ->
             requestBuilder.addHeader(key, value)
         }
 
-        val response = client.newCall(requestBuilder.build()).execute()
+        // Use withTimeout for S3 upload with 5 minute timeout for large files
+        val response = withTimeout(300_000L) { // 5 minutes
+            suspendCancellableCoroutine<okhttp3.Response> { continuation ->
+                val call = client.newCall(requestBuilder.build())
+                
+                call.enqueue(object : okhttp3.Callback {
+                    override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
+                        continuation.resumeWith(Result.failure(e))
+                    }
+                    
+                    override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                        continuation.resumeWith(Result.success(response))
+                    }
+                })
+                
+                continuation.invokeOnCancellation {
+                    call.cancel()
+                }
+            }
+        }
+        
         if (!response.isSuccessful) {
             val responseBody = response.body?.string() ?: "No response body"
             Timber.e("S3 upload failed - Code: ${response.code}, Message: ${response.message}")
             Timber.e("S3 response body: $responseBody")
             Timber.e("CAR data size: ${carData.size} bytes")
+            response.close()
             throw Exception("S3 upload failed: ${response.code} ${response.message} - $responseBody")
         }
+        response.close()
     }
 
     /**

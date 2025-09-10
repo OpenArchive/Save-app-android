@@ -216,6 +216,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
     implementation(libs.coil.network)
+    implementation("com.squareup.picasso:picasso:2.8")
 
     // Networking and Data
     // Networking
@@ -224,6 +225,7 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
+    implementation("org.jsoup:jsoup:1.17.2")
     implementation(libs.guardianproject.sardine)
 
     // Utility Libraries
