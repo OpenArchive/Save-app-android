@@ -334,11 +334,11 @@
 
         <meta-data
             android:name="VERSION"
-            android:value="40" />
+            android:value="37" />
 <!--        NOTE: Please do not write migrations for added columns, as they are not needed.-->
 <!--        Only upgrade the version number when you add a new column.-->
 <!--        migration sql causing duplicate column error:-->
-<!--            https://github.com/chennaione/sugar/issues/713-->
+<!--            https://github.com/chennaione/sugar/issues/713  -->
 
         <provider
             android:name="androidx.core.content.FileProvider"
