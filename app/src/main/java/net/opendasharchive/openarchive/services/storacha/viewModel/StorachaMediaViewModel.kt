@@ -9,6 +9,8 @@ import net.opendasharchive.openarchive.services.storacha.model.UploadEntry
 import net.opendasharchive.openarchive.services.storacha.model.UploadResponse
 import net.opendasharchive.openarchive.services.storacha.service.StorachaApiService
 import net.opendasharchive.openarchive.services.storacha.util.BridgeUploader
+import net.opendasharchive.openarchive.services.storacha.util.CarFileResult
+import java.io.File
 
 class StorachaMediaViewModel(
     private val apiService: StorachaApiService,
@@ -70,24 +72,42 @@ class StorachaMediaViewModel(
     }
 
     fun uploadFile(
+        file: File,
+        carResult: CarFileResult,
         userDid: String,
         spaceDid: String,
-        carData: ByteArray,
         sessionId: String,
     ) {
         viewModelScope.launch {
+            _loading.value = true
             try {
-                val authHeaders = bridgeUploader.fetchBridgeTokens(userDid, spaceDid, sessionId)
-                val response = bridgeUploader.uploadCarFile(carData, authHeaders)
+                // Use the complete bridge workflow with CAR files
+                val bridgeResult =
+                    bridgeUploader.uploadFile(
+                        file = file,
+                        carData = carResult.carData,
+                        carCid = carResult.carCid,
+                        rootCid = carResult.rootCid,
+                        spaceDid = spaceDid,
+                        userDid = userDid,
+                        sessionId = sessionId,
+                    )
+
                 val uploadResponse =
                     UploadResponse(
                         success = true,
-                        cid = response.optString("cid", ""),
-                        size = carData.size.toLong(),
+                        cid = bridgeResult.rootCid,
+                        size = bridgeResult.size,
                     )
                 _uploadResult.value = Result.success(uploadResponse)
+
+                // Refresh the media list after successful upload
+                reset()
+                loadMoreMediaEntries(userDid, spaceDid, sessionId)
             } catch (e: Exception) {
                 _uploadResult.value = Result.failure(e)
+            } finally {
+                _loading.value = false
             }
         }
     }

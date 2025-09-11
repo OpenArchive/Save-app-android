@@ -12,6 +12,7 @@ import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaDIDAc
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaAccountDetailsViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import java.util.concurrent.TimeUnit
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -28,7 +29,12 @@ val storachaModule =
         }
 
         single {
-            OkHttpClient.Builder().addInterceptor(get<HttpLoggingInterceptor>()).build()
+            OkHttpClient.Builder()
+                .addInterceptor(get<HttpLoggingInterceptor>())
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(300, TimeUnit.SECONDS)  // 5 minutes for large file uploads
+                .writeTimeout(300, TimeUnit.SECONDS) // 5 minutes for large file uploads
+                .build()
         }
 
         single {

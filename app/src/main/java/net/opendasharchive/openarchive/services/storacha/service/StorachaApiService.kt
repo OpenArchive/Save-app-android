@@ -1,6 +1,7 @@
 package net.opendasharchive.openarchive.services.storacha.service
 
 import net.opendasharchive.openarchive.services.storacha.model.AccountUsageResponse
+import net.opendasharchive.openarchive.services.storacha.model.BridgeTokenRequest
 import net.opendasharchive.openarchive.services.storacha.model.BridgeTokenResponse
 import net.opendasharchive.openarchive.services.storacha.model.DelegationCreateResponse
 import net.opendasharchive.openarchive.services.storacha.model.DelegationDetailsResponse
@@ -115,10 +116,11 @@ interface StorachaApiService {
         @Part("spaceDid") spaceDid: RequestBody,
     ): UploadResponse
 
-    @GET("bridge-tokens")
+    @POST("bridge-tokens")
     suspend fun getBridgeTokens(
-        @Header("x-user-did") userDid: String,
-        @Query("spaceDid") spaceDid: String,
+        @Header("x-user-did") userDid: String?,
+        @Header("x-session-id") sessionId: String?,
+        @Body request: BridgeTokenRequest,
     ): BridgeTokenResponse
 
     @GET("delegations/user/spaces")
