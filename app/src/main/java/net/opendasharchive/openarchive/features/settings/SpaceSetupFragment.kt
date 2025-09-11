@@ -4,22 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
-import androidx.fragment.app.setFragmentResult
 import androidx.fragment.compose.content
-import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.databinding.FragmentSpaceSetupBinding
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.features.spaces.SpaceSetupScreen
-import net.opendasharchive.openarchive.util.extensions.hide
-import net.opendasharchive.openarchive.util.extensions.show
 import org.koin.android.ext.android.inject
-import kotlin.getValue
 
 class SpaceSetupFragment : BaseFragment() {
 
@@ -39,7 +32,8 @@ class SpaceSetupFragment : BaseFragment() {
         // Only enable Internet Archive if not already present
         val isInternetArchiveAllowed = !Space.has(Space.Type.INTERNET_ARCHIVE)
         val onInternetArchiveClick = {
-            val action = SpaceSetupFragmentDirections.actionFragmentSpaceSetupToInternetArchiveLogin()
+            val action =
+                SpaceSetupFragmentDirections.actionFragmentSpaceSetupToInternetArchiveLogin()
             findNavController().navigate(action)
         }
 
@@ -47,8 +41,14 @@ class SpaceSetupFragment : BaseFragment() {
         val isDwebEnabled = appConfig.isDwebEnabled
         val onDwebClicked = {
             val action =
-                    SpaceSetupFragmentDirections.actionFragmentSpaceSetupToFragmentSnowbird()
-                findNavController().navigate(action)
+                SpaceSetupFragmentDirections.actionFragmentSpaceSetupToFragmentSnowbird()
+            findNavController().navigate(action)
+        }
+
+        val onStorachaClicked = {
+            val action =
+                SpaceSetupFragmentDirections.actionFragmentSpaceSetupToFragmentStoracha()
+            findNavController().navigate(action)
         }
 
         SaveAppTheme {
@@ -57,7 +57,8 @@ class SpaceSetupFragment : BaseFragment() {
                 isInternetArchiveAllowed = isInternetArchiveAllowed,
                 onInternetArchiveClick = onInternetArchiveClick,
                 isDwebEnabled = isDwebEnabled,
-                onDwebClicked = onDwebClicked
+                onDwebClicked = onDwebClicked,
+                onStorachaClicked = onStorachaClicked
             )
         }
 

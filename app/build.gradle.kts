@@ -129,9 +129,13 @@ android {
         resources {
             excludes.addAll(
                 listOf(
-                    "META-INF/LICENSE.txt", "META-INF/NOTICE.txt", "META-INF/LICENSE",
-                    "META-INF/NOTICE", "META-INF/DEPENDENCIES", "LICENSE.txt"
-                )
+                    "META-INF/LICENSE.txt",
+                    "META-INF/NOTICE.txt",
+                    "META-INF/LICENSE",
+                    "META-INF/NOTICE",
+                    "META-INF/DEPENDENCIES",
+                    "LICENSE.txt",
+                ),
             )
         }
     }
@@ -165,7 +169,6 @@ dependencies {
     // Core Kotlin and Coroutines
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
-
 
     // AndroidX Libraries
     implementation(libs.androidx.appcompat)
@@ -242,6 +245,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
     implementation(libs.coil.network)
+    implementation("com.squareup.picasso:picasso:2.8")
 
     // Networking and Data
     // Networking
@@ -250,6 +254,7 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
+    implementation("org.jsoup:jsoup:1.17.2")
     implementation(libs.guardianproject.sardine)
 
     // Utility Libraries
@@ -260,11 +265,12 @@ dependencies {
     implementation(libs.permissionx)
 
     // Barcode Scanning
-    implementation("com.google.zxing:core:3.5.3")
-    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation(libs.zxing.core)
+    implementation(libs.zxing.android.embedded)
 
     // Security and Encryption
     implementation(libs.bouncycastle.bcpkix)
+    // Ed25519 for DID signature authentication
     implementation(libs.bouncycastle.bcprov)
     api(libs.bouncycastle.bcpg)
 
@@ -287,11 +293,11 @@ dependencies {
     implementation(libs.jtorctl)
 
     implementation(libs.bitcoinj.core)
-    //implementation("com.eclipsesource.j2v8:j2v8:6.2.1@aar")
+    // implementation(libs.j2v8)
 
     // ProofMode //from here: https://github.com/guardianproject/proofmode
     implementation(libs.proofmode) {
-        //transitive = false
+        // transitive = false
         exclude(group = "org.bitcoinj")
         exclude(group = "com.google.protobuf")
         exclude(group = "org.slf4j")
@@ -311,9 +317,9 @@ dependencies {
     implementation(libs.satyan.sugar)
 
     // adding web dav support: https://github.com/thegrizzlylabs/sardine-android'
-    implementation("com.github.guardianproject:sardine-android:89f7eae512")
+    implementation(libs.guardianproject.sardine)
 
-    implementation("com.github.derlio:audio-waveform:v1.0.1")
+    implementation(libs.audio.waveform)
 
     implementation(libs.clean.insights)
     implementation(libs.netcipher)
@@ -335,7 +341,7 @@ dependencies {
     detektPlugins(libs.detekt.compose)
     detektPlugins(libs.detekt.rules.compose)
 
-//    debugImplementation("com.squareup.leakcanary:leakcanary-android:3.0-alpha-8")
+    //debugImplementation("com.squareup.leakcanary:leakcanary-android:3.0-alpha-8")
 }
 
 configurations.all {

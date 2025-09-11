@@ -122,6 +122,7 @@ fun SpaceIcon(
         Space.Type.INTERNET_ARCHIVE -> painterResource(R.drawable.ic_space_interent_archive)
         Space.Type.GDRIVE -> painterResource(R.drawable.logo_gdrive_outline)
         Space.Type.RAVEN -> painterResource(R.drawable.ic_space_dweb)
+        Space.Type.STORACHA -> painterResource(R.drawable.storacha)
     }
     Icon(
         modifier = modifier,

@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.app.UiModeManager
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import coil3.ImageLoader
 import coil3.PlatformContext
@@ -19,8 +20,10 @@ import net.opendasharchive.openarchive.core.di.retrofitModule
 import net.opendasharchive.openarchive.core.di.unixSocketModule
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeManager
+import net.opendasharchive.openarchive.services.storacha.di.storachaModule
 import net.opendasharchive.openarchive.util.Analytics
 import net.opendasharchive.openarchive.util.Prefs
+import net.opendasharchive.openarchive.util.Theme
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -59,7 +62,8 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory {
                 featuresModule,
                 retrofitModule,
                 unixSocketModule,
-                passcodeModule
+                passcodeModule,
+                storachaModule,
             )
         }
 

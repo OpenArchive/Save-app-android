@@ -65,6 +65,7 @@ data class Space(
             }
 
             Type.RAVEN -> "Raven"
+            Type.STORACHA -> "Storacha Service"
         }
     }
 
@@ -73,6 +74,7 @@ data class Space(
         INTERNET_ARCHIVE(1, IaConduit.NAME),
         GDRIVE(4, GDriveConduit.NAME),
         RAVEN(5, "DWeb Storage"),
+        STORACHA(7, "Storacha Service"),
     }
 
     enum class IconStyle {
@@ -222,13 +224,7 @@ data class Space(
 
             Type.RAVEN -> ContextCompat.getDrawable(context, R.drawable.ic_dweb) // ?.tint(color)
 
-            else -> {
-                val color = ContextCompat.getColor(context, R.color.colorOnBackground)
-                BitmapDrawable(
-                    context.resources,
-                    DrawableUtil.createCircularTextDrawable(initial, color)
-                )
-            }
+            Type.STORACHA -> ContextCompat.getDrawable(context, R.drawable.storacha ) // ?.tint(color)
 
         }
     }
@@ -244,6 +240,9 @@ data class Space(
             Type.GDRIVE -> painterResource(R.drawable.logo_gdrive_outline)
 
             Type.RAVEN -> painterResource(R.drawable.ic_space_dweb)
+
+            Type.STORACHA -> painterResource(R.drawable.storacha)
+
             null -> {
                 val context = LocalContext.current
                 val color = ContextCompat.getColor(context, R.color.colorOnBackground)

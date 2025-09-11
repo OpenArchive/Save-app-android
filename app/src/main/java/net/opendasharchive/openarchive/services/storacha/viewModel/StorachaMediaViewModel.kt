@@ -1,0 +1,114 @@
+package net.opendasharchive.openarchive.services.storacha.viewModel
+
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.services.storacha.model.UploadEntry
+import net.opendasharchive.openarchive.services.storacha.model.UploadResponse
+import net.opendasharchive.openarchive.services.storacha.service.StorachaApiService
+import net.opendasharchive.openarchive.services.storacha.util.BridgeUploader
+import net.opendasharchive.openarchive.services.storacha.util.CarFileResult
+import java.io.File
+
+class StorachaMediaViewModel(
+    private val apiService: StorachaApiService,
+    private val bridgeUploader: BridgeUploader = BridgeUploader(),
+) : ViewModel() {
+    private val _media = MutableLiveData<List<UploadEntry>>(emptyList())
+    val media: LiveData<List<UploadEntry>> get() = _media
+
+    private val _loading = MutableLiveData<Boolean>()
+    val loading: LiveData<Boolean> get() = _loading
+
+    private var currentCursor: String? = null
+    private var hasMoreData: Boolean = true
+    private var isLoading = false
+
+    private val _uploadResult = MutableLiveData<Result<UploadResponse>>()
+    val uploadResult: LiveData<Result<UploadResponse>> get() = _uploadResult
+
+    fun reset() {
+        currentCursor = null
+        hasMoreData = true
+        _media.value = emptyList()
+    }
+
+    fun loadMoreMediaEntries(
+        userDid: String,
+        spaceDid: String,
+        sessionId: String,
+    ) {
+        if (isLoading || !hasMoreData) return
+
+        _loading.value = true
+        isLoading = true
+
+        viewModelScope.launch {
+            try {
+                val response =
+                    apiService.listUploads(
+                        userDid = userDid,
+                        spaceDid = spaceDid,
+                        cursor = currentCursor,
+                        size = 20, // adjust page size as needed
+                        sessionId = sessionId,
+                    )
+
+                val newEntries = response.uploads
+                val currentEntries = _media.value ?: emptyList()
+                _media.value = currentEntries + newEntries
+
+                currentCursor = response.cursor
+                hasMoreData = response.hasMore
+            } catch (e: Exception) {
+                // optionally handle error
+            } finally {
+                _loading.value = false
+                isLoading = false
+            }
+        }
+    }
+
+    fun uploadFile(
+        file: File,
+        carResult: CarFileResult,
+        userDid: String,
+        spaceDid: String,
+        sessionId: String,
+    ) {
+        viewModelScope.launch {
+            _loading.value = true
+            try {
+                // Use the complete bridge workflow with CAR files
+                val bridgeResult =
+                    bridgeUploader.uploadFile(
+                        file = file,
+                        carData = carResult.carData,
+                        carCid = carResult.carCid,
+                        rootCid = carResult.rootCid,
+                        spaceDid = spaceDid,
+                        userDid = userDid,
+                        sessionId = sessionId,
+                    )
+
+                val uploadResponse =
+                    UploadResponse(
+                        success = true,
+                        cid = bridgeResult.rootCid,
+                        size = bridgeResult.size,
+                    )
+                _uploadResult.value = Result.success(uploadResponse)
+
+                // Refresh the media list after successful upload
+                reset()
+                loadMoreMediaEntries(userDid, spaceDid, sessionId)
+            } catch (e: Exception) {
+                _uploadResult.value = Result.failure(e)
+            } finally {
+                _loading.value = false
+            }
+        }
+    }
+}

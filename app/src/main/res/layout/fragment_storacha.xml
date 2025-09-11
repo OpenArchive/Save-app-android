@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:layout_height="wrap_content"
+    android:padding="20dp">
+
+    <TextView
+        android:id="@+id/help_text_sub_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:lines="3"
+        android:text="@string/storacha_is_a_decentralized_media_storage_system_using_ipfs_ucan_and_dids"
+        android:textColor="@color/colorSectionHeaderText"
+        android:textSize="16sp"
+        android:drawablePadding="10dp"
+        app:drawableStartCompat="@drawable/storacha" />
+
+        <com.google.android.material.button.MaterialButton
+            style="@style/OAMaterialSignInButtonStyle"
+            android:id="@+id/btn_manage_accounts"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="40dp"
+            android:text="@string/manage_accounts"/>
+
+        <com.google.android.material.button.MaterialButton
+            style="@style/OAMaterialSignInButtonStyle"
+            android:id="@+id/btn_my_spaces"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="40dp"
+            android:text="@string/my_spaces" />
+
+        <com.google.android.material.button.MaterialButton
+            style="@style/OAMaterialSignInButtonStyle"
+            android:id="@+id/btn_join_spaces"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginTop="40dp"
+            android:text="@string/join_spaces" />
+
+</LinearLayout>

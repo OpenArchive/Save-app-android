@@ -69,6 +69,8 @@ import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
+import net.opendasharchive.openarchive.services.storacha.util.DidManager
+import net.opendasharchive.openarchive.services.storacha.util.StorachaAccountManager
 import net.opendasharchive.openarchive.upload.UploadManagerFragment
 import net.opendasharchive.openarchive.upload.UploadService
 import net.opendasharchive.openarchive.util.InAppReviewHelper
@@ -767,7 +769,10 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     }
 
     private fun refreshSpaceListAtDrawer() {
-        val spaces = Space.getAll().asSequence().toList()
+        val spaces = Space.getAll().asSequence().toMutableList()
+        if (DidManager(this).hasDid()) {
+            spaces.add(Space(type = Space.Type.STORACHA.id, name = "Storacha Service"))
+        }
         val hasDwebGroups = SnowbirdGroup.getAll().isNotEmpty()
         mSpaceAdapter.update(spaces, hasDwebGroups)
     }
@@ -923,9 +928,10 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        val accountManager = StorachaAccountManager(this)
         val hasDwebGroup = SnowbirdGroup.getAll().isNotEmpty()
         val shouldShowSideMenu =
-            ((Space.current != null || hasDwebGroup) && mCurrentPagerItem != mPagerAdapter.settingsIndex)
+            ((Space.current != null || hasDwebGroup) && mCurrentPagerItem != mPagerAdapter.settingsIndex) || DidManager(this).hasDid()
 
         menu?.findItem(R.id.menu_folders)?.apply {
             isVisible = shouldShowSideMenu
@@ -960,6 +966,11 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         updateCurrentSpaceAtDrawer()
         collapseSpacesList()
         binding.drawerLayout.closeDrawer(binding.drawerContent)
+        if (space.type == Space.Type.STORACHA.id) {
+            val intent = Intent(this, SpaceSetupActivity::class.java)
+            intent.putExtra("start_destination", "STORACHA")
+            startActivity(intent)
+        }
     }
 
     override fun onAddNewSpace() {
