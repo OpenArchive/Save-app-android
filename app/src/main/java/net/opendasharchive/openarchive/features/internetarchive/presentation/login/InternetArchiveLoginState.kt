@@ -15,20 +15,17 @@ data class InternetArchiveLoginState(
 )
 
 sealed interface InternetArchiveLoginAction {
+    data class UpdateUsername(val username: String) : InternetArchiveLoginAction
+    data class UpdatePassword(val password: String) : InternetArchiveLoginAction
     data object Login : InternetArchiveLoginAction
-
     data object Cancel : InternetArchiveLoginAction
-
-    data class LoginSuccess(val value: InternetArchive) : InternetArchiveLoginAction
-
-    data class LoginError(val value: Throwable) : InternetArchiveLoginAction
-
+    data object CreateLogin : InternetArchiveLoginAction
     data object ErrorClear : InternetArchiveLoginAction
+}
 
-    data object CreateLogin : InternetArchiveLoginAction {
-        const val URI = "https://archive.org/account/signup"
-    }
-
-    data class UpdateUsername(val value: String) : InternetArchiveLoginAction
-    data class UpdatePassword(val value: String) : InternetArchiveLoginAction
+sealed interface InternetArchiveLoginEvent {
+    data class LoginSuccess(val spaceId: Long) : InternetArchiveLoginEvent
+    data class LoginError(val error: Throwable) : InternetArchiveLoginEvent
+    data object NavigateToSignup : InternetArchiveLoginEvent
+    data object NavigateBack : InternetArchiveLoginEvent
 }
