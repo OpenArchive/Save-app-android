@@ -58,7 +58,7 @@ android {
         applicationId = "net.opendasharchive.openarchive"
         minSdk = 29
         targetSdk = 36
-        versionCode = 30017
+        versionCode = 30018
         versionName = "4.0.2"
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
@@ -95,16 +95,19 @@ android {
     flavorDimensions += "env"
 
     productFlavors {
+
         create("dev") {
             dimension = "env"
             versionNameSuffix = "-dev"
             applicationIdSuffix = ".debug"
         }
+
         create("staging") {
             dimension = "env"
             versionNameSuffix = "-staging"
             applicationIdSuffix = ".debug"
         }
+
         create("prod") {
             dimension = "env"
             applicationIdSuffix = ".release"
