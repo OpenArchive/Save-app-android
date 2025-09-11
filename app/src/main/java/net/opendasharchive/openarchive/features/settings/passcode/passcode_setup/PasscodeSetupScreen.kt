@@ -122,7 +122,7 @@ private fun PasscodeSetupScreenContent(
             Text(
                 text = stringResource(R.string.set_passcode_warning),
                 color = MaterialTheme.colorScheme.error,
-                fontSize = 11.sp,
+                fontSize = 13.sp,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Medium,
                 style = MaterialTheme.typography.labelMedium
