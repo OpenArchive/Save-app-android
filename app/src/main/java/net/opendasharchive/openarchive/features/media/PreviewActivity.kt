@@ -121,17 +121,25 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
                     }
 
                     R.id.action_upload_camera -> {
-                        // Use custom camera with photo and video support
-                        val cameraConfig = CameraConfig(
-                            allowVideoCapture = true,
-                            allowPhotoCapture = true,
-                            allowMultipleCapture = false, // Allow adding multiple items
-                            enablePreview = true,
-                            showFlashToggle = true,
-                            showGridToggle = true,
-                            showCameraSwitch = true
-                        )
-                        Picker.launchCustomCamera(this@PreviewActivity, mediaLaunchers.customCameraLauncher, cameraConfig)
+                        if (appConfig.useCamera) {
+                            // Use custom camera with photo and video support
+                            val cameraConfig = CameraConfig(
+                                allowVideoCapture = true,
+                                allowPhotoCapture = true,
+                                allowMultipleCapture = false, // Allow adding multiple items
+                                enablePreview = true,
+                                showFlashToggle = true,
+                                showGridToggle = true,
+                                showCameraSwitch = true
+                            )
+                            Picker.launchCustomCamera(this@PreviewActivity, mediaLaunchers.customCameraLauncher, cameraConfig)
+                        } else {
+                            permissionManager.checkCameraPermission {
+                                Picker.takePhotoModern(this@PreviewActivity, mediaLaunchers.modernCameraLauncher)
+                            }
+                        }
+
+
                     }
 
                     R.id.action_upload_files -> {

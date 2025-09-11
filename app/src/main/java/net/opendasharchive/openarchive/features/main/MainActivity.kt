@@ -91,7 +91,6 @@ import java.text.NumberFormat
 
 class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAdapterListener {
 
-    private val appConfig by inject<AppConfig>()
     private val viewModel by viewModel<MainViewModel>()
 
     private var mMenuDelete: MenuItem? = null
@@ -850,22 +849,28 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 if (Prefs.addMediaHint) {
                     when (mediaType) {
                         AddMediaType.CAMERA -> {
-                            permissionManager.checkCameraPermission {
-                                Picker.takePhotoModern(this@MainActivity, mediaLaunchers.modernCameraLauncher)
+                            if (appConfig.useCamera) {
+                                // Camera X
+                                // Use custom camera instead of system camera
+                                val cameraConfig = CameraConfig(
+                                    allowVideoCapture = true,
+                                    allowPhotoCapture = true,
+                                    allowMultipleCapture = false,
+                                    enablePreview = true,
+                                    showFlashToggle = true,
+                                    showGridToggle = true,
+                                    showCameraSwitch = true
+                                )
+                                Picker.launchCustomCamera(
+                                    this@MainActivity,
+                                    mediaLaunchers.customCameraLauncher,
+                                    cameraConfig
+                                )
+                            } else {
+                                permissionManager.checkCameraPermission {
+                                    Picker.takePhotoModern(this@MainActivity, mediaLaunchers.modernCameraLauncher)
+                                }
                             }
-
-                            // Camera X
-                            // Use custom camera instead of system camera
-                            val cameraConfig = CameraConfig(
-                                allowVideoCapture = true,
-                                allowPhotoCapture = true,
-                                allowMultipleCapture = false,
-                                enablePreview = true,
-                                showFlashToggle = true,
-                                showGridToggle = true,
-                                showCameraSwitch = true
-                            )
-                            Picker.launchCustomCamera(this@MainActivity, mediaLaunchers.customCameraLauncher, cameraConfig)
                         }
 
                         AddMediaType.GALLERY -> {

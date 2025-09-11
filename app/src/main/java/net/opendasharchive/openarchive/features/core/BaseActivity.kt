@@ -11,12 +11,16 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.core.dialog.DialogHost
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
+import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.util.Prefs
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.getValue
 
 abstract class BaseActivity : AppCompatActivity() {
 
     val dialogManager: DialogStateManager by viewModel()
+    val appConfig by inject<AppConfig>()
 
     companion object {
         const val EXTRA_DATA_SPACE = "space"
