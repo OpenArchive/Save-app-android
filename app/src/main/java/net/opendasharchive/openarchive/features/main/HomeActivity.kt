@@ -19,6 +19,7 @@ import net.opendasharchive.openarchive.features.main.ui.SaveNavGraph
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.MediaLaunchers
 import net.opendasharchive.openarchive.features.media.Picker
+import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 
@@ -150,8 +151,17 @@ class HomeActivity: FragmentActivity() {
             // insert that logic here (e.g., check Prefs.addMediaHint).
             when (mediaType) {
                 AddMediaType.CAMERA -> {
-                    // Launch the camera using Picker.
-                    Picker.takePhotoModern(this, mediaLaunchers.modernCameraLauncher)
+                    // Use custom camera with photo and video support
+                    val cameraConfig = CameraConfig(
+                        allowVideoCapture = true,
+                        allowPhotoCapture = true,
+                        allowMultipleCapture = false, // Single capture for main screen
+                        enablePreview = true,
+                        showFlashToggle = true,
+                        showGridToggle = true,
+                        showCameraSwitch = true
+                    )
+                    Picker.launchCustomCamera(this, mediaLaunchers.customCameraLauncher, cameraConfig)
                 }
                 AddMediaType.GALLERY -> {
                     // Launch the gallery/image picker.

@@ -25,6 +25,7 @@ import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show
 import net.opendasharchive.openarchive.util.extensions.toggle
+import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 
 class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Listener {
 
@@ -120,8 +121,17 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
                     }
 
                     R.id.action_upload_camera -> {
-                        //Picker.takePhoto(this@PreviewActivity, mediaLaunchers.cameraLauncher)
-                        Picker.takePhotoModern(this@PreviewActivity, mediaLaunchers.modernCameraLauncher)
+                        // Use custom camera with photo and video support
+                        val cameraConfig = CameraConfig(
+                            allowVideoCapture = true,
+                            allowPhotoCapture = true,
+                            allowMultipleCapture = false, // Allow adding multiple items
+                            enablePreview = true,
+                            showFlashToggle = true,
+                            showGridToggle = true,
+                            showCameraSwitch = true
+                        )
+                        Picker.launchCustomCamera(this@PreviewActivity, mediaLaunchers.customCameraLauncher, cameraConfig)
                     }
 
                     R.id.action_upload_files -> {
@@ -145,10 +155,17 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
             val modalBottomSheet = ContentPickerFragment { action ->
                 when (action) {
                     AddMediaType.CAMERA -> {
-//                        permissionManager.checkCameraPermission {
-                            Picker.takePhotoModern(this@PreviewActivity, mediaLaunchers.modernCameraLauncher)
-//                        }
-
+                        // Use custom camera with photo and video support
+                        val cameraConfig = CameraConfig(
+                            allowVideoCapture = true,
+                            allowPhotoCapture = true,
+                            allowMultipleCapture = true, // Allow adding multiple items in preview
+                            enablePreview = true,
+                            showFlashToggle = true,
+                            showGridToggle = true,
+                            showCameraSwitch = true
+                        )
+                        Picker.launchCustomCamera(this@PreviewActivity, mediaLaunchers.customCameraLauncher, cameraConfig)
                     }
                     AddMediaType.FILES -> Picker.pickFiles(mediaLaunchers.filePickerLauncher)
                     AddMediaType.GALLERY -> onClick(mBinding.btAddMore)
