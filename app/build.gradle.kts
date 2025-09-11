@@ -250,6 +250,7 @@ dependencies {
     // Networking and Data
     // Networking
     implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
     implementation(libs.retrofit.kotlinx.serialization)
     implementation(libs.gson)
     implementation(libs.okhttp)

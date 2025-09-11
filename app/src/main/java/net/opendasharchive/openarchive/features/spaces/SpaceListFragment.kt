@@ -87,6 +87,10 @@ class SpaceListFragment : BaseFragment() {
             Space.Type.RAVEN -> {
                 // Do nothing
             }
+
+            Space.Type.STORACHA -> {
+                // Do nothing
+            }
         }
 
 
