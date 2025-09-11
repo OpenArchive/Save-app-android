@@ -28,4 +28,8 @@ class HapticManager(
             }
         }
     }
+
+    fun clear() {
+        hapticFeedback = null
+    }
 }

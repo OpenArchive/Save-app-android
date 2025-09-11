@@ -14,6 +14,7 @@ import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
+import net.opendasharchive.openarchive.features.core.dialog.showWarningDialog
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
@@ -134,7 +135,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         getPrefByKey<Preference>(R.string.pref_media_folders)?.setOnPreferenceClickListener {
-            startActivity(Intent(context, FoldersActivity::class.java))
+            val intent = Intent(context, FoldersActivity::class.java)
+            intent.putExtra(FoldersActivity.EXTRA_SHOW_ARCHIVED, true)
+            startActivity(intent)
             true
         }
 
@@ -149,10 +152,37 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
-        getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_tor)?.isEnabled = false
+        getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_tor)?.apply {
+            isEnabled = true
+
+            setOnPreferenceClickListener {
+                dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+                    type = DialogType.Info
+                    iconColor = dialogManager.requireResourceProvider().getColor(R.color.colorTertiary)
+                    title = UiText.StringResource(R.string.tor_disabled_title)
+                    message = UiText.StringResource(R.string.tor_disabled_message)
+                    positiveButton {
+                        text = UiText.StringResource(R.string.tor_download_btn_label)
+                        action = {
+                            // Launch the Tor download activity
+                            val intent = Intent(Intent.ACTION_VIEW, Prefs.TOR_DOWNLOAD_URL)
+                            startActivity(intent)
+                        }
+                    }
+                    neutralButton {
+                        text = UiText.StringResource(android.R.string.cancel)
+                    }
+                }
+                true
+            }
+
+            setOnPreferenceChangeListener { _, newValue ->
+                false
+            }
+        }
 
         findPreference<Preference>(Prefs.THEME)?.setOnPreferenceChangeListener { _, newValue ->
-            Theme.set(Theme.get(newValue as? String))
+            Theme.set(requireActivity(), Theme.get(newValue as? String))
             true
         }
 
@@ -168,7 +198,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_dark_mode)?.setOnPreferenceChangeListener { pref, newValue ->
             val useDarkMode = newValue as Boolean
             val theme = if (useDarkMode) Theme.DARK else Theme.LIGHT
-            Theme.set(theme)
+            Theme.set(requireActivity(), theme)
             // Save the preference
             Prefs.putBoolean(getString(R.string.pref_key_use_dark_mode), useDarkMode)
             true
@@ -188,36 +218,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
         getPrefByKey<Preference>(R.string.pref_key_app_version)?.summary = versionText
     }
 
-    private fun <T: Preference> getPrefByKey(key: Int): T? {
+    private fun <T : Preference> getPrefByKey(key: Int): T? {
         return findPreference(getString(key))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        view.setPadding(0, 16.dpToPx(), 0, 0)
     }
-
-    fun Int.dpToPx(): Int = (this * resources.displayMetrics.density).toInt()
-
-
-//    mBinding.btAbout.text = getString(R.string.action_about, getString(R.string.app_name))
-//    mBinding.btAbout.styleAsLink()
-//    mBinding.btAbout.setOnClickListener {
-//        context?.openBrowser("https://open-archive.org/save")
-//    }
-//
-//    mBinding.btPrivacy.styleAsLink()
-//    mBinding.btPrivacy.setOnClickListener {
-//        context?.openBrowser("https://open-archive.org/privacy")
-//    }
-//
-//    val activity = activity
-//
-//    if (activity != null) {
-//        mBinding.version.text = getString(
-//            R.string.version__,
-//            activity.packageManager.getVersionName(activity.packageName)
-//        )
-//    }
 }

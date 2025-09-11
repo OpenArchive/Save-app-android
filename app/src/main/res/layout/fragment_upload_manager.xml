@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/rounded_bottom_sheet_background"
     android:layout_height="match_parent"
     android:fillViewport="true"
@@ -44,7 +45,7 @@
                     android:textFontWeight="600"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Edit Queue"
+                    android:text="@string/edit_queue"
                     android:textSize="16sp"
                     android:textColor="?attr/colorOnSurface" />
 
@@ -54,7 +55,7 @@
                     android:textSize="11sp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Uploading is paused"
+                    android:text="@string/uploading_is_paused"
                     android:textColor="?attr/colorOnSurface" />
             </LinearLayout>
 
@@ -74,11 +75,11 @@
         </RelativeLayout>
 
         <androidx.recyclerview.widget.RecyclerView
+            tools:listitem="@layout/rv_media_row_small"
             android:id="@+id/upload_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:nestedScrollingEnabled="false" />
+            android:layout_height="match_parent"/>
 
     </LinearLayout>
 
-</androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

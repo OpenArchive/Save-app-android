@@ -7,7 +7,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.bundle.bundleOf
+import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Lifecycle
@@ -119,23 +119,13 @@ class SnowbirdRepoListFragment: BaseFragment() {
 
         adapter = SnowbirdRepoListAdapter { repoKey ->
             AppLogger.d("Click!!")
-            //findNavController().navigate(SnowbirdRepoListFragmentDirections.navigateToSnowbirdListFilesScreen(groupKey, repoKey))
-            if (isJetpackNavigation) {
+
                 val action =
                     SnowbirdRepoListFragmentDirections.actionFragmentSnowbirdListReposToFragmentSnowbirdListMedia(
                         dwebGroupKey = groupKey,
                         dwebRepoKey = repoKey
                     )
                 findNavController().navigate(action)
-            } else {
-                setFragmentResult(
-                    RESULT_REQUEST_KEY,
-                    bundleOf(
-                        RESULT_VAL_RAVEN_GROUP_KEY to groupKey,
-                        RESULT_VAL_RAVEN_REPO_KEY to repoKey
-                    )
-                )
-            }
         }
 
         val spacingInPixels = resources.getDimensionPixelSize(R.dimen.list_item_spacing)
@@ -210,16 +200,8 @@ class SnowbirdRepoListFragment: BaseFragment() {
 
     companion object {
 
-        const val RESULT_REQUEST_KEY = "raven_fragment_repo_list_result"
         const val RESULT_VAL_RAVEN_GROUP_KEY = "dweb_group_key"
-        const val RESULT_VAL_RAVEN_REPO_KEY = "dweb_repo_key"
 
-        @JvmStatic
-        fun newInstance(groupKey: String) =
-            SnowbirdRepoListFragment().apply {
-                arguments = Bundle().apply {
-                    putString(RESULT_VAL_RAVEN_GROUP_KEY, groupKey)
-                }
-            }
+
     }
 }

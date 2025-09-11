@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.compose.ui.res.stringResource
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
@@ -113,7 +114,7 @@ class GeneralSettingsActivity: BaseActivity() {
             }
 
             findPreference<Preference>(Prefs.THEME)?.setOnPreferenceChangeListener { _, newValue ->
-                Theme.set(Theme.get(newValue as? String))
+                Theme.set(requireActivity(), Theme.get(newValue as? String))
 
                 true
             }

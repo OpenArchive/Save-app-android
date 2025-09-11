@@ -5,8 +5,6 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.Error
@@ -14,14 +12,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
-import net.opendasharchive.openarchive.features.core.asUiText
 
 // --------------------------------------------------------------------
 // 1. Dialog Types
@@ -115,6 +111,10 @@ class DialogBuilder {
             .build(defaultText = defaultDestructiveText())
     }
 
+    fun onDismissAction(block: () -> Unit) {
+        _onDismissAction = block
+    }
+
     // Default texts based on type.
     private fun defaultPositiveTextFor(type: DialogType): UiText = when (type) {
         DialogType.Success -> UiText.StringResource(R.string.lbl_ok)
@@ -144,6 +144,7 @@ class DialogBuilder {
 
         val finalIconColor = iconColor ?: when (type) {
             DialogType.Error -> MaterialTheme.colorScheme.error
+            DialogType.Warning -> MaterialTheme.colorScheme.tertiary
             else -> MaterialTheme.colorScheme.primary
         }
         val finalBackgroundColor = backgroundColor ?: MaterialTheme.colorScheme.surfaceVariant
@@ -214,6 +215,7 @@ class DialogBuilder {
             positiveButton = _positiveButton, //?: ButtonData(defaultPositiveTextFor(type)),
             neutralButton = _neutralButton,
             destructiveButton = _destructiveButton,
+            onDismissAction = _onDismissAction,
             showCheckbox = showCheckbox,
             checkboxText = checkboxText,
             onCheckboxChanged = onCheckboxChanged,
@@ -270,17 +272,22 @@ fun DialogStateManager.showSuccessDialog(
     @StringRes positiveButtonText: Int? = null,
     icon: UiImage? = null,
     onDone: () -> Unit = {},
+    onDismissed: () -> Unit = {}
 ) {
     val resourceProvider = this.requireResourceProvider()
 
     showDialog(resourceProvider) {
         type = DialogType.Success
         if (icon != null) this.icon = icon
+        this.iconColor = resourceProvider.getColor(R.color.colorTertiary)
         if (title != null) this.title = UiText.StringResource(title)
         this.message = UiText.StringResource(message)
         positiveButton {
             text = UiText.StringResource(positiveButtonText ?: R.string.lbl_got_it)
             action = onDone
+        }
+        onDismissAction {
+            onDismissed()
         }
     }
 }
@@ -322,6 +329,7 @@ fun DialogStateManager.showInfoDialog(
     showDialog(resourceProvider) {
         type = DialogType.Info
         this.icon = icon
+        this.iconColor = resourceProvider.getColor(R.color.colorTertiary)
         this.title = title
         this.message = message
         positiveButton {
@@ -346,6 +354,7 @@ fun DialogStateManager.showWarningDialog(
         type = DialogType.Warning
         this.title = title
         this.icon = icon
+        iconColor = resourceProvider.getColor(R.color.colorTertiary)
         this.message = message
         positiveButton {
             text = positiveButtonText ?: UiText.StringResource(R.string.lbl_got_it)

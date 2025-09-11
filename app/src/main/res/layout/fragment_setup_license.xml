@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:fillViewport="true"
     tools:background="@color/colorBackground"
-    tools:context=".services.webdav.WebDavSetupLicenseFragment">
+    tools:context=".features.settings.license.SetupLicenseFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -32,11 +32,12 @@
                 android:layout_margin="24dp"
                 android:autoLink="web"
                 android:gravity="center"
-                android:text="Name your server and choose a license"
+                android:text="@string/name_your_server"
                 android:textFontWeight="600"
                 android:textSize="18sp" />
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/server_name_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginVertical="24dp">
@@ -63,6 +64,7 @@
             android:id="@+id/button_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:baselineAligned="false"
             android:orientation="horizontal"
             android:paddingTop="@dimen/activity_vertical_margin"
             android:weightSum="2"
@@ -98,7 +100,8 @@
                 android:gravity="center"
                 tools:ignore="ButtonStyle">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
+                    app:backgroundTint="@color/colorTertiary"
                     android:textFontWeight="500"
                     android:id="@+id/bt_next"
                     android:paddingHorizontal="32dp"

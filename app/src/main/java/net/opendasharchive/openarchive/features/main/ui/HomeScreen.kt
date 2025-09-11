@@ -120,12 +120,12 @@ fun HomeScreen(
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-        HomeScreenContent(
-            onExit = onExit,
-            state = state,
-            onAction = viewModel::onAction,
-            onNavigateToCache = onNavigateToCache
-        )
+    HomeScreenContent(
+        onExit = onExit,
+        state = state,
+        onAction = viewModel::onAction,
+        onNavigateToCache = onNavigateToCache
+    )
 
 
 }
@@ -169,7 +169,7 @@ class HomeViewModel : ViewModel() {
 
 sealed class HomeScreenAction {
     data class UpdateSelectedProject(val project: Project? = null) : HomeScreenAction()
-    data class AddMediaClicked(val mediaType: AddMediaType): HomeScreenAction()
+    data class AddMediaClicked(val mediaType: AddMediaType) : HomeScreenAction()
 }
 
 data class HomeScreenState(
@@ -270,43 +270,45 @@ fun HomeScreenContent(
                                 animationSpec = tween()
                             )
                         ) {
-                            val selectedProject =
-                                state.selectedProject ?: error("Project should not be empty")
-                            val selectedSpace =
-                                state.selectedSpace ?: error("Space should not be empty")
+                            val selectedProject = state.selectedProject
+                            val selectedSpace = state.selectedSpace
 
-                            val folderName = selectedProject.description
-                                ?: selectedProject.created.toString()
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = dimensionResource(R.dimen.activity_horizontal_margin)),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Row {
-                                    SpaceIcon(
-                                        type = selectedSpace.tType ?: Space.Type.WEBDAV,
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                    Icon(
-                                        painter = painterResource(R.drawable.keyboard_arrow_right),
-                                        contentDescription = null
-                                    )
-                                    Text(folderName)
-                                }
+                            val folderName = selectedProject?.description
+                                ?: selectedProject?.created.toString()
 
-
-                                TextButton(
-                                    onClick = {}
+                            selectedSpace?.let { space ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = dimensionResource(R.dimen.activity_horizontal_margin)),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.ic_edit_folder),
-                                        contentDescription = null
-                                    )
-                                    Text("Edit")
+                                    Row {
+                                        SpaceIcon(
+                                            type = space.tType,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                        Icon(
+                                            painter = painterResource(R.drawable.keyboard_arrow_right),
+                                            contentDescription = null
+                                        )
+                                        Text(folderName)
+                                    }
+
+
+                                    TextButton(
+                                        onClick = {}
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(R.drawable.ic_edit_folder),
+                                            contentDescription = null
+                                        )
+                                        Text("Edit")
+                                    }
                                 }
                             }
+
                         }
 
 

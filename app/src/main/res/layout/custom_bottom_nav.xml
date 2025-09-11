@@ -29,7 +29,7 @@
             app:iconGravity="textStart"
             app:iconPadding="0dp"
             app:iconSize="24dp"
-            app:iconTint="@color/colorOnBottomNavbar"
+            app:iconTint="@color/white"
             app:rippleColor="@color/c23_light_grey" />
 
         <TextView
@@ -43,6 +43,7 @@
             android:padding="0dp"
             android:soundEffectsEnabled="false"
             android:text="@string/my_media"
+            android:textColor="@color/white"
             android:textSize="12sp"
             tools:ignore="KeyboardInaccessibleWidget" />
 
@@ -57,12 +58,12 @@
         <ImageButton
             android:id="@+id/add_button"
             android:layout_width="90dp"
-            android:layout_height="40dp"
+            android:layout_height="38dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
-            android:layout_marginBottom="8dp"
             android:background="@drawable/pill_bg"
             android:backgroundTint="@color/colorAddButton"
+            android:contentDescription="TODO"
             android:paddingHorizontal="16dp"
             android:src="@drawable/baseline_add_24"
             app:rippleColor="@color/c23_light_grey" />
@@ -89,7 +90,7 @@
             app:iconGravity="textStart"
             app:iconPadding="0dp"
             app:iconSize="24dp"
-            app:iconTint="@color/colorOnBottomNavbar"
+            app:iconTint="@color/white"
             app:rippleColor="@color/c23_light_grey" />
 
         <TextView
@@ -102,6 +103,7 @@
             android:focusable="false"
             android:padding="0dp"
             android:soundEffectsEnabled="false"
+            android:textColor="@color/white"
             android:text="@string/action_settings"
             android:textSize="12sp"
             tools:ignore="KeyboardInaccessibleWidget" />

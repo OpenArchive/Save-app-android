@@ -3,9 +3,9 @@ package net.opendasharchive.openarchive.extensions
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.util.Patterns
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.EncodeHintType
-import com.google.zxing.qrcode.QRCodeWriter
+//import com.google.zxing.BarcodeFormat
+//import com.google.zxing.EncodeHintType
+//import com.google.zxing.qrcode.QRCodeWriter
 import timber.log.Timber
 import java.io.File
 import java.io.InputStream
@@ -22,16 +22,16 @@ import java.nio.charset.StandardCharsets
  * @return A Bitmap containing the generated QR code.
  */
 fun String.asQRCode(size: Int = 512, quietZone: Int = 4): Bitmap {
-    val hints = hashMapOf<EncodeHintType, Any>().apply {
-        put(EncodeHintType.MARGIN, quietZone)
-    }
+//    val hints = hashMapOf<EncodeHintType, Any>().apply {
+//        put(EncodeHintType.MARGIN, quietZone)
+//    }
 
-    val bits = QRCodeWriter().encode(this, BarcodeFormat.QR_CODE, size, size, hints)
+//    val bits = QRCodeWriter().encode(this, BarcodeFormat.QR_CODE, size, size, hints)
 
     return Bitmap.createBitmap(size, size, Bitmap.Config.RGB_565).also { bitmap ->
         for (x in 0 until size) {
             for (y in 0 until size) {
-                bitmap.setPixel(x, y, if (bits[x, y]) Color.BLACK else Color.WHITE)
+                //bitmap.setPixel(x, y, if (bits[x, y]) Color.BLACK else Color.WHITE)
             }
         }
     }

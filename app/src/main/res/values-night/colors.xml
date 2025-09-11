@@ -21,13 +21,14 @@
 
     <color name="colorSurface">#24242E</color>
     <color name="colorOnSurface">@color/c23_light_grey</color>
-    <color name="colorTertiary">@color/c23_teal_60</color>
+    <color name="colorTertiary">@color/c23_teal</color>
     <color name="colorText">@color/c23_light_grey</color>
     <color name="colorError">@color/red</color>
 
 
     <color name="inputBackground">#212021</color>
     <color name="buttonBackground">@color/c23_teal_50</color>
+    <color name="colorDrawerSpaceListBackground">@color/c23_dark_grey</color>
     <color name="colorBottomNavbar">@color/c23_darker_grey</color>
     <color name="colorOnBottomNavbar">@color/white</color>
     <color name="colorAddButton">@color/colorOnPrimary</color>

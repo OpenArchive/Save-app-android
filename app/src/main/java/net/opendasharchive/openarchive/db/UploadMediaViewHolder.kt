@@ -5,9 +5,10 @@ import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
-import com.bumptech.glide.Glide
+import coil3.load
+import coil3.request.crossfade
+import coil3.request.placeholder
 import com.github.derlio.waveform.soundfile.SoundFile
-import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -15,10 +16,8 @@ import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.RvMediaRowSmallBinding
-import net.opendasharchive.openarchive.fragments.VideoRequestHandler
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show
-import net.opendasharchive.openarchive.util.extensions.toggle
 import timber.log.Timber
 import java.io.InputStream
 
@@ -34,10 +33,6 @@ class UploadMediaViewHolder(
 
 
     private val mContext = itemView.context
-
-    private val mPicasso = Picasso.Builder(mContext)
-        .addRequestHandler(VideoRequestHandler(mContext))
-        .build()
 
     init {
         binding.btnDelete.setOnClickListener {
@@ -61,21 +56,27 @@ class UploadMediaViewHolder(
             progress.centerRadius = 30f
             progress.start()
 
-            Glide.with(mContext)
-                .load(media.fileUri)
-                .placeholder(progress)
-                .fitCenter()
-                .into(binding.image)
-            binding.image.scaleType = ImageView.ScaleType.CENTER_CROP
-            binding.image.show()
+            binding.image.apply {
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                show()
+                load(media.fileUri) {
+                    placeholder(progress)
+                    crossfade(true)
+                }
+            }
             binding.waveform.hide()
         } else if (media?.mimeType?.startsWith("video") == true) {
-            mPicasso.load(VideoRequestHandler.SCHEME_VIDEO + ":" + media.originalFilePath)
-                .fit()
-                .centerCrop()
-                .into(binding.image)
-            binding.image.scaleType = ImageView.ScaleType.CENTER_CROP
-            binding.image.show()
+            val progress = CircularProgressDrawable(mContext)
+            progress.strokeWidth = 5f
+            progress.centerRadius = 30f
+            progress.start()
+            binding.image.apply {
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                show()
+                load(media.fileUri) {
+                    placeholder(progress)
+                }
+            }
             binding.waveform.hide()
         } else if (media?.mimeType?.startsWith("audio") == true) {
 
@@ -172,8 +173,6 @@ class UploadMediaViewHolder(
             sbTitle.append(mContext.getString(R.string.error))
 
             binding.overlayContainer.show()
-            binding.progress.hide()
-            binding.progressText.hide()
             binding.error.show()
 
             if (media.statusMessage.isNotBlank()) {
@@ -183,37 +182,13 @@ class UploadMediaViewHolder(
         } else if (media?.sStatus == Media.Status.Queued) {
             AppLogger.i("Media Item ${media.id} is queued")
             binding.overlayContainer.show()
-            binding.progress.isIndeterminate = true
-            binding.progress.show()
-            binding.progressText.hide()
             binding.error.hide()
         } else if (media?.sStatus == Media.Status.Uploading) {
-//            val progressValue = if (media.contentLength > 0) {
-//                (media.progress.toFloat() / media.contentLength.toFloat() * 100f).roundToInt()
-//            } else 0
-            binding.progress.isIndeterminate = false
-            val progressValue = media.uploadPercentage ?: 0
             AppLogger.i("Media Item ${media.id} is uploading")
-
             binding.overlayContainer.show()
-            binding.progress.show()
-            binding.progressText.show()
-
-            // Make sure to keep spinning until the upload has made some noteworthy progress.
-            if (progressValue > 2) {
-                binding.progress.setProgressCompat(progressValue, true)
-            }
-//            else {
-//                progress?.isIndeterminate = true
-//            }
-
-            binding.progressText.text = "${progressValue}%"
-
             binding.error.hide()
         } else {
             binding.overlayContainer.hide()
-            binding.progress.hide()
-            binding.progressText.hide()
             binding.error.hide()
         }
 
@@ -226,22 +201,5 @@ class UploadMediaViewHolder(
         } else {
             binding.title.hide()
         }
-    }
-
-    fun updateProgress(progressValue: Int) {
-        if (progressValue > 2) {
-            binding.progress.isIndeterminate = false
-            binding.progress.setProgressCompat(progressValue, true)
-        } else {
-            binding.progress.isIndeterminate = true
-        }
-
-        binding.progressText.show(animate = true)
-        binding.progressText.text = "$progressValue%"
-    }
-
-    fun toggleEditMode(isEdit: Boolean) {
-        binding.handle.toggle(isEdit)
-        binding.btnDelete.toggle(isEdit)
     }
 }

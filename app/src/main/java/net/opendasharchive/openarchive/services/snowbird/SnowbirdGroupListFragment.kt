@@ -7,7 +7,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.bundle.bundleOf
+import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Lifecycle
@@ -74,16 +74,10 @@ class SnowbirdGroupListFragment : BaseFragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.action_add -> {
-                        if (isJetpackNavigation) {
+
                             val action =
                                 SnowbirdGroupListFragmentDirections.actionFragmentSnowbirdGroupListToFragmentSnowbirdCreateGroup()
                             findNavController().navigate(action)
-                        } else {
-                            setFragmentResult(
-                                RESULT_REQUEST_KEY,
-                                bundleOf(RESULT_BUNDLE_NAVIGATION_KEY to RESULT_VAL_RAVEN_CREATE_GROUP_SCREEN)
-                            )
-                        }
                         true
                     }
 
@@ -113,17 +107,9 @@ class SnowbirdGroupListFragment : BaseFragment() {
     }
 
     private fun onClick(groupKey: String) {
-        if (isJetpackNavigation) {
+
             val action = SnowbirdGroupListFragmentDirections.actionFragmentSnowbirdGroupListToFragmentSnowbirdListRepos(groupKey)
             findNavController().navigate(action)
-        } else {
-            setFragmentResult(
-                RESULT_REQUEST_KEY, bundleOf(
-                    RESULT_BUNDLE_NAVIGATION_KEY to RESULT_VAL_RAVEN_REPO_LIST_SCREEN,
-                    RESULT_BUNDLE_GROUP_KEY to groupKey
-                )
-            )
-        }
     }
 
     private fun onLongPress(groupKey: String) {
@@ -197,20 +183,6 @@ class SnowbirdGroupListFragment : BaseFragment() {
         groups.forEach { group ->
             group.save()
         }
-    }
-
-    companion object {
-        const val RESULT_REQUEST_KEY = "raven_group_list_fragment_result"
-        const val RESULT_BUNDLE_NAVIGATION_KEY = "raven_group_list_fragment_bundle_navigation_key"
-
-        const val RESULT_VAL_RAVEN_CREATE_GROUP_SCREEN = "raven_create_group"
-        const val RESULT_VAL_RAVEN_REPO_LIST_SCREEN = "raven_repo_list_screen"
-        const val RESULT_VAL_RAVEN_SHARE_SCREEN = "raven_share_group_screen"
-
-        const val RESULT_BUNDLE_GROUP_KEY = "dweb_group_key"
-
-        @JvmStatic
-        fun newInstance() = SnowbirdGroupListFragment()
     }
 
     override fun getToolbarTitle(): String {

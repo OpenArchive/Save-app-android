@@ -5,16 +5,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
-import androidx.fragment.compose.content
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.fragment.findNavController
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.databinding.FragmentSpaceListBinding
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
-import net.opendasharchive.openarchive.features.internetarchive.presentation.InternetArchiveActivity
 import net.opendasharchive.openarchive.services.gdrive.GDriveActivity
-import net.opendasharchive.openarchive.services.webdav.WebDavActivity
+import org.koin.compose.viewmodel.koinViewModel
 
 class SpaceListFragment : BaseFragment() {
 
@@ -35,12 +34,24 @@ class SpaceListFragment : BaseFragment() {
 
         binding.composeViewSpaceList.setContent {
 
+            val viewModel: SpaceListViewModel  = koinViewModel()
+
             SaveAppTheme {
+
+                // Calling refresh here will update state & trigger recomposition
+                LaunchedEffect(Unit) {
+                    viewModel.refreshSpaces()
+                }
 
                 SpaceListScreen(
                     onSpaceClicked = { space ->
                         startSpaceAuthActivity(space.id)
                     },
+                    onAddServerClicked = {
+                        val action =
+                            SpaceListFragmentDirections.actionFragmentSpaceListToFragmentSpaceSetup()
+                        findNavController().navigate(action)
+                    }
                 )
             }
 
@@ -49,16 +60,15 @@ class SpaceListFragment : BaseFragment() {
         return binding.root
     }
 
-    override fun getToolbarTitle() = "Media Servers"
+    override fun getToolbarTitle() = getString(R.string.pref_title_media_servers)
 
     private fun startSpaceAuthActivity(spaceId: Long?) {
         val space = Space.get(spaceId ?: return) ?: return
 
         when (space.tType) {
             Space.Type.INTERNET_ARCHIVE -> {
-                val intent = Intent(requireContext(), InternetArchiveActivity::class.java)
-                intent.putExtra(EXTRA_DATA_SPACE, space.id)
-                startActivity(intent)
+                val action = SpaceListFragmentDirections.actionFragmentSpaceListToInternetArchiveDetails(space.id)
+                findNavController().navigate(action)
             }
 
             Space.Type.GDRIVE -> {
@@ -73,10 +83,9 @@ class SpaceListFragment : BaseFragment() {
                 findNavController().navigate(action)
             }
 
-            else -> {
-                val intent = Intent(requireContext(), WebDavActivity::class.java)
-                intent.putExtra(EXTRA_DATA_SPACE, space.id)
-                startActivity(intent)
+
+            Space.Type.RAVEN -> {
+                // Do nothing
             }
         }
 

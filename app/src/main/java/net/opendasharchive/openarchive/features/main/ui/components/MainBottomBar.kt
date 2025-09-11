@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import net.opendasharchive.openarchive.R
 
@@ -41,7 +42,7 @@ fun MainBottomBar(
             onClick = onMyMediaClick,
             selectedIcon = Icons.Default.PermMedia,
             unSelectedIcon = Icons.Outlined.PermMedia,
-            text = "My Media"
+            text = stringResource(R.string.my_media)
         )
 
         FloatingActionButton(
@@ -66,7 +67,7 @@ fun MainBottomBar(
             onClick = onSettingsClick,
             selectedIcon = Icons.Default.Settings,
             unSelectedIcon = Icons.Outlined.Settings,
-            text = "Settings"
+            text = stringResource(R.string.action_settings)
         )
 
     }

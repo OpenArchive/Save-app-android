@@ -2,8 +2,9 @@ name: Detekt Analysis
 
 on:
   # Triggers on push to key branches
-  push:
-    branches: [ "master", "stable", "next", "feature/major-refactor-ui-changes" ]
+#  push:
+#    branches: #[ "master", "stable", "next", "feature/major-refactor-ui-changes" ]
+#      - '**' # Triggers on pull requests to any branch
   pull_request:
     branches:
       - '**' # Triggers on pull requests to any branch
@@ -37,7 +38,16 @@ jobs:
         ruby-version: '3.3'
         bundler-cache: true
 
-    # ✅ Step 4: Install Fastlane Dependencies
+    - name: Create local.properties file
+      run: |
+        echo "MIXPANEL_KEY=${{ secrets.MIXPANEL_KEY }}" >> local.properties
+        echo "STOREFILE=${{ secrets.STOREFILE }}" >> local.properties
+        echo "STOREPASSWORD=${{ secrets.STOREPASSWORD }}" >> local.properties
+        echo "KEYALIAS=${{ secrets.KEYALIAS }}" >> local.properties
+        echo "KEYPASSWORD=${{ secrets.KEYPASSWORD }}" >> local.properties
+      
+
+      # ✅ Step 4: Install Fastlane Dependencies
     - name: Install Fastlane dependencies
       run: |
         bundle config path vendor/bundle

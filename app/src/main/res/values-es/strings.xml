@@ -1,33 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="app_subtext">Archiva tus medios <a href="#">aprende más</a></string>
+    <string name="navigation_drawer_open">Gaveta Abierta</string>
+    <string name="navigation_drawer_close">Gaveta Cerrada</string>
 
-    <string name="title_activity_login">Iniciar sesión</string>
-    <string name="title_activity_first_start">Primer inicio</string>
-    <string name="title_media_list">Subir</string>
+    <string name="app_subtext">Archiva Tus Medios\n<a href="#">aprende más</a></string>
+<string name="title_activity_login">Iniciar sesión</string>
+    <string name="title_activity_first_start">Primer Inicio</string>
+    <string name="title_media_list">Cargas</string>
 
     <!-- Alert Values -->
 
-    <string name="action_settings">Ajustes</string>
+    <string name="action_settings">Configuración</string>
 
     <!-- FirstStartActivity -->
     <string name="internet_archive">Internet Archive</string>
+    <string name="internet_archive_description">Sube tus archivos multimedia a una cuenta pública gratuita en Internet Archive.</string>
+    <string name="dweb_title">Servicio DWeb</string>
+    <string name="dweb_description">Conectar a la web descentralizada</string>
+    <string name="upload_to_gdrive">Subir a Google Drive</string>
+    <string name="sign_in_or_create_an_account_with_gdrive">Inicia sesión o crea una cuenta con Google Drive</string>
 
     <!--<string name="sign_up_btn">Don\'t have a virtual library card?\n<a href="https://archive.org/account/login.createaccount.php">Register for free.</a></string>-->
 
+    <!-- MainActivity -->
+    <string name="servers">Servidores</string>
+    <string name="add_server">Agregar Otra Cuenta</string>
+
+    <string name="lbl_rename_folder">Renombrar Carpeta</string>
+    <string name="lbl_select_media">Seleccionar Multimedia</string>
+    <string name="lbl_remove_folder">Eliminar Carpeta</string>
+
+    <string name="popup_rename_folder">Renombrar carpeta</string>
+    <string name="popup_select_media">Seleccionar multimedia</string>
+    <string name="popup_archive_folder">Archivar carpeta</string>
+    <string name="popup_remove_folder">Eliminar carpeta de la app</string>
+
+    <string name="folder_empty_warning">Nombre de carpeta no puede estar vacío</string>
+    <string name="folder_rename_success">Carpeta renombrada</string>
+    <string name="folder_not_found">Carpeta no encontrada</string>
+    <string name="folder_removed">Carpeta eliminada</string>
+    <string name="folder_archived">Carpeta archivada</string>
+
     <!-- MainFragment -->
 
+    <!-- Settings Fragment -->
+    <string name="disable_passcode_dialog_title">Deshabilitar Código de Acceso</string>
+    <string name="disable_passcode_dialog_msg">¿Tienes seguridad de querer deshabilitar el código de acceso\?</string>
+
     <!-- ViewMediaActivity -->
-    <string name="iv_content_desc">Imagen principal</string>
+    <string name="iv_content_desc">Imagen Principal</string>
 
     <!-- Errors -->
 
     <!-- Server -->
     <string name="lbl_Cancel">Cancelar</string>
-    <string name="lbl_ok">OK</string>
-    <string name="archive_title">Confirmación de correo electrónico</string>
-    <string name="archive_message">Confirma su dirección de correo electrónico y vuelva a conectar su cuenta de Internet Archive.</string>
+    <string name="lbl_ok">Aceptar</string>
+    <string name="lbl_confirm">Confirmar</string>
+    <string name="archive_title">Confirmación de Correo Electrónico</string>
+    <string name="archive_message">Por favor confirma tu dirección de correo electrónico y vuelve a conectar tu cuenta de Internet Archive.</string>
 
     <!-- original CC license questions
     <string name="info_license_deriv">Allow adaptations of your work to be shared?</string>
@@ -35,14 +66,17 @@
     <string name="info_license_comm">Allow commercial uses of your work?</string>
     -->
 
-    <string name="info_license_deriv">¿Permitir que cualquiera cambie y comparta?</string>
-    <string name="info_license_sharealike">¿Solicitarles que compartan del mismo modo que tú?</string>
-    <string name="info_license_comm">¿Permitir uso comercial?</string>
+
+    <string name="license_label">Licencia</string>
+    <string name="info_license_deriv">¿Permitir que cualquiera cambie y comparta\?</string>
+    <string name="info_license_sharealike">¿Solicitarles que compartan como hiciste tú\?</string>
+    <string name="info_license_comm">¿Permitir uso comercial\?</string>
 
     <string name="menu_delete">Eliminar Medios</string>
+    <string name="menu_delete_desc">Este medio se eliminará de Save.\nPermanecerá en el servidor y en tu app de Fotos.</string>
 
     <string name="hint_flag">Pulsa para marcar como contenido significativo</string>
-    <string name="answer_yes">Sí</string>
+    <string name="answer_yes">Si</string>
     <string name="answer_no">No</string>
 
     <string name="action_cancel">Cancelar</string>
@@ -51,91 +85,138 @@
 
     <string name="prefs_use_tor_title">Habilita el Enrutamiento Onion</string>
     <string name="prefs_use_tor_summary">Transferencia solo a través de la Red Tor</string>
-    <string name="prefs_install_tor_summary">Instala Orbot para habilitar</string>
+    <string name="prefs_install_tor_summary">Por favor instala Orbot para habilitar</string>
     <string name="prefs_prohibit_screenshots_title">Bloquear capturas de pantalla</string>
-    <string name="prefs_prohibit_screenshots_summary">Evitar capturas de pantalla y grabaciones de pantalla de esta app.</string>
+    <string name="prefs_prohibit_screenshots_summary">Previene capturas de pantalla y grabaciones de pantalla de esta app.</string>
 
     <string name="prefs_user_interface_title">Presentación</string>
     <string name="prefs_theme_title">Tema</string>
-    <string name="prefs_theme_summary">Cambia el tema de \"Guardar\" a claro/oscuro</string>
+<!--    <string name="prefs_theme_summary">Change Save\'s theme to light/dark</string>-->
+    <string name="prefs_theme_summary">Cambiar el tema de Save a claro/oscuro</string>
     <string name="prefs_theme_system">Sistema Controlado</string>
     <string name="prefs_theme_light">Claro</string>
     <string name="prefs_theme_dark">Oscuro</string>
     <string name="prefs_use_proofmode_title">Habilitar ProofMode</string>
-    <string name="prefs_use_proofmode_summary">Capture metadatos adicionales y notarizar todos los medios</string>
+    <string name="prefs_use_proofmode_summary">Compartir clave pública de ProofMode</string>
+<!--    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a system that enables authentication and verification of multimedia content, <a href="%1$s" style="text-decoration: underline;">learn more here</a>]]></string>-->
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode es un sistema que permite la autenticación y verificación de contenido multimedia, <a href=\"%1$s\"&gt;<u&gt;aprende más aquí</u&gt;</a&gt;]]></string>
+    <!--    <string name="prefs_use_proofmode_description">-->
+<!--        ProofMode is a system that enables authentication and verification of multimedia content, &lt;a href="%1$s" style="text-decoration: underline;"&gt;learn more here&lt;/a&gt;-->
+<!--    </string>-->
 
-    <string name="prefs_share_proofmode_title">Identidad de ProofMode</string>
-    <string name="prefs_share_proofmode_summary">Compartir Cave Pública de ProofMode</string>
 
+    <string name="proof_mode_warning_text">Para ayudar a verificar dónde tus medios fueron capturados, ProofMode obtiene datos de torres celulares cercanas para corroborar tu ubicación. Para agregar credibilidad y contexto, luego incluye un archivo de metadatos separado con tu multimedia. <b>Ni Save ni OpenArchive podrán acceder o almacenar estos datos de ubicación, solo serán accesibles para quienes tengan acceso a los archivos del servidor.</b> Android requiere acceso a la ubicación para recopilar esta información.</string>
+
+    <string name="prefs_share_proofmode_title">Identidad ProofMode</string>
+    <string name="prefs_share_proofmode_summary">Compartir Clave Pública ProofMode</string>
+
+
+    <!-- Strings for ProofMode Activity -->
+    <string name="phone_permission_required">Permisos de ubicación requeridos</string>
 
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
-    <string name="prompt_email">Nombre de usuaria(o)</string>
-    <string name="prompt_password">Contraseña</string>
+    <string name="prompt_username"><i>Nombre de Usuaria(o)</i></string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password"><i>Contraseña</i></string>
+
+    <string name="label_username">\@string/prompt_email</string>
+    <string name="placeholder_email_or_username">Introduce un correo electrónico o nombre de usuaria(o)</string>
+    <string name="label_password">\@string/prompt_password</string>
+    <string name="placeholder_password">Introduce una contraseña</string>
+
     <string name="action_sign_in_short">Iniciar sesión</string>
     <string name="error_incorrect_username_or_password">Nombre de usuaria(o) o contraseña incorrectos</string>
+    <string name="error_incorrect_email_or_password">Correo electrónico o contraseña inválidos</string>
     <string name="error_field_required">Este campo es obligatorio</string>
 
-    <string name="importing_media">Importar medios…</string>
+    <string name="importing_media">Importando medios…</string>
 
-    <string name="title_welcome">Bienvenida(o)</string>
+    <string name="title_welcome">¡Bienvenida(o)!</string>
 
     <string name="action_privacy">Política de Privacidad</string>
     <string name="action_about">Sobre %s</string>
-    <string name="add_a_folder">Agregar una Carpeta</string>
-    <string name="browse_existing_folders">Explorar Carpetas Existentes</string>
-    <string name="browse_existing">Navegar por los Existentes</string>
+    <string name="add_a_folder">Añadir una carpeta</string>
+    <string name="browse_existing_folders">Examinar Carpetas Existentes</string>
+    <string name="browse_existing">Examinar Existentes</string>
     <string name="title_activity_upload_manager">Gestor de Cargas</string>
 
     <string name="uploads">Cargas</string>
-    <string name="uploading">Cargando…</string>
-    <string name="uploading_left">Cargando… (%d restantes)</string>
-    <string name="uploads_notification_descriptions">Estas notificaciones se muestran cuando la app está realizando una carga de medios.</string>
+    <string name="upload_manager_screen_title">Editar Cola</string>
+    <string name="upload_manager_screen_subtitle">Subida está pausada</string>
+    <string name="uploading">Subiendo…</string>
+    <string name="uploading_left">Subiendo… (%d restantes)</string>
+    <string name="uploads_notification_descriptions">Estas notificaciones aparecen mientras la app está realizando una carga de medios.</string>
 
-    <string name="action_upload">Cargar</string>
+    <string name="action_upload">Subida </string>
+
+    <!-- Passcode Settings -->
+    <string name="multiple_failed_attempts_message">La app está bloqueada debido a múltiples intentos fallidos. Por favor intenta nuevamente más tarde.</string>
+    <string name="passcode_not_set">Código de acceso no establecido</string>
+    <string name="passcode_remaining_attempts">Código de acceso incorrecto.%1$d intentos restantes.</string>
+    <string name="passcode_too_many_failed_attempts">Demasiados intentos fallidos. La app está bloqueada.</string>
+
+    <string name="passcode_lock_app">Bloquear la app con código de acceso.</string>
+    <string name="enter_passcode">Introduce Tu Código de Acceso</string>
+    <string name="passcode_do_not_match">Los códigos de acceso no coinciden. Vuelve a intentar.</string>
+
+    <string name="confirm_passcode">Confirmar Código de Acceso</string>
+    <string name="set_passcode">Establecer Código de Acceso</string>
+    <string name="set_passcode_warning">Asegúrate de recordar este pin. Si lo olvidas, tendrás que restablecer la app, y se eliminará toda la información.</string>
+
 
     <!-- Strings related to Settings -->
 
-    <string name="tap_to_add">Presiona el botón de abajo para agregar medios.</string>
-    <string name="to_get_started_connect_to_a_server_to_store_your_media">Para comenzar, conéctate a un servidor para almacenar tus medios.</string>
-    <string name="in_the_side_menu_you_can_add_another_server_and_connect_to_multiple_servers">En el menú del costado, puedes agregar otro espacio de almacenamiento y conectar a múltiples servidores</string>
-    <string name="send_directly_to_a_private_server">Envía a un servidor WebDAV</string>
-    <string name="upload_to_the_internet_archive">Cargar a la IA</string>
-    <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud"><b><i>Guardar </i></b>solo se conecta con servidores compatibles con WebDAV, por ejemplo, Nextcloud y ownCloud.</string>
+    <string name="tap_to_add">Toca el botón de abajo para agregar medios</string>
+    <string name="tap_to_add_folder">Toca el botón de abajo para agregar una carpeta</string>
+    <string name="tap_to_add_server">Toca el botón de abajo para agregar un servidor</string>
+    <string name="to_get_started_connect_to_a_server_to_store_your_media">Para empezar, conéctate a un servidor para almacenar tus archivos multimedia</string>
+    <string name="to_get_started_more_hint_dweb">Puedes agregar varios servidores privados y\nuna cuenta de servidor IA o DWeb en cualquier momento.</string>
+    <string name="to_get_started_more_hint">Puedes agregar varios servidores privados y\nuna cuenta de IA en cualquier momento.</string>
+    <string name="in_the_side_menu_you_can_add_another_server_and_connect_to_multiple_servers">En el menú lateral, puedes añadir servidor y conectarte a múltiples servidores</string>
+    <string name="send_directly_to_a_private_server">Conectar a un servidor WebDAV seguro</string>
+    <string name="upload_to_the_internet_archive">Conectar a un servidor público gratuito o a un servidor privado pago</string>
+    <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">Conectar con servidores compatibles con WebDAV, p. ej. Nextcloud y ownCloud.</string>
     <string name="action_next">Seguir</string>
     <string name="action_done">Listo</string>
     <string name="status_flagged">Contenido Significativo</string>
-    <string name="select_where_to_store_your_media">Selecciona dónde almacenar tus medios.</string>
+    <string name="select_where_to_store_your_media">Selecciona dónde almacenar tus archivos multimedia.</string>
     <string name="you_have_successfully_connected_to_a_private_server">¡Te has conectado exitosamente a un servidor privado!</string>
-    <string name="you_have_successfully_connected_to_dropbox">¡Te has conectado exitosamente a Dropbox!</string>
+    <string name="you_have_successfully_connected_to_dropbox">¡Te has conectado correctamente a Dropbox!</string>
     <string name="you_have_successfully_connected_to_the_internet_archive">¡Te has conectado exitosamente a Internet Archive!</string>
+    <string name="you_have_successfully_connected_to_gdrive">¡Te has conectado exitosamente a Google Drive!</string>
     <string name="create_a_new_folder">Crear una Nueva Carpeta</string>
+    <string name="create_new_folder_title">Primero, por favor nombra tu carpeta</string>
+    <string name="create_new_folder_subtitle">Esta carpeta se creará en tu servidor y se añadirá automáticamente a Save</string>
+    <string name="create_new_folder_hint">Introduce el nombre de la carpeta</string>
     <string name="edit">Editar</string>
     <string name="menu_done">Listo</string>
-    <string name="remove_from_app">Eliminar de la App</string>
-    <string name="action_remove_project">¿Estás segura de que quieres eliminar tu proyecto?</string>
+    <string name="remove_from_app">Eliminar de la app</string>
+    <string name="action_remove_project">¿Estás segura de que quieres eliminar tu proyecto\?</string>
     <string name="remove">Eliminar</string>
     <string name="action_archive_project">Archivar Proyecto</string>
     <string name="action_unarchive_project">Desarchivar Proyecto</string>
     <string name="IA_login_error">Por favor inicia sesión con credenciales válidas de Internet Archive.</string>
     <string name="access_key">Clave de Acceso</string>
     <string name="secret_key">Clave Secreta</string>
-    <string name="info_archiveorg_keys"><b><i>Guardar </i></b>necesita las claves API de tu cuenta de Internet Archive para subir medios.</string>
+    <string name="info_archiveorg_keys"><b><i>Guardar</i></b>necesita tus claves API de la cuenta de Internet Archive para poder subir medios.</string>
     <string name="action_acquire_keys">Adquirir Claves</string>
-    <string name="new_folder">Nuevo Directorio</string>
-    <string name="please_do_not_include_special_characters_in_the_name">Por favor no incluya caracteres especiales en este nombre</string>
-    <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">¿Estás segura(o) de querer eliminar este servidor de la app?</string>
-    <string name="folder_name_already_exists">El nombre de la carpeta ya existe.</string>
+    <string name="new_folder">Carpeta Nueva</string>
+    <string name="please_do_not_include_special_characters_in_the_name">Por favor no incluyas caracteres especiales en este nombre.</string>
+    <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">¿Estás segura(o) de querer eliminar este servidor de la app\?</string>
+    <string name="folder_name_already_exists">Nombre de carpeta ya existe.</string>
     <string name="dropbox">Dropbox</string>
     <string name="metadata">Metadatos</string>
 
-    <string name="confirm_remove_media">¿Estás segura(o) de que deseas eliminar este Medio?</string>
+    <string name="btn_lbl_remove_media">Eliminar Medios</string>
+    <string name="confirm_remove_media">¿Estás segura(o) de que deseas eliminar este Medio\?</string>
 
     <string name="popup_flag_title">Marcar Contenido Significativo</string>
     <string name="popup_flag_desc">Cuando marcas un elemento, se envía a una subcarpeta dentro de la carpeta del proyecto elegido en el servidor privado.</string>
 
-    <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Permitir el uso de licencia Creative Commons para todas las carpetas de este servidor</string>
+    <string name="set_creative_commons_license_for_all_folders_on_this_server">Establecer licencias de creative commons para carpetas en este servidor.</string>
+    <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Permitir el uso de licencia Creative Commons para TODAS las carpetas de este servidor.</string>
     <string name="set_unique_creative_commons_licenses_for_each_individual_folder_on_this_server">Establece licencias Creative Commons únicas para CADA CARPETA INDIVIDUAL en este servidor.</string>
 
     <string name="action_install">Instalar</string>
@@ -144,116 +225,184 @@
     <string name="tor_connection_exception">No se puede conectar a Orbot/Tor.</string>
     <string name="tor_connection_timeout">No se puede conectar a Orbot/Tor: TIEMPO DE ESPERA</string>
     <string name="tor_connection_invalid">No se puede conectar a Orbot/Tor: INVÁLIDA</string>
-    <string name="unsecured_internet_connection">Se detectó una conexión a Internet no segura</string>
+    <string name="unsecured_internet_connection">Detectada una conexión a internet no segura</string>
     <string name="version__">Versión %s</string>
 
+    <!-- Space Setup -->
+    <string name="space_setup_title">Selecciona un Servidor</string>
+    <!-- WebDAV related strings -->
+    <string name="private_server">Servidor Privado</string>
+    <string name="edit_private_server">Editar Servidor Privado</string>
+    <string name="empty_name_warning">Nombre no puede estar vacío</string>
+
+    <string name="unsaved_changes">¡Cambios sin guardar!</string>
+    <string name="do_you_want_to_save">¿Quieres guardar\?</string>
+    <string name="lbl_save">Guardar</string>
+    <string name="lbl_discard">Descartar</string>
+
+    <!-- WebDAV setup License -->
+    <string name="name_your_server">Nombra tu servidor y elige una licencia</string>
+
+    <!-- Space Setup Success -->
+    <string name="space_setup_success_title">Configuración Completada</string>
+
+    <!-- Upload Manager Bottom Sheet -->
+    <string name="edit_queue">Editar Cola</string>
+    <string name="uploading_is_paused">Subida está pausada</string>
 
     <!-- Clean Insights measurement -->
     <string name="server_name_optional">Nombre del Servidor (Opcional)</string>
     <string name="dropbox_id">ID de Dropbox:</string>
-    <string name="add_another_account">Agregar Otra Cuenta</string>
-    <string name="prefs_proofmode_key_encryption_title_all">Clave de ProofMode segura con datos Biométricos o Código de Acceso del dispositivo</string>
-    <string name="prefs_proofmode_key_encryption_title_biometrics">Clave de ProofMode segura con datos Biométricos</string>
-    <string name="prefs_proofmode_key_encryption_title_passcode">Clave de ProofMode segura con Código de Acceso del Dispositivo</string>
+    <string name="add_another_account">Añadir nuevo servidor</string>
+    <string name="prefs_proofmode_key_encryption_title_all">Clave ProofMode segura con datos Biométricos o Código de Acceso del Dispositivo</string>
+    <string name="prefs_proofmode_key_encryption_title_biometrics">Clave ProofMode segura con datos Biométricos</string>
+    <string name="prefs_proofmode_key_encryption_title_passcode">Clave ProofMode segura con Código de Acceso del Dispositivo</string>
     <string name="prefs_proofmode_key_encryption_summary">¡Cambiar esto creará una nueva clave! Si exportaste y firmaste esta antes, vas a necesitar hacerlo nuevamente con la nueva. </string>
     <string name="biometrics_title">Desbloquear Clave de ProofMode</string>
     <string name="folders">Carpetas</string>
-    <string name="create_folder_name">Crear Nombre para Carpeta</string>
-    <string name="folder_name">Nombre de la Carpeta</string>
+    <string name="create_folder_name">Crear Nombre de Carpeta</string>
+    <string name="folder_name">Nombre de Carpeta</string>
     <string name="create">Crear</string>
     <string name="add">Añadir</string>
     <string name="no_more_folders">No (más) carpetas</string>
-    <string name="private_server">Servidor Privado</string>
+
     <string name="upload_to_dropbox">Subir a Dropbox</string>
-    <string name="sign_in_or_create_an_account_with_dropbox">Inicia sesión o crear una cuenta con Dropbox</string>
+    <string name="sign_in_or_create_an_account_with_dropbox">Inicia sesión o crea una cuenta con Dropbox</string>
     <string name="authenticate">Autenticar</string>
     <string name="back">Volver</string>
     <string name="my_media">Mis Medios</string>
-    <string name="if_you_do_not_have_existing_keys_learn_how_to_acquire_keys">Si no tienes claves existentes, <b>aprende cómo </b> adquirir claves.</string>
-    <string name="server_info">Info del servidor</string>
-    <string name="enter_url">Ingresar URL</string>
+    <string name="if_you_do_not_have_existing_keys_learn_how_to_acquire_keys">Si no tienes claves existentes, <b>aprende cómo</b> adquirir claves.</string>
+    <string name="server_info">Info de servidor</string>
+    <string name="enter_url"><i>Introducir URL</i></string>
     <string name="account">Cuenta</string>
     <string name="general">General</string>
-    <string name="connectivity_data">Conectividad y Datos</string>
-    <string name="only_upload_media_when_you_are_connected_to_wi_fi">Solo subir medios cuando estés conectada a Wi-Fi</string>
+    <string name="connectivity_data"><![CDATA[Conectividad y Datos]]></string>
+    <string name="only_upload_media_when_you_are_connected_to_wi_fi">Solo subir medios cuando estés conectada(o) a Wi-Fi</string>
     <string name="security">Seguridad</string>
     <string name="proofmode">ProofMode</string>
     <string name="no_webbrowser_found_error">Ninguna aplicación puede manejar esta solicitud. Por favor instala un navegador web.</string>
 
-    <string name="intro_text_secure">
-Suba medios verificados a su servidor elegido. Añada una licencia de Creative Commons para comunicarse
-sus intenciones para uso futuro.</string>
-    <string name="intro_text_archive">
-        Mantén tus medios seguros y organizados a largo plazo y crea carpetas de proyectos en la aplicación que
-         mapean tu archivo de medios personal u organizacional.
-    </string>
-    <string name="intro_text_verify">
-       Autentica tus medios con una verificación criptográfica de hash sha256 y opcionalmente
-        ProofMode. Agrega metadatos críticos como notas, personas y ubicación con cada carga.
-    </string>
-    <string name="intro_text_encrypt"><![CDATA[
-        Sube automáticamente sobre TLS (Seguridad de la Capa de Transporte) y utiliza Orbot para proteger tus 
-        medios en tránsito sobre la red Tor.<br />
-        <br />
-        <a href=\"#\">Instala Orbot</a> habilitar una seguridad de red avanzada.]]>
-    </string>
+    <string name="intro_text_secure">Envía tus medios de manera segura a servidores privados y bloquea la app con un pin.</string>
+    <string name="intro_text_archive"><![CDATA[Mantén tus medios verificables, seguros y organizados a largo plazo al subirlos a servidores públicos o privados como Nextcloud o la Internet Archive.<br&gt;Comunica tus intenciones para uso futuro añadiendo una<a href=\"%1$s\"&gt;<u&gt;Licencia Creative Commons</u&gt;</a&gt;.]]></string>
+<string name="intro_text_verify"><![CDATA[Autentica y verifica tus medios con hashes sha256 y <a href=\"%1$s\"&gt;<u&gt;ProofMode</u&gt;</a&gt;.]]></string>
+    <string name="intro_text_encrypt_old">Carga automáticamente sobre TLS (Seguridad de la Capa de Transporte) y usa Orbot para proteger tus medios en tránsito a través de la red de Orbot.</string>
     <string name="next">Seguir</string>
     <string name="done">Listo</string>
     <string name="secure_mobile_media_preservation">Preservación Segura de Medios Móviles</string>
     <string name="get_started">Comenzar</string>
-    <string name="proofmode_permissions_explanation">ProofMode recolecta metadatos de las torres de celular locales para ayudar a verificar medios. Android requiere permiso para habilitar esta configuración. Guardar solo usará esta configuración para capturar datos y NO accederá a tu teléfono para hacer/gestionar llamadas.</string>
+    <string name="proofmode_permissions_explanation">ProofMode recolecta metadatos de las torres de celular locales para ayudar a verificar medios. Android requiere permiso para habilitar esta configuración. Save solo usará esta configuración para capturar datos y NO accederá a tu teléfono para hacer/gestionar llamadas.</string>
     <string name="archived_folders">Carpetas Archivadas</string>
     <string name="view_archived_folders">Ver Carpetas Archivadas</string>
     <string name="learn_more_about_creative_commons">Más información sobre Creative Commons.</string>
-    <string name="refresh">Actualizar</string>
-    <string name="to_get_started_please_create_a_folder">Para comenzar, crea una carpeta.</string>
+    <string name="refresh">Refrescar</string>
+    <string name="to_get_started_please_create_a_folder">Para comenzar, por favor crea una carpeta.</string>
     <string name="before_adding_media_create_a_new_folder_first">Antes de agregar medios, primero crea una nueva carpeta.</string>
-    <string name="is_video">es vídeo</string>
+    <string name="is_video">es video</string>
     <string name="use_upload_chunking_nextcloud_only">Usar Fragmentación de Subida (solo Nextcloud)</string>
-    <string name="chunking_explanation">La “fragmentación” sube los medios en partes, así no tendrás que reiniciar tu subida si tu conexión se interrumpe.</string>
-    <string name="preview_media">Previsualizar Medios</string>
+    <string name="chunking_explanation">“Fragmentación” sube medios en partes, así no tendrás que reiniciar tu subida si tu conexión se interrumpe.</string>
+    <string name="preview_media">Previsualizar Subida</string>
     <string name="add_more">Agregar Más</string>
     <string name="select_all">Seleccionar Todos</string>
     <string name="lbl_got_it">Entendido</string>
-    <string name="do_not_show_me_this_again">No mostrar esto de nuevo</string>
+    <string name="do_not_show_me_this_again">No mostrarme esto de nuevo</string>
     <string name="edit_multiple">Editar Múltiples</string>
+    <string name="press_and_hold_options_media_screen_title">Añadir Medios</string>
+    <string name="press_and_hold_options_media_screen_message">Tocar + para elegir de la galería de imágenes o presiona y mantén para añadir medios desde otras apps. </string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">Presionar y sostener para seleccionar medios y editar múltiples medios.</string>
-    <string name="once_uploaded_you_will_not_be_able_to_edit_media">Una vez subidos, no podrás editar los medios</string>
+    <string name="once_uploaded_you_will_not_be_able_to_edit_media">Una vez subidos, no podrás editar los medios.</string>
     <string name="edit_media_info">Editar Info de Medios</string>
     <string name="counter">%1$d/%2$d</string>
     <string name="add_a_location_optional">Agregar una ubicación (opcional)</string>
     <string name="add_notes_optional">Agregar notas (opcional)</string>
     <string name="skip">Omitir</string>
-    <string name="add_images_or_video">Agregar medios o videos</string>
+    <string name="add_camera">Añadir Imágenes desde Cámara</string>
+    <string name="add_images_or_video">Agregar Imágenes o Video</string>
     <string name="add_files">Agregar Archivos</string>
 
     <string name="ia_learn_how_title">Cómo Adquirir Llaves en 3 pasos fáciles</string>
-    <string name="ia_learn_how_summary_step_1">Paso 1: inicia sesión en Internet Archive. Si no tienes una cuenta, crea una.</string>
+    <string name="ia_learn_how_summary_step_1">Paso 1: Inicia sesión en Internet Archive. Si no tienes una cuenta, crea una.</string>
     <string name="ia_learn_how_summary_step_2">Paso 2: Si estás creando una cuenta nueva, verifica tu correo electrónico.</string>
-    <string name="ia_learn_how_summary_step_3">Paso 3: Obten tus claves API seleccionando la casilla y se cargará automáticamente en la app.</string>
+    <string name="ia_learn_how_summary_step_3">Paso 3: ¡Genera tus claves API seleccionando la casilla y se cargará automáticamente en la app!</string>
 
     <string name="upload_unsuccessful">Carga Fallida</string>
+    <string name="upload_unsuccessful_description">No se pudo subir debido a error de sesión, por favor vuelve a intentar o contacta a soporte.</string>
     <string name="retry">Reintentar</string>
 
     <string name="edit_media">Editar Medios</string>
-    <string name="uploading_is_paused">La carga está pausada</string>
-    <string name="add_media_using">Agrega medios usando:</string>
+
+    <string name="add_media_using">Agregar Medios usando:</string>
+    <string name="camera">Cámara</string>
     <string name="photo_gallery">Galería de Fotos</string>
     <string name="files">Archivos</string>
     <string name="health_checks">Controles de Salud</string>
-    <string name="help_improve_the_app_by_running_health_checks_when_uploads_fail">Ayuda a mejorar la app ejecutando controles de salud cuando fallan las cargas.</string>
-    <string name="health_checks_help_us_understand_why_uploads_fail">Los controles de salud nos ayudan a comprender por qué fallan las cargas.</string>
+    <string name="help_improve_the_app_by_running_health_checks_when_uploads_fail">Ayudar a mejorar la app ejecutando controles de salud cuando las subidas fallan.</string>
+    <string name="health_checks_help_us_understand_why_uploads_fail">Controles de salud nos ayudan a comprender por qué las subidas fallan.</string>
     <string name="contribute_your_data_to_be_part_of_the_solution">Aporta tus datos para ser parte de la solución.</string>
-    <string name="with_your_permission_we_ll_run_a_check_each_time_you_encounter_an_error_while_uploading">Con tu permiso, realizaremos una verificación cada vez que encuentres un error durante la carga.</string>
+    <string name="with_your_permission_we_ll_run_a_check_each_time_you_encounter_an_error_while_uploading">Con tu permiso, ejecutaremos una verificación cada vez que encuentres un error durante la carga.</string>
     <string name="health_checks_capture">Los controles de salud capturan</string>
     <string name="error_description">-- Descripción del error</string>
     <string name="size_and_type_of_media">-- Tipo y tamaño de medios</string>
     <string name="number_of_retries">-- Número de reintentos</string>
     <string name="network_type">-- Tipo de red</string>
     <string name="locale">-- Ubicación</string>
-    <string name="allow_health_checks">¿Permitir controles de salud?</string>
+    <string name="allow_health_checks">¿Permitir controles de salud\?</string>
     <string name="by_allowing_health_checks_you_give_permission_for_the_app_to_securely_send_health_check_data_to_the_s_team">Al permitir los controles de salud, otorgas permiso a la app para enviar de forma segura datos de control de salud al %s del equipo.</string>
     <string name="no_thanks">No gracias</string>
     <string name="undo">Deshacer</string>
+    <string name="gdrive_id">ID de Google Drive</string>
+    <string name="gdrive_disclaimer_1" formatted="true">%1$s del uso y transferencia de información recibida del %2$s de APIs hacia cualquier otra app se adhiere al %3$s, incluyendo los requerimientos de Uso Limitados.</string>
+    <string name="gdrive_disclaimer_2" formatted="true">Las API de %1$s te permiten enviar medios a tu %2$s vía %3$s, sin embargo, %3$s no puede ver ni acceder a nada en tu %2$s que no hayas creado con %3$s en primer lugar.</string>
+    <string name="gdrive_auth_insufficient_permissions" formatted="true">%1$s no puede funcionar adecuadamente si no le permites escribir en tu %2$s. Por favor vuelve a intentar la autorización y asegúrate de conceder todos los permisos de acceso listados.</string>
+    <string name="new_user">nueva(o) usuaria(o)</string>
 
+    <!-- Internet Archive Settings -->
+    <string name="label_email">Email</string>
+    <string name="label_screen_name">Nombre en Pantalla</string>
+    <string name="label_login">Iniciar sesión</string>
+    <string name="label_create_login">Crear uno</string>
+    <string name="prompt_no_account">¿Sin cuenta\?</string>
+    <string name="action_continue">Continuar</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hola fragmento en blanco</string>
+    <!-- Preference Titles -->
+    <string name="messages_header">Mensajes</string>
+    <string name="sync_header">Sincronización</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Tu firma</string>
+    <string name="reply_title">Acción de respuesta predeterminada</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sincronizar email periódicamente</string>
+    <string name="attachment_title">Descargar adjuntos entrantes</string>
+    <string name="attachment_summary_on">Descarga automáticamente los archivos adjuntos de los correos electrónicos entrantes</string>
+    <string name="attachment_summary_off">Descarga los adjuntos solo cuando se solicite manualmente</string>
+
+    <string name="pref_media_servers">pref_media_servers</string>
+    <string name="pref_media_folders">pref_media_folders</string>
+
+    <string name="pref_title_secure">Seguro</string>
+    <string name="pref_title_archive">Archivo</string>
+    <string name="pref_title_privacy_policy">Lee nuestros Términos y Política de Privacidad</string>
+    <string name="pref_title_media_servers">Servidores Multimedia</string>
+    <string name="pref_title_media_folders">Carpetas Archivadas</string>
+    <string name="pref_summary_media_servers">Administrar tus servidores</string>
+    <string name="pref_summary_media_folders">Administra tus carpetas archivadas</string>
+    <string name="pref_summary_privacy_policy">Lee nuestros Términos y Política de Privacidad</string>
+
+    <string name="pref_key_use_dark_mode">pref_is_dark_mode</string>
+    <!-- General -->
+    <string name="label_success_title">¡Éxito!</string>
+    <string name="label_warning_title">¡Advertencia!</string>
+    <string name="label_info_title">¡Info!</string>
+    <string name="label_got_it">Entendido</string>
+
+    <!-- Create New Folder -->
+    <string name="create_folder_ok_message">Has añadido una carpeta exitosamente</string>
+    <string name="msg_edit_server_success">Has cambiado la configuración de tu servidor exitosamente.</string>
+    <string name="expand">Expandir</string>
+    <string name="lbl_no_servers">Aún no se han añadido servidores.</string>
+    <string name="lbl_no_archived_folders">No se han encontrado carpetas.</string>
+    <string name="error_no_internet">No hay internet disponible</string>
+    <string name="unavailable">no disponible</string>
 </resources>

@@ -53,14 +53,13 @@ class ProofModeSettingsActivity : BaseActivity() {
             val proofModeSwitch = findPreference<SwitchPreferenceCompat>(Prefs.USE_PROOFMODE)
 
             // Check if permission is granted
-            val hasPermission = ContextCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.READ_PHONE_STATE
-            ) == PackageManager.PERMISSION_GRANTED
+            val hasPermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    && ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
             if (!hasPermission) {
                 proofModeSwitch?.isChecked = false // Uncheck if permission not granted
                 Prefs.putBoolean(Prefs.USE_PROOFMODE, false)
-                Toast.makeText(requireContext(), "Phone permission required", Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), getString(R.string.phone_permission_required), Toast.LENGTH_LONG).show()
             } else {
                 proofModeSwitch?.isChecked = Prefs.getBoolean(Prefs.USE_PROOFMODE, false)
             }
@@ -68,7 +67,7 @@ class ProofModeSettingsActivity : BaseActivity() {
             getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_proof_mode)?.setOnPreferenceChangeListener { preference, newValue ->
                 if (newValue as Boolean) {
                     PermissionX.init(this)
-                        .permissions(Manifest.permission.READ_PHONE_STATE)
+                        .permissions( Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
                         .onExplainRequestReason { _, _ ->
                             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                             val uri = Uri.fromParts("package", activity?.packageName, null)
@@ -190,7 +189,7 @@ class ProofModeSettingsActivity : BaseActivity() {
 
 
         val learnModeInfo =
-            getString(R.string.prefs_use_proofmode_description, "https://www.google.com")
+            getString(R.string.prefs_use_proofmode_description, getString(R.string.intro_link_verify))
 
 
         val spannedText: Spanned =
@@ -200,6 +199,11 @@ class ProofModeSettingsActivity : BaseActivity() {
 
         mBinding.proofModeLearnMode.movementMethod =
             LinkMovementMethod.getInstance() // Enable link clicks
+
+        mBinding.infoCardText.text = HtmlCompat.fromHtml(
+            getString(R.string.proof_mode_warning_text),
+            HtmlCompat.FROM_HTML_MODE_COMPACT
+        )
 
     }
 

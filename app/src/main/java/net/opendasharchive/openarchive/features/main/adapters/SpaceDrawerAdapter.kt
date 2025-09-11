@@ -17,7 +17,8 @@ interface SpaceDrawerAdapterListener {
     fun getSelectedSpace(): Space?
 }
 
-class SpaceDrawerAdapter(private val listener: SpaceDrawerAdapterListener) : ListAdapter<SpaceDrawerAdapter.SpaceItem, SpaceDrawerAdapter.ItemTypeViewHolder>(DIFF_CALLBACK) {
+class SpaceDrawerAdapter(private val listener: SpaceDrawerAdapterListener) :
+    ListAdapter<SpaceDrawerAdapter.SpaceItem, SpaceDrawerAdapter.ItemTypeViewHolder>(DIFF_CALLBACK) {
 
     private var selectedSpace: Space? = listener.getSelectedSpace()
 
@@ -50,17 +51,20 @@ class SpaceDrawerAdapter(private val listener: SpaceDrawerAdapterListener) : Lis
         }
     }
 
-    abstract class ItemTypeViewHolder(binding: RvDrawerRowBinding) : RecyclerView.ViewHolder(binding.root) {
+    abstract class ItemTypeViewHolder(binding: RvDrawerRowBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         abstract fun bind(item: SpaceItem)
     }
 
-    inner class SpaceViewHolder(private val binding: RvDrawerRowBinding) : ItemTypeViewHolder(binding) {
+    inner class SpaceViewHolder(private val binding: RvDrawerRowBinding) :
+        ItemTypeViewHolder(binding) {
         override fun bind(item: SpaceItem) {
 
             val space = (item as SpaceItem.SpaceItemData).space
 
             val isSelected = listener.getSelectedSpace()?.id == space.id
-            val backgroundColor = if(isSelected) R.color.colorTertiary else R.color.c23_light_grey
+            val backgroundColor =
+                if (isSelected) R.color.colorTertiary else R.color.colorDrawerSpaceListBackground
             val textColor = if (isSelected) R.color.colorOnBackground else R.color.colorText
 
             binding.root.setBackgroundColor(binding.root.context.getColor(backgroundColor))
@@ -78,8 +82,10 @@ class SpaceDrawerAdapter(private val listener: SpaceDrawerAdapterListener) : Lis
         }
 
         private fun onItemSelected(space: Space) {
-            val previousIndex = currentList.indexOfFirst { it is SpaceItem.SpaceItemData && it.space.id == selectedSpace?.id }
-            val newIndex = currentList.indexOfFirst { it is SpaceItem.SpaceItemData && it.space.id == space.id }
+            val previousIndex =
+                currentList.indexOfFirst { it is SpaceItem.SpaceItemData && it.space.id == selectedSpace?.id }
+            val newIndex =
+                currentList.indexOfFirst { it is SpaceItem.SpaceItemData && it.space.id == space.id }
 
             selectedSpace = space
 
@@ -90,9 +96,12 @@ class SpaceDrawerAdapter(private val listener: SpaceDrawerAdapterListener) : Lis
         }
     }
 
-    inner class AddSpaceViewHolder(private val binding: RvDrawerRowBinding) : ItemTypeViewHolder(binding) {
+    inner class AddSpaceViewHolder(private val binding: RvDrawerRowBinding) :
+        ItemTypeViewHolder(binding) {
         override fun bind(item: SpaceItem) {
             val context = binding.rvTitle.context
+            val backgroundColor = R.color.colorDrawerSpaceListBackground
+            binding.root.setBackgroundColor(binding.root.context.getColor(backgroundColor))
             binding.rvTitle.text = context.getString(R.string.add_another_account)
             binding.rvTitle.setTextColor(ContextCompat.getColor(context, R.color.colorTertiary))
 
@@ -135,8 +144,10 @@ class SpaceDrawerAdapter(private val listener: SpaceDrawerAdapterListener) : Lis
     }
 
     fun updateSelectedSpace(space: Space?) {
-        val previousIndex = currentList.indexOfFirst { it is SpaceItem.SpaceItemData && it.space.id == selectedSpace?.id }
-        val newIndex = currentList.indexOfFirst { it is SpaceItem.SpaceItemData && it.space.id == space?.id }
+        val previousIndex =
+            currentList.indexOfFirst { it is SpaceItem.SpaceItemData && it.space.id == selectedSpace?.id }
+        val newIndex =
+            currentList.indexOfFirst { it is SpaceItem.SpaceItemData && it.space.id == space?.id }
 
         selectedSpace = space
 

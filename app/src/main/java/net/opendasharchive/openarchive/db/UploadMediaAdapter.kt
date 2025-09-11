@@ -26,8 +26,6 @@ class UploadMediaAdapter(
 
     var doImageFade = true
 
-    var isEditMode = true
-
     private var mActivity = WeakReference(activity)
 
     init {
@@ -78,7 +76,6 @@ class UploadMediaAdapter(
     override fun onBindViewHolder(holder: UploadMediaViewHolder, position: Int) {
         AppLogger.i("onBindViewHolder called for position $position")
         holder.bind(media[position], doImageFade)
-        holder.toggleEditMode(isEditMode)
     }
 
     override fun onBindViewHolder(
@@ -90,17 +87,15 @@ class UploadMediaAdapter(
             val payload = payloads[0]
             when (payload) {
                 "progress" -> {
-                    holder.updateProgress(media[position].uploadPercentage ?: 0)
+
                 }
 
                 "full" -> {
                     holder.bind(media[position], doImageFade)
-                    holder.toggleEditMode(isEditMode)
                 }
             }
         } else {
             holder.bind(media[position], doImageFade)
-            holder.toggleEditMode(isEditMode)
         }
     }
 
@@ -119,7 +114,7 @@ class UploadMediaAdapter(
             item.uploadPercentage = progress
             item.status = Media.Status.Uploading.id
             notifyItemChanged(mediaIndex, "progress")
-        }else {
+        } else {
             item.status = Media.Status.Queued.id
             notifyItemChanged(mediaIndex, "full")
         }
@@ -163,7 +158,6 @@ class UploadMediaAdapter(
     }
 
     fun onItemMove(oldPos: Int, newPos: Int) {
-        if (!isEditMode) return
 
         val mediaToMov = media.removeAt(oldPos)
         media.add(newPos, mediaToMov)
@@ -182,44 +176,41 @@ class UploadMediaAdapter(
         if (pos < 0 || pos >= media.size) return
 
         val item = media[pos]
-        var undone = false
+//        var undone = false
 
-        val snackbar =
-            Snackbar.make(recyclerView, R.string.confirm_remove_media, Snackbar.LENGTH_LONG)
-        snackbar.setAction(R.string.undo) { _ ->
-            undone = true
-            media.add(pos, item)
+//        val snackbar = Snackbar.make(recyclerView, R.string.confirm_remove_media, Snackbar.LENGTH_LONG)
+//        snackbar.setAction(R.string.undo) { _ ->
+//            undone = true
+//            media.add(pos, item)
+//
+//            notifyItemInserted(pos)
+//        }
 
-            notifyItemInserted(pos)
+//        snackbar.addCallback(object : Snackbar.Callback() {
+//            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+//                if (!undone) {
+        val collection = item.collection
+
+        // Delete collection along with the item, if the collection
+        // would become empty.
+        if ((collection?.size ?: 0) < 2) {
+            collection?.delete()
+        } else {
+            item.delete()
         }
 
-        snackbar.addCallback(object : Snackbar.Callback() {
-            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                if (!undone) {
-                    val collection = item.collection
 
-                    // Delete collection along with the item, if the collection
-                    // would become empty.
-                    if ((collection?.size ?: 0) < 2) {
-                        collection?.delete()
-                    } else {
-                        item.delete()
-                    }
+//                }
+//
+//                super.onDismissed(transientBottomBar, event)
+//            }
+//        })
 
-                    BroadcastManager.postDelete(recyclerView.context, item.id)
-                }
-
-                super.onDismissed(transientBottomBar, event)
-            }
-        })
-
-        snackbar.show()
+        // snackbar.show()
 
         removeItem(item.id)
 
-        mActivity.get()?.let {
-            BroadcastManager.postDelete(it, item.id)
-        }
+        BroadcastManager.postDelete(recyclerView.context, item.id)
     }
 
 

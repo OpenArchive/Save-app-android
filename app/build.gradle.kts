@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -9,6 +11,8 @@ plugins {
     id("com.google.devtools.ksp")
     id("androidx.navigation.safeargs.kotlin")
     alias(libs.plugins.detekt.plugin)
+    alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.google.firebase.crashlytics)
 }
 
 fun loadLocalProperties(): Properties = Properties().apply {
@@ -16,36 +20,51 @@ fun loadLocalProperties(): Properties = Properties().apply {
     if (localPropsFile.exists()) {
         FileInputStream(localPropsFile).use { load(it) }
     } else {
-        throw GradleException("Missing local.properties file")
+        setProperty("MIXPANELKEY", System.getenv("MIXPANEL_KEY") ?: "")
+        setProperty("STOREFILE", System.getenv("STOREFILE") ?: "")
+        setProperty("STOREPASSWORD", System.getenv("STOREPASSWORD") ?: "")
+        setProperty("KEYALIAS", System.getenv("KEYALIAS") ?: "")
+        setProperty("KEYPASSWORD", System.getenv("KEYPASSWORD") ?: "")
+    }
+}
+
+kotlin {
+
+    compilerOptions {
+
+        jvmTarget.set(JvmTarget.JVM_17)
+        languageVersion.set(KotlinVersion.KOTLIN_2_2)
+    }
+}
+
+kotlin {
+    compilerOptions {
+
+        jvmTarget.set(JvmTarget.JVM_17)
+        languageVersion.set(KotlinVersion.KOTLIN_2_2)
     }
 }
 
 android {
 
-    //noinspection GradleDependency
-    compileSdk = 34
+    compileSdk = 36
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-
     defaultConfig {
         applicationId = "net.opendasharchive.openarchive"
         minSdk = 29
-        //noinspection OldTargetApi
-        targetSdk = 34
-        versionCode = 30006
-        versionName = "0.7.8"
+        targetSdk = 36
+        versionCode = 30018
+        versionName = "4.0.2"
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         val localProps = loadLocalProperties()
-        resValue("string", "mixpanel_key", localProps.getProperty("mixpanel.key") ?: "")
+        resValue("string", "mixpanel_key", localProps.getProperty("MIXPANELKEY") ?: "")
     }
 
     base {
@@ -64,24 +83,44 @@ android {
             signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
             isShrinkResources = false
-            applicationIdSuffix = ".release"
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
 
         getByName("debug") {
             signingConfig = signingConfigs.getByName("debug")
-            applicationIdSuffix = ".debug"
             isMinifyEnabled = false
+        }
+    }
+
+    flavorDimensions += "env"
+
+    productFlavors {
+
+        create("dev") {
+            dimension = "env"
+            versionNameSuffix = "-dev"
+            applicationIdSuffix = ".debug"
+        }
+
+        create("staging") {
+            dimension = "env"
+            versionNameSuffix = "-staging"
+            applicationIdSuffix = ".debug"
+        }
+
+        create("prod") {
+            dimension = "env"
+            applicationIdSuffix = ".release"
         }
     }
 
     signingConfigs {
         getByName("debug") {
             val props = loadLocalProperties()
-            storeFile = file(props["storeFile"] as? String ?: "")
-            storePassword = props["storePassword"] as? String ?: ""
-            keyAlias = props["keyAlias"] as? String ?: ""
-            keyPassword = props["keyPassword"] as? String ?: ""
+            storeFile = file(props["STOREFILE"] as? String ?: "")
+            storePassword = props["STOREPASSWORD"] as? String ?: ""
+            keyAlias = props["KEYALIAS"] as? String ?: ""
+            keyPassword = props["KEYPASSWORD"] as? String ?: ""
         }
     }
 
@@ -100,13 +139,11 @@ android {
         abortOnError = false
     }
 
-
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
         }
     }
-
 
     namespace = "net.opendasharchive.openarchive"
 
@@ -140,7 +177,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata)
     implementation(libs.androidx.lifecycle.runtime.compose)
 
-
     implementation(libs.androidx.preferences)
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.work)
@@ -159,6 +195,7 @@ dependencies {
     implementation(libs.androidx.swiperefresh)
 
     // Compose Libraries
+    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
@@ -166,6 +203,7 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.icons.extended)
+    implementation(libs.firebase.crashlytics)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     implementation(libs.androidx.compose.runtime)
@@ -190,13 +228,10 @@ dependencies {
     implementation(libs.koin.compose.viewmodel.navigation)
 
     // Image Libraries
-    implementation(libs.glide)
-    annotationProcessor(libs.glide.compiler)
-    implementation(libs.asafirm.image.picker)
-    implementation(libs.picasso)
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
+    implementation(libs.coil.network)
 
     // Networking and Data
     // Networking
@@ -209,42 +244,43 @@ dependencies {
 
     // Utility Libraries
     implementation(libs.timber)
-    implementation(libs.orhanobut.logger)
-    implementation("com.github.abdularis:circularimageview:1.4")
-    implementation("com.tbuonomo:dotsindicator:5.1.0")
-    implementation("com.guolindev.permissionx:permissionx:1.6.4")
+    //implementation(libs.orhanobut.logger)
+    //implementation(libs.abdularis.circularimageview)
+    implementation(libs.dotsindicator)
+    implementation(libs.permissionx)
 
     // Barcode Scanning
-    implementation("com.google.zxing:core:3.5.3")
-    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    //implementation("com.google.zxing:core:3.5.3")
+    //implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 
     // Security and Encryption
-    implementation("org.bouncycastle:bcpkix-jdk15to18:1.72")
-    implementation("org.bouncycastle:bcprov-jdk15to18:1.72")
-    api("org.bouncycastle:bcpg-jdk15to18:1.71")
+    implementation(libs.bouncycastle.bcpkix)
+    implementation(libs.bouncycastle.bcprov)
+    api(libs.bouncycastle.bcpg)
 
     // Google Play Services
-    implementation("com.google.android.gms:play-services-auth:21.3.0")
-//    implementation("com.google.android.play:core-ktx:1.8.1")
-//    implementation("com.google.android.play:asset-delivery-ktx:2.3.0")
-//    implementation("com.google.android.play:feature-delivery-ktx:2.1.0")
-//    implementation("com.google.android.play:review-ktx:2.0.2")
-//    implementation("com.google.android.play:app-update-ktx:2.1.0")
+    implementation(libs.google.auth)
+    implementation(libs.google.play.asset.delivery.ktx)
+    implementation(libs.google.play.feature.delivery)
+    implementation(libs.google.play.feature.delivery.ktx)
+    implementation(libs.google.play.review)
+    implementation(libs.google.play.review.ktx)
+    implementation(libs.google.play.app.update.ktx)
 
     // Google Drive API
-    implementation("com.google.http-client:google-http-client-gson:1.42.3")
-    implementation("com.google.api-client:google-api-client-android:1.26.0")
-    implementation("com.google.apis:google-api-services-drive:v3-rev136-1.25.0")
+    implementation(libs.google.http.client.gson)
+    implementation(libs.google.api.client.android)
+    implementation(libs.google.drive.api)
 
     // Tor Libraries
-    implementation("info.guardianproject:tor-android:0.4.7.14")
-    implementation("info.guardianproject:jtorctl:0.4.5.7")
+    implementation(libs.tor.android)
+    implementation(libs.jtorctl)
 
-    implementation("org.bitcoinj:bitcoinj-core:0.16.2")
-    implementation("com.eclipsesource.j2v8:j2v8:6.2.1@aar")
+    implementation(libs.bitcoinj.core)
+    //implementation("com.eclipsesource.j2v8:j2v8:6.2.1@aar")
 
     // ProofMode //from here: https://github.com/guardianproject/proofmode
-    implementation("org.proofmode:android-libproofmode:1.0.26") {
+    implementation(libs.proofmode) {
         //transitive = false
         exclude(group = "org.bitcoinj")
         exclude(group = "com.google.protobuf")
@@ -259,33 +295,28 @@ dependencies {
     }
 
     // Guava Conflicts
-    implementation("com.google.guava:guava:31.0.1-jre")
-    implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
+    implementation(libs.guava)
+    implementation(libs.guava.listenablefuture)
 
-
-    implementation("com.github.satyan:sugar:1.5")
-
+    implementation(libs.satyan.sugar)
 
     // adding web dav support: https://github.com/thegrizzlylabs/sardine-android'
     implementation("com.github.guardianproject:sardine-android:89f7eae512")
 
-
     implementation("com.github.derlio:audio-waveform:v1.0.1")
 
-
-    implementation("org.cleaninsights.sdk:clean-insights-sdk:2.8.0")
-    implementation("info.guardianproject.netcipher:netcipher:2.2.0-alpha")
+    implementation(libs.clean.insights)
+    implementation(libs.netcipher)
 
     // Mixpanel analytics
-    implementation("com.mixpanel.android:mixpanel-android:8.0.2")
-
+    implementation(libs.mixpanel)
 
     // Tests
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.robolectric:robolectric:4.14.1")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test:runner:1.6.2")
-    testImplementation("androidx.work:work-testing:2.9.1")
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+    testImplementation(libs.work.testing)
 
     // Detekt
     detektPlugins(libs.detekt.formatting)
@@ -293,6 +324,8 @@ dependencies {
     detektPlugins(libs.detekt.rules.libraries)
     detektPlugins(libs.detekt.compose)
     detektPlugins(libs.detekt.rules.compose)
+
+//    debugImplementation("com.squareup.leakcanary:leakcanary-android:3.0-alpha-8")
 }
 
 configurations.all {

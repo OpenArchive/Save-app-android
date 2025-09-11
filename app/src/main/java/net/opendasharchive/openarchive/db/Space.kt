@@ -13,7 +13,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
-import com.github.abdularis.civ.AvatarImageView
 import com.orm.SugarRecord
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
@@ -151,7 +150,7 @@ data class Space(
     var tType: Type
         get() = Type.entries.first { it.id == type }
         set(value) {
-            type = (value ?: Type.WEBDAV).id
+            type = value.id
         }
 
     var license: String?
@@ -258,22 +257,12 @@ data class Space(
     fun setAvatar(view: ImageView) {
         when (tType) {
             Type.INTERNET_ARCHIVE -> {
-                if (view is AvatarImageView) {
-                    view.state = AvatarImageView.SHOW_IMAGE
-                }
-
                 view.setImageDrawable(getAvatar(view.context))
             }
 
             else -> {
-                if (view is AvatarImageView) {
-                    view.state = AvatarImageView.SHOW_INITIAL
-                    view.setText(initial)
-                    view.avatarBackgroundColor =
-                        ContextCompat.getColor(view.context, R.color.colorPrimary)
-                } else {
-                    view.setImageDrawable(getAvatar(view.context))
-                }
+                view.setImageDrawable(getAvatar(view.context))
+
             }
         }
     }

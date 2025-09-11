@@ -1,65 +1,93 @@
 package net.opendasharchive.openarchive.features.internetarchive.presentation.login
 
-import net.opendasharchive.openarchive.core.presentation.StatefulViewModel
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.internetarchive.domain.usecase.InternetArchiveLoginUseCase
 import net.opendasharchive.openarchive.features.internetarchive.domain.usecase.ValidateLoginCredentialsUseCase
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.Cancel
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.CreateLogin
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.ErrorClear
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.Login
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.LoginError
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.LoginSuccess
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.UpdatePassword
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction.UpdateUsername
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction as Action
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginState as State
 
 class InternetArchiveLoginViewModel(
     private val validateLoginCredentials: ValidateLoginCredentialsUseCase,
-    private val space: Space,
-) : StatefulViewModel<State, Action>(State()), KoinComponent {
+) : ViewModel(), KoinComponent {
+
+    val space = Space(Space.Type.INTERNET_ARCHIVE)
 
     private val loginUseCase: InternetArchiveLoginUseCase by inject {
         parametersOf(space)
     }
 
-    override fun reduce(
-        state: State,
-        action: Action
-    ): State = when (action) {
-        is UpdateUsername -> state.copy(
-            username = action.value,
-            isValid = validateLoginCredentials(action.value, state.password)
-        )
+    private val _uiState = MutableStateFlow(InternetArchiveLoginState())
+    val uiState: StateFlow<InternetArchiveLoginState> = _uiState.asStateFlow()
 
-        is UpdatePassword -> state.copy(
-            password = action.value,
-            isValid = validateLoginCredentials(state.username, action.value)
-        )
+    private val _events = Channel<InternetArchiveLoginEvent>()
+    val events = _events.receiveAsFlow()
 
-        is Login -> state.copy(isBusy = true)
-        is LoginError -> state.copy(isLoginError = true, isBusy = false)
-        is LoginSuccess, is Cancel -> state.copy(isBusy = false)
-        is ErrorClear -> state.copy(isLoginError = false)
-        else -> state
-    }
-
-    override suspend fun effects(state: State, action: Action) {
+    fun onAction(action: InternetArchiveLoginAction) {
         when (action) {
-            is Login ->
-                loginUseCase(state.username, state.password)
-                    .onSuccess { ia ->
-                        notify(LoginSuccess(ia))
-                    }
-                    .onFailure { dispatch(LoginError(it)) }
+            is InternetArchiveLoginAction.UpdateUsername -> {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        username = action.username,
+                        isValid = validateLoginCredentials(action.username, currentState.password)
+                    )
+                }
+            }
 
-            is CreateLogin, is Cancel -> notify(action)
-            else -> Unit
+            is InternetArchiveLoginAction.UpdatePassword -> {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        password = action.password,
+                        isValid = validateLoginCredentials(currentState.username, action.password)
+                    )
+                }
+            }
+
+            is InternetArchiveLoginAction.Login -> {
+                performLogin()
+            }
+
+            is InternetArchiveLoginAction.Cancel -> {
+                viewModelScope.launch {
+                    _events.send(InternetArchiveLoginEvent.NavigateBack)
+                }
+            }
+
+            is InternetArchiveLoginAction.CreateLogin -> {
+                viewModelScope.launch {
+                    _events.send(InternetArchiveLoginEvent.NavigateToSignup)
+                }
+            }
+
+            is InternetArchiveLoginAction.ErrorClear -> {
+                _uiState.update { it.copy(isLoginError = false) }
+            }
         }
     }
 
+    private fun performLogin() {
+        _uiState.update { it.copy(isBusy = true) }
+        viewModelScope.launch {
+            val currentState = _uiState.value
+            loginUseCase(currentState.username, currentState.password)
+                .onSuccess { ia ->
+                    _uiState.update { it.copy(isBusy = false) }
+                    _events.send(InternetArchiveLoginEvent.LoginSuccess(space.id))
+                }
+                .onFailure { error ->
+                    _uiState.update { it.copy(isLoginError = true, isBusy = false) }
+                    _events.send(InternetArchiveLoginEvent.LoginError(error))
+                }
+        }
+    }
 }

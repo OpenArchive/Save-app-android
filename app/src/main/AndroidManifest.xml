@@ -31,6 +31,10 @@
             <category android:name="android.intent.category.OPENABLE" />
             <data android:mimeType="application/*" />
         </intent>
+
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
     </queries>
 
     <!--
@@ -64,8 +68,11 @@
         <activity
             android:name=".features.main.MainActivity"
             android:exported="true"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="portrait">
+            android:theme="@style/SaveAppTheme.NoActionBar"
+            tools:ignore="DiscouragedApi">
+
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->
 
@@ -142,13 +149,12 @@
         <activity
             android:name=".features.main.HomeActivity"
             android:exported="true"
-            android:theme="@style/SaveAppTheme.NoActionBar"
             android:screenOrientation="portrait">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
+            <!--            <intent-filter>-->
+            <!--                <action android:name="android.intent.action.MAIN" />-->
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
+            <!--                <category android:name="android.intent.category.LAUNCHER" />-->
+            <!--            </intent-filter>-->
 
             <!-- filter for sending text or images; accepts SEND action and audio/photo/video data -->
             <intent-filter>
@@ -172,8 +178,10 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:scheme="save+dweb" />
             </intent-filter>
         </activity>
@@ -182,20 +190,6 @@
             android:name=".upload.UploadManagerActivity"
             android:exported="false"
             android:label="@string/title_activity_upload_manager"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-
-        <activity
-            android:name=".services.webdav.WebDavActivity"
-            android:label="@string/title_activity_login"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan" />
-
-        <activity
-            android:name=".features.internetarchive.presentation.InternetArchiveActivity"
-            android:label="@string/title_activity_login"
             android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar" />
 
@@ -265,11 +259,11 @@
             android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar" />
 
-<!--        <activity-->
-<!--            android:name=".features.folders.CreateNewFolderActivity"-->
-<!--            android:label="@string/new_folder"-->
-<!--            android:taskAffinity=""-->
-<!--            android:theme="@style/SaveAppTheme.NoActionBar" />-->
+        <!--        <activity-->
+        <!--            android:name=".features.folders.CreateNewFolderActivity"-->
+        <!--            android:label="@string/new_folder"-->
+        <!--            android:taskAffinity=""-->
+        <!--            android:theme="@style/SaveAppTheme.NoActionBar" />-->
 
         <activity
             android:name=".features.folders.AddFolderActivity"
@@ -344,7 +338,7 @@
         <service
             android:name=".services.snowbird.service.SnowbirdService"
             android:exported="false"
-            android:foregroundServiceType="dataSync"></service>
+            android:foregroundServiceType="dataSync" />
 
     </application>
 

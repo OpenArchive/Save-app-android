@@ -1,9 +1,7 @@
 package net.opendasharchive.openarchive.features.main
 
-import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Point
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -18,7 +16,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.PopupWindow
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -30,7 +27,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.play.core.review.ReviewManager
+import com.google.android.play.core.review.ReviewManagerFactory
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.BuildConfig
 import net.opendasharchive.openarchive.R
@@ -70,16 +70,18 @@ import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import net.opendasharchive.openarchive.upload.UploadManagerFragment
 import net.opendasharchive.openarchive.upload.UploadService
+import net.opendasharchive.openarchive.util.InAppReviewHelper
+import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.ProofModeHelper
 import net.opendasharchive.openarchive.util.extensions.Position
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.cloak
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.scaleAndTintDrawable
 import net.opendasharchive.openarchive.util.extensions.show
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import timber.log.Timber
 import java.text.NumberFormat
 
 
@@ -122,7 +124,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             updateBottomNavbar(value)
         }
 
-    // ----- Activity Result Launchers & Permission Launcher -----
+    // ----- Activity Result Launchers -----
     private val mNewFolderResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
@@ -130,23 +132,18 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             }
         }
 
+    private lateinit var permissionManager: PermissionManager
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            Timber.d("Able to post notifications")
-        } else {
-            Timber.d("Need to explain")
-        }
-    }
-
+    private lateinit var reviewManager: ReviewManager
+    private var shouldPromptReview = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        ///enableEdgeToEdge()
-
+//        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+//        WindowCompat.setDecorFitsSystemWindows(window, false)
         installSplashScreen()
+
+
 
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 //            window.insetsController?.let {
@@ -161,7 +158,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 //                WindowManager.LayoutParams.FLAG_FULLSCREEN
 //            )
 //        }
-
+//
 //        window.apply {
 //            clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
 //            addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
@@ -172,9 +169,33 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
 
         binding = ActivityMainBinding.inflate(layoutInflater)
+
+
+//        binding.contentMain.imgLogo.applyEdgeToEdgeInsets { insets ->
+//            leftMargin = insets.left
+//            rightMargin = insets.right
+//        }
+
+        binding.contentMain.bottomNavBar.applyEdgeToEdgeInsets { insets ->
+            bottomMargin = insets.bottom
+        }
+
+        binding.btnAddFolder.applyEdgeToEdgeInsets { insets ->
+            bottomMargin = insets.bottom
+        }
+
+        binding.drawerContent.applyEdgeToEdgeInsets { insets ->
+            bottomMargin = insets.bottom
+        }
+
+
         setContentView(binding.root)
 
-        viewModel.log("MainActivity onCreate called")
+        // Initialize the permission manager with this activity and its dialogManager.
+        permissionManager = PermissionManager(this, dialogManager)
+
+        // Initialize In App Ratings Helper
+        InAppReviewHelper.init(this)
 
         initMediaLaunchers()
         setupToolbarAndPager()
@@ -185,7 +206,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
 
         if (appConfig.isDwebEnabled) {
-            checkNotificationPermissions()
+            permissionManager.checkNotificationPermission {
+                AppLogger.i("Notification permission granted")
+            }
             SnowbirdBridge.getInstance().initialize()
             startForegroundService(Intent(this, SnowbirdService::class.java))
             handleIntent(intent)
@@ -205,35 +228,52 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             // You can start the upload service or update the UI accordingly.
             UploadService.startUploadService(this)
         }
+
+        supportFragmentManager.setFragmentResultListener(
+            ContentPickerFragment.KEY_DISMISS,
+            this
+        ) { _, _ ->
+            // when the sheet goes away, show your arrow
+            getCurrentMediaFragment()?.setArrowVisible(true)
+        }
+
+        reviewManager = ReviewManagerFactory.create(this)
+        InAppReviewHelper.requestReviewInfo(this)
+        shouldPromptReview = InAppReviewHelper.onAppLaunched()
     }
 
     override fun onResume() {
         super.onResume()
-        AppLogger.i("MainActivity onResume is called.......")
-        refreshSpace()
-        mCurrentPagerItem = mSelectedPageIndex
         if (!Prefs.didCompleteOnboarding) {
             startActivity(Intent(this, Onboarding23Activity::class.java))
         }
+        AppLogger.i("MainActivity onResume is called.......")
+        refreshSpace()
+        mCurrentPagerItem = mSelectedPageIndex
         importSharedMedia(intent)
         if (serverListOffset == 0F) {
             val dims = binding.spaces.getMeasurments()
             serverListOffset = -dims.second.toFloat()
             serverListCurOffset = serverListOffset
         }
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // Only now, after UI is ready, do we fire the in‐app review if needed.
+        if (shouldPromptReview) {
+            lifecycleScope.launch(Dispatchers.Main) {
+                // Wait a small delay so we don’t interrupt initial load (e.g. 2 seconds).
+                delay(2_000)
+                InAppReviewHelper.showReviewIfPossible(this@MainActivity, reviewManager)
+                InAppReviewHelper.markReviewDone()
+                shouldPromptReview = false
+            }
+        }
+        // ─────────────────────────────────────────────────────────────────────────
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onStart() {
         super.onStart()
-
-        if (Prefs.useProofMode) {
-            Prefs.proofModeLocation = true
-            Prefs.proofModeNetwork = true
-        } else {
-            Prefs.proofModeLocation = false
-            Prefs.proofModeNetwork = false
-        }
 
         ProofModeHelper.init(this) {
             // Check for any queued uploads and restart, only after ProofMode is correctly initialized.
@@ -284,7 +324,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     private fun setupNavigationDrawer() {
         // Drawer listener resets state on close
-        binding.root.addDrawerListener(object : DrawerLayout.DrawerListener {
+        binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerClosed(drawerView: View) {
                 collapseSpacesList()
             }
@@ -340,6 +380,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                     } else if (getSelectedProject() == null) {
                         navigateToAddFolder()
                     } else {
+                        getCurrentMediaFragment()?.setArrowVisible(false)
                         val addMediaBottomSheet =
                             ContentPickerFragment { actionType -> addClicked(actionType) }
                         addMediaBottomSheet.show(supportFragmentManager, ContentPickerFragment.TAG)
@@ -385,7 +426,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 } else {
                     Snackbar.make(
                         binding.root,
-                        "Folder name cannot be empty",
+                        getString(R.string.folder_empty_warning),
                         Snackbar.LENGTH_SHORT
                     ).show()
                 }
@@ -413,7 +454,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             it.description = newName
             it.save()
             refreshCurrentProject()
-            Snackbar.make(binding.root, "Folder renamed", Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(binding.root, getString(R.string.folder_rename_success), Snackbar.LENGTH_SHORT).show()
         }
     }
 
@@ -429,15 +470,39 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             animationStyle = R.style.popup_window_animation
         }
 
+        // Check if there is at least one media item in the selected project
+        val hasMedia = getSelectedProject()?.collections?.any { it.media.isNotEmpty() } == true
+
+        // Disable select media if no media in current folder
+        popupBinding.menuFolderBarSelectMedia.isEnabled = hasMedia
+        popupBinding.menuFolderBarSelectMedia.alpha = if (hasMedia) 1.0f else 0.4f
+
         // Option to toggle selection mode
         popupBinding.menuFolderBarSelectMedia.setOnClickListener {
             popup.dismiss()
             setFolderBarMode(FolderBarMode.SELECTION)
         }
+
         // Rename folder
         popupBinding.menuFolderBarRenameFolder.setOnClickListener {
             popup.dismiss()
             setFolderBarMode(FolderBarMode.EDIT)
+        }
+
+        // Archive folder
+        popupBinding.menuFolderBarArchiveFolder.setOnClickListener {
+            popup.dismiss()
+            val selectedProject = getSelectedProject()
+            if (selectedProject != null) {
+                selectedProject.isArchived = !selectedProject.isArchived
+                selectedProject.save()
+                refreshProjects()
+                updateCurrentFolderVisibility()
+                refreshCurrentProject()
+                Snackbar.make(binding.root, getString(R.string.folder_archived), Snackbar.LENGTH_SHORT).show()
+            } else {
+                Snackbar.make(binding.root, getString(R.string.folder_not_found), Snackbar.LENGTH_LONG).show()
+            }
         }
 
         // Remove folder
@@ -446,7 +511,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             if (getSelectedProject() != null) {
                 showDeleteFolderConfirmDialog()
             } else {
-                Snackbar.make(binding.root, "Folder not found", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(binding.root, getString(R.string.folder_not_found), Snackbar.LENGTH_LONG).show()
             }
         }
 
@@ -482,6 +547,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                     action = {
                         getCurrentMediaFragment()?.deleteSelected()
                         updateSelectedCount(0)
+                        refreshCurrentFolderCount()
                     }
                 ),
                 neutralButton =
@@ -508,7 +574,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                     refreshProjects()
                     updateCurrentFolderVisibility()
                     refreshCurrentProject()
-                    Snackbar.make(binding.root, "Folder removed", Snackbar.LENGTH_SHORT).show()
+                    Snackbar.make(binding.root, getString(R.string.folder_removed), Snackbar.LENGTH_SHORT).show()
                 }
             }
             neutralButton {
@@ -528,7 +594,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     // ----- Drawer Helpers -----
     private fun toggleDrawerState() {
-        if (binding.root.isDrawerOpen(binding.drawerContent)) {
+        if (binding.drawerLayout.isDrawerOpen(binding.drawerContent)) {
             closeDrawer()
         } else {
             openDrawer()
@@ -536,11 +602,11 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     }
 
     private fun openDrawer() {
-        binding.root.openDrawer(binding.drawerContent)
+        binding.drawerLayout.openDrawer(binding.drawerContent)
     }
 
     private fun closeDrawer() {
-        binding.root.closeDrawer(binding.drawerContent)
+        binding.drawerLayout.closeDrawer(binding.drawerContent)
     }
 
     private fun toggleSpacesList() {
@@ -641,6 +707,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 // Prepopulate the rename field with the current folder name
                 binding.contentMain.etFolderName.setText(getSelectedProject()?.description ?: "")
                 binding.contentMain.etFolderName.requestFocus()
+                binding.contentMain.etFolderName.selectAll()
 
                 // Show the keyboard
                 val imm =
@@ -710,6 +777,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         mFolderAdapter.update(projects)
     }
 
+
+
     private fun refreshCurrentProject() {
         val project = getSelectedProject()
 
@@ -770,17 +839,24 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             getSelectedProject() != null -> {
                 if (Prefs.addMediaHint) {
                     when (mediaType) {
-                        AddMediaType.CAMERA -> Picker.takePhoto(this@MainActivity, mediaLaunchers.cameraLauncher)
-                        AddMediaType.GALLERY -> Picker.pickMedia(
-                            this,
-                            mediaLaunchers.imagePickerLauncher
-                        )
+                        AddMediaType.CAMERA -> {
+                            //permissionManager.checkCameraPermission {
+                                //Picker.takePhoto(this@MainActivity, mediaLaunchers.cameraLauncher)
+                                Picker.takePhotoModern(this@MainActivity, mediaLaunchers.modernCameraLauncher)
+                            //}
+                        }
+
+                        AddMediaType.GALLERY -> {
+                            permissionManager.checkMediaPermissions {
+                                Picker.pickMedia(mediaLaunchers.galleryLauncher)
+                            }
+                        }
 
                         AddMediaType.FILES -> Picker.pickFiles(mediaLaunchers.filePickerLauncher)
                     }
                 } else {
                     dialogManager.showInfoDialog(
-                        icon = R.drawable.perm_media_24px.asUiImage(),
+                        icon = R.drawable.ic_media_new.asUiImage(),
                         title = R.string.press_and_hold_options_media_screen_title.asUiText(),
                         message = R.string.press_and_hold_options_media_screen_message.asUiText(),
                         onDone = {
@@ -807,7 +883,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
         mSnackBar?.show()
         lifecycleScope.launch(Dispatchers.IO) {
-            val media = Picker.import(this@MainActivity, getSelectedProject(), uri)
+            //When we are sharing a file to be uploaded to Save app we don't generate proof.
+            val media = Picker.import(this@MainActivity, getSelectedProject(), uri, false)
             lifecycleScope.launch(Dispatchers.Main) {
                 mSnackBar?.dismiss()
                 intent = null
@@ -824,29 +901,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     }
 
     // ----- Permissions & Intent Handling -----
-    private fun checkNotificationPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            when {
-                ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED -> Timber.d("We have notifications permissions")
-                shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> showNotificationPermissionRationale()
-                else -> requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
-    }
-
-    private fun showNotificationPermissionRationale() {
-        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-            title = UiText.DynamicString("Notification Permission")
-            message = UiText.DynamicString("We need permission to post notifications")
-            positiveButton {
-                text = UiText.DynamicString("Accept")
-                action = {
-                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
-            }
-        }
-    }
-
     private fun handleIntent(intent: Intent) {
         if (intent.action == Intent.ACTION_VIEW) {
             intent.data?.takeIf { it.scheme == "save-veilid" }?.let { processUri(it) }
@@ -885,31 +939,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            REQUEST_FILE_MEDIA -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Picker.pickMedia(this, mediaLaunchers.imagePickerLauncher)
-                }
-            }
-            REQUEST_CAMERA_PERMISSION -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Picker.takePhoto(this, mediaLaunchers.cameraLauncher)
-                } else {
-                    Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-
     // ----- Adapter Listeners -----
     override fun onProjectSelected(project: Project) {
-        binding.root.closeDrawer(binding.drawerContent)
+        binding.drawerLayout.closeDrawer(binding.drawerContent)
         mCurrentPagerItem = mPagerAdapter.projects.indexOf(project)
     }
 
@@ -922,7 +954,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         refreshSpace()
         updateCurrentSpaceAtDrawer()
         collapseSpacesList()
-        binding.root.closeDrawer(binding.drawerContent)
+        binding.drawerLayout.closeDrawer(binding.drawerContent)
     }
 
     override fun onAddNewSpace() {
@@ -936,14 +968,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         val currentSpace = Space.current
         AppLogger.i("current space requested by adapter... = $currentSpace")
         return Space.current
-    }
-
-
-    fun updateAfterDelete(done: Boolean) {
-        mMenuDelete?.isVisible = !done
-        if (done) {
-            refreshCurrentFolderCount()
-        }
     }
 
     /**
@@ -986,6 +1010,13 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 })
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        // Clear pending callbacks/messages
+        window?.decorView?.handler?.removeCallbacksAndMessages(null)
     }
 
     companion object {

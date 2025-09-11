@@ -57,11 +57,7 @@ class GDriveFragment : BaseFragment() {
         mBinding.error.visibility = View.GONE
 
         mBinding.btBack.setOnClickListener {
-            if(isJetpackNavigation) {
                 findNavController().popBackStack()
-            } else {
-                setFragmentResult(RESP_CANCEL, bundleOf())
-            }
         }
 
         mBinding.btAuthenticate.setOnClickListener {
@@ -84,13 +80,10 @@ class GDriveFragment : BaseFragment() {
             )
         } else {
             // permission was already granted, we're already signed in, continue.
-            if (isJetpackNavigation) {
                 val message = getString(R.string.you_have_successfully_connected_to_gdrive)
                 val action = GDriveFragmentDirections.actionFragmentGdriveToFragmentSpaceSetupSuccess(message)
                 findNavController().navigate(action)
-            } else {
-                setFragmentResult(RESP_AUTHENTICATED, bundleOf())
-            }
+
         }
     }
 
@@ -161,5 +154,5 @@ class GDriveFragment : BaseFragment() {
         }
     }
 
-    override fun getToolbarTitle() = "Google Drive"
+    override fun getToolbarTitle() = getString(R.string.gdrive)
 }

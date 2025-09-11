@@ -120,10 +120,11 @@
             android:gravity="center"
             tools:ignore="ButtonStyle">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_submit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:backgroundTint="@color/button_color"
                 android:enabled="false"
                 android:paddingHorizontal="24dp"
                 android:paddingVertical="8dp"

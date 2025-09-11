@@ -22,8 +22,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -52,6 +54,8 @@ fun PasscodeSetupScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
+
     val hapticFeedback = LocalHapticFeedback.current
 
     LaunchedEffect(Unit) {
@@ -65,7 +69,7 @@ fun PasscodeSetupScreen(
                 PasscodeSetupUiEvent.PasscodeSet -> onPasscodeSet()
                 PasscodeSetupUiEvent.PasscodeDoNotMatch -> {
                     hapticManager.performHapticFeedback(AppHapticFeedbackType.Error)
-                    MessageManager.showMessage("Passcodes do not match. Try againss.")
+                    MessageManager.showMessage(context.getString(R.string.passcode_do_not_match))
                 }
 
                 PasscodeSetupUiEvent.PasscodeCancelled -> onCancel()
@@ -105,7 +109,7 @@ private fun PasscodeSetupScreenContent(
                 .padding(bottom = 24.dp)
         ) {
             Text(
-                text = if (state.isConfirming) "Confirm Passcode" else "Set Passcode",
+                text = if (state.isConfirming) stringResource(R.string.confirm_passcode) else stringResource(R.string.set_passcode),
                 style = TextStyle(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
@@ -116,7 +120,7 @@ private fun PasscodeSetupScreenContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Make sure you remember this pin. If you forget it, you will need to reset the app, and all data will be erased.",
+                text = stringResource(R.string.set_passcode_warning),
                 color = MaterialTheme.colorScheme.error,
                 fontSize = 11.sp,
                 textAlign = TextAlign.Center,

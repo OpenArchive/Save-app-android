@@ -142,7 +142,7 @@ fun FolderOption(iconRes: Int, text: String, onClick: () -> Unit) {
             )
 
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                painter = painterResource(R.drawable.ic_arrow_forward_ios),
                 contentDescription = null,
                 modifier = Modifier.size(24.dp)
             )

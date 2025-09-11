@@ -29,7 +29,7 @@ class FolderAdapter(private val context: Context, private val listener: FolderAd
             binding.rvTitle.text = project.description
 
             val icon = ContextCompat.getDrawable(context, R.drawable.ic_folder_new)
-
+            icon?.setTint(ContextCompat.getColor(context, R.color.colorOnBackground))
             binding.rvIcon.setImageDrawable(icon)
 
             itemView.setOnClickListener {

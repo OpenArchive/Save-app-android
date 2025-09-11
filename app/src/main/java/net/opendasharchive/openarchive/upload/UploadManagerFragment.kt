@@ -26,7 +26,7 @@ open class UploadManagerFragment : SKBottomSheetDialogFragment() {
             listOf(Media.Status.Uploading, Media.Status.Queued, Media.Status.Error)
     }
 
-    open var uploadMediaAdapter: UploadMediaAdapter? = null
+    private lateinit var uploadMediaAdapter: UploadMediaAdapter
 
     private lateinit var binding: FragmentUploadManagerBinding
 
@@ -57,26 +57,23 @@ open class UploadManagerFragment : SKBottomSheetDialogFragment() {
                 showDeleteConfirmationDialog(
                     mediaItem = mediaItem,
                     onDeleteItem = {
-                        uploadMediaAdapter?.deleteItem(position)
+                        uploadMediaAdapter.deleteItem(position)
                     }
                 )
             }
         )
 
-        uploadMediaAdapter?.doImageFade = false
+        uploadMediaAdapter.doImageFade = false
         binding.uploadList.adapter = uploadMediaAdapter
 
         mItemTouchHelper = ItemTouchHelper(object : SwipeToDeleteCallback(context) {
-            override fun isEditingAllowed(): Boolean {
-                return uploadMediaAdapter?.isEditMode == true
-            }
 
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
                 target: RecyclerView.ViewHolder
             ): Boolean {
-                uploadMediaAdapter?.onItemMove(
+                uploadMediaAdapter.onItemMove(
                     viewHolder.bindingAdapterPosition,
                     target.bindingAdapterPosition
                 )
@@ -85,7 +82,7 @@ open class UploadManagerFragment : SKBottomSheetDialogFragment() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                uploadMediaAdapter?.deleteItem(viewHolder.bindingAdapterPosition)
+                // Do nothing
             }
         })
 
@@ -111,24 +108,19 @@ open class UploadManagerFragment : SKBottomSheetDialogFragment() {
     }
 
     open fun updateItem(mediaId: Long) {
-        uploadMediaAdapter?.updateItem(mediaId, -1)
+        uploadMediaAdapter.updateItem(mediaId, -1)
     }
 
     open fun removeItem(mediaId: Long) {
-        uploadMediaAdapter?.removeItem(mediaId)
-    }
-
-    fun setEditMode(isEditMode: Boolean) {
-        uploadMediaAdapter?.isEditMode = isEditMode
-        uploadMediaAdapter?.notifyDataSetChanged()
+        uploadMediaAdapter.removeItem(mediaId)
     }
 
     open fun refresh() {
-        uploadMediaAdapter?.updateData(Media.getByStatus(STATUSES, Media.ORDER_PRIORITY))
+        uploadMediaAdapter.updateData(Media.getByStatus(STATUSES, Media.ORDER_PRIORITY))
     }
 
     open fun getUploadingCounter(): Int {
-        return uploadMediaAdapter?.media?.size ?: 0
+        return uploadMediaAdapter.media?.size ?: 0
     }
 
     private fun showDeleteConfirmationDialog(mediaItem: Media, onDeleteItem: () -> Unit) {
@@ -151,6 +143,8 @@ open class UploadManagerFragment : SKBottomSheetDialogFragment() {
                             mediaItem.id
                         )
                     }
+                    //TODO: refresh UploadMediaAdapter here for retry item
+                    uploadMediaAdapter.updateItem(mediaItem.id, progress = -1, isUploaded = false)
                     //UploadService.startUploadService(requireActivity())
 
                     // Notify parent that retry was selected
@@ -161,6 +155,7 @@ open class UploadManagerFragment : SKBottomSheetDialogFragment() {
                     parentFragmentManager.setFragmentResult("uploadRetry", resultBundle)
                 }
             }
+
             destructiveButton {
                 text = UiText.StringResource(R.string.btn_lbl_remove_media)
                 action = {

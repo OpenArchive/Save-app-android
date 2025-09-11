@@ -12,7 +12,6 @@ import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.core.dialog.DialogHost
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.util.Prefs
-import org.koin.androidx.compose.koinViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 abstract class BaseActivity : AppCompatActivity() {
@@ -50,13 +49,12 @@ abstract class BaseActivity : AppCompatActivity() {
 
                 setContent {
                     SaveAppTheme {
-                        // Get ViewModel scoped to this activity
-                        val dialogManager: DialogStateManager = koinViewModel()
-                        DialogHost(dialogStateManager = dialogManager)
+                        DialogHost(dialogStateManager = this@BaseActivity.dialogManager)
                     }
                 }
             }
         }
+
     }
 
     override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
@@ -108,5 +106,10 @@ abstract class BaseActivity : AppCompatActivity() {
         } else {
             supportActionBar?.setDisplayHomeAsUpEnabled(false)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        dialogManager.dismissDialog()
     }
 }

@@ -1,38 +1,18 @@
 package net.opendasharchive.openarchive.features.onboarding
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph
-import androidx.navigation.NavOptions
-import androidx.navigation.Navigator
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivitySpaceSetupBinding
-import net.opendasharchive.openarchive.extensions.onBackButtonPressed
 import net.opendasharchive.openarchive.features.core.BaseActivity
-import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
-import net.opendasharchive.openarchive.features.internetarchive.presentation.InternetArchiveFragment
-import net.opendasharchive.openarchive.features.main.MainActivity
-import net.opendasharchive.openarchive.features.settings.SpaceSetupFragment
-import net.opendasharchive.openarchive.features.settings.SpaceSetupSuccessFragment
-import net.opendasharchive.openarchive.services.gdrive.GDriveFragment
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdCreateGroupFragment
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdFileListFragment
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdFragment
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupListFragment
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdJoinGroupFragment
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdRepoListFragment
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdShareFragment
-import net.opendasharchive.openarchive.services.webdav.WebDavFragment
-import net.opendasharchive.openarchive.services.webdav.WebDavSetupLicenseFragment
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 
 enum class StartDestination {
     SPACE_TYPE,
@@ -58,6 +38,7 @@ class SpaceSetupActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
 
         binding = ActivitySpaceSetupBinding.inflate(layoutInflater)
+
         setContentView(binding.root)
 
         setupToolbar(
@@ -127,5 +108,24 @@ class SpaceSetupActivity : BaseActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         return findNavController(R.id.space_nav_host_fragment).navigateUp() || super.onSupportNavigateUp()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        // Clear any pending messages or callbacks in the main thread handler
+        window?.decorView?.handler?.removeCallbacksAndMessages(null)
+        binding.commonAppBar.commonToolbar.setNavigationOnClickListener(null)
+
+        // Remove navigation reference (if using Jetpack Navigation)
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.space_nav_host_fragment) as? NavHostFragment
+        navHostFragment?.let {
+            it.childFragmentManager.fragments.forEach { fragment ->
+                fragment.view?.let { view ->
+                    view.handler?.removeCallbacksAndMessages(null)
+                }
+            }
+        }
     }
 }
