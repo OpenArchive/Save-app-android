@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="App Icon">
+
+        <CheckBoxPreference
+            app:key="save_app"
+            app:title="Real App"
+            app:summary="Default app icon and name"
+            app:defaultValue="true"/>
+
+        <CheckBoxPreference
+            app:key="mask_app"
+            app:title="Calculator Mask"
+            app:summary="Show as calculator app"/>
+    </PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>

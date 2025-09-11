@@ -19,6 +19,7 @@
     <uses-permission
         android:name="android.permission.ACCESS_BACKGROUND_LOCATION"
         tools:node="remove" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RUN_USER_INITIATED_JOBS" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -28,7 +29,6 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
-
 
     <queries>
         <package android:name="org.torproject.android" />
@@ -81,11 +81,12 @@
             android:windowSoftInputMode="adjustPan"
             android:theme="@style/SaveAppTheme.NoActionBar"
             tools:ignore="DiscouragedApi">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
 
             <!-- filter for sending text or images; accepts SEND action and audio/photo/video data -->
             <intent-filter>
@@ -116,6 +117,43 @@
                 <data android:scheme="save+dweb" />
             </intent-filter>
         </activity>
+
+        <!-- Default alias: same icon & label as your normal launcher -->
+        <activity-alias
+            android:name="${applicationId}.alias.SaveAlias"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:targetActivity=".features.main.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Example alias #1 (e.g. “Calculator” icon) -->
+        <activity-alias
+            android:name="${applicationId}.alias.MaskAlias"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_calculator"
+            android:label="@string/app_name_masked"
+            android:roundIcon="@mipmap/ic_launcher_calculator"
+            android:targetActivity=".features.main.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity
+            android:name=".features.settings.app_masking.AppMaskingActivity"
+            android:exported="false"
+            android:label="@string/label_app_masking"
+            android:taskAffinity=""
+            android:theme="@style/SaveAppTheme.NoActionBar" />
 
         <activity
             android:name=".features.main.HomeActivity"

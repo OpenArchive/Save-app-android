@@ -20,6 +20,17 @@
             app:icon="@null"
             app:iconSpaceReserved="false" />
 
+        <Preference
+            android:defaultValue="false"
+            android:icon="@null"
+            android:iconSpaceReserved="false"
+            android:key="@string/pref_app_masking"
+            android:singleLineTitle="false"
+            android:title="App Masking"
+            app:icon="@null"
+            app:iconSpaceReserved="false"
+            app:summary="Hide save app" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
