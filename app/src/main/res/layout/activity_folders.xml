@@ -12,8 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:filterTouchesWhenObscured="true"
-        android:orientation="vertical"
-        tools:context=".features.settings.FoldersActivity">
+        android:orientation="vertical">
 
         <!-- Include the common AppBar -->
         <include

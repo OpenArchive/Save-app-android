@@ -57,11 +57,6 @@ class  FoldersActivity : BaseActivity(), FolderAdapterListener {
     }
 
     private fun setupButtons() {
-//        mBinding.fabAdd.apply {
-//            visibility = if (mArchived) View.INVISIBLE else View.VISIBLE
-//            setOnClickListener { addFolder() }
-//        }
-
         mBinding.btViewArchived.apply {
             toggle(!mArchived)
             setOnClickListener {

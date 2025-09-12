@@ -12,7 +12,6 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivitySpaceSetupBinding
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
-import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 
 enum class StartDestination {
     SPACE_TYPE,
@@ -25,7 +24,8 @@ enum class StartDestination {
 class SpaceSetupActivity : BaseActivity() {
 
     companion object {
-        const val FRAGMENT_TAG = "ssa_fragment"
+        const val EXTRA_FOLDER_ID = "folder_id"
+        const val EXTRA_FOLDER_NAME = "folder_name"
     }
 
     private lateinit var binding: ActivitySpaceSetupBinding
@@ -67,7 +67,7 @@ class SpaceSetupActivity : BaseActivity() {
             supportFragmentManager.findFragmentById(R.id.space_nav_host_fragment) as NavHostFragment
 
         navController = navHostFragment.navController
-        navGraph = navController.navInflater.inflate(R.navigation.space_setup_navigation)
+        navGraph = navController.navInflater.inflate(R.navigation.save_nav_graph)
 
         val startDestinationString =
             intent.getStringExtra("start_destination") ?: StartDestination.SPACE_TYPE.name
