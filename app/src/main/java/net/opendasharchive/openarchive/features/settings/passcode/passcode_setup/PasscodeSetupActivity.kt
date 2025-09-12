@@ -10,7 +10,7 @@ import androidx.compose.ui.res.stringResource
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.core.BaseActivity
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.ComposeAppBar
+import net.opendasharchive.openarchive.features.core.ComposeAppBar
 import net.opendasharchive.openarchive.features.settings.passcode.HapticManager
 import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
 import org.koin.android.ext.android.inject
