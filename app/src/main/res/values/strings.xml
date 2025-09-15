@@ -315,7 +315,7 @@
     <string name="intro_header_verify" translatable="false">Verify</string>
     <string name="intro_header_encrypt" translatable="false">Encrypt</string>
     <string name="intro_text_secure">Send your media securely to private servers and lock the app with a pin.</string>
-    <string name="intro_text_archive"><![CDATA[Keep your media verifiable, safe and organized for the long-term by uploading it to private or public servers like Nextcloud or the Internet Archive.<br>Communicate your intentions for future use by adding a <a href=\"%1$s\"><u>Creative Commons License</u></a>.]]></string>
+    <string name="intro_text_archive"><![CDATA[Upload media to Nextcloud or the Internet Archive to keep your media verifiable, safe, and organized for the long term.<br><br>Choose <a href=\"%1$s\"><u>Creative Commons Licensing</u></a>.]]></string>
 <!--    <string name="intro_text_archive">Keep your media verifiable, safe and organized for the long-term by uploading it to private or public servers like Nextcloud or the Internet Archive.&lt;br&gt;Communicate your intentions for future use by adding a &lt;a href="%1$s" style="text-decoration: underline;"&gt;Creative Commons License&lt;/a&gt;.</string>-->
 
     <string name="intro_link_archive" translatable="false">https://creativecommons.org</string>
