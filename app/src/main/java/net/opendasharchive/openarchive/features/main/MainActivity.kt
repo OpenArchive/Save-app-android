@@ -824,9 +824,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         if (Space.current?.tType == Space.Type.INTERNET_ARCHIVE) {
             // We cannot browse the Internet Archive. Directly forward to creating a project,
             // as it doesn't make sense to show a one-option menu.
-            intent.putExtra("start_destination", StartDestination.ADD_NEW_FOLDER.name)
+            intent.putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.ADD_NEW_FOLDER.name)
         } else {
-            intent.putExtra("start_destination", StartDestination.ADD_FOLDER.name)
+            intent.putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.ADD_FOLDER.name)
         }
         mNewFolderResultLauncher.launch(intent)
     }

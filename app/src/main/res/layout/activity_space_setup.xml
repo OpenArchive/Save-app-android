@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:defaultNavHost="true"
-            app:navGraph="@navigation/save_nav_graph" />
+            app:navGraph="@navigation/app_nav_graph" />
 
     </LinearLayout>
 </androidx.core.view.insets.ProtectionLayout>

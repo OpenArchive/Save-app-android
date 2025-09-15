@@ -109,27 +109,7 @@
         </activity>
 
         <activity
-            android:name=".upload.UploadManagerActivity"
-            android:exported="false"
-            android:label="@string/title_activity_upload_manager"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
             android:name=".services.gdrive.GDriveActivity"
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.settings.FoldersActivity"
-            android:exported="false"
-            android:label="@string/folders"
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.settings.GeneralSettingsActivity"
-            android:exported="false"
-            android:label="@string/general"
-            android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar" />
 
         <activity
@@ -178,11 +158,6 @@
         <activity
             android:name=".features.onboarding.Onboarding23InstructionsActivity"
             android:exported="false"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.settings.EditFolderActivity"
             android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar" />
 

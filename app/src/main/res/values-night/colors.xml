@@ -3,7 +3,7 @@
 
     <!-- night theme colors -->
 
-    <color name="colorBackground">#16161D</color>
+    <color name="colorBackground">#000000</color>
     <color name="colorOnBackground">@color/white</color>
 
     <color name="colorPrimary">#000A0A</color>
