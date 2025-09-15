@@ -67,7 +67,7 @@ class SpaceSetupActivity : BaseActivity() {
             supportFragmentManager.findFragmentById(R.id.space_nav_host_fragment) as NavHostFragment
 
         navController = navHostFragment.navController
-        navGraph = navController.navInflater.inflate(R.navigation.save_nav_graph)
+        navGraph = navController.navInflater.inflate(R.navigation.app_nav_graph)
 
         val startDestinationString =
             intent.getStringExtra("start_destination") ?: StartDestination.SPACE_TYPE.name

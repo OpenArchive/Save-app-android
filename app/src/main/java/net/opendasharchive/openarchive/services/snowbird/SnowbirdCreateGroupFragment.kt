@@ -60,7 +60,7 @@ class SnowbirdCreateGroupFragment : BaseFragment() {
         initializeViewModelObservers()
         setupTextWatchers()
         if (BuildConfig.DEBUG) {
-            setupFilesList()
+            //setupFilesList()
         }
     }
 
