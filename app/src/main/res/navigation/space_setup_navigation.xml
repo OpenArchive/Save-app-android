@@ -286,6 +286,8 @@
         <action
             android:id="@+id/action_fragment_storacha_account_details_to_fragment_storacha"
             app:destination="@id/fragment_storacha"
+            app:popUpTo="@id/fragment_storacha"
+            app:popUpToInclusive="true"
             app:enterAnim="@anim/slide_in_left"
             app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_left"
