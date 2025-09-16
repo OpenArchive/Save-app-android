@@ -142,6 +142,15 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 //        WindowCompat.setDecorFitsSystemWindows(window, false)
         installSplashScreen()
 
+        // Check onboarding status early and redirect if needed
+        if (!Prefs.didCompleteOnboarding) {
+            val intent = Intent(this, Onboarding23Activity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+            return
+        }
+
 
 
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -243,9 +252,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     override fun onResume() {
         super.onResume()
-        if (!Prefs.didCompleteOnboarding) {
-            startActivity(Intent(this, Onboarding23Activity::class.java))
-        }
         AppLogger.i("MainActivity onResume is called.......")
         refreshSpace()
         mCurrentPagerItem = mSelectedPageIndex
@@ -824,9 +830,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         if (Space.current?.tType == Space.Type.INTERNET_ARCHIVE) {
             // We cannot browse the Internet Archive. Directly forward to creating a project,
             // as it doesn't make sense to show a one-option menu.
-            intent.putExtra("start_destination", StartDestination.ADD_NEW_FOLDER.name)
+            intent.putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.ADD_NEW_FOLDER.name)
         } else {
-            intent.putExtra("start_destination", StartDestination.ADD_FOLDER.name)
+            intent.putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.ADD_FOLDER.name)
         }
         mNewFolderResultLauncher.launch(intent)
     }

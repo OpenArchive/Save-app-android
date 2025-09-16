@@ -14,6 +14,10 @@
         <item name="colorOnSurface">@color/colorOnSurface</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorOutline">@color/colorOutline</item>
+
+        <item name="colorOnSurfaceVariant">@color/colorOnSurfaceVariant</item>
+
         <item name="android:colorBackground">@color/colorBackground</item>
 
 
@@ -291,6 +295,7 @@
 
     <style name="OAMaterialButtonStyle" parent="Widget.Material3.Button">
         <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/montserrat_semi_bold</item>
         <item name="android:background">@drawable/button</item>
         <item name="android:textAllCaps">false</item>
         <item name="shapeAppearance">@style/ShapeAppearance.App.Button</item>
@@ -345,8 +350,8 @@
         <item name="android:textAllCaps">false</item>
     </style>
 
-    <style name="OATextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-        <item name="boxStrokeColor">@color/c23_teal</item>
+    <style name="OATextInputLayoutStyle" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/oa_text_input_stroke</item>
         <item name="boxBackgroundColor">@color/colorButtonOnBackground</item>
         <item name="boxCornerRadiusBottomEnd">@dimen/cornerRadius</item>
         <item name="boxCornerRadiusTopEnd">@dimen/cornerRadius</item>
@@ -360,7 +365,7 @@
     </style>
 
     <style name="OATextInputEditTextStyle" parent="ThemeOverlay.Material3.TextInputEditText.OutlinedBox">
-        <item name="boxStrokeColor">@color/c23_teal</item>
+        <item name="boxStrokeColor">@color/oa_text_input_stroke</item>
         <item name="boxBackgroundColor">@color/colorButtonOnBackground</item>
         <item name="boxCornerRadiusBottomEnd">@dimen/cornerRadius</item>
         <item name="boxCornerRadiusTopEnd">@dimen/cornerRadius</item>

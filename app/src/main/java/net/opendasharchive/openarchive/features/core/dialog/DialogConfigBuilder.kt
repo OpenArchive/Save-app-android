@@ -145,7 +145,7 @@ class DialogBuilder {
         val finalIconColor = iconColor ?: when (type) {
             DialogType.Error -> MaterialTheme.colorScheme.error
             DialogType.Warning -> MaterialTheme.colorScheme.tertiary
-            else -> MaterialTheme.colorScheme.primary
+            else -> MaterialTheme.colorScheme.onBackground
         }
         val finalBackgroundColor = backgroundColor ?: MaterialTheme.colorScheme.surfaceVariant
         val finalCornerRadius = cornerRadius ?: 12.dp
@@ -194,7 +194,7 @@ class DialogBuilder {
         // Convert resource colors (ints) to Compose Colors.
         val finalIconColor = iconColor ?: when (type) {
             DialogType.Error -> resourceProvider.getColor(R.color.colorError)
-            else -> resourceProvider.getColor(R.color.colorPrimary)
+            else -> resourceProvider.getColor(R.color.colorTertiary)
         }
         val finalBackgroundColor = backgroundColor ?: resourceProvider.getColor(R.color.colorSurface)
         val finalCornerRadius = cornerRadius ?: 12.dp

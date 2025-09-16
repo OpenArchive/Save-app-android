@@ -72,6 +72,7 @@ import androidx.navigation.findNavController
 import kotlinx.coroutines.delay
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
+import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeColors
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
@@ -252,9 +253,10 @@ private fun InternetArchiveLoginContent(
         ) {
             Text(
                 text = stringResource(R.string.prompt_no_account),
-                color = ThemeColors.material.onBackground,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp
+                style = MaterialTheme.typography.bodyLarge.copy( // reuse your themed style
+                    color = ThemeColors.material.onBackground,
+                    fontWeight = FontWeight.SemiBold
+                )
             )
             TextButton(
                 modifier = Modifier.heightIn(ThemeDimensions.touchable),
@@ -265,9 +267,9 @@ private fun InternetArchiveLoginContent(
             ) {
                 Text(
                     text = stringResource(R.string.label_create_login),
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.SemiBold
+                    )
                 )
             }
         }
@@ -304,7 +306,8 @@ private fun InternetArchiveLoginContent(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.tertiary,
                     disabledContainerColor = colorResource(R.color.grey_50),
-                    disabledContentColor = colorResource(R.color.extra_light_grey)//MaterialTheme.colorScheme.onBackground
+                    disabledContentColor = colorResource(R.color.black),
+                    contentColor = colorResource(R.color.black)
                 ),
                 onClick = {
                     if (NetworkUtils.isNetworkAvailable(context)) {
@@ -318,7 +321,7 @@ private fun InternetArchiveLoginContent(
                 if (state.isBusy) {
                     CircularProgressIndicator(color = ThemeColors.material.primary)
                 } else {
-                    Text(stringResource(R.string.next))
+                    Text(stringResource(R.string.next), fontWeight = FontWeight.SemiBold, fontFamily = MontserratFontFamily)
                 }
             }
         }
@@ -386,6 +389,7 @@ fun CustomTextField(
             focusedContainerColor = MaterialTheme.colorScheme.background,
             unfocusedContainerColor = MaterialTheme.colorScheme.background,
             focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
             cursorColor = MaterialTheme.colorScheme.tertiary
             //focusedIndicatorColor = Color.Transparent,
             //unfocusedIndicatorColor = Color.Transparent,

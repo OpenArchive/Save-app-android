@@ -33,6 +33,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/skip"
                 android:textAppearance="@style/TextAppearance.SaveApp.16pt"
+                app:fontFamily="@font/montserrat_bold"
                 android:textColor="@color/colorOnBackground" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -43,7 +44,7 @@
                 android:layout_margin="24dp"
                 android:contentDescription="@string/next"
                 app:backgroundTint="@color/colorPrimaryBright"
-                app:srcCompat="@drawable/ic_arrow_right"
+                app:srcCompat="@drawable/ic_arrow_forward_ios"
                 app:tint="@color/colorOnBackground" />
         </FrameLayout>
 
