@@ -25,9 +25,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:hint="@string/email_address"
-                android:inputType="text"
+                android:inputType="textEmailAddress"
                 android:maxLines="1"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:imeOptions="actionGo"
+                android:imeActionLabel="@string/label_login" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

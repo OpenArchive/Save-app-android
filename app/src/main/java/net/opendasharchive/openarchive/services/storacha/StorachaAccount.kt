@@ -5,5 +5,7 @@ package net.opendasharchive.openarchive.services.storacha
  */
 data class StorachaAccount(
     val email: String,
-    val sessionId: String
+    val sessionId: String,
+    val isVerified: Boolean = false,
+    val did: String? = null
 )

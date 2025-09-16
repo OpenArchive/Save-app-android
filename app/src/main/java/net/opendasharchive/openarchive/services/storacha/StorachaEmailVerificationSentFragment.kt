@@ -20,7 +20,7 @@ class StorachaEmailVerificationSentFragment : BaseFragment() {
         val accountManager = StorachaAccountManager(requireContext())
         val currentAccount = accountManager.getCurrentAccount()
         val sessionId = currentAccount?.sessionId ?: ""
-        parametersOf(sessionId)
+        parametersOf(requireActivity().application, sessionId)
     }
 
     override fun onCreateView(
@@ -46,6 +46,16 @@ class StorachaEmailVerificationSentFragment : BaseFragment() {
                 findNavController().navigate(action)
             },
         )
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.resumePolling()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.pausePolling()
     }
 
     override fun getToolbarTitle() = getString(R.string.email_verification)

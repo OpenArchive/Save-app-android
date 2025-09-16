@@ -1,14 +1,35 @@
 package net.opendasharchive.openarchive.services.storacha.util
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.core.content.edit
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
 
 class DidManager(
     private val context: Context,
 ) {
-    private val prefs = context.getSharedPreferences("storacha_prefs", Context.MODE_PRIVATE)
+    private val masterKey: MasterKey by lazy {
+        MasterKey
+            .Builder(context)
+            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+            .build()
+    }
+
+    private val encryptedPrefs: SharedPreferences by lazy {
+        EncryptedSharedPreferences.create(
+            context,
+            "storacha_did_prefs",
+            masterKey,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+        )
+    }
+
+    // Legacy prefs for migration
+    private val legacyPrefs = context.getSharedPreferences("storacha_prefs", Context.MODE_PRIVATE)
     private val key = "device_did"
     private val keyStorage = KeyStorage(context)
 
@@ -20,11 +41,11 @@ class DidManager(
         }
         
         // Check if we have one in old prefs (for migration)
-        val legacyDid = prefs.getString(key, null)
+        val legacyDid = legacyPrefs.getString(key, null)
         if (legacyDid != null) {
             // For legacy DIDs without stored keys, generate new ones
             // This will replace the old DID with a new one that has proper keys
-            prefs.edit { remove(key) }
+            legacyPrefs.edit { remove(key) }
         }
         
         // Generate new DID with keys
@@ -43,7 +64,7 @@ class DidManager(
     
     fun regenerateDid(): String {
         keyStorage.clearKeys()
-        prefs.edit { remove(key) }
+        legacyPrefs.edit { remove(key) }
         return generateNewDid()
     }
     

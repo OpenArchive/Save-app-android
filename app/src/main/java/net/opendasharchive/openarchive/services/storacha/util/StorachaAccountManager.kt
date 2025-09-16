@@ -40,18 +40,18 @@ class StorachaAccountManager(private val context: Context) {
     /**
      * Add or update an account after successful login
      */
-    fun addAccount(email: String, sessionId: String) {
+    fun addAccount(email: String, sessionId: String, isVerified: Boolean = false, did: String? = null) {
         val accounts = getLoggedInAccounts().toMutableList()
         val existingIndex = accounts.indexOfFirst { it.email == email }
-        
-        val account = StorachaAccount(email, sessionId)
-        
+
+        val account = StorachaAccount(email, sessionId, isVerified, did)
+
         if (existingIndex >= 0) {
             accounts[existingIndex] = account
         } else {
             accounts.add(account)
         }
-        
+
         saveAccounts(accounts)
         setCurrentAccount(email)
     }
@@ -116,6 +116,27 @@ class StorachaAccountManager(private val context: Context) {
      */
     fun clearCurrentAccount() {
         encryptedPrefs.edit().remove(CURRENT_ACCOUNT_KEY).apply()
+    }
+
+    /**
+     * Update account verification status
+     */
+    fun updateAccountVerification(email: String, isVerified: Boolean) {
+        val accounts = getLoggedInAccounts().toMutableList()
+        val existingIndex = accounts.indexOfFirst { it.email == email }
+
+        if (existingIndex >= 0) {
+            val existingAccount = accounts[existingIndex]
+            accounts[existingIndex] = existingAccount.copy(isVerified = isVerified)
+            saveAccounts(accounts)
+        }
+    }
+
+    /**
+     * Get current account's verification status
+     */
+    fun isCurrentAccountVerified(): Boolean {
+        return getCurrentAccount()?.isVerified == true
     }
 
     /**

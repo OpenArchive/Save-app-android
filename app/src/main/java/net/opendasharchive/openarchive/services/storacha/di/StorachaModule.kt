@@ -62,8 +62,9 @@ val storachaModule =
         viewModelOf(::StorachaViewDIDsViewModel)
         viewModelOf(::StorachaDIDAccessViewModel)
         viewModelOf(::StorachaAccountDetailsViewModel)
-        viewModel { (sessionId: String) ->
+        viewModel { (application: android.app.Application, sessionId: String) ->
             StorachaEmailVerificationSentViewModel(
+                application,
                 get(),
                 sessionId,
             )
