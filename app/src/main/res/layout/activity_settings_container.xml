@@ -64,6 +64,7 @@
                 android:id="@+id/info_card_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:lineHeight="14sp"
                 android:text="@string/proof_mode_warning_text"
                 android:textAlignment="textStart"
                 android:textColor="@color/colorOnBackground"

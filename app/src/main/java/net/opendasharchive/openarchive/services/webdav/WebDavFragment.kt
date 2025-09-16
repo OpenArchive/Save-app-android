@@ -262,17 +262,14 @@ class WebDavFragment : BaseFragment() {
     }
 
     private fun saveChanges() {
-        val enteredName = binding.name.text?.toString()?.trim()
-        if (!enteredName.isNullOrEmpty()) {
-            mSpace.name = enteredName
-            mSpace.save()
-            originalName = enteredName
-            isNameChanged = false
-            requireActivity().invalidateOptionsMenu() //Refresh menu to hide confirm btn again
-            showSuccessDialog()
-        } else {
-            Snackbar.make(binding.root, getString(R.string.empty_name_warning), Snackbar.LENGTH_LONG).show()
-        }
+        val enteredName = binding.name.text?.toString()?.trim().orEmpty()
+
+        mSpace.name = enteredName
+        mSpace.save()
+        originalName = enteredName
+        isNameChanged = false
+        requireActivity().invalidateOptionsMenu() //Refresh menu to hide confirm btn again
+        showSuccessDialog()
     }
 
     private fun showSuccessDialog() {
@@ -537,6 +534,10 @@ class WebDavFragment : BaseFragment() {
         "Private Server"
     } else {
         val space = Space.get(args.spaceId)
-        space?.name ?: "Private Server"
+        when {
+            space?.name?.isNotBlank() == true -> space.name
+            space?.friendlyName?.isNotBlank() == true -> space.friendlyName
+            else -> "Private Server"
+        }
     }
 }

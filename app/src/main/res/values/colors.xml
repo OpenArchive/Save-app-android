@@ -19,6 +19,7 @@
     <color name="light_grey">#9e9e9e</color>
     <color name="grey">#757575</color>
     <color name="grey_50">#777979</color>
+    <color name="c23_grey_30">#AEAEAE</color>
     <color name="dark_grey">#424242</color>
     <color name="text_grey">#434343</color>
     <color name="light_black">#212121</color>
@@ -101,12 +102,14 @@
 
     <color name="colorSurface">#F5F1E7</color>
     <color name="colorOnSurface">@color/c23_dark_grey</color>
-    <color name="colorOnSurfaceVariant">@color/text_grey</color>
+    <color name="colorOnSurfaceVariant">@color/black</color>
 
     <color name="colorTertiary">@color/c23_teal</color>
     <color name="colorText">@color/c23_dark_grey</color>
 
     <color name="colorError">@color/red</color>
+
+    <color name="colorOutline">@color/black</color>
 
     <!-- custom day colors -->
     <color name="inputBackground">#FFFBF0</color>

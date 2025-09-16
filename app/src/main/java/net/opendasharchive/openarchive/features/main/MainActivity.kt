@@ -142,6 +142,15 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 //        WindowCompat.setDecorFitsSystemWindows(window, false)
         installSplashScreen()
 
+        // Check onboarding status early and redirect if needed
+        if (!Prefs.didCompleteOnboarding) {
+            val intent = Intent(this, Onboarding23Activity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+            return
+        }
+
 
 
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -243,9 +252,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     override fun onResume() {
         super.onResume()
-        if (!Prefs.didCompleteOnboarding) {
-            startActivity(Intent(this, Onboarding23Activity::class.java))
-        }
         AppLogger.i("MainActivity onResume is called.......")
         refreshSpace()
         mCurrentPagerItem = mSelectedPageIndex

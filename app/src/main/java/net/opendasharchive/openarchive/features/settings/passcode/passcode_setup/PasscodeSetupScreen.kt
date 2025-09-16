@@ -1,32 +1,25 @@
 package net.opendasharchive.openarchive.features.settings.passcode.passcode_setup
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -110,22 +103,22 @@ private fun PasscodeSetupScreenContent(
         ) {
             Text(
                 text = if (state.isConfirming) stringResource(R.string.confirm_passcode) else stringResource(R.string.set_passcode),
-                style = TextStyle(
-                    fontSize = 18.sp,
+                style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
+                    fontSize = 18.sp
+                ),
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 text = stringResource(R.string.set_passcode_warning),
-                color = MaterialTheme.colorScheme.error,
-                fontSize = 15.sp,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Medium,
-                style = MaterialTheme.typography.labelMedium
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = colorResource(R.color.red_bg),
+                    fontSize = 15.sp,               // overrides labelMedium’s size
+                    fontWeight = FontWeight.Medium, // ensures consistent weight
+                    textAlign = TextAlign.Center
+                )
             )
         }
 
