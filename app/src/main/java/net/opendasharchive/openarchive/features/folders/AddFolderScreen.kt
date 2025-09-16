@@ -117,7 +117,7 @@ fun FolderOption(iconRes: Int, text: String, onClick: () -> Unit) {
             containerColor = MaterialTheme.colorScheme.background
         ),
         shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.onBackground)
+        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant),
     ) {
         Row(
             modifier = Modifier

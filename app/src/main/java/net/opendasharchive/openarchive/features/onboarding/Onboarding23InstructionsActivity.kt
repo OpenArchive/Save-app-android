@@ -148,20 +148,13 @@ class Onboarding23InstructionsActivity : BaseActivity() {
                 super.onPageSelected(position)
                 if (isLastPage()) {
                     mBinding.skipButton.visibility = View.INVISIBLE
-                    mBinding.fab.setImageDrawable(
-                        ContextCompat.getDrawable(
-                            mBinding.fab.context, R.drawable.ic_done,
-                        )
-                    )
+                    val icon = ContextCompat.getDrawable(mBinding.fab.context, R.drawable.ic_done)
+                    mBinding.fab.setImageDrawable(icon)
                 } else {
                     mBinding.skipButton.visibility = View.VISIBLE
-                    val icon = ContextCompat.getDrawable(
-                        mBinding.fab.context, R.drawable.ic_arrow_right,
-                    )
+                    val icon = ContextCompat.getDrawable(mBinding.fab.context, R.drawable.ic_arrow_forward_ios,)
                     icon?.isAutoMirrored = true
-                    mBinding.fab.setImageDrawable(
-                        icon
-                    )
+                    mBinding.fab.setImageDrawable(icon)
                 }
 
             }

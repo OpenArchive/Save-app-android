@@ -51,7 +51,6 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.core.dialog.showInfoDialog
-import net.opendasharchive.openarchive.features.folders.AddFolderActivity
 import net.opendasharchive.openarchive.features.main.adapters.FolderDrawerAdapter
 import net.opendasharchive.openarchive.features.main.adapters.FolderDrawerAdapterListener
 import net.opendasharchive.openarchive.features.main.adapters.SpaceDrawerAdapter
@@ -128,7 +127,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     private val mNewFolderResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
-                refreshProjects(it.data?.getLongExtra(AddFolderActivity.EXTRA_FOLDER_ID, -1))
+                refreshProjects(it.data?.getLongExtra(SpaceSetupActivity.EXTRA_FOLDER_ID, -1))
             }
         }
 
@@ -142,6 +141,15 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         super.onCreate(savedInstanceState)
 //        WindowCompat.setDecorFitsSystemWindows(window, false)
         installSplashScreen()
+
+        // Check onboarding status early and redirect if needed
+        if (!Prefs.didCompleteOnboarding) {
+            val intent = Intent(this, Onboarding23Activity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+            return
+        }
 
 
 
@@ -244,9 +252,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     override fun onResume() {
         super.onResume()
-        if (!Prefs.didCompleteOnboarding) {
-            startActivity(Intent(this, Onboarding23Activity::class.java))
-        }
         AppLogger.i("MainActivity onResume is called.......")
         refreshSpace()
         mCurrentPagerItem = mSelectedPageIndex
@@ -825,12 +830,11 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         if (Space.current?.tType == Space.Type.INTERNET_ARCHIVE) {
             // We cannot browse the Internet Archive. Directly forward to creating a project,
             // as it doesn't make sense to show a one-option menu.
-            intent.putExtra("start_destination", StartDestination.ADD_NEW_FOLDER.name)
+            intent.putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.ADD_NEW_FOLDER.name)
         } else {
-            intent.putExtra("start_destination", StartDestination.ADD_FOLDER.name)
+            intent.putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.ADD_FOLDER.name)
         }
         mNewFolderResultLauncher.launch(intent)
-//        mNewFolderResultLauncher.launch(Intent(this, AddFolderActivity::class.java))
     }
 
     private fun addClicked(mediaType: AddMediaType) {

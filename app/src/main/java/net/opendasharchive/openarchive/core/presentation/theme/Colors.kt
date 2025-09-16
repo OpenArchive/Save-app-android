@@ -74,9 +74,9 @@ internal fun lightColorScheme() = ColorTheme(
         surface = Color.White,
         onSurface = colorResource(R.color.colorOnSurface),
         surfaceVariant = c23_grey,
-        onSurfaceVariant = c23_darker_medium_grey,
+        onSurfaceVariant = colorResource(R.color.colorOnSurfaceVariant),
 
-        outline = Color.Black,
+        outline = colorResource(R.color.colorOutline),
         inverseOnSurface = Color.White,
         inverseSurface = c23_dark_grey,
         inversePrimary = Color.Black,
@@ -120,9 +120,9 @@ internal fun darkColorScheme() = ColorTheme(
         surface = c23_darker_grey,
         onSurface = Color.White,
         surfaceVariant = c23_dark_grey,
-        onSurfaceVariant = c23_light_grey,
+        onSurfaceVariant = colorResource(R.color.colorOnSurfaceVariant),
 
-        outline = Color.White,
+        outline = colorResource(R.color.colorOutline),
         inverseSurface = c23_light_grey,
         inverseOnSurface = Color.Black,
         inversePrimary = Color.White,

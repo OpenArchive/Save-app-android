@@ -185,8 +185,8 @@
                     android:id="@+id/error_hint"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:text="@string/error_incorrect_username_or_password"
-                    android:textColor="@color/colorError"/>
+                    android:textColor="@color/colorError"
+                    tools:text="@string/error_incorrect_username_or_password" />
 
             </LinearLayout>
 
@@ -231,7 +231,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/remove_from_app"
-                    android:textColor="@color/colorDanger"
+                    android:textColor="@color/red_bg"
                     android:textFontWeight="600"
                     android:textSize="18sp" />
 

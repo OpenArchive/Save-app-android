@@ -21,10 +21,10 @@ import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.dialog.showSuccessDialog
+import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.util.extensions.toggle
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.Date
-
 
 class BrowseFoldersFragment : BaseFragment(), MenuProvider {
 
@@ -39,12 +39,6 @@ class BrowseFoldersFragment : BaseFragment(), MenuProvider {
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentBrowseFoldersBinding.inflate(layoutInflater)
-
-//        binding.rvFolderList.applyEdgeToEdgeInsets(
-//            typeMask = WindowInsetsCompat.Type.navigationBars()
-//        ) { insets ->
-//            bottomMargin = insets.bottom
-//        }
 
         binding.rvFolderList.layoutManager = LinearLayoutManager(requireContext())
         binding.rvFolderList.clipToPadding = false
@@ -120,7 +114,7 @@ class BrowseFoldersFragment : BaseFragment(), MenuProvider {
 
     private fun navigateBackWithResult(projectId: Long) {
         requireActivity().setResult(RESULT_OK, Intent().apply {
-            putExtra(AddFolderActivity.EXTRA_FOLDER_ID, projectId)
+            putExtra(SpaceSetupActivity.EXTRA_FOLDER_ID, projectId)
         })
         requireActivity().finish()
     }

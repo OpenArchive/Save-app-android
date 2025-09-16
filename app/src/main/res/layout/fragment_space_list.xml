@@ -6,7 +6,7 @@
     android:filterTouchesWhenObscured="true"
     android:orientation="vertical"
     tools:background="@color/colorBackground"
-    tools:context=".features.settings.FoldersActivity">
+    tools:context=".features.spaces.SpaceListFragment">
 
     <androidx.compose.ui.platform.ComposeView
         android:id="@+id/compose_view_space_list"
