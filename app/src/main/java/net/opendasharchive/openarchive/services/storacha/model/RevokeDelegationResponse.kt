@@ -4,5 +4,5 @@ data class RevokeDelegationResponse(
     val message: String,
     val userDid: String,
     val spaceDid: String,
-    val revokedCount: Int
+    val revokedCount: Int,
 )

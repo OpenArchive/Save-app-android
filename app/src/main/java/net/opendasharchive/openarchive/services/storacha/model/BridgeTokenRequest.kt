@@ -4,5 +4,5 @@ data class BridgeTokenRequest(
     val resource: String,
     val can: List<String>,
     val expiration: Long,
-    val json: Boolean = false
+    val json: Boolean = false,
 )

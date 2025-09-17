@@ -3,52 +3,49 @@ package net.opendasharchive.openarchive.services.storacha.util
 import net.opendasharchive.openarchive.services.storacha.model.IpldBlock
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileInputStream
 import java.security.MessageDigest
 
 data class CarFileResult(
     val carData: ByteArray,
     val carCid: String,
-    val rootCid: String
+    val rootCid: String,
 )
 
 object CarFileCreator {
     private const val CHUNK_SIZE = 1048576 // 1MB chunks to match ipfs-car default
 
     fun createCarFile(file: File): CarFileResult {
-        val mimeType = detectMimeType(file)
-        
         // ipfs-car uses embedded approach for files < 1MB, chunked approach for larger files
         return if (file.length() < CHUNK_SIZE) {
-            createEmbeddedCarWithCids(file, mimeType)
+            createEmbeddedCarWithCids(file)
         } else {
-            createChunkedCarWithCids(file, mimeType)
+            createChunkedCarWithCids(file)
         }
     }
 
     /**
      * Creates CAR file using embedded approach for small files (< 1MB) - like ipfs-car does
      */
-    private fun createEmbeddedCarWithCids(file: File, mimeType: String): CarFileResult {
+    private fun createEmbeddedCarWithCids(file: File): CarFileResult {
         val blocks = mutableListOf<IpldBlock>()
         val fileData = file.readBytes()
-        
+
         // Create raw block for the file data
         val rawBlock = createRawBlock(fileData)
         blocks.add(rawBlock)
-        
+
         // Create single DAG-PB block that directly links to the raw block with filename
         // This is the "embedded" approach - no intermediate block
         val rootDagPbBlock = createEmbeddedDagPbBlock(rawBlock.cid, file.name, file.length())
         blocks.add(rootDagPbBlock)
-        
+
         // Create CAR with both blocks, header points to root DAG-PB
         val carData = createCar(rootDagPbBlock.cid, blocks)
-        
+
         // Create CIDs in proper format
-        val rootCid = cidBytesToString(rootDagPbBlock.cid, "b")
+        val rootCid = cidBytesToString(rootDagPbBlock.cid)
         val carCid = createCarCid(carData)
-        
+
         return CarFileResult(carData, carCid, rootCid)
     }
 
@@ -62,22 +59,24 @@ object CarFileCreator {
     ): IpldBlock {
         // Create minimal UnixFS root node (directory-like)
         val unixfsData = byteArrayOf(0x08, 0x01) // type = directory (1)
-        
+
         // Create link to raw block with filename
         val linkData = createPbLink(rawCid, fileName, fileSize)
 
         // Create DAG-PB protobuf structure: Link first, then Data (field 2, then field 1 - ipfs-car order)
-        val pbData = ByteArrayOutputStream().apply {
-            // Field 2: Link to raw block first
-            write(0x12) // field 2, wire type 2
-            write(encodeVarInt(linkData.size))
-            write(linkData)
-            
-            // Field 1: Data (UnixFS metadata)
-            write(0x0A) // field 1, wire type 2
-            write(encodeVarInt(unixfsData.size))
-            write(unixfsData)
-        }.toByteArray()
+        val pbData =
+            ByteArrayOutputStream()
+                .apply {
+                    // Field 2: Link to raw block first
+                    write(0x12) // field 2, wire type 2
+                    write(encodeVarInt(linkData.size))
+                    write(linkData)
+
+                    // Field 1: Data (UnixFS metadata)
+                    write(0x0A) // field 1, wire type 2
+                    write(encodeVarInt(unixfsData.size))
+                    write(unixfsData)
+                }.toByteArray()
 
         // Create CID for the DAG-PB block
         val digest = MessageDigest.getInstance("SHA-256")
@@ -88,42 +87,43 @@ object CarFileCreator {
         return IpldBlock(cidBytes, pbData)
     }
 
-    private fun createChunkedCarWithCids(file: File, mimeType: String): CarFileResult {
+    private fun createChunkedCarWithCids(file: File): CarFileResult {
         val blocks = mutableListOf<IpldBlock>()
         val chunkCids = mutableListOf<ByteArray>()
         val fileData = file.readBytes()
-        
+
         // Use 256KB chunks like ipfs-car default
         var offset = 0
         while (offset < fileData.size) {
             val chunkSize = minOf(CHUNK_SIZE, fileData.size - offset)
             val chunkData = fileData.sliceArray(offset until offset + chunkSize)
-            
+
             val rawBlock = createRawBlock(chunkData)
             blocks.add(rawBlock)
             chunkCids.add(rawBlock.cid)
-            
+
             offset += chunkSize
         }
-        
+
         // Create intermediate DAG-PB block that links to raw chunks (like ipfs-car)
-        val intermediateDagPbBlock = createIntermediateDagPbBlock(chunkCids, file.length(), mimeType)
+        val intermediateDagPbBlock =
+            createIntermediateDagPbBlock(chunkCids, file.length())
         blocks.add(intermediateDagPbBlock)
-        
+
         // Create root DAG-PB block that links to intermediate block with filename
-        val rootDagPbBlock = createRootDagPbBlock(intermediateDagPbBlock.cid, file.name, file.length())
+        val rootDagPbBlock =
+            createRootDagPbBlock(intermediateDagPbBlock.cid, file.name, file.length())
         blocks.add(rootDagPbBlock)
-        
+
         // Create CAR with all blocks, header points to root DAG-PB
         val carData = createCar(rootDagPbBlock.cid, blocks)
-        
+
         // Create CIDs in proper format
-        val rootCid = cidBytesToString(rootDagPbBlock.cid, "b")
+        val rootCid = cidBytesToString(rootDagPbBlock.cid)
         val carCid = createCarCid(carData)
-        
+
         return CarFileResult(carData, carCid, rootCid)
     }
-
 
 //    private fun createLargeFileCarWithCids(file: File, mimeType: String): CarFileResult {
 //        val blocks = mutableListOf<IpldBlock>()
@@ -177,109 +177,39 @@ object CarFileCreator {
     }
 
     /**
-     * Creates a DAG-PB block (codec 0x70) with embedded file data (like ipfs-car for small files)
-     */
-    private fun createDagPbBlockWithData(
-        fileData: ByteArray,
-        fileName: String,
-        mimeType: String = "application/octet-stream",
-    ): IpldBlock {
-        // Create UnixFS data with embedded file content
-        val unixfsData = ByteArrayOutputStream().apply {
-            // UnixFS header: type=file(2), size, then data
-            write(0x08) // field 1: type
-            write(0x02) // file type
-            write(0x12) // field 2: data (length-delimited)
-            write(encodeVarInt(fileData.size))
-            write(fileData)
-        }.toByteArray()
-        
-        // Create DAG-PB protobuf structure with Data field only (matches ipfs-car)
-        val pbData = ByteArrayOutputStream().apply {
-            // Field 1: Data (UnixFS) - ipfs-car uses field 1 for Data when no Links
-            write(0x0A) // field 1, wire type 2 (length-delimited)
-            write(encodeVarInt(unixfsData.size))
-            write(unixfsData)
-        }.toByteArray()
-
-        // Create CID for the DAG-PB block
-        val digest = MessageDigest.getInstance("SHA-256")
-        val hash = digest.digest(pbData)
-        val multiHash = byteArrayOf(0x12, 0x20) + hash
-        val cidBytes = byteArrayOf(0x01.toByte(), 0x70.toByte()) + multiHash
-
-        return IpldBlock(cidBytes, pbData)
-    }
-    
-    /**
-     * Creates a DAG-PB block (codec 0x70) that contains UnixFS data linking to raw blocks (for large files)
-     */
-    private fun createDagPbBlock(
-        rawBlockCid: ByteArray,
-        fileName: String,
-        fileSize: Long,
-        mimeType: String = "application/octet-stream",
-    ): IpldBlock {
-        // Create minimal UnixFS file node (compatible with ipfs-car)
-        val unixfsData = byteArrayOf(0x08, 0x02, 0x10) + encodeVarInt(fileSize.toInt())
-        
-        // Create link to raw block with empty name (standard for files)
-        val linkData = createPbLink(rawBlockCid, "", fileSize)
-        
-        // Create DAG-PB protobuf structure: Links first, then Data
-        val pbData = ByteArrayOutputStream().apply {
-            // Field 1: Links
-            write(0x0A) // field 1, wire type 2
-            write(encodeVarInt(linkData.size))
-            write(linkData)
-
-            // Field 2: Data (UnixFS)
-            write(0x12) // field 2, wire type 2  
-            write(encodeVarInt(unixfsData.size))
-            write(unixfsData)
-        }.toByteArray()
-
-        // Create CID for the DAG-PB block
-        val digest = MessageDigest.getInstance("SHA-256")
-        val hash = digest.digest(pbData)
-        val multiHash = byteArrayOf(0x12, 0x20) + hash
-        val cidBytes = byteArrayOf(0x01.toByte(), 0x70.toByte()) + multiHash
-
-        return IpldBlock(cidBytes, pbData)
-    }
-
-    /**
      * Creates an intermediate DAG-PB block that links to raw blocks (like ipfs-car intermediate block)
      */
     private fun createIntermediateDagPbBlock(
         chunkCids: List<ByteArray>,
         fileSize: Long,
-        mimeType: String,
     ): IpldBlock {
         // Create UnixFS metadata for intermediate block (matches ipfs-car structure)
         val unixfsData = createIntermediateUnixFsData(fileSize, chunkCids.size)
 
         // Create DAG-PB protobuf structure: Links first, then Data (field 2, then field 1 - ipfs-car order)
-        val pbData = ByteArrayOutputStream().apply {
-            // Field 2: Links to all chunks first - ipfs-car puts Links before Data in intermediate
-            chunkCids.forEachIndexed { index, chunkCid ->
-                write(0x12) // field 2, wire type 2 (length-delimited)
-                val chunkSize = if (index == chunkCids.size - 1) {
-                    val remainingSize = fileSize % CHUNK_SIZE
-                    if (remainingSize == 0L) CHUNK_SIZE.toLong() else remainingSize
-                } else {
-                    CHUNK_SIZE.toLong()
-                }
-                val linkData = createPbLink(chunkCid, "", chunkSize)
-                write(encodeVarInt(linkData.size))
-                write(linkData)
-            }
+        val pbData =
+            ByteArrayOutputStream()
+                .apply {
+                    // Field 2: Links to all chunks first - ipfs-car puts Links before Data in intermediate
+                    chunkCids.forEachIndexed { index, chunkCid ->
+                        write(0x12) // field 2, wire type 2 (length-delimited)
+                        val chunkSize =
+                            if (index == chunkCids.size - 1) {
+                                val remainingSize = fileSize % CHUNK_SIZE
+                                if (remainingSize == 0L) CHUNK_SIZE.toLong() else remainingSize
+                            } else {
+                                CHUNK_SIZE.toLong()
+                            }
+                        val linkData = createPbLink(chunkCid, "", chunkSize)
+                        write(encodeVarInt(linkData.size))
+                        write(linkData)
+                    }
 
-            // Field 1: Data (UnixFS metadata only) - ipfs-car puts Data after Links in intermediate
-            write(0x0A) // field 1, wire type 2 (length-delimited)
-            write(encodeVarInt(unixfsData.size))
-            write(unixfsData)
-        }.toByteArray()
+                    // Field 1: Data (UnixFS metadata only) - ipfs-car puts Data after Links in intermediate
+                    write(0x0A) // field 1, wire type 2 (length-delimited)
+                    write(encodeVarInt(unixfsData.size))
+                    write(unixfsData)
+                }.toByteArray()
 
         // Create CID for the intermediate DAG-PB block
         val digest = MessageDigest.getInstance("SHA-256")
@@ -302,23 +232,25 @@ object CarFileCreator {
         val unixfsData = byteArrayOf(0x08, 0x01) // type = directory (1)
 
         // ipfs-car reports total size including intermediate block overhead (108 bytes)
-        val totalSize = fileSize + 108L  // Add intermediate block overhead
-        
+        val totalSize = fileSize + 108L // Add intermediate block overhead
+
         // Create link to intermediate block with filename
         val linkData = createPbLink(intermediateCid, fileName, totalSize)
 
         // Create DAG-PB protobuf structure: Link first, then Data (field 2, then field 1 - ipfs-car order)
-        val pbData = ByteArrayOutputStream().apply {
-            // Field 2: Link to intermediate block first
-            write(0x12) // field 2, wire type 2
-            write(encodeVarInt(linkData.size))
-            write(linkData)
+        val pbData =
+            ByteArrayOutputStream()
+                .apply {
+                    // Field 2: Link to intermediate block first
+                    write(0x12) // field 2, wire type 2
+                    write(encodeVarInt(linkData.size))
+                    write(linkData)
 
-            // Field 1: Data (UnixFS directory metadata) after link
-            write(0x0A) // field 1, wire type 2
-            write(encodeVarInt(unixfsData.size))
-            write(unixfsData)
-        }.toByteArray()
+                    // Field 1: Data (UnixFS directory metadata) after link
+                    write(0x0A) // field 1, wire type 2
+                    write(encodeVarInt(unixfsData.size))
+                    write(unixfsData)
+                }.toByteArray()
 
         // Create CID for the root DAG-PB block
         val digest = MessageDigest.getInstance("SHA-256")
@@ -330,54 +262,12 @@ object CarFileCreator {
     }
 
     /**
-     * Creates a DAG-PB block for chunked files with multiple raw block links
-     */
-    private fun createChunkedDagPbBlock(
-        chunkCids: List<ByteArray>,
-        fileName: String,
-        fileSize: Long,
-        mimeType: String,
-    ): IpldBlock {
-        // Create UnixFS metadata only (no embedded data for chunked files)
-        val unixfsData = createChunkedUnixFsData(fileSize, mimeType, chunkCids.size)
-
-        // Create DAG-PB protobuf structure: Links first, then Data
-        val pbData = ByteArrayOutputStream().apply {
-            // Field 1: Links to all chunks
-            chunkCids.forEachIndexed { index, chunkCid ->
-                write(0x0A) // field 1, wire type 2 (length-delimited)
-                val chunkSize = if (index == chunkCids.size - 1) {
-                    // Last chunk might be smaller
-                    val remainingSize = fileSize % CHUNK_SIZE
-                    if (remainingSize == 0L) CHUNK_SIZE.toLong() else remainingSize
-                } else {
-                    CHUNK_SIZE.toLong()
-                }
-                val linkData = createPbLink(chunkCid, "", chunkSize)
-                write(encodeVarInt(linkData.size))
-                write(linkData)
-            }
-
-            // Field 2: Data (UnixFS metadata only)
-            write(0x12) // field 2, wire type 2
-            write(encodeVarInt(unixfsData.size))
-            write(unixfsData)
-        }.toByteArray()
-
-        // Create CID for the DAG-PB block
-        val digest = MessageDigest.getInstance("SHA-256")
-        val hash = digest.digest(pbData)
-        val multiHash = byteArrayOf(0x12, 0x20) + hash
-        val cidBytes = byteArrayOf(0x01.toByte(), 0x70.toByte()) + multiHash
-
-        return IpldBlock(cidBytes, pbData)
-    }
-
-
-    /**
      * Creates UnixFS data for intermediate DAG-PB blocks (matches ipfs-car structure)
      */
-    private fun createIntermediateUnixFsData(fileSize: Long, chunkCount: Int): ByteArray {
+    private fun createIntermediateUnixFsData(
+        fileSize: Long,
+        chunkCount: Int,
+    ): ByteArray {
         val output = ByteArrayOutputStream()
 
         // Field 1: Type (file = 2)
@@ -404,62 +294,6 @@ object CarFileCreator {
         }
 
         return output.toByteArray()
-    }
-
-    /**
-     * Creates UnixFS data for chunked files
-     */
-    private fun createChunkedUnixFsData(fileSize: Long, mimeType: String, chunkCount: Int): ByteArray {
-        val output = ByteArrayOutputStream()
-
-        // Field 1: Type (file = 2)
-        output.write(0x08) // field 1, varint
-        output.write(0x02) // file type = 2
-
-        // Field 2: File size
-        output.write(0x10) // field 2, varint
-        output.write(encodeVarInt(fileSize.toInt()))
-
-        // Field 3: Block sizes (for each chunk)
-        repeat(chunkCount - 1) {
-            output.write(0x18) // field 3, varint (block sizes)
-            output.write(encodeVarInt(CHUNK_SIZE))
-        }
-        // Last chunk might be smaller
-        val lastChunkSize = (fileSize % CHUNK_SIZE).toInt()
-        if (lastChunkSize > 0) {
-            output.write(0x18)
-            output.write(encodeVarInt(lastChunkSize))
-        } else {
-            output.write(0x18)
-            output.write(encodeVarInt(CHUNK_SIZE))
-        }
-
-        return output.toByteArray()
-    }
-
-    /**
-     * Detects MIME type based on file extension
-     */
-    private fun detectMimeType(file: File): String {
-        return when (file.extension.lowercase()) {
-            "jpg", "jpeg" -> "image/jpeg"
-            "png" -> "image/png"
-            "gif" -> "image/gif"
-            "webp" -> "image/webp"
-            "mp4" -> "video/mp4"
-            "mov" -> "video/quicktime"
-            "avi" -> "video/x-msvideo"
-            "webm" -> "video/webm"
-            "mp3" -> "audio/mpeg"
-            "wav" -> "audio/wav"
-            "m4a" -> "audio/mp4"
-            "pdf" -> "application/pdf"
-            "txt" -> "text/plain"
-            "json" -> "application/json"
-            "xml" -> "application/xml"
-            else -> "application/octet-stream"
-        }
     }
 
     /**
@@ -571,56 +405,54 @@ object CarFileCreator {
         result.add(v.toByte())
         return result.toByteArray()
     }
-    
+
     /**
      * Convert CID bytes to proper CID string format
      */
-    private fun cidBytesToString(cidBytes: ByteArray, prefix: String): String {
-        return "$prefix${encodeBase32(cidBytes)}"
-    }
-    
+    private fun cidBytesToString(cidBytes: ByteArray): String = "b${encodeBase32(cidBytes)}"
+
     /**
      * Create CAR CID from CAR file data
      */
     private fun createCarCid(carData: ByteArray): String {
         val digest = MessageDigest.getInstance("SHA-256")
         val hash = digest.digest(carData)
-        
+
         // Create multihash: 0x12 (SHA-256) + 0x20 (32 bytes) + hash
         val multiHash = byteArrayOf(0x12, 0x20) + hash
-        
+
         // Create CID v1: version(1) + codec(CAR multicodec 0x0202) + multihash
         // CAR multicodec 0x0202 (514) encodes as varint [0x82, 0x04]
         val carCodecVarint = encodeVarInt(0x0202)
         val cidBytes = byteArrayOf(0x01.toByte()) + carCodecVarint + multiHash
-        
-        return cidBytesToString(cidBytes, "b")
+
+        return cidBytesToString(cidBytes)
     }
-    
+
     /**
      * Encode data as base32 string (RFC 4648)
      */
     private fun encodeBase32(data: ByteArray): String {
         val alphabet = "abcdefghijklmnopqrstuvwxyz234567"
         val result = StringBuilder()
-        
+
         var buffer = 0L
         var bitsLeft = 0
-        
+
         for (byte in data) {
             buffer = (buffer shl 8) or (byte.toInt() and 0xFF).toLong()
             bitsLeft += 8
-            
+
             while (bitsLeft >= 5) {
                 result.append(alphabet[((buffer shr (bitsLeft - 5)) and 0x1F).toInt()])
                 bitsLeft -= 5
             }
         }
-        
+
         if (bitsLeft > 0) {
             result.append(alphabet[((buffer shl (5 - bitsLeft)) and 0x1F).toInt()])
         }
-        
+
         return result.toString()
     }
 }

@@ -3,21 +3,21 @@ package net.opendasharchive.openarchive.services.storacha.di
 import com.google.gson.GsonBuilder
 import net.opendasharchive.openarchive.services.storacha.service.StorachaApiService
 import net.opendasharchive.openarchive.services.storacha.util.BridgeUploader
+import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaAccountDetailsViewModel
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaBrowseSpacesViewModel
+import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaDIDAccessViewModel
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaEmailVerificationSentViewModel
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaLoginViewModel
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaMediaViewModel
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaViewDIDsViewModel
-import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaDIDAccessViewModel
-import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaAccountDetailsViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import java.util.concurrent.TimeUnit
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 val storachaModule =
     module {
@@ -29,10 +29,11 @@ val storachaModule =
         }
 
         single {
-            OkHttpClient.Builder()
+            OkHttpClient
+                .Builder()
                 .addInterceptor(get<HttpLoggingInterceptor>())
                 .connectTimeout(60, TimeUnit.SECONDS)
-                .readTimeout(300, TimeUnit.SECONDS)  // 5 minutes for large file uploads
+                .readTimeout(300, TimeUnit.SECONDS) // 5 minutes for large file uploads
                 .writeTimeout(300, TimeUnit.SECONDS) // 5 minutes for large file uploads
                 .build()
         }

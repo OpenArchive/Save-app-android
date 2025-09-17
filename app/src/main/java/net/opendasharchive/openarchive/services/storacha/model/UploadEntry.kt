@@ -6,5 +6,5 @@ data class UploadEntry(
     val created: String,
     val insertedAt: String,
     val updatedAt: String,
-    val gatewayUrl: String
+    val gatewayUrl: String,
 )

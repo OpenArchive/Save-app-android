@@ -31,46 +31,49 @@ class StorachaFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewBinding.btnJoinSpaces.setOnClickListener {
-            val action = StorachaFragmentDirections.actionFragmentStorachaToFragmentStorachaClientQr("Test")
+            val action =
+                StorachaFragmentDirections.actionFragmentStorachaToFragmentStorachaClientQr("Test")
             findNavController().navigate(action)
         }
 
         viewBinding.btnMySpaces.setOnClickListener {
-            val action = StorachaFragmentDirections.actionFragmentStorachaToFragmentStorachaBrowseSpaces()
+            val action =
+                StorachaFragmentDirections.actionFragmentStorachaToFragmentStorachaBrowseSpaces()
             findNavController().navigate(action)
         }
 
         viewBinding.btnManageAccounts.setOnClickListener {
             navigateToAccountManagement()
         }
-        
+
         updateButtonStates()
     }
-    
+
     override fun onResume() {
         super.onResume()
         // Update button states when returning to this fragment
         updateButtonStates()
     }
-    
+
     private fun updateButtonStates() {
-        val accountManager = StorachaAccountManager(requireContext())
+        StorachaAccountManager(requireContext())
         val hasAccounts = DidManager(requireContext()).hasDid()
-        
+
         // Disable My Spaces button if no accounts are logged in
         viewBinding.btnMySpaces.isEnabled = hasAccounts
         viewBinding.btnMySpaces.alpha = if (hasAccounts) 1.0f else 0.5f
     }
 
     override fun getToolbarTitle(): String = getString(R.string.storacha)
-    
+
     private fun navigateToAccountManagement() {
         val accountManager = StorachaAccountManager(requireContext())
-        val action = if (accountManager.hasLoggedInAccounts()) {
-            StorachaFragmentDirections.actionFragmentStorachaToFragmentStorachaAccounts()
-        } else {
-            StorachaFragmentDirections.actionFragmentStorachaToFragmentStorachaLogin()
-        }
+        val action =
+            if (accountManager.hasLoggedInAccounts()) {
+                StorachaFragmentDirections.actionFragmentStorachaToFragmentStorachaAccounts()
+            } else {
+                StorachaFragmentDirections.actionFragmentStorachaToFragmentStorachaLogin()
+            }
         findNavController().navigate(action)
     }
 }

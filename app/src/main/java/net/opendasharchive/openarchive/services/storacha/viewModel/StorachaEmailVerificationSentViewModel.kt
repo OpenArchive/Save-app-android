@@ -15,7 +15,7 @@ import net.opendasharchive.openarchive.services.storacha.util.StorachaAccountMan
 class StorachaEmailVerificationSentViewModel(
     application: Application,
     private val apiService: StorachaApiService,
-    private val sessionId: String
+    private val sessionId: String,
 ) : AndroidViewModel(application) {
     private val _navigateNext = MutableLiveData<Unit>()
     val navigateNext: LiveData<Unit> = _navigateNext
@@ -34,26 +34,27 @@ class StorachaEmailVerificationSentViewModel(
     }
 
     private fun startPollingVerificationStatus() {
-        pollingJob = viewModelScope.launch {
-            while (true) {
-                try {
-                    val response: SessionValidationResponse = apiService.validateSession(sessionId)
-                    if (response.valid && response.verified == 1) {
-                        // Update account verification status in secure storage
-                        val currentAccount = accountManager.getCurrentAccount()
-                        currentAccount?.email?.let { email ->
-                            accountManager.updateAccountVerification(email, true)
+        pollingJob =
+            viewModelScope.launch {
+                while (true) {
+                    try {
+                        val response: SessionValidationResponse = apiService.validateSession(sessionId)
+                        if (response.valid && response.verified == 1) {
+                            // Update account verification status in secure storage
+                            val currentAccount = accountManager.getCurrentAccount()
+                            currentAccount?.email?.let { email ->
+                                accountManager.updateAccountVerification(email, true)
+                            }
+                            _navigateNext.postValue(Unit)
+                            break
                         }
-                        _navigateNext.postValue(Unit)
-                        break
+                    } catch (_: Exception) {
+                        // Optional: log error
+                        // Continue polling even on error
                     }
-                } catch (_: Exception) {
-                    // Optional: log error
-                    // Continue polling even on error
+                    delay(2000)
                 }
-                delay(2000)
             }
-        }
     }
 
     fun resumePolling() {

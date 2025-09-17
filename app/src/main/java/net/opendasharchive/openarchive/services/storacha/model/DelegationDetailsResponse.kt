@@ -4,5 +4,5 @@ data class DelegationDetailsResponse(
     val userDid: String,
     val spaceDid: String,
     val delegationCar: String,
-    val expiresAt: String
+    val expiresAt: String,
 )

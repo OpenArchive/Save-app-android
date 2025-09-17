@@ -24,20 +24,21 @@ class StorachaDIDAccessViewModel(
         sessionId: String,
         userDid: String,
         spaceDid: String,
-        expiresIn: Int = 24
+        expiresIn: Int = 24,
     ) {
         _loading.value = true
         _error.value = null
         _success.value = false
-        
+
         viewModelScope.launch {
             try {
-                val request = DelegationRequest(
-                    userDid = userDid,
-                    spaceDid = spaceDid,
-                    expiresIn = expiresIn
-                )
-                
+                val request =
+                    DelegationRequest(
+                        userDid = userDid,
+                        spaceDid = spaceDid,
+                        expiresIn = expiresIn,
+                    )
+
                 apiService.createDelegation(sessionId, request)
                 _success.value = true
             } catch (e: Exception) {

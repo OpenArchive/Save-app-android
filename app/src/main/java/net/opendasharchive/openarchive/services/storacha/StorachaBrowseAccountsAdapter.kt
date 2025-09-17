@@ -17,7 +17,8 @@ class StorachaBrowseAccountsAdapter(
         parent: ViewGroup,
         viewType: Int,
     ): AccountViewHolder {
-        val binding = StorachaDidRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding =
+            StorachaDidRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return AccountViewHolder(binding, onClick)
     }
 
@@ -38,8 +39,14 @@ class StorachaBrowseAccountsAdapter(
         ) {
         fun bind(account: Account) {
             if (!isDid) {
-                val icon = ContextCompat.getDrawable(binding.icon.context, R.drawable.ic_account_circle)
-                icon?.setTint(ContextCompat.getColor(binding.icon.context, R.color.colorOnBackground))
+                val icon =
+                    ContextCompat.getDrawable(binding.icon.context, R.drawable.ic_account_circle)
+                icon?.setTint(
+                    ContextCompat.getColor(
+                        binding.icon.context,
+                        R.color.colorOnBackground,
+                    ),
+                )
                 binding.icon.setImageDrawable(icon)
             } else {
                 binding.icon.visibility = View.GONE

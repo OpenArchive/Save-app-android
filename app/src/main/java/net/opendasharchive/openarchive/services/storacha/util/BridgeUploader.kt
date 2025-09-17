@@ -18,11 +18,9 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import okio.utf8Size
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
-import java.io.File
 import java.util.concurrent.TimeUnit
 
 /**
@@ -57,7 +55,6 @@ class BridgeUploader(
             .create(net.opendasharchive.openarchive.services.storacha.service.BridgeApiService::class.java)
 
     suspend fun uploadFile(
-        file: File,
         carData: ByteArray,
         carCid: String,
         rootCid: String,
@@ -159,7 +156,7 @@ class BridgeUploader(
             BridgeTaskRequest(
                 tasks =
                     listOf(
-                        listOf("store/add", spaceDid, storeTask)
+                        listOf("store/add", spaceDid, storeTask),
                     ),
             )
 
@@ -233,26 +230,36 @@ class BridgeUploader(
         }
 
         // Use withTimeout for S3 upload with 5 minute timeout for large files
-        val response = withTimeout(300_000L) { // 5 minutes
-            suspendCancellableCoroutine<okhttp3.Response> { continuation ->
-                val call = client.newCall(requestBuilder.build())
-                
-                call.enqueue(object : okhttp3.Callback {
-                    override fun onFailure(call: okhttp3.Call, e: java.io.IOException) {
-                        continuation.resumeWith(Result.failure(e))
+        val response =
+            withTimeout(300_000L) {
+                // 5 minutes
+                suspendCancellableCoroutine { continuation ->
+                    val call = client.newCall(requestBuilder.build())
+
+                    call.enqueue(
+                        object : okhttp3.Callback {
+                            override fun onFailure(
+                                call: okhttp3.Call,
+                                e: java.io.IOException,
+                            ) {
+                                continuation.resumeWith(Result.failure(e))
+                            }
+
+                            override fun onResponse(
+                                call: okhttp3.Call,
+                                response: okhttp3.Response,
+                            ) {
+                                continuation.resumeWith(Result.success(response))
+                            }
+                        },
+                    )
+
+                    continuation.invokeOnCancellation {
+                        call.cancel()
                     }
-                    
-                    override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
-                        continuation.resumeWith(Result.success(response))
-                    }
-                })
-                
-                continuation.invokeOnCancellation {
-                    call.cancel()
                 }
             }
-        }
-        
+
         if (!response.isSuccessful) {
             val responseBody = response.body?.string() ?: "No response body"
             Timber.e("S3 upload failed - Code: ${response.code}, Message: ${response.message}")
@@ -271,7 +278,6 @@ class BridgeUploader(
         tokens: BridgeTokens,
         spaceDid: String,
         rootCid: String,
-        retryCount: Int = 0,
     ): net.opendasharchive.openarchive.services.storacha.model.UploadAddSuccess {
         val uploadTask =
             UploadAddTask(

@@ -1,12 +1,10 @@
 package net.opendasharchive.openarchive.services.storacha
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.isVisible
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import net.opendasharchive.openarchive.R
@@ -18,10 +16,6 @@ import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class StorachaAccountDetailsFragment : BaseFragment() {
-    companion object {
-        const val EXTRA_EMAIL = "email"
-    }
-
     private lateinit var binding: FragmentStorachaAccountDetailsBinding
     private val viewModel: StorachaAccountDetailsViewModel by viewModel()
     private val args: StorachaAccountDetailsFragmentArgs by navArgs()
@@ -71,20 +65,23 @@ class StorachaAccountDetailsFragment : BaseFragment() {
 //        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
 //            binding.piUsage.isVisible = !isLoading
 //        }
-        
+
         viewModel.logoutResult.observe(viewLifecycleOwner) { result ->
-            result.onSuccess {
-                val accountManager = StorachaAccountManager(requireContext())
-                accountManager.removeAccount(args.email)
-                val action = StorachaAccountDetailsFragmentDirections.actionFragmentStorachaAccountDetailsToFragmentStoracha()
-                findNavController().navigate(action)
-            }.onFailure {
-                // Even if API logout fails, remove locally and navigate back
-                val accountManager = StorachaAccountManager(requireContext())
-                accountManager.removeAccount(args.email)
-                val action = StorachaAccountDetailsFragmentDirections.actionFragmentStorachaAccountDetailsToFragmentStoracha()
-                findNavController().navigate(action)
-            }
+            result
+                .onSuccess {
+                    val accountManager = StorachaAccountManager(requireContext())
+                    accountManager.removeAccount(args.email)
+                    val action =
+                        StorachaAccountDetailsFragmentDirections.actionFragmentStorachaAccountDetailsToFragmentStoracha()
+                    findNavController().navigate(action)
+                }.onFailure {
+                    // Even if API logout fails, remove locally and navigate back
+                    val accountManager = StorachaAccountManager(requireContext())
+                    accountManager.removeAccount(args.email)
+                    val action =
+                        StorachaAccountDetailsFragmentDirections.actionFragmentStorachaAccountDetailsToFragmentStoracha()
+                    findNavController().navigate(action)
+                }
         }
     }
 
@@ -100,19 +97,13 @@ class StorachaAccountDetailsFragment : BaseFragment() {
         binding.tvPackage.text = "Business"
         binding.tvAllocationBilling.text = "2TiB and $0.03/over that"
         binding.tvUtilisation.text =
-            viewModel.formatUsageText(accountUsage.totalUsage.bytes, maxBytes)
+            viewModel.formatUsageText(accountUsage.totalUsage.bytes)
         binding.piUsage.progress = usagePercentage
     }
-    
+
     private fun performLogout() {
         viewModel.logout(args.sessionId)
     }
 
     override fun getToolbarTitle(): String = getString(R.string.account)
-
-    private fun navigateBackWithResult() {
-        val i = Intent()
-        i.putExtra(EXTRA_EMAIL, args.email)
-        // TODO GO BACK WITH THE EMAIL EXTRA TO LOGOUT
-    }
 }

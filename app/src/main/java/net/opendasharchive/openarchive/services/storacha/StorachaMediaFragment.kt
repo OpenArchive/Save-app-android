@@ -20,14 +20,13 @@ import net.opendasharchive.openarchive.databinding.FragmentStorachaMediaBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.services.storacha.model.UploadEntry
 import net.opendasharchive.openarchive.services.storacha.util.CarFileCreator
-import net.opendasharchive.openarchive.services.storacha.util.CarFileResult
 import net.opendasharchive.openarchive.services.storacha.util.DidManager
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaMediaViewModel
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.toggle
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.android.ext.android.inject
 import okhttp3.OkHttpClient
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
@@ -48,7 +47,7 @@ class StorachaMediaFragment :
         mBinding = FragmentStorachaMediaBinding.inflate(layoutInflater)
 
         mBinding.addButton.applyEdgeToEdgeInsets(
-            typeMask = WindowInsetsCompat.Type.navigationBars()
+            typeMask = WindowInsetsCompat.Type.navigationBars(),
         ) { insets ->
             bottomMargin = insets.bottom
         }
@@ -94,7 +93,7 @@ class StorachaMediaFragment :
                 onFailure = { error ->
                     Timber.e(error, "Upload failed")
                     // You could show a toast or snackbar here
-                }
+                },
             )
         }
 
@@ -179,13 +178,14 @@ class StorachaMediaFragment :
         // Create temporary file from URI preserving original filename
         val originalName = getFileName(uri) ?: "unknown_${System.currentTimeMillis()}"
         val extension = originalName.substringAfterLast('.', "")
-        
+
         // Use original filename, but add timestamp if there's no extension to avoid conflicts
-        val fileName = if (extension.isNotEmpty()) {
-            originalName
-        } else {
-            "${originalName}_${System.currentTimeMillis()}"
-        }
+        val fileName =
+            if (extension.isNotEmpty()) {
+                originalName
+            } else {
+                "${originalName}_${System.currentTimeMillis()}"
+            }
         val tempFile = File(requireContext().cacheDir, fileName)
         requireContext().contentResolver.openInputStream(uri)?.use { input ->
             FileOutputStream(tempFile).use { output ->
@@ -197,7 +197,12 @@ class StorachaMediaFragment :
         val carResult = CarFileCreator.createCarFile(tempFile)
 
         // Debug: Save CAR data to file for inspection
-        val carFileName = "${originalName.substringBeforeLast('.', originalName)}_${System.currentTimeMillis()}.car"
+        val carFileName = "${
+            originalName.substringBeforeLast(
+                '.',
+                originalName,
+            )
+        }_${System.currentTimeMillis()}.car"
         val carFile = File(requireContext().cacheDir, "car_files/$carFileName")
         carFile.parentFile?.mkdirs()
         carFile.writeBytes(carResult.carData)

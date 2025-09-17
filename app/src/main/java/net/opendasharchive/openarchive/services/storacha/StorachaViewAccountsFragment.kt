@@ -42,7 +42,7 @@ class StorachaViewAccountsFragment :
         loadLoggedInAccounts()
         activity?.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
-    
+
     override fun onResume() {
         super.onResume()
         // Refresh accounts when returning from account details (in case account was logged out)
@@ -55,7 +55,7 @@ class StorachaViewAccountsFragment :
         Handler(Looper.getMainLooper()).postDelayed({
             val accountManager = StorachaAccountManager(requireContext())
             val loggedInAccounts = accountManager.getLoggedInAccounts()
-            
+
             if (loggedInAccounts.isEmpty()) {
                 mBinding.projectsEmpty.toggle(true)
                 mBinding.rvAccountList.adapter = null
@@ -69,7 +69,7 @@ class StorachaViewAccountsFragment :
                         val action =
                             StorachaViewAccountsFragmentDirections.fragmentStorachaAccountsToFragmentStorachaAccountDetails(
                                 email = account.email,
-                                sessionId = account.sessionId
+                                sessionId = account.sessionId,
                             )
                         findNavController().navigate(action)
                     }

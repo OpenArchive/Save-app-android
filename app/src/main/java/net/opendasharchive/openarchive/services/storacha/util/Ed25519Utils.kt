@@ -82,7 +82,7 @@ object Ed25519Utils {
 
             val signatureBytes = Base64.decode(signature, Base64.NO_WRAP)
             signer.verifySignature(signatureBytes)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
 
@@ -105,7 +105,7 @@ object Ed25519Utils {
 
             val publicKeyBytes = multicodecKey.sliceArray(2..33)
             Ed25519PublicKeyParameters(publicKeyBytes, 0)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }

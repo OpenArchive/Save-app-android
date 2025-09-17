@@ -7,5 +7,5 @@ data class UploadListResponse(
     val uploads: List<UploadEntry>,
     val count: Int,
     val cursor: String?,
-    val hasMore: Boolean
+    val hasMore: Boolean,
 )

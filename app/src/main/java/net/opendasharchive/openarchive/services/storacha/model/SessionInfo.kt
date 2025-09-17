@@ -4,5 +4,5 @@ data class SessionInfo(
     val sessionId: String,
     val createdAt: String,
     val lastActive: String,
-    val isActive: Boolean
+    val isActive: Boolean,
 )

@@ -17,7 +17,8 @@ class StorachaBrowseSpacesAdapter(
         parent: ViewGroup,
         viewType: Int,
     ): SpaceViewHolder {
-        val binding = StorachaSpaceRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding =
+            StorachaSpaceRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return SpaceViewHolder(binding, onClick)
     }
 

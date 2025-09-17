@@ -10,10 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.edit
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
@@ -59,6 +56,7 @@ class StorachaLoginFragment : BaseFragment() {
                     performLogin()
                     true
                 }
+
                 else -> false
             }
         }
@@ -78,7 +76,10 @@ class StorachaLoginFragment : BaseFragment() {
             viewLifecycleOwner,
             Observer { result ->
                 result.onSuccess { loginResponse ->
-                    val email = viewBinding.tvEmail.text.toString().trim()
+                    val email =
+                        viewBinding.tvEmail.text
+                            .toString()
+                            .trim()
                     val accountManager = StorachaAccountManager(requireContext())
                     val didManager = DidManager(requireContext())
                     val userDid = didManager.getOrCreateDid()
@@ -87,7 +88,7 @@ class StorachaLoginFragment : BaseFragment() {
                         email = email,
                         sessionId = loginResponse.sessionId,
                         isVerified = loginResponse.verified,
-                        did = userDid
+                        did = userDid,
                     )
 
                     val action =
@@ -111,7 +112,10 @@ class StorachaLoginFragment : BaseFragment() {
     }
 
     private fun performLogin() {
-        val email = viewBinding.tvEmail.text.toString().trim()
+        val email =
+            viewBinding.tvEmail.text
+                .toString()
+                .trim()
 
         if (!isValidEmail(email)) {
             viewBinding.groupNameTextfieldContainer.error = "Invalid email"
@@ -125,11 +129,12 @@ class StorachaLoginFragment : BaseFragment() {
             val did = didManager.getOrCreateDid()
             viewModel.login(email, did)
         } catch (e: Exception) {
-            Toast.makeText(
-                requireContext(),
-                "Failed to generate DID: ${e.message}",
-                Toast.LENGTH_LONG,
-            ).show()
+            Toast
+                .makeText(
+                    requireContext(),
+                    "Failed to generate DID: ${e.message}",
+                    Toast.LENGTH_LONG,
+                ).show()
         }
     }
 
@@ -139,7 +144,8 @@ class StorachaLoginFragment : BaseFragment() {
             .matches()
 
     private fun hideKeyboard() {
-        val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val imm =
+            requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(viewBinding.tvEmail.windowToken, 0)
     }
 

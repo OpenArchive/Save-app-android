@@ -1,12 +1,11 @@
 package net.opendasharchive.openarchive.services.storacha
 
 import android.content.Intent
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
@@ -24,13 +23,12 @@ import timber.log.Timber
 
 class StorachaMediaGridAdapter(
     private val files: List<UploadEntry> = emptyList(),
-    private val client: OkHttpClient,
+    client: OkHttpClient,
     private val onClick: (file: UploadEntry) -> Unit,
 ) : RecyclerView.Adapter<StorachaMediaGridAdapter.MediaGridViewHolder>() {
-    
     private val metadataFetcher = FileMetadataFetcher(client)
     private val metadataCache = mutableMapOf<String, FileMetadata?>()
-    
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int,
@@ -60,7 +58,7 @@ class StorachaMediaGridAdapter(
             setIcon(FileType.UNKNOWN)
             binding.name.text = file.cid.take(12) + "..."
             binding.didKey.text = file.cid
-            
+
             // Check cache first
             val cachedMetadata = metadataCache[file.cid]
             if (cachedMetadata != null) {
@@ -69,9 +67,10 @@ class StorachaMediaGridAdapter(
                 // Fetch metadata asynchronously
                 CoroutineScope(Dispatchers.Main).launch {
                     try {
-                        val metadata = withContext(Dispatchers.IO) {
-                            metadataFetcher.fetchFileMetadata(file.gatewayUrl)
-                        }
+                        val metadata =
+                            withContext(Dispatchers.IO) {
+                                metadataFetcher.fetchFileMetadata(file.gatewayUrl)
+                            }
                         metadataCache[file.cid] = metadata
                         if (metadata != null) {
                             updateWithMetadata(metadata, file)
@@ -82,21 +81,24 @@ class StorachaMediaGridAdapter(
                 }
             }
         }
-        
-        private fun updateWithMetadata(metadata: FileMetadata, file: UploadEntry) {
+
+        private fun updateWithMetadata(
+            metadata: FileMetadata,
+            file: UploadEntry,
+        ) {
             binding.name.text = metadata.fileName
-            
+
             // Load thumbnail for images, otherwise show appropriate icon
             if (metadata.fileType == FileType.IMAGE) {
                 loadImageThumbnail(metadata.directUrl)
             } else {
                 setIcon(metadata.fileType)
             }
-            
+
             // Set click handler to open in browser
             binding.root.setOnClickListener {
                 try {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(metadata.directUrl))
+                    val intent = Intent(Intent.ACTION_VIEW, metadata.directUrl.toUri())
                     binding.root.context.startActivity(intent)
                 } catch (e: Exception) {
                     Timber.e(e, "Failed to open file in browser")
@@ -105,7 +107,7 @@ class StorachaMediaGridAdapter(
                 }
             }
         }
-        
+
         private fun setIcon(fileType: FileType) {
             // Reset scale type for icons - use CENTER_INSIDE for proper centering
             binding.icon.scaleType = android.widget.ImageView.ScaleType.CENTER_INSIDE
@@ -113,39 +115,43 @@ class StorachaMediaGridAdapter(
             icon?.setTint(ContextCompat.getColor(binding.icon.context, R.color.colorOnBackground))
             binding.icon.setImageDrawable(icon)
         }
-        
+
         private fun loadImageThumbnail(imageUrl: String) {
             Timber.d("Attempting to load image: $imageUrl")
-            
+
             // Clear any tint/color filter that might be making images black
             binding.icon.imageTintList = null
             binding.icon.clearColorFilter()
-            binding.icon.setColorFilter(null)
-            
+            binding.icon.colorFilter = null
+
             // Set scale type for images
             binding.icon.scaleType = android.widget.ImageView.ScaleType.CENTER_CROP
-            
+
             // Load image directly with Picasso - larger size to fill the 80dp ImageView
-            Picasso.get()
+            Picasso
+                .get()
                 .load(imageUrl)
                 .resize(240, 240)
                 .centerCrop()
-                .into(binding.icon, object : Callback {
-                    override fun onSuccess() {
-                        Timber.d("✅ Successfully loaded image: $imageUrl")
-                        // Double-check tint is cleared after loading
-                        binding.icon.imageTintList = null
-                        binding.icon.clearColorFilter()
-                    }
-                    
-                    override fun onError(e: Exception?) {
-                        Timber.e("❌ Failed to load image: $imageUrl")
-                        Timber.e("Error details: ${e?.message}")
-                        e?.printStackTrace()
-                        // Reset to icon on error
-                        setIcon(FileType.IMAGE)
-                    }
-                })
+                .into(
+                    binding.icon,
+                    object : Callback {
+                        override fun onSuccess() {
+                            Timber.d("✅ Successfully loaded image: $imageUrl")
+                            // Double-check tint is cleared after loading
+                            binding.icon.imageTintList = null
+                            binding.icon.clearColorFilter()
+                        }
+
+                        override fun onError(e: Exception?) {
+                            Timber.e("❌ Failed to load image: $imageUrl")
+                            Timber.e("Error details: ${e?.message}")
+                            e?.printStackTrace()
+                            // Reset to icon on error
+                            setIcon(FileType.IMAGE)
+                        }
+                    },
+                )
         }
     }
 }

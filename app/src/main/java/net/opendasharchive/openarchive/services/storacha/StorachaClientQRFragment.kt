@@ -24,7 +24,7 @@ class StorachaClientQRFragment : BaseFragment() {
         viewBinding = FragmentStorachaClientQrBinding.inflate(inflater)
 
         viewBinding.btnContinue.applyEdgeToEdgeInsets(
-            typeMask = WindowInsetsCompat.Type.navigationBars()
+            typeMask = WindowInsetsCompat.Type.navigationBars(),
         ) { insets ->
             bottomMargin = insets.bottom
         }

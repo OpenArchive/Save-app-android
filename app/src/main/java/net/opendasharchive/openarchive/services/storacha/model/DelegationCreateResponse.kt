@@ -5,5 +5,5 @@ data class DelegationCreateResponse(
     val principalDid: String,
     val delegationCid: String,
     val expiresAt: String,
-    val createdBy: String
+    val createdBy: String,
 )

@@ -4,5 +4,5 @@ data class SessionValidationResponse(
     val valid: Boolean,
     val verified: Int,
     val expiresAt: String,
-    val message: String
+    val message: String,
 )

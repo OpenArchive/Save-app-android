@@ -12,7 +12,7 @@ import net.opendasharchive.openarchive.services.storacha.model.VerifyRequest
 import net.opendasharchive.openarchive.services.storacha.model.VerifyResponse
 import net.opendasharchive.openarchive.services.storacha.service.StorachaApiService
 import net.opendasharchive.openarchive.services.storacha.util.Ed25519Utils
-import net.opendasharchive.openarchive.services.storacha.util.KeyStorage
+import net.opendasharchive.openarchive.services.storacha.util.SecureStorage
 
 class StorachaLoginViewModel(
     application: Application,
@@ -21,13 +21,11 @@ class StorachaLoginViewModel(
     private val _loginResult = MutableLiveData<Result<LoginResponse>>()
     val loginResult: LiveData<Result<LoginResponse>> = _loginResult
 
-    private val _verifyResult = MutableLiveData<Result<VerifyResponse>>()
-    val verifyResult: LiveData<Result<VerifyResponse>> = _verifyResult
-
+    private val verifyResult = MutableLiveData<Result<VerifyResponse>>()
     private var currentSessionId: String? = null
     private var currentChallenge: String? = null
     private var currentChallengeId: String? = null
-    private val keyStorage = KeyStorage(application)
+    private val secureStorage = SecureStorage(application, "storacha_login_keys")
 
     fun login(
         email: String,
@@ -72,7 +70,7 @@ class StorachaLoginViewModel(
         viewModelScope.launch {
             try {
                 // Get the private key from secure storage
-                val privateKey = keyStorage.getPrivateKey()
+                val privateKey = secureStorage.getPrivateKey()
                 if (privateKey == null) {
                     _loginResult.value =
                         Result.failure(Exception("No private key found. Please regenerate your DID."))
@@ -93,7 +91,7 @@ class StorachaLoginViewModel(
                     )
 
                 val verifyResponse = apiService.verify(verifyRequest)
-                _verifyResult.value = Result.success(verifyResponse)
+                verifyResult.value = Result.success(verifyResponse)
 
                 // After successful verification, use the original response
                 // The server now considers this session verified
@@ -104,6 +102,4 @@ class StorachaLoginViewModel(
             }
         }
     }
-
-    fun getSessionIdOrNull(): String? = currentSessionId
 }

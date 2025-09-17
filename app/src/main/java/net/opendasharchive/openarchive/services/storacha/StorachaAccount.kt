@@ -7,5 +7,5 @@ data class StorachaAccount(
     val email: String,
     val sessionId: String,
     val isVerified: Boolean = false,
-    val did: String? = null
+    val did: String? = null,
 )

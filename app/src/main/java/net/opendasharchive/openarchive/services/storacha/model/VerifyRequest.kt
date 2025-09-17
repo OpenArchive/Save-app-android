@@ -5,5 +5,5 @@ data class VerifyRequest(
     val challengeId: String,
     val signature: String,
     val sessionId: String,
-    val email: String? = null
+    val email: String? = null,
 )

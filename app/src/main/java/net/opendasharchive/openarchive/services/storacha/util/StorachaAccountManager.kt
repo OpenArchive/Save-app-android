@@ -1,35 +1,17 @@
 package net.opendasharchive.openarchive.services.storacha.util
 
 import android.content.Context
-import android.content.SharedPreferences
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import net.opendasharchive.openarchive.services.storacha.StorachaAccount
 
 /**
- * Manages multiple Storacha account sessions
+ * Manages multiple Storacha account sessions using modern Android Keystore
  */
-class StorachaAccountManager(private val context: Context) {
-    
-    private val masterKey: MasterKey by lazy {
-        MasterKey
-            .Builder(context)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
-    }
-
-    private val encryptedPrefs: SharedPreferences by lazy {
-        EncryptedSharedPreferences.create(
-            context,
-            "storacha_accounts",
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
-        )
-    }
-
+class StorachaAccountManager(
+    context: Context,
+) {
+    private val secureStorage = SecureStorage(context, "storacha_accounts")
     private val gson = Gson()
 
     companion object {
@@ -40,7 +22,12 @@ class StorachaAccountManager(private val context: Context) {
     /**
      * Add or update an account after successful login
      */
-    fun addAccount(email: String, sessionId: String, isVerified: Boolean = false, did: String? = null) {
+    fun addAccount(
+        email: String,
+        sessionId: String,
+        isVerified: Boolean = false,
+        did: String? = null,
+    ) {
         val accounts = getLoggedInAccounts().toMutableList()
         val existingIndex = accounts.indexOfFirst { it.email == email }
 
@@ -63,7 +50,7 @@ class StorachaAccountManager(private val context: Context) {
         val accounts = getLoggedInAccounts().toMutableList()
         accounts.removeAll { it.email == email }
         saveAccounts(accounts)
-        
+
         // If we removed the current account, clear current account
         if (getCurrentAccountEmail() == email) {
             clearCurrentAccount()
@@ -74,7 +61,7 @@ class StorachaAccountManager(private val context: Context) {
      * Get all logged-in accounts
      */
     fun getLoggedInAccounts(): List<StorachaAccount> {
-        val accountsJson = encryptedPrefs.getString(ACCOUNTS_KEY, null) ?: return emptyList()
+        val accountsJson = secureStorage.getString(ACCOUNTS_KEY) ?: return emptyList()
         val type = object : TypeToken<List<StorachaAccount>>() {}.type
         return gson.fromJson(accountsJson, type) ?: emptyList()
     }
@@ -87,14 +74,12 @@ class StorachaAccountManager(private val context: Context) {
     /**
      * Get account by email
      */
-    fun getAccount(email: String): StorachaAccount? = 
-        getLoggedInAccounts().find { it.email == email }
+    fun getAccount(email: String): StorachaAccount? = getLoggedInAccounts().find { it.email == email }
 
     /**
      * Get current account email
      */
-    fun getCurrentAccountEmail(): String? = 
-        encryptedPrefs.getString(CURRENT_ACCOUNT_KEY, null)
+    fun getCurrentAccountEmail(): String? = secureStorage.getString(CURRENT_ACCOUNT_KEY)
 
     /**
      * Get current account
@@ -108,20 +93,23 @@ class StorachaAccountManager(private val context: Context) {
      * Set current account
      */
     fun setCurrentAccount(email: String) {
-        encryptedPrefs.edit().putString(CURRENT_ACCOUNT_KEY, email).apply()
+        secureStorage.putString(CURRENT_ACCOUNT_KEY, email)
     }
 
     /**
      * Clear current account
      */
     fun clearCurrentAccount() {
-        encryptedPrefs.edit().remove(CURRENT_ACCOUNT_KEY).apply()
+        secureStorage.remove(CURRENT_ACCOUNT_KEY)
     }
 
     /**
      * Update account verification status
      */
-    fun updateAccountVerification(email: String, isVerified: Boolean) {
+    fun updateAccountVerification(
+        email: String,
+        isVerified: Boolean,
+    ) {
         val accounts = getLoggedInAccounts().toMutableList()
         val existingIndex = accounts.indexOfFirst { it.email == email }
 
@@ -135,22 +123,10 @@ class StorachaAccountManager(private val context: Context) {
     /**
      * Get current account's verification status
      */
-    fun isCurrentAccountVerified(): Boolean {
-        return getCurrentAccount()?.isVerified == true
-    }
-
-    /**
-     * Clear all accounts
-     */
-    fun clearAllAccounts() {
-        encryptedPrefs.edit()
-            .remove(ACCOUNTS_KEY)
-            .remove(CURRENT_ACCOUNT_KEY)
-            .apply()
-    }
+    fun isCurrentAccountVerified(): Boolean = getCurrentAccount()?.isVerified == true
 
     private fun saveAccounts(accounts: List<StorachaAccount>) {
         val accountsJson = gson.toJson(accounts)
-        encryptedPrefs.edit().putString(ACCOUNTS_KEY, accountsJson).apply()
+        secureStorage.putString(ACCOUNTS_KEY, accountsJson)
     }
 }

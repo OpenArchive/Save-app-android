@@ -1,56 +1,54 @@
 package net.opendasharchive.openarchive.services.storacha.model
 
-import com.google.gson.annotations.SerializedName
-
 // Bridge API task request model
 data class BridgeTaskRequest(
-    val tasks: List<List<Any>>
+    val tasks: List<List<Any>>,
 )
 
 // Store/Add task models
 data class StoreAddTask(
     val link: Map<String, String>,
-    val size: Long
+    val size: Long,
 )
 
 data class StoreAddResponse(
-    val p: StoreAddResult
+    val p: StoreAddResult,
 )
 
 data class StoreAddResult(
-    val out: StoreAddOutcome
+    val out: StoreAddOutcome,
 )
 
 data class StoreAddOutcome(
     val ok: StoreAddSuccess? = null,
-    val error: Map<String, Any>? = null
+    val error: Map<String, Any>? = null,
 )
 
 data class StoreAddSuccess(
     val status: String,
     val url: String? = null,
-    val headers: Map<String, String>? = null
+    val headers: Map<String, String>? = null,
 )
 
 // Upload/Add task models
 data class UploadAddTask(
-    val root: Map<String, String>
+    val root: Map<String, String>,
 )
 
 data class UploadAddResponse(
-    val p: UploadAddResult
+    val p: UploadAddResult,
 )
 
 data class UploadAddResult(
-    val out: UploadAddOutcome
+    val out: UploadAddOutcome,
 )
 
 data class UploadAddOutcome(
     val ok: UploadAddSuccess? = null,
-    val error: Map<String, Any>? = null
+    val error: Map<String, Any>? = null,
 )
 
 data class UploadAddSuccess(
     val root: Map<String, String>,
-    val shards: List<Any> = emptyList()
+    val shards: List<Any> = emptyList(),
 )

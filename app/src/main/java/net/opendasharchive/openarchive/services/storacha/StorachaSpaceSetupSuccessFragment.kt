@@ -12,10 +12,6 @@ import net.opendasharchive.openarchive.features.core.BaseFragment
 class StorachaSpaceSetupSuccessFragment : BaseFragment() {
     private lateinit var mBinding: FragmentStorachaSpaceSetupSuccessBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
