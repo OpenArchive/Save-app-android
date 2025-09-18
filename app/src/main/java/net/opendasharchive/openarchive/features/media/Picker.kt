@@ -233,26 +233,30 @@ object Picker {
 
         val project = project ?: return null
 
-        // Validate URI accessibility first
-        val inputStream = try {
-            context.contentResolver.openInputStream(uri)
-        } catch (e: FileNotFoundException) {
-            AppLogger.e("File not found for URI: $uri", e)
-            return null
-        } catch (e: Exception) {
-            AppLogger.e("Failed to access URI: $uri", e)
-            return null
-        } ?: return null
-
         val title = Utility.getUriDisplayName(context, uri) ?: ""
         val file = Utility.getOutputMediaFileByCache(context, title)
 
-        if (!Utility.writeStreamToFile(inputStream, file)) {
-            inputStream.close()
-            AppLogger.e("Failed to write stream to file for URI: $uri")
+        // Use try-with-resources pattern for proper resource management
+        try {
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                if (!Utility.writeStreamToFile(inputStream, file)) {
+                    AppLogger.e("Failed to write stream to file for URI: $uri")
+                    return null
+                }
+            } ?: run {
+                AppLogger.e("Failed to open input stream for URI: $uri")
+                return null
+            }
+        } catch (e: FileNotFoundException) {
+            AppLogger.e("File not found for URI: $uri", e)
+            return null
+        } catch (e: SecurityException) {
+            AppLogger.e("Permission denied for URI: $uri", e)
+            return null
+        } catch (e: java.io.IOException) {
+            AppLogger.e("IO error reading URI: $uri", e)
             return null
         }
-        inputStream.close()
 
         // Create media object
         val media = Media()
