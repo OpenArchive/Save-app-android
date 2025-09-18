@@ -84,7 +84,6 @@ class StorachaMediaViewModel(
                 // Use the complete bridge workflow with CAR files
                 val bridgeResult =
                     bridgeUploader.uploadFile(
-                        file = file,
                         carData = carResult.carData,
                         carCid = carResult.carCid,
                         rootCid = carResult.rootCid,
