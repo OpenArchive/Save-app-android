@@ -145,7 +145,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         // Check onboarding status early and redirect if needed
         if (!Prefs.didCompleteOnboarding) {
             val intent = Intent(this, Onboarding23Activity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()
             return
