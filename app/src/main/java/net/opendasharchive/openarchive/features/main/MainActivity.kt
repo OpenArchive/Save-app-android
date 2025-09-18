@@ -280,9 +280,12 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     override fun onStart() {
         super.onStart()
 
-        ProofModeHelper.init(this) {
-            // Check for any queued uploads and restart, only after ProofMode is correctly initialized.
-            UploadService.startUploadService(this)
+        // Initialize ProofMode on background thread to avoid ANR during RSA key generation
+        lifecycleScope.launch(Dispatchers.IO) {
+            ProofModeHelper.init(this@MainActivity) {
+                // Check for any queued uploads and restart, only after ProofMode is correctly initialized.
+                UploadService.startUploadService(this@MainActivity)
+            }
         }
     }
 
@@ -880,8 +883,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     private fun importSharedMedia(imageIntent: Intent?) {
         if (imageIntent?.action != Intent.ACTION_SEND) return
-        val uri =
-            imageIntent.data ?: imageIntent.clipData?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.uri
+        val uri = imageIntent.data ?: imageIntent.clipData?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.uri
         val path = uri?.path ?: return
         if (path.contains(packageName)) return
 

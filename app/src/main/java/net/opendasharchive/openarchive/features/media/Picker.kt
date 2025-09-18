@@ -30,6 +30,7 @@ import org.witness.proofmode.ProofMode
 import org.witness.proofmode.crypto.HashUtils
 import timber.log.Timber
 import java.io.File
+import java.io.FileNotFoundException
 import java.util.Date
 
 object Picker {
@@ -232,13 +233,26 @@ object Picker {
 
         val project = project ?: return null
 
+        // Validate URI accessibility first
+        val inputStream = try {
+            context.contentResolver.openInputStream(uri)
+        } catch (e: FileNotFoundException) {
+            AppLogger.e("File not found for URI: $uri", e)
+            return null
+        } catch (e: Exception) {
+            AppLogger.e("Failed to access URI: $uri", e)
+            return null
+        } ?: return null
+
         val title = Utility.getUriDisplayName(context, uri) ?: ""
         val file = Utility.getOutputMediaFileByCache(context, title)
 
-        if (!Utility.writeStreamToFile(context.contentResolver.openInputStream(uri), file)) {
+        if (!Utility.writeStreamToFile(inputStream, file)) {
+            inputStream.close()
             AppLogger.e("Failed to write stream to file for URI: $uri")
             return null
         }
+        inputStream.close()
 
         // Create media object
         val media = Media()
@@ -265,9 +279,9 @@ object Picker {
         //We generate hash regardless if proof is on or off because we don't want unexpected behaviour when we are looking for proof files when uploaded later.
         // Generate hash regardless of proof mode setting for consistency
         try {
-            media.mediaHashString = HashUtils.getSHA256FromFileContent(
-                context.contentResolver.openInputStream(uri)
-            )
+            media.mediaHashString = file?.let {
+                HashUtils.getSHA256FromFileContent(it.inputStream())
+            } ?: ""
         } catch (e: Exception) {
             AppLogger.e("Failed to generate hash for media", e)
             media.mediaHashString = ""
