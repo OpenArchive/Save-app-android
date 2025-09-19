@@ -33,7 +33,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/skip"
                 android:textAppearance="@style/TextAppearance.SaveApp.16pt"
-                app:fontFamily="@font/montserrat_bold"
+                app:fontFamily="@font/montserrat_semi_bold"
                 android:textColor="@color/colorOnBackground" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton

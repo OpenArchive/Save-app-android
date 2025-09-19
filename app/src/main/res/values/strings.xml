@@ -122,14 +122,14 @@
     <string name="prefs_use_proofmode_title">Enable ProofMode</string>
     <string name="prefs_use_proofmode_summary">Share ProofMode public key</string>
 <!--    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a system that enables authentication and verification of multimedia content, <a href="%1$s" style="text-decoration: underline;">learn more here</a>]]></string>-->
-    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a way to enhance the authentication and verification of multimedia content. <a href=\"%1$s\"><u>learn more here.</u></a>]]></string>
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a way to enhance the authentication and verification of multimedia content. <a href=\"%1$s\"><u>Learn more here.</u></a>]]></string>
     <!--    <string name="prefs_use_proofmode_description">-->
 <!--        ProofMode is a system that enables authentication and verification of multimedia content, &lt;a href="%1$s" style="text-decoration: underline;"&gt;learn more here&lt;/a&gt;-->
 <!--    </string>-->
 
 
     <string name="proof_mode_warning_text"><![CDATA[
-    To help verify where your media was captured, ProofMode gathers data from nearby cell towers to corroborate your location. To add credibility and context, it then includes a separate metadata file with your media*. Android requires location access to collect this information.<br/><br/>
+    To help verify where your media was captured, ProofMode gathers data from nearby cell towers to corroborate your location. To add credibility and context, it then includes a separate metadata file with your media*. Android requires location access to collect this information.<br/><br/></br>
     <b>*Neither <i>Save</i> nor <i>OpenArchive</i> will be able to access or store this location data, it will only be accessible to those with access to the server files.</b>
     ]]>
     </string>

@@ -3,7 +3,7 @@
     <!-- themes -->
     <style name="Theme.SaveApp.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/colorBackground</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/avd_splash_animator</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/save_splash</item>
         <item name="windowSplashScreenAnimationDuration">1000</item>
         <item name="postSplashScreenTheme">@style/SaveAppTheme.NoActionBar</item>
     </style>
