@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.services.storacha
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -18,9 +19,13 @@ import androidx.recyclerview.widget.GridLayoutManager
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaMediaBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.services.storacha.model.UploadEntry
 import net.opendasharchive.openarchive.services.storacha.util.CarFileCreator
 import net.opendasharchive.openarchive.services.storacha.util.DidManager
+import net.opendasharchive.openarchive.services.storacha.viewModel.LoadingState
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaMediaViewModel
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.toggle
@@ -38,6 +43,8 @@ class StorachaMediaFragment :
     private val viewModel: StorachaMediaViewModel by viewModel()
     private val args: StorachaMediaFragmentArgs by navArgs()
     private val okHttpClient: OkHttpClient by inject()
+    private lateinit var mediaAdapter: StorachaMediaGridAdapter
+    private lateinit var uploadOverlay: View
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,6 +60,14 @@ class StorachaMediaFragment :
         }
 
         mBinding.rvMediaList.layoutManager = GridLayoutManager(requireContext(), 3)
+
+        // Initialize adapter once
+        mediaAdapter = StorachaMediaGridAdapter(okHttpClient) { file ->
+            Timber.d("Selected: ${file.cid}")
+            openFileInBrowser(file)
+        }
+        mBinding.rvMediaList.adapter = mediaAdapter
+
         return mBinding.root
     }
 
@@ -61,6 +76,7 @@ class StorachaMediaFragment :
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
+        uploadOverlay = view.findViewById(R.id.upload_overlay)
         mBinding.progressBar.toggle(true)
 
         mBinding.addButton.setOnClickListener {
@@ -74,21 +90,43 @@ class StorachaMediaFragment :
         viewModel.loadMoreMediaEntries(userDid, spaceDid, sessionId)
 
         viewModel.loading.observe(viewLifecycleOwner) {
-            mBinding.progressBar.toggle(it)
+            mBinding.loadingContainer.toggle(it)
+        }
+
+        viewModel.loadingState.observe(viewLifecycleOwner) { loadingState ->
+            when (loadingState) {
+                LoadingState.LOADING_FILES -> {
+                    mBinding.loadingText.text = getString(R.string.loading_files)
+                    uploadOverlay.toggle(false)
+                }
+                LoadingState.LOADING_MORE -> {
+                    mBinding.loadingText.text = getString(R.string.loading_more_files)
+                    uploadOverlay.toggle(false)
+                }
+                LoadingState.UPLOADING -> {
+                    mBinding.loadingText.text = getString(R.string.uploading_files)
+                    uploadOverlay.toggle(true)
+                }
+                LoadingState.NONE -> {
+                    // Loading container will be hidden by the loading observer
+                    uploadOverlay.toggle(false)
+                }
+            }
         }
 
         viewModel.media.observe(viewLifecycleOwner) { mediaList ->
-            mBinding.projectsEmpty.toggle(mediaList.isEmpty())
-            mBinding.rvMediaList.adapter =
-                StorachaMediaGridAdapter(mediaList as List<UploadEntry>, okHttpClient) { file ->
-                    Timber.d("Selected: ${file.cid}")
-                }
+            mediaAdapter.updateFiles(mediaList)
+        }
+
+        viewModel.isEmpty.observe(viewLifecycleOwner) { isEmpty ->
+            mBinding.projectsEmpty.toggle(isEmpty)
         }
 
         viewModel.uploadResult.observe(viewLifecycleOwner) { result ->
             result.fold(
                 onSuccess = { uploadResponse ->
                     Timber.d("Upload successful: CID=${uploadResponse.cid}, Size=${uploadResponse.size}")
+                    showUploadSuccessDialog(uploadResponse.cid, uploadResponse.size)
                 },
                 onFailure = { error ->
                     Timber.e(error, "Upload failed")
@@ -242,5 +280,34 @@ class StorachaMediaFragment :
             cursor.getString(nameIndex)
         }
 
+    private fun openFileInBrowser(file: UploadEntry) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(file.gatewayUrl))
+            startActivity(intent)
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to open file in browser: ${file.cid}")
+        }
+    }
+
     override fun getToolbarTitle(): String = arguments?.getString("space_name") ?: getString(R.string.browse_files)
+
+    private fun showUploadSuccessDialog(cid: String, size: Long) {
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Success
+            title = UiText.DynamicString("Success!")
+            message = UiText.DynamicString("File uploaded successfully!\nCID:\n$cid\nSize: ${formatFileSize(size)}")
+            positiveButton {
+                text = UiText.DynamicString("Got it")
+                action = { }
+            }
+        }
+    }
+
+    private fun formatFileSize(bytes: Long): String {
+        return when {
+            bytes >= 1024 * 1024 -> String.format("%.1f MB", bytes / 1024.0 / 1024.0)
+            bytes >= 1024 -> String.format("%.1f KB", bytes / 1024.0)
+            else -> "$bytes B"
+        }
+    }
 }

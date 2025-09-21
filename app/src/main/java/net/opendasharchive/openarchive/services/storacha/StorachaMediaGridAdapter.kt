@@ -22,12 +22,17 @@ import okhttp3.OkHttpClient
 import timber.log.Timber
 
 class StorachaMediaGridAdapter(
-    private val files: List<UploadEntry> = emptyList(),
     client: OkHttpClient,
     private val onClick: (file: UploadEntry) -> Unit,
 ) : RecyclerView.Adapter<StorachaMediaGridAdapter.MediaGridViewHolder>() {
+    private var files: List<UploadEntry> = emptyList()
     private val metadataFetcher = FileMetadataFetcher(client)
     private val metadataCache = mutableMapOf<String, FileMetadata?>()
+
+    fun updateFiles(newFiles: List<UploadEntry>) {
+        files = newFiles
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -58,6 +63,11 @@ class StorachaMediaGridAdapter(
             setIcon(FileType.UNKNOWN)
             binding.name.text = file.cid.take(12) + "..."
             binding.didKey.text = file.cid
+
+            // Set fallback click handler immediately
+            binding.root.setOnClickListener {
+                onClick.invoke(file)
+            }
 
             // Check cache first
             val cachedMetadata = metadataCache[file.cid]

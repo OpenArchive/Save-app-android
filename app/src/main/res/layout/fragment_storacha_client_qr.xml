@@ -1,55 +1,195 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="16dp"
+    android:clipToPadding="false">
 
-    <ImageView
-        android:contentDescription="@string/storacha"
-        android:src="@drawable/storacha_logo"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
-
-    <ImageView
-        android:background="@drawable/qr_outlined"
-        android:id="@+id/qr_code"
-        android:contentDescription="@string/storacha_qr"
-        android:padding="20dp"
-        android:layout_gravity="center"
-        android:layout_width="275dp"
-        android:layout_height="275dp"
-        android:layout_marginHorizontal="40dp"
-        android:src="@drawable/qr_code"/>
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tv_did"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <!-- Header Section -->
+    <LinearLayout
+        android:id="@+id/ll_header"
+        android:layout_width="0dp"
+        android:layout_height="115dp"
         android:gravity="center"
-        android:padding="10dp"
-        android:textSize="12sp"
-        android:textIsSelectable="true"
-        android:fontFamily="monospace"
-        android:layout_marginTop="10dp" />
+        android:padding="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/cv_qr_container">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/tv_instructions"
-        android:layout_width="wrap_content"
+        <!-- Storacha Logo -->
+        <ImageView
+            android:id="@+id/iv_storacha_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/storacha"
+            android:maxHeight="50dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/storacha" />
+
+        <!-- Instructions -->
+        <TextView
+            android:id="@+id/tv_instructions"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="start|center_vertical"
+            android:layout_marginStart="16dp"
+            android:text="@string/this_is_your_qr_code_to_request_access_please_ask_the_admin_to_scab_your_code_to_gain_access_to_soace"
+            android:textColor="@color/colorSectionHeaderText"
+            android:textSize="14sp"
+            android:lineSpacingExtra="2dp" />
+
+    </LinearLayout>
+
+    <!-- QR Code Container Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cv_qr_container"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="top|center"
-        android:text="@string/this_is_your_qr_code_to_request_access_please_ask_the_admin_to_scab_your_code_to_gain_access_to_soace"
-        android:textSize="18sp" />
+        android:layout_marginHorizontal="0dp"
+        android:layout_marginVertical="24dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="8dp"
+        app:strokeColor="@color/c23_light_grey"
+        app:strokeWidth="1dp"
+        app:layout_constraintBottom_toTopOf="@id/btn_continue"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ll_header">
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#fff"
+            android:padding="20dp">
+
+            <!-- QR Code with Background -->
+            <FrameLayout
+                android:id="@+id/fl_qr_code"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toTopOf="@id/ll_did_section"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.5"
+                app:layout_constraintWidth_max="280dp">
+
+                <ImageView
+                    android:id="@+id/qr_code"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="12dp"
+                    android:contentDescription="@string/storacha_qr"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/qr_code" />
+
+            </FrameLayout>
+
+            <!-- DID Section (Centered) -->
+            <LinearLayout
+                android:id="@+id/ll_did_section"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/fl_qr_code">
+
+                <!-- DID Label -->
+                <TextView
+                    android:id="@+id/tv_did_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/did_access_key"
+                    android:textSize="14sp"
+                    android:typeface="serif"
+                    android:textStyle="bold"
+                    android:textColor="@color/c23_dark_grey"
+                    android:letterSpacing="0.02" />
+
+                <!-- DID Text Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cv_did"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardBackgroundColor="@color/inputBackground"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tv_did"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:fontFamily="monospace"
+                            android:gravity="center"
+                            android:layout_margin="16dp"
+                            android:lineSpacingExtra="1dp"
+                            android:textColor="@color/c23_dark_grey"
+                            android:textIsSelectable="true"
+                            android:textSize="14sp" />
+
+                        <View
+                            android:layout_width="2dp"
+                            android:background="#fff"
+                            android:layout_height="match_parent"/>
+
+                        <ImageView
+                            android:id="@+id/iv_copy_did"
+                            android:layout_width="38dp"
+                            android:layout_height="38dp"
+                            android:layout_margin="12dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:contentDescription="@string/copy_did"
+                            android:focusable="true"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_content_copy"
+                            app:tint="@color/colorTertiary" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Action Button -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_continue"
         style="@style/OAMaterialSignInButtonStyle"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginTop="20dp"
-        android:text="@string/action_continue" />
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:minHeight="60dp"
+        android:text="@string/view_spaces"
+        android:textSize="16sp"
+        app:cornerRadius="12dp"
+        android:layout_marginHorizontal="0dp"
+        android:layout_marginBottom="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

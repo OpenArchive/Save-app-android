@@ -73,8 +73,8 @@ class FileMetadataFetcher(
                 // Use the link text as filename (this should be the actual filename)
                 val fileName = linkText
 
-                // Skip if this looks like a hash rather than a filename
-                if (fileName.startsWith("bafy") || fileName.length > 50) continue
+                // Skip if this looks like an IPFS hash rather than a filename
+                if (isIpfsHash(fileName)) continue
 
                 val directUrl = baseUrl.trimEnd('/') + "/" + fileName
                 val fileType = determineFileType(fileName)
@@ -112,6 +112,30 @@ class FileMetadataFetcher(
             Timber.e(e, "Error parsing file metadata from HTML")
         }
         return null
+    }
+
+    private fun isIpfsHash(text: String): Boolean {
+        // IPFS hash patterns:
+        // - CIDv0: Qm... (46 chars, base58)
+        // - CIDv1: bafy... bafz... baga... etc. (variable length, typically 52-64 chars)
+        // - Other CID prefixes: baae, baai, baan, etc.
+
+        return when {
+            // CIDv0 pattern: starts with Qm, exactly 46 characters, base58
+            text.startsWith("Qm") && text.length == 46 && text.all { it.isBase58() } -> true
+
+            // CIDv1 pattern: starts with 'ba', typically 52-64 characters, no file extension
+            text.startsWith("ba") && text.length in 52..64 && !text.contains('.') -> true
+
+            // Additional safety: if it's very long and has no extension, likely a hash
+            text.length > 100 && !text.contains('.') -> true
+
+            else -> false
+        }
+    }
+
+    private fun Char.isBase58(): Boolean {
+        return this in "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
     }
 
     private fun determineFileType(fileName: String): FileType {

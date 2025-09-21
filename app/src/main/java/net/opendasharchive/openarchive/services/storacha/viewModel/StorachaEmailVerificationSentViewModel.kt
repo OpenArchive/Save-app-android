@@ -20,8 +20,13 @@ class StorachaEmailVerificationSentViewModel(
     private val _navigateNext = MutableLiveData<Unit>()
     val navigateNext: LiveData<Unit> = _navigateNext
 
+    private val _showTimeoutDialog = MutableLiveData<Unit>()
+    val showTimeoutDialog: LiveData<Unit> = _showTimeoutDialog
+
     private val accountManager = StorachaAccountManager(application)
     private var pollingJob: Job? = null
+    private var attemptCount = 0
+    private val maxAttempts = 30
 
     init {
         // Check if already verified before starting to poll
@@ -36,7 +41,7 @@ class StorachaEmailVerificationSentViewModel(
     private fun startPollingVerificationStatus() {
         pollingJob =
             viewModelScope.launch {
-                while (true) {
+                while (attemptCount < maxAttempts) {
                     try {
                         val response: SessionValidationResponse = apiService.validateSession(sessionId)
                         if (response.valid && response.verified == 1) {
@@ -46,12 +51,19 @@ class StorachaEmailVerificationSentViewModel(
                                 accountManager.updateAccountVerification(email, true)
                             }
                             _navigateNext.postValue(Unit)
-                            break
+                            return@launch
                         }
                     } catch (_: Exception) {
                         // Optional: log error
                         // Continue polling even on error
                     }
+
+                    attemptCount++
+                    if (attemptCount >= maxAttempts) {
+                        _showTimeoutDialog.postValue(Unit)
+                        break
+                    }
+
                     delay(2000)
                 }
             }
@@ -65,6 +77,17 @@ class StorachaEmailVerificationSentViewModel(
 
     fun pausePolling() {
         pollingJob?.cancel()
+    }
+
+    fun tryAgain() {
+        // Reset attempt counter and restart polling
+        attemptCount = 0
+        pausePolling()
+        startPollingVerificationStatus()
+    }
+
+    fun resetAttemptCounter() {
+        attemptCount = 0
     }
 
     override fun onCleared() {

@@ -1,9 +1,13 @@
 package net.opendasharchive.openarchive.services.storacha
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
@@ -46,6 +50,11 @@ class StorachaClientQRFragment : BaseFragment() {
         // Display the DID text for easy copying
         viewBinding.tvDid.text = userDid
 
+        // Set up copy button click listener
+        viewBinding.ivCopyDid.setOnClickListener {
+            copyToClipboard(userDid)
+        }
+
         // Set up button click listener to navigate to spaces
         viewBinding.btnContinue
             .setOnClickListener {
@@ -56,4 +65,11 @@ class StorachaClientQRFragment : BaseFragment() {
     }
 
     override fun getToolbarTitle(): String = getString(R.string.join_space)
+
+    private fun copyToClipboard(text: String) {
+        val clipboard = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("DID", text)
+        clipboard.setPrimaryClip(clip)
+        Toast.makeText(requireContext(), getString(R.string.copy_did), Toast.LENGTH_SHORT).show()
+    }
 }

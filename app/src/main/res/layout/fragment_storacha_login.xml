@@ -1,20 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:padding="20dp"
+    android:clipToPadding="false"
     android:layout_height="match_parent">
 
-        <ImageView
-            android:contentDescription="@string/storacha"
-            android:src="@drawable/storacha_logo"
-            android:layout_gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginVertical="48dp"
+        android:padding="16dp">
 
-        <com.google.android.material.textfield.TextInputLayout
+        <ImageView
+            android:background="@drawable/circle_shape"
+            android:id="@+id/imageView"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:adjustViewBounds="true"
+            android:importantForAccessibility="no"
+            android:scaleType="fitCenter"
+            android:src="@drawable/storacha"
+            app:tint="@color/c23_teal" />
+
+        <TextView
+            android:layout_marginStart="16dp"
+            android:id="@+id/help_text_sub_header2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:text="@string/access_your_account_using_your_registered_email_address"
+            android:textColor="@color/colorSectionHeaderText"
+            android:textSize="15sp" />
+    </LinearLayout>
+
+
+    <TextView
+        android:layout_marginVertical="8dp"
+        android:textStyle="bold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:linksClickable="true"
+        android:text="@string/account" />
+
+
+    <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/group_name_textfield_container"
             style="@style/OATextInputLayoutStyle"
             android:layout_width="match_parent"
@@ -33,22 +68,27 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/bt_login"
-            style="@style/OAMaterialSignInButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_marginTop="20dp"
-            android:layout_height="60dp"
-            android:text="@string/label_login"
-            tools:layout_editor_absoluteY="186dp" />
-
     <TextView
         android:id="@+id/tv_sign_up_link"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="@string/sign_up_storacha"
         android:linksClickable="true"
+        android:padding="24dp"
+        android:text="@string/sign_up_storacha"
+        android:textStyle="bold" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/bt_login"
+        style="@style/OAMaterialSignInButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="@string/label_login"
+        tools:layout_editor_absoluteY="186dp" />
 
 </LinearLayout>

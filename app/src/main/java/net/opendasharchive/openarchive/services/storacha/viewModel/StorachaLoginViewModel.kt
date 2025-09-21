@@ -25,7 +25,7 @@ class StorachaLoginViewModel(
     private var currentSessionId: String? = null
     private var currentChallenge: String? = null
     private var currentChallengeId: String? = null
-    private val secureStorage = SecureStorage(application, "storacha_login_keys")
+    private val secureStorage = SecureStorage(application, "storacha_did_keys")
 
     fun login(
         email: String,

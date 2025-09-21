@@ -18,25 +18,28 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="80dp"
+            android:gravity="center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+            <ProgressBar
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:layout_gravity="center"
-                android:layout_marginTop="20dp"
+                android:layout_marginBottom="16dp"
+                android:indeterminateTint="@color/c23_teal" />
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="16dp"
                 android:importantForAccessibility="no"
                 android:scaleType="centerInside"
-                app:tint="@color/colorPrimary"
-                android:src="@drawable/ic_storacha_email_verification"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/success_message" />
+                android:src="@drawable/ic_email_verification"
+                app:tint="@color/c23_teal" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -44,23 +47,33 @@
                 android:text="@string/verification_email_sent"
                 android:textAlignment="center"
                 android:textFontWeight="600"
-                android:textSize="18sp"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_marginBottom="16dp"
+                android:textSize="20sp"
+                android:textColor="@android:color/black" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="50dp"
-                android:paddingEnd="50dp"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
                 android:text="@string/please_check_your_inbox_and_click_the_link_on_the_verification_email"
                 android:textAlignment="center"
-                android:textFontWeight="300"
-                android:textSize="18sp"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:textFontWeight="400"
+                android:layout_marginBottom="24dp"
+                android:textSize="16sp"
+                android:textColor="@android:color/darker_gray" />
+
+            <TextView
+                android:id="@+id/email_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
+                android:textAlignment="center"
+                android:textSize="11sp"
+                android:textColor="@android:color/darker_gray"/>
 
         </LinearLayout>
-
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

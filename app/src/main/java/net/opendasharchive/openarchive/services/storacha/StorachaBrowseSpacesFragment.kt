@@ -41,7 +41,7 @@ class StorachaBrowseSpacesFragment : BaseFragment() {
         viewModel.loadSpaces(did, sessionId)
 
         viewModel.loading.observe(viewLifecycleOwner) {
-            mBinding.progressBar.toggle(it)
+            mBinding.loadingContainer.toggle(it)
         }
 
         viewModel.spaces.observe(viewLifecycleOwner) { list ->

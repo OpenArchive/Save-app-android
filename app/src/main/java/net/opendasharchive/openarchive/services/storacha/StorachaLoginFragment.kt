@@ -95,7 +95,7 @@ class StorachaLoginFragment : BaseFragment() {
                         if (loginResponse.verified) {
                             StorachaLoginFragmentDirections.actionFragmentStorachaLoginToFragmentStorachaSpaceSetupSuccess()
                         } else {
-                            StorachaLoginFragmentDirections.actionFragmentStorachaLoginToFragmentStorachaEmailVerificationSent()
+                            StorachaLoginFragmentDirections.actionFragmentStorachaLoginToFragmentStorachaEmailVerificationSent(email)
                         }
                     findNavController().navigate(action)
                 }

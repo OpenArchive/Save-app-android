@@ -469,10 +469,16 @@
     <string name="manage_accounts">Manage Accounts</string>
     <string name="my_spaces">My Spaces</string>
     <string name="join_spaces">Join Spaces</string>
+    <string name="join_space">Join Space</string>
+    <string name="create_or_edit_accounts">Create or edit accounts</string>
+    <string name="access_your_saved_spaces">Access your saved spaces</string>
+    <string name="connect_to_an_existing_space">Connect to an existing space</string>
+    <string name="you_can_add_multiple_private_servers_and_one_ia_account_at_any_time">You can add multiple private servers and one IA account at any time.</string>
+    <string name="storacha_disclaimer">All data uploaded to the Storacha Network is public. Do not store private or sensitive information. Removing files doesn\'t prevent indefinite retention by network nodes.</string>
     <string name="storacha_is_a_decentralized_media_storage_system_using_ipfs_ucan_and_dids">Storacha is a decentralized media storage system using IPFS, UCAN, and DIDs.</string>
-    <string name="sign_up_storacha"><![CDATA[Don\'t have an account? <a href="https://console.storacha.network">create one</a>]]></string>
+    <string name="sign_up_storacha"><![CDATA[Don\'t have an account? <a href="https://console.storacha.network">Create one</a>]]></string>
     <string name="email_has_been_verified_and_the_spaces_have_been_added_to_save">Email has been verified and the spaces have been added to Save</string>
-    <string name="email_address">Email Address</string>
+    <string name="email_address">Email address</string>
     <string name="users_can_delete_the_content_within_the_space">Users can delete the content within the space</string>
     <string name="users_can_read_the_content_within_the_space">Users can read the content within the space</string>
     <string name="users_can_write_content_to_the_space">Users can write content to the space</string>
@@ -481,21 +487,28 @@
     <string name="storacha_qr">storacha qr</string>
     <string name="no_did_has_access_to_this_space">No DID has access to this space</string>
     <string name="no_spaces_available">No Spaces Available</string>
+    <string name="loading_spaces">Loading spaces…</string>
+    <string name="loading_files">Loading files…</string>
+    <string name="loading_more_files">Loading more…</string>
+    <string name="uploading_files">Uploading…</string>
     <string name="logout">Logout</string>
     <string name="please_check_your_inbox_and_click_the_link_on_the_verification_email">Please check your inbox and click the link on the verification email.</string>
     <string name="verification_email_sent">Verification Email Sent</string>
     <string name="access">Access</string>
     <string name="email_verification">Email Verification</string>
     <string name="add_account">Add Account</string>
-    <string name="join_space">Join Space</string>
     <string name="accounts">Accounts</string>
     <string name="spaces">Spaces</string>
     <string name="no_files_available">No files Available</string>
-    <string name="send_directly_to_storacha_server">Connect to Storacha server</string>
+    <string name="send_directly_to_storacha_server">Connect to Storacha network</string>
     <string name="did_access_key">DID ACCESS KEY</string>
     <string name="browse_files">Files</string>
     <string name="no_media_available">No Media Available</string>
     <string name="revoke_access">Revoke Access?\n</string>
     <string name="revoke_access_prompt">"This will revoke access to this DID for this Space\n "</string>
     <string name="revoke">Revoke</string>
+    <string name="view_spaces">View Spaces</string>
+    <string name="copy_did">Copy DID</string>
+    <string name="access_your_account_using_your_registered_email_address">Access your account using your registered email address.</string>
+    <string name="sent_to">Sent to: %1$s</string>
 </resources>

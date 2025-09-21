@@ -313,6 +313,9 @@
         android:id="@+id/fragment_storacha_email_verification_sent"
         android:name="net.opendasharchive.openarchive.services.storacha.StorachaEmailVerificationSentFragment"
         tools:layout="@layout/fragment_storacha_email_verification_sent">
+        <argument
+            android:name="email"
+            app:argType="string" />
         <action
             android:id="@+id/action_fragment_storacha_email_verification_sent_to_fragment_storacha_space_setup_success"
             app:destination="@id/fragment_storacha_space_setup_success"
@@ -320,6 +323,15 @@
             app:popUpToInclusive="true"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_fragment_storacha_email_verification_sent_to_fragment_storacha_login"
+            app:destination="@id/fragment_storacha_login"
+            app:popUpTo="@id/fragment_storacha_login"
+            app:popUpToInclusive="true"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
     </fragment>
