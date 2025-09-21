@@ -1,6 +1,7 @@
 package net.opendasharchive.openarchive.features.onboarding
 
 import android.os.Bundle
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph
@@ -12,7 +13,7 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivitySpaceSetupBinding
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
-import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
+import net.opendasharchive.openarchive.features.settings.FoldersFragment
 
 enum class StartDestination {
     SPACE_TYPE,
@@ -20,13 +21,16 @@ enum class StartDestination {
     DWEB_DASHBOARD,
     ADD_FOLDER,
     ADD_NEW_FOLDER,
-    STORACHA
+    STORACHA,
+    ARCHIVED_FOLDER_LIST
 }
 
 class SpaceSetupActivity : BaseActivity() {
 
     companion object {
-        const val FRAGMENT_TAG = "ssa_fragment"
+        const val EXTRA_FOLDER_ID = "folder_id"
+        const val EXTRA_FOLDER_NAME = "folder_name"
+        const val LABEL_START_DESTINATION = "start_destination"
     }
 
     private lateinit var binding: ActivitySpaceSetupBinding
@@ -68,10 +72,10 @@ class SpaceSetupActivity : BaseActivity() {
             supportFragmentManager.findFragmentById(R.id.space_nav_host_fragment) as NavHostFragment
 
         navController = navHostFragment.navController
-        navGraph = navController.navInflater.inflate(R.navigation.space_setup_navigation)
+        navGraph = navController.navInflater.inflate(R.navigation.app_nav_graph)
 
         val startDestinationString =
-            intent.getStringExtra("start_destination") ?: StartDestination.SPACE_TYPE.name
+            intent.getStringExtra(LABEL_START_DESTINATION) ?: StartDestination.SPACE_TYPE.name
         val startDestination = StartDestination.valueOf(startDestinationString)
         when (startDestination) {
             StartDestination.SPACE_LIST -> {
@@ -85,6 +89,23 @@ class SpaceSetupActivity : BaseActivity() {
             }
             StartDestination.STORACHA -> {
                 navGraph.setStartDestination(R.id.fragment_storacha)
+            }
+            StartDestination.ARCHIVED_FOLDER_LIST -> {
+                navGraph.setStartDestination(R.id.fragment_folders)
+
+                // Pass arguments from intent to navigation graph
+                val showArchived = intent.getBooleanExtra(FoldersFragment.EXTRA_SHOW_ARCHIVED, false)
+                val selectedSpaceId = intent.getLongExtra(FoldersFragment.EXTRA_SELECTED_SPACE_ID, -1L)
+                val selectedProjectId = intent.getLongExtra(FoldersFragment.EXTRA_SELECTED_PROJECT_ID, -1L)
+
+                val bundle = bundleOf(
+                    "show_archived" to showArchived,
+                    "selected_space_id" to selectedSpaceId,
+                    "selected_project_id" to selectedProjectId
+                )
+
+                navController.setGraph(navGraph, bundle)
+                return // Early return to avoid setting graph again
             }
             else -> {
                 navGraph.setStartDestination(R.id.fragment_space_setup)

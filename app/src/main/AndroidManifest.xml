@@ -71,7 +71,7 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
-            android:theme="@style/SaveAppTheme.NoActionBar"
+            android:theme="@style/Theme.SaveApp.Starting"
             tools:ignore="DiscouragedApi">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -110,67 +110,7 @@
         </activity>
 
         <activity
-            android:name=".features.main.HomeActivity"
-            android:exported="true"
-            android:screenOrientation="portrait">
-            <!--            <intent-filter>-->
-            <!--                <action android:name="android.intent.action.MAIN" />-->
-
-            <!--                <category android:name="android.intent.category.LAUNCHER" />-->
-            <!--            </intent-filter>-->
-
-            <!-- filter for sending text or images; accepts SEND action and audio/photo/video data -->
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="*/*" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="application/*" />
-                <data android:mimeType="audio/*" />
-                <data android:mimeType="image/*" />
-                <data android:mimeType="message/*" />
-                <data android:mimeType="multipart/*" />
-                <data android:mimeType="text/*" />
-                <data android:mimeType="video/*" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="save+dweb" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".upload.UploadManagerActivity"
-            android:exported="false"
-            android:label="@string/title_activity_upload_manager"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
             android:name=".services.gdrive.GDriveActivity"
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.settings.FoldersActivity"
-            android:exported="false"
-            android:label="@string/folders"
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.settings.GeneralSettingsActivity"
-            android:exported="false"
-            android:label="@string/general"
-            android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar" />
 
         <activity
@@ -222,22 +162,6 @@
             android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar" />
 
-        <!--        <activity-->
-        <!--            android:name=".features.folders.CreateNewFolderActivity"-->
-        <!--            android:label="@string/new_folder"-->
-        <!--            android:taskAffinity=""-->
-        <!--            android:theme="@style/SaveAppTheme.NoActionBar" />-->
-
-        <activity
-            android:name=".features.folders.AddFolderActivity"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.settings.EditFolderActivity"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
         <activity
             android:name=".features.settings.ConsentActivity"
             android:label="@string/health_checks"
@@ -282,6 +206,10 @@
         <meta-data
             android:name="VERSION"
             android:value="37" />
+        <!--        NOTE: Please do not write migrations for added columns, as they are not needed.-->
+        <!--        Only upgrade the version number when you add a new column.-->
+        <!--        migration sql causing duplicate column error:-->
+        <!--            https://github.com/chennaione/sugar/issues/713  -->
 
         <provider
             android:name="androidx.core.content.FileProvider"

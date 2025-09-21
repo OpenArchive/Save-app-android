@@ -54,6 +54,8 @@
     <string name="folder_removed">Folder removed</string>
     <string name="folder_archived">Folder archived</string>
 
+    <string name="content_picker_label">Add media from</string>
+
     <!-- MainFragment -->
 
     <!-- Settings Fragment -->
@@ -84,7 +86,7 @@
 
 
     <string name="license_label">License</string>
-    <string name="info_license_cc0">Waive all restrictions, requirements, and attribution (CC0)</string>
+    <string name="info_license_cc0">Waive all restrictions, requirements, and attribution (CC0).</string>
     <string name="info_license_deriv">Allow anyone to remix and share?</string>
     <string name="info_license_sharealike">Require them to share like you have?</string>
     <string name="info_license_comm">Allow commercial use?</string>
@@ -120,7 +122,7 @@
     <string name="prefs_use_proofmode_title">Enable ProofMode</string>
     <string name="prefs_use_proofmode_summary">Share ProofMode public key</string>
 <!--    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a system that enables authentication and verification of multimedia content, <a href="%1$s" style="text-decoration: underline;">learn more here</a>]]></string>-->
-    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a way to enhance the authentication and verification of multimedia content. <a href=\"%1$s\"><u>learn more here.</u></a>]]></string>
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a way to enhance the authentication and verification of multimedia content. <a href=\"%1$s\"><u>Learn more here.</u></a>]]></string>
     <!--    <string name="prefs_use_proofmode_description">-->
 <!--        ProofMode is a system that enables authentication and verification of multimedia content, &lt;a href="%1$s" style="text-decoration: underline;"&gt;learn more here&lt;/a&gt;-->
 <!--    </string>-->
@@ -214,7 +216,7 @@
     <string name="create_a_new_folder">Create a New Folder</string>
     <string name="create_new_folder_title">Please name your folder</string>
     <string name="create_new_folder_subtitle">This folder will be created on your server and added to Save.</string>
-    <string name="create_new_folder_hint">Enter folder name</string>
+    <string name="create_new_folder_hint"><i>Enter folder name</i></string>
     <string name="edit">Edit</string>
     <string name="menu_done">Done</string>
     <string name="remove_from_app">Remove from app</string>
@@ -277,7 +279,7 @@
     <string name="uploading_is_paused">Uploading is paused</string>
 
     <!-- Clean Insights measurement -->
-    <string name="server_name_optional">Server Name (Optional)</string>
+    <string name="server_name_optional"><i>Server Name (Optional)</i></string>
     <string name="dropbox_id">Dropbox ID:</string>
     <string name="add_another_account">Add new server</string>
     <string name="prefs_proofmode_key_encryption_title_all">Secure ProofMode Key with Biometrics or Device Passcode</string>
@@ -313,19 +315,19 @@
     <string name="intro_header_verify" translatable="false">Verify</string>
     <string name="intro_header_encrypt" translatable="false">Encrypt</string>
     <string name="intro_text_secure">Send your media securely to private servers and lock the app with a pin.</string>
-    <string name="intro_text_archive"><![CDATA[Keep your media verifiable, safe and organized for the long-term by uploading it to private or public servers like Nextcloud or the Internet Archive.<br>Communicate your intentions for future use by adding a <a href=\"%1$s\"><u>Creative Commons License</u></a>.]]></string>
+    <string name="intro_text_archive"><![CDATA[Upload media to Nextcloud or the Internet Archive to keep your media verifiable, safe, and organized for the long term.<br><br>Choose <a href=\"%1$s\"><u>Creative Commons Licensing</u></a>.]]></string>
 <!--    <string name="intro_text_archive">Keep your media verifiable, safe and organized for the long-term by uploading it to private or public servers like Nextcloud or the Internet Archive.&lt;br&gt;Communicate your intentions for future use by adding a &lt;a href="%1$s" style="text-decoration: underline;"&gt;Creative Commons License&lt;/a&gt;.</string>-->
 
     <string name="intro_link_archive" translatable="false">https://creativecommons.org</string>
     <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href=\"%1$s\"><u>ProofMode</u></a>.]]></string>
     <string name="intro_link_verify" translatable="false">https://proofmode.org</string>
     <string name="intro_text_encrypt_old">Automatically upload over TLS (Transport Layer Security) and use Orbot to protect your media in transit over the Tor network.</string>
-    <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> always uploads over TLS (Transport Layer Security) to protect your media in transit.<br>To further enhance security, enable <a href=\"%1$s\"><u>Orbot</u></a> to prevent interception of your media from your phone to the server.]]></string>
+    <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> always uploads over TLS (Transport Layer Security) to protect your media in transit.<br>To further enhance security, enable <a href=\"%1$s\"><u>Tor</u></a> to prevent interception of your media from your phone to the server.]]></string>
 <!--    <string name="intro_text_encrypt">-->
 <!--        &lt;b&gt;&lt;i&gt;Save&lt;/i&gt;&lt;/b&gt; always uploads over TLS (Transport Layer Security) to protect your media in transit.&lt;br&gt;-->
 <!--        To further enhance security, enable &lt;a href="%1$s" style="text-decoration: underline;"&gt;Tor&lt;/a&gt; to prevent interception of your media from your phone to the server.-->
 <!--    </string>-->
-    <string name="intro_link_encrypt" translatable="false">https://orbot.app/</string>
+    <string name="intro_link_encrypt" translatable="false">https://www.torproject.org</string>
 
     <string name="next">Next</string>
     <string name="done">Done</string>
@@ -353,8 +355,8 @@
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Once uploaded, you will not be able to edit media.</string>
     <string name="edit_media_info">Edit Media Info</string>
     <string name="counter">%1$d/%2$d</string>
-    <string name="add_a_location_optional">Add a location (optional)</string>
-    <string name="add_notes_optional">Add notes (optional)</string>
+    <string name="add_a_location_optional"><i>Add a location (optional)</i></string>
+    <string name="add_notes_optional"><i>Add notes (optional)</i></string>
     <string name="skip">Skip</string>
     <string name="add_camera">Add Images from Camera</string>
     <string name="add_images_or_video">Add Images or Video</string>
@@ -454,7 +456,7 @@
     <string name="label_got_it">Got it</string>
 
     <!-- Create New Folder -->
-    <string name="create_folder_ok_message">You have added a folder successfully</string>
+    <string name="create_folder_ok_message">You have added a folder successfully.</string>
     <string name="msg_edit_server_success">You have changed your server settings successfully.</string>
     <string name="expand">Expand</string>
     <string name="lbl_no_servers">No servers added yet.</string>

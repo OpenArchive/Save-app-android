@@ -20,6 +20,7 @@ import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.dialog.showSuccessDialog
+import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.hide
@@ -53,7 +54,7 @@ class CreateNewFolderFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         val intent = requireActivity().intent
 
-        binding.newFolder.setText(intent.getStringExtra(AddFolderActivity.EXTRA_FOLDER_NAME))
+        binding.newFolder.setText(intent.getStringExtra(SpaceSetupActivity.EXTRA_FOLDER_NAME))
 
         binding.newFolder.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
@@ -150,7 +151,7 @@ class CreateNewFolderFragment : BaseFragment() {
 
     private fun navigateBackWithResult(projectId: Long) {
         val i = Intent()
-        i.putExtra(AddFolderActivity.EXTRA_FOLDER_ID, projectId)
+        i.putExtra(SpaceSetupActivity.EXTRA_FOLDER_ID, projectId)
 
         requireActivity().setResult(RESULT_OK, i)
         requireActivity().finish()

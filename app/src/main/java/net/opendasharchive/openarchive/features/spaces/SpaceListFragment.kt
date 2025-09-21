@@ -34,7 +34,7 @@ class SpaceListFragment : BaseFragment() {
 
         binding.composeViewSpaceList.setContent {
 
-            val viewModel: SpaceListViewModel  = koinViewModel()
+            val viewModel: SpaceListViewModel = koinViewModel()
 
             SaveAppTheme {
 

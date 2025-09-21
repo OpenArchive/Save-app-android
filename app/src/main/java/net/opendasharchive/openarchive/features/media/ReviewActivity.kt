@@ -291,6 +291,7 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
         }
 
     private fun showFirstTimeFlag() {
+        //TODO:
         if (!Prefs.flagHintShown) return
 
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {

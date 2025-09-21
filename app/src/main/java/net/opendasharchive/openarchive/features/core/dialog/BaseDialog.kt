@@ -267,9 +267,9 @@ private fun BaseDialogPreview() {
             onDismiss = {},
             icon = Icons.Filled.Check.asUiImage(),
             iconColor = MaterialTheme.colorScheme.tertiary,
-            title = "Success",
-            message = "You have added a folder successfully",
-            positiveButton = ButtonData(UiText.DynamicString("OK")),
+            title = stringResource(R.string.label_success_title),
+            message = stringResource(R.string.create_folder_ok_message),
+            positiveButton = ButtonData(UiText.StringResource(R.string.lbl_ok)),
         )
 
     }
