@@ -1,15 +1,11 @@
 package net.opendasharchive.openarchive.features.media
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.MediaStore
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
@@ -39,7 +35,7 @@ import java.util.Date
 
 object Picker {
 
-    var currentPhotoUri: Uri? = null
+    private var currentPhotoUri: Uri? = null
 
     fun register(
         activity: ComponentActivity,
@@ -165,14 +161,6 @@ object Picker {
      * This is the recommended approach for new implementations.
      */
     fun takePhotoModern(activity: Activity, launcher: ActivityResultLauncher<Uri>) {
-        // Check camera permission
-        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CAMERA)
-            != PackageManager.PERMISSION_GRANTED) {
-            // Request camera permission
-            ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.CAMERA), 100)
-            return
-        }
-
         try {
             val file = Utility.getOutputMediaFileByCache(activity, "IMG_${System.currentTimeMillis()}.jpg")
 

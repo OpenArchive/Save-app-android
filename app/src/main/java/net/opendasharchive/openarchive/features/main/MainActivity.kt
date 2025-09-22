@@ -952,14 +952,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 100 && grantResults.isNotEmpty() && grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            // Camera permission granted, retry camera launch
-            Picker.takePhotoModern(this, mediaLaunchers.modernCameraLauncher)
-        }
-    }
-
     // ----- Adapter Listeners -----
     override fun onProjectSelected(project: Project) {
         binding.drawerLayout.closeDrawer(binding.drawerContent)
