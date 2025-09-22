@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.services.storacha.model.AccountUsageResponse
+import net.opendasharchive.openarchive.services.storacha.model.PlanInfo
 import net.opendasharchive.openarchive.services.storacha.service.StorachaApiService
 
 class StorachaAccountDetailsViewModel(
@@ -36,6 +37,17 @@ class StorachaAccountDetailsViewModel(
         }
     }
 
+    fun getPlanInfo(accountUsage: AccountUsageResponse): PlanInfo {
+        return PlanInfo.fromPlanProduct(accountUsage.planProduct)
+    }
+
+    fun getUsagePercentage(totalBytes: Long, planInfo: PlanInfo): Int =
+        if (planInfo.storageLimit > 0) {
+            ((totalBytes.toDouble() / planInfo.storageLimit.toDouble()) * 100).toInt().coerceIn(0, 100)
+        } else {
+            0
+        }
+
     fun getUsagePercentage(
         totalBytes: Long,
         maxBytes: Long = 2L * 1024 * 1024 * 1024 * 1024,
@@ -60,6 +72,12 @@ class StorachaAccountDetailsViewModel(
     }
 
     fun formatUsageText(usedBytes: Long): String = "Used: ${formatBytes(usedBytes)}"
+
+    fun formatUsageText(usedBytes: Long, planInfo: PlanInfo): String {
+        val used = formatBytes(usedBytes)
+        val total = formatBytes(planInfo.storageLimit)
+        return "$used of $total used"
+    }
 
     fun logout(sessionId: String) {
         viewModelScope.launch {

@@ -19,9 +19,9 @@ import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.services.storacha.util.StorachaAccountManager
 import net.opendasharchive.openarchive.util.extensions.toggle
 
-class StorachaViewAccountsFragment :
-    BaseFragment(),
-    MenuProvider {
+class StorachaViewAccountsFragment : BaseFragment() {
+//    , MenuProvider
+
     private lateinit var mBinding: FragmentStorachaAccountsBinding
 
     override fun onCreateView(
@@ -40,7 +40,7 @@ class StorachaViewAccountsFragment :
     ) {
         super.onViewCreated(view, savedInstanceState)
         loadLoggedInAccounts()
-        activity?.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+//        activity?.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     override fun onResume() {
@@ -50,7 +50,7 @@ class StorachaViewAccountsFragment :
     }
 
     private fun loadLoggedInAccounts() {
-        mBinding.progressBar.toggle(true)
+        mBinding.loadingContainer.toggle(true)
 
         Handler(Looper.getMainLooper()).postDelayed({
             val accountManager = StorachaAccountManager(requireContext())
@@ -74,28 +74,28 @@ class StorachaViewAccountsFragment :
                         findNavController().navigate(action)
                     }
             }
-            mBinding.progressBar.toggle(false)
+            mBinding.loadingContainer.toggle(false)
         }, 500)
     }
 
     override fun getToolbarTitle(): String = getString(R.string.accounts)
 
-    override fun onCreateMenu(
-        menu: Menu,
-        menuInflater: MenuInflater,
-    ) {
-        menuInflater.inflate(R.menu.menu_browse_folder, menu)
-    }
-
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
-        when (menuItem.itemId) {
-            R.id.action_add -> {
-                val action =
-                    StorachaViewAccountsFragmentDirections.actionFragmentStorachaAccountsToFragmentStorachaLogin()
-                findNavController().navigate(action)
-                true
-            }
-
-            else -> false
-        }
+//    override fun onCreateMenu(
+//        menu: Menu,
+//        menuInflater: MenuInflater,
+//    ) {
+//        menuInflater.inflate(R.menu.menu_browse_folder, menu)
+//    }
+//
+//    override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
+//        when (menuItem.itemId) {
+//            R.id.action_add -> {
+//                val action =
+//                    StorachaViewAccountsFragmentDirections.actionFragmentStorachaAccountsToFragmentStorachaLogin()
+//                findNavController().navigate(action)
+//                true
+//            }
+//
+//            else -> false
+//        }
 }

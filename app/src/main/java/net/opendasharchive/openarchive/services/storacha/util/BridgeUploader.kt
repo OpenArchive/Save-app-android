@@ -81,19 +81,63 @@ class BridgeUploader(
                 kotlinx.coroutines.delay(100)
 
                 // Step 2: Call store/add to get S3 pre-signed URL
-                val storeResult = storeAddWithRetry(tokens, spaceDid, carCid, carData.size.toLong())
+                val storeResult =
+                    storeAddWithRetry(
+                        tokens,
+                        spaceDid,
+                        carCid,
+                        carData.size.toLong(),
+                        0,
+                        userDid,
+                        sessionId,
+                    )
 
                 // Step 3: Upload to S3 (if required)
                 if (storeResult.status == "upload" && storeResult.url != null) {
                     Timber.e("S3 upload required")
-                    uploadToS3(carData, storeResult.url, storeResult.headers ?: emptyMap())
-                    Timber.e("S3 upload completed")
+                    try {
+                        uploadToS3(carData, storeResult.url, storeResult.headers ?: emptyMap())
+                        Timber.e("S3 upload completed")
+                    } catch (s3Error: Exception) {
+                        // Check if S3 error is due to expired token/URL - regenerate and retry once
+                        if (s3Error.message?.contains("InvalidToken", ignoreCase = true) == true ||
+                            s3Error.message?.contains("403") == true
+                        ) {
+                            Timber.e("S3 upload failed with token/permission error, regenerating tokens and retrying...")
+
+                            // Regenerate tokens and get fresh S3 URL
+                            val newTokens = generateBridgeTokens(spaceDid, userDid, sessionId)
+                            kotlinx.coroutines.delay(100) // Brief delay for token propagation
+                            val newStoreResult =
+                                storeAddWithRetry(
+                                    newTokens,
+                                    spaceDid,
+                                    carCid,
+                                    carData.size.toLong(),
+                                    0,
+                                    userDid,
+                                    sessionId,
+                                )
+
+                            if (newStoreResult.status == "upload" && newStoreResult.url != null) {
+                                uploadToS3(
+                                    carData,
+                                    newStoreResult.url,
+                                    newStoreResult.headers ?: emptyMap(),
+                                )
+                                Timber.e("S3 upload completed after retry")
+                            }
+                        } else {
+                            throw s3Error // Re-throw if not a token issue
+                        }
+                    }
                 } else {
                     Timber.e("File already uploaded, status: ${storeResult.status}")
                 }
 
                 // Step 4: Register upload with upload/add
-                val uploadResult = uploadAddWithRetry(tokens, spaceDid, rootCid)
+                val uploadResult =
+                    uploadAddWithRetry(tokens, spaceDid, rootCid, 0, userDid, sessionId)
                 Timber.e("Upload registered successfully")
 
                 BridgeUploadResult(
@@ -127,13 +171,26 @@ class BridgeUploader(
                 json = false,
             )
 
-        val response = storachaService.getBridgeTokens(userDid, sessionId, request)
+        try {
+            val response = storachaService.getBridgeTokens(userDid, sessionId, request)
 
-        // Log token details for debugging
-        Timber.e("Generated tokens - X-Auth-Secret length: ${response.tokens.xAuthSecret.length}")
-        Timber.e("Authorization length: ${response.tokens.authorization.length}")
+            // Log token details for debugging
+            Timber.e("Generated tokens - X-Auth-Secret length: ${response.tokens.xAuthSecret.length}")
+            Timber.e("Authorization length: ${response.tokens.authorization.length}")
 
-        return response.tokens
+            return response.tokens
+        } catch (e: retrofit2.HttpException) {
+            val errorBody = e.response()?.errorBody()?.string() ?: "No error details"
+            val httpCode = e.code()
+            val httpMessage = e.message()
+
+            Timber.e("Token generation HTTP error: $httpCode $httpMessage")
+            Timber.e("Token generation error body: $errorBody")
+
+            val detailedError =
+                "HTTP $httpCode: $httpMessage${if (errorBody != "No error details") "\nServer response: $errorBody" else ""}"
+            throw Exception("Bridge token generation failed - $detailedError")
+        }
     }
 
     /**
@@ -145,6 +202,8 @@ class BridgeUploader(
         carCid: String,
         carSize: Long,
         retryCount: Int = 0,
+        userDid: String? = null,
+        sessionId: String? = null,
     ): net.opendasharchive.openarchive.services.storacha.model.StoreAddSuccess {
         val storeTask =
             StoreAddTask(
@@ -182,18 +241,59 @@ class BridgeUploader(
                         .toString()
                 Timber.e("Bridge store/add error: $errorMsg")
 
-                // Check for token expiration and retry once
-                if (retryCount == 0 && errorMsg.contains("expired")) {
-                    Timber.e("Token expired, regenerating and retrying...")
+                // Check for token expiration and retry once with new tokens
+                if (retryCount == 0 && (errorMsg.contains("expired") || errorMsg.contains("delegation"))) {
+                    Timber.e("Token expired or delegation issue, regenerating tokens and retrying...")
                     kotlinx.coroutines.delay(500) // Brief delay
-                    // Note: Would need to regenerate tokens here
-                    throw Exception("Token expired - need to regenerate tokens")
+                    val newTokens = generateBridgeTokens(spaceDid, userDid, sessionId)
+                    return storeAddWithRetry(
+                        newTokens,
+                        spaceDid,
+                        carCid,
+                        carSize,
+                        retryCount + 1,
+                        userDid,
+                        sessionId,
+                    )
                 }
 
                 throw Exception("Bridge store/add error: $errorMsg")
             }
 
             return storeResponse.p.out.ok!!
+        } catch (e: retrofit2.HttpException) {
+            val errorBody = e.response()?.errorBody()?.string() ?: "No error details"
+            val httpCode = e.code()
+            val httpMessage = e.message()
+
+            Timber.e("store/add HTTP error: $httpCode $httpMessage")
+            Timber.e("store/add error body: $errorBody")
+
+            // Check for token-related HTTP errors and retry with fresh tokens
+            if (retryCount == 0 && (
+                    httpCode == 401 || httpCode == 403 ||
+                        errorBody.contains("InvalidToken", ignoreCase = true) ||
+                        errorBody.contains("expired", ignoreCase = true) ||
+                        errorBody.contains("delegation", ignoreCase = true)
+                )
+            ) {
+                Timber.e("HTTP $httpCode suggests token issue, regenerating tokens and retrying...")
+                kotlinx.coroutines.delay(500)
+                val newTokens = generateBridgeTokens(spaceDid, userDid, sessionId)
+                return storeAddWithRetry(
+                    newTokens,
+                    spaceDid,
+                    carCid,
+                    carSize,
+                    retryCount + 1,
+                    userDid,
+                    sessionId,
+                )
+            }
+
+            val detailedError =
+                "HTTP $httpCode: $httpMessage${if (errorBody != "No error details") "\nServer response: $errorBody" else ""}"
+            throw Exception("Bridge store/add failed - $detailedError")
         } catch (e: Exception) {
             Timber.e("store/add failed: ${e.message}")
 
@@ -262,11 +362,19 @@ class BridgeUploader(
 
         if (!response.isSuccessful) {
             val responseBody = response.body?.string() ?: "No response body"
+            val responseHeaders = response.headers.toMultimap().toString()
+
             Timber.e("S3 upload failed - Code: ${response.code}, Message: ${response.message}")
             Timber.e("S3 response body: $responseBody")
+            Timber.e("S3 response headers: $responseHeaders")
             Timber.e("CAR data size: ${carData.size} bytes")
+
             response.close()
-            throw Exception("S3 upload failed: ${response.code} ${response.message} - $responseBody")
+
+            val detailedError =
+                "S3 upload failed - HTTP ${response.code}: ${response.message}" +
+                    if (responseBody != "No response body") "\nS3 response: $responseBody" else ""
+            throw Exception(detailedError)
         }
         response.close()
     }
@@ -278,6 +386,9 @@ class BridgeUploader(
         tokens: BridgeTokens,
         spaceDid: String,
         rootCid: String,
+        retryCount: Int = 0,
+        userDid: String? = null,
+        sessionId: String? = null,
     ): net.opendasharchive.openarchive.services.storacha.model.UploadAddSuccess {
         val uploadTask =
             UploadAddTask(
@@ -313,10 +424,58 @@ class BridgeUploader(
                     uploadResponse.p.out.error
                         .toString()
                 Timber.e("Bridge upload/add error: $errorMsg")
+
+                // Check for token expiration and retry once with new tokens
+                if (retryCount == 0 && (errorMsg.contains("expired") || errorMsg.contains("delegation"))) {
+                    Timber.e("Token expired or delegation issue in upload/add, regenerating tokens and retrying...")
+                    kotlinx.coroutines.delay(500) // Brief delay
+                    val newTokens = generateBridgeTokens(spaceDid, userDid, sessionId)
+                    return uploadAddWithRetry(
+                        newTokens,
+                        spaceDid,
+                        rootCid,
+                        retryCount + 1,
+                        userDid,
+                        sessionId,
+                    )
+                }
+
                 throw Exception("Bridge upload/add error: $errorMsg")
             }
 
             return uploadResponse.p.out.ok!!
+        } catch (e: retrofit2.HttpException) {
+            val errorBody = e.response()?.errorBody()?.string() ?: "No error details"
+            val httpCode = e.code()
+            val httpMessage = e.message()
+
+            Timber.e("upload/add HTTP error: $httpCode $httpMessage")
+            Timber.e("upload/add error body: $errorBody")
+
+            // Check for token-related HTTP errors and retry with fresh tokens
+            if (retryCount == 0 && (
+                    httpCode == 401 || httpCode == 403 ||
+                        errorBody.contains("InvalidToken", ignoreCase = true) ||
+                        errorBody.contains("expired", ignoreCase = true) ||
+                        errorBody.contains("delegation", ignoreCase = true)
+                )
+            ) {
+                Timber.e("HTTP $httpCode suggests token issue in upload/add, regenerating tokens and retrying...")
+                kotlinx.coroutines.delay(500)
+                val newTokens = generateBridgeTokens(spaceDid, userDid, sessionId)
+                return uploadAddWithRetry(
+                    newTokens,
+                    spaceDid,
+                    rootCid,
+                    retryCount + 1,
+                    userDid,
+                    sessionId,
+                )
+            }
+
+            val detailedError =
+                "HTTP $httpCode: $httpMessage${if (errorBody != "No error details") "\nServer response: $errorBody" else ""}"
+            throw Exception("Bridge upload/add failed - $detailedError")
         } catch (e: Exception) {
             Timber.e("upload/add failed: ${e.message}")
 

@@ -24,6 +24,7 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.services.storacha.model.UploadEntry
 import net.opendasharchive.openarchive.services.storacha.util.CarFileCreator
+import net.opendasharchive.openarchive.services.storacha.util.CarFileResult
 import net.opendasharchive.openarchive.services.storacha.util.DidManager
 import net.opendasharchive.openarchive.services.storacha.viewModel.LoadingState
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaMediaViewModel
@@ -45,6 +46,18 @@ class StorachaMediaFragment :
     private val okHttpClient: OkHttpClient by inject()
     private lateinit var mediaAdapter: StorachaMediaGridAdapter
     private lateinit var uploadOverlay: View
+
+    // Store the last failed upload details for retry
+    private var lastFailedUpload: FailedUploadData? = null
+
+    private data class FailedUploadData(
+        val uri: Uri,
+        val tempFile: File,
+        val carResult: CarFileResult,
+        val userDid: String,
+        val spaceDid: String,
+        val sessionId: String
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -126,11 +139,12 @@ class StorachaMediaFragment :
             result.fold(
                 onSuccess = { uploadResponse ->
                     Timber.d("Upload successful: CID=${uploadResponse.cid}, Size=${uploadResponse.size}")
+                    lastFailedUpload = null // Clear any previous failed upload
                     showUploadSuccessDialog(uploadResponse.cid, uploadResponse.size)
                 },
                 onFailure = { error ->
                     Timber.e(error, "Upload failed")
-                    // You could show a toast or snackbar here
+                    showUploadErrorDialog(error)
                 },
             )
         }
@@ -248,6 +262,17 @@ class StorachaMediaFragment :
         // Clean up temporary file
         // tempFile.delete()
         val sessionId = args.sessionId
+
+        // Store upload details for potential retry
+        lastFailedUpload = FailedUploadData(
+            uri = uri,
+            tempFile = tempFile,
+            carResult = carResult,
+            userDid = userDid,
+            spaceDid = spaceDid,
+            sessionId = sessionId
+        )
+
         viewModel.uploadFile(tempFile, carResult, userDid, spaceDid, sessionId)
     }
 
@@ -300,6 +325,116 @@ class StorachaMediaFragment :
                 text = UiText.DynamicString("Got it")
                 action = { }
             }
+        }
+    }
+
+    private fun showUploadErrorDialog(error: Throwable) {
+        val fullErrorMessage = error.message ?: "Unknown error"
+        val userFriendlyMessage = parseErrorMessage(fullErrorMessage)
+
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Error
+            title = UiText.DynamicString("Upload Failed")
+            message = UiText.DynamicString(userFriendlyMessage)
+            positiveButton {
+                text = UiText.DynamicString("Try Again")
+                action = { retryLastUpload() }
+            }
+            neutralButton {
+                text = UiText.DynamicString("Cancel")
+                action = {
+                    lastFailedUpload = null // Clear failed upload data
+                }
+            }
+        }
+    }
+
+    private fun parseErrorMessage(fullMessage: String): String {
+        return when {
+            // Session/Authentication issues - Ask user to re-login
+            fullMessage.contains("Session not verified", ignoreCase = true) ||
+            fullMessage.contains("Authentication required", ignoreCase = true) -> {
+                "Your session has expired. Please log out and log back in, then try uploading again."
+            }
+
+            // Permission issues - Clear and actionable
+            fullMessage.contains("Claim not authorized", ignoreCase = true) ||
+            fullMessage.contains("Access forbidden", ignoreCase = true) ||
+            fullMessage.contains("403") -> {
+                "You don't have permission to upload to this space. Please check with the space owner."
+            }
+
+            // Network connectivity issues
+            fullMessage.contains("network", ignoreCase = true) ||
+            fullMessage.contains("connection", ignoreCase = true) ||
+            fullMessage.contains("ConnectException", ignoreCase = true) -> {
+                "Can't connect to the server. Please check your internet connection and try again."
+            }
+
+            // Service unavailable
+            fullMessage.contains("Cannot POST", ignoreCase = true) ||
+            fullMessage.contains("503") ||
+            fullMessage.contains("service unavailable", ignoreCase = true) -> {
+                "The storage service is temporarily unavailable. Please try again in a few minutes."
+            }
+
+            // File too large or timeout
+            fullMessage.contains("timeout", ignoreCase = true) ||
+            fullMessage.contains("too large", ignoreCase = true) ||
+            fullMessage.contains("431") -> {
+                "The file might be too large or the upload is taking too long. Try with a smaller file or check your connection."
+            }
+
+            // Server overloaded
+            fullMessage.contains("429") ||
+            fullMessage.contains("too many requests", ignoreCase = true) -> {
+                "The server is busy. Please wait a moment and try again."
+            }
+
+            // Generic server errors
+            fullMessage.contains("500") ||
+            fullMessage.contains("server error", ignoreCase = true) -> {
+                "Something went wrong on the server. Please try again."
+            }
+
+            // Token/authorization issues (usually auto-retried)
+            fullMessage.contains("InvalidToken", ignoreCase = true) ||
+            fullMessage.contains("expired", ignoreCase = true) ||
+            fullMessage.contains("delegation", ignoreCase = true) -> {
+                "There was an authentication issue. The app will try again automatically."
+            }
+
+            // Storage/Bridge specific issues
+            fullMessage.contains("Bridge", ignoreCase = true) ||
+            fullMessage.contains("S3 upload failed", ignoreCase = true) ||
+            fullMessage.contains("store/add", ignoreCase = true) ||
+            fullMessage.contains("upload/add", ignoreCase = true) -> {
+                "There was a problem with the storage service. Please try again."
+            }
+
+            // Space/storage issues
+            fullMessage.contains("space", ignoreCase = true) ||
+            fullMessage.contains("storage", ignoreCase = true) -> {
+                "There might not be enough storage space available. Please try again or contact support."
+            }
+
+            // Generic fallback - keep it simple
+            else -> {
+                "Something went wrong with the upload. Please try again."
+            }
+        }
+    }
+
+    private fun retryLastUpload() {
+        lastFailedUpload?.let { failedUpload ->
+            Timber.d("Retrying upload for file: ${failedUpload.uri}")
+            viewModel.uploadFile(
+                failedUpload.tempFile,
+                failedUpload.carResult,
+                failedUpload.userDid,
+                failedUpload.spaceDid,
+                failedUpload.sessionId
+            )
         }
     }
 

@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:filterTouchesWhenObscured="true"
+    tools:background="@color/colorBackground"
+    tools:context="net.opendasharchive.openarchive.services.storacha.StorachaAccountDetailsFragment">
+
+<LinearLayout
     android:layout_width="match_parent"
     android:orientation="vertical"
     android:layout_height="match_parent"
     android:padding="20dp"
-    android:filterTouchesWhenObscured="true"
-    android:paddingBottom="24dp"
-    tools:background="@color/colorBackground"
-    tools:context="net.opendasharchive.openarchive.services.storacha.StorachaAccountDetailsFragment">
+    android:paddingBottom="24dp">
 
         <com.google.android.material.textfield.TextInputLayout
 
@@ -47,7 +51,6 @@
                 android:id="@+id/tv_package"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Business"
                 android:textFontWeight="600"
                 android:textSize="18sp"
                 android:visibility="gone"/>
@@ -57,7 +60,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textStyle="italic"
-                android:text="2TiB and $0.03/over that"
                 android:textSize="12sp"
                 android:visibility="gone"/>
 
@@ -66,7 +68,6 @@
                 android:layout_marginTop="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Used:"
                 android:textSize="14sp" />
 
 
@@ -81,10 +82,67 @@
             android:indeterminate="false"
             android:indeterminateBehavior="cycle"
             android:max="100"
+            android:visibility="gone"
             tools:visibility="visible"
             app:indicatorColor="@color/colorTertiary"
             app:indicatorSize="75dp"
             app:trackThickness="10dp" />
+
+    </LinearLayout>
+
+    <!-- Spaces List Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_spaces_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Storage Spaces"
+            android:textFontWeight="600"
+            android:textSize="16sp"
+            android:visibility="gone" />
+
+        <!-- Filter Buttons -->
+        <LinearLayout
+            android:id="@+id/ll_filter_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_sort_name"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:text="Sort by Name"
+                android:textSize="12sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_sort_size"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:text="Sort by Size"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_spaces"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:nestedScrollingEnabled="false"
+            android:visibility="gone" />
 
     </LinearLayout>
 
@@ -96,12 +154,12 @@
         android:gravity="bottom"
         android:orientation="horizontal">
 
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/bt_logout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:minHeight="60dp"
             android:backgroundTint="@color/buttonBackground"
             android:text="@string/logout"
             android:textFontWeight="500"
@@ -110,3 +168,35 @@
     </LinearLayout>
 
 </LinearLayout>
+
+    <!-- Loading Container -->
+    <LinearLayout
+        android:id="@+id/loading_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/loading_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/loading_usage"
+            android:textSize="16sp"
+            android:textColor="@android:color/darker_gray"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+</RelativeLayout>
