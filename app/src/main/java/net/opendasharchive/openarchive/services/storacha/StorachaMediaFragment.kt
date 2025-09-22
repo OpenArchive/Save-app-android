@@ -1,14 +1,21 @@
 package net.opendasharchive.openarchive.services.storacha
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.MenuProvider
 import androidx.core.view.WindowInsetsCompat
@@ -22,6 +29,10 @@ import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
+import net.opendasharchive.openarchive.features.media.AddMediaType
+import net.opendasharchive.openarchive.features.media.ContentPickerFragment
+import net.opendasharchive.openarchive.features.media.Picker
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.services.storacha.model.UploadEntry
 import net.opendasharchive.openarchive.services.storacha.util.CarFileCreator
 import net.opendasharchive.openarchive.services.storacha.util.CarFileResult
@@ -46,6 +57,9 @@ class StorachaMediaFragment :
     private val okHttpClient: OkHttpClient by inject()
     private lateinit var mediaAdapter: StorachaMediaGridAdapter
     private lateinit var uploadOverlay: View
+    private lateinit var galleryLauncher: ActivityResultLauncher<PickVisualMediaRequest>
+    private lateinit var filePickerLauncher: ActivityResultLauncher<Intent>
+    private lateinit var modernCameraLauncher: ActivityResultLauncher<Uri>
 
     // Store the last failed upload details for retry
     private var lastFailedUpload: FailedUploadData? = null
@@ -93,7 +107,34 @@ class StorachaMediaFragment :
         mBinding.progressBar.toggle(true)
 
         mBinding.addButton.setOnClickListener {
-            openFilePicker()
+            showContentPicker()
+        }
+
+        // Initialize activity result launchers for single file selection
+        galleryLauncher = registerForActivityResult(
+            ActivityResultContracts.PickVisualMedia()
+        ) { uri: Uri? ->
+            uri?.let { handleSelectedFiles(listOf(it)) }
+        }
+
+        filePickerLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == android.app.Activity.RESULT_OK) {
+                result.data?.data?.let { uri ->
+                    handleSelectedFiles(listOf(uri))
+                }
+            }
+        }
+
+        modernCameraLauncher = registerForActivityResult(
+            ActivityResultContracts.TakePicture()
+        ) { success ->
+            if (success && Picker.currentPhotoUri != null) {
+                Picker.currentPhotoUri?.let { uri ->
+                    handleSelectedFiles(listOf(uri))
+                }
+            }
         }
 
         val spaceDid = args.spaceId
@@ -204,10 +245,45 @@ class StorachaMediaFragment :
             else -> false
         }
 
-    private val getMultipleContentsLauncher =
-        registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris: List<Uri> ->
-            handleSelectedFiles(uris)
+    private fun showContentPicker() {
+        val contentPicker = ContentPickerFragment { mediaType ->
+            when (mediaType) {
+                AddMediaType.CAMERA -> launchCamera()
+                AddMediaType.GALLERY -> launchGallery()
+                AddMediaType.FILES -> launchFilePicker()
+            }
         }
+        contentPicker.show(parentFragmentManager, ContentPickerFragment.TAG)
+    }
+
+    private fun launchCamera() {
+        // Check camera permission
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED) {
+            // Request camera permission
+            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.CAMERA), 101)
+            return
+        }
+
+        // Use Picker's camera functionality
+        Picker.takePhotoModern(requireActivity(), modernCameraLauncher)
+    }
+
+    private fun launchGallery() {
+        Picker.pickMedia(galleryLauncher)
+    }
+
+    private fun launchFilePicker() {
+        Picker.pickFiles(filePickerLauncher)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 101 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            // Camera permission granted, retry camera launch
+            Picker.takePhotoModern(requireActivity(), modernCameraLauncher)
+        }
+    }
 
     private fun handleAudio(uri: Uri) {
         handleMedia(uri)
@@ -278,25 +354,23 @@ class StorachaMediaFragment :
 
     private fun handleSelectedFiles(uris: List<Uri>) {
         if (uris.isNotEmpty()) {
-            for (uri in uris) {
-                val mimeType = requireContext().contentResolver.getType(uri)
-                when {
-                    mimeType?.startsWith("image/") == true -> handleImage(uri)
-                    mimeType?.startsWith("video/") == true -> handleVideo(uri)
-                    mimeType?.startsWith("audio/") == true -> handleAudio(uri)
-                    else -> {
-                        Timber.d("Unknown type picked: $mimeType")
-                    }
+            // Only handle the first file since we want single file selection
+            val uri = uris.first()
+            val mimeType = requireContext().contentResolver.getType(uri)
+            when {
+                mimeType?.startsWith("image/") == true -> handleImage(uri)
+                mimeType?.startsWith("video/") == true -> handleVideo(uri)
+                mimeType?.startsWith("audio/") == true -> handleAudio(uri)
+                else -> {
+                    // Handle any other file type as media
+                    handleMedia(uri)
                 }
             }
         } else {
-            Timber.d("No images selected")
+            Timber.d("No files selected")
         }
     }
 
-    private fun openFilePicker() {
-        getMultipleContentsLauncher.launch("*/*")
-    }
 
     private fun getFileName(uri: Uri): String? =
         requireContext().contentResolver.query(uri, null, null, null, null)?.use { cursor ->
