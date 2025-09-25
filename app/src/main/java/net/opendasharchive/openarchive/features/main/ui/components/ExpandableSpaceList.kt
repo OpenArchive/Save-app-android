@@ -120,7 +120,7 @@ fun SpaceIcon(
     val icon = when (type) {
         Space.Type.WEBDAV -> painterResource(R.drawable.ic_space_private_server)
         Space.Type.INTERNET_ARCHIVE -> painterResource(R.drawable.ic_space_interent_archive)
-        Space.Type.GDRIVE -> painterResource(R.drawable.logo_gdrive_outline)
+        // Space.Type.GDRIVE -> painterResource(R.drawable.logo_gdrive_outline) // COMMENTED OUT - no longer using Google services
         Space.Type.RAVEN -> painterResource(R.drawable.ic_space_dweb)
     }
     Icon(

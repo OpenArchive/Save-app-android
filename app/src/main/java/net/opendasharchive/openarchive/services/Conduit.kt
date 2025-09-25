@@ -10,7 +10,7 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Space
-import net.opendasharchive.openarchive.services.gdrive.GDriveConduit
+// import net.opendasharchive.openarchive.services.gdrive.GDriveConduit // COMMENTED OUT - no longer using Google services
 import net.opendasharchive.openarchive.services.internetarchive.IaConduit
 import net.opendasharchive.openarchive.services.webdav.WebDavConduit
 import net.opendasharchive.openarchive.upload.BroadcastManager
@@ -237,7 +237,7 @@ abstract class Conduit(
 
                 Space.Type.WEBDAV -> WebDavConduit(media, context)
 
-                Space.Type.GDRIVE -> GDriveConduit(media, context)
+                // Space.Type.GDRIVE -> GDriveConduit(media, context) // COMMENTED OUT - no longer using Google services
 
                 else -> null
             }

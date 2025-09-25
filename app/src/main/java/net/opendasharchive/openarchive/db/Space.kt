@@ -14,10 +14,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
 import com.orm.SugarRecord
+import net.opendasharchive.openarchive.BuildConfig
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
-import net.opendasharchive.openarchive.services.gdrive.GDriveConduit
 import net.opendasharchive.openarchive.services.internetarchive.IaConduit
 import net.opendasharchive.openarchive.util.DrawableUtil
 import net.opendasharchive.openarchive.util.Prefs
@@ -60,9 +60,10 @@ data class Space(
                 host = IaConduit.ARCHIVE_API_ENDPOINT
             }
 
-            Type.GDRIVE -> {
-                name = GDriveConduit.NAME
-            }
+            // Type.GDRIVE -> {
+            //     // Google Drive support commented out - no longer using Google services
+            //     name = "Google Drive"
+            // }
 
             Type.RAVEN -> "Raven"
         }
@@ -71,7 +72,7 @@ data class Space(
     enum class Type(val id: Int, val friendlyName: String) {
         WEBDAV(0, "Private Server"),
         INTERNET_ARCHIVE(1, IaConduit.NAME),
-        GDRIVE(4, GDriveConduit.NAME),
+        // GDRIVE(4, "Google Drive"), // COMMENTED OUT - no longer using Google services
         RAVEN(5, "DWeb Service"),
     }
 
@@ -215,10 +216,10 @@ data class Space(
                 R.drawable.ic_internet_archive
             ) // ?.tint(color)
 
-            Type.GDRIVE -> ContextCompat.getDrawable(
-                context,
-                R.drawable.logo_gdrive_outline
-            ) // ?.tint(color)
+            // Type.GDRIVE -> ContextCompat.getDrawable(
+            //     context,
+            //     R.drawable.logo_gdrive_outline
+            // ) // ?.tint(color) // COMMENTED OUT - no longer using Google services
 
             Type.RAVEN -> ContextCompat.getDrawable(context, R.drawable.snowbird) // ?.tint(color)
 
@@ -241,7 +242,7 @@ data class Space(
 
             Type.INTERNET_ARCHIVE -> painterResource(R.drawable.ic_space_interent_archive)
 
-            Type.GDRIVE -> painterResource(R.drawable.logo_gdrive_outline)
+            // Type.GDRIVE -> painterResource(R.drawable.logo_gdrive_outline) // COMMENTED OUT - no longer using Google services
 
             Type.RAVEN -> painterResource(R.drawable.ic_space_dweb)
             null -> {

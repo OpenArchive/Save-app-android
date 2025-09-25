@@ -108,9 +108,9 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".services.gdrive.GDriveActivity"
-            android:theme="@style/SaveAppTheme.NoActionBar" />
+<!--        <activity-->
+<!--            android:name=".services.gdrive.GDriveActivity"-->
+<!--            android:theme="@style/SaveAppTheme.NoActionBar" />-->
 
         <activity
             android:name=".features.settings.ProofModeSettingsActivity"

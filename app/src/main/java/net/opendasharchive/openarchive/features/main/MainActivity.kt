@@ -27,8 +27,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.play.core.review.ReviewManager
-import com.google.android.play.core.review.ReviewManagerFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -133,7 +131,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     private lateinit var permissionManager: PermissionManager
 
-    private lateinit var reviewManager: ReviewManager
+    private var reviewManager: Any? = null
     private var shouldPromptReview = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -245,9 +243,17 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             getCurrentMediaFragment()?.setArrowVisible(true)
         }
 
-        reviewManager = ReviewManagerFactory.create(this)
-        InAppReviewHelper.requestReviewInfo(this)
-        shouldPromptReview = InAppReviewHelper.onAppLaunched()
+        if (BuildConfig.INCLUDE_GOOGLE_SERVICES) {
+            try {
+                val reviewManagerFactoryClass = Class.forName("com.google.android.play.core.review.ReviewManagerFactory")
+                val createMethod = reviewManagerFactoryClass.getDeclaredMethod("create", Context::class.java)
+                reviewManager = createMethod.invoke(null, this)
+                InAppReviewHelper.requestReviewInfo(this)
+                shouldPromptReview = InAppReviewHelper.onAppLaunched()
+            } catch (e: Exception) {
+                // Google Play Services not available
+            }
+        }
     }
 
     override fun onResume() {
@@ -266,9 +272,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         // Only now, after UI is ready, do we fire the in‐app review if needed.
         if (shouldPromptReview) {
             lifecycleScope.launch(Dispatchers.Main) {
-                // Wait a small delay so we don’t interrupt initial load (e.g. 2 seconds).
+                // Wait a small delay so we don't interrupt initial load (e.g. 2 seconds).
                 delay(2_000)
-                InAppReviewHelper.showReviewIfPossible(this@MainActivity, reviewManager)
+                InAppReviewHelper.showReviewIfPossible(this@MainActivity)
                 InAppReviewHelper.markReviewDone()
                 shouldPromptReview = false
             }

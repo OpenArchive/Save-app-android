@@ -11,9 +11,14 @@ plugins {
     id("com.google.devtools.ksp")
     id("androidx.navigation.safeargs.kotlin")
     alias(libs.plugins.detekt.plugin)
-    alias(libs.plugins.google.gms.google.services)
-    alias(libs.plugins.google.firebase.crashlytics)
 }
+
+// Google services plugins disabled - no longer using Google services
+// val isFdroidBuild = gradle.startParameter.taskRequests.toString().contains("Fdroid")
+// if (!isFdroidBuild) {
+//     apply(plugin = libs.plugins.google.gms.google.services.get().pluginId)
+//     apply(plugin = libs.plugins.google.firebase.crashlytics.get().pluginId)
+// }
 
 fun loadLocalProperties(): Properties = Properties().apply {
     val localPropsFile = rootProject.file("local.properties")
@@ -100,17 +105,38 @@ android {
             dimension = "env"
             versionNameSuffix = "-dev"
             applicationIdSuffix = ".debug"
+            buildConfigField("boolean", "INCLUDE_GOOGLE_SERVICES", "true")
+            buildConfigField("boolean", "INCLUDE_MIXPANEL", "true")
         }
 
         create("staging") {
             dimension = "env"
             versionNameSuffix = "-staging"
             applicationIdSuffix = ".debug"
+            buildConfigField("boolean", "INCLUDE_GOOGLE_SERVICES", "true")
+            buildConfigField("boolean", "INCLUDE_MIXPANEL", "true")
         }
 
         create("prod") {
             dimension = "env"
             applicationIdSuffix = ".release"
+            buildConfigField("boolean", "INCLUDE_GOOGLE_SERVICES", "true")
+            buildConfigField("boolean", "INCLUDE_MIXPANEL", "true")
+        }
+
+        create("fdroid") {
+            dimension = "env"
+            versionNameSuffix = "-fdroid"
+            resValue("string", "mixpanel_key", "")
+            buildConfigField("boolean", "INCLUDE_GOOGLE_SERVICES", "false")
+            buildConfigField("boolean", "INCLUDE_MIXPANEL", "false")
+        }
+    }
+
+    // Exclude Google Drive related files for F-Droid build
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        if (name.contains("Fdroid")) {
+            exclude("**/gdrive/**", "**/DriveServiceHelper.kt")
         }
     }
 
@@ -203,7 +229,10 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.icons.extended)
-    implementation(libs.firebase.crashlytics)
+    // Firebase Crashlytics - COMMENTED OUT (no longer using Google services)
+    // "devImplementation"(libs.firebase.crashlytics)
+    // "stagingImplementation"(libs.firebase.crashlytics)
+    // "prodImplementation"(libs.firebase.crashlytics)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     implementation(libs.androidx.compose.runtime)
@@ -258,19 +287,39 @@ dependencies {
     implementation(libs.bouncycastle.bcprov)
     api(libs.bouncycastle.bcpg)
 
-    // Google Play Services
-    implementation(libs.google.auth)
-    implementation(libs.google.play.asset.delivery.ktx)
-    implementation(libs.google.play.feature.delivery)
-    implementation(libs.google.play.feature.delivery.ktx)
-    implementation(libs.google.play.review)
-    implementation(libs.google.play.review.ktx)
-    implementation(libs.google.play.app.update.ktx)
+    // Google Play Services - COMMENTED OUT (no longer using Google services)
+    // "devImplementation"(libs.google.auth)
+    // "stagingImplementation"(libs.google.auth)
+    // "prodImplementation"(libs.google.auth)
+    // "devImplementation"(libs.google.play.asset.delivery.ktx)
+    // "stagingImplementation"(libs.google.play.asset.delivery.ktx)
+    // "prodImplementation"(libs.google.play.asset.delivery.ktx)
+    // "devImplementation"(libs.google.play.feature.delivery)
+    // "stagingImplementation"(libs.google.play.feature.delivery)
+    // "prodImplementation"(libs.google.play.feature.delivery)
+    // "devImplementation"(libs.google.play.feature.delivery.ktx)
+    // "stagingImplementation"(libs.google.play.feature.delivery.ktx)
+    // "prodImplementation"(libs.google.play.feature.delivery.ktx)
+    // "devImplementation"(libs.google.play.review)
+    // "stagingImplementation"(libs.google.play.review)
+    // "prodImplementation"(libs.google.play.review)
+    // "devImplementation"(libs.google.play.review.ktx)
+    // "stagingImplementation"(libs.google.play.review.ktx)
+    // "prodImplementation"(libs.google.play.review.ktx)
+    // "devImplementation"(libs.google.play.app.update.ktx)
+    // "stagingImplementation"(libs.google.play.app.update.ktx)
+    // "prodImplementation"(libs.google.play.app.update.ktx)
 
-    // Google Drive API
-    implementation(libs.google.http.client.gson)
-    implementation(libs.google.api.client.android)
-    implementation(libs.google.drive.api)
+    // Google Drive API - COMMENTED OUT (no longer using Google services)
+    // "devImplementation"(libs.google.http.client.gson)
+    // "stagingImplementation"(libs.google.http.client.gson)
+    // "prodImplementation"(libs.google.http.client.gson)
+    // "devImplementation"(libs.google.api.client.android)
+    // "stagingImplementation"(libs.google.api.client.android)
+    // "prodImplementation"(libs.google.api.client.android)
+    // "devImplementation"(libs.google.drive.api)
+    // "stagingImplementation"(libs.google.drive.api)
+    // "prodImplementation"(libs.google.drive.api)
 
     // Tor Libraries
     implementation(libs.tor.android)
@@ -308,8 +357,10 @@ dependencies {
     implementation(libs.clean.insights)
     implementation(libs.netcipher)
 
-    // Mixpanel analytics
-    implementation(libs.mixpanel)
+    // Mixpanel analytics - COMMENTED OUT (no longer using proprietary analytics)
+    // "devImplementation"(libs.mixpanel)
+    // "stagingImplementation"(libs.mixpanel)
+    // "prodImplementation"(libs.mixpanel)
 
     // Tests
     testImplementation(libs.junit)

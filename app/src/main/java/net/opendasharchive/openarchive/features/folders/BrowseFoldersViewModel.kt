@@ -8,9 +8,10 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.opendasharchive.openarchive.BuildConfig
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.services.SaveClient
-import net.opendasharchive.openarchive.services.gdrive.GDriveConduit
+// GDriveConduit import removed for F-Droid compatibility
 import timber.log.Timber
 import java.io.IOException
 import java.util.Date
@@ -37,7 +38,13 @@ class BrowseFoldersViewModel(private val context: Context) : ViewModel() {
                     when (space.tType) {
                         Space.Type.WEBDAV -> getWebDavFolders(context, space)
 
-                        Space.Type.GDRIVE -> getGDriveFolders(context, space)
+                        // Space.Type.GDRIVE -> {
+                        //     if (BuildConfig.INCLUDE_GOOGLE_SERVICES) {
+                        //         getGDriveFolders(context, space)
+                        //     } else {
+                        //         emptyList()
+                        //     }
+                        // } // COMMENTED OUT - no longer using Google services
 
                         else -> emptyList()
                     }
@@ -71,6 +78,7 @@ class BrowseFoldersViewModel(private val context: Context) : ViewModel() {
     }
 
     private fun getGDriveFolders(context: Context, space: Space): List<Folder> {
-        return GDriveConduit.listFoldersInRoot(GDriveConduit.getDrive(context))
+        // F-Droid: Google Drive not available
+        return emptyList()
     }
 }
