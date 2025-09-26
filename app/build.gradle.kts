@@ -350,6 +350,8 @@ dependencies {
         exclude(group = "com.squareup.okio", module = "okio")
         // Exclude BouncyCastle to avoid duplicate classes - we'll use our own version
         exclude(group = "org.bouncycastle")
+        // Exclude Google Play Services for F-Droid compatibility
+        exclude(group = "com.google.android.gms")
     }
 
     // Guava Conflicts

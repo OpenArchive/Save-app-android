@@ -1,0 +1,14 @@
+// Stub c2pa module for F-Droid builds
+// F-Droid doesn't allow binary AAR files, so this provides empty implementation
+
+apply plugin: 'java'
+
+configurations.maybeCreate("default")
+
+// Simple empty jar
+jar {
+    archiveBaseName = 'c2pa-stub'
+    // Jar will be empty since there are no sources
+}
+
+artifacts.add("default", jar)
