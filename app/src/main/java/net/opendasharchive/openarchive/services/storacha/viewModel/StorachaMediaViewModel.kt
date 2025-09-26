@@ -48,6 +48,14 @@ class StorachaMediaViewModel(
         _isEmpty.value = false
     }
 
+    fun refreshFromStart() {
+        // Reset pagination without clearing current data
+        currentCursor = null
+        hasMoreData = true
+        isFirstLoad = true
+        // Don't clear _media.value to avoid flickering
+    }
+
     fun loadMoreMediaEntries(
         userDid: String,
         spaceDid: String,
@@ -75,12 +83,16 @@ class StorachaMediaViewModel(
                 val newEntries = response.uploads
                 val currentEntries = _media.value ?: emptyList()
 
-                // Prevent duplicates by filtering out entries that already exist
-                val filteredNewEntries = newEntries.filter { newEntry ->
-                    currentEntries.none { existingEntry -> existingEntry.cid == newEntry.cid }
+                val updatedEntries = if (isFirstLoad && currentCursor == null) {
+                    // For refresh/first load, replace existing data
+                    newEntries
+                } else {
+                    // For pagination, prevent duplicates and append
+                    val filteredNewEntries = newEntries.filter { newEntry ->
+                        currentEntries.none { existingEntry -> existingEntry.cid == newEntry.cid }
+                    }
+                    currentEntries + filteredNewEntries
                 }
-
-                val updatedEntries = currentEntries + filteredNewEntries
                 _media.value = updatedEntries
 
                 // Update empty state - only consider empty if first load and no entries
@@ -132,7 +144,7 @@ class StorachaMediaViewModel(
                 _uploadResult.value = Result.success(uploadResponse)
 
                 // Refresh the media list after successful upload
-                reset()
+                refreshFromStart()
                 loadMoreMediaEntries(userDid, spaceDid, sessionId)
             } catch (e: Exception) {
                 _uploadResult.value = Result.failure(e)

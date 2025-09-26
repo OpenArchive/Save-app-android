@@ -50,6 +50,9 @@ class StorachaMediaFragment :
     // Store the last failed upload details for retry
     private var lastFailedUpload: FailedUploadData? = null
 
+    // Track if we're doing a pull-to-refresh to avoid dual loading indicators
+    private var isPullToRefresh = false
+
     private data class FailedUploadData(
         val uri: Uri,
         val tempFile: File,
@@ -73,6 +76,12 @@ class StorachaMediaFragment :
         }
 
         mBinding.rvMediaList.layoutManager = GridLayoutManager(requireContext(), 3)
+
+        // Setup swipe refresh
+        mBinding.swipeRefreshLayout.setOnRefreshListener {
+            isPullToRefresh = true
+            refreshMedia()
+        }
 
         // Initialize adapter once
         mediaAdapter = StorachaMediaGridAdapter(okHttpClient) { file ->
@@ -102,8 +111,15 @@ class StorachaMediaFragment :
         viewModel.reset()
         viewModel.loadMoreMediaEntries(userDid, spaceDid, sessionId)
 
-        viewModel.loading.observe(viewLifecycleOwner) {
-            mBinding.loadingContainer.toggle(it)
+        viewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+            // Only show center loading if it's not a pull-to-refresh
+            mBinding.loadingContainer.toggle(isLoading && !isPullToRefresh)
+
+            // Hide swipe refresh when loading is complete
+            if (!isLoading) {
+                mBinding.swipeRefreshLayout.isRefreshing = false
+                isPullToRefresh = false // Reset the flag
+            }
         }
 
         viewModel.loadingState.observe(viewLifecycleOwner) { loadingState ->
@@ -437,6 +453,15 @@ class StorachaMediaFragment :
                 retrySessionId
             )
         }
+    }
+
+    private fun refreshMedia() {
+        val spaceDid = args.spaceId
+        val sessionId = if (args.sessionId.isEmpty()) null else args.sessionId
+        val userDid = DidManager(requireContext()).getOrCreateDid()
+
+        viewModel.refreshFromStart()
+        viewModel.loadMoreMediaEntries(userDid, spaceDid, sessionId)
     }
 
     private fun formatFileSize(bytes: Long): String {

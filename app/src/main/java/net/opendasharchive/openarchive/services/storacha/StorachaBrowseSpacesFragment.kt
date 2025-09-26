@@ -19,6 +19,9 @@ class StorachaBrowseSpacesFragment : BaseFragment() {
     private lateinit var mBinding: FragmentStorachaBrowseSpacesBinding
     private val viewModel: StorachaBrowseSpacesViewModel by viewModel()
 
+    // Track if we're doing a pull-to-refresh to avoid dual loading indicators
+    private var isPullToRefresh = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -26,6 +29,13 @@ class StorachaBrowseSpacesFragment : BaseFragment() {
     ): View {
         mBinding = FragmentStorachaBrowseSpacesBinding.inflate(layoutInflater)
         mBinding.rvFolderList.layoutManager = LinearLayoutManager(requireContext())
+
+        // Setup swipe refresh
+        mBinding.swipeRefreshLayout.setOnRefreshListener {
+            isPullToRefresh = true
+            refreshSpaces()
+        }
+
         return mBinding.root
     }
 
@@ -40,8 +50,15 @@ class StorachaBrowseSpacesFragment : BaseFragment() {
         val sessionId = currentAccount?.sessionId ?: ""
         viewModel.loadSpaces(did, sessionId)
 
-        viewModel.loading.observe(viewLifecycleOwner) {
-            mBinding.loadingContainer.toggle(it)
+        viewModel.loading.observe(viewLifecycleOwner) { isLoading ->
+            // Only show center loading if it's not a pull-to-refresh
+            mBinding.loadingContainer.toggle(isLoading && !isPullToRefresh)
+
+            // Hide swipe refresh when loading is complete
+            if (!isLoading) {
+                mBinding.swipeRefreshLayout.isRefreshing = false
+                isPullToRefresh = false // Reset the flag
+            }
         }
 
         viewModel.spaces.observe(viewLifecycleOwner) { list ->
@@ -58,6 +75,14 @@ class StorachaBrowseSpacesFragment : BaseFragment() {
                     findNavController().navigate(action)
                 }
         }
+    }
+
+    private fun refreshSpaces() {
+        val did = DidManager(requireContext()).getOrCreateDid()
+        val accountManager = StorachaAccountManager(requireContext())
+        val currentAccount = accountManager.getCurrentAccount()
+        val sessionId = currentAccount?.sessionId ?: ""
+        viewModel.loadSpaces(did, sessionId)
     }
 
     override fun getToolbarTitle(): String = getString(R.string.spaces)
