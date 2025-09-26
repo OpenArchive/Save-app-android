@@ -6,6 +6,7 @@ import android.content.Intent
 import android.security.keystore.UserNotAuthenticatedException
 import androidx.fragment.app.FragmentActivity
 import net.opendasharchive.openarchive.features.main.MainActivity
+import org.witness.proofmode.ProofMode
 import org.witness.proofmode.crypto.pgp.PgpUtils
 import org.witness.proofmode.service.MediaWatcher
 import timber.log.Timber
@@ -56,15 +57,21 @@ object ProofModeHelper {
     }
 
     private fun finishInit(context: Context, completed: () -> Unit, passphrase: String? = null) {
-        // Store unencrypted passphrase so MediaWatcher can read it.
-        Prefs.temporaryUnencryptedProofModePassphrase = passphrase
+        try {
+            // Store unencrypted passphrase so MediaWatcher can read it.
+            Prefs.temporaryUnencryptedProofModePassphrase = passphrase
 
-        // Load or create PGP key using the decrypted passphrase OR the default passphrase.
-        PgpUtils.getInstance(context,
-            Prefs.temporaryUnencryptedProofModePassphrase)
+            // Initialize ProofMode background service first
+            ProofMode.initBackgroundService(context)
 
-        // Initialize MediaWatcher with the correct passphrase.
-        MediaWatcher.getInstance(context.applicationContext)
+            // Initialize PGP utils with context and passphrase
+            PgpUtils.init(context, passphrase ?: Prefs.temporaryUnencryptedProofModePassphrase ?: "")
+
+            // Initialize MediaWatcher with the correct passphrase.
+            MediaWatcher.getInstance(context.applicationContext)
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to initialize ProofMode")
+        }
 
         // Remove again to avoid leaking unencrypted passphrase.
         Prefs.temporaryUnencryptedProofModePassphrase = null

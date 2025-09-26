@@ -220,7 +220,7 @@ class ProofModeSettingsActivity : BaseActivity() {
 
         private fun shareKey(activity: Activity) {
             try {
-                val mPgpUtils = PgpUtils.getInstance(activity, null)
+                val mPgpUtils = PgpUtils.getInstance()
                 val pubKey = mPgpUtils.publicKeyString
 
                 if (pubKey.isNotEmpty()) {

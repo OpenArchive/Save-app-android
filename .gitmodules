@@ -1,0 +1,3 @@
+[submodule "proofmode"]
+	path = proofmode
+	url = https://github.com/guardianproject/proofmode-android.git

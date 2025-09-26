@@ -159,6 +159,13 @@ android {
                 )
             )
         }
+        jniLibs {
+            useLegacyPackaging = false
+            // Exclude the problematic C2PA native library for F-Droid builds
+            if (gradle.startParameter.taskRequests.toString().contains("Fdroid")) {
+                excludes += "**/libc2pa_c.so"
+            }
+        }
     }
 
     lint {
@@ -328,8 +335,8 @@ dependencies {
     implementation(libs.bitcoinj.core)
     //implementation("com.eclipsesource.j2v8:j2v8:6.2.1@aar")
 
-    // ProofMode //from here: https://github.com/guardianproject/proofmode
-    implementation(libs.proofmode) {
+    // ProofMode - built from source as local module for F-Droid compatibility
+    implementation(project(":proofmode:android-libproofmode")) {
         //transitive = false
         exclude(group = "org.bitcoinj")
         exclude(group = "com.google.protobuf")
@@ -341,6 +348,8 @@ dependencies {
         exclude(group = "com.google.guava", module = "guava-jdk5")
         exclude(group = "com.google.code.findbugs", module = "annotations")
         exclude(group = "com.squareup.okio", module = "okio")
+        // Exclude BouncyCastle to avoid duplicate classes - we'll use our own version
+        exclude(group = "org.bouncycastle")
     }
 
     // Guava Conflicts

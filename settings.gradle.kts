@@ -71,17 +71,13 @@ dependencyResolutionManagement {
      * you select a template that requires some).
      */
 
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         google()
         mavenCentral()
 
         gradlePluginPortal()
-        maven("https://raw.githubusercontent.com/guardianproject/gpmaven/master") {
-            content {
-                includeModule("org.proofmode", "android-libproofmode")
-            }
-        }
+        // Removed GitHub raw maven for ProofMode - now built from source as submodule
 
         maven("https://jitpack.io") {
             content {
@@ -96,3 +92,5 @@ dependencyResolutionManagement {
 rootProject.name = "save-android-old"
 
 include(":app")
+include(":proofmode:android-libproofmode")
+include(":proofmode:c2pa")
