@@ -97,7 +97,7 @@ class StorachaMediaFragment :
         }
 
         val spaceDid = args.spaceId
-        val sessionId = args.sessionId
+        val sessionId = if (args.sessionId.isEmpty()) null else args.sessionId
         val userDid = DidManager(requireContext()).getOrCreateDid()
         viewModel.reset()
         viewModel.loadMoreMediaEntries(userDid, spaceDid, sessionId)
@@ -261,7 +261,7 @@ class StorachaMediaFragment :
 
         // Clean up temporary file
         // tempFile.delete()
-        val sessionId = args.sessionId
+        val uploadSessionId = if (args.sessionId.isEmpty()) null else args.sessionId
 
         // Store upload details for potential retry
         lastFailedUpload = FailedUploadData(
@@ -270,10 +270,10 @@ class StorachaMediaFragment :
             carResult = carResult,
             userDid = userDid,
             spaceDid = spaceDid,
-            sessionId = sessionId
+            sessionId = uploadSessionId ?: ""
         )
 
-        viewModel.uploadFile(tempFile, carResult, userDid, spaceDid, sessionId)
+        viewModel.uploadFile(tempFile, carResult, userDid, spaceDid, uploadSessionId)
     }
 
     private fun handleSelectedFiles(uris: List<Uri>) {
@@ -428,12 +428,13 @@ class StorachaMediaFragment :
     private fun retryLastUpload() {
         lastFailedUpload?.let { failedUpload ->
             Timber.d("Retrying upload for file: ${failedUpload.uri}")
+            val retrySessionId = if (failedUpload.sessionId.isEmpty()) null else failedUpload.sessionId
             viewModel.uploadFile(
                 failedUpload.tempFile,
                 failedUpload.carResult,
                 failedUpload.userDid,
                 failedUpload.spaceDid,
-                failedUpload.sessionId
+                retrySessionId
             )
         }
     }

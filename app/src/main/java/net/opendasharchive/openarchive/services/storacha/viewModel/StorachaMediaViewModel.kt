@@ -51,7 +51,7 @@ class StorachaMediaViewModel(
     fun loadMoreMediaEntries(
         userDid: String,
         spaceDid: String,
-        sessionId: String,
+        sessionId: String?,
     ) {
         if (isLoading || !hasMoreData) return
 
@@ -69,7 +69,7 @@ class StorachaMediaViewModel(
                         spaceDid = spaceDid,
                         cursor = currentCursor,
                         size = 20, // adjust page size as needed
-                        sessionId = sessionId,
+                        sessionId = if (sessionId.isNullOrEmpty()) null else sessionId,
                     )
 
                 val newEntries = response.uploads
@@ -106,7 +106,7 @@ class StorachaMediaViewModel(
         carResult: CarFileResult,
         userDid: String,
         spaceDid: String,
-        sessionId: String,
+        sessionId: String?,
     ) {
         viewModelScope.launch {
             _loading.value = true

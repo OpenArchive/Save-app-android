@@ -52,7 +52,7 @@ class StorachaBrowseSpacesFragment : BaseFragment() {
                         StorachaBrowseSpacesFragmentDirections.actionFragmentStorachaBrowseSpacesToFragmentStorachaMedia(
                             spaceId = space.did,
                             spaceName = space.name,
-                            sessionId = sessionId,
+                            sessionId = if (space.isAdmin) sessionId else "",
                             isAdmin = space.isAdmin,
                         )
                     findNavController().navigate(action)

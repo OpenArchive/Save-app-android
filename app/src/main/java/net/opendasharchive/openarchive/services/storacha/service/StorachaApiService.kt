@@ -101,7 +101,7 @@ interface StorachaApiService {
     @GET("uploads")
     suspend fun listUploads(
         @Header("x-user-did") userDid: String,
-        @Header("x-session-id") sessionId: String,
+        @Header("x-session-id") sessionId: String?,
         @Query("spaceDid") spaceDid: String,
         @Query("cursor") cursor: String? = null,
         @Query("size") size: Int? = null,
