@@ -159,13 +159,13 @@ android {
                 )
             )
         }
-        jniLibs {
-            useLegacyPackaging = false
-            // Exclude the problematic C2PA native library for F-Droid builds
-            if (gradle.startParameter.taskRequests.toString().contains("Fdroid")) {
-                excludes += "**/libc2pa_c.so"
-            }
-        }
+//        jniLibs {
+//            useLegacyPackaging = false
+//            // Exclude the problematic C2PA native library for F-Droid builds
+//            if (gradle.startParameter.taskRequests.toString().contains("Fdroid")) {
+//                excludes += "**/libc2pa_c.so"
+//            }
+//        }
     }
 
     lint {
