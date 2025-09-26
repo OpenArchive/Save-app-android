@@ -94,3 +94,6 @@ rootProject.name = "save-android-old"
 include(":app")
 include(":proofmode:android-libproofmode")
 include(":proofmode:c2pa")
+// Create alias for c2pa so proofmode submodule can reference it as :c2pa
+include(":c2pa")
+project(":c2pa").projectDir = file("proofmode/c2pa")
