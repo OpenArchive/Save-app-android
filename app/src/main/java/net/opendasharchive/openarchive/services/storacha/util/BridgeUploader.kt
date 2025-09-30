@@ -39,7 +39,7 @@ class BridgeUploader(
     private val storachaService =
         Retrofit
             .Builder()
-            .baseUrl("http://192.168.0.46:3000/")
+            .baseUrl("http://192.168.0.72:3000/")
             .client(client)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
@@ -61,6 +61,7 @@ class BridgeUploader(
         spaceDid: String,
         userDid: String? = null,
         sessionId: String? = null,
+        isAdmin: Boolean = false,
     ): BridgeUploadResult =
         withContext(Dispatchers.IO) {
             // Validate CID formats
@@ -75,7 +76,7 @@ class BridgeUploader(
 
             try {
                 // Step 1: Generate bridge tokens IMMEDIATELY before use
-                val tokens = generateBridgeTokens(spaceDid, userDid, sessionId)
+                val tokens = generateBridgeTokens(spaceDid, userDid, sessionId, isAdmin)
 
                 // Add small delay to ensure token propagation
                 kotlinx.coroutines.delay(100)
@@ -90,6 +91,7 @@ class BridgeUploader(
                         0,
                         userDid,
                         sessionId,
+                        isAdmin,
                     )
 
                 // Step 3: Upload to S3 (if required)
@@ -106,7 +108,7 @@ class BridgeUploader(
                             Timber.e("S3 upload failed with token/permission error, regenerating tokens and retrying...")
 
                             // Regenerate tokens and get fresh S3 URL
-                            val newTokens = generateBridgeTokens(spaceDid, userDid, sessionId)
+                            val newTokens = generateBridgeTokens(spaceDid, userDid, sessionId, isAdmin)
                             kotlinx.coroutines.delay(100) // Brief delay for token propagation
                             val newStoreResult =
                                 storeAddWithRetry(
@@ -117,6 +119,7 @@ class BridgeUploader(
                                     0,
                                     userDid,
                                     sessionId,
+                                    isAdmin,
                                 )
 
                             if (newStoreResult.status == "upload" && newStoreResult.url != null) {
@@ -137,7 +140,7 @@ class BridgeUploader(
 
                 // Step 4: Register upload with upload/add
                 val uploadResult =
-                    uploadAddWithRetry(tokens, spaceDid, rootCid, 0, userDid, sessionId)
+                    uploadAddWithRetry(tokens, spaceDid, rootCid, 0, userDid, sessionId, isAdmin)
                 Timber.e("Upload registered successfully")
 
                 BridgeUploadResult(
@@ -156,6 +159,7 @@ class BridgeUploader(
         spaceDid: String,
         userDid: String?,
         sessionId: String?,
+        isAdmin: Boolean = false,
     ): BridgeTokens {
         // Generate expiration timestamp exactly like working debug script
         val currentTimeSeconds = System.currentTimeMillis() / 1000
@@ -172,7 +176,12 @@ class BridgeUploader(
             )
 
         try {
-            val response = storachaService.getBridgeTokens(userDid, sessionId, request)
+            // Send sessionId only when isAdmin = true, otherwise send userDid
+            val response = if (isAdmin) {
+                storachaService.getBridgeTokens(null, sessionId, request)
+            } else {
+                storachaService.getBridgeTokens(userDid, null, request)
+            }
 
             // Log token details for debugging
             Timber.e("Generated tokens - X-Auth-Secret length: ${response.tokens.xAuthSecret.length}")
@@ -204,6 +213,7 @@ class BridgeUploader(
         retryCount: Int = 0,
         userDid: String? = null,
         sessionId: String? = null,
+        isAdmin: Boolean = false,
     ): net.opendasharchive.openarchive.services.storacha.model.StoreAddSuccess {
         val storeTask =
             StoreAddTask(
@@ -245,7 +255,7 @@ class BridgeUploader(
                 if (retryCount == 0 && (errorMsg.contains("expired") || errorMsg.contains("delegation"))) {
                     Timber.e("Token expired or delegation issue, regenerating tokens and retrying...")
                     kotlinx.coroutines.delay(500) // Brief delay
-                    val newTokens = generateBridgeTokens(spaceDid, userDid, sessionId)
+                    val newTokens = generateBridgeTokens(spaceDid, userDid, sessionId, isAdmin)
                     return storeAddWithRetry(
                         newTokens,
                         spaceDid,
@@ -254,6 +264,7 @@ class BridgeUploader(
                         retryCount + 1,
                         userDid,
                         sessionId,
+                        isAdmin,
                     )
                 }
 
@@ -288,6 +299,7 @@ class BridgeUploader(
                     retryCount + 1,
                     userDid,
                     sessionId,
+                    isAdmin,
                 )
             }
 
@@ -389,6 +401,7 @@ class BridgeUploader(
         retryCount: Int = 0,
         userDid: String? = null,
         sessionId: String? = null,
+        isAdmin: Boolean = false,
     ): net.opendasharchive.openarchive.services.storacha.model.UploadAddSuccess {
         val uploadTask =
             UploadAddTask(
@@ -429,7 +442,7 @@ class BridgeUploader(
                 if (retryCount == 0 && (errorMsg.contains("expired") || errorMsg.contains("delegation"))) {
                     Timber.e("Token expired or delegation issue in upload/add, regenerating tokens and retrying...")
                     kotlinx.coroutines.delay(500) // Brief delay
-                    val newTokens = generateBridgeTokens(spaceDid, userDid, sessionId)
+                    val newTokens = generateBridgeTokens(spaceDid, userDid, sessionId, isAdmin)
                     return uploadAddWithRetry(
                         newTokens,
                         spaceDid,
@@ -437,6 +450,7 @@ class BridgeUploader(
                         retryCount + 1,
                         userDid,
                         sessionId,
+                        isAdmin,
                     )
                 }
 
@@ -470,6 +484,7 @@ class BridgeUploader(
                     retryCount + 1,
                     userDid,
                     sessionId,
+                    isAdmin,
                 )
             }
 

@@ -163,15 +163,15 @@ class StorachaAccountDetailsFragment : BaseFragment() {
 
             // Show and populate plan information
             binding.tvPackage.isVisible = true
-            binding.tvAllocationBilling.isVisible = true
-            binding.piUsage.isVisible = true
+            binding.tvAllocationBilling.isVisible = false
+            binding.piUsage.isVisible = false
 
-            val packageText =
-                if (monthlyCost > 0) {
-                    "$planName Plan - $${monthlyCost.toInt()}/month"
-                } else {
-                    "$planName Plan - Free"
-                }
+            val packageText = "$planName Plan"
+//                if (monthlyCost > 0) {
+//                    "$planName Plan - $${monthlyCost.toInt()}/month"
+//                } else {
+//                    "$planName Plan - Free"
+//                }
             binding.tvPackage.text = packageText
 
             val storageFormatted = formatBytes(storageLimit)
@@ -196,7 +196,7 @@ class StorachaAccountDetailsFragment : BaseFragment() {
 
             val used = formatBytes(accountUsage.totalUsage.bytes)
             val total = formatBytes(storageLimit)
-            binding.tvUtilisation.text = "$used of $total used"
+            binding.tvUtilisation.text = "$used used"
             binding.piUsage.progress = usagePercentage
         } else {
             // No plan information available - hide plan elements and show only usage

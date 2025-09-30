@@ -10,6 +10,7 @@ import net.opendasharchive.openarchive.services.storacha.model.UploadResponse
 import net.opendasharchive.openarchive.services.storacha.service.StorachaApiService
 import net.opendasharchive.openarchive.services.storacha.util.BridgeUploader
 import net.opendasharchive.openarchive.services.storacha.util.CarFileResult
+import timber.log.Timber
 import java.io.File
 
 enum class LoadingState {
@@ -36,6 +37,7 @@ class StorachaMediaViewModel(
     private var hasMoreData: Boolean = true
     private var isLoading = false
     private var isFirstLoad = true
+    private var isRefreshing = false
 
     private val _uploadResult = MutableLiveData<Result<UploadResponse>>()
     val uploadResult: LiveData<Result<UploadResponse>> get() = _uploadResult
@@ -53,6 +55,7 @@ class StorachaMediaViewModel(
         currentCursor = null
         hasMoreData = true
         isFirstLoad = true
+        isRefreshing = true
         // Don't clear _media.value to avoid flickering
     }
 
@@ -61,7 +64,10 @@ class StorachaMediaViewModel(
         spaceDid: String,
         sessionId: String?,
     ) {
-        if (isLoading || !hasMoreData) return
+        if (isLoading || !hasMoreData) {
+            Timber.d("loadMoreMediaEntries blocked: isLoading=$isLoading, hasMoreData=$hasMoreData")
+            return
+        }
 
         _loading.value = true
         isLoading = true
@@ -71,6 +77,7 @@ class StorachaMediaViewModel(
 
         viewModelScope.launch {
             try {
+                Timber.d("Making API call with cursor: $currentCursor")
                 val response =
                     apiService.listUploads(
                         userDid = userDid,
@@ -83,17 +90,31 @@ class StorachaMediaViewModel(
                 val newEntries = response.uploads
                 val currentEntries = _media.value ?: emptyList()
 
-                val updatedEntries = if (isFirstLoad && currentCursor == null) {
-                    // For refresh/first load, replace existing data
+                Timber.d("API Response: newEntries=${newEntries.size}, currentEntries=${currentEntries.size}, cursor=${response.cursor}, hasMore=${response.hasMore}")
+
+                val updatedEntries = if (isRefreshing || (isFirstLoad && currentEntries.isEmpty())) {
+                    // For refresh or genuine first load, replace existing data
+                    Timber.d("Replacing data (refresh or first load)")
                     newEntries
                 } else {
                     // For pagination, prevent duplicates and append
                     val filteredNewEntries = newEntries.filter { newEntry ->
-                        currentEntries.none { existingEntry -> existingEntry.cid == newEntry.cid }
+                        val isDuplicate = currentEntries.any { existingEntry -> existingEntry.cid == newEntry.cid }
+                        if (isDuplicate) {
+                            Timber.d("Duplicate entry found: ${newEntry.cid}")
+                        }
+                        !isDuplicate
+                    }
+                    Timber.d("Appending data: newEntries=${newEntries.size}, filtered=${filteredNewEntries.size}")
+                    if (filteredNewEntries.isEmpty() && newEntries.isNotEmpty()) {
+                        Timber.w("All ${newEntries.size} entries were duplicates!")
                     }
                     currentEntries + filteredNewEntries
                 }
                 _media.value = updatedEntries
+
+                // Check if we got any new items for pagination analysis
+                val addedCount = updatedEntries.size - currentEntries.size
 
                 // Update empty state - only consider empty if first load and no entries
                 if (isFirstLoad) {
@@ -101,10 +122,20 @@ class StorachaMediaViewModel(
                     isFirstLoad = false
                 }
 
+                // Reset refresh flag after completion
+                isRefreshing = false
+
                 currentCursor = response.cursor
                 hasMoreData = response.hasMore
+                Timber.d("Updated pagination: cursor=$currentCursor, hasMoreData=$hasMoreData")
+
+                // If no new items were added but API says there's more, log a warning
+                if (addedCount == 0 && newEntries.isNotEmpty() && hasMoreData) {
+                    Timber.w("Potential pagination issue: no new items added but hasMore=true")
+                }
             } catch (e: Exception) {
                 // optionally handle error
+                isRefreshing = false // Reset refresh flag on error too
             } finally {
                 _loading.value = false
                 isLoading = false
@@ -119,6 +150,7 @@ class StorachaMediaViewModel(
         userDid: String,
         spaceDid: String,
         sessionId: String?,
+        isAdmin: Boolean = false,
     ) {
         viewModelScope.launch {
             _loading.value = true
@@ -133,6 +165,7 @@ class StorachaMediaViewModel(
                         spaceDid = spaceDid,
                         userDid = userDid,
                         sessionId = sessionId,
+                        isAdmin = isAdmin,
                     )
 
                 val uploadResponse =

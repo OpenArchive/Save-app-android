@@ -59,7 +59,8 @@ class StorachaMediaFragment :
         val carResult: CarFileResult,
         val userDid: String,
         val spaceDid: String,
-        val sessionId: String
+        val sessionId: String,
+        val isAdmin: Boolean
     )
 
     override fun onCreateView(
@@ -172,11 +173,14 @@ class StorachaMediaFragment :
                     dx: Int,
                     dy: Int,
                 ) {
-                    if (dy > 0) {
+                    if (dy > 0) { // Scrolling down
                         val layoutManager = recyclerView.layoutManager as GridLayoutManager
                         val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
                         val totalItemCount = layoutManager.itemCount
-                        if (lastVisibleItem >= totalItemCount - 1) {
+                        val threshold = 3 // Load more when 3 items from the end
+
+                        if (lastVisibleItem >= totalItemCount - threshold && totalItemCount > 0) {
+                            Timber.d("Scroll trigger: lastVisible=$lastVisibleItem, total=$totalItemCount, loading=${viewModel.loading.value}")
                             viewModel.loadMoreMediaEntries(userDid, spaceDid, sessionId)
                         }
                     }
@@ -286,10 +290,11 @@ class StorachaMediaFragment :
             carResult = carResult,
             userDid = userDid,
             spaceDid = spaceDid,
-            sessionId = uploadSessionId ?: ""
+            sessionId = uploadSessionId ?: "",
+            isAdmin = args.isAdmin
         )
 
-        viewModel.uploadFile(tempFile, carResult, userDid, spaceDid, uploadSessionId)
+        viewModel.uploadFile(tempFile, carResult, userDid, spaceDid, uploadSessionId, args.isAdmin)
     }
 
     private fun handleSelectedFiles(uris: List<Uri>) {
@@ -450,7 +455,8 @@ class StorachaMediaFragment :
                 failedUpload.carResult,
                 failedUpload.userDid,
                 failedUpload.spaceDid,
-                retrySessionId
+                retrySessionId,
+                failedUpload.isAdmin
             )
         }
     }
