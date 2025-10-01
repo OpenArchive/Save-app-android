@@ -73,7 +73,7 @@ android {
     }
 
     base {
-        archivesName.set("save-${project.version}")
+        archivesName.set("save-${defaultConfig.versionName}")
     }
 
     buildFeatures {

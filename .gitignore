@@ -44,7 +44,7 @@ proguard/
 app/releaseflavor/*
 
 # fastlane
-fastlane/metadata/*
+# fastlane/metadata/*  # Commented out - we need metadata for F-Droid
 fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots
