@@ -9,9 +9,3 @@ Key Changes:
 - Added server nickname editing
 - Supported Android 15 Edge-to-Edge
 - Improved UI/UX across multiple screens
-
-Notable Fixes:
-- Resolved Tor receiver export issues for Android 14+
-- Fixed WebDAV folder separator creation
-- Addressed keyboard and permission-related problems
-- Corrected server name display in menus
