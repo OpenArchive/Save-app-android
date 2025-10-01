@@ -259,18 +259,18 @@
             app:argType="string" />
     </fragment>
 
-    <fragment
-        android:id="@+id/fragment_gdrive"
-        android:name="net.opendasharchive.openarchive.services.gdrive.GDriveFragment"
-        tools:layout="@layout/fragment_gdrive">
-        <action
-            android:id="@+id/action_fragment_gdrive_to_fragment_space_setup_success"
-            app:destination="@id/fragment_space_setup_success"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-    </fragment>
+<!--    <fragment-->
+<!--        android:id="@+id/fragment_gdrive"-->
+<!--        android:name="net.opendasharchive.openarchive.services.gdrive.GDriveFragment"-->
+<!--        tools:layout="@layout/fragment_gdrive">-->
+<!--        <action-->
+<!--            android:id="@+id/action_fragment_gdrive_to_fragment_space_setup_success"-->
+<!--            app:destination="@id/fragment_space_setup_success"-->
+<!--            app:enterAnim="@anim/slide_in_right"-->
+<!--            app:exitAnim="@anim/slide_out_left"-->
+<!--            app:popEnterAnim="@anim/slide_in_left"-->
+<!--            app:popExitAnim="@anim/slide_out_right" />-->
+<!--    </fragment>-->
 
     <fragment
         android:id="@+id/fragment_space_setup_success"
@@ -344,8 +344,9 @@
             app:argType="long" />
     </fragment>
 
-    <fragment
-        android:id="@+id/fragment_proofmode_settings"
-        android:name="net.opendasharchive.openarchive.features.settings.SettingsFragment"
-        />
+    <!-- ProofMode - COMMENTED OUT -->
+<!--    <fragment-->
+<!--        android:id="@+id/fragment_proofmode_settings"-->
+<!--        android:name="net.opendasharchive.openarchive.features.settings.SettingsFragment"-->
+<!--        />-->
 </navigation>

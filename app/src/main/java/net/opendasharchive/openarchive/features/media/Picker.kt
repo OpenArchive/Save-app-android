@@ -26,16 +26,43 @@ import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Utility
 import net.opendasharchive.openarchive.util.extensions.makeSnackBar
-import org.witness.proofmode.ProofMode
-import org.witness.proofmode.crypto.HashUtils
+// ProofMode - COMMENTED OUT
+// import org.witness.proofmode.ProofMode
+// import org.witness.proofmode.crypto.HashUtils
 import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.InputStream
+import java.security.MessageDigest
 import java.util.Date
 
 object Picker {
 
     private var currentPhotoUri: Uri? = null
+
+    /**
+     * Generate SHA-256 hash from input stream
+     * Alternative to ProofMode's HashUtils.getSHA256FromFileContent
+     */
+    private fun getSHA256FromInputStream(inputStream: InputStream): String {
+        return try {
+            val digest = MessageDigest.getInstance("SHA-256")
+            val buffer = ByteArray(8192)
+            var bytesRead: Int
+
+            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                digest.update(buffer, 0, bytesRead)
+            }
+
+            inputStream.close()
+
+            // Convert byte array to hex string
+            digest.digest().joinToString("") { "%02x".format(it) }
+        } catch (e: Exception) {
+            AppLogger.e("Failed to generate SHA-256 hash", e)
+            ""
+        }
+    }
 
     fun register(
         activity: ComponentActivity,
@@ -284,7 +311,7 @@ object Picker {
         // Generate hash regardless of proof mode setting for consistency
         try {
             media.mediaHashString = file?.let {
-                HashUtils.getSHA256FromFileContent(it.inputStream())
+                getSHA256FromInputStream(it.inputStream())
             } ?: ""
         } catch (e: Exception) {
             AppLogger.e("Failed to generate hash for media", e)
@@ -295,32 +322,33 @@ object Picker {
         media.title = title
         media.save()
 
+        // ProofMode - COMMENTED OUT
         // Generate ProofMode data if enabled
-        if (generateProof && Prefs.useProofMode) {
-
-            try {
-                //If Proof mode is on we need this to be on always
-                // Ensure location and network tracking are enabled for camera captures
-                // Only enabled for camera captures (generateProof = true)
-                Prefs.proofModeLocation = true
-                Prefs.proofModeNetwork = true
-
-                AppLogger.d("Generating ProofMode data for URI: $uri, Hash: ${media.mediaHashString}")
-
-                // Generate proof using the ProofMode library
-                ProofMode.generateProof(context, uri, media.mediaHashString)
-
-                AppLogger.i("ProofMode generation completed for media: ${media.title}")
-            } catch (e: Exception) {
-                AppLogger.e("Failed to generate ProofMode data", e)
-                Timber.w("ProofMode generation failed: ${e.message}")
-            }
-        } else {
-            if (generateProof) {
-                AppLogger.w("ProofMode generation requested but useProofMode is disabled")
-            }
-            Timber.w("Skipping proof generation - generateProof: $generateProof, useProofMode: ${Prefs.useProofMode}")
-        }
+//        if (generateProof && Prefs.useProofMode) {
+//
+//            try {
+//                //If Proof mode is on we need this to be on always
+//                // Ensure location and network tracking are enabled for camera captures
+//                // Only enabled for camera captures (generateProof = true)
+//                Prefs.proofModeLocation = true
+//                Prefs.proofModeNetwork = true
+//
+//                AppLogger.d("Generating ProofMode data for URI: $uri, Hash: ${media.mediaHashString}")
+//
+//                // Generate proof using the ProofMode library
+//                ProofMode.generateProof(context, uri, media.mediaHashString)
+//
+//                AppLogger.i("ProofMode generation completed for media: ${media.title}")
+//            } catch (e: Exception) {
+//                AppLogger.e("Failed to generate ProofMode data", e)
+//                Timber.w("ProofMode generation failed: ${e.message}")
+//            }
+//        } else {
+//            if (generateProof) {
+//                AppLogger.w("ProofMode generation requested but useProofMode is disabled")
+//            }
+//            Timber.w("Skipping proof generation - generateProof: $generateProof, useProofMode: ${Prefs.useProofMode}")
+//        }
         return media
     }
 

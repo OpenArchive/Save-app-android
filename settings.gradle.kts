@@ -94,18 +94,19 @@ dependencyResolutionManagement {
 rootProject.name = "save-android-old"
 
 include(":app")
-include(":proofmode:android-libproofmode")
-
-// Check if this is an F-Droid build - F-Droid doesn't allow binary AAR files
-val isFdroidBuild = gradle.startParameter.taskRequests.toString().lowercase().contains("fdroid")
-
-if (!isFdroidBuild) {
-    include(":proofmode:c2pa")
-    // Create alias for c2pa so proofmode submodule can reference it as :c2pa
-    include(":c2pa")
-    project(":c2pa").projectDir = file("proofmode/c2pa")
-} else {
-    // For F-Droid builds, create a stub c2pa project to avoid build errors
-    include(":c2pa")
-    project(":c2pa").projectDir = file("fdroid-stub/c2pa")
-}
+// ProofMode - COMMENTED OUT
+// include(":proofmode:android-libproofmode")
+//
+// // Check if this is an F-Droid build - F-Droid doesn't allow binary AAR files
+// val isFdroidBuild = gradle.startParameter.taskRequests.toString().lowercase().contains("fdroid")
+//
+// if (!isFdroidBuild) {
+//     include(":proofmode:c2pa")
+//     // Create alias for c2pa so proofmode submodule can reference it as :c2pa
+//     include(":c2pa")
+//     project(":c2pa").projectDir = file("proofmode/c2pa")
+// } else {
+//     // For F-Droid builds, create a stub c2pa project to avoid build errors
+//     include(":c2pa")
+//     project(":c2pa").projectDir = file("fdroid-stub/c2pa")
+// }

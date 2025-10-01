@@ -112,12 +112,13 @@
 <!--            android:name=".services.gdrive.GDriveActivity"-->
 <!--            android:theme="@style/SaveAppTheme.NoActionBar" />-->
 
-        <activity
-            android:name=".features.settings.ProofModeSettingsActivity"
-            android:exported="false"
-            android:label="@string/proofmode"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
+        <!-- ProofMode - COMMENTED OUT -->
+<!--        <activity-->
+<!--            android:name=".features.settings.ProofModeSettingsActivity"-->
+<!--            android:exported="false"-->
+<!--            android:label="@string/proofmode"-->
+<!--            android:taskAffinity=""-->
+<!--            android:theme="@style/SaveAppTheme.NoActionBar" />-->
 
         <activity
             android:name=".features.media.PreviewActivity"

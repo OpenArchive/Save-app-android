@@ -53,6 +53,8 @@ bouncycastle-bcprov = "1.72"
 bouncycastle-bcpg = "1.71"
 clean-insights = "2.8.0"
 dotsindicator = "5.1.0"
+# ProofMode - COMMENTED OUT
+# proofmode = "1.0.30"
 
 google-play-asset-delivery-ktx = "2.3.0"
 google-play-feature-delivery = "2.1.0"
@@ -63,7 +65,7 @@ guava-listenablefuture = "9999.0-empty-to-avoid-conflict-with-guava"
 j2v8 = "6.2.1@aar"
 netcipher = "2.2.0-alpha"
 permissionx = "1.8.1"
-proofmode = "1.0.30"
+# proofmode = "1.0.30"  # COMMENTED OUT - duplicate line
 satyan-sugar = "1.5"
 tor-android = "0.4.8.17.2"
 jtorctl = "0.4.5.7"
@@ -184,7 +186,8 @@ jtorctl = { group = "info.guardianproject", name = "jtorctl", version.ref = "jto
 bitcoinj-core = { group = "org.bitcoinj", name = "bitcoinj-core", version.ref = "bitcoinj-core" }
 j2v8 = { group = "com.eclipsesource.j2v8", name = "j2v8", version.ref = "j2v8" }
 
-proofmode = { group = "org.proofmode", name = "android-libproofmode", version.ref = "proofmode" }
+# ProofMode - COMMENTED OUT
+# proofmode = { group = "org.proofmode", name = "android-libproofmode", version.ref = "proofmode" }
 
 guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
 guava-listenablefuture = { group = "com.google.guava", name = "listenablefuture", version.ref = "guava-listenablefuture" }

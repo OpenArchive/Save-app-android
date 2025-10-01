@@ -70,7 +70,8 @@ import net.opendasharchive.openarchive.upload.UploadService
 import net.opendasharchive.openarchive.util.InAppReviewHelper
 import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
-import net.opendasharchive.openarchive.util.ProofModeHelper
+// ProofMode - COMMENTED OUT
+// import net.opendasharchive.openarchive.util.ProofModeHelper
 import net.opendasharchive.openarchive.util.extensions.Position
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.cloak
@@ -286,13 +287,17 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     override fun onStart() {
         super.onStart()
 
+        // ProofMode - COMMENTED OUT
         // Initialize ProofMode on background thread to avoid ANR during RSA key generation
-        lifecycleScope.launch(Dispatchers.IO) {
-            ProofModeHelper.init(this@MainActivity) {
-                // Check for any queued uploads and restart, only after ProofMode is correctly initialized.
-                UploadService.startUploadService(this@MainActivity)
-            }
-        }
+//        lifecycleScope.launch(Dispatchers.IO) {
+//            ProofModeHelper.init(this@MainActivity) {
+//                // Check for any queued uploads and restart, only after ProofMode is correctly initialized.
+//                UploadService.startUploadService(this@MainActivity)
+//            }
+//        }
+
+        // Start upload service without ProofMode
+        UploadService.startUploadService(this@MainActivity)
     }
 
     // ----- Initialization Methods -----

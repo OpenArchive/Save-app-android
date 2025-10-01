@@ -6,8 +6,9 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Base64
 import androidx.preference.PreferenceManager
-import org.witness.proofmode.ProofMode
-import org.witness.proofmode.ProofModeConstants
+// ProofMode - COMMENTED OUT
+// import org.witness.proofmode.ProofMode
+// import org.witness.proofmode.ProofModeConstants
 
 object Prefs {
     const val PASSCODE_ENABLED = "passcode_enabled"
@@ -103,8 +104,10 @@ object Prefs {
             prefs?.edit()?.putBoolean(NEARBY_USE_WIFI, value)?.apply()
         }
 
-    val useProofMode: Boolean
-        get() = prefs?.getBoolean(USE_PROOFMODE, false) ?: false
+    // ProofMode - COMMENTED OUT
+//    val useProofMode: Boolean
+//        get() = prefs?.getBoolean(USE_PROOFMODE, false) ?: false
+    val useProofMode: Boolean = false
 
     var useTor: Boolean
         get() = prefs?.getBoolean(USE_TOR, false) ?: false
@@ -166,47 +169,48 @@ object Prefs {
             prefs?.edit()?.putBoolean(PASSCODE_ENABLED, value)?.apply()
         }
 
-    var proofModeLocation: Boolean
-        get() = prefs?.getBoolean(ProofMode.PREF_OPTION_LOCATION, false) ?: false
-        set(value) {
-            prefs?.edit()?.putBoolean(ProofMode.PREF_OPTION_LOCATION, value)?.apply()
-        }
-
-    var proofModeNetwork: Boolean
-        get() = prefs?.getBoolean(ProofMode.PREF_OPTION_NETWORK, false) ?: false
-        set(value) {
-            prefs?.edit()?.putBoolean(ProofMode.PREF_OPTION_NETWORK, value)?.apply()
-        }
-
-    var useProofModeKeyEncryption: Boolean
-        get() = prefs?.getBoolean(USE_PROOFMODE_KEY_ENCRYPTION, false) ?: false
-        set(value) {
-            prefs?.edit()?.putBoolean(USE_PROOFMODE_KEY_ENCRYPTION, value)?.apply()
-        }
-
-    var proofModeEncryptedPassphrase: ByteArray?
-        get() {
-            val passphrase = prefs?.getString(PROOFMODE_ENCRYPTED_PASSPHRASE, null) ?: return null
-
-            return Base64.decode(passphrase, Base64.DEFAULT)
-        }
-        set(value) {
-            val passphrase =
-                if (value == null) null else Base64.encodeToString(value, Base64.DEFAULT)
-
-            prefs?.edit()?.putString(PROOFMODE_ENCRYPTED_PASSPHRASE, passphrase)?.apply()
-        }
-
-    /**
-     * Only set this right before initializing `MediaWatcher`!
-     * This needs to be the unencrypted passphrase for `MediaWatcher` to read.
-     * But we don't want to store this, so overwrite right after!
-     */
-    var temporaryUnencryptedProofModePassphrase: String?
-        get() = prefs?.getString(ProofModeConstants.PREFS_KEY_PASSPHRASE, null) ?: ProofModeConstants.PREFS_KEY_PASSPHRASE_DEFAULT
-        set(value) {
-            prefs?.edit()?.putString(ProofModeConstants.PREFS_KEY_PASSPHRASE, value)?.apply()
-        }
+    // ProofMode - COMMENTED OUT
+//    var proofModeLocation: Boolean
+//        get() = prefs?.getBoolean(ProofMode.PREF_OPTION_LOCATION, false) ?: false
+//        set(value) {
+//            prefs?.edit()?.putBoolean(ProofMode.PREF_OPTION_LOCATION, value)?.apply()
+//        }
+//
+//    var proofModeNetwork: Boolean
+//        get() = prefs?.getBoolean(ProofMode.PREF_OPTION_NETWORK, false) ?: false
+//        set(value) {
+//            prefs?.edit()?.putBoolean(ProofMode.PREF_OPTION_NETWORK, value)?.apply()
+//        }
+//
+//    var useProofModeKeyEncryption: Boolean
+//        get() = prefs?.getBoolean(USE_PROOFMODE_KEY_ENCRYPTION, false) ?: false
+//        set(value) {
+//            prefs?.edit()?.putBoolean(USE_PROOFMODE_KEY_ENCRYPTION, value)?.apply()
+//        }
+//
+//    var proofModeEncryptedPassphrase: ByteArray?
+//        get() {
+//            val passphrase = prefs?.getString(PROOFMODE_ENCRYPTED_PASSPHRASE, null) ?: return null
+//
+//            return Base64.decode(passphrase, Base64.DEFAULT)
+//        }
+//        set(value) {
+//            val passphrase =
+//                if (value == null) null else Base64.encodeToString(value, Base64.DEFAULT)
+//
+//            prefs?.edit()?.putString(PROOFMODE_ENCRYPTED_PASSPHRASE, passphrase)?.apply()
+//        }
+//
+//    /**
+//     * Only set this right before initializing `MediaWatcher`!
+//     * This needs to be the unencrypted passphrase for `MediaWatcher` to read.
+//     * But we don't want to store this, so overwrite right after!
+//     */
+//    var temporaryUnencryptedProofModePassphrase: String?
+//        get() = prefs?.getString(ProofModeConstants.PREFS_KEY_PASSPHRASE, null) ?: ProofModeConstants.PREFS_KEY_PASSPHRASE_DEFAULT
+//        set(value) {
+//            prefs?.edit()?.putString(ProofModeConstants.PREFS_KEY_PASSPHRASE, value)?.apply()
+//        }
 
     val theme: Theme
         get() = Theme.get(prefs?.getString(THEME, null))

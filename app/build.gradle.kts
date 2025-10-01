@@ -332,27 +332,28 @@ dependencies {
     implementation(libs.tor.android)
     implementation(libs.jtorctl)
 
-    implementation(libs.bitcoinj.core)
+    // ProofMode - COMMENTED OUT
+    // implementation(libs.bitcoinj.core)
     //implementation("com.eclipsesource.j2v8:j2v8:6.2.1@aar")
 
-    // ProofMode - built from source as local module for F-Droid compatibility
-    implementation(project(":proofmode:android-libproofmode")) {
-        //transitive = false
-        exclude(group = "org.bitcoinj")
-        exclude(group = "com.google.protobuf")
-        exclude(group = "org.slf4j")
-        exclude(group = "net.jcip")
-        exclude(group = "commons-cli")
-        exclude(group = "org.json")
-        exclude(group = "com.google.guava")
-        exclude(group = "com.google.guava", module = "guava-jdk5")
-        exclude(group = "com.google.code.findbugs", module = "annotations")
-        exclude(group = "com.squareup.okio", module = "okio")
-        // Exclude BouncyCastle to avoid duplicate classes - we'll use our own version
-        exclude(group = "org.bouncycastle")
-        // Exclude Google Play Services for F-Droid compatibility
-        exclude(group = "com.google.android.gms")
-    }
+    // ProofMode - built from source as local module for F-Droid compatibility - COMMENTED OUT
+    // implementation(project(":proofmode:android-libproofmode")) {
+    //     //transitive = false
+    //     exclude(group = "org.bitcoinj")
+    //     exclude(group = "com.google.protobuf")
+    //     exclude(group = "org.slf4j")
+    //     exclude(group = "net.jcip")
+    //     exclude(group = "commons-cli")
+    //     exclude(group = "org.json")
+    //     exclude(group = "com.google.guava")
+    //     exclude(group = "com.google.guava", module = "guava-jdk5")
+    //     exclude(group = "com.google.code.findbugs", module = "annotations")
+    //     exclude(group = "com.squareup.okio", module = "okio")
+    //     // Exclude BouncyCastle to avoid duplicate classes - we'll use our own version
+    //     exclude(group = "org.bouncycastle")
+    //     // Exclude Google Play Services for F-Droid compatibility
+    //     exclude(group = "com.google.android.gms")
+    // }
 
     // Guava Conflicts
     implementation(libs.guava)

@@ -16,7 +16,8 @@ import net.opendasharchive.openarchive.services.webdav.WebDavConduit
 import net.opendasharchive.openarchive.upload.BroadcastManager
 import net.opendasharchive.openarchive.util.Prefs
 import okhttp3.HttpUrl
-import org.witness.proofmode.storage.DefaultStorageProvider
+// ProofMode - COMMENTED OUT
+// import org.witness.proofmode.storage.DefaultStorageProvider
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -48,20 +49,22 @@ abstract class Conduit(
     }
 
     fun getProof(): Array<out File> {
-        if (!Prefs.useProofMode) return emptyArray()
-        try {
-        // Here we are simply fetching the files. Don't generate proof here. This is only called during upload.
-        // Generating Proof here won't make sense because the file can be created well before it could be uploaded.
-          //var files = ProofMode.getProofDir(mContext, mMedia.mediaHashString).listFiles() ?: emptyArray()
-          var files = DefaultStorageProvider(mContext).getHashStorageDir(mMedia.mediaHashString)?.listFiles() ?: emptyArray()
-          return files
-        } catch (exception: FileNotFoundException) {
-            AppLogger.e(exception)
-            return emptyArray()
-        } catch (exception: SecurityException) {
-            AppLogger.e(exception)
-            return emptyArray()
-        }
+        // ProofMode - COMMENTED OUT
+//        if (!Prefs.useProofMode) return emptyArray()
+//        try {
+//        // Here we are simply fetching the files. Don't generate proof here. This is only called during upload.
+//        // Generating Proof here won't make sense because the file can be created well before it could be uploaded.
+//          //var files = ProofMode.getProofDir(mContext, mMedia.mediaHashString).listFiles() ?: emptyArray()
+//          var files = DefaultStorageProvider(mContext).getHashStorageDir(mMedia.mediaHashString)?.listFiles() ?: emptyArray()
+//          return files
+//        } catch (exception: FileNotFoundException) {
+//            AppLogger.e(exception)
+//            return emptyArray()
+//        } catch (exception: SecurityException) {
+//            AppLogger.e(exception)
+//            return emptyArray()
+//        }
+        return emptyArray()
     }
 
     /**

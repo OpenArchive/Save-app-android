@@ -74,21 +74,22 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory
-        android:iconSpaceReserved="false"
-        android:layout="@layout/custom_preference_category"
-        android:title="Verify"
-        app:iconSpaceReserved="false">
+    <!-- ProofMode - COMMENTED OUT -->
+<!--    <PreferenceCategory-->
+<!--        android:iconSpaceReserved="false"-->
+<!--        android:layout="@layout/custom_preference_category"-->
+<!--        android:title="Verify"-->
+<!--        app:iconSpaceReserved="false">-->
 
-        <Preference
-            android:iconSpaceReserved="false"
-            android:key="@string/pref_key_proof_mode"
-            android:layout="@layout/custom_preference"
-            android:singleLineTitle="false"
-            android:title="@string/proofmode"
-            app:iconSpaceReserved="false" />
+<!--        <Preference-->
+<!--            android:iconSpaceReserved="false"-->
+<!--            android:key="@string/pref_key_proof_mode"-->
+<!--            android:layout="@layout/custom_preference"-->
+<!--            android:singleLineTitle="false"-->
+<!--            android:title="@string/proofmode"-->
+<!--            app:iconSpaceReserved="false" />-->
 
-    </PreferenceCategory>
+<!--    </PreferenceCategory>-->
 
     <PreferenceCategory
         android:layout="@layout/custom_preference_category"
