@@ -8,20 +8,20 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.opendasharchive.openarchive.BuildConfig
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.services.SaveClient
-// GDriveConduit import removed for F-Droid compatibility
 import timber.log.Timber
 import java.io.IOException
 import java.util.Date
 
+data class Folder(
+    val name: String,
+    val modified: Date,
+)
 
-
-data class Folder(val name: String, val modified: Date)
-
-class BrowseFoldersViewModel(private val context: Context) : ViewModel() {
-
+class BrowseFoldersViewModel(
+    private val context: Context,
+) : ViewModel() {
     private val mFolders = MutableLiveData<List<Folder>>()
 
     val folders: LiveData<List<Folder>>
@@ -34,27 +34,17 @@ class BrowseFoldersViewModel(private val context: Context) : ViewModel() {
             progressBarFlag.value = true
 
             try {
-                val value = withContext(Dispatchers.IO) {
-                    when (space.tType) {
-                        Space.Type.WEBDAV -> getWebDavFolders(context, space)
-
-                        // Space.Type.GDRIVE -> {
-                        //     if (BuildConfig.INCLUDE_GOOGLE_SERVICES) {
-                        //         getGDriveFolders(context, space)
-                        //     } else {
-                        //         emptyList()
-                        //     }
-                        // } // COMMENTED OUT - no longer using Google services
-
-                        else -> emptyList()
+                val value =
+                    withContext(Dispatchers.IO) {
+                        when (space.tType) {
+                            Space.Type.WEBDAV -> getWebDavFolders(context, space)
+                            else -> emptyList()
+                        }
                     }
-                }
 
                 mFolders.value = value.filter { !space.hasProject(it.name) }
                 progressBarFlag.value = false
-            }
-            // Dropbox might throw all sorts of non-IOExceptions.
-            catch (e: Throwable) {
+            } catch (e: Throwable) {
                 progressBarFlag.value = false
                 mFolders.value = arrayListOf()
 
@@ -64,21 +54,18 @@ class BrowseFoldersViewModel(private val context: Context) : ViewModel() {
     }
 
     @Throws(IOException::class)
-    private suspend fun getWebDavFolders(context: Context, space: Space): List<Folder> {
+    private suspend fun getWebDavFolders(
+        context: Context,
+        space: Space,
+    ): List<Folder> {
         val root = space.hostUrl?.encodedPath
 
         return SaveClient.getSardine(context, space).list(space.host)?.mapNotNull {
             if (it?.isDirectory == true && it.path != root) {
                 Folder(it.name, it.modified ?: Date())
-            }
-            else {
+            } else {
                 null
             }
         } ?: emptyList()
-    }
-
-    private fun getGDriveFolders(context: Context, space: Space): List<Folder> {
-        // F-Droid: Google Drive not available
-        return emptyList()
     }
 }
