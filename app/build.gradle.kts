@@ -127,6 +127,7 @@ android {
         create("fdroid") {
             dimension = "env"
             versionNameSuffix = "-fdroid"
+            applicationIdSuffix = ".release"
             resValue("string", "mixpanel_key", "")
             buildConfigField("boolean", "INCLUDE_GOOGLE_SERVICES", "false")
             buildConfigField("boolean", "INCLUDE_MIXPANEL", "false")
