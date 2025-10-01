@@ -1,9 +1,10 @@
-image: openjdk:8-jdk
+image: openjdk:17-jdk
 
 variables:
-  ANDROID_COMPILE_SDK: "28"
-  ANDROID_BUILD_TOOLS: "28.0.2"
+  ANDROID_COMPILE_SDK: "35"
+  ANDROID_BUILD_TOOLS: "34.0.0"
   ANDROID_SDK_TOOLS:   "4333796"
+  GRADLE_OPTS: "-Xmx4096m -XX:MaxMetaspaceSize=512m"
 
 before_script:
   - apt-get --quiet update --yes
@@ -30,13 +31,13 @@ stages:
 #  script:
 #    - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
 
-assembleDebug:
+assembleFdroid:
   stage: build
   script:
-    - ./gradlew assembleDebug
+    - ./gradlew assembleFdroidRelease
   artifacts:
     paths:
-    - app/build/outputs/
+    - app/build/outputs/apk/fdroid/release/
 
 debugTests:
   stage: test
