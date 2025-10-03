@@ -199,8 +199,7 @@ private fun InternetArchiveLoginContent(
                 Text(
                     stringResource(R.string.account),
                     color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp
+                    style = MaterialTheme.typography.titleLarge
                 )
             }
         }
@@ -293,7 +292,7 @@ private fun InternetArchiveLoginContent(
                 enabled = !state.isBusy,
                 shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
                 onClick = { onAction(InternetArchiveLoginAction.Cancel) }) {
-                Text(stringResource(R.string.back))
+                Text(stringResource(R.string.back), style = MaterialTheme.typography.titleLarge)
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
@@ -321,7 +320,10 @@ private fun InternetArchiveLoginContent(
                 if (state.isBusy) {
                     CircularProgressIndicator(color = ThemeColors.material.primary)
                 } else {
-                    Text(stringResource(R.string.next), fontWeight = FontWeight.SemiBold, fontFamily = MontserratFontFamily)
+                    Text(
+                        stringResource(R.string.next),
+                        style = MaterialTheme.typography.titleLarge
+                    )
                 }
             }
         }
@@ -367,9 +369,11 @@ fun CustomTextField(
             placeholder?.let {
                 Text(
                     text = placeholder,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Normal,
-                    fontStyle = FontStyle.Italic
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontStyle = FontStyle.Italic,
+                        fontSize = 13.sp,
+                        fontFamily = MontserratFontFamily
+                    )
                 )
             }
         },
@@ -422,9 +426,11 @@ fun CustomSecureField(
         placeholder = {
             Text(
                 text = placeholder,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Normal,
-                fontStyle = FontStyle.Italic
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontStyle = FontStyle.Italic,
+                    fontSize = 13.sp,
+                    fontFamily = MontserratFontFamily
+                )
             )
         },
         singleLine = true,
@@ -513,7 +519,10 @@ fun ButtonBar(
             if (isLoading) {
                 CircularProgressIndicator(color = ThemeColors.material.primary)
             } else {
-                Text(nextButtonText.asString())
+                Text(
+                    nextButtonText.asString(),
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
         }
     }

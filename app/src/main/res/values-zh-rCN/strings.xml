@@ -60,7 +60,7 @@
     <string name="action_done">完成</string>
     <string name="edit">编辑</string>
     <string name="menu_done">完成</string>
-    <string name="remove">移除</string>
+    <string name="lbl_remove">移除</string>
     <string name="new_folder">新文件夹</string>
     <string name="metadata">元数据</string>
 
@@ -81,7 +81,7 @@
     <string name="select_all">全选</string>
     <string name="lbl_got_it">知道了</string>
     <string name="skip">跳过</string>
-    <string name="retry">重试</string>
+    <string name="lbl_retry">重试</string>
 
     <string name="edit_media">编辑媒体</string>
     <string name="files">解密文件</string>
