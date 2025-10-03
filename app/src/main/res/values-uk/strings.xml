@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="app_subtext">Архівуйте Ваші медіа\n<a href="#">дізнайтеся більше</a></string>
-
-    <string name="title_activity_login">Увійти</string>
     <string name="title_activity_first_start">Перший початок</string>
-    <string name="title_media_list">Вивантаження</string>
 
     <!-- Alert Values -->
 
@@ -109,21 +105,12 @@
     <string name="folder_name_already_exists">Така папка вже існує.</string>
     <string name="metadata">Метадані</string>
 
-    <string name="confirm_remove_media">Ви впевнені, що хочете видалити цей медіафайл?</string>
-
     <string name="popup_flag_title">Позначте важливий вміст</string>
     <string name="popup_flag_desc">Коли ви позначаєте елемент, він поміщається до підпапки у вибраній папці проєкту на приватному сервері.</string>
 
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Задайте однакову ліцензію Creative Commons для ВСІХ папок на цьому сервері.</string>
 
-    <string name="action_install">Встановити</string>
-    <string name="login_activity_logging_message">Вхід…</string>
     <string name="you_already_have_a_server_with_these_credentials">У вас уже є сервер із цими обліковими даними</string>
-    <string name="tor_connection_exception">Неможливо під\'єднатися до Orbot/Tor.</string>
-    <string name="tor_connection_timeout">Неможливо під\'єднатися до Orbot/Tor: Сплив час очікування</string>
-    <string name="tor_connection_invalid">Неможливо під\'єднатися до Orbot/Tor: Недійсні дані</string>
-    <string name="unsecured_internet_connection">Виявлено незахищене підключення до Інтернету</string>
-    <string name="version__">Версія %s</string>
 
 
     <!-- Clean Insights measurement -->
@@ -137,17 +124,12 @@
     <string name="add">Додати</string>
     <string name="no_more_folders">Немає (більше) папок</string>
     <string name="private_server">Приватний сервер</string>
-    <string name="upload_to_dropbox">Вивантажити до Dropbox</string>
-    <string name="sign_in_or_create_an_account_with_dropbox">Увійдіть або створіть обліковий запис у Dropbox</string>
-    <string name="authenticate">Автентифікація</string>
     <string name="back">Назад</string>
     <string name="my_media">Мої медіафайли</string>
-    <string name="if_you_do_not_have_existing_keys_learn_how_to_acquire_keys">Якщо у вас немає чинних ключів — <b>дізнайтесь </b>, як їх отримати.</string>
     <string name="server_info">Інформація про сервер</string>
     <string name="enter_url">Ввести URL</string>
     <string name="account">Обліковий запис</string>
     <string name="general">Загальні</string>
-    <string name="connectivity_data"><![CDATA[Підключення & Дані]]></string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Вивантажувати медіа тільки коли ви під\'єднані до Wi-Fi</string>
     <string name="security">Безпека</string>
     <string name="proofmode">ProofMode</string>
@@ -171,16 +153,11 @@
     <string name="done">Готово</string>
     <string name="secure_mobile_media_preservation">Схоронність медіафайлів на мобільних пристроях</string>
     <string name="get_started">Розпочати</string>
-    <string name="proofmode_permissions_explanation">ProofMode збирає метадані з веж стільникового зв’язку на місцевості для підтвердження оригінальності медіафайлів. Android вимагає дозволу для увімкнення цієї функції. Застосунок Save використовуватиме це налаштування лише для отримання даних та НЕ отримуватиме доступу до здійснення дзвінків або їхньої обробки.</string>
     <string name="archived_folders">Архівовані папки</string>
     <string name="view_archived_folders">Переглянути архівовані папки</string>
     <string name="learn_more_about_creative_commons">Дізнатися більше про Creative Commons.</string>
     <string name="refresh">Оновити</string>
-    <string name="to_get_started_please_create_a_folder">Щоб розпочати, будь ласка, створіть папку</string>
-    <string name="before_adding_media_create_a_new_folder_first">Перш ніж додавати файли, створіть нову папку.</string>
     <string name="is_video">– відео</string>
-    <string name="use_upload_chunking_nextcloud_only">Використовувати Дроблення для вивантаження (лише NextCloud)</string>
-    <string name="chunking_explanation">«Дроблення» завантажує файли частинами, отже у випадку переривання з’єднання не доведеться починати вивантаження спочатку.</string>
     <string name="preview_media">Попередній перегляд медіа</string>
     <string name="add_more">Додати більше</string>
     <string name="select_all">Вибрати всі</string>
@@ -190,12 +167,9 @@
     <string name="press_and_hold_to_select_and_edit_multiple_media">Натисніть й утримуйте для обрання та редагування декількох медіафайлів.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Після вивантаження медіафайлів втрачається можливість їхнього редагування</string>
     <string name="edit_media_info">Редагувати дані медіафайлу</string>
-    <string name="counter">%1$d/%2$d</string>
     <string name="add_a_location_optional">Додати розташування (необов\'язково)</string>
     <string name="add_notes_optional">Додати примітки (необов\'язково)</string>
     <string name="skip">Пропустити</string>
-    <string name="add_images_or_video">Додати зображення або відео</string>
-    <string name="add_files">Додати файли</string>
 
     <string name="upload_unsuccessful">Не вдалось вивантажити</string>
     <string name="lbl_retry">Повторити</string>
@@ -204,6 +178,5 @@
     <string name="uploading_is_paused">Вивантаження призупинено</string>
     <string name="photo_gallery">Галерея</string>
     <string name="files">Файли</string>
-    <string name="no_thanks">Ні, дякую</string>
 
 </resources>

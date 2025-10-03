@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="navigation_drawer_open">Gaveta Abierta</string>
-    <string name="navigation_drawer_close">Gaveta Cerrada</string>
-
-    <string name="app_subtext">Archiva Tus Medios\n<a href="#">aprende más</a></string>
-<string name="title_activity_login">Iniciar sesión</string>
     <string name="title_activity_first_start">Primer Inicio</string>
-    <string name="title_media_list">Cargas</string>
 
     <!-- Alert Values -->
 
@@ -184,7 +178,6 @@
     <string name="metadata">Metadatos</string>
 
     <string name="btn_lbl_remove_media">Eliminar Medios</string>
-    <string name="confirm_remove_media">¿Estás segura(o) de que deseas eliminar este Medio\?</string>
 
     <string name="popup_flag_title">Marcar Contenido Significativo</string>
     <string name="popup_flag_desc">Cuando marcas un elemento, se envía a una subcarpeta dentro de la carpeta del proyecto elegido en el servidor privado.</string>
@@ -192,21 +185,12 @@
     <string name="set_creative_commons_license_for_all_folders_on_this_server">Establecer licencias de creative commons para carpetas en este servidor.</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Permitir el uso de licencia Creative Commons para TODAS las carpetas de este servidor.</string>
 
-    <string name="action_install">Instalar</string>
-    <string name="login_activity_logging_message">Iniciando sesión…</string>
     <string name="you_already_have_a_server_with_these_credentials">Ya tienes un servidor con estas credenciales</string>
-    <string name="tor_connection_exception">No se puede conectar a Orbot/Tor.</string>
-    <string name="tor_connection_timeout">No se puede conectar a Orbot/Tor: TIEMPO DE ESPERA</string>
-    <string name="tor_connection_invalid">No se puede conectar a Orbot/Tor: INVÁLIDA</string>
-    <string name="unsecured_internet_connection">Detectada una conexión a internet no segura</string>
-    <string name="version__">Versión %s</string>
 
     <!-- Space Setup -->
     <string name="space_setup_title">Selecciona un Servidor</string>
     <!-- WebDAV related strings -->
     <string name="private_server">Servidor Privado</string>
-    <string name="edit_private_server">Editar Servidor Privado</string>
-    <string name="empty_name_warning">Nombre no puede estar vacío</string>
 
     <string name="unsaved_changes">¡Cambios sin guardar!</string>
     <string name="do_you_want_to_save">¿Quieres guardar\?</string>
@@ -234,17 +218,12 @@
     <string name="add">Añadir</string>
     <string name="no_more_folders">No (más) carpetas</string>
 
-    <string name="upload_to_dropbox">Subir a Dropbox</string>
-    <string name="sign_in_or_create_an_account_with_dropbox">Inicia sesión o crea una cuenta con Dropbox</string>
-    <string name="authenticate">Autenticar</string>
     <string name="back">Volver</string>
     <string name="my_media">Mis Medios</string>
-    <string name="if_you_do_not_have_existing_keys_learn_how_to_acquire_keys">Si no tienes claves existentes, <b>aprende cómo</b> adquirir claves.</string>
     <string name="server_info">Info de servidor</string>
     <string name="enter_url"><i>Introducir URL</i></string>
     <string name="account">Cuenta</string>
     <string name="general">General</string>
-    <string name="connectivity_data"><![CDATA[Conectividad y Datos]]></string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Solo subir medios cuando estés conectada(o) a Wi-Fi</string>
     <string name="security">Seguridad</string>
     <string name="proofmode">ProofMode</string>
@@ -257,16 +236,11 @@
     <string name="done">Listo</string>
     <string name="secure_mobile_media_preservation">Preservación Segura de Medios Móviles</string>
     <string name="get_started">Comenzar</string>
-    <string name="proofmode_permissions_explanation">ProofMode recolecta metadatos de las torres de celular locales para ayudar a verificar medios. Android requiere permiso para habilitar esta configuración. Save solo usará esta configuración para capturar datos y NO accederá a tu teléfono para hacer/gestionar llamadas.</string>
     <string name="archived_folders">Carpetas Archivadas</string>
     <string name="view_archived_folders">Ver Carpetas Archivadas</string>
     <string name="learn_more_about_creative_commons">Más información sobre Creative Commons.</string>
     <string name="refresh">Refrescar</string>
-    <string name="to_get_started_please_create_a_folder">Para comenzar, por favor crea una carpeta.</string>
-    <string name="before_adding_media_create_a_new_folder_first">Antes de agregar medios, primero crea una nueva carpeta.</string>
     <string name="is_video">es video</string>
-    <string name="use_upload_chunking_nextcloud_only">Usar Fragmentación de Subida (solo Nextcloud)</string>
-    <string name="chunking_explanation">“Fragmentación” sube medios en partes, así no tendrás que reiniciar tu subida si tu conexión se interrumpe.</string>
     <string name="preview_media">Previsualizar Subida</string>
     <string name="add_more">Agregar Más</string>
     <string name="select_all">Seleccionar Todos</string>
@@ -278,13 +252,9 @@
     <string name="press_and_hold_to_select_and_edit_multiple_media">Presionar y sostener para seleccionar medios y editar múltiples medios.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Una vez subidos, no podrás editar los medios.</string>
     <string name="edit_media_info">Editar Info de Medios</string>
-    <string name="counter">%1$d/%2$d</string>
     <string name="add_a_location_optional">Agregar una ubicación (opcional)</string>
     <string name="add_notes_optional">Agregar notas (opcional)</string>
     <string name="skip">Omitir</string>
-    <string name="add_camera">Añadir Imágenes desde Cámara</string>
-    <string name="add_images_or_video">Agregar Imágenes o Video</string>
-    <string name="add_files">Agregar Archivos</string>
 
     <string name="upload_unsuccessful">Carga Fallida</string>
     <string name="upload_unsuccessful_description">No se pudo subir debido a error de sesión, por favor vuelve a intentar o contacta a soporte.</string>
@@ -295,7 +265,6 @@
     <string name="camera">Cámara</string>
     <string name="photo_gallery">Galería de Fotos</string>
     <string name="files">Archivos</string>
-    <string name="no_thanks">No gracias</string>
 
     <!-- Internet Archive Settings -->
     <string name="label_email">Email</string>
@@ -318,7 +287,6 @@
     <string name="pref_summary_media_folders">Administra tus carpetas archivadas</string>
     <string name="pref_summary_privacy_policy">Lee nuestros Términos y Política de Privacidad</string>
 
-    <string name="pref_key_use_dark_mode">pref_is_dark_mode</string>
     <!-- General -->
     <string name="label_success_title">¡Éxito!</string>
     <string name="label_warning_title">¡Advertencia!</string>

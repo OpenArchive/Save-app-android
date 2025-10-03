@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="navigation_drawer_open">اللوحة الجانبية مفتوحة</string>
-    <string name="navigation_drawer_close">اللوحة الجانبية مغلقة</string>
-
-    <string name="app_subtext">أرشِف وسائطك\n<a href="#">تعرف على المزيد</a></string>
-<string name="title_activity_login">تسجيل الدخول</string>
     <string name="title_activity_first_start">البدء الأول</string>
-    <string name="title_media_list">التحميلات</string>
 
     <!-- Alert Values -->
 
@@ -178,7 +172,6 @@
     <string name="metadata">البيانات الوصفية</string>
 
     <string name="btn_lbl_remove_media">أزِل الوسائط</string>
-    <string name="confirm_remove_media">هل أنت متحقِّق من أنك تريد إزالة هذه الوسائط ؟</string>
 
     <string name="popup_flag_title">أشِّر على المحتوى المميز</string>
     <string name="popup_flag_desc">عندما تضع العلامة على عنصر ما، يتم توجيهها نحو مجلد فرعي داخل مجلد المشروع المختار على الخادم الخاص.</string>
@@ -186,21 +179,12 @@
     <string name="set_creative_commons_license_for_all_folders_on_this_server">تعيين ترخيص المشاع الإبداعي للمجلدات الموجودة على هذا الخادم.</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">‫تعيين نفس ترخيص المشاع الإبداعي لـ** كافة ** المجلدات الموجودة على هذا الخادم.</string>
 
-    <string name="action_install">تثبيت</string>
-    <string name="login_activity_logging_message">‫تسجيل الدخول…</string>
     <string name="you_already_have_a_server_with_these_credentials">لديك بالفعل خادم بهذه الاعتمادات</string>
-    <string name="tor_connection_exception">غير قادر على الاتصال بـ « أوربوت » أو « تور ».</string>
-    <string name="tor_connection_timeout">‫غير قادر على الاتصال بـ « أوربوت » أو « تور » : ** انتهت المهلة **</string>
-    <string name="tor_connection_invalid">‫غير قادر على الاتصال بـ « أوربوت » أو « تور » : ** غير صالح **</string>
-    <string name="unsecured_internet_connection">تم اكتشاف اتصال انترنت غير آمن</string>
-    <string name="version__">‫الإصدار %s</string>
 
     <!-- Space Setup -->
     <string name="space_setup_title">تحديد خادم</string>
     <!-- WebDAV related strings -->
     <string name="private_server">الخادم الخاص</string>
-    <string name="edit_private_server">تعديل الخادم الخاص</string>
-    <string name="empty_name_warning">لا يمكن ترك الاسم فارغا</string>
 
     <string name="unsaved_changes">‫هناك تغييرات غير محفوظة !</string>
     <string name="do_you_want_to_save">أ تريد الحفظ</string>
@@ -228,17 +212,12 @@
     <string name="add">إضافة</string>
     <string name="no_more_folders">لا (مزيد من) المجلدات</string>
 
-    <string name="upload_to_dropbox">‫تحميل إلى Dropbox</string>
-    <string name="sign_in_or_create_an_account_with_dropbox">سجِّل الدخول أو أنشِئ حسابا مع Dropbox</string>
-    <string name="authenticate">استوثِق</string>
     <string name="back">الرجوع</string>
     <string name="my_media">وسائطي</string>
-    <string name="if_you_do_not_have_existing_keys_learn_how_to_acquire_keys">إذا لم تكن لديك مفاتيح موجودة، <b>تعرف على كيفية</b> الحصول على المفاتيح.</string>
     <string name="server_info">معلومات الخادم</string>
     <string name="enter_url"><i>إدخال عنوان الصفحة</i></string>
     <string name="account">الحساب</string>
     <string name="general">عام</string>
-    <string name="connectivity_data"><![CDATA[الاتصال والبيانات]]></string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">‫حمِّل الوسائط عندما تكون متصلا بالشبكة اللاسلكية (Wi-Fi) فقط</string>
     <string name="security">الأمن</string>
     <string name="proofmode">ProofMode</string>
@@ -251,16 +230,11 @@
     <string name="done">تم</string>
     <string name="secure_mobile_media_preservation">الحفظ الآمن لوسائط المحمول</string>
     <string name="get_started">بدء الاستخدام</string>
-    <string name="proofmode_permissions_explanation">‫يقوم ProofMode بجمع البيانات الوصفية من الأبراج الخلوية المحلية للمساعدة في التحقق من الوسائط. يتطلب أندرويد إذنًا لتفعيل هذا الإعداد. سيستخدم Save هذا الإعداد فقط لالتقاط البيانات و ** لن ** يتم الوصول إلى هاتفك لإجراء أو إدارة المكالمات.</string>
     <string name="archived_folders">المجلدات المؤرشفة</string>
     <string name="view_archived_folders">عرض المجلدات المؤرشفة</string>
     <string name="learn_more_about_creative_commons">تعرف على المزيد حول المشاع الإبداعي.</string>
     <string name="refresh">إنعاش</string>
-    <string name="to_get_started_please_create_a_folder">لبدء الاستخدام، يُرجى إنشاء مجلد</string>
-    <string name="before_adding_media_create_a_new_folder_first">‫قبل إضافة الوسائط، أنشئ أولا مجلدا جديدا.</string>
     <string name="is_video">هو فيديو</string>
-    <string name="use_upload_chunking_nextcloud_only">‫استخدام التحميل بالتقطيع (Nextcloud فقط)</string>
-    <string name="chunking_explanation">يقوم ‏؜« التقطيع » بتحميل الوسائط عبر أجزاء حتى لا تضطر إلى إعادة تشغيل التحميل إذا انقطع اتصالك.</string>
     <string name="preview_media">معاينة التحميل</string>
     <string name="add_more">إضافة المزيد</string>
     <string name="select_all">حدد الكل</string>
@@ -272,13 +246,9 @@
     <string name="press_and_hold_to_select_and_edit_multiple_media">اضغط مع الإبقاء لتحديد وتعديل وسائط متعددة.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">بمجرد التحميل، لن تتمكن من تعديل الوسائط.</string>
     <string name="edit_media_info">تعديل معلومات الوسائط</string>
-    <string name="counter">‫‫%1$d من %2$d</string>
     <string name="add_a_location_optional">إضافة موقع (اختياري)</string>
     <string name="add_notes_optional">إضافة ملاحظات (اختياري)</string>
     <string name="skip">تخطي</string>
-    <string name="add_camera">إضافة صور من المُصَوِّرة</string>
-    <string name="add_images_or_video">إضافة صور أو فيديو</string>
-    <string name="add_files">إضافة ملفات</string>
 
     <string name="upload_unsuccessful">التحميل غير ناجح</string>
     <string name="upload_unsuccessful_description">لقد تعذر التحميل بسبب خطأ في الجلسة، يرجى المحاولة مرة أخرى أو الاتصال بالدعم.</string>
@@ -289,7 +259,6 @@
     <string name="camera">مُصوِّرة</string>
     <string name="photo_gallery">معرض الصور</string>
     <string name="files">الملفات</string>
-    <string name="no_thanks">لا، شكراً</string>
 
     <!-- Internet Archive Settings -->
     <string name="label_email">عنوان البريد الإلكتروني</string>
@@ -312,7 +281,6 @@
     <string name="pref_summary_media_folders">إدارة مجلداتك المؤرشفة</string>
     <string name="pref_summary_privacy_policy">اطلع على شروط الاستخدام وسياسة الخصوصية</string>
 
-    <string name="pref_key_use_dark_mode">pref_is_dark_mode</string>
     <!-- General -->
     <string name="label_success_title">نجاح !</string>
     <string name="label_warning_title">تحذير !</string>

@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="title_activity_login">Inloggen</string>
-    <string name="title_media_list">Uploads</string>
-
     <!-- Alert Values -->
 
     <string name="action_settings">Instellingen</string>
@@ -44,12 +41,9 @@
     <string name="new_folder">Nieuwe map</string>
     <string name="metadata">Metadata</string>
 
-    <string name="action_install">Installeren</string>
-    <string name="login_activity_logging_message">Inloggen…</string>
     <string name="folders">Mappen</string>
     <string name="create">Maken</string>
     <string name="add">Toevoegen</string>
-    <string name="authenticate">Authenticeren</string>
     <string name="back">Terug</string>
     <string name="account">Account</string>
     <string name="general">Algemeen</string>
@@ -64,6 +58,5 @@
     <string name="lbl_retry">Opnieuw proberen</string>
 
     <string name="files">Bestanden</string>
-    <string name="no_thanks">Nee bedankt</string>
 
 </resources>

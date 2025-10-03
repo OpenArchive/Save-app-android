@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="title_activity_login">Авторизоваться</string>
-    <string name="title_media_list">Загруженная информация</string>
-
     <!-- Alert Values -->
 
     <string name="action_settings">Настройки</string>
@@ -56,12 +53,9 @@
     <string name="popup_flag_title">Отметить важное содержание</string>
     <string name="popup_flag_desc">Когда вы отмечаете элемент, он направляется в подпапку  выбранного проекта на частном сервере.</string>
 
-    <string name="action_install">Установить приложение</string>
     <string name="folders">Папки</string>
     <string name="create">Создать</string>
     <string name="add">Добавить</string>
-    <string name="upload_to_dropbox">Загрузить в Dropbox</string>
-    <string name="authenticate">Аутентифицировать</string>
     <string name="back">вернуться и отредактировать</string>
     <string name="account">Учетная запись</string>
     <string name="general">Общие</string>
@@ -78,6 +72,5 @@
     <string name="lbl_retry">Повторить</string>
 
     <string name="files">Файлы</string>
-    <string name="no_thanks">Нет, спасибо</string>
 
 </resources>

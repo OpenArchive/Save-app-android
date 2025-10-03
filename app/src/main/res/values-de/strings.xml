@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="title_activity_login">Anmelden</string>
-    <string name="title_media_list">Uploads</string>
-
     <!-- Alert Values -->
 
     <string name="action_settings">Einstellungen</string>
@@ -82,7 +79,6 @@
 
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Die gleiche Creative–Commons–Lizenz für ALLE Ordner auf diesem Server verwenden.</string>
 
-    <string name="action_install">Installieren</string>
     <!-- Clean Insights measurement -->
     <string name="server_name_optional">Servername (optional)</string>
     <string name="add_another_account">Server hinzufügen</string>
@@ -91,8 +87,6 @@
     <string name="create">Erstellen</string>
     <string name="add">Hinzufügen</string>
     <string name="private_server">Privater Server</string>
-    <string name="upload_to_dropbox">Auf Dropbox hochladen</string>
-    <string name="authenticate">Authentifizieren</string>
     <string name="back">Zurück</string>
     <string name="my_media">Meine Medien</string>
     <string name="server_info">Server Info</string>
@@ -108,10 +102,6 @@
     <string name="archived_folders">Archivierte Ordner</string>
     <string name="view_archived_folders">Archivierte Ordner ansehen</string>
     <string name="refresh">Aktualisieren</string>
-    <string name="to_get_started_please_create_a_folder">Ordner erstellen, um anzufangen</string>
-    <string name="before_adding_media_create_a_new_folder_first">Bevor Du Medien hinzufügen kannst, erstelle erst einen neuen Ordner.</string>
-    <string name="use_upload_chunking_nextcloud_only">Upload stückeln (nur Nextcloud)</string>
-    <string name="chunking_explanation">\"Stückeln\" lädt Medien in Stücken hoch, damit nicht der komplette Upload von vorne begonnen werden muß, wenn die Verbindung unterbrochen wurde.</string>
     <string name="select_all">Alles auswählen</string>
     <string name="lbl_got_it">Verstanden</string>
     <string name="edit_multiple">Mehrere editieren</string>
@@ -120,7 +110,6 @@
     <string name="add_a_location_optional">Ort hinzufügen (optional)</string>
     <string name="add_notes_optional">Notizen hinzufügen (optional)</string>
     <string name="skip">Überspringen</string>
-    <string name="add_files">Dateien hinzufügen</string>
 
     <string name="lbl_retry">Erneut versuchen</string>
 
@@ -128,6 +117,5 @@
     <string name="uploading_is_paused">Hochladen pausiert</string>
     <string name="photo_gallery">Fotogallerie</string>
     <string name="files">Dateien</string>
-    <string name="no_thanks">Nein danke</string>
 
 </resources>

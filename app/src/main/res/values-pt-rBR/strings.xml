@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="title_activity_login">Entrar</string>
     <string name="title_activity_first_start">Iniciar pela primeira vez</string>
-    <string name="title_media_list">Transferências </string>
 
     <!-- Alert Values -->
 
@@ -61,11 +59,9 @@
     <string name="new_folder">Nova Pasta</string>
     <string name="metadata">Metadados</string>
 
-    <string name="action_install">Instalar</string>
     <string name="folders">Pastas</string>
     <string name="create">Criar</string>
     <string name="add">Adicionar</string>
-    <string name="authenticate">Autenticar</string>
     <string name="back">Voltar</string>
     <string name="account">Conta</string>
     <string name="general">Geral</string>
@@ -81,6 +77,5 @@
 
     <string name="edit_media">Editar Média </string>
     <string name="files">Arquivos</string>
-    <string name="no_thanks">Não, obrigado!</string>
 
 </resources>

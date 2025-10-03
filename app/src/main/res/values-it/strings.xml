@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="title_activity_login">Accedi</string>
-    <string name="title_media_list">Upload</string>
-
     <!-- Alert Values -->
 
     <string name="action_settings">Impostazioni</string>
@@ -57,12 +54,9 @@
     <string name="popup_flag_title">Segnala Contenuto Significativo</string>
     <string name="popup_flag_desc">Quando segnali un elemento, è instradato in una sottocartella all\'interno della cartella di progetto scelto nel server privato.</string>
 
-    <string name="action_install">Installa</string>
     <string name="folders">cartelle</string>
     <string name="create">Crea</string>
     <string name="add">Aggiungi</string>
-    <string name="upload_to_dropbox">Carica su Dropbox</string>
-    <string name="authenticate">Autenticato</string>
     <string name="back">Indietro</string>
     <string name="account">Account</string>
     <string name="general">Generale</string>
@@ -76,11 +70,9 @@
     <string name="select_all">Seleziona tutto</string>
     <string name="lbl_got_it">Ho capito</string>
     <string name="skip">Salta</string>
-    <string name="add_files">Aggiungi file</string>
 
     <string name="lbl_retry">Riprova</string>
 
     <string name="files">File</string>
-    <string name="no_thanks">No grazie</string>
 
 </resources>

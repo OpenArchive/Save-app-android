@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="navigation_drawer_open">کشو باز</string>
-    <string name="navigation_drawer_close">کشو بسته</string>
-
-    <string name="app_subtext">رسانهٔ خود را آرشیو کنید\n<a href="#">بیشتر یاد بگیرید</a></string>
-<string name="title_activity_login">ورود</string>
     <string name="title_activity_first_start">اولین شروع</string>
-    <string name="title_media_list">بارگذاری‌ها</string>
 
     <!-- Alert Values -->
 
@@ -184,7 +178,6 @@
     <string name="metadata">فراداده</string>
 
     <string name="btn_lbl_remove_media">حذف رسانه</string>
-    <string name="confirm_remove_media">آیا از حذف این رسانه مطمئن هستید؟</string>
 
     <string name="popup_flag_title">علامت‌‌گذاری محتوای مهم</string>
     <string name="popup_flag_desc">هنگامی که یک مورد را علامت‌گذاری می‌کنید، به یک زیرپوشه در پروژهٔ انتخابی در سرور خصوصی منتقل می‌شود.</string>
@@ -192,21 +185,12 @@
     <string name="set_creative_commons_license_for_all_folders_on_this_server"> برای پوشه‌های این سرور پروانه‌های Creative Commons تنظیم کنید.</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server"> همان مجوز Creative Commons را برای تمام پوشه‌های این سرور تنظیم کنید.</string>
 
-    <string name="action_install">نصب</string>
-    <string name="login_activity_logging_message">در حال ورود…</string>
     <string name="you_already_have_a_server_with_these_credentials"> شما از قبل یک سرور با این اطلاعات کاربری دارید</string>
-    <string name="tor_connection_exception">امکان اتصال به Tor/Orbot وجود ندارد.</string>
-    <string name="tor_connection_timeout">امکان اتصال به Tor/Orbot وجود ندارد: اتمام وقت</string>
-    <string name="tor_connection_invalid">امکان اتصال به Tor/Orbot وجود ندارد: نامعتبر</string>
-    <string name="unsecured_internet_connection">یک اتصال اینترنت ناامن شناسایی شد</string>
-    <string name="version__">نسخهٔ %s</string>
 
     <!-- Space Setup -->
     <string name="space_setup_title">یک سرور انتخاب کنید</string>
     <!-- WebDAV related strings -->
     <string name="private_server">سرور خصوصی</string>
-    <string name="edit_private_server">ویرایش سرور خصوصی</string>
-    <string name="empty_name_warning">نام نباید خالی باشد</string>
 
     <string name="unsaved_changes">تغییرات ذخیره نشده‌اند!</string>
     <string name="do_you_want_to_save">می خواهید ذخیر کنید</string>
@@ -234,17 +218,12 @@
     <string name="add">افزودن</string>
     <string name="no_more_folders">پوشه (بیشتری) وجود ندارد</string>
 
-    <string name="upload_to_dropbox">بارگذاری در Dropbox</string>
-    <string name="sign_in_or_create_an_account_with_dropbox">وارد شوید یا در Dropbox یک حساب کاربری ایجاد کنید</string>
-    <string name="authenticate">احراز اصالت</string>
     <string name="back">بازگشت</string>
     <string name="my_media">رسانه‌های من</string>
-    <string name="if_you_do_not_have_existing_keys_learn_how_to_acquire_keys"> اگر کلیدی موجود ندارید، نحوهٔ دریافت کلیدها را <b>یاد بگیرید</b>.</string>
     <string name="server_info">اطلاعات سرور</string>
     <string name="enter_url"><i>نشانی URL را وارد کنید</i></string>
     <string name="account">حساب کاربری</string>
     <string name="general">عمومی</string>
-    <string name="connectivity_data"><![CDATA[اتصال‌دهندگی و داده‌ها]]></string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">فایل‌های رسانه‌ای را تنها زمانی که به Wi-Fi متصل هستید، بارگذاری کنید.</string>
     <string name="security">امنیت</string>
     <string name="proofmode">ProofMode</string>
@@ -257,16 +236,11 @@
     <string name="done">انجام شد</string>
     <string name="secure_mobile_media_preservation">نگهداری امن رسانه‌های تلفن همراه</string>
     <string name="get_started">شروع کنید</string>
-    <string name="proofmode_permissions_explanation"> ProofMode برای کمک به تصدیق رسانه‌ها، فراداده‌ها را از دکل‌های سلولی محلی جمع‌آوری می‌کند. Android برای فعال‌کردن این تنظیم نیاز به اجازهٔ دسترسی دارد. Save فقط از این تنظیم برای جمع‌آوری داده‌ها استفاده خواهد کرد و برای برقراری یا مدیریت تماس‌ها به تلفن شما دسترسی پیدا نخواهد کرد.</string>
     <string name="archived_folders">پوشه‌های آرشیوشده</string>
     <string name="view_archived_folders">مشاهدهٔ پوشه‌های آرشیوشده</string>
     <string name="learn_more_about_creative_commons">در مورد Creative Commons بیشتر یاد بگیرید. </string>
     <string name="refresh">تازه‌سازی</string>
-    <string name="to_get_started_please_create_a_folder">برای شروع، لطفاً یک پوشه ایجاد کنید</string>
-    <string name="before_adding_media_create_a_new_folder_first">قبل از افزودن رسانه، ابتدا یک پوشهٔ جدید ایجاد کنید</string>
     <string name="is_video">ویدئو است</string>
-    <string name="use_upload_chunking_nextcloud_only">از قطعه‌بندی بارگذاری استفاده کنید (فقط برای Nextcloud)</string>
-    <string name="chunking_explanation"> «قطعه‌بندی» رسانه‌ها را به قطعاتی تقسیم می‌کند تا در صورت قطع اتصال، نیازی به از سرگیری بارگذاری نباشد.</string>
     <string name="preview_media">پیش‌نمایش بارگذاری</string>
     <string name="add_more">افزودن بیشتر</string>
     <string name="select_all">انتخاب همه</string>
@@ -278,13 +252,9 @@
     <string name="press_and_hold_to_select_and_edit_multiple_media"> برای انتخاب و ویرایش چندین رسانه، ضربه بزنید و نگه دارید.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">وقتی بارگذاری انجام شد، دیگر قادر به ویرایش رسانه نخواهید بود.</string>
     <string name="edit_media_info">ویرایش اطلاعات رسانه</string>
-    <string name="counter">%1$d/%2$d</string>
     <string name="add_a_location_optional">افزودن موقعیت مکانی (اختیاری)</string>
     <string name="add_notes_optional">افزودن یادداشت (اختیاری)</string>
     <string name="skip">رد کردن</string>
-    <string name="add_camera">افزودن تصاویر از دوربین</string>
-    <string name="add_images_or_video">افزودن تصاویر یا ویدئوها</string>
-    <string name="add_files">افزودن فایل‌ها</string>
 
     <string name="upload_unsuccessful">بارگذاری ناموفق بود</string>
     <string name="upload_unsuccessful_description"> به دلیل خطا در نشست ارتباطی، بارگذاری امکان‌پذیر نیست. لطفاً دوباره امتحان کنید یا با پشتیبانی تماس بگیرید.</string>
@@ -295,7 +265,6 @@
     <string name="camera">دوربین</string>
     <string name="photo_gallery">گالری عکس</string>
     <string name="files">فايل‌ها</string>
-    <string name="no_thanks">نه ممنون</string>
 
     <!-- Internet Archive Settings -->
     <string name="label_email">ایمیل</string>
@@ -318,7 +287,6 @@
     <string name="pref_summary_media_folders">مدیریت پوشه‌های آرشیوشده</string>
     <string name="pref_summary_privacy_policy">شرایط و سیاست حریم خصوصی ما را بخوانید</string>
 
-    <string name="pref_key_use_dark_mode">pref_is_dark_mode</string>
     <!-- General -->
     <string name="label_success_title">موفقیت!</string>
     <string name="label_warning_title">هشدار!</string>

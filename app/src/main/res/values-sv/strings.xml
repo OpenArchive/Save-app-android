@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="title_activity_login">Logga in</string>
-    <string name="title_media_list">Uppladdningar</string>
-
     <!-- Alert Values -->
 
     <string name="action_settings">Inställningar</string>
@@ -42,10 +39,8 @@
     <string name="new_folder">Ny mapp</string>
     <string name="metadata">Metadata</string>
 
-    <string name="action_install">Installera</string>
     <string name="create">Skapa</string>
     <string name="add">Lägg till</string>
-    <string name="authenticate">Autentisera</string>
     <string name="back">Tillbaka</string>
     <string name="account">Konto</string>
     <string name="general">Generell</string>

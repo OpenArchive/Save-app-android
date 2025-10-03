@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="navigation_drawer_open">Çekmece açık</string>
-    <string name="navigation_drawer_close">Çekmece kapalı</string>
-
-    <string name="app_subtext">Ortamlarınızı arşivleyin\n<a href="#">bilgi alın</a></string>
-<string name="title_activity_login">Oturum açın</string>
     <string name="title_activity_first_start">Önce başla</string>
-    <string name="title_media_list">Yüklemeler</string>
 
     <!-- Alert Values -->
 
@@ -182,7 +176,6 @@
     <string name="metadata">Üst veriler</string>
 
     <string name="btn_lbl_remove_media">Ortamı sil</string>
-    <string name="confirm_remove_media">Bu ortamı silmek istediğinize emin misiniz\?</string>
 
     <string name="popup_flag_title">Önemli içerik olarak işaretle</string>
     <string name="popup_flag_desc">Bir ögeyi işaretlediğinizde, özel sunucu üzerinde seçilmiş proje klasöründeki bir alt klasöre yönlendirilir.</string>
@@ -190,21 +183,12 @@
     <string name="set_creative_commons_license_for_all_folders_on_this_server">Bu sunucudaki klasörler için Creative Commons lisansını ayarlayın.</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Bu sunucudaki TÜM klasörler için aynı Creative Commons lisansı ayarlayın.</string>
 
-    <string name="action_install">Kur</string>
-    <string name="login_activity_logging_message">Oturum açılıyor…</string>
     <string name="you_already_have_a_server_with_these_credentials">Bu kimlik doğrulama bilgileriyle zaten bir sunucunuz var</string>
-    <string name="tor_connection_exception">Orbot/Tor bağlantısı kurulamadı.</string>
-    <string name="tor_connection_timeout">Orbot/Tor bağlantısı kurulamadı: ZAMAN AŞIMI</string>
-    <string name="tor_connection_invalid">Orbot/Tor bağlantısı kurulamadı: GEÇERSİZ</string>
-    <string name="unsecured_internet_connection">Güvenli olmayan bir internet bağlantısı algılandı</string>
-    <string name="version__">%s sürümü</string>
 
     <!-- Space Setup -->
     <string name="space_setup_title">Bir sunucu seçin</string>
     <!-- WebDAV related strings -->
     <string name="private_server">Özel sunucu</string>
-    <string name="edit_private_server">Özel sunucuyu düzenle</string>
-    <string name="empty_name_warning">Ad boş bırakılamaz</string>
 
     <string name="unsaved_changes">Değişiklikler kaydedilmemiş!</string>
     <string name="do_you_want_to_save">Kaydetmek ister misiniz</string>
@@ -232,17 +216,12 @@
     <string name="add">Ekle</string>
     <string name="no_more_folders">(Başka) klasör yok</string>
 
-    <string name="upload_to_dropbox">Dropbox üzerine yükle</string>
-    <string name="sign_in_or_create_an_account_with_dropbox">Dropbox oturumu ya da hesabı aç</string>
-    <string name="authenticate">Doğrula</string>
     <string name="back">Geri</string>
     <string name="my_media">Ortamlarım</string>
-    <string name="if_you_do_not_have_existing_keys_learn_how_to_acquire_keys">Var olan bir anahtarınız yoksa, anahtarları nasıl alacağınızı <b>öğrenin</b>.</string>
     <string name="server_info">Sunucu bilgileri</string>
     <string name="enter_url"><i>Adresi yazın</i></string>
     <string name="account">Hesap</string>
     <string name="general">Genel</string>
-    <string name="connectivity_data"><![CDATA[Connectivity & Data]]></string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Ortamlar yalnızca Wi-Fi bağlantısı varken yüklensin</string>
     <string name="security">Güvenlik</string>
     <string name="proofmode">ProofMode</string>
@@ -255,16 +234,11 @@
     <string name="done">Bitti</string>
     <string name="secure_mobile_media_preservation">Güvenli mobil ortam koruma</string>
     <string name="get_started">Kullanmaya başlayın</string>
-    <string name="proofmode_permissions_explanation">ProofMode, ortamın doğrulanmasına yardımcı olmak için yerel baz istasyonlarından üst verileri toplar. Bu ayarın açılabilmesi için Android izninin verilmesi gereklidir. Save, bu ayarı yalnızca veri yakalamak için kullanır ve arama yapmak/yönetmek için telefonunuza ERİŞMEZ.</string>
     <string name="archived_folders">Arşivlenmiş klasörler</string>
     <string name="view_archived_folders">Arşivlenmiş klasörleri görüntüle</string>
     <string name="learn_more_about_creative_commons">Creative Commons hakkında ayrıntılı bilgi alın.</string>
     <string name="refresh">Yenile</string>
-    <string name="to_get_started_please_create_a_folder">Başlamak için bir klasör oluşturun</string>
-    <string name="before_adding_media_create_a_new_folder_first">Ortam eklemeden önce yeni bir klasör oluşturun.</string>
     <string name="is_video">video mu</string>
-    <string name="use_upload_chunking_nextcloud_only">Yükleme paketleri kullanılsın (yalnızca Nextcloud)</string>
-    <string name="chunking_explanation">\"Paketleme\", ortamı parçalar halinde yükler. Böylece bağlantınız kesilirse yüklemeyi en baştan  değil kaldığınız yerden sürdürebilirsiniz.</string>
     <string name="preview_media">Yükleme ön izleme</string>
     <string name="add_more">Başka ekle</string>
     <string name="select_all">Tümünü seç</string>
@@ -276,13 +250,9 @@
     <string name="press_and_hold_to_select_and_edit_multiple_media">Birkaç ortamı seçmek ve düzenlemek için basılı tutun</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Yüklendikten sonra ortamı düzenleyemeyeceksiniz.</string>
     <string name="edit_media_info">Ortam bilgilerini düzenle</string>
-    <string name="counter">%1$d/%2$d</string>
     <string name="add_a_location_optional">Bir konum ekle (isteğe bağlı)</string>
     <string name="add_notes_optional">Notlar ekle (isteğe bağlı)</string>
     <string name="skip">Atla</string>
-    <string name="add_camera">Kamera fotoğrafları ekle</string>
-    <string name="add_images_or_video">Görsel ya da video ekle</string>
-    <string name="add_files">Dosya ekle</string>
 
     <string name="upload_unsuccessful">Yükleme tamamlanamadı</string>
     <string name="upload_unsuccessful_description">Oturum sorunu nedeniyle yükleme yapılamadı. Lütfen yeniden deneyin ya da destek ekibi ile görüşün.</string>
@@ -293,7 +263,6 @@
     <string name="camera">Kamera</string>
     <string name="photo_gallery">Fotoğraf galerisi</string>
     <string name="files">Dosyalar</string>
-    <string name="no_thanks">Hayır, teşekkürler</string>
 
     <!-- Internet Archive Settings -->
     <string name="label_email">E-posta</string>
@@ -316,7 +285,6 @@
     <string name="pref_summary_media_folders">Arşivlenmiş klasörlerinizi yönetin</string>
     <string name="pref_summary_privacy_policy">Koşullarımızı ve gizlilik ilkemizi okuyun</string>
 
-    <string name="pref_key_use_dark_mode">pref_is_dark_mode</string>
     <!-- General -->
     <string name="label_success_title">Başarılı!</string>
     <string name="label_warning_title">Uyarı!</string>
