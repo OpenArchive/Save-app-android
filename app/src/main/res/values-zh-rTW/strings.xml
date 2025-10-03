@@ -20,11 +20,6 @@
 
     <string name="error">錯誤</string>
 
-    <string name="prefs_prohibit_screenshots_title">關閉螢幕截圖</string>
-    <string name="prefs_user_interface_title">呈現</string>
-    <string name="prefs_theme_title">主題</string>
-    <string name="prefs_theme_light">亮色</string>
-    <string name="prefs_theme_dark">深色</string>
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
@@ -69,6 +64,5 @@
 
     <string name="files">檔案</string>
     <string name="no_thanks">不，謝謝</string>
-    <string name="undo">復原</string>
 
 </resources>

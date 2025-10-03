@@ -14,7 +14,6 @@
     <!-- MainFragment -->
 
     <!-- ViewMediaActivity -->
-    <string name="iv_content_desc">Imagem Principal</string>
 
     <!-- Errors -->
 
@@ -38,11 +37,6 @@
 
     <string name="error">Erro</string>
 
-    <string name="prefs_prohibit_screenshots_title">Bloquear capturas de tela</string>
-    <string name="prefs_user_interface_title">Apresentação</string>
-    <string name="prefs_theme_title">Tema</string>
-    <string name="prefs_theme_light">Claro</string>
-    <string name="prefs_theme_dark">Escuro</string>
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
@@ -88,6 +82,5 @@
     <string name="edit_media">Editar Média </string>
     <string name="files">Arquivos</string>
     <string name="no_thanks">Não, obrigado!</string>
-    <string name="undo">Desfazer</string>
 
 </resources>

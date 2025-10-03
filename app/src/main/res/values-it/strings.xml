@@ -26,11 +26,6 @@
 
     <string name="error">Errore</string>
 
-    <string name="prefs_prohibit_screenshots_title">Blocca acquisizione schermate</string>
-    <string name="prefs_user_interface_title">Presentazione</string>
-    <string name="prefs_theme_title">Tema</string>
-    <string name="prefs_theme_light">Chiaro</string>
-    <string name="prefs_theme_dark">Scuro</string>
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
@@ -56,11 +51,7 @@
     <string name="lbl_remove">Rimuovi</string>
     <string name="action_archive_project">Archivia Progetto</string>
     <string name="action_unarchive_project">Progetto inerente</string>
-    <string name="access_key">Chiave d\'accesso</string>
-    <string name="secret_key">Chiave Segreta</string>
-    <string name="action_acquire_keys">Acquisisci Chiavi</string>
     <string name="new_folder">Nuova cartella</string>
-    <string name="dropbox">Dropbox</string>
     <string name="metadata">Metadati</string>
 
     <string name="popup_flag_title">Segnala Contenuto Significativo</string>
@@ -91,6 +82,5 @@
 
     <string name="files">File</string>
     <string name="no_thanks">No grazie</string>
-    <string name="undo">Annulla</string>
 
 </resources>

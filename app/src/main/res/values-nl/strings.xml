@@ -20,11 +20,6 @@
 
     <string name="error">Fout</string>
 
-    <string name="prefs_prohibit_screenshots_title">Blokkeer screenshots</string>
-    <string name="prefs_user_interface_title">Presentatie</string>
-    <string name="prefs_theme_title">Thema</string>
-    <string name="prefs_theme_light">Licht</string>
-    <string name="prefs_theme_dark">Donker</string>
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
@@ -46,7 +41,6 @@
     <string name="edit">Bewerken</string>
     <string name="menu_done">Gereed</string>
     <string name="lbl_remove">Verwijderen</string>
-    <string name="secret_key">Geheime Sleutel</string>
     <string name="new_folder">Nieuwe map</string>
     <string name="metadata">Metadata</string>
 
@@ -71,6 +65,5 @@
 
     <string name="files">Bestanden</string>
     <string name="no_thanks">Nee bedankt</string>
-    <string name="undo">Ongedaan maken</string>
 
 </resources>

@@ -20,10 +20,6 @@
 
     <string name="error">Fel</string>
 
-    <string name="prefs_user_interface_title">Presentation</string>
-    <string name="prefs_theme_title">Tema</string>
-    <string name="prefs_theme_light">Ljust</string>
-    <string name="prefs_theme_dark">Mörkt</string>
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
@@ -64,6 +60,5 @@
     <string name="lbl_retry">Försök igen</string>
 
     <string name="files">Filer</string>
-    <string name="undo">Ångra</string>
 
 </resources>

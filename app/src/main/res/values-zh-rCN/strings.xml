@@ -14,7 +14,6 @@
     <!-- MainFragment -->
 
     <!-- ViewMediaActivity -->
-    <string name="iv_content_desc">主要图像</string>
 
     <!-- Errors -->
 
@@ -38,10 +37,6 @@
 
     <string name="error">错误</string>
 
-    <string name="prefs_prohibit_screenshots_title">禁止截屏</string>
-    <string name="prefs_theme_title">主题</string>
-    <string name="prefs_theme_light">亮色主题</string>
-    <string name="prefs_theme_dark">深色主题</string>
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
