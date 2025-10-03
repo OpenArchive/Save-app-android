@@ -53,7 +53,7 @@
     <string name="edit">Modifica</string>
     <string name="menu_done">Fatto</string>
     <string name="remove_from_app">Rimuovi dall\' App</string>
-    <string name="remove">Rimuovi</string>
+    <string name="lbl_remove">Rimuovi</string>
     <string name="action_archive_project">Archivia Progetto</string>
     <string name="action_unarchive_project">Progetto inerente</string>
     <string name="access_key">Chiave d\'accesso</string>
@@ -87,7 +87,7 @@
     <string name="skip">Salta</string>
     <string name="add_files">Aggiungi file</string>
 
-    <string name="retry">Riprova</string>
+    <string name="lbl_retry">Riprova</string>
 
     <string name="files">File</string>
     <string name="no_thanks">No grazie</string>

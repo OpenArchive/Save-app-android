@@ -27,7 +27,7 @@
     <string name="internet_archive">Internet Archive</string>
     <string name="internet_archive_description">Upload your media to a free public account on the Internet Archive.</string>
     <string name="dweb_title">DWeb Service</string>
-    <string name="dweb_description">Connect to the decentralized web</string>
+    <string name="dweb_description">Connect to the\ndecentralized web</string>
     <string name="gdrive" translatable="false">Google Drive</string>
     <string name="gdrive_tm" translatable="false">Google Drive™</string>
     <string name="upload_to_gdrive">Upload to Google Drive</string>
@@ -75,6 +75,9 @@
     <string name="lbl_Cancel">Cancel</string>
     <string name="lbl_ok">OK</string>
     <string name="lbl_confirm">Confirm</string>
+    <string name="lbl_remove">Remove</string>
+    <string name="lbl_retry">Retry</string>
+
     <string name="archive_title">E-mail Confirmation</string>
     <string name="archive_message">Please confirm your e-mail address and return to connect your Internet Archive account.</string>
 
@@ -198,12 +201,12 @@
     <string name="tap_to_add">Tap the button below to add media</string>
     <string name="tap_to_add_folder">Tap the button below to add a folder</string>
     <string name="tap_to_add_server">Tap the button below to add a server</string>
-    <string name="to_get_started_connect_to_a_server_to_store_your_media">To get started, connect to a server to store your media</string>
+    <string name="to_get_started_connect_to_a_server_to_store_your_media">To get started, connect to a server to store your media.</string>
     <string name="to_get_started_more_hint_dweb">You can add multiple private servers and\none IA or DWeb server account at any time.</string>
     <string name="to_get_started_more_hint">You can add multiple private servers and\none IA account at any time.</string>
     <string name="in_the_side_menu_you_can_add_another_server_and_connect_to_multiple_servers">In the side menu, you can add another server and connect to multiple servers</string>
-    <string name="send_directly_to_a_private_server">Connect to a secure WebDAV server</string>
-    <string name="upload_to_the_internet_archive">Connect to a free public server</string>
+    <string name="send_directly_to_a_private_server">Connect to a secure\nWebDAV server</string>
+    <string name="upload_to_the_internet_archive">Connect to a free\npublic server</string>
     <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">Connect to a WebDAV-compatible servers, e.g. Nexcloud and ownCloud.</string>
     <string name="action_next">Next</string>
     <string name="action_done">Done</string>
@@ -221,7 +224,6 @@
     <string name="menu_done">Done</string>
     <string name="remove_from_app">Remove from app</string>
     <string name="action_remove_project">Are you sure you want to remove your project?</string>
-    <string name="remove">Remove</string>
     <string name="action_archive_project">Archive Project</string>
     <string name="action_unarchive_project">Unarchive Project</string>
     <string name="IA_login_error">Please login with valid Internet Archive credentials.</string>
@@ -315,11 +317,11 @@
     <string name="intro_header_verify" translatable="false">Verify</string>
     <string name="intro_header_encrypt" translatable="false">Encrypt</string>
     <string name="intro_text_secure">Send your media securely to private servers and lock the app with a pin.</string>
-    <string name="intro_text_archive"><![CDATA[Upload media to Nextcloud or the Internet Archive to keep your media verifiable, safe, and organized for the long term.<br><br>Choose <a href=\"%1$s\"><u>Creative Commons Licensing</u></a>.]]></string>
+    <string name="intro_text_archive"><![CDATA[Upload media to Nextcloud or the Internet Archive to keep your media verifiable, safe, and organized for the long term.<br><br>Choose <a href=\"%1$s\"><u>Creative Commons Licensing.</u></a>]]></string>
 <!--    <string name="intro_text_archive">Keep your media verifiable, safe and organized for the long-term by uploading it to private or public servers like Nextcloud or the Internet Archive.&lt;br&gt;Communicate your intentions for future use by adding a &lt;a href="%1$s" style="text-decoration: underline;"&gt;Creative Commons License&lt;/a&gt;.</string>-->
 
     <string name="intro_link_archive" translatable="false">https://creativecommons.org</string>
-    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href=\"%1$s\"><u>ProofMode</u></a>.]]></string>
+    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
     <string name="intro_link_verify" translatable="false">https://proofmode.org</string>
     <string name="intro_text_encrypt_old">Automatically upload over TLS (Transport Layer Security) and use Orbot to protect your media in transit over the Tor network.</string>
     <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> always uploads over TLS (Transport Layer Security) to protect your media in transit.<br>To further enhance security, enable <a href=\"%1$s\"><u>Tor</u></a> to prevent interception of your media from your phone to the server.]]></string>
@@ -369,7 +371,7 @@
 
     <string name="upload_unsuccessful">Upload Unsuccessful</string>
     <string name="upload_unsuccessful_description">Unable to upload due to session error, please try again or contact support.</string>
-    <string name="retry">Retry</string>
+
 
     <string name="edit_media">Edit Media</string>
 

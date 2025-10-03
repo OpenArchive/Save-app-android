@@ -194,7 +194,7 @@
     <string name="menu_done">Terminé</string>
     <string name="remove_from_app">Supprimer de l’appli</string>
     <string name="action_remove_project">Voulez-vous vraiment supprimer votre projet \?</string>
-    <string name="remove">Supprimer</string>
+    <string name="lbl_remove">Supprimer</string>
     <string name="action_archive_project">Archiver le projet</string>
     <string name="action_unarchive_project">Désarchiver le projet</string>
     <string name="IA_login_error">Connectez-vous à l\'aide de vos identifiants Internet Archive valides.</string>
@@ -326,7 +326,7 @@
 
     <string name="upload_unsuccessful">Échec de téléchargement</string>
     <string name="upload_unsuccessful_description">Échec de téléversement causé par une erreur de session. Réessayez ou contactez l’assistance.</string>
-    <string name="retry">Réessayer</string>
+    <string name="lbl_retry">Réessayer</string>
 
     <string name="edit_media">Modifier le média</string>
 

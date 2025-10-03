@@ -22,7 +22,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,7 +42,6 @@ import net.opendasharchive.openarchive.services.SaveClient
 import net.opendasharchive.openarchive.services.internetarchive.Util
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.hide
-import net.opendasharchive.openarchive.util.extensions.makeSnackBar
 import net.opendasharchive.openarchive.util.extensions.show
 import okhttp3.Call
 import okhttp3.Callback
@@ -51,12 +49,14 @@ import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
 import kotlin.coroutines.suspendCoroutine
+import androidx.core.net.toUri
+import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
 
 class WebDavFragment : BaseFragment() {
 
     private lateinit var mSpace: Space
 
-    private lateinit var mSnackbar: Snackbar
+    private var isLoading = false
     private lateinit var binding: FragmentWebDavBinding
 
     private var originalName: String? = null
@@ -208,7 +208,6 @@ class WebDavFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mSnackbar = binding.root.makeSnackBar(getString(R.string.login_activity_logging_message))
 
         if (args.spaceId != ARG_VAL_NEW_SPACE) {
             val menuProvider = object : MenuProvider {
@@ -307,7 +306,7 @@ class WebDavFragment : BaseFragment() {
     private fun fixSpaceUrl(url: CharSequence?): Uri? {
         if (url.isNullOrBlank()) return null
 
-        val uri = Uri.parse(url.toString())
+        val uri = url.toString().toUri()
         val builder = uri.buildUpon()
 
         if (uri.scheme != "https") {
@@ -368,9 +367,8 @@ class WebDavFragment : BaseFragment() {
             return showError(getString(R.string.you_already_have_a_server_with_these_credentials))
         }
 
-        // Show a progress spinner, and kick off a background task to
-        // perform the user login attempt.
-        mSnackbar.show()
+        // Show loading overlay and make screen non-interactable
+        showLoadingOverlay(true)
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
@@ -382,12 +380,22 @@ class WebDavFragment : BaseFragment() {
 //                    CleanInsightsManager.measureEvent("backend", "new", Space.Type.WEBDAV.friendlyName)
 //                }
 
+                // Hide loading overlay on success and navigate
+                requireActivity().runOnUiThread {
+                    showLoadingOverlay(false)
+                }
                 navigate(mSpace.id)
             } catch (exception: IOException) {
-                if (exception.message?.startsWith("401") == true) {
-                    showInvalidCredentialsError()
-                } else {
-                    showError(exception.localizedMessage ?: getString(R.string.error))
+                when {
+                    exception.message?.startsWith("401") == true -> {
+                        showInvalidCredentialsError()
+                    }
+                    exception.message?.contains("Unable to resolve host", ignoreCase = true) == true -> {
+                        showError("A server with the specified hostname could not be found")
+                    }
+                    else -> {
+                        showError(exception.localizedMessage ?: getString(R.string.error))
+                    }
                 }
             }
         }
@@ -395,14 +403,54 @@ class WebDavFragment : BaseFragment() {
 
     private fun showInvalidCredentialsError() {
         requireActivity().runOnUiThread {
-            mSnackbar.dismiss()
+            showLoadingOverlay(false)
             binding.errorHint.text = getString(R.string.error_incorrect_username_or_password)
             binding.errorHint.show()
+            // Set error state on username and password fields
+            binding.username.error = " "
+            binding.password.error = " "
         }
     }
 
     private fun dismissCredentialsError() {
         binding.errorHint.hide()
+        // Clear error states from TextFields
+        binding.username.error = null
+        binding.password.error = null
+    }
+
+    private fun showLoadingOverlay(show: Boolean) {
+        isLoading = show
+        binding.loadingOverlay.visibility = if (show) View.VISIBLE else View.GONE
+
+        if (show) {
+            // Disable all interactive elements during loading
+            binding.server.isEnabled = false
+            binding.username.isEnabled = false
+            binding.password.isEnabled = false
+            binding.btAuthenticate.isEnabled = false
+            binding.btCancel.isEnabled = false
+            if (args.spaceId != ARG_VAL_NEW_SPACE) {
+                binding.btRemove.isEnabled = false
+            }
+        } else {
+            // Re-enable elements based on original state
+            if (args.spaceId != ARG_VAL_NEW_SPACE) {
+                // For existing spaces, keep server/username/password disabled
+                binding.server.isEnabled = false
+                binding.username.isEnabled = false
+                binding.password.isEnabled = false
+                binding.btRemove.isEnabled = true
+            } else {
+                // For new spaces, enable all fields
+                binding.server.isEnabled = true
+                binding.username.isEnabled = true
+                binding.password.isEnabled = true
+                // Update authenticate button state based on form content
+                updateAuthenticateButtonState()
+            }
+            binding.btCancel.isEnabled = true
+        }
     }
 
     private fun navigate(spaceId: Long) = CoroutineScope(Dispatchers.Main).launch {
@@ -447,16 +495,19 @@ class WebDavFragment : BaseFragment() {
 
     private fun showError(text: CharSequence, onForm: Boolean = false) {
         requireActivity().runOnUiThread {
-            mSnackbar.dismiss()
+            showLoadingOverlay(false)
 
             if (onForm) {
-                binding.errorHint.error = text
+                binding.errorHint.text = text
+                binding.errorHint.show()
                 binding.password.requestFocus()
             } else {
-                mSnackbar = binding.root.makeSnackBar(text, Snackbar.LENGTH_LONG)
-                mSnackbar.show()
-
-                binding.server.requestFocus()
+                // Show error dialog for server errors
+                dialogManager.showErrorDialog(
+                    message = text.toString(),
+                    title = getString(R.string.error),
+                    onDismiss = { binding.server.requestFocus() }
+                )
             }
         }
     }
@@ -467,8 +518,8 @@ class WebDavFragment : BaseFragment() {
             binding.name.requestFocus()
         }
 
-        // make sure the snack-bar is gone when this fragment isn't on display anymore
-        mSnackbar.dismiss()
+        // Hide loading overlay when fragment isn't on display anymore
+        showLoadingOverlay(false)
         // also hide keyboard when fragment isn't on display anymore
         Util.hideSoftKeyboard(requireActivity())
     }
@@ -480,7 +531,7 @@ class WebDavFragment : BaseFragment() {
             message = R.string.are_you_sure_you_want_to_remove_this_server_from_the_app.asUiText(),
             icon = UiImage.DrawableResource(R.drawable.ic_trash),
             destructiveButton = ButtonData(
-                text = UiText.StringResource(R.string.lbl_ok),
+                text = UiText.StringResource(R.string.lbl_remove),
                 action = {
                     mSpace.delete()
                     findNavController().popBackStack()
@@ -514,11 +565,14 @@ class WebDavFragment : BaseFragment() {
     }
 
     private fun updateAuthenticateButtonState() {
+        // Don't update button state if loading
+        if (isLoading) return
+
         val url = binding.server.text?.toString()?.trim().orEmpty()
         val username = binding.username.text?.toString()?.trim().orEmpty()
         val password = binding.password.text?.toString()?.trim().orEmpty()
 
-        // Enable the button only if none of the fields are empty
+        // Enable the button only if none of the fields are empty and not loading
         binding.btAuthenticate.isEnabled =
             url.isNotEmpty() && username.isNotEmpty() && password.isNotEmpty()
     }

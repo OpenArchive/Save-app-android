@@ -192,7 +192,7 @@
     <string name="menu_done">Bitti</string>
     <string name="remove_from_app">Uygulamadan kaldır</string>
     <string name="action_remove_project">Projenizi kaldırmak istediğinize emin misiniz\?</string>
-    <string name="remove">Kaldır</string>
+    <string name="lbl_remove">Kaldır</string>
     <string name="action_archive_project">Projeyi arşive kaldır</string>
     <string name="action_unarchive_project">Projeyi arşivden çıkar</string>
     <string name="IA_login_error">Lütfen geçerli Internet Archive kimlik doğrulama bilgileri ile oturum açın.</string>
@@ -324,7 +324,7 @@
 
     <string name="upload_unsuccessful">Yükleme tamamlanamadı</string>
     <string name="upload_unsuccessful_description">Oturum sorunu nedeniyle yükleme yapılamadı. Lütfen yeniden deneyin ya da destek ekibi ile görüşün.</string>
-    <string name="retry">Yeniden dene</string>
+    <string name="lbl_retry">Yeniden dene</string>
 
     <string name="edit_media">Ortamı düzenle</string>
 

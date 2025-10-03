@@ -209,7 +209,7 @@ private fun NumberButton(
 
             else -> Text(
                 text = label,
-                style = TextStyle(
+                style = MaterialTheme.typography.headlineSmall.copy(
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground

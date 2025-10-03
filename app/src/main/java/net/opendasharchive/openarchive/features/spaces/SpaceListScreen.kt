@@ -95,9 +95,11 @@ fun SpaceListScreenContent(
             ) {
                 Text(
                     text = stringResource(R.string.lbl_no_servers),
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.onSurface
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 )
             }
         } else {
@@ -138,9 +140,10 @@ fun SpaceListScreenContent(
             Text(
                 text = "+ Add Server",
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp),
-                fontWeight = FontWeight.SemiBold,
-                fontFamily = MontserratFontFamily,
-                fontSize = 18.sp
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
             )
         }
 
@@ -170,7 +173,10 @@ fun SpaceListScreenContent(
             if (state.isBusy) {
                 CircularProgressIndicator(color = ThemeColors.material.primary)
             } else {
-                Text(stringResource(R.string.next), fontWeight = FontWeight.SemiBold, fontFamily = MontserratFontFamily)
+                Text(
+                    stringResource(R.string.next),
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
+                )
             }
         }
         **/
@@ -200,17 +206,21 @@ fun SpaceListItem(
         ) {
             Text(
                 text = space.friendlyName,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                lineHeight = 1.sp
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    lineHeight = 1.sp
+                )
             )
 
             Text(
                 text = space.tType.friendlyName,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 14.sp,
-                lineHeight = 1.sp
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 14.sp,
+                    lineHeight = 1.sp
+                )
             )
         }
     }
