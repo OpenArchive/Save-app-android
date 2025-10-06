@@ -85,7 +85,7 @@ fun ServerOptionItem(
                 modifier = Modifier
                     .align(Alignment.Top)
                     .weight(1f),
-                verticalArrangement = Arrangement.Top
+                verticalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Top)
             ) {
                 Text(
                     text = title,
@@ -95,14 +95,18 @@ fun ServerOptionItem(
                     )
                 )
 
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                Row {
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     )
-                )
+                    Spacer(modifier = Modifier.weight(0.5f))
+                }
             }
 
             Icon(

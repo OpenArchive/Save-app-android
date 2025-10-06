@@ -199,7 +199,7 @@ private fun InternetArchiveDetailsContent(
                                 UiText.StringResource(R.string.are_you_sure_you_want_to_remove_this_server_from_the_app)
                             icon = UiImage.DrawableResource(R.drawable.ic_trash)
                             destructiveButton {
-                                text = UiText.StringResource(R.string.remove)
+                                text = UiText.StringResource(R.string.lbl_remove)
                                 action = {
                                     onAction(InternetArchiveDetailsAction.Remove)
                                 }
@@ -219,7 +219,7 @@ private fun InternetArchiveDetailsContent(
                 ) {
                     Text(
                         stringResource(id = R.string.remove_from_app),
-                        fontSize = 18.sp
+                        style = MaterialTheme.typography.titleLarge
                     )
                 }
             }

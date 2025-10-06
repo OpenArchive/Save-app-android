@@ -68,7 +68,7 @@ class FolderDetailFragment : BaseFragment() {
         }
 
         mBinding.btArchive.setOnClickListener {
-            archiveProject()
+            unArchiveProject()
         }
     }
 
@@ -86,7 +86,7 @@ class FolderDetailFragment : BaseFragment() {
             title = UiText.StringResource(R.string.remove_from_app)
             message = UiText.StringResource(R.string.action_remove_project)
             destructiveButton {
-                text = UiText.StringResource(R.string.remove)
+                text = UiText.StringResource(R.string.lbl_remove)
                 action = {
                     mProject.delete()
 
@@ -102,11 +102,11 @@ class FolderDetailFragment : BaseFragment() {
         }
     }
 
-    private fun archiveProject() {
-        mProject.isArchived = !mProject.isArchived
+    private fun unArchiveProject() {
+        mProject.isArchived = false
         mProject.save()
 
-        updateUi()
+        findNavController().popBackStack()
     }
 
     private fun updateUi() {

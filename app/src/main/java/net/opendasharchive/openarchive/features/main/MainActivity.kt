@@ -20,6 +20,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -110,7 +111,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     private var serverListCurOffset: Float = 0F
 
     private var selectModeToggle: Boolean = false
-    private var currentSelectionCount = 0
+    private var selectedMediaCount = 0
 
     private enum class FolderBarMode { INFO, SELECTION, EDIT }
 
@@ -186,7 +187,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 //            rightMargin = insets.right
 //        }
 
-        binding.contentMain.bottomNavBar.applyEdgeToEdgeInsets { insets ->
+        binding.contentMain.bottomNavBar.applyEdgeToEdgeInsets(WindowInsetsCompat.Type.navigationBars()) { insets ->
             bottomMargin = insets.bottom
         }
 
@@ -491,6 +492,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         popupBinding.menuFolderBarSelectMedia.setOnClickListener {
             popup.dismiss()
             setFolderBarMode(FolderBarMode.SELECTION)
+            getCurrentMediaFragment()?.enableSelectionMode()
         }
 
         // Rename folder
@@ -539,10 +541,17 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         }
     }
 
-    // New helper: update the cancel selection TextView to show the number of selected items.
+    // Update the selected count and show/hide the remove button accordingly
     fun updateSelectedCount(count: Int) {
-        // For example, if count > 0 display “Selected: X”; otherwise, revert to “Select Media”.
-        //binding.contentMain.tvSelectedCount.text = if (count > 0) "Selected: $count" else "Select Media"
+        selectedMediaCount = count
+        updateRemoveButtonVisibility()
+    }
+
+    private fun updateRemoveButtonVisibility() {
+        if (folderBarMode == FolderBarMode.SELECTION) {
+            binding.contentMain.btnRemoveSelected.visibility =
+                if (selectedMediaCount > 0) View.VISIBLE else View.GONE
+        }
     }
 
     private fun showDeleteSelectedMediaConfirmDialog() {
@@ -578,7 +587,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             title = UiText.StringResource(R.string.remove_from_app)
             message = UiText.StringResource(R.string.action_remove_project)
             destructiveButton {
-                text = UiText.StringResource(R.string.remove)
+                text = UiText.StringResource(R.string.lbl_remove)
                 action = {
                     getSelectedProject()?.delete()
                     refreshProjects()
@@ -708,6 +717,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 binding.contentMain.folderInfoContainer.visibility = View.GONE
                 binding.contentMain.folderSelectionContainer.visibility = View.VISIBLE
                 binding.contentMain.folderEditContainer.visibility = View.GONE
+                updateRemoveButtonVisibility()
             }
 
             FolderBarMode.EDIT -> {

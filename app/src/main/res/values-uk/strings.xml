@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="app_subtext">Архівуйте Ваші медіа\n<a href="#">дізнайтеся більше</a></string>
-
-    <string name="title_activity_login">Увійти</string>
     <string name="title_activity_first_start">Перший початок</string>
-    <string name="title_media_list">Вивантаження</string>
 
     <!-- Alert Values -->
 
@@ -19,15 +15,12 @@
     <!-- MainFragment -->
 
     <!-- ViewMediaActivity -->
-    <string name="iv_content_desc">Зображення</string>
 
     <!-- Errors -->
 
     <!-- Server -->
     <string name="lbl_Cancel">Скасувати</string>
     <string name="lbl_ok">Гаразд</string>
-    <string name="archive_title">Підтвердження листом на електронну пошту</string>
-    <string name="archive_message">Підтвердьте адресу електронної пошти та поверніться, щоб під\'єднати обліковий запис Internet Archive.</string>
 
     <!-- original CC license questions
     <string name="info_license_deriv">Allow adaptations of your work to be shared?</string>
@@ -51,18 +44,8 @@
 
     <string name="prefs_use_tor_title">Увімкніть маршрутизацію через Onion</string>
     <string name="prefs_use_tor_summary">Передавати лише через мережу Tor</string>
-    <string name="prefs_install_tor_summary">Будь ласка, встановіть Orbot для можливості використання</string>
-    <string name="prefs_prohibit_screenshots_title">Блокувати знімок з екрана</string>
-    <string name="prefs_prohibit_screenshots_summary">Заборонити знімки екрана та записи екрана цього застосунку.</string>
 
-    <string name="prefs_user_interface_title">Вигляд</string>
-    <string name="prefs_theme_title">Тема</string>
-    <string name="prefs_theme_summary">Зміна теми Save на світлу/темну</string>
-    <string name="prefs_theme_system">Контролюється системою</string>
-    <string name="prefs_theme_light">Світла</string>
-    <string name="prefs_theme_dark">Темна</string>
     <string name="prefs_use_proofmode_title">Увімкнути ProofMode</string>
-    <string name="prefs_use_proofmode_summary">Збирає додаткові метадані та завіряє всі медіа.</string>
 
     <string name="prefs_share_proofmode_title">Ідентифікатор ProofMode</string>
     <string name="prefs_share_proofmode_summary">Поширити публічний ключ ProofMode</string>
@@ -99,7 +82,6 @@
 
     <string name="tap_to_add">Натисніть на кнопку нижче для додавання медіа.</string>
     <string name="to_get_started_connect_to_a_server_to_store_your_media">Щоб розпочати, під’єднайтесь до сервера для збереження медіа.</string>
-    <string name="in_the_side_menu_you_can_add_another_server_and_connect_to_multiple_servers">У бічному меню ви можете додати інший сервер та під\'єднатися до кількох серверів</string>
     <string name="send_directly_to_a_private_server">Відправити на сервер WebDAV</string>
     <string name="upload_to_the_internet_archive">Вивантаження до IA</string>
     <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud"><b><i>Save</i></b> може під’єднуватися лише до WebDAV-підтримуваних серверів, як-от Nextcloud і Owncloud.</string>
@@ -108,54 +90,32 @@
     <string name="status_flagged">Важливий вміст</string>
     <string name="select_where_to_store_your_media">Обрати, де зберігати медіа.</string>
     <string name="you_have_successfully_connected_to_a_private_server">Ви успішно під’єднались до приватного сервера!</string>
-    <string name="you_have_successfully_connected_to_dropbox">Ви успішно під’єднались до Dropbox!</string>
     <string name="you_have_successfully_connected_to_the_internet_archive">Ви успішно під’єднались до Internet Archive!</string>
     <string name="create_a_new_folder">Створити нову папку</string>
     <string name="edit">Змінити</string>
     <string name="menu_done">Готово</string>
     <string name="remove_from_app">Вилучити із застосунку</string>
     <string name="action_remove_project">Ви справді хочете вилучити ваш проєкт?</string>
-    <string name="remove">Вилучити</string>
+    <string name="lbl_remove">Вилучити</string>
     <string name="action_archive_project">Архівувати проєкт</string>
     <string name="action_unarchive_project">Розархівувати проєкт</string>
-    <string name="IA_login_error">Будь ласка, вкажіть чинні облікові дані Internet Archive.</string>
-    <string name="access_key">Ключ доступу</string>
-    <string name="secret_key">Приватний ключ</string>
-    <string name="info_archiveorg_keys"><b><i>Save</i></b> потребує ключів API акаунта Internet Archive для вивантаження файлів.</string>
-    <string name="action_acquire_keys">Отримати ключі</string>
     <string name="new_folder">Нова папка</string>
     <string name="please_do_not_include_special_characters_in_the_name">Будь ласка, не використовуйте спеціальні символи в назві.</string>
     <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">Ви впевнені, що хочете видалити цей сервер із застосунку?</string>
     <string name="folder_name_already_exists">Така папка вже існує.</string>
-    <string name="dropbox">Dropbox</string>
     <string name="metadata">Метадані</string>
-
-    <string name="confirm_remove_media">Ви впевнені, що хочете видалити цей медіафайл?</string>
 
     <string name="popup_flag_title">Позначте важливий вміст</string>
     <string name="popup_flag_desc">Коли ви позначаєте елемент, він поміщається до підпапки у вибраній папці проєкту на приватному сервері.</string>
 
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Задайте однакову ліцензію Creative Commons для ВСІХ папок на цьому сервері.</string>
-    <string name="set_unique_creative_commons_licenses_for_each_individual_folder_on_this_server">Задайте унікальні ліцензії Creative Commons для КОЖНОЇ папки на цьому сервері.</string>
 
-    <string name="action_install">Встановити</string>
-    <string name="login_activity_logging_message">Вхід…</string>
     <string name="you_already_have_a_server_with_these_credentials">У вас уже є сервер із цими обліковими даними</string>
-    <string name="tor_connection_exception">Неможливо під\'єднатися до Orbot/Tor.</string>
-    <string name="tor_connection_timeout">Неможливо під\'єднатися до Orbot/Tor: Сплив час очікування</string>
-    <string name="tor_connection_invalid">Неможливо під\'єднатися до Orbot/Tor: Недійсні дані</string>
-    <string name="unsecured_internet_connection">Виявлено незахищене підключення до Інтернету</string>
-    <string name="version__">Версія %s</string>
 
 
     <!-- Clean Insights measurement -->
     <string name="server_name_optional">Ім\'я сервера (необов\'язково)</string>
-    <string name="dropbox_id">Dropbox ID:</string>
     <string name="add_another_account">Додати інший обліковий запис</string>
-    <string name="prefs_proofmode_key_encryption_title_all">Захистіть ключ ProofMode біометрикою або паролем пристрою</string>
-    <string name="prefs_proofmode_key_encryption_title_biometrics">Захистіть ключ ProofMode біометрикою</string>
-    <string name="prefs_proofmode_key_encryption_title_passcode">Захистіть ключ ProofMode паролем пристрою</string>
-    <string name="prefs_proofmode_key_encryption_summary">Після зміни цього буде створено новий ключ! Якщо ви експортували та підписали ключ раніше, вам потрібно буде зробити те ж саме з новим ключем.</string>
     <string name="biometrics_title">Розблокувати ключ ProofMode</string>
     <string name="folders">Папки</string>
     <string name="create_folder_name">Назвати папку</string>
@@ -164,17 +124,12 @@
     <string name="add">Додати</string>
     <string name="no_more_folders">Немає (більше) папок</string>
     <string name="private_server">Приватний сервер</string>
-    <string name="upload_to_dropbox">Вивантажити до Dropbox</string>
-    <string name="sign_in_or_create_an_account_with_dropbox">Увійдіть або створіть обліковий запис у Dropbox</string>
-    <string name="authenticate">Автентифікація</string>
     <string name="back">Назад</string>
     <string name="my_media">Мої медіафайли</string>
-    <string name="if_you_do_not_have_existing_keys_learn_how_to_acquire_keys">Якщо у вас немає чинних ключів — <b>дізнайтесь </b>, як їх отримати.</string>
     <string name="server_info">Інформація про сервер</string>
     <string name="enter_url">Ввести URL</string>
     <string name="account">Обліковий запис</string>
     <string name="general">Загальні</string>
-    <string name="connectivity_data"><![CDATA[Підключення & Дані]]></string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Вивантажувати медіа тільки коли ви під\'єднані до Wi-Fi</string>
     <string name="security">Безпека</string>
     <string name="proofmode">ProofMode</string>
@@ -198,16 +153,11 @@
     <string name="done">Готово</string>
     <string name="secure_mobile_media_preservation">Схоронність медіафайлів на мобільних пристроях</string>
     <string name="get_started">Розпочати</string>
-    <string name="proofmode_permissions_explanation">ProofMode збирає метадані з веж стільникового зв’язку на місцевості для підтвердження оригінальності медіафайлів. Android вимагає дозволу для увімкнення цієї функції. Застосунок Save використовуватиме це налаштування лише для отримання даних та НЕ отримуватиме доступу до здійснення дзвінків або їхньої обробки.</string>
     <string name="archived_folders">Архівовані папки</string>
     <string name="view_archived_folders">Переглянути архівовані папки</string>
     <string name="learn_more_about_creative_commons">Дізнатися більше про Creative Commons.</string>
     <string name="refresh">Оновити</string>
-    <string name="to_get_started_please_create_a_folder">Щоб розпочати, будь ласка, створіть папку</string>
-    <string name="before_adding_media_create_a_new_folder_first">Перш ніж додавати файли, створіть нову папку.</string>
     <string name="is_video">– відео</string>
-    <string name="use_upload_chunking_nextcloud_only">Використовувати Дроблення для вивантаження (лише NextCloud)</string>
-    <string name="chunking_explanation">«Дроблення» завантажує файли частинами, отже у випадку переривання з’єднання не доведеться починати вивантаження спочатку.</string>
     <string name="preview_media">Попередній перегляд медіа</string>
     <string name="add_more">Додати більше</string>
     <string name="select_all">Вибрати всі</string>
@@ -217,40 +167,16 @@
     <string name="press_and_hold_to_select_and_edit_multiple_media">Натисніть й утримуйте для обрання та редагування декількох медіафайлів.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Після вивантаження медіафайлів втрачається можливість їхнього редагування</string>
     <string name="edit_media_info">Редагувати дані медіафайлу</string>
-    <string name="counter">%1$d/%2$d</string>
     <string name="add_a_location_optional">Додати розташування (необов\'язково)</string>
     <string name="add_notes_optional">Додати примітки (необов\'язково)</string>
     <string name="skip">Пропустити</string>
-    <string name="add_images_or_video">Додати зображення або відео</string>
-    <string name="add_files">Додати файли</string>
-
-    <string name="ia_learn_how_title">Як отримати ключі за 3 прості кроки</string>
-    <string name="ia_learn_how_summary_step_1">Крок 1. Увійдіть до Internet Archive. Якщо у вас немає облікового запису, створіть його.</string>
-    <string name="ia_learn_how_summary_step_2">Крок 2. Якщо ви створюєте новий обліковий запис, підтвердіть свою електронну пошту.</string>
-    <string name="ia_learn_how_summary_step_3">Крок 3. Згенеруйте свої API-ключі, поставивши галочку, і вони автоматично завантажаться в застосунок!</string>
 
     <string name="upload_unsuccessful">Не вдалось вивантажити</string>
-    <string name="retry">Повторити</string>
+    <string name="lbl_retry">Повторити</string>
 
     <string name="edit_media">Редагувати медіафайл</string>
     <string name="uploading_is_paused">Вивантаження призупинено</string>
-    <string name="add_media_using">Додати медіафайл з:</string>
     <string name="photo_gallery">Галерея</string>
     <string name="files">Файли</string>
-    <string name="health_checks">Перевірки стану</string>
-    <string name="help_improve_the_app_by_running_health_checks_when_uploads_fail">Допоможіть покращити застосунок, запустивши перевірку його стану, якщо вивантаження зазнає збою.</string>
-    <string name="health_checks_help_us_understand_why_uploads_fail">Перевірка стану застосунку допомагає нам зрозуміти, чому вивантаження не вдається.</string>
-    <string name="contribute_your_data_to_be_part_of_the_solution">Надайте дані застосунку, щоб допомогти розібратись.</string>
-    <string name="with_your_permission_we_ll_run_a_check_each_time_you_encounter_an_error_while_uploading">З вашого дозволу ми запускатимемо перевірку щоразу, коли ви зіткнетеся з помилкою під час вивантаження.</string>
-    <string name="health_checks_capture">Перевірка стану включатиме</string>
-    <string name="error_description">– Опис помилки</string>
-    <string name="size_and_type_of_media">– Розмір і тип медіафайла</string>
-    <string name="number_of_retries">– Кількість спроб</string>
-    <string name="network_type">– Тип мережі</string>
-    <string name="locale">– Локаль</string>
-    <string name="allow_health_checks">Дозволити перевірки стану?</string>
-    <string name="by_allowing_health_checks_you_give_permission_for_the_app_to_securely_send_health_check_data_to_the_s_team">Дозволяючи перевірку стану, ви надаєте застосунку право безпечно надсилати дані про перевірку стану команді %s.</string>
-    <string name="no_thanks">Ні, дякую</string>
-    <string name="undo">Скасувати</string>
 
 </resources>

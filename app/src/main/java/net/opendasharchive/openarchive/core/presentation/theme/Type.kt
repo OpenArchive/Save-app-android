@@ -6,73 +6,87 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
 import net.opendasharchive.openarchive.R
 
 // Define Montserrat FontFamily
 val MontserratFontFamily = FontFamily(
-    Font(R.font.montserrat_thin, FontWeight.Thin), // 100
-    Font(R.font.montserrat_extra_light, FontWeight.ExtraLight), // 200
-    Font(R.font.montserrat_light, FontWeight.Light), // 300
-    Font(R.font.montserrat_regular, FontWeight.Normal), // 400
-    Font(R.font.montserrat_medium, FontWeight.Medium), // 500
-    Font(R.font.montserrat_semi_bold, FontWeight.SemiBold), // 600
-    Font(R.font.montserrat_bold, FontWeight.Bold), // 700
-    Font(R.font.montserrat_extra_bold, FontWeight.ExtraBold), // 800
-    Font(R.font.montserrat_black, FontWeight.Black) // 900
-)
+    Font(R.font.montserrat_thin, weight = FontWeight.Thin, style = FontStyle.Normal), // 100
+    Font(R.font.montserrat_extra_light, weight = FontWeight.ExtraLight, style = FontStyle.Normal), // 200
+    Font(R.font.montserrat_light, weight = FontWeight.Light, style = FontStyle.Normal), // 300
+    Font(R.font.montserrat_regular, weight = FontWeight.Normal, style = FontStyle.Normal), // 400
+    Font(R.font.montserrat_medium, weight = FontWeight.Medium, style = FontStyle.Normal), // 500
+    Font(R.font.montserrat_semi_bold, weight = FontWeight.SemiBold, style = FontStyle.Normal), // 600
+    Font(R.font.montserrat_bold, weight = FontWeight.Bold, style = FontStyle.Normal), // 700
+    Font(R.font.montserrat_extra_bold, weight = FontWeight.ExtraBold, style = FontStyle.Normal), // 800
+    Font(R.font.montserrat_black, weight = FontWeight.Black, style = FontStyle.Normal), // 900
 
-// Define Montserrat Italic FontFamily
-val MontserratItalicFontFamily = FontFamily(
-    Font(R.font.montserrat_thin_italic, FontWeight.Thin), // 100
-    Font(R.font.montserrat_extra_light_italic, FontWeight.ExtraLight), // 200
-    Font(R.font.montserrat_light_italic, FontWeight.Light), // 300
-    Font(R.font.montserrat_italic, FontWeight.Normal), // 400
-    Font(R.font.montserrat_medium_italic, FontWeight.Medium), // 500
-    Font(R.font.montserrat_semi_bold_italic, FontWeight.SemiBold), // 600
-    Font(R.font.montserrat_bold_italic, FontWeight.Bold), // 700
-    Font(R.font.montserrat_extra_bold_italic, FontWeight.ExtraBold), // 800
-    Font(R.font.montserrat_black_italic, FontWeight.Black) // 900
+    Font(R.font.montserrat_thin_italic, weight = FontWeight.Thin, style = FontStyle.Italic), // 100
+    Font(R.font.montserrat_extra_light_italic, weight = FontWeight.ExtraLight, style = FontStyle.Italic), // 200
+    Font(R.font.montserrat_light_italic, weight = FontWeight.Light, style = FontStyle.Italic), // 300
+    Font(R.font.montserrat_italic, weight = FontWeight.Normal, style = FontStyle.Italic), // 400
+    Font(R.font.montserrat_medium_italic, weight = FontWeight.Medium, style = FontStyle.Italic), // 500
+    Font(R.font.montserrat_semi_bold_italic, weight = FontWeight.SemiBold, style = FontStyle.Italic), // 600
+    Font(R.font.montserrat_bold_italic, weight = FontWeight.Bold, style = FontStyle.Italic), // 700
+    Font(R.font.montserrat_extra_bold_italic, weight = FontWeight.ExtraBold, style = FontStyle.Italic), // 800
+    Font(R.font.montserrat_black_italic, weight = FontWeight.Black, style = FontStyle.Italic) // 900
 )
 
 
+// Updated Typography to integrate with your 6 Figma text styles
 val Typography = Typography(
+    // Display styles - Keep Material Design defaults with Montserrat
+    displayLarge = TextStyle(
+        fontFamily = MontserratFontFamily,
+        fontSize = 57.sp,
+        lineHeight = 64.sp,
+        fontWeight = FontWeight.Normal
+    ),
+    displayMedium = TextStyle(
+        fontFamily = MontserratFontFamily,
+        fontSize = 45.sp,
+        lineHeight = 52.sp,
+        fontWeight = FontWeight.Normal
+    ),
+    displaySmall = TextStyle(
+        fontFamily = MontserratFontFamily,
+        fontSize = 36.sp,
+        lineHeight = 44.sp,
+        fontWeight = FontWeight.Normal
+    ),
+
+    // Headlines - Keep Material defaults
+    headlineLarge = TextStyle(
+        fontFamily = MontserratFontFamily,
+        fontSize = 32.sp,
+        lineHeight = 40.sp,
+        fontWeight = FontWeight.Bold
+    ),
+    headlineMedium = TextStyle(
+        fontFamily = MontserratFontFamily,
+        fontSize = 28.sp,
+        lineHeight = 36.sp,
+        fontWeight = FontWeight.SemiBold
+    ),
     headlineSmall = TextStyle(
         fontFamily = MontserratFontFamily,
-        fontSize = 18.sp,
-        lineHeight = 22.sp,
-        fontWeight = FontWeight.SemiBold // 600
+        fontSize = 24.sp,
+        lineHeight = 32.sp,
+        fontWeight = FontWeight.SemiBold
     ),
-    bodyLarge = TextStyle(
-        fontFamily = MontserratFontFamily,
-        fontSize = 16.sp,
-        lineHeight = 20.sp,
-        fontWeight = FontWeight.SemiBold // 600
-    ),
-    bodyMedium = TextStyle(
-        fontFamily = MontserratFontFamily,
-        fontSize = 14.sp,
-        lineHeight = 16.sp,
-        fontWeight = FontWeight.Medium // 500
-    ),
-    bodySmall = TextStyle(
-        fontFamily = MontserratFontFamily,
-        fontSize = 11.sp,
-        lineHeight = 14.sp,
-        fontWeight = FontWeight.Medium // 500
-    ),
-    labelMedium = TextStyle(
-        fontFamily = MontserratFontFamily,
-        fontSize = 11.sp,
-        fontWeight = FontWeight.Medium // 500
-    ),
-    titleLarge = TextStyle(
-        fontFamily = MontserratFontFamily,
-        fontSize = 22.sp, // Adjust according to UI needs
-        fontWeight = FontWeight.Normal // Default for TitleLarge
-    ),
-    titleMedium = TextStyle(
-        fontFamily = MontserratFontFamily,
-        fontSize = 18.sp, // Adjust according to UI needs
-        fontWeight = FontWeight.Medium // 500
-    )
+
+    // Titles - Map to your Figma styles
+    titleLarge = SaveTextStyles.titleLarge,    // 18sp, SemiBold
+    titleMedium = SaveTextStyles.titleMedium,  // 16sp, SemiBold
+    titleSmall = SaveTextStyles.bodyLarge,     // 14sp, Medium
+
+    // Body text - Map to your Figma styles
+    bodyLarge = SaveTextStyles.bodyLarge,      // 14sp, Medium
+    bodyMedium = SaveTextStyles.bodyLarge,     // 14sp, Medium (reuse)
+    bodySmall = SaveTextStyles.bodySmall,      // 11sp, Medium
+
+    // Labels - Map to your Figma styles
+    labelLarge = SaveTextStyles.labelLarge,    // 14sp, Medium (for links/actions)
+    labelMedium = SaveTextStyles.labelMedium,    // 13sp, Italic Medium
+    labelSmall = SaveTextStyles.bodySmall      // 11sp, Medium
 )
