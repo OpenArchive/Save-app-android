@@ -306,7 +306,6 @@
     <string name="save_by_open_archive">Save by OpenArchive</string>
     <string name="discover_the_save_app">Learn More</string>
 
-<<<<<<< HEAD
     <!-- Storacha -->
     <string name="storacha">Storacha</string>
     <string name="manage_accounts">Manage Accounts</string>
@@ -357,7 +356,7 @@
     <string name="access_your_account_using_your_registered_email_address">Access your account using your registered email address.</string>
     <string name="sent_to">Sent to: %1$s</string>
     <string name="loading_usage">Loading usage…</string>
-=======
+
     <string name="pref_media_servers" translatable="false">pref_media_servers</string>
     <string name="pref_media_folders" translatable="false">pref_media_folders</string>
     <string name="pref_key_about_app" translatable="false">pref_about_app</string>
@@ -403,5 +402,5 @@
     <string name="tor_connection_exception" translatable="false">Unable to connect to Orbot/Tor.</string>
     <string name="tor_connection_timeout" translatable="false">Unable to connect to Orbot/Tor: TIMEOUT</string>
     <string name="tor_connection_invalid" translatable="false">Unable to connect to Orbot/Tor: INVALID</string>
->>>>>>> next
+    <string name="label_login">Login</string>
 </resources>
