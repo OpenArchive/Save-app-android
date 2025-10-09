@@ -1,9 +1,11 @@
 package net.opendasharchive.openarchive.services.storacha
 
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.text.HtmlCompat
 import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaBinding
@@ -29,6 +31,9 @@ class StorachaFragment : BaseFragment() {
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
+        viewBinding.tvStorachaDisclaimer.text =
+            HtmlCompat.fromHtml(getString(R.string.storacha_disclaimer), HtmlCompat.FROM_HTML_MODE_LEGACY)
+        viewBinding.tvStorachaDisclaimer.movementMethod = LinkMovementMethod.getInstance()
 
         viewBinding.btnJoinSpaces.setOnClickListener {
             val action =

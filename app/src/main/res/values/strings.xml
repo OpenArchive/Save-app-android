@@ -178,7 +178,7 @@
 
 
     <!-- Space Setup -->
-    <string name="space_setup_title">Select a Server</string>
+    <string name="space_setup_title">Select a server</string>
     <!-- WebDAV related strings -->
     <string name="private_server">Private Server</string>
 
@@ -310,16 +310,15 @@
     <string name="storacha">Storacha</string>
     <string name="manage_accounts">Manage Accounts</string>
     <string name="my_spaces">My Spaces</string>
-    <string name="join_spaces">Join Spaces</string>
-    <string name="join_space">Join Space</string>
+    <string name="join_space">Join space</string>
     <string name="create_or_edit_accounts">Create or edit accounts</string>
-    <string name="access_your_saved_spaces">Access your saved spaces</string>
-    <string name="connect_to_an_existing_space">Connect to an existing space</string>
+    <string name="access_your_saved_spaces">Access your spaces</string>
+    <string name="connect_to_an_existing_space">Join an existing shared space</string>
     <string name="you_can_add_multiple_private_servers_and_one_ia_account_at_any_time">You can add multiple private servers and one IA account at any time.</string>
-    <string name="storacha_disclaimer">All data uploaded to the Storacha Network is public. Do not store private or sensitive information. Removing files doesn\'t prevent indefinite retention by network nodes.</string>
-    <string name="storacha_is_a_decentralized_media_storage_system_using_ipfs_ucan_and_dids">Storacha is a decentralized media storage system using IPFS, UCAN, and DIDs.</string>
+    <string name="storacha_disclaimer"><![CDATA[Files uploaded to the Storacha network are publicly accessible through their CID and may remain permanently available across decentralized nodes. <a href="https://docs.storacha.network/how-to/upload/">Learn more</a>.]]></string>
+    <string name="storacha_is_a_decentralized_media_storage_system_using_ipfs_ucan_and_dids">Storacha lets you store media securely using decentralized technologies (IPFS, UCAN, and DIDs).</string>
     <string name="sign_up_storacha"><![CDATA[Don\'t have an account? <a href="https://console.storacha.network">Create one</a>]]></string>
-    <string name="email_has_been_verified_and_the_spaces_have_been_added_to_save">Email has been verified and the spaces have been added to Save</string>
+    <string name="email_has_been_verified_and_the_spaces_have_been_added_to_save">Your email has been verified, and the spaces have been added to Save.</string>
     <string name="email_address">Email address</string>
     <string name="users_can_delete_the_content_within_the_space">Users can delete the content within the space</string>
     <string name="users_can_read_the_content_within_the_space">Users can read the content within the space</string>
@@ -327,7 +326,7 @@
     <string name="define_access_to_the_following_did_key">Define access to the following DID key</string>
     <string name="this_is_your_qr_code_to_request_access_please_ask_the_admin_to_scab_your_code_to_gain_access_to_soace">This is your QR code to request access, Please ask the admin to scan your code to gain access to space</string>
     <string name="storacha_qr">storacha qr</string>
-    <string name="no_did_has_access_to_this_space">No DID has access to this space</string>
+    <string name="no_did_has_access_to_this_space">No DIDs currently have access to this space. Tap “Add” to grant access.</string>
     <string name="no_spaces_available">No Spaces Available</string>
     <string name="loading_spaces">Loading spaces…</string>
     <string name="loading_files">Loading files…</string>
@@ -344,8 +343,8 @@
     <string name="accounts">Accounts</string>
     <string name="spaces">Spaces</string>
     <string name="no_files_available">No files Available</string>
-    <string name="send_directly_to_storacha_server">Connect to Storacha network</string>
-    <string name="did_access_key">DID ACCESS KEY</string>
+    <string name="send_directly_to_storacha_server">Connect to the Storacha network</string>
+    <string name="did_access_key">Enter DID Key</string>
     <string name="browse_files">Files</string>
     <string name="no_media_available">No Media Available</string>
     <string name="revoke_access">Revoke Access?\n</string>
@@ -353,9 +352,10 @@
     <string name="revoke">Revoke</string>
     <string name="view_spaces">View Spaces</string>
     <string name="copy_did">Copy DID</string>
-    <string name="access_your_account_using_your_registered_email_address">Access your account using your registered email address.</string>
+    <string name="access_your_account_using_your_registered_email_address">Log in using your registered email address</string>
     <string name="sent_to">Sent to: %1$s</string>
     <string name="loading_usage">Loading usage…</string>
+    <string name="manage_access">Manage Access</string>
 
     <string name="pref_media_servers" translatable="false">pref_media_servers</string>
     <string name="pref_media_folders" translatable="false">pref_media_folders</string>
@@ -403,4 +403,16 @@
     <string name="tor_connection_timeout" translatable="false">Unable to connect to Orbot/Tor: TIMEOUT</string>
     <string name="tor_connection_invalid" translatable="false">Unable to connect to Orbot/Tor: INVALID</string>
     <string name="label_login">Login</string>
+    <string name="your_session_has_expired_please_log_out_and_log_back_in_then_try_uploading_again">Your session has expired. Please log out and log back in, then try uploading again.</string>
+    <string name="you_don_t_have_permission_to_upload_to_this_space_please_check_with_the_space_owner">You don\'t have permission to upload to this space. Please check with the space owner.</string>
+    <string name="can_t_connect_to_the_server_please_check_your_internet_connection_and_try_again">Can\'t connect to the server. Please check your internet connection and try again.</string>
+    <string name="the_storage_service_is_temporarily_unavailable_please_try_again_in_a_few_minutes">The storage service is temporarily unavailable. Please try again in a few minutes.</string>
+    <string name="the_file_may_be_too_large_or_the_upload_is_taking_too_long_try_with_a_smaller_file_or_check_your_connection">The file may be too large or the upload is taking too long. Try with a smaller file or check your connection.</string>
+    <string name="the_server_is_busy_please_wait_a_moment_and_try_again">The server is busy. Please wait a moment and try again.</string>
+    <string name="something_went_wrong_on_the_server_please_try_again">Something went wrong on the server. Please try again.</string>
+    <string name="there_was_an_authentication_issue_the_app_will_try_again_automatically">There was an authentication issue. The app will try again automatically.</string>
+    <string name="there_was_a_problem_with_the_storage_service_please_try_again">There was a problem with the storage service. Please try again.</string>
+    <string name="there_might_not_be_enough_storage_space_available_please_try_again_or_contact_support">There might not be enough storage space available. Please try again or contact support.</string>
+    <string name="something_went_wrong_with_the_upload_please_try_again">Something went wrong with the upload. Please try again.</string>
+    <string name="enter_a_did_access_key_manually_or_scan_a_qr_code_to_add_one">Enter a DID access key manually, or scan a QR code to add one</string>
 </resources>

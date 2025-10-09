@@ -10,6 +10,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.net.toUri
 import androidx.core.view.MenuProvider
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
@@ -60,7 +61,7 @@ class StorachaMediaFragment :
         val userDid: String,
         val spaceDid: String,
         val sessionId: String,
-        val isAdmin: Boolean
+        val isAdmin: Boolean,
     )
 
     override fun onCreateView(
@@ -85,10 +86,11 @@ class StorachaMediaFragment :
         }
 
         // Initialize adapter once
-        mediaAdapter = StorachaMediaGridAdapter(okHttpClient) { file ->
-            Timber.d("Selected: ${file.cid}")
-            openFileInBrowser(file)
-        }
+        mediaAdapter =
+            StorachaMediaGridAdapter(okHttpClient) { file ->
+                Timber.d("Selected: ${file.cid}")
+                openFileInBrowser(file)
+            }
         mBinding.rvMediaList.adapter = mediaAdapter
 
         return mBinding.root
@@ -107,7 +109,7 @@ class StorachaMediaFragment :
         }
 
         val spaceDid = args.spaceId
-        val sessionId = if (args.sessionId.isEmpty()) null else args.sessionId
+        val sessionId = args.sessionId.ifEmpty { null }
         val userDid = DidManager(requireContext()).getOrCreateDid()
         viewModel.reset()
         viewModel.loadMoreMediaEntries(userDid, spaceDid, sessionId)
@@ -129,14 +131,17 @@ class StorachaMediaFragment :
                     mBinding.loadingText.text = getString(R.string.loading_files)
                     uploadOverlay.toggle(false)
                 }
+
                 LoadingState.LOADING_MORE -> {
                     mBinding.loadingText.text = getString(R.string.loading_more_files)
                     uploadOverlay.toggle(false)
                 }
+
                 LoadingState.UPLOADING -> {
                     mBinding.loadingText.text = getString(R.string.uploading_files)
                     uploadOverlay.toggle(true)
                 }
+
                 LoadingState.NONE -> {
                     // Loading container will be hidden by the loading observer
                     uploadOverlay.toggle(false)
@@ -180,7 +185,9 @@ class StorachaMediaFragment :
                         val threshold = 3 // Load more when 3 items from the end
 
                         if (lastVisibleItem >= totalItemCount - threshold && totalItemCount > 0) {
-                            Timber.d("Scroll trigger: lastVisible=$lastVisibleItem, total=$totalItemCount, loading=${viewModel.loading.value}")
+                            Timber.d(
+                                "Scroll trigger: lastVisible=$lastVisibleItem, total=$totalItemCount, loading=${viewModel.loading.value}",
+                            )
                             viewModel.loadMoreMediaEntries(userDid, spaceDid, sessionId)
                         }
                     }
@@ -203,7 +210,7 @@ class StorachaMediaFragment :
         val addMenuItem = menu.findItem(R.id.action_add)
         if (args.isAdmin) {
             addMenuItem?.isVisible = true
-            addMenuItem?.title = "Manage Access"
+            addMenuItem?.title = getString(R.string.manage_accounts)
         } else {
             addMenuItem?.isVisible = false
         }
@@ -281,18 +288,19 @@ class StorachaMediaFragment :
 
         // Clean up temporary file
         // tempFile.delete()
-        val uploadSessionId = if (args.sessionId.isEmpty()) null else args.sessionId
+        val uploadSessionId = args.sessionId.ifEmpty { null }
 
         // Store upload details for potential retry
-        lastFailedUpload = FailedUploadData(
-            uri = uri,
-            tempFile = tempFile,
-            carResult = carResult,
-            userDid = userDid,
-            spaceDid = spaceDid,
-            sessionId = uploadSessionId ?: "",
-            isAdmin = args.isAdmin
-        )
+        lastFailedUpload =
+            FailedUploadData(
+                uri = uri,
+                tempFile = tempFile,
+                carResult = carResult,
+                userDid = userDid,
+                spaceDid = spaceDid,
+                sessionId = uploadSessionId ?: "",
+                isAdmin = args.isAdmin,
+            )
 
         viewModel.uploadFile(tempFile, carResult, userDid, spaceDid, uploadSessionId, args.isAdmin)
     }
@@ -328,7 +336,7 @@ class StorachaMediaFragment :
 
     private fun openFileInBrowser(file: UploadEntry) {
         try {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(file.gatewayUrl))
+            val intent = Intent(Intent.ACTION_VIEW, file.gatewayUrl.toUri())
             startActivity(intent)
         } catch (e: Exception) {
             Timber.e(e, "Failed to open file in browser: ${file.cid}")
@@ -337,11 +345,19 @@ class StorachaMediaFragment :
 
     override fun getToolbarTitle(): String = arguments?.getString("space_name") ?: getString(R.string.browse_files)
 
-    private fun showUploadSuccessDialog(cid: String, size: Long) {
+    private fun showUploadSuccessDialog(
+        cid: String,
+        size: Long,
+    ) {
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Success
             title = UiText.DynamicString("Success!")
-            message = UiText.DynamicString("File uploaded successfully!\nCID:\n$cid\nSize: ${formatFileSize(size)}")
+            message =
+                UiText.DynamicString(
+                    "File uploaded successfully!\nCID:\n$cid\nSize: ${
+                        formatFileSize(size)
+                    }",
+                )
             positiveButton {
                 text = UiText.DynamicString("Got it")
                 action = { }
@@ -370,111 +386,153 @@ class StorachaMediaFragment :
         }
     }
 
-    private fun parseErrorMessage(fullMessage: String): String {
-        return when {
+    private fun parseErrorMessage(fullMessage: String): String =
+        when {
             // Session/Authentication issues - Ask user to re-login
             fullMessage.contains("Session not verified", ignoreCase = true) ||
-            fullMessage.contains("Authentication required", ignoreCase = true) -> {
-                "Your session has expired. Please log out and log back in, then try uploading again."
+                fullMessage.contains(
+                    "Authentication required",
+                    ignoreCase = true,
+                )
+            -> {
+                getString(R.string.your_session_has_expired_please_log_out_and_log_back_in_then_try_uploading_again)
             }
 
             // Permission issues - Clear and actionable
             fullMessage.contains("Claim not authorized", ignoreCase = true) ||
-            fullMessage.contains("Access forbidden", ignoreCase = true) ||
-            fullMessage.contains("403") -> {
-                "You don't have permission to upload to this space. Please check with the space owner."
+                fullMessage.contains(
+                    "Access forbidden",
+                    ignoreCase = true,
+                ) || fullMessage.contains("403") -> {
+                getString(R.string.you_don_t_have_permission_to_upload_to_this_space_please_check_with_the_space_owner)
             }
 
             // Network connectivity issues
             fullMessage.contains("network", ignoreCase = true) ||
-            fullMessage.contains("connection", ignoreCase = true) ||
-            fullMessage.contains("ConnectException", ignoreCase = true) -> {
-                "Can't connect to the server. Please check your internet connection and try again."
+                fullMessage.contains(
+                    "connection",
+                    ignoreCase = true,
+                ) || fullMessage.contains("ConnectException", ignoreCase = true) -> {
+                getString(R.string.can_t_connect_to_the_server_please_check_your_internet_connection_and_try_again)
             }
 
             // Service unavailable
-            fullMessage.contains("Cannot POST", ignoreCase = true) ||
-            fullMessage.contains("503") ||
-            fullMessage.contains("service unavailable", ignoreCase = true) -> {
-                "The storage service is temporarily unavailable. Please try again in a few minutes."
+            fullMessage.contains(
+                "Cannot POST",
+                ignoreCase = true,
+            ) || fullMessage.contains("503") ||
+                fullMessage.contains(
+                    "service unavailable",
+                    ignoreCase = true,
+                )
+            -> {
+                getString(R.string.the_storage_service_is_temporarily_unavailable_please_try_again_in_a_few_minutes)
             }
 
             // File too large or timeout
             fullMessage.contains("timeout", ignoreCase = true) ||
-            fullMessage.contains("too large", ignoreCase = true) ||
-            fullMessage.contains("431") -> {
-                "The file might be too large or the upload is taking too long. Try with a smaller file or check your connection."
+                fullMessage.contains(
+                    "too large",
+                    ignoreCase = true,
+                ) || fullMessage.contains("431") -> {
+                getString(
+                    R.string.the_file_may_be_too_large_or_the_upload_is_taking_too_long_try_with_a_smaller_file_or_check_your_connection,
+                )
             }
 
             // Server overloaded
             fullMessage.contains("429") ||
-            fullMessage.contains("too many requests", ignoreCase = true) -> {
-                "The server is busy. Please wait a moment and try again."
+                fullMessage.contains(
+                    "too many requests",
+                    ignoreCase = true,
+                )
+            -> {
+                getString(R.string.the_server_is_busy_please_wait_a_moment_and_try_again)
             }
 
             // Generic server errors
             fullMessage.contains("500") ||
-            fullMessage.contains("server error", ignoreCase = true) -> {
-                "Something went wrong on the server. Please try again."
+                fullMessage.contains(
+                    "server error",
+                    ignoreCase = true,
+                )
+            -> {
+                getString(R.string.something_went_wrong_on_the_server_please_try_again)
             }
 
             // Token/authorization issues (usually auto-retried)
-            fullMessage.contains("InvalidToken", ignoreCase = true) ||
-            fullMessage.contains("expired", ignoreCase = true) ||
-            fullMessage.contains("delegation", ignoreCase = true) -> {
-                "There was an authentication issue. The app will try again automatically."
+            fullMessage.contains(
+                "InvalidToken",
+                ignoreCase = true,
+            ) ||
+                fullMessage.contains(
+                    "expired",
+                    ignoreCase = true,
+                ) || fullMessage.contains("delegation", ignoreCase = true) -> {
+                getString(R.string.there_was_an_authentication_issue_the_app_will_try_again_automatically)
             }
 
             // Storage/Bridge specific issues
-            fullMessage.contains("Bridge", ignoreCase = true) ||
-            fullMessage.contains("S3 upload failed", ignoreCase = true) ||
-            fullMessage.contains("store/add", ignoreCase = true) ||
-            fullMessage.contains("upload/add", ignoreCase = true) -> {
-                "There was a problem with the storage service. Please try again."
+            fullMessage.contains(
+                "Bridge",
+                ignoreCase = true,
+            ) ||
+                fullMessage.contains(
+                    "S3 upload failed",
+                    ignoreCase = true,
+                ) ||
+                fullMessage.contains(
+                    "store/add",
+                    ignoreCase = true,
+                ) || fullMessage.contains("upload/add", ignoreCase = true) -> {
+                getString(R.string.there_was_a_problem_with_the_storage_service_please_try_again)
             }
 
             // Space/storage issues
             fullMessage.contains("space", ignoreCase = true) ||
-            fullMessage.contains("storage", ignoreCase = true) -> {
-                "There might not be enough storage space available. Please try again or contact support."
+                fullMessage.contains(
+                    "storage",
+                    ignoreCase = true,
+                )
+            -> {
+                getString(R.string.there_might_not_be_enough_storage_space_available_please_try_again_or_contact_support)
             }
 
             // Generic fallback - keep it simple
             else -> {
-                "Something went wrong with the upload. Please try again."
+                getString(R.string.something_went_wrong_with_the_upload_please_try_again)
             }
         }
-    }
 
     private fun retryLastUpload() {
         lastFailedUpload?.let { failedUpload ->
             Timber.d("Retrying upload for file: ${failedUpload.uri}")
-            val retrySessionId = if (failedUpload.sessionId.isEmpty()) null else failedUpload.sessionId
+            val retrySessionId =
+                failedUpload.sessionId.ifEmpty { null }
             viewModel.uploadFile(
                 failedUpload.tempFile,
                 failedUpload.carResult,
                 failedUpload.userDid,
                 failedUpload.spaceDid,
                 retrySessionId,
-                failedUpload.isAdmin
+                failedUpload.isAdmin,
             )
         }
     }
 
     private fun refreshMedia() {
         val spaceDid = args.spaceId
-        val sessionId = if (args.sessionId.isEmpty()) null else args.sessionId
+        val sessionId = args.sessionId.ifEmpty { null }
         val userDid = DidManager(requireContext()).getOrCreateDid()
 
         viewModel.refreshFromStart()
         viewModel.loadMoreMediaEntries(userDid, spaceDid, sessionId)
     }
 
-    private fun formatFileSize(bytes: Long): String {
-        return when {
+    private fun formatFileSize(bytes: Long): String =
+        when {
             bytes >= 1024 * 1024 -> String.format("%.1f MB", bytes / 1024.0 / 1024.0)
             bytes >= 1024 -> String.format("%.1f KB", bytes / 1024.0)
             else -> "$bytes B"
         }
-    }
 }
