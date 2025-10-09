@@ -210,7 +210,7 @@ class StorachaMediaFragment :
         val addMenuItem = menu.findItem(R.id.action_add)
         if (args.isAdmin) {
             addMenuItem?.isVisible = true
-            addMenuItem?.title = getString(R.string.manage_accounts)
+            addMenuItem?.title = getString(R.string.manage_access)
         } else {
             addMenuItem?.isVisible = false
         }

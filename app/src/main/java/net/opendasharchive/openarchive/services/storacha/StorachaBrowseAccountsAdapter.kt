@@ -50,7 +50,7 @@ class StorachaBrowseAccountsAdapter(
                 binding.icon.setImageDrawable(icon)
             } else {
                 binding.icon.visibility = View.GONE
-                binding.rvTick.setImageResource(R.drawable.ic_delete_danger_24dp)
+                binding.rvTick.setImageResource(R.drawable.ic_trash)
                 binding.rvTick.imageTintList =
                     android.content.res.ColorStateList
                         .valueOf(ContextCompat.getColor(binding.rvTick.context, R.color.red))

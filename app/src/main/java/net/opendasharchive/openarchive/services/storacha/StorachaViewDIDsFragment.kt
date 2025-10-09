@@ -104,7 +104,7 @@ class StorachaViewDIDsFragment :
         }
     }
 
-    override fun getToolbarTitle(): String = getString(R.string.manage_accounts)
+    override fun getToolbarTitle(): String = getString(R.string.manage_access)
 
     override fun onCreateMenu(
         menu: Menu,

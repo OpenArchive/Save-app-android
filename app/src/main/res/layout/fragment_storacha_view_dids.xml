@@ -38,7 +38,7 @@
         android:id="@+id/projects_empty"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:gravity="center"
         android:text="@string/no_did_has_access_to_this_space"
         android:textSize="18sp"
         android:visibility="gone"
