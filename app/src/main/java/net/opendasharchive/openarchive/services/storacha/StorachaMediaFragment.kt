@@ -9,6 +9,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toUri
 import androidx.core.view.MenuProvider
@@ -57,7 +58,7 @@ class StorachaMediaFragment :
     private data class FailedUploadData(
         val uri: Uri,
         val tempFile: File,
-        val carResult: CarFileResult,
+        val carFile: File,
         val userDid: String,
         val spaceDid: String,
         val sessionId: String,
@@ -125,26 +126,43 @@ class StorachaMediaFragment :
             }
         }
 
+        // Handle back press during upload - initialize callback
+        val backPressCallback = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                // Do nothing - block back press during upload
+                Timber.d("Back press blocked during upload")
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressCallback)
+
         viewModel.loadingState.observe(viewLifecycleOwner) { loadingState ->
             when (loadingState) {
                 LoadingState.LOADING_FILES -> {
                     mBinding.loadingText.text = getString(R.string.loading_files)
                     uploadOverlay.toggle(false)
+                    backPressCallback.isEnabled = false
+                    activity?.invalidateOptionsMenu()
                 }
 
                 LoadingState.LOADING_MORE -> {
                     mBinding.loadingText.text = getString(R.string.loading_more_files)
                     uploadOverlay.toggle(false)
+                    backPressCallback.isEnabled = false
+                    activity?.invalidateOptionsMenu()
                 }
 
                 LoadingState.UPLOADING -> {
                     mBinding.loadingText.text = getString(R.string.uploading_files)
                     uploadOverlay.toggle(true)
+                    backPressCallback.isEnabled = true
+                    activity?.invalidateOptionsMenu()
                 }
 
                 LoadingState.NONE -> {
                     // Loading container will be hidden by the loading observer
                     uploadOverlay.toggle(false)
+                    backPressCallback.isEnabled = false
+                    activity?.invalidateOptionsMenu()
                 }
             }
         }
@@ -158,15 +176,29 @@ class StorachaMediaFragment :
         }
 
         viewModel.uploadResult.observe(viewLifecycleOwner) { result ->
-            result.fold(
+            result?.fold(
                 onSuccess = { uploadResponse ->
                     Timber.d("Upload successful: CID=${uploadResponse.cid}, Size=${uploadResponse.size}")
+                    // Clean up temporary files after successful upload
+                    lastFailedUpload?.let { failedUpload ->
+                        try {
+                            failedUpload.tempFile.delete()
+                            failedUpload.carFile.delete()
+                            Timber.d("Cleaned up temporary files after successful upload")
+                        } catch (e: Exception) {
+                            Timber.e(e, "Failed to delete temporary files")
+                        }
+                    }
                     lastFailedUpload = null // Clear any previous failed upload
                     showUploadSuccessDialog(uploadResponse.cid, uploadResponse.size)
+                    // Clear the result immediately after showing the dialog to prevent re-showing
+                    viewModel.clearUploadResult()
                 },
                 onFailure = { error ->
                     Timber.e(error, "Upload failed")
                     showUploadErrorDialog(error)
+                    // Clear the result immediately after showing the dialog to prevent re-showing
+                    viewModel.clearUploadResult()
                 },
             )
         }
@@ -198,6 +230,12 @@ class StorachaMediaFragment :
         activity?.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Clear upload result when returning from another screen to prevent showing stale success dialog
+        viewModel.clearUploadResult()
+    }
+
     override fun onCreateMenu(
         menu: Menu,
         menuInflater: MenuInflater,
@@ -211,6 +249,7 @@ class StorachaMediaFragment :
         if (args.isAdmin) {
             addMenuItem?.isVisible = true
             addMenuItem?.title = getString(R.string.manage_access)
+            addMenuItem?.isEnabled = viewModel.loadingState.value != LoadingState.UPLOADING
         } else {
             addMenuItem?.isVisible = false
         }
@@ -263,7 +302,7 @@ class StorachaMediaFragment :
         // Generate proper CAR file from the temporary file
         val carResult = CarFileCreator.createCarFile(tempFile)
 
-        // Debug: Save CAR data to file for inspection
+        // Save CAR data to file
         val carFileName = "${
             originalName.substringBeforeLast(
                 '.',
@@ -274,16 +313,14 @@ class StorachaMediaFragment :
         carFile.parentFile?.mkdirs()
         carFile.writeBytes(carResult.carData)
 
-        // Clean up temporary file
-        // tempFile.delete()
         val uploadSessionId = args.sessionId.ifEmpty { null }
 
-        // Store upload details for potential retry
+        // Store upload details for potential retry and cleanup
         lastFailedUpload =
             FailedUploadData(
                 uri = uri,
                 tempFile = tempFile,
-                carResult = carResult,
+                carFile = carFile,
                 userDid = userDid,
                 spaceDid = spaceDid,
                 sessionId = uploadSessionId ?: "",
@@ -487,11 +524,12 @@ class StorachaMediaFragment :
     private fun retryLastUpload() {
         lastFailedUpload?.let { failedUpload ->
             Timber.d("Retrying upload for file: ${failedUpload.uri}")
-            val retrySessionId =
-                failedUpload.sessionId.ifEmpty { null }
+            // Regenerate CAR file for retry
+            val carResult = CarFileCreator.createCarFile(failedUpload.tempFile)
+            val retrySessionId = failedUpload.sessionId.ifEmpty { null }
             viewModel.uploadFile(
                 failedUpload.tempFile,
-                failedUpload.carResult,
+                carResult,
                 failedUpload.userDid,
                 failedUpload.spaceDid,
                 retrySessionId,

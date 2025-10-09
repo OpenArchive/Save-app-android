@@ -39,8 +39,8 @@ class StorachaMediaViewModel(
     private var isFirstLoad = true
     private var isRefreshing = false
 
-    private val _uploadResult = MutableLiveData<Result<UploadResponse>>()
-    val uploadResult: LiveData<Result<UploadResponse>> get() = _uploadResult
+    private val _uploadResult = MutableLiveData<Result<UploadResponse>?>()
+    val uploadResult: LiveData<Result<UploadResponse>?> get() = _uploadResult
 
     fun reset() {
         currentCursor = null
@@ -57,6 +57,10 @@ class StorachaMediaViewModel(
         isFirstLoad = true
         isRefreshing = true
         // Don't clear _media.value to avoid flickering
+    }
+
+    fun clearUploadResult() {
+        _uploadResult.value = null
     }
 
     fun loadMoreMediaEntries(
