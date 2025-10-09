@@ -45,7 +45,7 @@ val storachaModule =
         single {
             Retrofit
                 .Builder()
-                .baseUrl("http://192.168.0.46:3000/") // Change to actual API base URL
+                .baseUrl("http://save-storacha.staging.hypha.coop:3000/") // Change to actual API base URL
                 .client(get())
                 .addConverterFactory(GsonConverterFactory.create(get()))
                 .build()

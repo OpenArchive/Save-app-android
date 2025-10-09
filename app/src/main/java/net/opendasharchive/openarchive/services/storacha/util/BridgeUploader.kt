@@ -39,7 +39,7 @@ class BridgeUploader(
     private val storachaService =
         Retrofit
             .Builder()
-            .baseUrl("http://192.168.0.72:3000/")
+            .baseUrl("http://save-storacha.staging.hypha.coop:3000/")
             .client(client)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
