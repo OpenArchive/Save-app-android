@@ -21,6 +21,8 @@ enum class FileType(
     IMAGE(R.drawable.ic_image_gallery_line),
     VIDEO(R.drawable.ic_videocam_black_24dp),
     AUDIO(R.drawable.audio_waveform),
+    PDF(R.drawable.ic_pdf),
+    DOCUMENT(R.drawable.ic_unknown_file),
     UNKNOWN(R.drawable.ic_unknown_file),
 }
 
@@ -144,6 +146,8 @@ class FileMetadataFetcher(
             "jpg", "jpeg", "png", "gif", "bmp", "webp", "avif", "heic", "heif" -> FileType.IMAGE
             "mp4", "avi", "mkv", "mov", "wmv", "flv", "webm", "m4v" -> FileType.VIDEO
             "mp3", "wav", "flac", "aac", "ogg", "m4a", "wma" -> FileType.AUDIO
+            "pdf" -> FileType.PDF
+            "doc", "docx", "txt", "rtf", "odt", "xls", "xlsx", "ppt", "pptx", "csv" -> FileType.DOCUMENT
             else -> FileType.UNKNOWN
         }
     }

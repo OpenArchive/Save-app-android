@@ -236,18 +236,6 @@ class StorachaMediaFragment :
             handleSelectedFiles(uris)
         }
 
-    private fun handleAudio(uri: Uri) {
-        handleMedia(uri)
-    }
-
-    private fun handleImage(uri: Uri) {
-        handleMedia(uri)
-    }
-
-    private fun handleVideo(uri: Uri) {
-        handleMedia(uri)
-    }
-
     private fun handleMedia(uri: Uri) {
         Timber.d("Going to upload file: $uri")
 
@@ -308,18 +296,10 @@ class StorachaMediaFragment :
     private fun handleSelectedFiles(uris: List<Uri>) {
         if (uris.isNotEmpty()) {
             for (uri in uris) {
-                val mimeType = requireContext().contentResolver.getType(uri)
-                when {
-                    mimeType?.startsWith("image/") == true -> handleImage(uri)
-                    mimeType?.startsWith("video/") == true -> handleVideo(uri)
-                    mimeType?.startsWith("audio/") == true -> handleAudio(uri)
-                    else -> {
-                        Timber.d("Unknown type picked: $mimeType")
-                    }
-                }
+                handleMedia(uri)
             }
         } else {
-            Timber.d("No images selected")
+            Timber.d("No files selected")
         }
     }
 
