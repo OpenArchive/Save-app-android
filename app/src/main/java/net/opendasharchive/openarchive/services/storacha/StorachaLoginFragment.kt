@@ -2,7 +2,9 @@ package net.opendasharchive.openarchive.services.storacha
 
 import android.content.Context
 import android.os.Bundle
+import android.text.Editable
 import android.text.Html
+import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -44,6 +46,25 @@ class StorachaLoginFragment : BaseFragment() {
         viewBinding.tvSignUpLink.text =
             Html.fromHtml(getString(R.string.sign_up_storacha), Html.FROM_HTML_MODE_LEGACY)
         viewBinding.tvSignUpLink.movementMethod = LinkMovementMethod.getInstance()
+
+        // Initially disable login button
+        viewBinding.btLogin.isEnabled = false
+
+        // Add TextWatcher to email field
+        viewBinding.tvEmail.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Clear error when user starts typing
+                viewBinding.groupNameTextfieldContainer.error = null
+
+                // Validate email and update button state
+                val email = s.toString().trim()
+                viewBinding.btLogin.isEnabled = isValidEmail(email)
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
 
         // Setup login button click
         viewBinding.btLogin.setOnClickListener { performLogin() }
