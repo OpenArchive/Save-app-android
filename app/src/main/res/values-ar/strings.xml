@@ -210,6 +210,7 @@
     <string name="intro_text_archive"><![CDATA[قم بتحميل الوسائط إلى Nextcloud أو Internet Archive لجعل وسائطك قابلة للتحقق منها وآمنة ومُنظَّمة على المدى الطويل.<br><br>اختر<a href=\"%1$s\"><u>ترخيص المشاع الإبداعي</u></a>]]></string>
 
     <string name="intro_text_verify"><![CDATA[‫استوثق من وسائطك وتحقق منها باستخدام تلبيد التجزئة sha256 ووضع <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
+    <string name="intro_text_encrypt"><![CDATA[يحمل <b><i>Save</i></b>دائما عبر TLS (بروتوكول طبقة النقل الآمن) لحماية وسائطك أثناء عبورها.<br>لتعزيز الأمن بشكل أفضل، قم بتفعيل <a href=\"%1$s\"><u>تور</u></a> لمنع اعتراض وسائطك من هاتفك إلى الخادم.]]></string>
     <string name="next">التالي</string>
     <string name="done">تم</string>
     <string name="secure_mobile_media_preservation">الحفظ الآمن لوسائط المحمول</string>
