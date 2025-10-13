@@ -337,6 +337,7 @@
     <string name="logout_confirmation">Are you sure you want to logout?</string>
     <string name="please_check_your_inbox_and_click_the_link_on_the_verification_email">Please check your inbox and click the link on the verification email.</string>
     <string name="verification_email_sent">Verification Email Sent</string>
+    <string name="change_email_link"><![CDATA[Email is incorrect? <a href="#">Change now</a>.]]></string>
     <string name="access">Access</string>
     <string name="email_verification">Email Verification</string>
     <string name="add_account">Add Account</string>

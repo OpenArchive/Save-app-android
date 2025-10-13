@@ -1,9 +1,12 @@
 package net.opendasharchive.openarchive.services.storacha
 
 import android.os.Bundle
+import android.text.Html
+import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -43,8 +46,23 @@ class StorachaEmailVerificationSentFragment : BaseFragment() {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Disable hardware back button
+        val backPressCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Do nothing - block back navigation
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressCallback)
+
         // Display the email that was passed as an argument
         mBinding.emailId.text = getString(R.string.sent_to, args.email)
+
+        // Setup change email link
+        mBinding.tvChangeEmailLink.text = Html.fromHtml(getString(R.string.change_email_link), Html.FROM_HTML_MODE_LEGACY)
+        mBinding.tvChangeEmailLink.movementMethod = LinkMovementMethod.getInstance()
+        mBinding.tvChangeEmailLink.setOnClickListener {
+            navigateBackToLogin()
+        }
 
         viewModel.navigateNext.observe(
             viewLifecycleOwner,
@@ -98,6 +116,9 @@ class StorachaEmailVerificationSentFragment : BaseFragment() {
     }
 
     private fun navigateBackToLogin() {
+        // Stop polling to prevent background requests
+        viewModel.pausePolling()
+
         // Clear the current unverified account to prevent auto-navigation back
         val accountManager = StorachaAccountManager(requireContext())
         val currentAccount = accountManager.getCurrentAccount()
