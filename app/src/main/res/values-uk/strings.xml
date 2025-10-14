@@ -248,7 +248,7 @@
 
     <!-- Internet Archive Settings -->
     <string name="label_email">Ел. пошта</string>
-    <string name="label_screen_name">Ім\'я для показу</string>
+    <string name="label_screen_name">Назва екрану</string>
     <string name="label_create_login">Створити</string>
     <string name="prompt_no_account">Немає облікового запису\?</string>
 
