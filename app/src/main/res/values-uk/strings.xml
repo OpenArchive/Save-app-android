@@ -7,12 +7,12 @@
     <string name="dweb_title">Сервіс DWeb</string>
     <string name="dweb_description">Під\'єднатись до\nдецентралізованого інтернету</string>
     <string name="servers">Сервери</string>
-    <string name="add_server">Додати інший обліковий запис</string>
+    <string name="add_server">Додати сервер</string>
     <string name="lbl_rename_folder">Перейменувати теку</string>
     <string name="lbl_select_media">Вибрати медіафайли</string>
-    <string name="lbl_remove_folder">Видалити папку</string>
-    <string name="popup_archive_folder">Архівувати папку</string>
-    <string name="popup_remove_folder">Вилучити папку з застосунку</string>
+    <string name="lbl_remove_folder">Видалити теку</string>
+    <string name="popup_archive_folder">Архівувати теку</string>
+    <string name="popup_remove_folder">Вилучити теку з застосунку</string>
     <string name="folder_empty_warning">Ім\'я папки не може бути порожнім</string>
     <string name="folder_rename_success">Назву папки змінено</string>
     <string name="folder_not_found">Папку не знайдено</string>
