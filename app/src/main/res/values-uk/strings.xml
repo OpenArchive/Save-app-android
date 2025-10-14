@@ -157,9 +157,9 @@
 
     <string name="btn_lbl_remove_media">Вилучити медіа</string>
     <string name="popup_flag_title">Позначте важливий вміст</string>
-    <string name="popup_flag_desc">Коли ви позначаєте елемент, він поміщається до підпапки у вибраній папці проєкту на приватному сервері.</string>
-    <string name="set_creative_commons_license_for_all_folders_on_this_server">Встановити ліцензування Creative Commons для папок на цьому сервері.</string>
-    <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Задайте однакову ліцензію Creative Commons для ВСІХ папок на цьому сервері.</string>
+    <string name="popup_flag_desc">Коли ви позначаєте елемент, він поміщається до підтеки у вибраній теці проєкту на приватному сервері.</string>
+    <string name="set_creative_commons_license_for_all_folders_on_this_server">Встановити ліцензування Creative Commons для тек на цьому сервері.</string>
+    <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Задайте однакову ліцензію Creative Commons для ВСІХ тек на цьому сервері.</string>
     <string name="you_already_have_a_server_with_these_credentials">У вас уже є сервер із цими обліковими даними</string>
 
 
@@ -201,7 +201,7 @@
     <string name="enter_url"><i>Введіть URL-адресу</i></string>
     <string name="account">Обліковий запис</string>
     <string name="general">Загальні</string>
-    <string name="only_upload_media_when_you_are_connected_to_wi_fi">Вивантажувати медіа тільки коли ви під\'єднані до Wi-Fi</string>
+    <string name="only_upload_media_when_you_are_connected_to_wi_fi">Вивантажувати медіа тільки, коли ви під\'єднані до Wi-Fi</string>
     <string name="security">Безпека</string>
     <string name="proofmode">ProofMode</string>
     <string name="no_webbrowser_found_error">Жоден застосунок не може обробити цей запит. Будь ласка, встановіть веббраузер.</string>
@@ -231,13 +231,13 @@
     <string name="press_and_hold_to_select_and_edit_multiple_media">Натисніть й утримуйте для обрання та редагування декількох медіафайлів.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Після вивантаження медіафайлів втрачається можливість їхнього редагування</string>
     <string name="edit_media_info">Редагувати дані медіафайлу</string>
-    <string name="add_a_location_optional"><i>Додати місцеперебування (опціонально)</i></string>
-    <string name="add_notes_optional"><i>Додати примітки (опціонально)</i></string>
+    <string name="add_a_location_optional"><i>Додати місцеперебування (необов'язково)</i></string>
+    <string name="add_notes_optional"><i>Додати примітки (необов'язково)</i></string>
     <string name="skip">Пропустити</string>
 
 
     <string name="upload_unsuccessful">Не вдалось вивантажити</string>
-    <string name="upload_unsuccessful_description">Не вдалось завантажити через помилку сесії; будь ласка, спробуйте знов або зв\'яжіться з підтримкою.</string>
+    <string name="upload_unsuccessful_description">Не вдалось завантажити через помилку сесії; будь ласка, спробуйте знову або зв\'яжіться з підтримкою.</string>
 
 
     <string name="edit_media">Редагувати медіафайл</string>
@@ -247,7 +247,7 @@
     <string name="files">Файли</string>
 
     <!-- Internet Archive Settings -->
-    <string name="label_email">Email</string>
+    <string name="label_email">Ел. пошта</string>
     <string name="label_screen_name">Ім\'я для показу</string>
     <string name="label_create_login">Створити</string>
     <string name="prompt_no_account">Немає облікового запису\?</string>
@@ -256,9 +256,9 @@
     <string name="pref_title_archive">Архівуйте</string>
     <string name="pref_title_privacy_policy">Умови користування та політика конфіденційності</string>
     <string name="pref_title_media_servers">Сервери медіафайлів</string>
-    <string name="pref_title_media_folders">Архівовані папки</string>
+    <string name="pref_title_media_folders">Архівовані теки</string>
     <string name="pref_summary_media_servers">Керувати власними серверами</string>
-    <string name="pref_summary_media_folders">Керувати вашими архівованими папками</string>
+    <string name="pref_summary_media_folders">Керувати вашими архівованими теками</string>
     <string name="pref_summary_privacy_policy">Читати наші Умови користування та Політику конфіденційності</string>
 
     <!-- General -->
@@ -268,11 +268,11 @@
     <string name="label_got_it">Зрозуміло</string>
 
     <!-- Create New Folder -->
-    <string name="create_folder_ok_message">Ви успішно додали папку.</string>
+    <string name="create_folder_ok_message">Ви успішно додали теку.</string>
     <string name="msg_edit_server_success">Ви успішно змінили налаштування сервера.</string>
     <string name="expand">Відкрити</string>
     <string name="lbl_no_servers">Сервери ще не додано.</string>
-    <string name="lbl_no_archived_folders">Не знайдено архівованих папок.</string>
+    <string name="lbl_no_archived_folders">Не знайдено архівованих тек.</string>
     <string name="error_no_internet">З\'єднання з інтернетом відсутнє</string>
     <string name="save_by_open_archive">Save від OpenArchive</string>
     <string name="discover_the_save_app">Дізнатися більше</string>
