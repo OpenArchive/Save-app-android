@@ -125,7 +125,7 @@
     <!-- Strings related to Settings -->
 
     <string name="tap_to_add">Торкніться кнопки нижче для додавання медіафайлів</string>
-    <string name="tap_to_add_folder">Торкніться кнопки нижче для додавання папки</string>
+    <string name="tap_to_add_folder">Торкніться кнопки нижче для додавання теки</string>
     <string name="tap_to_add_server">Торкніться кнопки нижче для додавання сервера</string>
     <string name="to_get_started_connect_to_a_server_to_store_your_media">Щоб розпочати, під’єднайтесь до сервера для збереження медіа.</string>
     <string name="to_get_started_more_hint_dweb">Ви в будь-який момент можете додавати різні приватні сервери та \nодин обліковий запис Internet Archive або DWeb.</string>
@@ -136,23 +136,23 @@
     <string name="action_next">Вперед</string>
     <string name="action_done">Готово</string>
     <string name="status_flagged">Важливий вміст</string>
-    <string name="select_where_to_store_your_media">Оберіть нову або вже створену папку для збереження у неї ваших файлів.</string>
+    <string name="select_where_to_store_your_media">Оберіть нову або вже наявну теку для збереження у неї ваших файлів.</string>
     <string name="you_have_successfully_connected_to_a_private_server">Ви успішно під’єднались до приватного сервера!</string>
     <string name="you_have_successfully_connected_to_the_internet_archive">Ви успішно під’єднались до Internet Archive!</string>
-    <string name="create_a_new_folder">Створити нову папку</string>
-    <string name="create_new_folder_title">Будь ласка, введіть назву папки</string>
-    <string name="create_new_folder_subtitle">Цю папку буде створено на вашому сервері та додано до Save.</string>
-    <string name="create_new_folder_hint"><i>Введіть назву папки</i></string>
+    <string name="create_a_new_folder">Створити нову теку</string>
+    <string name="create_new_folder_title">Будь ласка, введіть назву теки</string>
+    <string name="create_new_folder_subtitle">Цю теку буде створено на вашому сервері та додано до Save.</string>
+    <string name="create_new_folder_hint"><i>Введіть назву теки</i></string>
     <string name="edit">Змінити</string>
     <string name="menu_done">Готово</string>
     <string name="remove_from_app">Вилучити із застосунку</string>
     <string name="action_remove_project">Ви справді хочете вилучити ваш проєкт\?</string>
     <string name="action_archive_project">Архівувати проєкт</string>
     <string name="action_unarchive_project">Розархівувати проєкт</string>
-    <string name="new_folder">Нова папка</string>
+    <string name="new_folder">Нова тека</string>
     <string name="please_do_not_include_special_characters_in_the_name">Будь ласка, не використовуйте спеціальні символи в назві.</string>
     <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">Ви впевнені, що хочете видалити цей сервер із застосунку\?</string>
-    <string name="folder_name_already_exists">Така папка вже існує.</string>
+    <string name="folder_name_already_exists">Тека з такою назвою вже існує.</string>
     <string name="metadata">Метадані</string>
 
     <string name="btn_lbl_remove_media">Вилучити медіа</string>
@@ -185,15 +185,15 @@
     <string name="uploading_is_paused">Вивантаження призупинено</string>
 
     <!-- Clean Insights measurement -->
-    <string name="server_name_optional"><i>Назва сервера (опціонально)</i></string>
+    <string name="server_name_optional"><i>Назва сервера (необов'язково)</i></string>
     <string name="add_another_account">Додати новий сервер</string>
     <string name="biometrics_title">Розблокувати ключ ProofMode</string>
-    <string name="folders">Папки</string>
-    <string name="create_folder_name">Назвати папку</string>
-    <string name="folder_name">Назва папки</string>
+    <string name="folders">Теки</string>
+    <string name="create_folder_name">Створити назву теки</string>
+    <string name="folder_name">Назва теки</string>
     <string name="create">Створити</string>
     <string name="add">Додати</string>
-    <string name="no_more_folders">Немає (більше) папок</string>
+    <string name="no_more_folders">Немає (більше) тек</string>
 
     <string name="back">Назад</string>
     <string name="my_media">Мої медіафайли</string>
