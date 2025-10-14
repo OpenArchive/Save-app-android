@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.features.main
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Point
@@ -16,6 +17,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.PopupWindow
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -137,6 +139,15 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     private lateinit var reviewManager: ReviewManager
     private var shouldPromptReview = false
 
+    private var inAppUpdateCoordinator: InAppUpdateCoordinator? = null
+
+    private val inAppUpdateLauncher =
+        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+            if (result.resultCode != Activity.RESULT_OK) {
+                AppLogger.w("In-app update flow failed or cancelled: ${result.resultCode}")
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
 //        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -179,7 +190,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
         binding = ActivityMainBinding.inflate(layoutInflater)
 
-
 //        binding.contentMain.imgLogo.applyEdgeToEdgeInsets { insets ->
 //            leftMargin = insets.left
 //            rightMargin = insets.right
@@ -212,6 +222,12 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         setupBottomNavBar()
         setupFolderBar()
         setupBottomSheetObserver()
+
+        inAppUpdateCoordinator = InAppUpdateCoordinator(
+            activity = this,
+            rootView = binding.root,
+            updateLauncher = inAppUpdateLauncher
+        )
 
 
         if (appConfig.isDwebEnabled) {
@@ -275,6 +291,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             }
         }
         // ─────────────────────────────────────────────────────────────────────────
+
+        inAppUpdateCoordinator?.onResume()
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -1029,6 +1047,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     }
 
     override fun onDestroy() {
+        inAppUpdateCoordinator?.onDestroy()
         super.onDestroy()
 
         // Clear pending callbacks/messages
