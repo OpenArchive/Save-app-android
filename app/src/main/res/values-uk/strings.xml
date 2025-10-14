@@ -13,11 +13,11 @@
     <string name="lbl_remove_folder">Видалити теку</string>
     <string name="popup_archive_folder">Архівувати теку</string>
     <string name="popup_remove_folder">Вилучити теку з застосунку</string>
-    <string name="folder_empty_warning">Ім\'я папки не може бути порожнім</string>
-    <string name="folder_rename_success">Назву папки змінено</string>
-    <string name="folder_not_found">Папку не знайдено</string>
-    <string name="folder_removed">Папку видалено</string>
-    <string name="folder_archived">Папку архівовано</string>
+    <string name="folder_empty_warning">Ім\'я теки не може бути порожнім</string>
+    <string name="folder_rename_success">Теку перейменовано</string>
+    <string name="folder_not_found">Теку не знайдено</string>
+    <string name="folder_removed">Теку видалено</string>
+    <string name="folder_archived">Теку архівовано</string>
     <string name="content_picker_label">Додати медіафайли з</string>
     <string name="disable_passcode_dialog_title">Вимкнути код доступу</string>
     <string name="disable_passcode_dialog_msg">Ви впевнені, що хочете вимкнути застосування коду доступу\?</string>
@@ -37,7 +37,7 @@
 
     <string name="license_label">Ліцензія</string>
     <string name="info_license_cc0">Відмовитись від усіх обмежень, вимог та зазначення авторства (CC0).</string>
-    <string name="info_license_deriv">Дозволити будь-кому видозмінювати та поширювати\?</string>
+    <string name="info_license_deriv">Дозволити будь-кому перемішувати та поширювати\?</string>
     <string name="info_license_sharealike">Вимагати від них поширення файлів навзаєм\?</string>
     <string name="info_license_comm">Дозволити комерційне використання\?</string>
 
@@ -52,7 +52,7 @@
 
     <string name="error">Помилка</string>
 
-    <string name="prefs_use_tor_title">Увімкніть маршрутизацію через Onion</string>
+    <string name="prefs_use_tor_title">Увімкнути маршрутизацію через Onion</string>
     <string name="prefs_use_tor_summary">Передавати лише через мережу Tor</string>
 
     <string name="prefs_use_proofmode_title">Увімкнути ProofMode</string>
@@ -74,7 +74,7 @@
 
     <!-- Strings related to login -->
     <string name="prompt_username"><i>Ім'я користувача</i></string>
-    <string name="prompt_email">Email</string>
+    <string name="prompt_email">Ел. пошта</string>
     <string name="prompt_password"><i>Пароль</i></string>
 
     <string name="label_username">\@string/prompt_email</string>
@@ -89,13 +89,13 @@
 
     <string name="importing_media">Імпортуються медіа…</string>
 
-    <string name="title_welcome">Вітаємо</string>
+    <string name="title_welcome">Вітаємо!</string>
 
     <string name="action_privacy">Політика конфіденційності</string>
     <string name="action_about">Про %s</string>
-    <string name="add_a_folder">Додати папку</string>
-    <string name="browse_existing_folders">Переглянути створені папки</string>
-    <string name="browse_existing">Переглянути створені</string>
+    <string name="add_a_folder">Додати теку</string>
+    <string name="browse_existing_folders">Переглянути наявні теки</string>
+    <string name="browse_existing">Переглянути наявні</string>
     <string name="title_activity_upload_manager">Менеджер вивантаження</string>
 
     <string name="uploads">Вивантаження</string>
