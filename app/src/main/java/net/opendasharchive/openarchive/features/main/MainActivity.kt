@@ -138,6 +138,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     private lateinit var reviewManager: ReviewManager
     private var shouldPromptReview = false
+    private var shouldCheckForUpdate = false
 
     private var inAppUpdateCoordinator: InAppUpdateCoordinator? = null
 
@@ -265,6 +266,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         reviewManager = ReviewManagerFactory.create(this)
         InAppReviewHelper.requestReviewInfo(this)
         shouldPromptReview = InAppReviewHelper.onAppLaunched()
+
+        // Set flag to check for app updates on first onResume
+        shouldCheckForUpdate = Prefs.didCompleteOnboarding
     }
 
     override fun onResume() {
@@ -283,7 +287,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         // Only now, after UI is ready, do we fire the in‐app review if needed.
         if (shouldPromptReview) {
             lifecycleScope.launch(Dispatchers.Main) {
-                // Wait a small delay so we don’t interrupt initial load (e.g. 2 seconds).
+                // Wait a small delay so we don't interrupt initial load (e.g. 2 seconds).
                 delay(2_000)
                 InAppReviewHelper.showReviewIfPossible(this@MainActivity, reviewManager)
                 InAppReviewHelper.markReviewDone()
@@ -292,7 +296,17 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         }
         // ─────────────────────────────────────────────────────────────────────────
 
-        inAppUpdateCoordinator?.onResume()
+        // ─────────────────────────────────────────────────────────────────────────
+        // Check for in-app updates after UI is fully loaded and stable.
+        if (shouldCheckForUpdate) {
+            lifecycleScope.launch(Dispatchers.Main) {
+                // Wait longer to ensure all UI initialization is complete (e.g. 3 seconds).
+                delay(3_000)
+                inAppUpdateCoordinator?.onResume()
+                shouldCheckForUpdate = false
+            }
+        }
+        // ─────────────────────────────────────────────────────────────────────────
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
