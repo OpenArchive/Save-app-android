@@ -69,10 +69,11 @@
 
                 <LinearLayout
                     android:id="@+id/folder_info_container_left"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:orientation="horizontal"
+                    app:layout_constraintEnd_toStartOf="@+id/folder_info_container_right"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
@@ -92,12 +93,11 @@
                         app:tint="@color/colorOnBackground" />
 
                     <TextView
-                        android:textFontWeight="600"
-                        android:textSize="16sp"
+                        style="@style/TextAppearance_Save_TitleMedium"
                         android:id="@+id/folder_name"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        tools:text="Folder Name" />
+                        tools:text="Folder Name is very large here that may go beyond edot bttn" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -114,8 +114,8 @@
 
                     <ImageButton
                         android:id="@+id/btn_edit"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:layout_marginHorizontal="16dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/edit"
@@ -181,8 +181,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/lbl_select_media"
-                        android:textFontWeight="600"
-                        android:textSize="16sp" />
+                        style="@style/TextAppearance_Save_TitleMedium" />
 
 
                 </LinearLayout>
@@ -208,7 +207,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:drawablePadding="8dp"
-                        android:text="@string/remove"
+                        android:text="@string/lbl_remove"
                         android:textColor="@color/colorError"
                         android:textFontWeight="600"
                         android:textSize="16sp"
@@ -271,12 +270,12 @@
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_folder_name"
                             android:layout_width="match_parent"
-                            android:layout_height="52dp"
+                            android:layout_height="wrap_content"
                             android:imeOptions="actionDone"
                             android:maxLines="1"
                             android:singleLine="true"
-                            android:textFontWeight="600"
-                            android:textSize="16sp" />
+                            tools:text="121212 asdas asdasdas das"
+                            style="@style/TextAppearance_Save_TitleMedium" />
 
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>

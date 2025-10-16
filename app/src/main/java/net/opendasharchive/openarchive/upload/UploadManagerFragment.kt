@@ -130,7 +130,7 @@ open class UploadManagerFragment : SKBottomSheetDialogFragment() {
             title = UiText.StringResource(R.string.upload_unsuccessful)
             message = UiText.StringResource(R.string.upload_unsuccessful_description)
             positiveButton {
-                text = UiText.StringResource(R.string.retry)
+                text = UiText.StringResource(R.string.lbl_retry)
                 action = {
                     mediaItem.apply {
                         sStatus = Media.Status.Queued

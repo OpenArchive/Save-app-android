@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.features.spaces
 
+import android.content.res.Configuration
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -29,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.opendasharchive.openarchive.R
@@ -50,7 +52,7 @@ fun ServerOptionItem(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.background
         ),
-        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.onBackground),
+        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(8.dp)
     ) {
 
@@ -83,19 +85,28 @@ fun ServerOptionItem(
                 modifier = Modifier
                     .align(Alignment.Top)
                     .weight(1f),
-                verticalArrangement = Arrangement.Top
+                verticalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.Top)
             ) {
                 Text(
                     text = title,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 18.sp
+                    )
                 )
 
-                Text(
-                    text = subtitle,
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 14.sp
-                )
+                Row {
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+                    Spacer(modifier = Modifier.weight(0.5f))
+                }
             }
 
             Icon(
@@ -111,7 +122,7 @@ fun ServerOptionItem(
     }
 }
 
-@Preview
+@PreviewLightDark
 @Composable
 private fun ServerOptionItemPreview() {
     DefaultBoxPreview {
@@ -129,7 +140,7 @@ private fun ServerOptionItemPreview() {
     }
 }
 
-@Preview
+@PreviewLightDark
 @Composable
 private fun ServerOptionsItemPreview() {
     DefaultBoxPreview {

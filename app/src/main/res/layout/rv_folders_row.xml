@@ -25,6 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginHorizontal="10dp"
+        android:fontFamily="@font/montserrat_semi_bold"
         android:gravity="center_vertical"
         android:textSize="18sp" />
 

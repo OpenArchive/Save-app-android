@@ -27,6 +27,6 @@ val internetArchiveModule = module {
     factory { InternetArchiveMapper() }
     factory { InternetArchiveRepository(get(), get(), get()) }
     factory { args -> InternetArchiveLoginUseCase(get(), get(), args.get()) }
-    viewModel { args -> InternetArchiveDetailsViewModel(get(), args.get()) }
-    viewModel { args -> InternetArchiveLoginViewModel(get(), args.get()) }
+    viewModel { InternetArchiveDetailsViewModel(get(), get()) }
+    viewModel { InternetArchiveLoginViewModel(get()) }
 }

@@ -120,7 +120,8 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
                     }
 
                     R.id.action_upload_camera -> {
-                        Picker.takePhoto(this@PreviewActivity, mediaLaunchers.cameraLauncher)
+                        //Picker.takePhoto(this@PreviewActivity, mediaLaunchers.cameraLauncher)
+                        Picker.takePhotoModern(this@PreviewActivity, mediaLaunchers.modernCameraLauncher)
                     }
 
                     R.id.action_upload_files -> {
@@ -145,7 +146,7 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
                 when (action) {
                     AddMediaType.CAMERA -> {
 //                        permissionManager.checkCameraPermission {
-                            Picker.takePhoto(this@PreviewActivity, mediaLaunchers.cameraLauncher)
+                            Picker.takePhotoModern(this@PreviewActivity, mediaLaunchers.modernCameraLauncher)
 //                        }
 
                     }

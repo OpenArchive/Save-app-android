@@ -1,4 +1,4 @@
-package net.opendasharchive.openarchive.services.webdav
+package net.opendasharchive.openarchive.features.settings.license
 
 import android.os.Bundle
 import android.text.Editable
@@ -7,23 +7,23 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
-import androidx.core.os.bundleOf
 import androidx.core.view.WindowInsetsCompat
-import androidx.fragment.app.setFragmentResult
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.databinding.FragmentWebdavSetupLicenseBinding
+import net.opendasharchive.openarchive.databinding.FragmentSetupLicenseBinding
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
-import kotlin.properties.Delegates
 
-class WebDavSetupLicenseFragment: BaseFragment() {
+class SetupLicenseFragment : BaseFragment() {
 
-    private lateinit var binding: FragmentWebdavSetupLicenseBinding
 
-    private var mSpaceId by Delegates.notNull<Long>()
+    private val args: SetupLicenseFragmentArgs by navArgs()
+
+    private lateinit var binding: FragmentSetupLicenseBinding
+
 
     private lateinit var mSpace: Space
 
@@ -33,7 +33,7 @@ class WebDavSetupLicenseFragment: BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        binding = FragmentWebdavSetupLicenseBinding.inflate(layoutInflater)
+        binding = FragmentSetupLicenseBinding.inflate(layoutInflater)
 
         binding.buttonBar.applyEdgeToEdgeInsets(
             typeMask = WindowInsetsCompat.Type.navigationBars()
@@ -41,35 +41,53 @@ class WebDavSetupLicenseFragment: BaseFragment() {
             bottomMargin = insets.bottom
         }
 
-        mSpaceId = arguments?.getLong(ARG_SPACE_ID)!!
-        mSpace = Space.get(mSpaceId) ?: Space(Space.Type.WEBDAV)
+        mSpace = Space.get(args.spaceId) ?: Space(Space.Type.WEBDAV)
 
-        val isEditing = arguments?.getBoolean(ARG_IS_EDITING) ?: false
-
-        if(isEditing) {
+        if (args.isEditing) {
             // Editing means hide subtitle, bottom bar buttons
             binding.buttonBar.visibility = View.GONE
             binding.descriptionText.visibility = View.GONE
         } else {
-            binding.btCancel.visibility = View.INVISIBLE
+            binding.btCancel.visibility = View.GONE
         }
 
+        if (args.spaceType == Space.Type.INTERNET_ARCHIVE) {
+            binding.serverNameLayout.visibility = View.GONE
+            binding.descriptionText.text = getString(R.string.choose_license)
+        } else {
+            binding.serverNameLayout.visibility = View.VISIBLE
+            binding.descriptionText.text = getString(R.string.name_your_server)
+        }
 
         binding.btNext.setOnClickListener {
-            if (isJetpackNavigation) {
-                val action = WebDavSetupLicenseFragmentDirections.actionFragmentWebDavSetupLicenseToFragmentSpaceSetupSuccess(message = getString(R.string.you_have_successfully_connected_to_a_private_server))
-                findNavController().navigate(action)
-            } else {
-                setFragmentResult(RESP_SAVED, bundleOf())
+            when (args.spaceType) {
+                Space.Type.WEBDAV -> {
+                    val message =
+                        getString(R.string.you_have_successfully_connected_to_a_private_server)
+                    val action =
+                        SetupLicenseFragmentDirections.actionFragmentSetupLicenseToFragmentSpaceSetupSuccess(
+                            message
+                        )
+                    findNavController().navigate(action)
+                }
+
+                Space.Type.INTERNET_ARCHIVE -> {
+                    val message =
+                        getString(R.string.you_have_successfully_connected_to_the_internet_archive)
+                    val action =
+                        SetupLicenseFragmentDirections.actionFragmentSetupLicenseToFragmentSpaceSetupSuccess(
+                            message
+                        )
+                    findNavController().navigate(action)
+                }
+
+                else -> Unit
             }
+
         }
 
         binding.btCancel.setOnClickListener {
-            if (isJetpackNavigation) {
-                findNavController().popBackStack()
-            } else {
-                setFragmentResult(RESP_CANCEL, bundleOf())
-            }
+            findNavController().popBackStack()
         }
 
         binding.cc.tvCcLabel.setText(R.string.set_creative_commons_license_for_all_folders_on_this_server)
@@ -80,9 +98,7 @@ class WebDavSetupLicenseFragment: BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val isEditing = arguments?.getBoolean(ARG_IS_EDITING) ?: false
-
-        if(isEditing) {
+        if (args.isEditing) {
             // Editing means hide subtitle, bottom bar buttons
             binding.name.setText(mSpace.name)
         }
@@ -112,33 +128,20 @@ class WebDavSetupLicenseFragment: BaseFragment() {
             space.save()
         }
 
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true){
-            override fun handleOnBackPressed() {
-                // do nothing
-            }
-        })
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    // do nothing
+                }
+            })
     }
 
-    companion object {
+    override fun getToolbarTitle() =
+        if (args.spaceType == Space.Type.INTERNET_ARCHIVE) getString(R.string.internet_archive) else getString(
+            R.string.private_server
+        )
 
-        // events emitted by this fragment
-        const val RESP_SAVED = "webdav_setup_license_fragment_resp_saved"
-        const val RESP_CANCEL = "webdav_setup_license_fragment_resp_cancel"
-
-        const val ARG_SPACE_ID = "space_id"
-        const val ARG_IS_EDITING = "is_editing"
-
-        @JvmStatic
-        fun newInstance(spaceId: Long, isEditing: Boolean) = WebDavSetupLicenseFragment().apply {
-            arguments = Bundle().apply {
-                // add any arguments here
-                putLong(ARG_SPACE_ID, spaceId)
-                putBoolean(ARG_IS_EDITING, isEditing)
-            }
-        }
-    }
-
-    override fun getToolbarTitle() = getString(R.string.private_server)
     override fun getToolbarSubtitle(): String? = null
     override fun shouldShowBackButton() = false
 }

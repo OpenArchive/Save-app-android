@@ -47,7 +47,7 @@ import me.zhanghai.compose.preference.switchPreference
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.ComposeAppBar
+import net.opendasharchive.openarchive.features.core.ComposeAppBar
 import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
 
 @Composable

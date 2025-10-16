@@ -1,7 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import java.io.FileInputStream
-import java.text.SimpleDateFormat
 import java.util.Properties
 
 plugins {
@@ -34,7 +33,7 @@ kotlin {
     compilerOptions {
 
         jvmTarget.set(JvmTarget.JVM_17)
-        languageVersion.set(KotlinVersion.KOTLIN_2_1)
+        languageVersion.set(KotlinVersion.KOTLIN_2_2)
     }
 }
 
@@ -42,7 +41,7 @@ kotlin {
     compilerOptions {
 
         jvmTarget.set(JvmTarget.JVM_17)
-        languageVersion.set(KotlinVersion.KOTLIN_2_1)
+        languageVersion.set(KotlinVersion.KOTLIN_2_2)
     }
 }
 
@@ -59,7 +58,7 @@ android {
         applicationId = "net.opendasharchive.openarchive"
         minSdk = 29
         targetSdk = 36
-        versionCode = 30016
+        versionCode = 30020
         versionName = "4.0.2"
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
@@ -84,14 +83,34 @@ android {
             signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
             isShrinkResources = false
-            applicationIdSuffix = ".release"
             proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
 
         getByName("debug") {
             signingConfig = signingConfigs.getByName("debug")
-            applicationIdSuffix = ".debug"
             isMinifyEnabled = false
+        }
+    }
+
+    flavorDimensions += "env"
+
+    productFlavors {
+
+        create("dev") {
+            dimension = "env"
+            versionNameSuffix = "-dev"
+            applicationIdSuffix = ".debug"
+        }
+
+        create("staging") {
+            dimension = "env"
+            versionNameSuffix = "-staging"
+            applicationIdSuffix = ".debug"
+        }
+
+        create("prod") {
+            dimension = "env"
+            applicationIdSuffix = ".release"
         }
     }
 

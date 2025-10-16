@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="title_activity_login">Accedi</string>
-    <string name="title_media_list">Upload</string>
-
     <!-- Alert Values -->
 
     <string name="action_settings">Impostazioni</string>
@@ -26,11 +23,6 @@
 
     <string name="error">Errore</string>
 
-    <string name="prefs_prohibit_screenshots_title">Blocca acquisizione schermate</string>
-    <string name="prefs_user_interface_title">Presentazione</string>
-    <string name="prefs_theme_title">Tema</string>
-    <string name="prefs_theme_light">Chiaro</string>
-    <string name="prefs_theme_dark">Scuro</string>
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
@@ -53,25 +45,18 @@
     <string name="edit">Modifica</string>
     <string name="menu_done">Fatto</string>
     <string name="remove_from_app">Rimuovi dall\' App</string>
-    <string name="remove">Rimuovi</string>
+    <string name="lbl_remove">Rimuovi</string>
     <string name="action_archive_project">Archivia Progetto</string>
     <string name="action_unarchive_project">Progetto inerente</string>
-    <string name="access_key">Chiave d\'accesso</string>
-    <string name="secret_key">Chiave Segreta</string>
-    <string name="action_acquire_keys">Acquisisci Chiavi</string>
     <string name="new_folder">Nuova cartella</string>
-    <string name="dropbox">Dropbox</string>
     <string name="metadata">Metadati</string>
 
     <string name="popup_flag_title">Segnala Contenuto Significativo</string>
     <string name="popup_flag_desc">Quando segnali un elemento, è instradato in una sottocartella all\'interno della cartella di progetto scelto nel server privato.</string>
 
-    <string name="action_install">Installa</string>
     <string name="folders">cartelle</string>
     <string name="create">Crea</string>
     <string name="add">Aggiungi</string>
-    <string name="upload_to_dropbox">Carica su Dropbox</string>
-    <string name="authenticate">Autenticato</string>
     <string name="back">Indietro</string>
     <string name="account">Account</string>
     <string name="general">Generale</string>
@@ -85,12 +70,9 @@
     <string name="select_all">Seleziona tutto</string>
     <string name="lbl_got_it">Ho capito</string>
     <string name="skip">Salta</string>
-    <string name="add_files">Aggiungi file</string>
 
-    <string name="retry">Riprova</string>
+    <string name="lbl_retry">Riprova</string>
 
     <string name="files">File</string>
-    <string name="no_thanks">No grazie</string>
-    <string name="undo">Annulla</string>
 
 </resources>

@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:clickable="true"
     android:focusable="true"
-    android:paddingHorizontal="24dp"
+    android:paddingHorizontal="32dp"
     android:filterTouchesWhenObscured="true"
     android:orientation="horizontal"
     android:paddingVertical="16dp">
@@ -24,6 +24,7 @@
         android:layout_gravity="center_vertical"
         android:layout_marginHorizontal="10dp"
         android:gravity="center_vertical"
+        android:fontFamily="@font/montserrat_semi_bold"
         android:textColor="@color/colorOnBackground"
         tools:text="Text FPO" />
 

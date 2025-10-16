@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="title_activity_login">Entrar</string>
     <string name="title_activity_first_start">Iniciar pela primeira vez</string>
-    <string name="title_media_list">Transferências </string>
 
     <!-- Alert Values -->
 
@@ -14,7 +12,6 @@
     <!-- MainFragment -->
 
     <!-- ViewMediaActivity -->
-    <string name="iv_content_desc">Imagem Principal</string>
 
     <!-- Errors -->
 
@@ -38,11 +35,6 @@
 
     <string name="error">Erro</string>
 
-    <string name="prefs_prohibit_screenshots_title">Bloquear capturas de tela</string>
-    <string name="prefs_user_interface_title">Apresentação</string>
-    <string name="prefs_theme_title">Tema</string>
-    <string name="prefs_theme_light">Claro</string>
-    <string name="prefs_theme_dark">Escuro</string>
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
@@ -63,15 +55,13 @@
     <string name="action_done">Pronto</string>
     <string name="edit">Editar</string>
     <string name="menu_done">Pronto</string>
-    <string name="remove">Remover</string>
+    <string name="lbl_remove">Remover</string>
     <string name="new_folder">Nova Pasta</string>
     <string name="metadata">Metadados</string>
 
-    <string name="action_install">Instalar</string>
     <string name="folders">Pastas</string>
     <string name="create">Criar</string>
     <string name="add">Adicionar</string>
-    <string name="authenticate">Autenticar</string>
     <string name="back">Voltar</string>
     <string name="account">Conta</string>
     <string name="general">Geral</string>
@@ -83,11 +73,9 @@
     <string name="select_all">Selecionar todos</string>
     <string name="lbl_got_it">Entendi</string>
     <string name="skip">Pular</string>
-    <string name="retry">Tentar novamente</string>
+    <string name="lbl_retry">Tentar novamente</string>
 
     <string name="edit_media">Editar Média </string>
     <string name="files">Arquivos</string>
-    <string name="no_thanks">Não, obrigado!</string>
-    <string name="undo">Desfazer</string>
 
 </resources>
