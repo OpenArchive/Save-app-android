@@ -8,15 +8,13 @@ import java.io.IOException
 import kotlin.Throws
 
 class BasicAuthInterceptor(user: String?, password: String?) : Interceptor {
-    private val credentials: String
+    private val credentials: String = basic(user!!, password!!)
+
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         val request: Request = chain.request()
         val authenticatedRequest = request.newBuilder()
             .header("Authorization", credentials).build()
         return chain.proceed(authenticatedRequest)
-    }
-    init {
-        credentials = basic(user!!, password!!)
     }
 }

@@ -243,7 +243,7 @@ dependencies {
     // adding web dav support: https://github.com/thegrizzlylabs/sardine-android'
     //implementation(libs.guardianproject.sardine)
     //implementation(libs.thegrizzlylabs.sardine)
-    implementation("com.github.elelan:sardine-android:0.1.0-alpha03")
+    implementation("com.github.elelan:sardine-android:0.1.0-alpha05")
 
 
 
