@@ -207,10 +207,10 @@
     <string name="no_webbrowser_found_error">Ninguna aplicación puede manejar esta solicitud. Por favor instala un navegador web.</string>
 
     <string name="intro_text_secure">Envía tus medios de manera segura a servidores privados y bloquea la app con un pin.</string>
-    <string name="intro_text_archive"><![CDATA[Sube medios a Nextcloud o a Internet Archive para mantener tus medios verificables, seguros y organizados a largo plazo.<br><br>Elige<a href=\"%1$s\"><u>Lincencias Creative Commons</u></a>]]></string>
+    <string name="intro_text_archive"><![CDATA[Sube medios a Nextcloud o a Internet Archive para mantener tus medios verificables, seguros, y organizados a largo plazo.<br><br>Elige<a href=\"%1$s\"><u>Licencias Creative Commons.</u></a>]]></string>
 
     <string name="intro_text_verify"><![CDATA[Autentica y verifica tus medios con hashes sha256 y <a href=\"%1$s\"><u>ProofMode.</u></a>]]> </string>
-    <string name="intro_text_encrypt">&lt;![CDATA[&lt;b&gt;&lt;i&gt;Save&lt;/i&gt;&lt;/b&gt; siempre sube sobre TLS (Seguridad de la Capa de Transporte) para proteger tus medios en tránsito. &lt;br&gt;Para mejorar aún más la seguridad, habilita&lt;a href=\"%1$s\"&gt;&lt;u&gt;Tor&lt;/u&gt;&lt;/a&gt; para prevenir la intercepción de tus medios desde tu teléfono hacia el servidor.</string>
+    <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> siempre sube sobre TLS (Seguridad de la Capa de Transporte) para proteger tus medios en tránsito. <br>Para mejorar aún más la seguridad, habilita<a href=\"%1$s\"><u>Tor</u></a> para prevenir la intercepción de tus medios desde tu teléfono hacia el servidor.]]></string>
     <string name="next">Seguir</string>
     <string name="done">Listo</string>
     <string name="secure_mobile_media_preservation">Preservación Segura de Medios Móviles</string>
@@ -274,7 +274,7 @@
     <string name="lbl_no_servers">Aún no se han añadido servidores.</string>
     <string name="lbl_no_archived_folders">No se han encontrado carpetas.</string>
     <string name="error_no_internet">No hay internet disponible</string>
-    <string name="save_by_open_archive">Salva el OpenArchive</string>
+    <string name="save_by_open_archive">Save por OpenArchive</string>
     <string name="discover_the_save_app">Más información</string>
 
     </resources>
