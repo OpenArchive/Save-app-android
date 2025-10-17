@@ -3,7 +3,7 @@
     <string name="title_activity_first_start">Primer Inicio</string>
     <string name="action_settings">Configuración</string>
     <string name="internet_archive">Internet Archive</string>
-    <string name="internet_archive_description">Sube tus medios a una cuenta de pública gratuita en Internet Archive.</string>
+    <string name="internet_archive_description">Sube tus medios a una cuenta gratuita pública en Internet Archive.</string>
     <string name="dweb_title">Servicio DWeb</string>
     <string name="dweb_description">Conectar a la \nweb descentralizada</string>
     <string name="servers">Servidores</string>
@@ -130,8 +130,8 @@
     <string name="to_get_started_connect_to_a_server_to_store_your_media">Para empezar, conéctate a un servidor para almacenar tus archivos multimedia. </string>
     <string name="to_get_started_more_hint_dweb">Puedes agregar varios servidores privados y\nuna cuenta de servidor IA o DWeb en cualquier momento.</string>
     <string name="to_get_started_more_hint">Puedes agregar varios servidores privados y\nuna cuenta de IA en cualquier momento.</string>
-    <string name="send_directly_to_a_private_server">Conectar a un servidor \nWebDAV seguro</string>
-    <string name="upload_to_the_internet_archive">Conéctate a un gratuito \nservidor público</string>
+    <string name="send_directly_to_a_private_server">Conectar a un  \nservidor WebDAV seguro</string>
+    <string name="upload_to_the_internet_archive">Conéctate a un  \nservidor público gratuito</string>
     <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">Conectar con servidores compatibles con WebDAV, p. ej. Nextcloud y ownCloud.</string>
     <string name="action_next">Seguir</string>
     <string name="action_done">Listo</string>
