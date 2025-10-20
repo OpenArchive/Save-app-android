@@ -56,7 +56,7 @@
     <string name="prefs_use_tor_summary">Ne transférer que par le Réseau Tor</string>
 
     <string name="prefs_use_proofmode_title">Activer ProofMode</string>
-    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode est un moyen d\'améliorer l\'authentification et la vérification du contenu multimédia. <a href=\"%1$s\"><u>Apprenez-en plus ici.</u></a>]]></string>
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode est un moyen d\'améliorer l\'authentification et la vérification du contenu multimédia. <a href=\"%1$s\"><u>Pour en savoir plus cliquez ici.</u></a>]]></string>
 
     <string name="proof_mode_warning_text"><![CDATA[
     Pour aider à vérifier où votre média a été capturé, ProofMode recueille des données auprès des antennes-relais proches afin de corroborer votre position. Pour ajouter de la crédibilité et du contexte, il inclut ensuite un fichier de métadonnées séparé avec votre média*. Android requiert l\'accès à la localisation pour collecter ces informations.<br/><br/>
@@ -140,7 +140,7 @@
     <string name="you_have_successfully_connected_to_a_private_server">La connexion au serveur privé est établie</string>
     <string name="you_have_successfully_connected_to_the_internet_archive">La connexion à « Internet Archive » est établie</string>
     <string name="create_a_new_folder">Créer un nouveau dossier</string>
-    <string name="create_new_folder_title">Veuillez nommer votre dossier</string>
+    <string name="create_new_folder_title">Nommez votre dossier</string>
     <string name="create_new_folder_subtitle">Ce dossier sera créé sur votre serveur et ajouté à Enregistrer.</string>
     <string name="create_new_folder_hint"><i>Entrez le nom du dossier</i></string>
     <string name="edit">Modifier</string>
