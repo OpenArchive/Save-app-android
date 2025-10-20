@@ -207,9 +207,9 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="no_webbrowser_found_error">Aucune appli ne peut traiter cette demande. Installez un navigateur Web.</string>
 
     <string name="intro_text_secure">Envoyez vos médias vers des serveurs privés en toute sécurité et verrouillez l’appli avec un code.</string>
-    <string name="intro_text_archive"><![CDATA[Téléchargez des médias sur Nextcloud ou Internet Archive pour conserver vos médias vérifiables, sécurisés et organisés à long terme.<br><br>Choisissez<a href=\"%1$s\"><u>une licence Creative Commons.</u></a>]]></string>
+    <string name="intro_text_archive"><![CDATA[Téléversez vos médias sur Nextcloud ou Internet Archive afin qu\'ils restent vérifiables, sécurisés et organisés à long terme.<br><br>Choisissez<a href=\"%1$s\"><u> une licence Creative Commons.</u></a>]]></string>
 
-    <string name="intro_text_verify"><![CDATA[Authentifiez et vérifiez vos médias avec les hachages sha256 et <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
+    <string name="intro_text_verify"><![CDATA[Authentifiez et vérifiez vos médias grâce aux hachages sha256 et <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
     <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> télécharge toujours via TLS (Transport Layer Security) pour protéger vos médias pendant leur transit.<br>Pour renforcer davantage la sécurité, activez <a href=\"%1$s\"><u>Tor</u></a> afin d\'empêcher l\'interception de vos médias entre votre téléphone et le serveur.]]></string>
     <string name="next">Suivant</string>
     <string name="done">Terminé</string>
@@ -275,6 +275,6 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="lbl_no_archived_folders">Aucun dossier archivé.</string>
     <string name="error_no_internet">Aucune connexion à Internet</string>
     <string name="save_by_open_archive">Save par OpenArchive</string>
-    <string name="discover_the_save_app">En apprendre davantage</string>
+    <string name="discover_the_save_app">En savoir plus</string>
 
     </resources>
