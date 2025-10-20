@@ -59,9 +59,9 @@
     <string name="prefs_use_proofmode_description"><![CDATA[ProofMode est un moyen d\'améliorer l\'authentification et la vérification du contenu multimédia. <a href=\"%1$s\"><u>Pour en savoir plus cliquez ici.</u></a>]]></string>
 
     <string name="proof_mode_warning_text"><![CDATA[
-    Pour aider à vérifier où votre média a été capturé, ProofMode recueille des données auprès des antennes-relais proches afin de corroborer votre position. Pour ajouter de la crédibilité et du contexte, il inclut ensuite un fichier de métadonnées séparé avec votre média*. Android requiert l\'accès à la localisation pour collecter ces informations.<br/><br/>
-    <b>*Ni <i>Save</i> ni <i>OpenArchive</i> ne pourront accéder ou stocker ces données de localisation, elles ne seront accessibles qu\'à ceux qui ont accès aux fichiers du serveur.</b>
-    ]]>\n    \n</string>
+Pour vous permettre de vérifier où votre média a été enregistré, ProofMode recueille des données auprès des tours satellites situées à proximité et ce afin de confirmer votre position. Pour renforcer la crédibilité et le contexte de votre média, ProofMode ajoute un fichier de métadonnées indépendant à votre média*. À savoir: Android nécessite l\'accès à votre position pour recueillir ces informations.<br/><br/>
+<b>*Ni <i>Save </i>ni<i> OpenArchive</i> ne pourront accéder à ces données de localisation ni les stocker. Seules les personnes ayant accès aux fichiers du serveur pourront le faire.
+]]>\n</string>
 
     <string name="prefs_share_proofmode_title">Identité ProofMode</string>
     <string name="prefs_share_proofmode_summary">Partager la clé publique ProofMode </string>
@@ -119,7 +119,7 @@
 
     <string name="confirm_passcode">Confirmer le code d’accès</string>
     <string name="set_passcode">Définir le code d’accès</string>
-    <string name="set_passcode_warning">Assurez-vous de vous souvenir de ce code PIN. Si vous l\'oubliez, vous devrez réinitialiser l\'application, et toutes les données de l\'application seront effacées.</string>
+    <string name="set_passcode_warning">Mémorisez ce code. Si vous l’oubliez, vous devrez réinitialiser l’appli et toutes les données seront effacées.</string>
 
 
     <!-- Strings related to Settings -->
@@ -127,22 +127,22 @@
     <string name="tap_to_add">Toucher le bouton ci-dessous pour ajouter un média</string>
     <string name="tap_to_add_folder">Toucher le bouton ci-dessous pour ajouter un dossier</string>
     <string name="tap_to_add_server">Toucher le bouton ci-dessous pour ajouter un serveur</string>
-    <string name="to_get_started_connect_to_a_server_to_store_your_media">Pour commencer, connectez-vous à un serveur pour stocker vos médias.</string>
+    <string name="to_get_started_connect_to_a_server_to_store_your_media">Pour commencer, connectez-vous à un serveur afin d\'y stocker vos médias.</string>
     <string name="to_get_started_more_hint_dweb">Vous pouvez à tout moment ajouter plusieurs\nserveurs privés et un compte de serveur IA ou DWeb.</string>
     <string name="to_get_started_more_hint">Vous pouvez à tout moment ajouter plusieurs\nserveurs privés et un compte de serveur IA.</string>
-    <string name="send_directly_to_a_private_server">Se connecter à un serveur\nWebDAV sécurisé</string>
+    <string name="send_directly_to_a_private_server">Connectez-vous à un serveur\nWebDAV sécurisé</string>
     <string name="upload_to_the_internet_archive">Connectez-vous à un serveur\npublic gratuit</string>
     <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">Connectez-vous à des serveurs compatibles avec WebDAV, p. ex. Nextcloud ou ownCloud.</string>
     <string name="action_next">Suivant</string>
     <string name="action_done">Terminé</string>
     <string name="status_flagged">Contenu important</string>
-    <string name="select_where_to_store_your_media">Choisissez un dossier nouveau ou existant pour enregistrer votre média.</string>
+    <string name="select_where_to_store_your_media">Choisissez un dossier nouveau ou existant pour y enregistrer votre média.</string>
     <string name="you_have_successfully_connected_to_a_private_server">La connexion au serveur privé est établie</string>
     <string name="you_have_successfully_connected_to_the_internet_archive">La connexion à « Internet Archive » est établie</string>
     <string name="create_a_new_folder">Créer un nouveau dossier</string>
     <string name="create_new_folder_title">Nommez votre dossier</string>
     <string name="create_new_folder_subtitle">Ce dossier sera créé sur votre serveur et ajouté à Enregistrer.</string>
-    <string name="create_new_folder_hint"><i>Entrez le nom du dossier</i></string>
+    <string name="create_new_folder_hint"><i>Saisissez le nom du dossier</i></string>
     <string name="edit">Modifier</string>
     <string name="menu_done">Terminé</string>
     <string name="remove_from_app">Supprimer de l’appli</string>
@@ -169,7 +169,7 @@
     <string name="private_server">Serveur privé</string>
 
     <string name="unsaved_changes">Des changements ne sont pas enregistrés !</string>
-    <string name="do_you_want_to_save">Voulez-vous les enregistrer \?</string>
+    <string name="do_you_want_to_save">Voulez-vous enregistrer \?</string>
     <string name="lbl_save">Enregistrer</string>
     <string name="lbl_discard">Abandonner</string>
 
