@@ -141,7 +141,7 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="you_have_successfully_connected_to_the_internet_archive">La connexion à « Internet Archive » est établie</string>
     <string name="create_a_new_folder">Créer un nouveau dossier</string>
     <string name="create_new_folder_title">Nommez votre dossier</string>
-    <string name="create_new_folder_subtitle">Ce dossier sera créé sur votre serveur et ajouté à Enregistrer.</string>
+    <string name="create_new_folder_subtitle">Ce dossier sera créé sur votre serveur et ajouté à Save.</string>
     <string name="create_new_folder_hint"><i>Saisissez le nom du dossier</i></string>
     <string name="edit">Modifier</string>
     <string name="menu_done">Terminé</string>
@@ -170,7 +170,7 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
 
     <string name="unsaved_changes">Des changements ne sont pas enregistrés !</string>
     <string name="do_you_want_to_save">Voulez-vous enregistrer \?</string>
-    <string name="lbl_save">Enregistrer</string>
+    <string name="lbl_save">Save</string>
     <string name="lbl_discard">Abandonner</string>
 
     <!-- WebDAV setup License -->
