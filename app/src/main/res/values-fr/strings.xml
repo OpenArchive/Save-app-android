@@ -3,9 +3,9 @@
     <string name="title_activity_first_start">Lancement initial</string>
     <string name="action_settings">Paramètres</string>
     <string name="internet_archive">« Internet Archive »</string>
-    <string name="internet_archive_description">Téléchargez vos médias sur un compte public gratuit sur l\'Internet Archive.</string>
+    <string name="internet_archive_description">Téléversez vos médias vers un compte public gratuit sur internet Archive.</string>
     <string name="dweb_title">Service DWeb</string>
-    <string name="dweb_description">Connectez-vous au web décentralisé</string>
+    <string name="dweb_description">Connectez-vous\nau web décentralisé</string>
     <string name="servers">Serveurs</string>
     <string name="add_server">Ajouter un serveur</string>
     <string name="lbl_rename_folder">Renommer le dossier</string>
@@ -22,7 +22,7 @@
     <string name="disable_passcode_dialog_title">Désactiver le code d’accès</string>
     <string name="disable_passcode_dialog_msg">Voulez-vous vraiment désactiver le code d’accès \?</string>
     <string name="tor_disabled_title">Routage en oignon en cours de développement</string>
-    <string name="tor_disabled_message">Cette fonctionnalité est actuellement en cours de développement. Pour l\'instant, vous pouvez utiliser Orbot ou tout autre VPN de votre choix pour améliorer votre confidentialité et votre sécurité.</string>
+    <string name="tor_disabled_message">Cette fonctionnalité est actuellement en phase de développement. En attendant, pour améliorer le niveau de confidentialité et de sécurité de vos communications, vous pouvez utiliser Orbot ou n\'importe quel autre VPN de votre choix.</string>
     <string name="tor_download_btn_label">Télécharger Orbot</string>
 
 
