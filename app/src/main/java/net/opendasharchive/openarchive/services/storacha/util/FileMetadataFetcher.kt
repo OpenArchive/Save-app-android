@@ -19,9 +19,9 @@ enum class FileType(
     val iconRes: Int,
 ) {
     IMAGE(R.drawable.ic_image_gallery_line),
-    VIDEO(R.drawable.ic_videocam_black_24dp),
+    VIDEO(R.drawable.ic_video_document),
     AUDIO(R.drawable.audio_waveform),
-    PDF(R.drawable.ic_pdf),
+    PDF(R.drawable.ic_pdf_document),
     DOCUMENT(R.drawable.ic_unknown_file),
     UNKNOWN(R.drawable.ic_unknown_file),
 }
