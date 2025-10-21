@@ -68,8 +68,7 @@ import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
-import net.opendasharchive.openarchive.services.storacha.util.DidManager
-import net.opendasharchive.openarchive.services.storacha.util.StorachaAccountManager
+import net.opendasharchive.openarchive.services.storacha.util.StorachaHelper
 import net.opendasharchive.openarchive.upload.UploadManagerFragment
 import net.opendasharchive.openarchive.upload.UploadService
 import net.opendasharchive.openarchive.util.InAppReviewHelper
@@ -780,7 +779,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         }
 
         val spaces = Space.getAll().asSequence().toMutableList()
-        if (DidManager(this).hasDid()) {
+        if (StorachaHelper.shouldEnableStorachaAccess(this)) {
             spaces.add(Space(type = Space.Type.STORACHA.id, name = "Storacha Service"))
         }
         mSpaceAdapter.update(spaces)
@@ -942,9 +941,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        val accountManager = StorachaAccountManager(this)
         val shouldShowSideMenu =
-            (Space.current != null && mCurrentPagerItem != mPagerAdapter.settingsIndex) || DidManager(this).hasDid()
+            (Space.current != null && mCurrentPagerItem != mPagerAdapter.settingsIndex) || StorachaHelper.shouldEnableStorachaAccess(this)
         menu?.findItem(R.id.menu_folders)?.apply {
             isVisible = shouldShowSideMenu
         }

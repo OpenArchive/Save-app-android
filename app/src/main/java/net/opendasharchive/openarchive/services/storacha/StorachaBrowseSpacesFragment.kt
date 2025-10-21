@@ -11,6 +11,7 @@ import net.opendasharchive.openarchive.databinding.FragmentStorachaBrowseSpacesB
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.services.storacha.util.DidManager
 import net.opendasharchive.openarchive.services.storacha.util.StorachaAccountManager
+import net.opendasharchive.openarchive.services.storacha.util.StorachaHelper
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaBrowseSpacesViewModel
 import net.opendasharchive.openarchive.util.extensions.toggle
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -63,6 +64,12 @@ class StorachaBrowseSpacesFragment : BaseFragment() {
 
         viewModel.spaces.observe(viewLifecycleOwner) { list ->
             mBinding.projectsEmpty.toggle(list.isEmpty())
+
+            // Store space count in SharedPreferences for access checks
+            // Only count spaces where user is not admin (joined spaces, not owned)
+            val joinedSpaceCount = list.count { !it.isAdmin }
+            StorachaHelper.updateSpaceCount(requireContext(), joinedSpaceCount)
+
             mBinding.rvFolderList.adapter =
                 StorachaBrowseSpacesAdapter(list) { space ->
                     val action =

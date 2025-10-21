@@ -10,8 +10,8 @@ import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
-import net.opendasharchive.openarchive.services.storacha.util.DidManager
 import net.opendasharchive.openarchive.services.storacha.util.StorachaAccountManager
+import net.opendasharchive.openarchive.services.storacha.util.StorachaHelper
 
 class StorachaFragment : BaseFragment() {
     private lateinit var viewBinding: FragmentStorachaBinding
@@ -61,12 +61,11 @@ class StorachaFragment : BaseFragment() {
     }
 
     private fun updateButtonStates() {
-        StorachaAccountManager(requireContext())
-        val hasAccounts = DidManager(requireContext()).hasDid()
+        // Enable "My Spaces" button if user has logged-in accounts OR has access to spaces
+        val shouldEnable = StorachaHelper.shouldEnableStorachaAccess(requireContext())
 
-        // Disable My Spaces button if no accounts are logged in
-        viewBinding.btnMySpaces.isEnabled = hasAccounts
-        viewBinding.btnMySpaces.alpha = if (hasAccounts) 1.0f else 0.5f
+        viewBinding.btnMySpaces.isEnabled = shouldEnable
+        viewBinding.btnMySpaces.alpha = if (shouldEnable) 1.0f else 0.5f
     }
 
     override fun getToolbarTitle(): String = getString(R.string.storacha)
