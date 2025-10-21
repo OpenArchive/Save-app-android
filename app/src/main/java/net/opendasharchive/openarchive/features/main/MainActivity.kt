@@ -862,10 +862,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 if (Prefs.addMediaHint) {
                     when (mediaType) {
                         AddMediaType.CAMERA -> {
-                            //permissionManager.checkCameraPermission {
-                                //Picker.takePhoto(this@MainActivity, mediaLaunchers.cameraLauncher)
+                            permissionManager.checkCameraPermission {
                                 Picker.takePhotoModern(this@MainActivity, mediaLaunchers.modernCameraLauncher)
-                            //}
+                            }
                         }
 
                         AddMediaType.GALLERY -> {

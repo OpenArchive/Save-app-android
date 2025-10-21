@@ -145,9 +145,9 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
             val modalBottomSheet = ContentPickerFragment { action ->
                 when (action) {
                     AddMediaType.CAMERA -> {
-//                        permissionManager.checkCameraPermission {
+                        permissionManager.checkCameraPermission {
                             Picker.takePhotoModern(this@PreviewActivity, mediaLaunchers.modernCameraLauncher)
-//                        }
+                        }
 
                     }
                     AddMediaType.FILES -> Picker.pickFiles(mediaLaunchers.filePickerLauncher)
