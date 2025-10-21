@@ -87,6 +87,41 @@ object Ed25519Utils {
         }
 
     /**
+     * Validates if a string is a valid DID:key format
+     * @param did The DID string to validate
+     * @return true if valid DID format, false otherwise
+     */
+    fun isValidDid(did: String): Boolean {
+        return try {
+            // Check basic format
+            if (!did.startsWith("did:key:z")) return false
+
+            // Must have content after "did:key:z"
+            if (did.length <= 9) return false
+
+            val base58Part = did.substring(9)
+
+            // Base58 part should not be empty
+            if (base58Part.isEmpty()) return false
+
+            // Try to decode and validate the structure
+            val multicodecKey = decodeBase58(base58Part)
+
+            // Check multicodec prefix for Ed25519 (0xed01) and minimum length
+            if (multicodecKey.size < 34) return false
+            if (multicodecKey[0] != 0xed.toByte() || multicodecKey[1] != 0x01.toByte()) return false
+
+            // If we can extract the public key, it's valid
+            val publicKeyBytes = multicodecKey.sliceArray(2..33)
+            Ed25519PublicKeyParameters(publicKeyBytes, 0)
+
+            true
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    /**
      * Extracts public key from a DID:key string
      * @param did The DID string in format "did:key:z6Mk..."
      * @return Ed25519PublicKeyParameters or null if invalid

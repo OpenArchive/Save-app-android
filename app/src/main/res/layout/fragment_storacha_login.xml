@@ -1,94 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:padding="20dp"
-    android:clipToPadding="false"
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginVertical="48dp"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:clipToPadding="false">
 
-        <ImageView
-            android:background="@drawable/circle_shape"
-            android:id="@+id/imageView"
-            android:padding="10dp"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:adjustViewBounds="true"
-            android:importantForAccessibility="no"
-            android:scaleType="fitCenter"
-            android:src="@drawable/storacha"
-            app:tint="@color/c23_teal" />
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginVertical="48dp"
+            android:padding="16dp">
+
+            <ImageView
+                android:background="@drawable/circle_shape"
+                android:id="@+id/imageView"
+                android:padding="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:adjustViewBounds="true"
+                android:importantForAccessibility="no"
+                android:scaleType="fitCenter"
+                android:src="@drawable/storacha"
+                app:tint="@color/c23_teal" />
+
+            <TextView
+                android:layout_marginStart="16dp"
+                android:id="@+id/help_text_sub_header2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:text="@string/access_your_account_using_your_registered_email_address"
+                android:textColor="@color/colorSectionHeaderText"
+                android:textSize="15sp" />
+        </LinearLayout>
+
 
         <TextView
-            android:layout_marginStart="16dp"
-            android:id="@+id/help_text_sub_header2"
+            android:layout_marginVertical="8dp"
+            android:textStyle="bold"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="start"
-            android:text="@string/access_your_account_using_your_registered_email_address"
-            android:textColor="@color/colorSectionHeaderText"
-            android:textSize="15sp" />
+            android:linksClickable="true"
+            android:text="@string/prompt_email" />
+
+
+        <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/group_name_textfield_container"
+                style="@style/OATextInputLayoutStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/tv_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="@string/email_address"
+                    android:inputType="textEmailAddress"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:imeOptions="actionGo"
+                    android:imeActionLabel="@string/label_login" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/tv_sign_up_link"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:linksClickable="true"
+            android:padding="24dp"
+            android:text="@string/sign_up_storacha"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/bt_login"
+            style="@style/OAMaterialSignInButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:text="@string/label_login"
+            tools:layout_editor_absoluteY="186dp" />
+
     </LinearLayout>
 
-
-    <TextView
-        android:layout_marginVertical="8dp"
-        android:textStyle="bold"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:id="@+id/loading_container"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:linksClickable="true"
-        android:text="@string/prompt_email" />
-
-
-    <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/group_name_textfield_container"
-            style="@style/OATextInputLayoutStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/tv_email"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:hint="@string/email_address"
-                android:inputType="textEmailAddress"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:imeOptions="actionGo"
-                android:imeActionLabel="@string/label_login" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-    <TextView
-        android:id="@+id/tv_sign_up_link"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:gravity="center"
-        android:linksClickable="true"
-        android:padding="24dp"
-        android:text="@string/sign_up_storacha"
-        android:textStyle="bold" />
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/bt_login"
-        style="@style/OAMaterialSignInButtonStyle"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:text="@string/label_login"
-        tools:layout_editor_absoluteY="186dp" />
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/loading_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/logging_in"
+            android:textSize="16sp"
+            android:textColor="@android:color/darker_gray"
+            android:gravity="center" />
 
-</LinearLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

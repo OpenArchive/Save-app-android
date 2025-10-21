@@ -14,6 +14,7 @@ import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
 import net.opendasharchive.openarchive.databinding.FragmentStorachaDidAccessBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.services.storacha.util.Ed25519Utils
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaDIDAccessViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -24,6 +25,7 @@ class StorachaDIDAccessFragment : BaseFragment() {
 
     private val spaceId: String by lazy { arguments?.getString("space_id") ?: "" }
     private val sessionId: String by lazy { arguments?.getString("session_id") ?: "" }
+    private val existingDids: Array<String> by lazy { arguments?.getStringArray("existing_dids") ?: emptyArray() }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,7 +38,31 @@ class StorachaDIDAccessFragment : BaseFragment() {
         qrLauncher =
             registerForActivityResult(ScanContract()) { result: ScanIntentResult ->
                 if (result.contents != null) {
-                    binding.tvDid.setText(result.contents)
+                    val scannedText = result.contents.trim()
+                    binding.tvDid.setText(scannedText)
+
+                    // Validate the scanned DID
+                    when {
+                        !Ed25519Utils.isValidDid(scannedText) -> {
+                            Toast.makeText(
+                                requireContext(),
+                                "Invalid DID format. Please scan a valid DID key (format: did:key:z...)",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            binding.tvDid.error = "Invalid DID format"
+                        }
+                        existingDids.contains(scannedText) -> {
+                            Toast.makeText(
+                                requireContext(),
+                                "DID already added",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            binding.tvDid.error = "DID already added"
+                        }
+                        else -> {
+                            binding.tvDid.error = null
+                        }
+                    }
                 }
             }
 
@@ -45,14 +71,36 @@ class StorachaDIDAccessFragment : BaseFragment() {
                 binding.tvDid.text
                     .toString()
                     .trim()
-            if (didText.isNotEmpty()) {
-                viewModel.createDelegation(
-                    sessionId = sessionId,
-                    userDid = didText,
-                    spaceDid = spaceId,
-                )
-            } else {
-                Toast.makeText(requireContext(), "Please enter a DID", Toast.LENGTH_SHORT).show()
+
+            when {
+                didText.isEmpty() -> {
+                    Toast.makeText(requireContext(), "Please enter a DID", Toast.LENGTH_SHORT).show()
+                    binding.tvDid.error = "DID is required"
+                }
+                !Ed25519Utils.isValidDid(didText) -> {
+                    Toast.makeText(
+                        requireContext(),
+                        "Invalid DID format. Please enter a valid DID key (format: did:key:z...)",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    binding.tvDid.error = "Invalid DID format"
+                }
+                existingDids.contains(didText) -> {
+                    Toast.makeText(
+                        requireContext(),
+                        "DID already added",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    binding.tvDid.error = "DID already added"
+                }
+                else -> {
+                    binding.tvDid.error = null
+                    viewModel.createDelegation(
+                        sessionId = sessionId,
+                        userDid = didText,
+                        spaceDid = spaceId,
+                    )
+                }
             }
         }
 

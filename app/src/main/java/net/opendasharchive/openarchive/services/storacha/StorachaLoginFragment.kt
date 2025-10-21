@@ -21,6 +21,7 @@ import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.services.storacha.util.DidManager
 import net.opendasharchive.openarchive.services.storacha.util.StorachaAccountManager
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaLoginViewModel
+import net.opendasharchive.openarchive.util.extensions.toggle
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class StorachaLoginFragment : BaseFragment() {
@@ -58,9 +59,8 @@ class StorachaLoginFragment : BaseFragment() {
                 // Clear error when user starts typing
                 viewBinding.groupNameTextfieldContainer.error = null
 
-                // Validate email and update button state
-                val email = s.toString().trim()
-                viewBinding.btLogin.isEnabled = isValidEmail(email)
+                // Update button state considering both email validity and loading state
+                updateLoginButtonState()
             }
 
             override fun afterTextChanged(s: Editable?) {}
@@ -91,6 +91,11 @@ class StorachaLoginFragment : BaseFragment() {
             } else {
                 false
             }
+        }
+
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            updateLoginButtonState()
+            viewBinding.loadingContainer.toggle(isLoading)
         }
 
         viewModel.loginResult.observe(
@@ -157,6 +162,12 @@ class StorachaLoginFragment : BaseFragment() {
                     Toast.LENGTH_LONG,
                 ).show()
         }
+    }
+
+    private fun updateLoginButtonState() {
+        val email = viewBinding.tvEmail.text.toString().trim()
+        val isLoading = viewModel.isLoading.value == true
+        viewBinding.btLogin.isEnabled = !isLoading && isValidEmail(email)
     }
 
     private fun isValidEmail(email: String): Boolean =

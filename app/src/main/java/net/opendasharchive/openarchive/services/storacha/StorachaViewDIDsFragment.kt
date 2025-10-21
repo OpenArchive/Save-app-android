@@ -122,10 +122,12 @@ class StorachaViewDIDsFragment :
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
         when (menuItem.itemId) {
             R.id.action_add -> {
+                val existingDids = viewModel.dids.value?.map { it.did }?.toTypedArray() ?: emptyArray()
                 val action =
                     StorachaViewDIDsFragmentDirections.actionFragmentStorachaViewDidsToFragmentStorachaDidAccess(
                         args.spaceId,
                         args.sessionId,
+                        existingDids,
                     )
                 findNavController().navigate(action)
                 true

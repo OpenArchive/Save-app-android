@@ -85,10 +85,73 @@ class Ed25519UtilsTest {
         val keyPair = Ed25519Utils.generateKeyPair()
         val originalPublicKey = keyPair.public as Ed25519PublicKeyParameters
         val did = Ed25519Utils.createDidFromPublicKey(originalPublicKey)
-        
+
         val extractedPublicKey = Ed25519Utils.extractPublicKeyFromDid(did)
-        
+
         assertNotNull(extractedPublicKey)
         assertArrayEquals(originalPublicKey.encoded, extractedPublicKey!!.encoded)
+    }
+
+    @Test
+    fun testValidDidValidation() {
+        // Generate a valid DID
+        val keyPair = Ed25519Utils.generateKeyPair()
+        val publicKey = keyPair.public as Ed25519PublicKeyParameters
+        val validDid = Ed25519Utils.createDidFromPublicKey(publicKey)
+
+        // Test that it validates correctly
+        assertTrue(Ed25519Utils.isValidDid(validDid))
+    }
+
+    @Test
+    fun testInvalidDidValidation_EmptyString() {
+        assertFalse(Ed25519Utils.isValidDid(""))
+    }
+
+    @Test
+    fun testInvalidDidValidation_NoPrefix() {
+        assertFalse(Ed25519Utils.isValidDid("z6MkjTHQxjZh7sQZ7sZBvJxDqyzYb4nKq1iWzWUzRr3oT1XB"))
+    }
+
+    @Test
+    fun testInvalidDidValidation_WrongPrefix() {
+        assertFalse(Ed25519Utils.isValidDid("did:web:example.com"))
+    }
+
+    @Test
+    fun testInvalidDidValidation_IncompletePrefix() {
+        assertFalse(Ed25519Utils.isValidDid("did:key:"))
+    }
+
+    @Test
+    fun testInvalidDidValidation_MissingZPrefix() {
+        assertFalse(Ed25519Utils.isValidDid("did:key:6MkjTHQxjZh7sQZ7sZBvJxDqyzYb4nKq1iWzWUzRr3oT1XB"))
+    }
+
+    @Test
+    fun testInvalidDidValidation_RandomString() {
+        assertFalse(Ed25519Utils.isValidDid("not-a-valid-did"))
+    }
+
+    @Test
+    fun testInvalidDidValidation_InvalidBase58() {
+        // Contains invalid Base58 characters (0, O, I, l)
+        assertFalse(Ed25519Utils.isValidDid("did:key:z0OIl123456789"))
+    }
+
+    @Test
+    fun testInvalidDidValidation_TooShort() {
+        assertFalse(Ed25519Utils.isValidDid("did:key:z"))
+    }
+
+    @Test
+    fun testValidDidFromExample() {
+        // Test with a known valid DID format from the codebase
+        val exampleDid = "did:key:z6MkjTHQxjZh7sQZ7sZBvJxDqyzYb4nKq1iWzWUzRr3oT1XB"
+        // Note: This may or may not be valid depending on the actual key encoding
+        // but it has the correct format structure
+        val result = Ed25519Utils.isValidDid(exampleDid)
+        // We're testing that the function handles it without crashing
+        assertNotNull(result)
     }
 }

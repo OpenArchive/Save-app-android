@@ -21,6 +21,9 @@ class StorachaLoginViewModel(
     private val _loginResult = MutableLiveData<Result<LoginResponse>>()
     val loginResult: LiveData<Result<LoginResponse>> = _loginResult
 
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
     private val verifyResult = MutableLiveData<Result<VerifyResponse>>()
     private var currentSessionId: String? = null
     private var currentChallenge: String? = null
@@ -31,6 +34,12 @@ class StorachaLoginViewModel(
         email: String,
         did: String,
     ) {
+        // Prevent duplicate requests
+        if (_isLoading.value == true) {
+            return
+        }
+
+        _isLoading.value = true
         val request = LoginRequest(email = email, did = did)
         viewModelScope.launch {
             try {
@@ -52,9 +61,11 @@ class StorachaLoginViewModel(
                 } else {
                     // No challenge needed (subsequent login)
                     _loginResult.value = Result.success(response)
+                    _isLoading.value = false
                 }
             } catch (e: Exception) {
                 _loginResult.value = Result.failure(e)
+                _isLoading.value = false
             }
         }
     }
@@ -74,6 +85,7 @@ class StorachaLoginViewModel(
                 if (privateKey == null) {
                     _loginResult.value =
                         Result.failure(Exception("No private key found. Please regenerate your DID."))
+                    _isLoading.value = false
                     return@launch
                 }
 
@@ -96,9 +108,11 @@ class StorachaLoginViewModel(
                 // After successful verification, use the original response
                 // The server now considers this session verified
                 _loginResult.value = Result.success(originalResponse)
+                _isLoading.value = false
             } catch (e: Exception) {
                 _loginResult.value =
                     Result.failure(Exception("Challenge verification failed: ${e.message}"))
+                _isLoading.value = false
             }
         }
     }

@@ -365,6 +365,11 @@
         <argument
             android:name="session_id"
             app:argType="string" />
+        <argument
+            android:name="existing_dids"
+            app:argType="string[]"
+            android:defaultValue="@null"
+            app:nullable="true" />
     </fragment>
 
 
