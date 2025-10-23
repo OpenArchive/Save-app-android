@@ -1,32 +1,36 @@
 package net.opendasharchive.openarchive.services.storacha.util
 
 import net.opendasharchive.openarchive.services.storacha.model.IpldBlock
+import java.io.BufferedOutputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.security.MessageDigest
 
 data class CarFileResult(
-    val carData: ByteArray,
+    val carFile: File,
     val carCid: String,
     val rootCid: String,
+    val carSize: Long,
 )
 
 object CarFileCreator {
     private const val CHUNK_SIZE = 1048576 // 1MB chunks to match ipfs-car default
 
-    fun createCarFile(file: File): CarFileResult {
+    fun createCarFile(file: File, outputDir: File? = null): CarFileResult {
         // ipfs-car uses embedded approach for files < 1MB, chunked approach for larger files
         return if (file.length() < CHUNK_SIZE) {
-            createEmbeddedCarWithCids(file)
+            createEmbeddedCarWithCids(file, outputDir)
         } else {
-            createChunkedCarWithCids(file)
+            createChunkedCarWithCids(file, outputDir)
         }
     }
 
     /**
      * Creates CAR file using embedded approach for small files (< 1MB) - like ipfs-car does
      */
-    private fun createEmbeddedCarWithCids(file: File): CarFileResult {
+    private fun createEmbeddedCarWithCids(file: File, outputDir: File?): CarFileResult {
         val blocks = mutableListOf<IpldBlock>()
         val fileData = file.readBytes()
 
@@ -39,14 +43,19 @@ object CarFileCreator {
         val rootDagPbBlock = createEmbeddedDagPbBlock(rawBlock.cid, file.name, file.length())
         blocks.add(rootDagPbBlock)
 
-        // Create CAR with both blocks, header points to root DAG-PB
-        val carData = createCar(rootDagPbBlock.cid, blocks)
-
         // Create CIDs in proper format
         val rootCid = cidBytesToString(rootDagPbBlock.cid)
-        val carCid = createCarCid(carData)
 
-        return CarFileResult(carData, carCid, rootCid)
+        // Create temporary CAR file
+        val carFile = File.createTempFile("car_", ".car", outputDir ?: file.parentFile)
+
+        // Write CAR data directly to file
+        writeCarToFile(carFile, rootDagPbBlock.cid, blocks)
+
+        // Calculate CAR CID from the file
+        val carCid = createCarCidFromFile(carFile)
+
+        return CarFileResult(carFile, carCid, rootCid, carFile.length())
     }
 
     /**
@@ -87,22 +96,27 @@ object CarFileCreator {
         return IpldBlock(cidBytes, pbData)
     }
 
-    private fun createChunkedCarWithCids(file: File): CarFileResult {
+    private fun createChunkedCarWithCids(file: File, outputDir: File?): CarFileResult {
         val blocks = mutableListOf<IpldBlock>()
         val chunkCids = mutableListOf<ByteArray>()
-        val fileData = file.readBytes()
 
-        // Use 256KB chunks like ipfs-car default
-        var offset = 0
-        while (offset < fileData.size) {
-            val chunkSize = minOf(CHUNK_SIZE, fileData.size - offset)
-            val chunkData = fileData.sliceArray(offset until offset + chunkSize)
+        // Stream the file in chunks to avoid loading entire file into memory
+        FileInputStream(file).use { inputStream ->
+            val buffer = ByteArray(CHUNK_SIZE)
+            var bytesRead: Int
 
-            val rawBlock = createRawBlock(chunkData)
-            blocks.add(rawBlock)
-            chunkCids.add(rawBlock.cid)
+            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                // Only use the actual bytes read (might be less than buffer size for last chunk)
+                val chunkData = if (bytesRead < buffer.size) {
+                    buffer.copyOf(bytesRead)
+                } else {
+                    buffer.copyOf()
+                }
 
-            offset += chunkSize
+                val rawBlock = createRawBlock(chunkData)
+                blocks.add(rawBlock)
+                chunkCids.add(rawBlock.cid)
+            }
         }
 
         // Create intermediate DAG-PB block that links to raw chunks (like ipfs-car)
@@ -115,14 +129,19 @@ object CarFileCreator {
             createRootDagPbBlock(intermediateDagPbBlock.cid, file.name, file.length())
         blocks.add(rootDagPbBlock)
 
-        // Create CAR with all blocks, header points to root DAG-PB
-        val carData = createCar(rootDagPbBlock.cid, blocks)
-
         // Create CIDs in proper format
         val rootCid = cidBytesToString(rootDagPbBlock.cid)
-        val carCid = createCarCid(carData)
 
-        return CarFileResult(carData, carCid, rootCid)
+        // Create temporary CAR file
+        val carFile = File.createTempFile("car_", ".car", outputDir ?: file.parentFile)
+
+        // Write CAR data directly to file
+        writeCarToFile(carFile, rootDagPbBlock.cid, blocks)
+
+        // Calculate CAR CID from the file
+        val carCid = createCarCidFromFile(carFile)
+
+        return CarFileResult(carFile, carCid, rootCid, carFile.length())
     }
 
 //    private fun createLargeFileCarWithCids(file: File, mimeType: String): CarFileResult {
@@ -327,28 +346,60 @@ object CarFileCreator {
     /**
      * Creates CAR file with header and blocks
      */
-    private fun createCar(
+    /**
+     * Writes CAR data directly to a file using streaming to avoid memory issues
+     */
+    private fun writeCarToFile(
+        outputFile: File,
         rootCid: ByteArray,
         blocks: List<IpldBlock>,
-    ): ByteArray {
-        val output = ByteArrayOutputStream()
+    ) {
+        BufferedOutputStream(FileOutputStream(outputFile), 8192).use { output ->
+            // Create header pointing to root CID
+            val headerData = createCborHeader(rootCid)
 
-        // Create header pointing to root CID
-        val headerData = createCborHeader(rootCid)
+            // Write header with varint length prefix
+            output.write(encodeVarInt(headerData.size))
+            output.write(headerData)
 
-        // Write header with varint length prefix
-        output.write(encodeVarInt(headerData.size))
-        output.write(headerData)
+            // Write all blocks with varint length prefixes
+            for (block in blocks) {
+                val blockSize = block.cid.size + block.data.size
+                output.write(encodeVarInt(blockSize))
+                output.write(block.cid)
+                output.write(block.data)
+            }
 
-        // Write all blocks with varint length prefixes
-        for (block in blocks) {
-            val blockSize = block.cid.size + block.data.size
-            output.write(encodeVarInt(blockSize))
-            output.write(block.cid)
-            output.write(block.data)
+            output.flush()
+        }
+    }
+
+    /**
+     * Calculates CAR CID from a file by streaming (avoids loading entire file into memory)
+     */
+    private fun createCarCidFromFile(carFile: File): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+
+        // Stream the file in chunks to calculate hash
+        FileInputStream(carFile).use { inputStream ->
+            val buffer = ByteArray(8192)
+            var bytesRead: Int
+
+            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                digest.update(buffer, 0, bytesRead)
+            }
         }
 
-        return output.toByteArray()
+        val hash = digest.digest()
+        // Create multihash: 0x12 (SHA-256) + 0x20 (32 bytes) + hash
+        val multiHash = byteArrayOf(0x12, 0x20) + hash
+
+        // Create CID v1: version(1) + codec(CAR multicodec 0x0202) + multihash
+        // CAR multicodec 0x0202 (514) encodes as varint [0x82, 0x04]
+        val carCodecVarint = encodeVarInt(0x0202)
+        val cidBytes = byteArrayOf(0x01.toByte()) + carCodecVarint + multiHash
+
+        return cidBytesToString(cidBytes)
     }
 
     /**
@@ -411,23 +462,6 @@ object CarFileCreator {
      */
     private fun cidBytesToString(cidBytes: ByteArray): String = "b${encodeBase32(cidBytes)}"
 
-    /**
-     * Create CAR CID from CAR file data
-     */
-    private fun createCarCid(carData: ByteArray): String {
-        val digest = MessageDigest.getInstance("SHA-256")
-        val hash = digest.digest(carData)
-
-        // Create multihash: 0x12 (SHA-256) + 0x20 (32 bytes) + hash
-        val multiHash = byteArrayOf(0x12, 0x20) + hash
-
-        // Create CID v1: version(1) + codec(CAR multicodec 0x0202) + multihash
-        // CAR multicodec 0x0202 (514) encodes as varint [0x82, 0x04]
-        val carCodecVarint = encodeVarInt(0x0202)
-        val cidBytes = byteArrayOf(0x01.toByte()) + carCodecVarint + multiHash
-
-        return cidBytesToString(cidBytes)
-    }
 
     /**
      * Encode data as base32 string (RFC 4648)

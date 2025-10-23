@@ -17,8 +17,10 @@ import net.opendasharchive.openarchive.services.storacha.service.StorachaApiServ
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Retrofit
+import java.io.File
 import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -55,7 +57,7 @@ class BridgeUploader(
             .create(net.opendasharchive.openarchive.services.storacha.service.BridgeApiService::class.java)
 
     suspend fun uploadFile(
-        carData: ByteArray,
+        carFile: File,
         carCid: String,
         rootCid: String,
         spaceDid: String,
@@ -72,7 +74,8 @@ class BridgeUploader(
                 throw IllegalArgumentException("Root CID must start with 'bafy', got: $rootCid")
             }
 
-            Timber.e("Starting bridge upload - CAR CID: $carCid, Root CID: $rootCid, Size: ${carData.size}")
+            val carSize = carFile.length()
+            Timber.e("Starting bridge upload - CAR CID: $carCid, Root CID: $rootCid, Size: $carSize")
 
             try {
                 // Step 1: Generate bridge tokens IMMEDIATELY before use
@@ -87,7 +90,7 @@ class BridgeUploader(
                         tokens,
                         spaceDid,
                         carCid,
-                        carData.size.toLong(),
+                        carSize,
                         0,
                         userDid,
                         sessionId,
@@ -98,7 +101,7 @@ class BridgeUploader(
                 if (storeResult.status == "upload" && storeResult.url != null) {
                     Timber.e("S3 upload required")
                     try {
-                        uploadToS3(carData, storeResult.url, storeResult.headers ?: emptyMap())
+                        uploadToS3(carFile, storeResult.url, storeResult.headers ?: emptyMap())
                         Timber.e("S3 upload completed")
                     } catch (s3Error: Exception) {
                         // Check if S3 error is due to expired token/URL - regenerate and retry once
@@ -115,7 +118,7 @@ class BridgeUploader(
                                     newTokens,
                                     spaceDid,
                                     carCid,
-                                    carData.size.toLong(),
+                                    carSize,
                                     0,
                                     userDid,
                                     sessionId,
@@ -124,7 +127,7 @@ class BridgeUploader(
 
                             if (newStoreResult.status == "upload" && newStoreResult.url != null) {
                                 uploadToS3(
-                                    carData,
+                                    carFile,
                                     newStoreResult.url,
                                     newStoreResult.headers ?: emptyMap(),
                                 )
@@ -146,7 +149,7 @@ class BridgeUploader(
                 BridgeUploadResult(
                     rootCid = uploadResult.root.getValue("/"),
                     carCid = carCid,
-                    size = carData.size.toLong(),
+                    size = carSize,
                 )
             } catch (e: Exception) {
                 Timber.e("Bridge upload failed: ${e.message}")
@@ -324,7 +327,7 @@ class BridgeUploader(
     }
 
     private suspend fun uploadToS3(
-        carData: ByteArray,
+        carFile: File,
         url: String,
         headers: Map<String, String>,
     ) {
@@ -332,10 +335,10 @@ class BridgeUploader(
             Request
                 .Builder()
                 .url(url)
-                .put(carData.toRequestBody("application/vnd.ipld.car".toMediaType()))
+                .put(carFile.asRequestBody("application/vnd.ipld.car".toMediaType()))
 
         // Add explicit Content-Length header - S3 requires exact match
-        requestBuilder.addHeader("Content-Length", carData.size.toString())
+        requestBuilder.addHeader("Content-Length", carFile.length().toString())
 
         headers.forEach { (key, value) ->
             requestBuilder.addHeader(key, value)
@@ -379,7 +382,7 @@ class BridgeUploader(
             Timber.e("S3 upload failed - Code: ${response.code}, Message: ${response.message}")
             Timber.e("S3 response body: $responseBody")
             Timber.e("S3 response headers: $responseHeaders")
-            Timber.e("CAR data size: ${carData.size} bytes")
+            Timber.e("CAR file size: ${carFile.length()} bytes")
 
             response.close()
 

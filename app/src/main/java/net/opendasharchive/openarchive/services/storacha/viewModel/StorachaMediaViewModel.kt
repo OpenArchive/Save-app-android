@@ -163,7 +163,7 @@ class StorachaMediaViewModel(
                 // Use the complete bridge workflow with CAR files
                 val bridgeResult =
                     bridgeUploader.uploadFile(
-                        carData = carResult.carData,
+                        carFile = carResult.carFile,
                         carCid = carResult.carCid,
                         rootCid = carResult.rootCid,
                         spaceDid = spaceDid,
@@ -186,6 +186,16 @@ class StorachaMediaViewModel(
             } catch (e: Exception) {
                 _uploadResult.value = Result.failure(e)
             } finally {
+                // Clean up temporary CAR file
+                try {
+                    if (carResult.carFile.exists()) {
+                        carResult.carFile.delete()
+                        Timber.d("Deleted temporary CAR file: ${carResult.carFile.name}")
+                    }
+                } catch (e: Exception) {
+                    Timber.e("Failed to delete CAR file: ${e.message}")
+                }
+
                 _loading.value = false
                 _loadingState.value = LoadingState.NONE
             }
