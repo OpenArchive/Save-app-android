@@ -28,7 +28,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.BuildConfig
 import net.opendasharchive.openarchive.R
@@ -67,11 +66,8 @@ import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import net.opendasharchive.openarchive.upload.UploadManagerFragment
 import net.opendasharchive.openarchive.upload.UploadService
-import net.opendasharchive.openarchive.util.InAppReviewHelper
 import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
-// ProofMode - COMMENTED OUT
-// import net.opendasharchive.openarchive.util.ProofModeHelper
 import net.opendasharchive.openarchive.util.extensions.Position
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.cloak
@@ -79,16 +75,12 @@ import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.scaleAndTintDrawable
 import net.opendasharchive.openarchive.util.extensions.show
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.NumberFormat
 
 
 class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAdapterListener {
 
     private val appConfig by inject<AppConfig>()
-    private val viewModel by viewModel<MainViewModel>()
-
-    private var mMenuDelete: MenuItem? = null
 
     private var mSnackBar: Snackbar? = null
 
@@ -107,7 +99,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     private var serverListCurOffset: Float = 0F
 
     private var selectModeToggle: Boolean = false
-    private var currentSelectionCount = 0
+    private var selectedMediaCount = 0
 
     private enum class FolderBarMode { INFO, SELECTION, EDIT }
 
@@ -131,9 +123,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         }
 
     private lateinit var permissionManager: PermissionManager
-
-    private var reviewManager: Any? = null
-    private var shouldPromptReview = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
 //        enableEdgeToEdge()
@@ -201,9 +190,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         // Initialize the permission manager with this activity and its dialogManager.
         permissionManager = PermissionManager(this, dialogManager)
 
-        // Initialize In App Ratings Helper
-        InAppReviewHelper.init(this)
-
         initMediaLaunchers()
         setupToolbarAndPager()
         setupNavigationDrawer()
@@ -243,18 +229,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             // when the sheet goes away, show your arrow
             getCurrentMediaFragment()?.setArrowVisible(true)
         }
-
-        if (BuildConfig.INCLUDE_GOOGLE_SERVICES) {
-            try {
-                val reviewManagerFactoryClass = Class.forName("com.google.android.play.core.review.ReviewManagerFactory")
-                val createMethod = reviewManagerFactoryClass.getDeclaredMethod("create", Context::class.java)
-                reviewManager = createMethod.invoke(null, this)
-                InAppReviewHelper.requestReviewInfo(this)
-                shouldPromptReview = InAppReviewHelper.onAppLaunched()
-            } catch (e: Exception) {
-                // Google Play Services not available
-            }
-        }
     }
 
     override fun onResume() {
@@ -268,19 +242,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             serverListOffset = -dims.second.toFloat()
             serverListCurOffset = serverListOffset
         }
-
-        // ─────────────────────────────────────────────────────────────────────────
-        // Only now, after UI is ready, do we fire the in‐app review if needed.
-        if (shouldPromptReview) {
-            lifecycleScope.launch(Dispatchers.Main) {
-                // Wait a small delay so we don't interrupt initial load (e.g. 2 seconds).
-                delay(2_000)
-                InAppReviewHelper.showReviewIfPossible(this@MainActivity)
-                InAppReviewHelper.markReviewDone()
-                shouldPromptReview = false
-            }
-        }
-        // ─────────────────────────────────────────────────────────────────────────
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -500,6 +461,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         popupBinding.menuFolderBarSelectMedia.setOnClickListener {
             popup.dismiss()
             setFolderBarMode(FolderBarMode.SELECTION)
+            getCurrentMediaFragment()?.enableSelectionMode()
         }
 
         // Rename folder
@@ -548,10 +510,17 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         }
     }
 
-    // New helper: update the cancel selection TextView to show the number of selected items.
+    // Update the selected count and show/hide the remove button accordingly
     fun updateSelectedCount(count: Int) {
-        // For example, if count > 0 display “Selected: X”; otherwise, revert to “Select Media”.
-        //binding.contentMain.tvSelectedCount.text = if (count > 0) "Selected: $count" else "Select Media"
+        selectedMediaCount = count
+        updateRemoveButtonVisibility()
+    }
+
+    private fun updateRemoveButtonVisibility() {
+        if (folderBarMode == FolderBarMode.SELECTION) {
+            binding.contentMain.btnRemoveSelected.visibility =
+                if (selectedMediaCount > 0) View.VISIBLE else View.GONE
+        }
     }
 
     private fun showDeleteSelectedMediaConfirmDialog() {
@@ -587,7 +556,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             title = UiText.StringResource(R.string.remove_from_app)
             message = UiText.StringResource(R.string.action_remove_project)
             destructiveButton {
-                text = UiText.StringResource(R.string.remove)
+                text = UiText.StringResource(R.string.lbl_remove)
                 action = {
                     getSelectedProject()?.delete()
                     refreshProjects()
@@ -717,6 +686,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 binding.contentMain.folderInfoContainer.visibility = View.GONE
                 binding.contentMain.folderSelectionContainer.visibility = View.VISIBLE
                 binding.contentMain.folderEditContainer.visibility = View.GONE
+                updateRemoveButtonVisibility()
             }
 
             FolderBarMode.EDIT -> {
@@ -865,9 +835,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                         }
 
                         AddMediaType.GALLERY -> {
-                            permissionManager.checkMediaPermissions {
-                                Picker.pickMedia(mediaLaunchers.galleryLauncher)
-                            }
+                            // No permission check needed for PickVisualMedia contract
+                            // The photo picker grants implicit access to selected media
+                            Picker.pickMedia(mediaLaunchers.galleryLauncher)
                         }
 
                         AddMediaType.FILES -> Picker.pickFiles(mediaLaunchers.filePickerLauncher)

@@ -194,7 +194,7 @@
     <string name="menu_done">Listo</string>
     <string name="remove_from_app">Eliminar de la app</string>
     <string name="action_remove_project">¿Estás segura de que quieres eliminar tu proyecto\?</string>
-    <string name="remove">Eliminar</string>
+    <string name="lbl_remove">Eliminar</string>
     <string name="action_archive_project">Archivar Proyecto</string>
     <string name="action_unarchive_project">Desarchivar Proyecto</string>
     <string name="IA_login_error">Por favor inicia sesión con credenciales válidas de Internet Archive.</string>
@@ -326,7 +326,7 @@
 
     <string name="upload_unsuccessful">Carga Fallida</string>
     <string name="upload_unsuccessful_description">No se pudo subir debido a error de sesión, por favor vuelve a intentar o contacta a soporte.</string>
-    <string name="retry">Reintentar</string>
+    <string name="lbl_retry">Reintentar</string>
 
     <string name="edit_media">Editar Medios</string>
 

@@ -77,7 +77,7 @@
     <string name="edit">Bearbeiten</string>
     <string name="menu_done">Fertig</string>
     <string name="remove_from_app">Aus App entfernen</string>
-    <string name="remove">Entfernen</string>
+    <string name="lbl_remove">Entfernen</string>
     <string name="action_archive_project">Projekt archivieren</string>
     <string name="action_unarchive_project">Projekt entarchivieren</string>
     <string name="access_key">Access Key</string>
@@ -136,7 +136,7 @@
     <string name="add_files">Dateien hinzufügen</string>
 
     <string name="ia_learn_how_summary_step_2">Schritt 2: Wenn Du einen neuen Zugang erstellst, verifiziere Deine E-Mail-Adresse.</string>
-    <string name="retry">Erneut versuchen</string>
+    <string name="lbl_retry">Erneut versuchen</string>
 
     <string name="edit_media">Medien bearbeiten</string>
     <string name="uploading_is_paused">Hochladen pausiert</string>

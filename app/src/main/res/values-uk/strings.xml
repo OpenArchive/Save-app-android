@@ -115,7 +115,7 @@
     <string name="menu_done">Готово</string>
     <string name="remove_from_app">Вилучити із застосунку</string>
     <string name="action_remove_project">Ви справді хочете вилучити ваш проєкт?</string>
-    <string name="remove">Вилучити</string>
+    <string name="lbl_remove">Вилучити</string>
     <string name="action_archive_project">Архівувати проєкт</string>
     <string name="action_unarchive_project">Розархівувати проєкт</string>
     <string name="IA_login_error">Будь ласка, вкажіть чинні облікові дані Internet Archive.</string>
@@ -230,7 +230,7 @@
     <string name="ia_learn_how_summary_step_3">Крок 3. Згенеруйте свої API-ключі, поставивши галочку, і вони автоматично завантажаться в застосунок!</string>
 
     <string name="upload_unsuccessful">Не вдалось вивантажити</string>
-    <string name="retry">Повторити</string>
+    <string name="lbl_retry">Повторити</string>
 
     <string name="edit_media">Редагувати медіафайл</string>
     <string name="uploading_is_paused">Вивантаження призупинено</string>
