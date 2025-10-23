@@ -70,7 +70,7 @@
                 android:text="@string/action_done"
                 android:textColor="@color/black"
                 android:textStyle="bold"
-                app:backgroundTint="@color/colorTertiary"
+                app:backgroundTint="@color/button_color"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
