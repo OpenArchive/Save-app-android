@@ -27,7 +27,9 @@ class StorachaDIDAccessFragment : BaseFragment() {
 
     private val spaceId: String by lazy { arguments?.getString("space_id") ?: "" }
     private val sessionId: String by lazy { arguments?.getString("session_id") ?: "" }
-    private val existingDids: Array<String> by lazy { arguments?.getStringArray("existing_dids") ?: emptyArray() }
+    private val existingDids: Array<String> by lazy {
+        arguments?.getStringArray("existing_dids") ?: emptyArray()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,23 +48,27 @@ class StorachaDIDAccessFragment : BaseFragment() {
                     // Validate the scanned DID
                     when {
                         !Ed25519Utils.isValidDid(scannedText) -> {
-                            Toast.makeText(
-                                requireContext(),
-                                "Invalid DID format. Please scan a valid DID key (format: did:key:z...)",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            binding.tvDid.error = "Invalid DID format"
+                            Toast
+                                .makeText(
+                                    requireContext(),
+                                    "Invalid DID format. Please scan a valid DID key (format: did:key:z...)",
+                                    Toast.LENGTH_LONG,
+                                ).show()
+//                            binding.tvDid.error = "Invalid DID format"
                         }
+
                         existingDids.contains(scannedText) -> {
-                            Toast.makeText(
-                                requireContext(),
-                                "DID already added",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            binding.tvDid.error = "DID already added"
+                            Toast
+                                .makeText(
+                                    requireContext(),
+                                    "DID already added",
+                                    Toast.LENGTH_LONG,
+                                ).show()
+//                            binding.tvDid.error = "DID already added"
                         }
+
                         else -> {
-                            binding.tvDid.error = null
+//                            binding.tvDid.error = null
                         }
                     }
                 }
@@ -76,27 +82,34 @@ class StorachaDIDAccessFragment : BaseFragment() {
 
             when {
                 didText.isEmpty() -> {
-                    Toast.makeText(requireContext(), "Please enter a DID", Toast.LENGTH_SHORT).show()
-                    binding.tvDid.error = "DID is required"
+                    Toast
+                        .makeText(requireContext(), "Please enter a DID", Toast.LENGTH_SHORT)
+                        .show()
+//                    binding.tvDid.error = "DID is required"
                 }
+
                 !Ed25519Utils.isValidDid(didText) -> {
-                    Toast.makeText(
-                        requireContext(),
-                        "Invalid DID format. Please enter a valid DID key (format: did:key:z...)",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    binding.tvDid.error = "Invalid DID format"
+                    Toast
+                        .makeText(
+                            requireContext(),
+                            "Invalid DID format. Please enter a valid DID key (format: did:key:z...)",
+                            Toast.LENGTH_LONG,
+                        ).show()
+//                    binding.tvDid.error = "Invalid DID format"
                 }
+
                 existingDids.contains(didText) -> {
-                    Toast.makeText(
-                        requireContext(),
-                        "DID already added",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    binding.tvDid.error = "DID already added"
+                    Toast
+                        .makeText(
+                            requireContext(),
+                            "DID already added",
+                            Toast.LENGTH_LONG,
+                        ).show()
+//                    binding.tvDid.error = "DID already added"
                 }
+
                 else -> {
-                    binding.tvDid.error = null
+//                    binding.tvDid.error = null
                     viewModel.createDelegation(
                         sessionId = sessionId,
                         userDid = didText,
