@@ -6,12 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.text.HtmlCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.services.storacha.util.StorachaAccountManager
 import net.opendasharchive.openarchive.services.storacha.util.StorachaHelper
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 
 class StorachaFragment : BaseFragment() {
     private lateinit var viewBinding: FragmentStorachaBinding
@@ -31,6 +33,13 @@ class StorachaFragment : BaseFragment() {
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewBinding.root.applyEdgeToEdgeInsets(
+            typeMask = WindowInsetsCompat.Type.navigationBars(),
+        ) { insets ->
+            bottomMargin = insets.bottom
+        }
+
         viewBinding.tvStorachaDisclaimer.text =
             HtmlCompat.fromHtml(getString(R.string.storacha_disclaimer), HtmlCompat.FROM_HTML_MODE_LEGACY)
         viewBinding.tvStorachaDisclaimer.movementMethod = LinkMovementMethod.getInstance()

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.fragment.findNavController
 import com.journeyapps.barcodescanner.CaptureActivity
 import com.journeyapps.barcodescanner.ScanContract
@@ -16,6 +17,7 @@ import net.opendasharchive.openarchive.databinding.FragmentStorachaDidAccessBind
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.services.storacha.util.Ed25519Utils
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaDIDAccessViewModel
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class StorachaDIDAccessFragment : BaseFragment() {
@@ -124,6 +126,13 @@ class StorachaDIDAccessFragment : BaseFragment() {
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.buttonBar.applyEdgeToEdgeInsets(
+            typeMask = WindowInsetsCompat.Type.navigationBars(),
+        ) { insets ->
+            bottomMargin = insets.bottom
+        }
+
         setupObservers()
     }
 

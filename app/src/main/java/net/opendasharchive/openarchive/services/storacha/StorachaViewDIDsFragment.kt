@@ -8,6 +8,9 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.MenuProvider
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -46,6 +49,17 @@ class StorachaViewDIDsFragment :
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBinding.rvFolderList) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
+
+            view.updatePadding(
+                bottom = insets.bottom + view.paddingBottom
+            )
+
+            windowInsets
+        }
+
         setupObservers()
         viewModel.loadDIDs(args.sessionId, args.spaceId)
         activity?.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)

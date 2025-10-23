@@ -4,10 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaSpaceSetupSuccessBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 
 class StorachaSpaceSetupSuccessFragment : BaseFragment() {
     private lateinit var mBinding: FragmentStorachaSpaceSetupSuccessBinding
@@ -18,6 +20,12 @@ class StorachaSpaceSetupSuccessFragment : BaseFragment() {
         savedInstanceState: Bundle?,
     ): View {
         mBinding = FragmentStorachaSpaceSetupSuccessBinding.inflate(inflater)
+
+        mBinding.btAuthenticate.applyEdgeToEdgeInsets(
+            typeMask = WindowInsetsCompat.Type.navigationBars(),
+        ) { insets ->
+            bottomMargin = insets.bottom
+        }
 
         mBinding.btAuthenticate.setOnClickListener { _ ->
             val action =

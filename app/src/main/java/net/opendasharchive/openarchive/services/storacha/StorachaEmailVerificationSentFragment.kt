@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -18,6 +19,7 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.services.storacha.util.StorachaAccountManager
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaEmailVerificationSentViewModel
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
@@ -45,6 +47,12 @@ class StorachaEmailVerificationSentFragment : BaseFragment() {
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
+
+        mBinding.root.applyEdgeToEdgeInsets(
+            typeMask = WindowInsetsCompat.Type.navigationBars(),
+        ) { insets ->
+            bottomMargin = insets.bottom
+        }
 
         // Disable hardware back button
         val backPressCallback = object : OnBackPressedCallback(true) {

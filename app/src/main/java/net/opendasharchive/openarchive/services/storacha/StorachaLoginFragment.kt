@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
@@ -21,6 +22,7 @@ import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.services.storacha.util.DidManager
 import net.opendasharchive.openarchive.services.storacha.util.StorachaAccountManager
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaLoginViewModel
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.toggle
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -42,6 +44,12 @@ class StorachaLoginFragment : BaseFragment() {
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewBinding.btLogin.applyEdgeToEdgeInsets(
+            typeMask = WindowInsetsCompat.Type.navigationBars(),
+        ) { insets ->
+            bottomMargin = insets.bottom
+        }
 
         // Setup clickable sign up link
         viewBinding.tvSignUpLink.text =

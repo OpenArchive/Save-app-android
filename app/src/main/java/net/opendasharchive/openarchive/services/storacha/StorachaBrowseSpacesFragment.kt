@@ -4,6 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import net.opendasharchive.openarchive.R
@@ -45,6 +48,17 @@ class StorachaBrowseSpacesFragment : BaseFragment() {
         savedInstanceState: Bundle?,
     ) {
         super.onViewCreated(view, savedInstanceState)
+
+        ViewCompat.setOnApplyWindowInsetsListener(mBinding.rvFolderList) { view, windowInsets ->
+            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
+
+            view.updatePadding(
+                bottom = insets.bottom + view.paddingBottom
+            )
+
+            windowInsets
+        }
+
         val did = DidManager(requireContext()).getOrCreateDid()
         val accountManager = StorachaAccountManager(requireContext())
         val currentAccount = accountManager.getCurrentAccount()
