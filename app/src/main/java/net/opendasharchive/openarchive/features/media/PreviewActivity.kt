@@ -183,9 +183,9 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
     override fun onClick(view: View?) {
         when (view) {
             mBinding.btAddMore -> {
-                permissionManager.checkMediaPermissions {
-                    Picker.pickMedia(mediaLaunchers.galleryLauncher)
-                }
+                // No permission check needed for PickVisualMedia contract
+                // The photo picker grants implicit access to selected media
+                Picker.pickMedia(mediaLaunchers.galleryLauncher)
             }
 
             mBinding.btBatchEdit -> {

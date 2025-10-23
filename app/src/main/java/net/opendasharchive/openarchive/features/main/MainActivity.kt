@@ -835,11 +835,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                         }
 
                         AddMediaType.GALLERY -> {
-                            AppLogger.i("requesting gallery permission...")
-                            permissionManager.checkMediaPermissions {
-                                AppLogger.i("gallery permission granted.")
-                                Picker.pickMedia(mediaLaunchers.galleryLauncher)
-                            }
+                            // No permission check needed for PickVisualMedia contract
+                            // The photo picker grants implicit access to selected media
+                            Picker.pickMedia(mediaLaunchers.galleryLauncher)
                         }
 
                         AddMediaType.FILES -> Picker.pickFiles(mediaLaunchers.filePickerLauncher)
