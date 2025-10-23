@@ -97,51 +97,83 @@ object CarFileCreator {
     }
 
     private fun createChunkedCarWithCids(file: File, outputDir: File?): CarFileResult {
-        val blocks = mutableListOf<IpldBlock>()
         val chunkCids = mutableListOf<ByteArray>()
-
-        // Stream the file in chunks to avoid loading entire file into memory
-        FileInputStream(file).use { inputStream ->
-            val buffer = ByteArray(CHUNK_SIZE)
-            var bytesRead: Int
-
-            while (inputStream.read(buffer).also { bytesRead = it } != -1) {
-                // Only use the actual bytes read (might be less than buffer size for last chunk)
-                val chunkData = if (bytesRead < buffer.size) {
-                    buffer.copyOf(bytesRead)
-                } else {
-                    buffer.copyOf()
-                }
-
-                val rawBlock = createRawBlock(chunkData)
-                blocks.add(rawBlock)
-                chunkCids.add(rawBlock.cid)
-            }
-        }
-
-        // Create intermediate DAG-PB block that links to raw chunks (like ipfs-car)
-        val intermediateDagPbBlock =
-            createIntermediateDagPbBlock(chunkCids, file.length())
-        blocks.add(intermediateDagPbBlock)
-
-        // Create root DAG-PB block that links to intermediate block with filename
-        val rootDagPbBlock =
-            createRootDagPbBlock(intermediateDagPbBlock.cid, file.name, file.length())
-        blocks.add(rootDagPbBlock)
-
-        // Create CIDs in proper format
-        val rootCid = cidBytesToString(rootDagPbBlock.cid)
 
         // Create temporary CAR file
         val carFile = File.createTempFile("car_", ".car", outputDir ?: file.parentFile)
 
-        // Write CAR data directly to file
-        writeCarToFile(carFile, rootDagPbBlock.cid, blocks)
+        // Phase 1: Stream file chunks and write raw blocks directly to CAR file
+        // We'll write blocks in two passes - first pass for raw blocks, second for metadata
+        val tempBlocksFile = File.createTempFile("car_blocks_", ".tmp", outputDir ?: file.parentFile)
 
-        // Calculate CAR CID from the file
-        val carCid = createCarCidFromFile(carFile)
+        try {
+            BufferedOutputStream(FileOutputStream(tempBlocksFile), 8192).use { blockOutput ->
+                // Stream the file in chunks to avoid loading entire file into memory
+                FileInputStream(file).use { inputStream ->
+                    val buffer = ByteArray(CHUNK_SIZE)
+                    var bytesRead: Int
 
-        return CarFileResult(carFile, carCid, rootCid, carFile.length())
+                    while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                        // Calculate CID directly from buffer without copying
+                        val cidBytes = calculateRawBlockCid(buffer, bytesRead)
+                        chunkCids.add(cidBytes)
+
+                        // Write block directly to temp file
+                        val blockSize = cidBytes.size + bytesRead
+                        blockOutput.write(encodeVarInt(blockSize))
+                        blockOutput.write(cidBytes)
+                        blockOutput.write(buffer, 0, bytesRead) // Write only actual bytes read
+
+                        // Buffer will be reused in next iteration - no additional allocations needed
+                    }
+                }
+            }
+
+            // Phase 2: Create metadata blocks (these are small, OK to keep in memory)
+            val intermediateDagPbBlock =
+                createIntermediateDagPbBlock(chunkCids, file.length())
+            val rootDagPbBlock =
+                createRootDagPbBlock(intermediateDagPbBlock.cid, file.name, file.length())
+            val rootCid = cidBytesToString(rootDagPbBlock.cid)
+
+            // Phase 3: Assemble final CAR file
+            BufferedOutputStream(FileOutputStream(carFile), 8192).use { carOutput ->
+                // Write CAR header
+                val headerData = createCborHeader(rootDagPbBlock.cid)
+                carOutput.write(encodeVarInt(headerData.size))
+                carOutput.write(headerData)
+
+                // Copy all raw blocks from temp file
+                FileInputStream(tempBlocksFile).use { tempInput ->
+                    val copyBuffer = ByteArray(8192)
+                    var copied: Int
+                    while (tempInput.read(copyBuffer).also { copied = it } != -1) {
+                        carOutput.write(copyBuffer, 0, copied)
+                    }
+                }
+
+                // Write metadata blocks
+                val metadataBlocks = listOf(intermediateDagPbBlock, rootDagPbBlock)
+                for (block in metadataBlocks) {
+                    val blockSize = block.cid.size + block.data.size
+                    carOutput.write(encodeVarInt(blockSize))
+                    carOutput.write(block.cid)
+                    carOutput.write(block.data)
+                }
+
+                carOutput.flush()
+            }
+
+            // Calculate CAR CID from the file
+            val carCid = createCarCidFromFile(carFile)
+
+            return CarFileResult(carFile, carCid, rootCid, carFile.length())
+        } finally {
+            // Clean up temp blocks file
+            if (tempBlocksFile.exists()) {
+                tempBlocksFile.delete()
+            }
+        }
     }
 
 //    private fun createLargeFileCarWithCids(file: File, mimeType: String): CarFileResult {
@@ -193,6 +225,21 @@ object CarFileCreator {
         val cidBytes = byteArrayOf(0x01.toByte(), 0x55.toByte()) + multiHash
 
         return IpldBlock(cidBytes, data)
+    }
+
+    /**
+     * Calculates CID for raw block data without creating a copy
+     * This is used for streaming large files to avoid memory allocation
+     */
+    private fun calculateRawBlockCid(buffer: ByteArray, length: Int): ByteArray {
+        val digest = MessageDigest.getInstance("SHA-256")
+        digest.update(buffer, 0, length)
+        val hash = digest.digest()
+
+        // Create multihash: 0x12 (SHA-256) + 0x20 (32 bytes) + hash
+        val multiHash = byteArrayOf(0x12, 0x20) + hash
+        // Create CID v1: version(1) + codec(0x55 raw) + multihash
+        return byteArrayOf(0x01.toByte(), 0x55.toByte()) + multiHash
     }
 
     /**

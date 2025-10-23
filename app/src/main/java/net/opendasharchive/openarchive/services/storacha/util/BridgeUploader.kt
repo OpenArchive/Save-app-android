@@ -38,6 +38,13 @@ class BridgeUploader(
             .build(),
     private val gson: Gson = Gson(),
 ) {
+    // Separate client for S3 uploads without logging to avoid OOM on large files
+    private val s3Client = OkHttpClient
+        .Builder()
+        .connectTimeout(60, TimeUnit.SECONDS)
+        .readTimeout(300, TimeUnit.SECONDS) // 5 minutes for large file uploads
+        .writeTimeout(300, TimeUnit.SECONDS) // 5 minutes for large file uploads
+        .build()
     private val storachaService =
         Retrofit
             .Builder()
@@ -349,7 +356,8 @@ class BridgeUploader(
             withTimeout(300_000L) {
                 // 5 minutes
                 suspendCancellableCoroutine { continuation ->
-                    val call = client.newCall(requestBuilder.build())
+                    // Use s3Client without logging to avoid OOM on large files
+                    val call = s3Client.newCall(requestBuilder.build())
 
                     call.enqueue(
                         object : okhttp3.Callback {
