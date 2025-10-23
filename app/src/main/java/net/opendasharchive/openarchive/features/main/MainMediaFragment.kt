@@ -9,7 +9,6 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.Dispatchers
@@ -29,8 +28,6 @@ import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.main.adapters.MainMediaAdapter
 import net.opendasharchive.openarchive.upload.BroadcastManager
 import net.opendasharchive.openarchive.upload.UploadService
-import net.opendasharchive.openarchive.util.AlertHelper
-import net.opendasharchive.openarchive.util.extensions.Position
 import net.opendasharchive.openarchive.util.extensions.toggle
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import kotlin.collections.set
@@ -205,6 +202,12 @@ class MainMediaFragment : BaseFragment() {
         binding.addMediaHint.toggle(mCollections.isEmpty())
     }
 
+    fun enableSelectionMode() {
+        isSelecting = true
+        mAdapters.values.forEach { it.selecting = true }
+        updateSelectionState()
+    }
+
     fun cancelSelection() {
         isSelecting = false
         selectedMediaIds.clear()
@@ -264,7 +267,7 @@ class MainMediaFragment : BaseFragment() {
             title = UiText.StringResource(R.string.upload_unsuccessful)
             message = UiText.StringResource(R.string.upload_unsuccessful_description)
             positiveButton {
-                text = UiText.StringResource(R.string.retry)
+                text = UiText.StringResource(R.string.lbl_retry)
                 action = {
                     mediaItem.apply {
                         sStatus = Media.Status.Queued

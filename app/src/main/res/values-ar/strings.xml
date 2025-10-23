@@ -188,7 +188,7 @@
     <string name="menu_done">تم</string>
     <string name="remove_from_app">إزالة من التطبيق</string>
     <string name="action_remove_project">هل أنت متيقِّن من أنك تريد إزالة مشروعك ؟</string>
-    <string name="remove">إزالة</string>
+    <string name="lbl_remove">إزالة</string>
     <string name="action_archive_project">أرشفة المشروع</string>
     <string name="action_unarchive_project">إلغاء أرشفة المشروع</string>
     <string name="IA_login_error">يرجى تسجيل الدخول باستخدام اعتمادات صالحة لـ Internet Archive.</string>
@@ -320,7 +320,7 @@
 
     <string name="upload_unsuccessful">التحميل غير ناجح</string>
     <string name="upload_unsuccessful_description">لقد تعذر التحميل بسبب خطأ في الجلسة، يرجى المحاولة مرة أخرى أو الاتصال بالدعم.</string>
-    <string name="retry">حاول مجددا</string>
+    <string name="lbl_retry">حاول مجددا</string>
 
     <string name="edit_media">تحرير الوسائط</string>
 

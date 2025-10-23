@@ -194,7 +194,7 @@
     <string name="menu_done">انجام شد</string>
     <string name="remove_from_app">حذف از برنامه</string>
     <string name="action_remove_project">آیا مطمئنید می‌خواهید پروژه‌یتان را حذف کنید؟</string>
-    <string name="remove">حذف </string>
+    <string name="lbl_remove">حذف </string>
     <string name="action_archive_project">آرشیوکردن پروژه</string>
     <string name="action_unarchive_project">خارج‌کردن پروژه از آرشیو</string>
     <string name="IA_login_error"> لطفاً با اطلاعات کاربری معتبر Internet Archive وارد شوید.</string>
@@ -326,7 +326,7 @@
 
     <string name="upload_unsuccessful">بارگذاری ناموفق بود</string>
     <string name="upload_unsuccessful_description"> به دلیل خطا در نشست ارتباطی، بارگذاری امکان‌پذیر نیست. لطفاً دوباره امتحان کنید یا با پشتیبانی تماس بگیرید.</string>
-    <string name="retry">امتحان مجدد</string>
+    <string name="lbl_retry">امتحان مجدد</string>
 
     <string name="edit_media">ویرایش رسانه</string>
 

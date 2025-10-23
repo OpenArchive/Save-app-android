@@ -221,7 +221,7 @@
     <string name="menu_done">Done</string>
     <string name="remove_from_app">Remove from app</string>
     <string name="action_remove_project">Are you sure you want to remove your project?</string>
-    <string name="remove">Remove</string>
+    <string name="lbl_remove">Remove</string>
     <string name="action_archive_project">Archive Project</string>
     <string name="action_unarchive_project">Unarchive Project</string>
     <string name="IA_login_error">Please login with valid Internet Archive credentials.</string>
@@ -369,7 +369,7 @@
 
     <string name="upload_unsuccessful">Upload Unsuccessful</string>
     <string name="upload_unsuccessful_description">Unable to upload due to session error, please try again or contact support.</string>
-    <string name="retry">Retry</string>
+    <string name="lbl_retry">Retry</string>
 
     <string name="edit_media">Edit Media</string>
 

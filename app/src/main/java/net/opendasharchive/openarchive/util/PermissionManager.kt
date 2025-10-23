@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.ButtonData
 import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
@@ -125,11 +126,9 @@ class PermissionManager(
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             val imageGranted = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED
             val videoGranted = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_MEDIA_VIDEO) == PackageManager.PERMISSION_GRANTED
-
             if (imageGranted && videoGranted) {
                 onGranted()
-            } else if (activity.shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES)
-                || activity.shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_VIDEO)) {
+            } else if (activity.shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES) || activity.shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_VIDEO)) {
                 dialogManager.showDialog(
                     config = DialogConfig(
                         type = DialogType.Warning,
