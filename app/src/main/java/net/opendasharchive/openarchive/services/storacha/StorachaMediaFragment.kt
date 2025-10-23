@@ -297,6 +297,23 @@ class StorachaMediaFragment :
     private fun handleMedia(uri: Uri) {
         Timber.d("Going to upload file: $uri")
 
+        // Clean up any previous failed upload before starting a new one
+        lastFailedUpload?.let { previousFailedUpload ->
+            try {
+                if (previousFailedUpload.tempFile.exists()) {
+                    previousFailedUpload.tempFile.delete()
+                    Timber.d("Cleaned up previous failed upload temp file: ${previousFailedUpload.tempFile.name}")
+                }
+                if (previousFailedUpload.carFile.exists()) {
+                    previousFailedUpload.carFile.delete()
+                    Timber.d("Cleaned up previous failed upload CAR file: ${previousFailedUpload.carFile.name}")
+                }
+            } catch (e: Exception) {
+                Timber.e("Failed to clean up previous failed upload: ${e.message}")
+            }
+            lastFailedUpload = null
+        }
+
         val userDid = DidManager(requireContext()).getOrCreateDid()
         val spaceDid = args.spaceId
 
