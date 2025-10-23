@@ -3,7 +3,7 @@ package net.opendasharchive.openarchive.services.storacha.util
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import net.opendasharchive.openarchive.services.storacha.StorachaAccount
+import net.opendasharchive.openarchive.services.storacha.model.StorachaAccount
 
 /**
  * Manages multiple Storacha account sessions using modern Android Keystore

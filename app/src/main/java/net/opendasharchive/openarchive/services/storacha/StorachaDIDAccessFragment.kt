@@ -119,10 +119,6 @@ class StorachaDIDAccessFragment : BaseFragment() {
             }
         }
 
-        binding.btBack.setOnClickListener {
-            findNavController().navigateUp()
-        }
-
         binding.ivQrScanner.setOnClickListener {
             val options = ScanOptions()
             options.setOrientationLocked(true)
@@ -141,7 +137,7 @@ class StorachaDIDAccessFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonBar.applyEdgeToEdgeInsets(
-            typeMask = WindowInsetsCompat.Type.navigationBars(),
+            typeMask = WindowInsetsCompat.Type.tappableElement(),
         ) { insets ->
             bottomMargin = insets.bottom
         }

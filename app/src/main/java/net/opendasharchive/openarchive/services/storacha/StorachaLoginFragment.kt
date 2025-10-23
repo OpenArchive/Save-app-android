@@ -45,7 +45,7 @@ class StorachaLoginFragment : BaseFragment() {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewBinding.btLogin.applyEdgeToEdgeInsets(
+        viewBinding.buttonBar.applyEdgeToEdgeInsets(
             typeMask = WindowInsetsCompat.Type.navigationBars(),
         ) { insets ->
             bottomMargin = insets.bottom

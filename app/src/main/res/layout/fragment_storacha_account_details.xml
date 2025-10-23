@@ -149,20 +149,27 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:gravity="bottom"
-        android:orientation="horizontal">
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:weightSum="2"
+        android:gravity="center|bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/bt_logout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
             android:layout_weight="1"
-            android:minHeight="60dp"
-            android:backgroundTint="@color/buttonBackground"
-            android:text="@string/logout"
+            android:gravity="center"
+            app:backgroundTint="@color/colorTertiary"
             android:textFontWeight="500"
-            app:backgroundTint="@color/colorTertiary" />
-
+            android:id="@+id/bt_logout"
+            android:paddingHorizontal="32dp"
+            android:backgroundTint="@color/buttonBackground"
+            android:text="@string/logout" />
     </LinearLayout>
 
 </LinearLayout>

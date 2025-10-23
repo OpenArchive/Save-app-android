@@ -24,10 +24,14 @@
             android:id="@+id/iv_storacha_logo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:padding="10dp"
             android:adjustViewBounds="true"
             android:contentDescription="@string/storacha"
             android:maxHeight="50dp"
             android:scaleType="fitCenter"
+            android:backgroundTint="@color/colorBackgroundSpaceIcon"
+            app:tint="@color/red"
+            android:background="@drawable/circle_shape"
             android:src="@drawable/storacha" />
 
         <!-- Instructions -->
@@ -40,7 +44,7 @@
             android:layout_marginStart="16dp"
             android:text="@string/this_is_your_qr_code_to_request_access_please_ask_the_admin_to_scab_your_code_to_gain_access_to_soace"
             android:textColor="@color/colorSectionHeaderText"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:lineSpacingExtra="2dp" />
 
     </LinearLayout>
@@ -56,7 +60,7 @@
         app:cardElevation="8dp"
         app:strokeColor="@color/c23_light_grey"
         app:strokeWidth="1dp"
-        app:layout_constraintBottom_toTopOf="@id/btn_continue"
+        app:layout_constraintBottom_toTopOf="@id/button_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/ll_header">
@@ -175,21 +179,30 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Action Button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_continue"
-        style="@style/OAMaterialSignInButtonStyle"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/button_bar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:minHeight="60dp"
-        android:text="@string/view_spaces"
-        android:textSize="16sp"
-        app:cornerRadius="12dp"
-        android:layout_marginHorizontal="0dp"
-        android:layout_marginBottom="0dp"
+        android:baselineAligned="false"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:gravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+            android:layout_weight="1"
+            android:gravity="center"
+            app:backgroundTint="@color/colorTertiary"
+            android:textFontWeight="500"
+            android:id="@+id/btn_continue"
+            android:paddingHorizontal="32dp"
+            android:backgroundTint="@color/buttonBackground"
+            android:text="@string/view_spaces" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

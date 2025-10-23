@@ -1,4 +1,4 @@
-package net.opendasharchive.openarchive.services.storacha
+package net.opendasharchive.openarchive.services.storacha.model
 
 /**
  * Represents a logged-in Storacha account

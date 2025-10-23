@@ -29,8 +29,9 @@
                 android:adjustViewBounds="true"
                 android:importantForAccessibility="no"
                 android:scaleType="fitCenter"
+                android:backgroundTint="@color/colorBackgroundSpaceIcon"
                 android:src="@drawable/storacha"
-                app:tint="@color/c23_teal" />
+                app:tint="@color/red" />
 
             <TextView
                 android:layout_marginStart="16dp"
@@ -40,7 +41,7 @@
                 android:gravity="start"
                 android:text="@string/access_your_account_using_your_registered_email_address"
                 android:textColor="@color/colorSectionHeaderText"
-                android:textSize="15sp" />
+                android:textSize="16sp" />
         </LinearLayout>
 
 
@@ -87,13 +88,31 @@
             android:layout_height="0dp"
             android:layout_weight="1"/>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/bt_login"
-            style="@style/OAMaterialSignInButtonStyle"
+        <LinearLayout
+            android:id="@+id/button_bar"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="@string/label_login"
-            tools:layout_editor_absoluteY="186dp" />
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:gravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+                android:layout_weight="1"
+                android:gravity="center"
+                app:backgroundTint="@color/colorTertiary"
+                android:textFontWeight="500"
+                android:id="@+id/bt_login"
+                android:paddingHorizontal="32dp"
+                android:backgroundTint="@color/buttonBackground"
+                android:text="@string/label_login" />
+        </LinearLayout>
 
     </LinearLayout>
 

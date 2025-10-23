@@ -61,29 +61,27 @@
         android:id="@+id/button_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="bottom"
+        android:baselineAligned="false"
         android:orientation="horizontal"
-        android:weightSum="2">
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:weightSum="2"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-        <Button
-            android:id="@+id/bt_back"
-            style="?android:attr/buttonBarButtonStyle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/back"
-            android:textColor="@color/colorText"
-            android:visibility="visible" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/bt_ok"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:backgroundTint="@color/buttonBackground"
-            android:text="@string/lbl_ok"
-            android:textFontWeight="500"
-            app:backgroundTint="@color/colorTertiary" />
-
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+                android:layout_weight="1"
+                android:gravity="center"
+                app:backgroundTint="@color/colorTertiary"
+                android:textFontWeight="500"
+                android:id="@+id/bt_ok"
+                android:paddingHorizontal="32dp"
+                android:backgroundTint="@color/buttonBackground"
+                android:text="@string/action_next" />
     </LinearLayout>
+
 </LinearLayout>
