@@ -22,7 +22,7 @@
     <string name="disable_passcode_dialog_title">تعطيل رمز المرور</string>
     <string name="disable_passcode_dialog_msg">هل أنت متيقِّن من تعطيل رمز المرور؟</string>
     <string name="tor_disabled_title">التوجيه البصلي قيد التطوير</string>
-    <string name="tor_disabled_message">هذه الميزة قيد التطوير حاليا. في الوقت الحالي، يمكنك استخدام Orbot أو أي شبكة إفتراضية خاصة من اختيارك لتعزيز خصوصيتك وأمنك.</string>
+    <string name="tor_disabled_message">هذه الميزة قيد التطوير حاليا. في الوقت الحالي، يمكنك استخدام Orbot أو أي شبكة افتراضية خاصة من اختيارك لتعزيز خصوصيتك وأمنك.</string>
     <string name="tor_download_btn_label">تنزيل Orbot</string>
 
 
@@ -175,7 +175,7 @@
 
     <!-- WebDAV setup License -->
     <string name="name_your_server">أطلق اسما على خادمك واختر الترخيص</string>
-    <string name="choose_license">اختر ترخيص</string>
+    <string name="choose_license">اختر ترخيصا</string>
 
     <!-- Space Setup Success -->
     <string name="space_setup_success_title">اكتمل الإعداد</string>
@@ -275,6 +275,6 @@
     <string name="lbl_no_archived_folders">لم يتم العثور على أي مجلد مُؤرشَف.</string>
     <string name="error_no_internet">الانترنت غير متاح</string>
     <string name="save_by_open_archive">‫Save من إصدار OpenArchive</string>
-    <string name="discover_the_save_app">إعرف أكثر</string>
+    <string name="discover_the_save_app">اعرف أكثر</string>
 
     </resources>
