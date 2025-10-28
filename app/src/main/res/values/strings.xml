@@ -405,6 +405,7 @@
     <string name="tor_connection_invalid" translatable="false">Unable to connect to Orbot/Tor: INVALID</string>
     <string name="label_login">Login</string>
     <string name="logging_in">Logging in…</string>
+    <string name="adding_did">Adding DID…</string>
     <string name="your_session_has_expired_please_log_out_and_log_back_in_then_try_uploading_again">Your session has expired. Please log out and log back in, then try uploading again.</string>
     <string name="you_don_t_have_permission_to_upload_to_this_space_please_check_with_the_space_owner">You don\'t have permission to upload to this space. Please check with the space owner.</string>
     <string name="can_t_connect_to_the_server_please_check_your_internet_connection_and_try_again">Can\'t connect to the server. Please check your internet connection and try again.</string>

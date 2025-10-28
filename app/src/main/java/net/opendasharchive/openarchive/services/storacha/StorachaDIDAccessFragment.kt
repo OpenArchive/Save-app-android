@@ -2,6 +2,8 @@ package net.opendasharchive.openarchive.services.storacha
 
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +20,7 @@ import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.services.storacha.util.Ed25519Utils
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaDIDAccessViewModel
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
+import net.opendasharchive.openarchive.util.extensions.toggle
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class StorachaDIDAccessFragment : BaseFragment() {
@@ -44,8 +47,9 @@ class StorachaDIDAccessFragment : BaseFragment() {
                 if (result.contents != null) {
                     val scannedText = result.contents.trim()
                     binding.tvDid.setText(scannedText)
+                    // Button state will be updated automatically by TextWatcher
 
-                    // Validate the scanned DID
+                    // Show validation feedback
                     when {
                         !Ed25519Utils.isValidDid(scannedText) -> {
                             Toast
@@ -54,7 +58,6 @@ class StorachaDIDAccessFragment : BaseFragment() {
                                     "Invalid DID format. Please scan a valid DID key (format: did:key:z...)",
                                     Toast.LENGTH_LONG,
                                 ).show()
-//                            binding.tvDid.error = "Invalid DID format"
                         }
 
                         existingDids.contains(scannedText) -> {
@@ -64,11 +67,6 @@ class StorachaDIDAccessFragment : BaseFragment() {
                                     "DID already added",
                                     Toast.LENGTH_LONG,
                                 ).show()
-//                            binding.tvDid.error = "DID already added"
-                        }
-
-                        else -> {
-//                            binding.tvDid.error = null
                         }
                     }
                 }
@@ -127,7 +125,31 @@ class StorachaDIDAccessFragment : BaseFragment() {
             options.setCaptureActivity(PortraitCaptureActivity::class.java)
             qrLauncher.launch(options)
         }
+
+        // Add TextWatcher to validate DID and enable/disable button
+        binding.tvDid.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                validateAndUpdateButton()
+            }
+        })
+
+        // Initially disable button
+        validateAndUpdateButton()
+
         return binding.root
+    }
+
+    private fun validateAndUpdateButton() {
+        val didText = binding.tvDid.text.toString().trim()
+        // Only check format validity, not duplicates
+        // Let user click button to see duplicate error message
+        val isValid = didText.isNotEmpty() &&
+                     Ed25519Utils.isValidDid(didText)
+
+        // Only enable if valid AND not loading
+        binding.btOk.isEnabled = isValid && (viewModel.loading.value != true)
     }
 
     override fun onViewCreated(
@@ -147,7 +169,11 @@ class StorachaDIDAccessFragment : BaseFragment() {
 
     private fun setupObservers() {
         viewModel.loading.observe(viewLifecycleOwner) { isLoading ->
-            binding.btOk.isEnabled = !isLoading
+            // Show/hide loading indicator
+            binding.loadingContainer.toggle(isLoading)
+
+            // Update button state based on both loading and validation
+            validateAndUpdateButton()
         }
 
         viewModel.success.observe(viewLifecycleOwner) { success ->
