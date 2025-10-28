@@ -9,6 +9,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toUri
@@ -30,6 +31,10 @@ import net.opendasharchive.openarchive.services.storacha.util.CarFileResult
 import net.opendasharchive.openarchive.services.storacha.util.DidManager
 import net.opendasharchive.openarchive.services.storacha.viewModel.LoadingState
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaMediaViewModel
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import net.opendasharchive.openarchive.util.Utility
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.toggle
 import okhttp3.OkHttpClient
@@ -48,6 +53,33 @@ class StorachaMediaFragment :
     private val okHttpClient: OkHttpClient by inject()
     private lateinit var mediaAdapter: StorachaMediaGridAdapter
     private lateinit var uploadOverlay: View
+
+    private val cameraPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                launchCamera()
+            }
+        }
+
+    private val getMultipleContentsLauncher =
+        registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris: List<Uri> ->
+            handleSelectedFiles(uris)
+        }
+
+    private var capturedImageUri: Uri? = null
+
+    private val takePictureLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            Timber.d("Camera result: success=$success, capturedImageUri=$capturedImageUri")
+            if (success) {
+                capturedImageUri?.let { uri ->
+                    Timber.d("Processing camera capture from URI: $uri")
+                    handleMedia(uri)
+                }
+            } else {
+                Timber.d("Camera capture cancelled or failed")
+            }
+        }
 
     // Store the last failed upload details for retry
     private var lastFailedUpload: FailedUploadData? = null
@@ -106,7 +138,7 @@ class StorachaMediaFragment :
         mBinding.progressBar.toggle(true)
 
         mBinding.addButton.setOnClickListener {
-            openFilePicker()
+            showContentPicker()
         }
 
         val spaceDid = args.spaceId
@@ -304,11 +336,6 @@ class StorachaMediaFragment :
             else -> false
         }
 
-    private val getMultipleContentsLauncher =
-        registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris: List<Uri> ->
-            handleSelectedFiles(uris)
-        }
-
     private fun handleMedia(uri: Uri) {
         Timber.d("Going to upload file: $uri")
 
@@ -332,23 +359,51 @@ class StorachaMediaFragment :
         val userDid = DidManager(requireContext()).getOrCreateDid()
         val spaceDid = args.spaceId
 
-        // Create temporary file from URI preserving original filename
-        val originalName = getFileName(uri) ?: "unknown_${System.currentTimeMillis()}"
-        val extension = originalName.substringAfterLast('.', "")
+        // Use the same pattern as Picker.kt - get display name from URI
+        val title = Utility.getUriDisplayName(requireContext(), uri) ?: "IMG_${System.currentTimeMillis()}.jpg"
+        val tempFile = Utility.getOutputMediaFileByCache(requireContext(), title)
 
-        // Use original filename, but add timestamp if there's no extension to avoid conflicts
-        val fileName =
-            if (extension.isNotEmpty()) {
-                originalName
-            } else {
-                "${originalName}_${System.currentTimeMillis()}"
-            }
-        val tempFile = File(requireContext().cacheDir, fileName)
-        requireContext().contentResolver.openInputStream(uri)?.use { input ->
-            FileOutputStream(tempFile).use { output ->
-                input.copyTo(output)
-            }
+        if (tempFile == null) {
+            Timber.e("Failed to create temp file for URI: $uri")
+            showError("Failed to create temporary file")
+            return
         }
+
+        // Use the exact same pattern as Picker.kt for file copying
+        try {
+            requireContext().contentResolver.openInputStream(uri)?.use { inputStream ->
+                if (!Utility.writeStreamToFile(inputStream, tempFile)) {
+                    Timber.e("Failed to write stream to file for URI: $uri")
+                    showError("Failed to copy image data")
+                    return
+                }
+            } ?: run {
+                Timber.e("Failed to open input stream for URI: $uri")
+                showError("Failed to read image")
+                return
+            }
+        } catch (e: java.io.FileNotFoundException) {
+            Timber.e(e, "File not found for URI: $uri")
+            showError("File not found")
+            return
+        } catch (e: SecurityException) {
+            Timber.e(e, "Permission denied for URI: $uri")
+            showError("Permission denied to read image")
+            return
+        } catch (e: java.io.IOException) {
+            Timber.e(e, "IO error reading URI: $uri")
+            showError("Failed to read image: ${e.message}")
+            return
+        }
+
+        // Verify file was actually written with content
+        if (!tempFile.exists() || tempFile.length() == 0L) {
+            Timber.e("Temp file is empty after copy. File exists: ${tempFile.exists()}, size: ${tempFile.length()}")
+            showError("Image file is empty (0 bytes). Please try again.")
+            return
+        }
+
+        Timber.d("Successfully copied file from URI to temp file: ${tempFile.absolutePath}, size: ${tempFile.length()} bytes")
 
         // Generate proper CAR file from the temporary file (writes directly to cache dir)
         val carResult = CarFileCreator.createCarFile(tempFile, requireContext().cacheDir)
@@ -384,12 +439,72 @@ class StorachaMediaFragment :
         getMultipleContentsLauncher.launch("*/*")
     }
 
-    private fun getFileName(uri: Uri): String? =
-        requireContext().contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-            val nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
-            cursor.moveToFirst()
-            cursor.getString(nameIndex)
+    private fun showContentPicker() {
+        val contentPicker = StorachaContentPickerFragment { contentType ->
+            when (contentType) {
+                StorachaContentType.CAMERA -> openCamera()
+                StorachaContentType.FILES -> openFilePicker()
+            }
         }
+        contentPicker.show(parentFragmentManager, StorachaContentPickerFragment.TAG)
+    }
+
+    private fun openCamera() {
+        when {
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                launchCamera()
+            }
+            shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
+                // Show rationale dialog
+                dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+                    type = DialogType.Warning
+                    title = UiText.DynamicString("Camera Permission")
+                    message = UiText.DynamicString("Camera access is needed to take pictures. Please grant permission.")
+                    positiveButton {
+                        text = UiText.DynamicString("Accept")
+                        action = {
+                            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                        }
+                    }
+                    neutralButton {
+                        text = UiText.DynamicString("Cancel")
+                    }
+                }
+            }
+            else -> {
+                cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        }
+    }
+
+    private fun launchCamera() {
+        try {
+            val photoFile = Utility.getOutputMediaFileByCache(requireContext(), "IMG_${System.currentTimeMillis()}.jpg")
+
+            photoFile?.let {
+                capturedImageUri = androidx.core.content.FileProvider.getUriForFile(
+                    requireContext(),
+                    "${requireContext().packageName}.provider",
+                    it
+                )
+                Timber.d("Launching camera with URI: $capturedImageUri")
+                takePictureLauncher.launch(capturedImageUri)
+            } ?: run {
+                Timber.e("Failed to create temp file for camera")
+                Toast.makeText(requireContext(), "Failed to prepare camera", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error setting up camera")
+            Toast.makeText(requireContext(), "Camera setup failed", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showError(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+    }
 
     private fun openFileInBrowser(file: UploadEntry) {
         try {
