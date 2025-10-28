@@ -96,6 +96,22 @@ class StorachaBrowseSpacesFragment : BaseFragment() {
                     findNavController().navigate(action)
                 }
         }
+
+        // Observe session expiration
+        // For spaces list, allow user to stay and browse delegated spaces
+        viewModel.sessionExpired.observe(viewLifecycleOwner) { expired ->
+            if (expired) {
+                showSessionExpiredWithStayOption {
+                    // Clear the flag so dialog doesn't keep showing
+                    viewModel.clearSessionExpired()
+
+                    // Refresh spaces list with only DID (no session)
+                    // This will show only delegated spaces
+                    val did = DidManager(requireContext()).getOrCreateDid()
+                    viewModel.loadSpaces(did, "")
+                }
+            }
+        }
     }
 
     private fun refreshSpaces() {

@@ -196,11 +196,26 @@ class StorachaMediaFragment :
                 },
                 onFailure = { error ->
                     Timber.e(error, "Upload failed")
-                    showUploadErrorDialog(error)
+
+                    // Don't show generic error dialog if we're showing session expired dialog
+                    // This is handled by separate observer
+                    val isAuthError = viewModel.sessionExpired.value == true
+
+                    if (!isAuthError) {
+                        showUploadErrorDialog(error)
+                    }
+
                     // Clear the result immediately after showing the dialog to prevent re-showing
                     viewModel.clearUploadResult()
                 },
             )
+        }
+
+        // Observe session expiration
+        viewModel.sessionExpired.observe(viewLifecycleOwner) { expired ->
+            if (expired) {
+                showSessionExpiredDialog()
+            }
         }
 
         mBinding.rvMediaList.addOnScrollListener(
@@ -430,15 +445,9 @@ class StorachaMediaFragment :
 
     private fun parseErrorMessage(fullMessage: String): String =
         when {
-            // Session/Authentication issues - Ask user to re-login
-            fullMessage.contains("Session not verified", ignoreCase = true) ||
-                fullMessage.contains(
-                    "Authentication required",
-                    ignoreCase = true,
-                )
-            -> {
-                getString(R.string.your_session_has_expired_please_log_out_and_log_back_in_then_try_uploading_again)
-            }
+            // Session/Authentication issues are now handled by AuthInterceptor + ViewModel observers
+            // (showEmailVerificationRequiredDialog / showSessionExpiredDialog)
+            // This old code path is removed to avoid duplicate error messages
 
             // Permission issues - Clear and actionable
             fullMessage.contains("Claim not authorized", ignoreCase = true) ||

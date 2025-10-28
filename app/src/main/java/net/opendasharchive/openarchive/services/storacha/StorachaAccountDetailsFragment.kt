@@ -104,6 +104,13 @@ class StorachaAccountDetailsFragment : BaseFragment() {
                     findNavController().navigate(action)
                 }
         }
+
+        // Observe session expiration
+        viewModel.sessionExpired.observe(viewLifecycleOwner) { expired ->
+            if (expired) {
+                showSessionExpiredDialog()
+            }
+        }
     }
 
     private fun loadAccountData() {

@@ -94,6 +94,13 @@ class StorachaViewDIDsFragment :
                 // For now, you can add proper error handling here
             }
         }
+
+        // Observe session expiration
+        viewModel.sessionExpired.observe(viewLifecycleOwner) { expired ->
+            if (expired) {
+                showSessionExpiredDialog()
+            }
+        }
     }
 
     private fun showRevokeDialog(account: DidAccount) {

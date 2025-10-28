@@ -167,6 +167,13 @@ class StorachaDIDAccessFragment : BaseFragment() {
                 Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
             }
         }
+
+        // Observe session expiration
+        viewModel.sessionExpired.observe(viewLifecycleOwner) { expired ->
+            if (expired) {
+                showSessionExpiredDialog()
+            }
+        }
     }
 
     override fun getToolbarTitle() = "Add DID"

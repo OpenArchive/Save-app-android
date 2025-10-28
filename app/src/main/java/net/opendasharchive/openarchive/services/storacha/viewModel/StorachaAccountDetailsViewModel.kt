@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.services.storacha.model.AccountUsageResponse
 import net.opendasharchive.openarchive.services.storacha.model.PlanInfo
 import net.opendasharchive.openarchive.services.storacha.service.StorachaApiService
+import retrofit2.HttpException
 
 class StorachaAccountDetailsViewModel(
     application: Application,
@@ -23,12 +24,20 @@ class StorachaAccountDetailsViewModel(
     private val _logoutResult = MutableLiveData<Result<Unit>>()
     val logoutResult: LiveData<Result<Unit>> = _logoutResult
 
+    private val _sessionExpired = MutableLiveData<Boolean>()
+    val sessionExpired: LiveData<Boolean> = _sessionExpired
+
     fun loadAccountUsage(sessionId: String) {
         _isLoading.value = true
         viewModelScope.launch {
             try {
                 val response = apiService.getAccountUsage(sessionId)
                 _accountUsage.value = Result.success(response)
+            } catch (e: HttpException) {
+                if (e.code() == 401) {
+                    _sessionExpired.value = true
+                }
+                _accountUsage.value = Result.failure(e)
             } catch (e: Exception) {
                 _accountUsage.value = Result.failure(e)
             } finally {

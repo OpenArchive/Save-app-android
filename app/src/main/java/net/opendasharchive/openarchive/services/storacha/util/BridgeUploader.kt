@@ -206,9 +206,8 @@ class BridgeUploader(
             Timber.e("Token generation HTTP error: $httpCode $httpMessage")
             Timber.e("Token generation error body: $errorBody")
 
-            val detailedError =
-                "HTTP $httpCode: $httpMessage${if (errorBody != "No error details") "\nServer response: $errorBody" else ""}"
-            throw Exception("Bridge token generation failed - $detailedError")
+            // Re-throw HttpException so AuthInterceptor can handle 401/403 properly
+            throw e
         }
     }
 

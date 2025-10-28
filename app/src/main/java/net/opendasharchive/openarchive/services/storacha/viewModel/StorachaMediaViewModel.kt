@@ -10,6 +10,7 @@ import net.opendasharchive.openarchive.services.storacha.model.UploadResponse
 import net.opendasharchive.openarchive.services.storacha.service.StorachaApiService
 import net.opendasharchive.openarchive.services.storacha.util.BridgeUploader
 import net.opendasharchive.openarchive.services.storacha.util.CarFileResult
+import retrofit2.HttpException
 import timber.log.Timber
 import java.io.File
 
@@ -19,7 +20,7 @@ enum class LoadingState {
 
 class StorachaMediaViewModel(
     private val apiService: StorachaApiService,
-    private val bridgeUploader: BridgeUploader = BridgeUploader(),
+    private val bridgeUploader: BridgeUploader,
 ) : ViewModel() {
     private val _media = MutableLiveData<List<UploadEntry>>(emptyList())
     val media: LiveData<List<UploadEntry>> get() = _media
@@ -41,6 +42,9 @@ class StorachaMediaViewModel(
 
     private val _uploadResult = MutableLiveData<Result<UploadResponse>?>()
     val uploadResult: LiveData<Result<UploadResponse>?> get() = _uploadResult
+
+    private val _sessionExpired = MutableLiveData<Boolean>()
+    val sessionExpired: LiveData<Boolean> get() = _sessionExpired
 
     fun reset() {
         currentCursor = null
@@ -137,6 +141,11 @@ class StorachaMediaViewModel(
                 if (addedCount == 0 && newEntries.isNotEmpty() && hasMoreData) {
                     Timber.w("Potential pagination issue: no new items added but hasMore=true")
                 }
+            } catch (e: HttpException) {
+                if (e.code() == 401) {
+                    _sessionExpired.value = true
+                }
+                isRefreshing = false
             } catch (e: Exception) {
                 // optionally handle error
                 isRefreshing = false // Reset refresh flag on error too
@@ -183,6 +192,11 @@ class StorachaMediaViewModel(
                 // Refresh the media list after successful upload
                 refreshFromStart()
                 loadMoreMediaEntries(userDid, spaceDid, sessionId)
+            } catch (e: HttpException) {
+                if (e.code() == 401) {
+                    _sessionExpired.value = true
+                }
+                _uploadResult.value = Result.failure(e)
             } catch (e: Exception) {
                 _uploadResult.value = Result.failure(e)
             } finally {

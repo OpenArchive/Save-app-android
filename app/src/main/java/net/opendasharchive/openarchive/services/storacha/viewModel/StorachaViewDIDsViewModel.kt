@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.services.storacha.service.StorachaApiService
+import retrofit2.HttpException
 
 data class DidAccount(
     val did: String,
@@ -23,6 +24,9 @@ class StorachaViewDIDsViewModel(
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> get() = _error
 
+    private val _sessionExpired = MutableLiveData<Boolean>()
+    val sessionExpired: LiveData<Boolean> = _sessionExpired
+
     fun loadDIDs(
         sessionId: String,
         spaceDid: String,
@@ -38,6 +42,12 @@ class StorachaViewDIDsViewModel(
                     )
                 val didAccounts = response.users?.map { DidAccount(it) } ?: emptyList()
                 _dids.value = didAccounts
+            } catch (e: HttpException) {
+                if (e.code() == 401) {
+                    _sessionExpired.value = true
+                }
+                _error.value = e.message ?: "Failed to load DIDs"
+                _dids.value = emptyList()
             } catch (e: Exception) {
                 _error.value = e.message ?: "Failed to load DIDs"
                 _dids.value = emptyList()

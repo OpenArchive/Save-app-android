@@ -417,4 +417,15 @@
     <string name="there_might_not_be_enough_storage_space_available_please_try_again_or_contact_support">There might not be enough storage space available. Please try again or contact support.</string>
     <string name="something_went_wrong_with_the_upload_please_try_again">Something went wrong with the upload. Please try again.</string>
     <string name="enter_a_did_access_key_manually_or_scan_a_qr_code_to_add_one">Enter a DID access key manually, or scan a QR code to add one</string>
+
+    <!-- Session Management -->
+    <string name="email_verification_required_title">Email Verification Required</string>
+    <string name="email_verification_required_message">Please verify your email to access spaces. Check your inbox for the verification link.</string>
+    <string name="session_expired_title">Session Expired</string>
+    <string name="session_expired_message">Your session has expired. Please login again to continue.</string>
+    <string name="session_expired_can_continue_message">Your session has expired. You can login to access your spaces, or continue browsing delegated spaces without logging in.</string>
+    <string name="session_expired_check_email_message">Your session has expired. A new verification email has been sent to your inbox. Please check your email and click the verification link to continue.</string>
+    <string name="login">Login</string>
+    <string name="stay_here">Stay Here</string>
+    <string name="manage_accounts_login">Retry Login</string>
 </resources>

@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.services.storacha.model.SpaceInfo
 import net.opendasharchive.openarchive.services.storacha.service.StorachaApiService
+import retrofit2.HttpException
 
 class StorachaBrowseSpacesViewModel(
     private val apiService: StorachaApiService,
@@ -17,6 +18,13 @@ class StorachaBrowseSpacesViewModel(
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> get() = _loading
 
+    private val _sessionExpired = MutableLiveData<Boolean>()
+    val sessionExpired: LiveData<Boolean> get() = _sessionExpired
+
+    fun clearSessionExpired() {
+        _sessionExpired.value = false
+    }
+
     fun loadSpaces(
         userDid: String,
         sessionId: String,
@@ -26,6 +34,11 @@ class StorachaBrowseSpacesViewModel(
             try {
                 val spaceInfos = apiService.listSpaces(userDid, sessionId)
                 _spaces.value = spaceInfos
+            } catch (e: HttpException) {
+                if (e.code() == 401) {
+                    _sessionExpired.value = true
+                }
+                _spaces.value = emptyList()
             } catch (e: Exception) {
                 _spaces.value = emptyList()
             } finally {

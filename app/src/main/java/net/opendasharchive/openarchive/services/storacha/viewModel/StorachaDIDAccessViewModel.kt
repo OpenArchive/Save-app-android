@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.services.storacha.model.DelegationRequest
 import net.opendasharchive.openarchive.services.storacha.service.StorachaApiService
+import retrofit2.HttpException
 
 class StorachaDIDAccessViewModel(
     private val apiService: StorachaApiService,
@@ -19,6 +20,9 @@ class StorachaDIDAccessViewModel(
 
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> get() = _error
+
+    private val _sessionExpired = MutableLiveData<Boolean>()
+    val sessionExpired: LiveData<Boolean> = _sessionExpired
 
     fun createDelegation(
         sessionId: String,
@@ -41,6 +45,11 @@ class StorachaDIDAccessViewModel(
 
                 apiService.createDelegation(sessionId, request)
                 _success.value = true
+            } catch (e: HttpException) {
+                if (e.code() == 401) {
+                    _sessionExpired.value = true
+                }
+                _error.value = e.message ?: "Failed to create delegation"
             } catch (e: Exception) {
                 _error.value = e.message ?: "Failed to create delegation"
             } finally {
