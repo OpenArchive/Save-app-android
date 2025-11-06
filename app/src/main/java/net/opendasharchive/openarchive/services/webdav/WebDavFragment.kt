@@ -1,5 +1,7 @@
 package net.opendasharchive.openarchive.services.webdav
 
+import android.content.res.ColorStateList
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -14,6 +16,8 @@ import android.view.inputmethod.EditorInfo
 import androidx.activity.addCallback
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.core.view.WindowInsetsCompat
@@ -51,6 +55,7 @@ import java.io.IOException
 import kotlin.coroutines.suspendCoroutine
 import androidx.core.net.toUri
 import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
+import com.google.android.material.textfield.TextInputLayout
 
 class WebDavFragment : BaseFragment() {
 
@@ -61,6 +66,13 @@ class WebDavFragment : BaseFragment() {
 
     private var originalName: String? = null
     private var isNameChanged = false
+
+    private var usernameEndIconModeBeforeError: Int? = null
+    private var usernameEndIconDrawableBeforeError: Drawable? = null
+    private var usernameEndIconVisibleBeforeError: Boolean = false
+    private var passwordEndIconModeBeforeError: Int? = null
+    private var passwordEndIconDrawableBeforeError: Drawable? = null
+    private var passwordEndIconVisibleBeforeError: Boolean = false
 
     private val args: WebDavFragmentArgs by navArgs()
 
@@ -406,9 +418,58 @@ class WebDavFragment : BaseFragment() {
             showLoadingOverlay(false)
             binding.errorHint.text = getString(R.string.error_incorrect_username_or_password)
             binding.errorHint.show()
-            // Set error state on username and password fields
-            binding.username.error = " "
-            binding.password.error = " "
+            binding.username.error = null
+            binding.usernameLayout.error = null
+            binding.password.error = null
+            binding.passwordLayout.error = null
+
+            if (usernameEndIconModeBeforeError == null) {
+                usernameEndIconModeBeforeError = binding.usernameLayout.endIconMode
+                usernameEndIconDrawableBeforeError = binding.usernameLayout.endIconDrawable
+                usernameEndIconVisibleBeforeError = binding.usernameLayout.isEndIconVisible
+            }
+
+            AppCompatResources.getDrawable(requireContext(), R.drawable.ic_error)?.let { drawable ->
+                binding.usernameLayout.apply {
+                    endIconMode = TextInputLayout.END_ICON_CUSTOM
+                    endIconDrawable = drawable
+                    isEndIconVisible = true
+                    setEndIconTintList(
+                        ColorStateList.valueOf(
+                            ContextCompat.getColor(
+                                requireContext(),
+                                R.color.colorError
+                            )
+                        )
+                    )
+                    endIconContentDescription =
+                        getString(R.string.error_incorrect_username_or_password)
+                }
+            }
+
+            if (passwordEndIconModeBeforeError == null) {
+                passwordEndIconModeBeforeError = binding.passwordLayout.endIconMode
+                passwordEndIconDrawableBeforeError = binding.passwordLayout.endIconDrawable
+                passwordEndIconVisibleBeforeError = binding.passwordLayout.isEndIconVisible
+            }
+
+            AppCompatResources.getDrawable(requireContext(), R.drawable.ic_error)?.let { drawable ->
+                binding.passwordLayout.apply {
+                    endIconMode = TextInputLayout.END_ICON_CUSTOM
+                    endIconDrawable = drawable
+                    isEndIconVisible = true
+                    setEndIconTintList(
+                        ColorStateList.valueOf(
+                            ContextCompat.getColor(
+                                requireContext(),
+                                R.color.colorError
+                            )
+                        )
+                    )
+                    endIconContentDescription =
+                        getString(R.string.error_incorrect_username_or_password)
+                }
+            }
         }
     }
 
@@ -416,7 +477,50 @@ class WebDavFragment : BaseFragment() {
         binding.errorHint.hide()
         // Clear error states from TextFields
         binding.username.error = null
+        binding.usernameLayout.error = null
         binding.password.error = null
+        binding.passwordLayout.error = null
+
+        if (usernameEndIconModeBeforeError != null ||
+            usernameEndIconDrawableBeforeError != null ||
+            usernameEndIconVisibleBeforeError
+        ) {
+            binding.usernameLayout.apply {
+                val modeToRestore = usernameEndIconModeBeforeError ?: TextInputLayout.END_ICON_NONE
+                endIconMode = modeToRestore
+                setEndIconDrawable(usernameEndIconDrawableBeforeError)
+                isEndIconVisible = usernameEndIconVisibleBeforeError
+                setEndIconTintList(null)
+                endIconContentDescription = null
+            }
+        }
+
+        if (passwordEndIconModeBeforeError != null ||
+            passwordEndIconDrawableBeforeError != null ||
+            passwordEndIconVisibleBeforeError
+        ) {
+            binding.passwordLayout.apply {
+                val modeToRestore =
+                    passwordEndIconModeBeforeError ?: TextInputLayout.END_ICON_PASSWORD_TOGGLE
+                endIconMode = modeToRestore
+                val drawableToRestore = passwordEndIconDrawableBeforeError
+                    ?: AppCompatResources.getDrawable(
+                        requireContext(),
+                        R.drawable.password_toggle_icon
+                    )
+                setEndIconDrawable(drawableToRestore)
+                isEndIconVisible = passwordEndIconVisibleBeforeError
+                setEndIconTintList(null)
+                endIconContentDescription = null
+            }
+        }
+
+        usernameEndIconModeBeforeError = null
+        usernameEndIconDrawableBeforeError = null
+        usernameEndIconVisibleBeforeError = false
+        passwordEndIconModeBeforeError = null
+        passwordEndIconDrawableBeforeError = null
+        passwordEndIconVisibleBeforeError = false
     }
 
     private fun showLoadingOverlay(show: Boolean) {
