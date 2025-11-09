@@ -41,7 +41,7 @@
     <color name="colorSpaceSetupProgressOn">@color/c23_teal</color>
     <color name="colorSpaceSetupProgressOff">@color/c23_medium_grey</color>
     <color name="colorBackgroundSpaceIcon">@color/c23_darker_grey</color>
-    <color name="colorButtonOnBackground">@color/black</color>
+    <color name="boxBackgroundColor">@color/black</color>
     <color name="colorOnBackgroundTonedDown">@color/c23_grey</color>
     <color name="colorOnBackgroundLowContrast">@color/c23_medium_grey</color>
     <color name="colorTextViewHint">@color/white</color>

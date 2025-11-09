@@ -19,6 +19,7 @@
     <color name="light_grey">#9e9e9e</color>
     <color name="grey">#757575</color>
     <color name="grey_50">#777979</color>
+    <color name="grey_70">#cccccc</color>
     <color name="c23_grey_30">#AEAEAE</color>
     <color name="dark_grey">#424242</color>
     <color name="text_grey">#434343</color>
@@ -109,7 +110,7 @@
 
     <color name="colorError">@color/red</color>
 
-    <color name="colorOutline">@color/black</color>
+    <color name="colorOutline">@color/c23_medium_grey</color>
 
     <!-- custom day colors -->
     <color name="inputBackground">#FFFBF0</color>
@@ -124,7 +125,7 @@
     <color name="colorSpaceSetupProgressOn">@color/black</color>
     <color name="colorSpaceSetupProgressOff">@color/c23_grey</color>
     <color name="colorBackgroundSpaceIcon">@color/c23_light_grey</color>
-    <color name="colorButtonOnBackground">@color/white</color>
+    <color name="boxBackgroundColor">@color/white</color>
     <color name="colorTextViewHint">@color/colorPrimary</color>
     <color name="colorSectionHeader">#00B4A6</color>
     <color name="colorBackendButton">@color/white</color>

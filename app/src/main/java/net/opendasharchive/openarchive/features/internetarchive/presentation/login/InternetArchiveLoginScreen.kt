@@ -168,13 +168,6 @@ private fun InternetArchiveLoginContent(
 
     val context = LocalContext.current
 
-    LaunchedEffect(state.isLoginError) {
-        while (state.isLoginError) {
-            delay(3000)
-            onAction(InternetArchiveLoginAction.ErrorClear)
-        }
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -207,7 +200,10 @@ private fun InternetArchiveLoginContent(
 
         CustomTextField(
             value = state.username,
-            onValueChange = { onAction(InternetArchiveLoginAction.UpdateUsername(it)) },
+            onValueChange = {
+                onAction(InternetArchiveLoginAction.ErrorClear)
+                onAction(InternetArchiveLoginAction.UpdateUsername(it))
+            },
             label = stringResource(R.string.label_username),
             placeholder = stringResource(R.string.prompt_email),
             isError = state.isUsernameError,
@@ -220,7 +216,10 @@ private fun InternetArchiveLoginContent(
 
         CustomSecureField(
             value = state.password,
-            onValueChange = { onAction(InternetArchiveLoginAction.UpdatePassword(it)) },
+            onValueChange = {
+                onAction(InternetArchiveLoginAction.ErrorClear)
+                onAction(InternetArchiveLoginAction.UpdatePassword(it))
+            },
             label = stringResource(R.string.label_password),
             placeholder = stringResource(R.string.prompt_password),
             isError = state.isPasswordError,
@@ -340,7 +339,9 @@ private fun InternetArchiveLoginPreview() {
             state = InternetArchiveLoginState(
                 username = "",
                 password = "",
-                isLoginError = true
+                isLoginError = true,
+                isPasswordError = true,
+                isUsernameError = true
             ),
             onAction = {}
         )
