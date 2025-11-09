@@ -351,4 +351,8 @@
     <string name="tor_connection_exception" translatable="false">Unable to connect to Orbot/Tor.</string>
     <string name="tor_connection_timeout" translatable="false">Unable to connect to Orbot/Tor: TIMEOUT</string>
     <string name="tor_connection_invalid" translatable="false">Unable to connect to Orbot/Tor: INVALID</string>
+
+
+
+    <string name="separator" translatable="false">separator</string>
 </resources>
