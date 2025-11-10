@@ -1,44 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-
     <string name="title_activity_first_start">البدء الأول</string>
-
-    <!-- Alert Values -->
-
     <string name="action_settings">الإعدادات</string>
-
-    <!-- FirstStartActivity -->
     <string name="internet_archive">‫موقع Internet Archive</string>
-    <string name="internet_archive_description">‫حمّل وسائطك إلى حساب عمومي مجاني أو خصوصي مدفوع على موقع Internet Archive.</string>
+    <string name="internet_archive_description">‫تحميل وسائطك إلى حساب عمومي مجاني على موقع Internet Archive.</string>
     <string name="dweb_title">‫خدمة DWeb</string>
-    <string name="dweb_description">اتصل بالانترنت اللامركزي</string>
-
-    <!--<string name="sign_up_btn">Don\'t have a virtual library card?\n<a href="https://archive.org/account/login.createaccount.php">Register for free.</a></string>-->
-
-    <!-- MainActivity -->
+    <string name="dweb_description">اتصل بـ\nالانترنت اللامركزي</string>
     <string name="servers">الخوادم</string>
     <string name="add_server">إضافة حساب آخر</string>
-
     <string name="lbl_rename_folder">إعادة تسمية المجلد</string>
     <string name="lbl_select_media">‮تحديد الوسائط</string>
     <string name="lbl_remove_folder">إزالة المجلد</string>
-
     <string name="popup_archive_folder">أرشفة المجلد</string>
     <string name="popup_remove_folder">إزالة المجلد من التطبيق</string>
-
     <string name="folder_empty_warning">لا يمكن ترك اسم المجلد فارغا</string>
     <string name="folder_rename_success">تمت إعادة تسمية المجلد</string>
     <string name="folder_not_found">لم يتم العثور على المجلد</string>
     <string name="folder_removed">تمت إزالة المجلد</string>
     <string name="folder_archived">تمت أرشفة المجلد</string>
-
-    <!-- MainFragment -->
-
-    <!-- Settings Fragment -->
+    <string name="content_picker_label">إضافة الوسائط من</string>
     <string name="disable_passcode_dialog_title">تعطيل رمز المرور</string>
     <string name="disable_passcode_dialog_msg">هل أنت متيقِّن من تعطيل رمز المرور؟</string>
+    <string name="tor_disabled_title">التوجيه البصلي قيد التطوير</string>
+    <string name="tor_disabled_message">هذه الميزة قيد التطوير حاليا. في الوقت الحالي، يمكنك استخدام Orbot أو أي شبكة افتراضية خاصة من اختيارك لتعزيز خصوصيتك وأمنك.</string>
+    <string name="tor_download_btn_label">تنزيل Orbot</string>
 
-    <!-- ViewMediaActivity -->
 
     <!-- Errors -->
 
@@ -46,15 +32,11 @@
     <string name="lbl_Cancel">إلغاء</string>
     <string name="lbl_ok">موافق</string>
     <string name="lbl_confirm">تأكيد </string>
-
-    <!-- original CC license questions
-    <string name="info_license_deriv">Allow adaptations of your work to be shared?</string>
-    <string name="info_license_sharealike">Require modified versions to also share?</string>
-    <string name="info_license_comm">Allow commercial uses of your work?</string>
-    -->
-
+    <string name="lbl_remove">إزالة</string>
+    <string name="lbl_retry">حاول مجددا</string>
 
     <string name="license_label">الترخيص</string>
+    <string name="info_license_cc0">التنازل عن جميع القيود والمتطلبات ونَسْب الحقوق (CC0).</string>
     <string name="info_license_deriv">السماح لأي شخص بالتعديل والمشاركة ؟</string>
     <string name="info_license_sharealike">الطلب من الأفراد المشاركة مثلما سبق لك أيضا المشاركة ؟</string>
     <string name="info_license_comm">السماح بالاستخدام التجاري ؟</string>
@@ -73,10 +55,13 @@
     <string name="prefs_use_tor_title">تشغيل التوجيه البصلي</string>
     <string name="prefs_use_tor_summary">النقل عبر شبكة « تور » فقط</string>
 
-    <!--    <string name="prefs_theme_summary">Change Save\'s theme to light/dark</string>-->
     <string name="prefs_use_proofmode_title">تفعيل ProofMode</string>
-    <string name="prefs_use_proofmode_description"><![CDATA[يُمكِّن نظام ProofMode من تفعيل الاستيثاق والتحقق من محتوى الوسائط، <a href=\"%1$s\"><u>تعرَّف على المزيد هنا</u></a>]]></string>
-    <string name="proof_mode_warning_text">لمساعدتك في التحقق من المكان الذي تم فيه التقاط وسائطك، يجمع ProofMode بيانات من أبراج الخلايا القريبة لإثبات موقعك. لزيادة المصداقية والسياق، فإنه يُدمِج ملفا منفصلا للبيانات الوصفية مع وسائطك. <b>فلا Save ولا OpenArchive يمكنهما الوصول إلى بيانات موقعك ولا حتى تخزينها، سيكون ذلك متاحا فقط لمن له حق الوصول إلى ملفات الخادم.</b> يطلب أندرويد حق الوصول إلى الموقع للحصول على تلك المعلومة.</string>
+    <string name="prefs_use_proofmode_description"><![CDATA[يُمكِّن نظام ‫ProofMode من تعزيز الاستيثاق والتحقق من محتوى الوسائط. <a href=\"%1$s\"><u>تعرَّف على المزيد هنا</u></a>]]></string>
+
+    <string name="proof_mode_warning_text"><![CDATA[
+لمساعدتك في التحقق من المكان الذي تم فيه التقاط وسائطك، يجمع ProofMode بيانات من أبراج الخلايا القريبة لإثبات موقعك. لزيادة المصداقية والسياق، فإنه يُدمِج ملفا منفصلا للبيانات الوصفية مع وسائطك*. يطلب أندرويد حق الوصول إلى الموقع للحصول على تلك المعلومة.<br/><br/>
+<b>*لا <i>Save</i> ولا <i>OpenArchive</i> يمكنهما الوصول إلى بيانات موقعك ولا حتى تخزينها، سيكون ذلك متاحا فقط لمن له حق الوصول إلى ملفات الخادم.</b>
+    ]]>\n    </string>
 
     <string name="prefs_share_proofmode_title">هوية ProofMode</string>
     <string name="prefs_share_proofmode_summary">مشاركة مفتاح ProofMode العمومي</string>
@@ -134,7 +119,7 @@
 
     <string name="confirm_passcode">أكِّد رمز المرور</string>
     <string name="set_passcode">حدد رمز المرور</string>
-    <string name="set_passcode_warning">تيقَّن من تذكُّر هذا الرمز. إذا نسيته، فسيحتاج الأمر إلى إعادة تعيين التطبيق، وسيتم مسح جميع البيانات.</string>
+    <string name="set_passcode_warning">تيقَّن من تذكُّر هذا الرمز. إذا نسيته، فسيحتاج الأمر إلى إعادة تعيين التطبيق، وسيتم مسح جميع البيانات داخل التطبيق.</string>
 
 
     <!-- Strings related to Settings -->
@@ -142,27 +127,26 @@
     <string name="tap_to_add">المس الزر أدناه لإضافة الوسائط</string>
     <string name="tap_to_add_folder">المس الزر أدناه لإضافة مجلد</string>
     <string name="tap_to_add_server">المس الزر أدناه لإضافة خادم</string>
-    <string name="to_get_started_connect_to_a_server_to_store_your_media">لبدء الاستخدام، اتصل بخادم لتخزين وسائطك</string>
+    <string name="to_get_started_connect_to_a_server_to_store_your_media">لبدء الاستخدام، اتصل بخادم لتخزين وسائطك.</string>
     <string name="to_get_started_more_hint_dweb">يمكنك إضافة خوادم خصوصية متعددة\n‫وحساب خادم IA أو حساب DWEB في أي وقت.</string>
     <string name="to_get_started_more_hint">يمكنك إضافة خوادم خصوصية متعددة\n‫وحساب خادم IA واحد في أي وقت.</string>
-    <string name="send_directly_to_a_private_server">‫اتصل بخادم WebDAV آمن</string>
-    <string name="upload_to_the_internet_archive">اتصل بخادم عمومي مجاني أو بخادم خصوصي مدفوع الثمن</string>
+    <string name="send_directly_to_a_private_server">‫اتصل بخادم\nWebDAV آمن</string>
+    <string name="upload_to_the_internet_archive">‫اتصل بخادم\nعمومي مجاني </string>
     <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">‫اتصل بالخوادم المتوافقة مع WebDAV، على سبيل المثال Nextcloud و ownCloud.</string>
     <string name="action_next">التالي</string>
     <string name="action_done">تم</string>
     <string name="status_flagged">محتوى مميز</string>
-    <string name="select_where_to_store_your_media">حدِّد مكان تخزين وسائطك.</string>
+    <string name="select_where_to_store_your_media">اختر مجلدًا جديدا أو مجلدا موجودا لحفظ وسائطك فيه.</string>
     <string name="you_have_successfully_connected_to_a_private_server">لقد اتصلت بخادم خاص بنجاح !</string>
     <string name="you_have_successfully_connected_to_the_internet_archive">‫لقد اتصلت بـ Internet Archive بنجاح !</string>
     <string name="create_a_new_folder">إنشاء مجلد جديد</string>
-    <string name="create_new_folder_title">أولا، يرجى إطلاق اسم على مجلدك</string>
-    <string name="create_new_folder_subtitle">‫سيتم إنشاء هذا المجلد على خادمك ثم سيُضاف تلقائيا إلى Save</string>
-    <string name="create_new_folder_hint">أدخل اسم المجلد</string>
+    <string name="create_new_folder_title">يرجى إطلاق اسم على مجلدك</string>
+    <string name="create_new_folder_subtitle">‫سيتم إنشاء هذا المجلد على خادمك ثم سيُضاف إلى Save.</string>
+    <string name="create_new_folder_hint"><i>أدخل اسم المجلد</i></string>
     <string name="edit">تعديل</string>
     <string name="menu_done">تم</string>
     <string name="remove_from_app">إزالة من التطبيق</string>
     <string name="action_remove_project">هل أنت متيقِّن من أنك تريد إزالة مشروعك ؟</string>
-    <string name="lbl_remove">إزالة</string>
     <string name="action_archive_project">أرشفة المشروع</string>
     <string name="action_unarchive_project">إلغاء أرشفة المشروع</string>
     <string name="new_folder">مجلد جديد</string>
@@ -172,14 +156,12 @@
     <string name="metadata">البيانات الوصفية</string>
 
     <string name="btn_lbl_remove_media">أزِل الوسائط</string>
-
     <string name="popup_flag_title">أشِّر على المحتوى المميز</string>
     <string name="popup_flag_desc">عندما تضع العلامة على عنصر ما، يتم توجيهها نحو مجلد فرعي داخل مجلد المشروع المختار على الخادم الخاص.</string>
-
     <string name="set_creative_commons_license_for_all_folders_on_this_server">تعيين ترخيص المشاع الإبداعي للمجلدات الموجودة على هذا الخادم.</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">‫تعيين نفس ترخيص المشاع الإبداعي لـ** كافة ** المجلدات الموجودة على هذا الخادم.</string>
-
     <string name="you_already_have_a_server_with_these_credentials">لديك بالفعل خادم بهذه الاعتمادات</string>
+
 
     <!-- Space Setup -->
     <string name="space_setup_title">تحديد خادم</string>
@@ -193,6 +175,7 @@
 
     <!-- WebDAV setup License -->
     <string name="name_your_server">أطلق اسما على خادمك واختر الترخيص</string>
+    <string name="choose_license">اختر ترخيصا</string>
 
     <!-- Space Setup Success -->
     <string name="space_setup_success_title">اكتمل الإعداد</string>
@@ -202,7 +185,7 @@
     <string name="uploading_is_paused">التحميل متوقف مؤقتا</string>
 
     <!-- Clean Insights measurement -->
-    <string name="server_name_optional">اسم الخادم (اختياري)</string>
+    <string name="server_name_optional"><i>اسم الخادم (اختياري)</i></string>
     <string name="add_another_account">إضافة خادم جديد</string>
     <string name="biometrics_title">‫فك قفل مفتاح ProofMode</string>
     <string name="folders">المجلدات</string>
@@ -224,8 +207,10 @@
     <string name="no_webbrowser_found_error">لا يوجد تطبيق يمكنه التعامل مع هذا الطلب. الرجاء تثبيت متصفح الانترنت.</string>
 
     <string name="intro_text_secure">أرسل وسائطك بشكل آمن إلى خوادم خاصة، ثم اقفل التطبيق باستخدام رمز.</string>
-    <string name="intro_text_archive"><![CDATA[اجعل وسائطك قابلة للتحقق منها وآمنة ومُنظَّمة على المدى الطويل عبر رفعها على الخوادم الخصوصية أو العمومية مثل NextCloud أو موقع أرشيف الانترنت.<br> عبّر عن نواياك للاستخدام اللاحق عبر إضافة <a href=\"%1$s\"><u>ترخيص المشاع الإبداعي</u></a>.]]></string>
-    <string name="intro_text_verify"><![CDATA[استوثق من وسائطك وتحقق منها باستخدام تلبيد التجزئة sha256 ووضع <a href=\"%1$s\"><u>ProofMode</u></a>]]></string>
+    <string name="intro_text_archive"><![CDATA[قم بتحميل الوسائط إلى Nextcloud أو Internet Archive لجعل وسائطك قابلة للتحقق منها وآمنة ومُنظَّمة على المدى الطويل.<br><br>اختر<a href=\"%1$s\"><u>ترخيص المشاع الإبداعي</u></a>]]></string>
+
+    <string name="intro_text_verify"><![CDATA[‫استوثق من وسائطك وتحقق منها باستخدام تلبيد التجزئة sha256 ووضع <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
+    <string name="intro_text_encrypt"><![CDATA[يحمل <b><i>Save</i></b>دائما عبر TLS (بروتوكول طبقة النقل الآمن) لحماية وسائطك أثناء عبورها.<br>لتعزيز الأمن بشكل أفضل، قم بتفعيل <a href=\"%1$s\"><u>تور</u></a> لمنع اعتراض وسائطك من هاتفك إلى الخادم.]]></string>
     <string name="next">التالي</string>
     <string name="done">تم</string>
     <string name="secure_mobile_media_preservation">الحفظ الآمن لوسائط المحمول</string>
@@ -246,13 +231,14 @@
     <string name="press_and_hold_to_select_and_edit_multiple_media">اضغط مع الإبقاء لتحديد وتعديل وسائط متعددة.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">بمجرد التحميل، لن تتمكن من تعديل الوسائط.</string>
     <string name="edit_media_info">تعديل معلومات الوسائط</string>
-    <string name="add_a_location_optional">إضافة موقع (اختياري)</string>
-    <string name="add_notes_optional">إضافة ملاحظات (اختياري)</string>
+    <string name="add_a_location_optional"><i>إضافة موقع (اختياري)</i></string>
+    <string name="add_notes_optional"><i>إضافة ملاحظات (اختياري)</i></string>
     <string name="skip">تخطي</string>
+
 
     <string name="upload_unsuccessful">التحميل غير ناجح</string>
     <string name="upload_unsuccessful_description">لقد تعذر التحميل بسبب خطأ في الجلسة، يرجى المحاولة مرة أخرى أو الاتصال بالدعم.</string>
-    <string name="lbl_retry">حاول مجددا</string>
+
 
     <string name="edit_media">تحرير الوسائط</string>
 
@@ -265,16 +251,10 @@
     <string name="label_screen_name">اسم الشاشة</string>
     <string name="label_create_login">إنشاء واحد</string>
     <string name="prompt_no_account">لا تملك حسابا ؟</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <!-- Preference Titles -->
-
-    <!-- Messages Preferences -->
-
-    <!-- Sync Preferences -->
 
     <string name="pref_title_secure">آمن</string>
     <string name="pref_title_archive">الأرشفة</string>
-    <string name="pref_title_privacy_policy">اطلع على شروط الاستخدام وسياسة الخصوصية</string>
+    <string name="pref_title_privacy_policy">البنود والخصوصية</string>
     <string name="pref_title_media_servers">خوادم الوسائط</string>
     <string name="pref_title_media_folders">المجلدات المؤرشفة</string>
     <string name="pref_summary_media_servers">إدارة خوادمك</string>
@@ -288,10 +268,13 @@
     <string name="label_got_it">مفهوم</string>
 
     <!-- Create New Folder -->
-    <string name="create_folder_ok_message">لقد أضفت مجلدا بنجاح</string>
+    <string name="create_folder_ok_message">لقد أضفت مجلدا بنجاح.</string>
     <string name="msg_edit_server_success">لقد غيرت إعدادات خادمك بنجاح.</string>
     <string name="expand">تمديد</string>
     <string name="lbl_no_servers">لم يُضَف أي خادم بعد.</string>
     <string name="lbl_no_archived_folders">لم يتم العثور على أي مجلد مُؤرشَف.</string>
     <string name="error_no_internet">الانترنت غير متاح</string>
-</resources>
+    <string name="save_by_open_archive">‫Save من إصدار OpenArchive</string>
+    <string name="discover_the_save_app">اعرف أكثر</string>
+
+    </resources>
