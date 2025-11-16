@@ -235,13 +235,25 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
     }
 
     override fun mediaSelectionChanged() {
-        if (mMedia.firstOrNull { it.selected } != null) {
+        val selectedCount = mMedia.count { it.selected }
+        val hasSelection = selectedCount > 0
+        val totalCount = mMedia.size
+
+        if (hasSelection) {
             mBinding.btAddMore.hide()
             mBinding.bottomBar.show()
         } else {
             mBinding.btAddMore.toggle(mProject != null)
             mBinding.bottomBar.hide()
         }
+
+        val shouldShowDeselectAll = totalCount > 1 && selectedCount == totalCount
+        val selectButtonText = if (shouldShowDeselectAll) {
+            R.string.deselect_all
+        } else {
+            R.string.select_all
+        }
+        mBinding.btSelectAll.setText(selectButtonText)
     }
 
     private fun refresh() {
