@@ -73,6 +73,7 @@ class MainMediaViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHol
             }
 
             binding.image.scaleType = ImageView.ScaleType.CENTER_CROP
+            binding.image.setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
             binding.image.show()
             binding.waveform.hide()
             binding.videoIndicator.hide()
@@ -91,6 +92,7 @@ class MainMediaViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHol
             }
 
             binding.image.scaleType = ImageView.ScaleType.CENTER_CROP
+            binding.image.setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
             binding.image.show()
             binding.waveform.hide()
             binding.videoIndicator.show()
@@ -139,16 +141,21 @@ class MainMediaViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHol
                 }
             }
         } else if (media?.mimeType?.startsWith("application") == true) {
-            binding.image.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_unknown_file))
-            binding.image.scaleType = ImageView.ScaleType.CENTER_INSIDE
-            binding.image.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorPrimaryBright))
-            binding.image.show()
+            binding.image.apply {
+                load(R.drawable.ic_unknown_file, imageLoader)
+                scaleType = ImageView.ScaleType.CENTER_INSIDE
+                setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorPrimaryBright))
+                show()
+            }
             binding.waveform.hide()
             binding.videoIndicator.hide()
         } else {
-            binding.image.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_unknown_file))
-            binding.image.scaleType = ImageView.ScaleType.CENTER_INSIDE
-            binding.image.show()
+            binding.image.apply {
+                load(R.drawable.ic_unknown_file, imageLoader)
+                scaleType = ImageView.ScaleType.CENTER_INSIDE
+                setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+                show()
+            }
             binding.waveform.hide()
             binding.videoIndicator.hide()
         }

@@ -54,6 +54,8 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
         if (media?.mimeType?.startsWith("image") == true) {
             // static images
             binding.image.apply {
+                setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+                scaleType = ImageView.ScaleType.CENTER_CROP
                 show()
                 binding.waveform.hide()
                 load(media.fileUri) {
@@ -64,6 +66,8 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
         } else if (media?.mimeType?.startsWith("video") == true) {
             // video thumbnail
             binding.image.apply {
+                setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+                scaleType = ImageView.ScaleType.CENTER_CROP
                 show()
                 binding.waveform.hide()
                 load(media.fileUri) {
@@ -76,12 +80,14 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
             binding.videoIndicator.hide()
             val soundFile = soundCache[media.originalFilePath]
             if (soundFile != null) {
+                binding.image.setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
                 binding.image.hide()
                 binding.waveform.setAudioFile(soundFile)
                 binding.waveform.show()
             } else {
                 binding.image.apply {
                     setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.no_thumbnail))
+                    scaleType = ImageView.ScaleType.CENTER_CROP
                     show()
                 }
                 binding.waveform.hide()
@@ -108,15 +114,21 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
                 }
             }
         } else if (media?.mimeType?.startsWith("application") == true) {
-            binding.image.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_unknown_file))
-            binding.image.scaleType = ImageView.ScaleType.CENTER_INSIDE
-            binding.image.setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorPrimaryBright))
-            binding.image.show()
+            binding.image.apply {
+                load(R.drawable.ic_unknown_file)
+                scaleType = ImageView.ScaleType.CENTER_INSIDE
+                setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorPrimaryBright))
+                show()
+            }
             binding.waveform.hide()
             binding.videoIndicator.hide()
         } else {
-            binding.image.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.no_thumbnail))
-            binding.image.show()
+            binding.image.apply {
+                load(R.drawable.no_thumbnail)
+                scaleType = ImageView.ScaleType.CENTER_INSIDE
+                setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+                show()
+            }
             binding.waveform.hide()
             binding.videoIndicator.hide()
         }

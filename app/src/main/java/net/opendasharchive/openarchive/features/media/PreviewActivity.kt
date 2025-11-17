@@ -257,7 +257,14 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
     }
 
     private fun refresh() {
-        mMedia = Media.getByStatus(listOf(Media.Status.Local), Media.ORDER_CREATED)
+        val media = Media.getByStatus(listOf(Media.Status.Local), Media.ORDER_CREATED)
+        media.forEach {
+            if (it.selected) {
+                it.selected = false
+                it.save()
+            }
+        }
+        mMedia = media
     }
 
     private fun showFirstTimeBatch() {
