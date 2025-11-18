@@ -304,6 +304,8 @@
     <string name="pref_key_use_proof_mode" translatable="false">use_proofmode</string>
     <string name="pref_key_use_tor" translatable="false">pref_use_tor</string>
     <string name="pref_key_use_dark_mode">pref_is_dark_mode</string>
+    <string name="pref_media_servers" translatable="false">pref_media_servers</string>
+    <string name="pref_media_folders" translatable="false">pref_media_folders</string>
     <string name="pref_key_about_app" translatable="false">pref_about_app</string>
     <string name="pref_key_privacy_policy" translatable="false">pref_privacy_policy</string>
     <string name="pref_key_app_version" translatable="false">pref_app_version</string>
@@ -324,17 +326,6 @@
     <string name="error_no_internet">Internet not available</string>
     <string name="save_by_open_archive">Save by OpenArchive</string>
     <string name="discover_the_save_app">Learn More</string>
-
-    <string name="pref_media_servers" translatable="false">pref_media_servers</string>
-    <string name="pref_media_folders" translatable="false">pref_media_folders</string>
-    <string name="pref_key_about_app" translatable="false">pref_about_app</string>
-    <string name="pref_key_privacy_policy" translatable="false">pref_privacy_policy</string>
-    <string name="pref_key_app_version" translatable="false">pref_app_version</string>
-    <string name="pref_app_passcode" translatable="false">passcode_enabled</string>
-    <string name="pref_key_proof_mode" translatable="false">pref_proof_mode</string>
-    <string name="pref_key_use_proof_mode" translatable="false">use_proofmode</string>
-    <string name="pref_key_use_tor" translatable="false">pref_use_tor</string>
-    <string name="pref_key_use_dark_mode" translatable="false">pref_is_dark_mode</string>
 
     <string name="iv_content_desc" translatable="false">Main Image</string>
     <string name="gdrive_id" translatable="false">Google Drive ID</string>
