@@ -68,7 +68,8 @@
                             android:layout_height="wrap_content"
                             android:text="@string/servers"
                             android:textSize="18sp"
-                            android:textFontWeight="600"
+                            android:textFontWeight="700"
+                            android:fontFamily="@font/montserrat_semi_bold"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
                     </LinearLayout>
@@ -118,6 +119,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="12dp"
                         android:textSize="16sp"
+                        android:textFontWeight="600"
+                        android:fontFamily="@font/montserrat_semi_bold"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         tools:text="My Server" />

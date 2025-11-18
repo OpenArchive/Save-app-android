@@ -59,4 +59,5 @@ fastlane/.env
 /.kotlin/sessions/kotlin-compiler-1215430679833621634.salive
 /.kotlin/
 /app/release/
+/app/prod/release/save-unspecified-prod-release.aab
 /app/prod/

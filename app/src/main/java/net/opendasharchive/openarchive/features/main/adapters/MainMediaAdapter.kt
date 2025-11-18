@@ -186,8 +186,15 @@ class MainMediaAdapter(
 
     fun clearSelections() {
         selectedItems.clear()
-        media.forEach { it.selected = false }
+        media.forEach {
+            if (it.selected) {
+                it.selected = false
+                it.save()
+            }
+        }
+        selecting = false
         notifyDataSetChanged()
+        checkSelecting.invoke()
     }
 
     private fun selectView(view: View) {

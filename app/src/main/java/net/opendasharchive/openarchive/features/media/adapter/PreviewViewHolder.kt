@@ -19,8 +19,7 @@ import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show
 
-class PreviewViewHolder(val binding: RvMediaBoxBinding) :
-    RecyclerView.ViewHolder(binding.root) {
+class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolder(binding.root) {
 
     companion object {
         val soundCache = HashMap<String, SoundFile>()
@@ -28,9 +27,14 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) :
 
     private val mContext = itemView.context
 
-    @SuppressLint("SetTextI18n")
-    fun bind(media: Media? = null, batchMode: Boolean = false, doImageFade: Boolean = true) {
+    fun bind(
+        media: Media? = null,
+        batchMode: Boolean = false,
+        doImageFade: Boolean = true
+    ) {
+
         itemView.tag = media?.id
+
         if (batchMode && media?.selected == true) {
             itemView.setBackgroundResource(R.color.colorPrimary)
             binding.selectedIndicator.show()
@@ -50,8 +54,10 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) :
         if (media?.mimeType?.startsWith("image") == true) {
             // static images
             binding.image.apply {
+                setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+                scaleType = ImageView.ScaleType.CENTER_CROP
                 show()
-                hideWaveformIfAny()
+                binding.waveform.hide()
                 load(media.fileUri) {
                     placeholder(progress)
                 }
@@ -60,8 +66,10 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) :
         } else if (media?.mimeType?.startsWith("video") == true) {
             // video thumbnail
             binding.image.apply {
+                setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+                scaleType = ImageView.ScaleType.CENTER_CROP
                 show()
-                hideWaveformIfAny()
+                binding.waveform.hide()
                 load(media.fileUri) {
                     placeholder(progress)
                 }
@@ -70,48 +78,61 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) :
 
         } else if (media?.mimeType?.startsWith("audio") == true) {
             binding.videoIndicator.hide()
-            handleAudio(media)
+            val soundFile = soundCache[media.originalFilePath]
+            if (soundFile != null) {
+                binding.image.setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+                binding.image.hide()
+                binding.waveform.setAudioFile(soundFile)
+                binding.waveform.show()
+            } else {
+                binding.image.apply {
+                    setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.no_thumbnail))
+                    scaleType = ImageView.ScaleType.CENTER_CROP
+                    show()
+                }
+                binding.waveform.hide()
+
+                val audioPath = media.fileUri.path
+
+                if (audioPath.isNullOrEmpty()) {
+                    AppLogger.w("Unable to load audio waveform, invalid file uri: ${media.originalFilePath}")
+                } else {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val sf = runCatching {
+                            SoundFile.create(audioPath) { true }
+                        }.getOrNull()
+
+                        sf?.let {
+                            soundCache[media.originalFilePath] = it
+                            MainScope().launch {
+                                binding.waveform.setAudioFile(it)
+                                binding.image.hide()
+                                binding.waveform.show()
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (media?.mimeType?.startsWith("application") == true) {
+            binding.image.apply {
+                load(R.drawable.ic_unknown_file)
+                scaleType = ImageView.ScaleType.CENTER_INSIDE
+                setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorPrimaryBright))
+                show()
+            }
+            binding.waveform.hide()
+            binding.videoIndicator.hide()
         } else {
-            binding.image.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.no_thumbnail))
-            binding.image.show()
+            binding.image.apply {
+                load(R.drawable.no_thumbnail)
+                scaleType = ImageView.ScaleType.CENTER_INSIDE
+                setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+                show()
+            }
             binding.waveform.hide()
             binding.videoIndicator.hide()
         }
         media?.let { updateOverlay(it) }
-    }
-
-    private fun ImageView.hideWaveformIfAny() {
-        binding.waveform.hide()
-    }
-
-    private fun handleAudio(media: Media) {
-        val soundFile = soundCache[media.originalFilePath]
-        if (soundFile != null) {
-            binding.image.hide()
-            binding.waveform.setAudioFile(soundFile)
-            binding.waveform.show()
-        } else {
-            binding.image.apply {
-                setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.no_thumbnail))
-                show()
-            }
-            binding.waveform.hide()
-
-            CoroutineScope(Dispatchers.IO).launch {
-                val sf = runCatching {
-                    SoundFile.create(media.originalFilePath) { true }
-                }.getOrNull()
-
-                sf?.let {
-                    soundCache[media.originalFilePath] = it
-                    MainScope().launch {
-                        binding.waveform.setAudioFile(it)
-                        binding.image.hide()
-                        binding.waveform.show()
-                    }
-                }
-            }
-        }
     }
 
     private fun updateOverlay(media: Media) {

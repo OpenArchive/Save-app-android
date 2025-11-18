@@ -46,20 +46,22 @@ fun SpaceSetupScreen(
         ) {
             Text(
                 text = stringResource(R.string.to_get_started_connect_to_a_server_to_store_your_media),
-                fontSize = 18.sp,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center
+                style = MaterialTheme.typography.titleLarge.copy(
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
             )
             Spacer(modifier = Modifier.height(12.dp))
 
             val description = if (isDwebEnabled) stringResource(R.string.to_get_started_more_hint_dweb) else stringResource(R.string.to_get_started_more_hint)
             Text(
                 text = description,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
             )
         }
 

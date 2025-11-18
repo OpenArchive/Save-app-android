@@ -39,18 +39,8 @@ enum class Theme(val mode: Int) {
          *
          * @param theme: The `Theme` to set.
          */
-        fun set(context: Context, theme: Theme?) {
-            val useDarkMode = theme == DARK
+        fun set(theme: Theme?) {
             AppCompatDelegate.setDefaultNightMode((theme ?: SYSTEM).mode)
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val uiModeManager = context.getSystemService(UI_MODE_SERVICE) as UiModeManager
-                val darkMode = if (useDarkMode) UiModeManager.MODE_NIGHT_YES else UiModeManager.MODE_NIGHT_NO
-                uiModeManager.setApplicationNightMode(darkMode)
-            } else {
-                val darkMode = if (useDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
-                AppCompatDelegate.setDefaultNightMode(darkMode)
-            }
         }
 
         /**
@@ -59,7 +49,7 @@ enum class Theme(val mode: Int) {
          * @param name: Theme name, case insensitive.
          */
         fun get(name: String?): Theme {
-            return entries.firstOrNull { it.name.uppercase() == name?.uppercase() } ?: SYSTEM
+            return entries.firstOrNull { it.name.equals(name, ignoreCase = true) } ?: SYSTEM
         }
 
         var darkModeEnabled: Boolean

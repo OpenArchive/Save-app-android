@@ -32,6 +32,7 @@ import org.witness.proofmode.ProofMode
 import org.witness.proofmode.crypto.HashUtils
 import timber.log.Timber
 import java.io.File
+import java.io.FileNotFoundException
 import java.util.Date
 
 object Picker {
@@ -191,7 +192,18 @@ object Picker {
 
     private val mFilePickerIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
         addCategory(Intent.CATEGORY_OPENABLE)
-        type = "application/*"
+        type = "*/*"
+
+        putExtra(
+            Intent.EXTRA_MIME_TYPES,
+            arrayOf(
+                "application/pdf", // pdf
+                "image/*",         // all images
+                "video/*",         // all videos
+                "audio/mpeg",      // mp3 (most devices)
+                "audio/mp3"        // some devices use this
+            )
+        )
     }
 
     /**
@@ -283,8 +295,25 @@ object Picker {
         val title = Utility.getUriDisplayName(context, uri) ?: ""
         val file = Utility.getOutputMediaFileByCache(context, title)
 
-        if (!Utility.writeStreamToFile(context.contentResolver.openInputStream(uri), file)) {
-            AppLogger.e("Failed to write stream to file for URI: $uri")
+        // Use try-with-resources pattern for proper resource management
+        try {
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                if (!Utility.writeStreamToFile(inputStream, file)) {
+                    AppLogger.e("Failed to write stream to file for URI: $uri")
+                    return null
+                }
+            } ?: run {
+                AppLogger.e("Failed to open input stream for URI: $uri")
+                return null
+            }
+        } catch (e: FileNotFoundException) {
+            AppLogger.e("File not found for URI: $uri", e)
+            return null
+        } catch (e: SecurityException) {
+            AppLogger.e("Permission denied for URI: $uri", e)
+            return null
+        } catch (e: java.io.IOException) {
+            AppLogger.e("IO error reading URI: $uri", e)
             return null
         }
 
@@ -314,9 +343,9 @@ object Picker {
         //We generate hash regardless if proof is on or off because we don't want unexpected behaviour when we are looking for proof files when uploaded later.
         // Generate hash regardless of proof mode setting for consistency
         try {
-            media.mediaHashString = HashUtils.getSHA256FromFileContent(
-                context.contentResolver.openInputStream(uri)
-            )
+            media.mediaHashString = file?.let {
+                HashUtils.getSHA256FromFileContent(it.inputStream())
+            } ?: ""
         } catch (e: Exception) {
             AppLogger.e("Failed to generate hash for media", e)
             media.mediaHashString = ""

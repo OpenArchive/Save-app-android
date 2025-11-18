@@ -38,7 +38,11 @@ class MainMediaViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHol
         .build()
 
 
-    fun bind(media: Media? = null, isInSelectionMode: Boolean = false, doImageFade: Boolean = true) {
+    fun bind(
+        media: Media? = null,
+        isInSelectionMode: Boolean = false,
+        doImageFade: Boolean = true
+    ) {
 
         itemView.tag = media?.id
 
@@ -69,6 +73,7 @@ class MainMediaViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHol
             }
 
             binding.image.scaleType = ImageView.ScaleType.CENTER_CROP
+            binding.image.setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
             binding.image.show()
             binding.waveform.hide()
             binding.videoIndicator.hide()
@@ -87,6 +92,7 @@ class MainMediaViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHol
             }
 
             binding.image.scaleType = ImageView.ScaleType.CENTER_CROP
+            binding.image.setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
             binding.image.show()
             binding.waveform.hide()
             binding.videoIndicator.show()
@@ -105,39 +111,51 @@ class MainMediaViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHol
                 binding.image.show()
                 binding.waveform.hide()
 
-                CoroutineScope(Dispatchers.IO).launch {
-                    @Suppress("NAME_SHADOWING")
-                    val soundFile = try {
-                        SoundFile.create(media.originalFilePath) {
-                            return@create true
+                val audioPath = media.fileUri.path
+
+                if (audioPath.isNullOrEmpty()) {
+                    Timber.w("Unable to load audio waveform, invalid file uri: ${media.originalFilePath}")
+                } else {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        @Suppress("NAME_SHADOWING")
+                        val soundFile = try {
+                            SoundFile.create(audioPath) {
+                                return@create true
+                            }
+                        } catch (e: Throwable) {
+                            Timber.d(e)
+
+                            null
                         }
-                    } catch (e: Throwable) {
-                        Timber.d(e)
 
-                        null
-                    }
+                        if (soundFile != null) {
+                            soundCache[media.originalFilePath] = soundFile
 
-                    if (soundFile != null) {
-                        soundCache[media.originalFilePath] = soundFile
-
-                        MainScope().launch {
-                            binding.waveform.setAudioFile(soundFile)
-                            binding.image.hide()
-                            binding.waveform.show()
+                            MainScope().launch {
+                                binding.waveform.setAudioFile(soundFile)
+                                binding.image.hide()
+                                binding.waveform.show()
+                            }
                         }
                     }
                 }
             }
         } else if (media?.mimeType?.startsWith("application") == true) {
-            binding.image.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_unknown_file))
-            binding.image.scaleType = ImageView.ScaleType.CENTER_INSIDE
-            binding.image.show()
+            binding.image.apply {
+                load(R.drawable.ic_unknown_file, imageLoader)
+                scaleType = ImageView.ScaleType.CENTER_INSIDE
+                setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorPrimaryBright))
+                show()
+            }
             binding.waveform.hide()
             binding.videoIndicator.hide()
         } else {
-            binding.image.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.ic_unknown_file))
-            binding.image.scaleType = ImageView.ScaleType.CENTER_INSIDE
-            binding.image.show()
+            binding.image.apply {
+                load(R.drawable.ic_unknown_file, imageLoader)
+                scaleType = ImageView.ScaleType.CENTER_INSIDE
+                setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+                show()
+            }
             binding.waveform.hide()
             binding.videoIndicator.hide()
         }

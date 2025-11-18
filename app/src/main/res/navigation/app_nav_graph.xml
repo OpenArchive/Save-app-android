@@ -559,4 +559,39 @@
         android:name="net.opendasharchive.openarchive.features.folders.CreateNewFolderFragment"
         tools:layout="@layout/fragment_create_new_folder" />
 
+
+    <fragment
+        android:id="@+id/fragment_folders"
+        android:name="net.opendasharchive.openarchive.features.settings.FoldersFragment"
+        tools:layout="@layout/fragment_folders">
+        <action
+            android:id="@+id/action_fragment_folders_to_fragment_folder_detail"
+            app:destination="@id/fragment_folder_detail" />
+        <argument
+            android:name="show_archived"
+            android:defaultValue="false"
+            app:argType="boolean" />
+        <argument
+            android:name="selected_space_id"
+            android:defaultValue="-1L"
+            app:argType="long" />
+        <argument
+            android:name="selected_project_id"
+            android:defaultValue="-1L"
+            app:argType="long" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_folder_detail"
+        android:name="net.opendasharchive.openarchive.features.settings.FolderDetailFragment"
+        tools:layout="@layout/fragment_folder_detail">
+        <argument
+            android:name="current_project_id"
+            app:argType="long" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_proofmode_settings"
+        android:name="net.opendasharchive.openarchive.features.settings.SettingsFragment"
+        />
 </navigation>

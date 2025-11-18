@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+    Save App Text Styles
+    Semantic naming based on usage context
+
+    Usage in XML: android:textAppearance="@style/TextAppearance.Save.TitleMedium"
+    Usage in code: textView.setTextAppearance(R.style.TextAppearance_Save_TitleMedium)
+    -->
+
+    <!-- Headers & Titles -->
+
+    <!-- 18pt - For screen/page titles -->
+    <style name="TextAppearance_Save_TitleLarge">
+        <item name="android:fontFamily">@font/montserrat_semi_bold</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:lineHeight">22sp</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <!-- 16pt - For section headers, card titles -->
+    <style name="TextAppearance_Save_TitleMedium">
+        <item name="android:fontFamily">@font/montserrat_semi_bold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineHeight">20sp</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <!-- Body Text -->
+
+    <!-- 14pt - Primary body text -->
+    <style name="TextAppearance_Save_BodyLarge">
+        <item name="android:fontFamily">@font/montserrat_medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">16sp</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <!-- 11pt - Secondary text, captions, metadata -->
+    <style name="TextAppearance_Save_BodySmall">
+        <item name="android:fontFamily">@font/montserrat_medium</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:lineHeight">14sp</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <!-- 11pt Italic - Helper text, notes, disclaimers -->
+    <style name="TextAppearance_Save_BodySmallEmphasis">
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:lineHeight">14sp</item>
+        <item name="android:textStyle">italic</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+    <!-- Interactive Elements -->
+
+    <!-- 14pt Link - Buttons, links, action labels -->
+    <style name="TextAppearance_Save_LabelLarge">
+        <item name="android:fontFamily">@font/montserrat_medium</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineHeight">16sp</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
+
+</resources>

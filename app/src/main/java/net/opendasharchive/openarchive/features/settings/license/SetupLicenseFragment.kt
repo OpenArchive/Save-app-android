@@ -48,7 +48,7 @@ class SetupLicenseFragment : BaseFragment() {
             binding.buttonBar.visibility = View.GONE
             binding.descriptionText.visibility = View.GONE
         } else {
-            binding.btCancel.visibility = View.INVISIBLE
+            binding.btCancel.visibility = View.GONE
         }
 
         if (args.spaceType == Space.Type.INTERNET_ARCHIVE) {
