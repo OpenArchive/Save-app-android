@@ -54,6 +54,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -72,6 +73,7 @@ import androidx.navigation.findNavController
 import kotlinx.coroutines.delay
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
+import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeColors
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
@@ -166,13 +168,6 @@ private fun InternetArchiveLoginContent(
 
     val context = LocalContext.current
 
-    LaunchedEffect(state.isLoginError) {
-        while (state.isLoginError) {
-            delay(3000)
-            onAction(InternetArchiveLoginAction.ErrorClear)
-        }
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -198,15 +193,17 @@ private fun InternetArchiveLoginContent(
                 Text(
                     stringResource(R.string.account),
                     color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp
+                    style = MaterialTheme.typography.titleLarge
                 )
             }
         }
 
         CustomTextField(
             value = state.username,
-            onValueChange = { onAction(InternetArchiveLoginAction.UpdateUsername(it)) },
+            onValueChange = {
+                onAction(InternetArchiveLoginAction.ErrorClear)
+                onAction(InternetArchiveLoginAction.UpdateUsername(it))
+            },
             label = stringResource(R.string.label_username),
             placeholder = stringResource(R.string.prompt_email),
             isError = state.isUsernameError,
@@ -219,7 +216,10 @@ private fun InternetArchiveLoginContent(
 
         CustomSecureField(
             value = state.password,
-            onValueChange = { onAction(InternetArchiveLoginAction.UpdatePassword(it)) },
+            onValueChange = {
+                onAction(InternetArchiveLoginAction.ErrorClear)
+                onAction(InternetArchiveLoginAction.UpdatePassword(it))
+            },
             label = stringResource(R.string.label_password),
             placeholder = stringResource(R.string.prompt_password),
             isError = state.isPasswordError,
@@ -252,9 +252,10 @@ private fun InternetArchiveLoginContent(
         ) {
             Text(
                 text = stringResource(R.string.prompt_no_account),
-                color = ThemeColors.material.onBackground,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp
+                style = MaterialTheme.typography.bodyLarge.copy( // reuse your themed style
+                    color = ThemeColors.material.onBackground,
+                    fontWeight = FontWeight.SemiBold
+                )
             )
             TextButton(
                 modifier = Modifier.heightIn(ThemeDimensions.touchable),
@@ -265,9 +266,9 @@ private fun InternetArchiveLoginContent(
             ) {
                 Text(
                     text = stringResource(R.string.label_create_login),
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.SemiBold
+                    )
                 )
             }
         }
@@ -291,7 +292,7 @@ private fun InternetArchiveLoginContent(
                 enabled = !state.isBusy,
                 shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
                 onClick = { onAction(InternetArchiveLoginAction.Cancel) }) {
-                Text(stringResource(R.string.back))
+                Text(stringResource(R.string.back), style = MaterialTheme.typography.titleLarge)
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
@@ -304,7 +305,8 @@ private fun InternetArchiveLoginContent(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.tertiary,
                     disabledContainerColor = colorResource(R.color.grey_50),
-                    disabledContentColor = colorResource(R.color.extra_light_grey)//MaterialTheme.colorScheme.onBackground
+                    disabledContentColor = colorResource(R.color.black),
+                    contentColor = colorResource(R.color.black)
                 ),
                 onClick = {
                     if (NetworkUtils.isNetworkAvailable(context)) {
@@ -318,7 +320,10 @@ private fun InternetArchiveLoginContent(
                 if (state.isBusy) {
                     CircularProgressIndicator(color = ThemeColors.material.primary)
                 } else {
-                    Text(stringResource(R.string.next))
+                    Text(
+                        stringResource(R.string.next),
+                        style = MaterialTheme.typography.titleLarge
+                    )
                 }
             }
         }
@@ -334,7 +339,9 @@ private fun InternetArchiveLoginPreview() {
             state = InternetArchiveLoginState(
                 username = "",
                 password = "",
-                isLoginError = true
+                isLoginError = true,
+                isPasswordError = true,
+                isUsernameError = true
             ),
             onAction = {}
         )
@@ -364,9 +371,11 @@ fun CustomTextField(
             placeholder?.let {
                 Text(
                     text = placeholder,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Normal,
-                    fontStyle = FontStyle.Italic
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontStyle = FontStyle.Italic,
+                        fontSize = 13.sp,
+                        fontFamily = MontserratFontFamily
+                    )
                 )
             }
         },
@@ -386,6 +395,7 @@ fun CustomTextField(
             focusedContainerColor = MaterialTheme.colorScheme.background,
             unfocusedContainerColor = MaterialTheme.colorScheme.background,
             focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
             cursorColor = MaterialTheme.colorScheme.tertiary
             //focusedIndicatorColor = Color.Transparent,
             //unfocusedIndicatorColor = Color.Transparent,
@@ -418,9 +428,11 @@ fun CustomSecureField(
         placeholder = {
             Text(
                 text = placeholder,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Normal,
-                fontStyle = FontStyle.Italic
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontStyle = FontStyle.Italic,
+                    fontSize = 13.sp,
+                    fontFamily = MontserratFontFamily
+                )
             )
         },
         singleLine = true,
@@ -450,7 +462,7 @@ fun CustomSecureField(
                 modifier = Modifier.sizeIn(ThemeDimensions.touchable),
                 onClick = { showPassword = !showPassword }) {
                 Icon(
-                    imageVector = if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                    painter = if (showPassword) painterResource(R.drawable.ic_visibility) else painterResource(R.drawable.ic_visibility_off),
                     contentDescription = "show password"
                 )
             }
@@ -509,7 +521,10 @@ fun ButtonBar(
             if (isLoading) {
                 CircularProgressIndicator(color = ThemeColors.material.primary)
             } else {
-                Text(nextButtonText.asString())
+                Text(
+                    nextButtonText.asString(),
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
         }
     }

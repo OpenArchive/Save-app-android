@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -198,7 +199,7 @@ private fun InternetArchiveDetailsContent(
                                 UiText.StringResource(R.string.are_you_sure_you_want_to_remove_this_server_from_the_app)
                             icon = UiImage.DrawableResource(R.drawable.ic_trash)
                             destructiveButton {
-                                text = UiText.StringResource(R.string.remove)
+                                text = UiText.StringResource(R.string.lbl_remove)
                                 action = {
                                     onAction(InternetArchiveDetailsAction.Remove)
                                 }
@@ -213,12 +214,12 @@ private fun InternetArchiveDetailsContent(
                         }
                     },
                     colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
+                        contentColor = colorResource(R.color.red_bg)
                     )
                 ) {
                     Text(
                         stringResource(id = R.string.remove_from_app),
-                        fontSize = 18.sp
+                        style = MaterialTheme.typography.titleLarge
                     )
                 }
             }

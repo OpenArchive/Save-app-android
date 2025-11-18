@@ -143,7 +143,8 @@ fun PasscodeEntryScreenContent(
         ) {
 
             Text(
-                text = stringResource(R.string.enter_passcode), style = TextStyle(
+                text = stringResource(R.string.enter_passcode),
+                style = MaterialTheme.typography.bodyLarge.copy(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground

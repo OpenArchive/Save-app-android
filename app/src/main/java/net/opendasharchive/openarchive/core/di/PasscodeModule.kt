@@ -12,6 +12,7 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val passcodeModule = module {
+
     single {
         AppConfig(
             passcodeLength = 6,
@@ -19,7 +20,8 @@ val passcodeModule = module {
             maxRetryLimitEnabled = false,
             biometricAuthEnabled = false,
             maxFailedAttempts = 5,
-            isDwebEnabled = true
+            isDwebEnabled = false,
+            useCustomCamera = true,
         )
     }
 

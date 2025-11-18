@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -20,6 +24,10 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
 
     <queries>
@@ -70,7 +78,7 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan"
-            android:theme="@style/SaveAppTheme.NoActionBar"
+            android:theme="@style/Theme.SaveApp.Starting"
             tools:ignore="DiscouragedApi">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -109,30 +117,6 @@
         </activity>
 
         <activity
-            android:name=".upload.UploadManagerActivity"
-            android:exported="false"
-            android:label="@string/title_activity_upload_manager"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".services.gdrive.GDriveActivity"
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.settings.FoldersActivity"
-            android:exported="false"
-            android:label="@string/folders"
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.settings.GeneralSettingsActivity"
-            android:exported="false"
-            android:label="@string/general"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
             android:name=".features.settings.ProofModeSettingsActivity"
             android:exported="false"
             android:label="@string/proofmode"
@@ -161,6 +145,13 @@
             android:windowSoftInputMode="stateHidden" />
 
         <activity
+            android:name=".features.media.camera.CameraActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:taskAffinity=""
+            android:theme="@style/SaveAppTheme.NoActionBar" />
+
+        <activity
             android:name=".features.onboarding.SpaceSetupActivity"
             android:exported="false"
             android:label="@string/title_activity_first_start"
@@ -178,11 +169,6 @@
         <activity
             android:name=".features.onboarding.Onboarding23InstructionsActivity"
             android:exported="false"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.settings.EditFolderActivity"
             android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar" />
 

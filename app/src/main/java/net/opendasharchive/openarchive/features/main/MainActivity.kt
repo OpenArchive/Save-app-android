@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.features.main
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Point
@@ -16,10 +17,12 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.PopupWindow
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowInsetsCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -62,6 +65,7 @@ import net.opendasharchive.openarchive.features.media.ContentPickerFragment
 import net.opendasharchive.openarchive.features.media.MediaLaunchers
 import net.opendasharchive.openarchive.features.media.Picker
 import net.opendasharchive.openarchive.features.media.PreviewActivity
+import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.features.onboarding.Onboarding23Activity
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.features.onboarding.StartDestination
@@ -109,7 +113,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     private var serverListCurOffset: Float = 0F
 
     private var selectModeToggle: Boolean = false
-    private var currentSelectionCount = 0
+    private var selectedMediaCount = 0
 
     private enum class FolderBarMode { INFO, SELECTION, EDIT }
 
@@ -136,6 +140,16 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     private lateinit var reviewManager: ReviewManager
     private var shouldPromptReview = false
+    private var shouldCheckForUpdate = false
+
+    private var inAppUpdateCoordinator: InAppUpdateCoordinator? = null
+
+    private val inAppUpdateLauncher =
+        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+            if (result.resultCode != Activity.RESULT_OK) {
+                AppLogger.w("In-app update flow failed or cancelled: ${result.resultCode}")
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
 //        enableEdgeToEdge()
@@ -143,6 +157,14 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 //        WindowCompat.setDecorFitsSystemWindows(window, false)
         installSplashScreen()
 
+        // Check onboarding status early and redirect if needed
+        if (!Prefs.didCompleteOnboarding) {
+            val intent = Intent(this, Onboarding23Activity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+            return
+        }
 
 
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -170,13 +192,12 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
         binding = ActivityMainBinding.inflate(layoutInflater)
 
-
 //        binding.contentMain.imgLogo.applyEdgeToEdgeInsets { insets ->
 //            leftMargin = insets.left
 //            rightMargin = insets.right
 //        }
 
-        binding.contentMain.bottomNavBar.applyEdgeToEdgeInsets { insets ->
+        binding.contentMain.bottomNavBar.applyEdgeToEdgeInsets(WindowInsetsCompat.Type.navigationBars()) { insets ->
             bottomMargin = insets.bottom
         }
 
@@ -203,6 +224,12 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         setupBottomNavBar()
         setupFolderBar()
         setupBottomSheetObserver()
+
+        inAppUpdateCoordinator = InAppUpdateCoordinator(
+            activity = this,
+            rootView = binding.root,
+            updateLauncher = inAppUpdateLauncher
+        )
 
 
         if (appConfig.isDwebEnabled) {
@@ -240,13 +267,13 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         reviewManager = ReviewManagerFactory.create(this)
         InAppReviewHelper.requestReviewInfo(this)
         shouldPromptReview = InAppReviewHelper.onAppLaunched()
+
+        // Set flag to check for app updates on first onResume
+        shouldCheckForUpdate = Prefs.didCompleteOnboarding
     }
 
     override fun onResume() {
         super.onResume()
-        if (!Prefs.didCompleteOnboarding) {
-            startActivity(Intent(this, Onboarding23Activity::class.java))
-        }
         AppLogger.i("MainActivity onResume is called.......")
         refreshSpace()
         mCurrentPagerItem = mSelectedPageIndex
@@ -261,11 +288,23 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         // Only now, after UI is ready, do we fire the in‐app review if needed.
         if (shouldPromptReview) {
             lifecycleScope.launch(Dispatchers.Main) {
-                // Wait a small delay so we don’t interrupt initial load (e.g. 2 seconds).
+                // Wait a small delay so we don't interrupt initial load (e.g. 2 seconds).
                 delay(2_000)
                 InAppReviewHelper.showReviewIfPossible(this@MainActivity, reviewManager)
                 InAppReviewHelper.markReviewDone()
                 shouldPromptReview = false
+            }
+        }
+        // ─────────────────────────────────────────────────────────────────────────
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // Check for in-app updates after UI is fully loaded and stable.
+        if (shouldCheckForUpdate) {
+            lifecycleScope.launch(Dispatchers.Main) {
+                // Wait longer to ensure all UI initialization is complete (e.g. 3 seconds).
+                delay(3_000)
+                inAppUpdateCoordinator?.onResume()
+                shouldCheckForUpdate = false
             }
         }
         // ─────────────────────────────────────────────────────────────────────────
@@ -275,9 +314,12 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     override fun onStart() {
         super.onStart()
 
-        ProofModeHelper.init(this) {
-            // Check for any queued uploads and restart, only after ProofMode is correctly initialized.
-            UploadService.startUploadService(this)
+        // Initialize ProofMode on background thread to avoid ANR during RSA key generation
+        lifecycleScope.launch(Dispatchers.IO) {
+            ProofModeHelper.init(this@MainActivity) {
+                // Check for any queued uploads and restart, only after ProofMode is correctly initialized.
+                UploadService.startUploadService(this@MainActivity)
+            }
         }
     }
 
@@ -454,7 +496,11 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             it.description = newName
             it.save()
             refreshCurrentProject()
-            Snackbar.make(binding.root, getString(R.string.folder_rename_success), Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(
+                binding.root,
+                getString(R.string.folder_rename_success),
+                Snackbar.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -481,6 +527,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         popupBinding.menuFolderBarSelectMedia.setOnClickListener {
             popup.dismiss()
             setFolderBarMode(FolderBarMode.SELECTION)
+            getCurrentMediaFragment()?.enableSelectionMode()
         }
 
         // Rename folder
@@ -499,9 +546,17 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 refreshProjects()
                 updateCurrentFolderVisibility()
                 refreshCurrentProject()
-                Snackbar.make(binding.root, getString(R.string.folder_archived), Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.folder_archived),
+                    Snackbar.LENGTH_SHORT
+                ).show()
             } else {
-                Snackbar.make(binding.root, getString(R.string.folder_not_found), Snackbar.LENGTH_LONG).show()
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.folder_not_found),
+                    Snackbar.LENGTH_LONG
+                ).show()
             }
         }
 
@@ -511,7 +566,11 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             if (getSelectedProject() != null) {
                 showDeleteFolderConfirmDialog()
             } else {
-                Snackbar.make(binding.root, getString(R.string.folder_not_found), Snackbar.LENGTH_LONG).show()
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.folder_not_found),
+                    Snackbar.LENGTH_LONG
+                ).show()
             }
         }
 
@@ -529,10 +588,17 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         }
     }
 
-    // New helper: update the cancel selection TextView to show the number of selected items.
+    // Update the selected count and show/hide the remove button accordingly
     fun updateSelectedCount(count: Int) {
-        // For example, if count > 0 display “Selected: X”; otherwise, revert to “Select Media”.
-        //binding.contentMain.tvSelectedCount.text = if (count > 0) "Selected: $count" else "Select Media"
+        selectedMediaCount = count
+        updateRemoveButtonVisibility()
+    }
+
+    private fun updateRemoveButtonVisibility() {
+        if (folderBarMode == FolderBarMode.SELECTION) {
+            binding.contentMain.btnRemoveSelected.visibility =
+                if (selectedMediaCount > 0) View.VISIBLE else View.GONE
+        }
     }
 
     private fun showDeleteSelectedMediaConfirmDialog() {
@@ -568,13 +634,17 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             title = UiText.StringResource(R.string.remove_from_app)
             message = UiText.StringResource(R.string.action_remove_project)
             destructiveButton {
-                text = UiText.StringResource(R.string.remove)
+                text = UiText.StringResource(R.string.lbl_remove)
                 action = {
                     getSelectedProject()?.delete()
                     refreshProjects()
                     updateCurrentFolderVisibility()
                     refreshCurrentProject()
-                    Snackbar.make(binding.root, getString(R.string.folder_removed), Snackbar.LENGTH_SHORT).show()
+                    Snackbar.make(
+                        binding.root,
+                        getString(R.string.folder_removed),
+                        Snackbar.LENGTH_SHORT
+                    ).show()
                 }
             }
             neutralButton {
@@ -602,6 +672,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     }
 
     private fun openDrawer() {
+        if (binding.drawerLayout.getDrawerLockMode(binding.drawerContent) == DrawerLayout.LOCK_MODE_LOCKED_CLOSED) {
+            return
+        }
         binding.drawerLayout.openDrawer(binding.drawerContent)
     }
 
@@ -652,7 +725,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 binding.rvFolders.alpha = 1f
                 binding.btnAddFolder.alpha = 1f
             }
-        binding.dimOverlay.animate().alpha(0f).setDuration(200)
+        binding.dimOverlay.animate().alpha(0f).duration = 200L
         binding.navigationDrawerHeader.elevation = 0f
     }
 
@@ -660,11 +733,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         Space.current?.setAvatar(binding.currentSpaceIcon)
         mSpaceAdapter.notifyDataSetChanged()
 
-        if (Space.current == null) {
-            binding.btnAddFolder.visibility = View.INVISIBLE
-        } else {
-            binding.btnAddFolder.visibility = View.VISIBLE
-        }
     }
 
     // ----- Refresh & Update Methods -----
@@ -698,6 +766,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 binding.contentMain.folderInfoContainer.visibility = View.GONE
                 binding.contentMain.folderSelectionContainer.visibility = View.VISIBLE
                 binding.contentMain.folderEditContainer.visibility = View.GONE
+                updateRemoveButtonVisibility()
             }
 
             FolderBarMode.EDIT -> {
@@ -752,17 +821,21 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         if (currentSpace != null) {
             binding.spaceNameLayout.visibility = View.VISIBLE
             binding.currentSpaceName.text = currentSpace.friendlyName
+            binding.btnAddFolder.visibility = View.VISIBLE
             updateCurrentSpaceAtDrawer()
             currentSpace.setAvatar(binding.contentMain.spaceIcon)
         } else {
             binding.contentMain.spaceIcon.visibility = View.INVISIBLE
             binding.spaceNameLayout.visibility = View.INVISIBLE
+            binding.btnAddFolder.visibility = View.INVISIBLE
+            closeDrawer()
         }
         refreshSpaceListAtDrawer()
         updateCurrentSpaceAtDrawer()
         refreshProjects()
         refreshCurrentProject()
         updateCurrentFolderVisibility()
+        invalidateOptionsMenu()
     }
 
     private fun refreshSpaceListAtDrawer() {
@@ -828,9 +901,15 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         if (Space.current?.tType == Space.Type.INTERNET_ARCHIVE) {
             // We cannot browse the Internet Archive. Directly forward to creating a project,
             // as it doesn't make sense to show a one-option menu.
-            intent.putExtra("start_destination", StartDestination.ADD_NEW_FOLDER.name)
+            intent.putExtra(
+                SpaceSetupActivity.LABEL_START_DESTINATION,
+                StartDestination.ADD_NEW_FOLDER.name
+            )
         } else {
-            intent.putExtra("start_destination", StartDestination.ADD_FOLDER.name)
+            intent.putExtra(
+                SpaceSetupActivity.LABEL_START_DESTINATION,
+                StartDestination.ADD_FOLDER.name
+            )
         }
         mNewFolderResultLauncher.launch(intent)
     }
@@ -842,8 +921,29 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 if (Prefs.addMediaHint) {
                     when (mediaType) {
                         AddMediaType.CAMERA -> {
-                            permissionManager.checkCameraPermission {
-                                Picker.takePhotoModern(this@MainActivity, mediaLaunchers.modernCameraLauncher)
+                            if (appConfig.useCustomCamera) {
+                                // Use custom camera instead of system camera
+                                val cameraConfig = CameraConfig(
+                                    allowVideoCapture = true,
+                                    allowPhotoCapture = true,
+                                    allowMultipleCapture = false,
+                                    enablePreview = true,
+                                    showFlashToggle = true,
+                                    showGridToggle = true,
+                                    showCameraSwitch = true
+                                )
+                                Picker.launchCustomCamera(
+                                    this@MainActivity,
+                                    mediaLaunchers.customCameraLauncher,
+                                    cameraConfig
+                                )
+                            } else {
+                                permissionManager.checkCameraPermission {
+                                    Picker.takePhotoModern(
+                                        activity = this@MainActivity,
+                                        launcher = mediaLaunchers.modernCameraLauncher
+                                    )
+                                }
                             }
                         }
 
@@ -927,6 +1027,15 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
         menu?.findItem(R.id.menu_folders)?.apply {
             isVisible = shouldShowSideMenu
+        }
+
+        binding.drawerLayout.setDrawerLockMode(
+            if (shouldShowSideMenu) DrawerLayout.LOCK_MODE_UNLOCKED
+            else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+        )
+
+        if (!shouldShowSideMenu) {
+            closeDrawer()
         }
         return super.onPrepareOptionsMenu(menu)
     }
@@ -1024,6 +1133,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     }
 
     override fun onDestroy() {
+        inAppUpdateCoordinator?.onDestroy()
         super.onDestroy()
 
         // Clear pending callbacks/messages

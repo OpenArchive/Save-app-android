@@ -7,12 +7,7 @@
     android:filterTouchesWhenObscured="true"
     android:orientation="vertical"
     tools:background="@color/colorBackground"
-    tools:context=".features.settings.EditFolderActivity">
-
-
-    <include
-        android:id="@+id/common_app_bar"
-        layout="@layout/common_app_bar"/>
+    tools:context=".features.settings.FolderDetailFragment">
 
 
     <TextView
@@ -20,12 +15,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginTop="48dp"
+        android:fontFamily="@font/montserrat_semi_bold"
         android:text="@string/folder_name"
-        android:textSize="14sp"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/common_app_bar" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/folder_name_container"
@@ -52,8 +48,8 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="@dimen/activity_vertical_margin"
         android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="@dimen/activity_vertical_margin"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -66,14 +62,14 @@
     </RelativeLayout>
 
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
         android:layout_marginTop="48dp"
         android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_marginHorizontal="16dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/folder_name_container"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/folder_name_container">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -84,11 +80,12 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/bt_archive"
                 style="@style/Widget.Material3.Button.TextButton"
-                android:padding="16dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:padding="16dp"
                 android:text="@string/action_archive_project"
-                android:textColor="@color/colorOnPrimaryContainer"/>
+                android:textColor="@color/colorOnPrimaryContainer"
+                android:textSize="18sp" />
         </LinearLayout>
 
 
@@ -103,12 +100,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/remove_from_app"
-                android:textColor="@color/colorDanger"
+                android:textColor="@color/red_bg"
+                android:textSize="18sp"
                 android:textStyle="bold" />
         </LinearLayout>
-
-
-
 
 
     </LinearLayout>

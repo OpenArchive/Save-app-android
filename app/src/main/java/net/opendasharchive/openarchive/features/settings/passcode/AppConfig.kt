@@ -7,5 +7,6 @@ data class AppConfig(
     val biometricAuthEnabled: Boolean = false,
     val maxFailedAttempts: Int = 5,
     val isDwebEnabled: Boolean = true,
-    val multipleProjectSelectionMode: Boolean = false
+    val multipleProjectSelectionMode: Boolean = false,
+    val useCustomCamera: Boolean = false,
 )

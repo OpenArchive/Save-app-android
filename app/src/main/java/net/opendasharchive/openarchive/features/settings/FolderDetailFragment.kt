@@ -1,42 +1,50 @@
 package net.opendasharchive.openarchive.features.settings
 
 import android.os.Bundle
-import android.view.MenuItem
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.databinding.ActivityEditFolderBinding
+import net.opendasharchive.openarchive.databinding.FragmentFolderDetailBinding
 import net.opendasharchive.openarchive.db.Project
-import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
-import net.opendasharchive.openarchive.util.extensions.Position
-import net.opendasharchive.openarchive.util.extensions.setDrawable
 
-class EditFolderActivity : BaseActivity() {
+class FolderDetailFragment : BaseFragment() {
 
-    companion object {
-        const val EXTRA_CURRENT_PROJECT_ID = "archive_extra_current_project_id"
-    }
+    private val args: FolderDetailFragmentArgs by navArgs()
 
     private lateinit var mProject: Project
-    private lateinit var mBinding: ActivityEditFolderBinding
+    private lateinit var mBinding: FragmentFolderDetailBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        mBinding = FragmentFolderDetailBinding.inflate(inflater, container, false)
+        return mBinding.root
+    }
 
-        val project = Project.getById(intent.getLongExtra(EXTRA_CURRENT_PROJECT_ID, -1L))
-            ?: return finish()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        mProject = project
+        // Get arguments from Navigation Component
+        mProject = Project.getById(args.currentProjectId)!!
 
-        mBinding = ActivityEditFolderBinding.inflate(layoutInflater)
-        setContentView(mBinding.root)
+        setupEditorListeners()
+        setupButtonListeners()
+        setupLicenseManager()
+        updateUi()
+    }
 
-
-        setupToolbar("Edit Folder")
-
+    private fun setupEditorListeners() {
         mBinding.folderName.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 val newName = mBinding.folderName.text.toString()
@@ -45,31 +53,30 @@ class EditFolderActivity : BaseActivity() {
                     mProject.description = newName
                     mProject.save()
 
-                    supportActionBar?.title = newName
                     mBinding.folderName.hint = newName
-
-
-                    setupToolbar(newName)
                 }
             }
 
             false
         }
+    }
+
+    private fun setupButtonListeners() {
 
         mBinding.btRemove.setOnClickListener {
             showDeleteFolderConfirmDialog()
         }
 
         mBinding.btArchive.setOnClickListener {
-            archiveProject()
+            unArchiveProject()
         }
+    }
 
+    private fun setupLicenseManager() {
         CreativeCommonsLicenseManager.initialize(mBinding.cc, null) {
             mProject.licenseUrl = it
             mProject.save()
         }
-
-        updateUi()
     }
 
     private fun showDeleteFolderConfirmDialog() {
@@ -79,10 +86,11 @@ class EditFolderActivity : BaseActivity() {
             title = UiText.StringResource(R.string.remove_from_app)
             message = UiText.StringResource(R.string.action_remove_project)
             destructiveButton {
-                text = UiText.StringResource(R.string.remove)
+                text = UiText.StringResource(R.string.lbl_remove)
                 action = {
                     mProject.delete()
-                    finish()
+
+                    findNavController().popBackStack()
                 }
             }
             neutralButton {
@@ -94,15 +102,14 @@ class EditFolderActivity : BaseActivity() {
         }
     }
 
-    private fun archiveProject() {
-        mProject.isArchived = !mProject.isArchived
+    private fun unArchiveProject() {
+        mProject.isArchived = false
         mProject.save()
 
-        updateUi()
+        findNavController().popBackStack()
     }
 
     private fun updateUi() {
-        supportActionBar?.title = mProject.description
 
         mBinding.folderName.isEnabled = !mProject.isArchived
         mBinding.folderName.hint = mProject.description
@@ -121,14 +128,6 @@ class EditFolderActivity : BaseActivity() {
         CreativeCommonsLicenseManager.initialize(mBinding.cc, mProject.licenseUrl, !mProject.isArchived && !global)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                return true
-            }
-        }
-
-        return super.onOptionsItemSelected(item)
-    }
+    override fun getToolbarTitle(): String = "Edit Folder"
+    override fun shouldShowBackButton() = true
 }

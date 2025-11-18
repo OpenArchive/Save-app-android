@@ -12,7 +12,6 @@ import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.databinding.FragmentSpaceListBinding
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
-import net.opendasharchive.openarchive.services.gdrive.GDriveActivity
 import org.koin.compose.viewmodel.koinViewModel
 
 class SpaceListFragment : BaseFragment() {
@@ -34,7 +33,7 @@ class SpaceListFragment : BaseFragment() {
 
         binding.composeViewSpaceList.setContent {
 
-            val viewModel: SpaceListViewModel  = koinViewModel()
+            val viewModel: SpaceListViewModel = koinViewModel()
 
             SaveAppTheme {
 
@@ -69,12 +68,6 @@ class SpaceListFragment : BaseFragment() {
             Space.Type.INTERNET_ARCHIVE -> {
                 val action = SpaceListFragmentDirections.actionFragmentSpaceListToInternetArchiveDetails(space.id)
                 findNavController().navigate(action)
-            }
-
-            Space.Type.GDRIVE -> {
-                val intent = Intent(requireContext(), GDriveActivity::class.java)
-                intent.putExtra(EXTRA_DATA_SPACE, space.id)
-                startActivity(intent)
             }
 
             Space.Type.WEBDAV -> {

@@ -2,57 +2,66 @@ package net.opendasharchive.openarchive.features.settings
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import net.opendasharchive.openarchive.FolderAdapter
 import net.opendasharchive.openarchive.FolderAdapterListener
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.databinding.ActivityFoldersBinding
+import net.opendasharchive.openarchive.databinding.FragmentFoldersBinding
 import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.db.Space
-import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.util.extensions.toggle
 
-class  FoldersActivity : BaseActivity(), FolderAdapterListener {
+class FoldersFragment : BaseFragment(), FolderAdapterListener, MenuProvider {
 
-    companion object {
+    companion object Companion {
         const val EXTRA_SHOW_ARCHIVED = "show_archived"
         const val EXTRA_SELECTED_SPACE_ID = "selected_space_id"
         const val EXTRA_SELECTED_PROJECT_ID = "SELECTED_PROJECT_ID"
     }
 
-    private lateinit var mBinding: ActivityFoldersBinding
+    private lateinit var mBinding: FragmentFoldersBinding
     private lateinit var mAdapter: FolderAdapter
 
     private var mArchived = true
     private var mSelectedSpaceId = -1L
     private var mSelectedProjectId: Long = -1L
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        mBinding = FragmentFoldersBinding.inflate(inflater, container, false)
+        return mBinding.root
+    }
 
-        mArchived = intent.getBooleanExtra(EXTRA_SHOW_ARCHIVED, false)
-        mSelectedSpaceId = intent.getLongExtra(EXTRA_SELECTED_SPACE_ID, -1L)
-        mSelectedProjectId = intent.getLongExtra(EXTRA_SELECTED_PROJECT_ID, -1L)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        mBinding = ActivityFoldersBinding.inflate(layoutInflater)
-        setContentView(mBinding.root)
+        // Get arguments from Navigation component
+        mArchived = arguments?.getBoolean("show_archived", false) ?: false
+        mSelectedSpaceId = arguments?.getLong("selected_space_id", -1L) ?: -1L
+        mSelectedProjectId = arguments?.getLong("selected_project_id", -1L) ?: -1L
 
-        setupToolbar(
-            title = getString(if (mArchived) R.string.archived_folders else R.string.folders),
-            showBackButton = true
-        )
+        activity?.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
         setupRecyclerView()
-
         setupButtons()
     }
 
     private fun setupRecyclerView() {
-        mAdapter = FolderAdapter(context = this, listener = this, isArchived = mArchived)
-        mBinding.rvProjects.layoutManager = LinearLayoutManager(this)
+        mAdapter = FolderAdapter(context = requireContext(), listener = this, isArchived = mArchived)
+        mBinding.rvProjects.layoutManager = LinearLayoutManager(requireContext())
         mBinding.rvProjects.adapter = mAdapter
     }
 
@@ -60,7 +69,9 @@ class  FoldersActivity : BaseActivity(), FolderAdapterListener {
         mBinding.btViewArchived.apply {
             toggle(!mArchived)
             setOnClickListener {
-                val i = Intent(this@FoldersActivity, FoldersActivity::class.java)
+                // Navigation logic should be handled by parent activity/fragment
+                // For now, we'll keep the intent approach but this should be replaced with proper navigation
+                val i = Intent(requireContext(), FoldersFragment::class.java)
                 i.putExtra(EXTRA_SHOW_ARCHIVED, true)
                 startActivity(i)
             }
@@ -70,7 +81,7 @@ class  FoldersActivity : BaseActivity(), FolderAdapterListener {
     override fun onResume() {
         super.onResume()
         refreshProjects()
-        invalidateOptionsMenu()
+        activity?.invalidateOptionsMenu()
     }
 
     private fun refreshProjects() {
@@ -92,31 +103,27 @@ class  FoldersActivity : BaseActivity(), FolderAdapterListener {
     }
 
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         menuInflater.inflate(R.menu.menu_folder_list, menu)
-        return super.onCreateOptionsMenu(menu)
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+    override fun onPrepareMenu(menu: Menu) {
         val archivedCount = Space.get(mSelectedSpaceId)?.archivedProjects?.size ?: 0
-        menu?.findItem(R.id.action_archived_folders)?.isVisible = (!mArchived && archivedCount > 0)
-        return super.onPrepareOptionsMenu(menu)
+        menu.findItem(R.id.action_archived_folders)?.isVisible = (!mArchived && archivedCount > 0)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return when (menuItem.itemId) {
             R.id.action_archived_folders -> {
                 navigateToArchivedFolders()
                 true
             }
-
-            else -> super.onOptionsItemSelected(item)
+            else -> false
         }
     }
 
     private fun navigateToArchivedFolders() {
-        val intent = Intent(this, FoldersActivity::class.java).apply {
+        val intent = Intent(requireContext(), FoldersFragment::class.java).apply {
             putExtra(EXTRA_SHOW_ARCHIVED, true)
             putExtra(EXTRA_SELECTED_SPACE_ID, mSelectedSpaceId)
             putExtra(EXTRA_SELECTED_PROJECT_ID, mSelectedProjectId)
@@ -128,12 +135,13 @@ class  FoldersActivity : BaseActivity(), FolderAdapterListener {
     override fun projectClicked(project: Project) {
         val resultIntent = Intent()
         resultIntent.putExtra("SELECTED_FOLDER_ID", project.id)
-        setResult(RESULT_OK, resultIntent)
-        //finish() // Close FoldersActivity and return to MainActivity
-
-        val intent = Intent(this, EditFolderActivity::class.java).apply {
-            putExtra(EditFolderActivity.EXTRA_CURRENT_PROJECT_ID, project.id)
-        }
-        startActivity(intent)
+        requireActivity().setResult(android.app.Activity.RESULT_OK, resultIntent)
+        
+        // Navigate using Navigation Component with Safe Args
+        val action = FoldersFragmentDirections.actionFragmentFoldersToFragmentFolderDetail(currentProjectId = project.id)
+        findNavController().navigate(action)
     }
+
+    override fun getToolbarTitle(): String = getString(if (mArchived) R.string.archived_folders else R.string.folders)
+    override fun shouldShowBackButton() = true
 }

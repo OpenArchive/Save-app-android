@@ -3,7 +3,7 @@
 
     <!-- night theme colors -->
 
-    <color name="colorBackground">#16161D</color>
+    <color name="colorBackground">#000000</color>
     <color name="colorOnBackground">@color/white</color>
 
     <color name="colorPrimary">#000A0A</color>
@@ -21,9 +21,12 @@
 
     <color name="colorSurface">#24242E</color>
     <color name="colorOnSurface">@color/c23_light_grey</color>
+    <color name="colorOnSurfaceVariant">@color/c23_grey_30</color>
     <color name="colorTertiary">@color/c23_teal</color>
     <color name="colorText">@color/c23_light_grey</color>
     <color name="colorError">@color/red</color>
+
+    <color name="colorOutline">@color/c23_medium_grey</color>
 
 
     <color name="inputBackground">#212021</color>
@@ -38,7 +41,7 @@
     <color name="colorSpaceSetupProgressOn">@color/c23_teal</color>
     <color name="colorSpaceSetupProgressOff">@color/c23_medium_grey</color>
     <color name="colorBackgroundSpaceIcon">@color/c23_darker_grey</color>
-    <color name="colorButtonOnBackground">@color/black</color>
+    <color name="boxBackgroundColor">@color/black</color>
     <color name="colorOnBackgroundTonedDown">@color/c23_grey</color>
     <color name="colorOnBackgroundLowContrast">@color/c23_medium_grey</color>
     <color name="colorTextViewHint">@color/white</color>
@@ -54,5 +57,8 @@
     <color name="colorRipple">#33e3e3e4</color>
     <color name="bottomSheetBackground">@color/eigengrau</color>
     <color name="colorSkipButton">@color/c23_teal</color>
+    <color name="selection_button_glass">#80FFFFFF</color>
+    <color name="selection_button_stroke">#CCFFFFFF</color>
+    <color name="selection_button_ripple">#B3FFFFFF</color>
 
 </resources>

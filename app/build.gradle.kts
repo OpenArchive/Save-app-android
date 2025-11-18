@@ -48,6 +48,8 @@ kotlin {
 
 android {
 
+    namespace = "net.opendasharchive.openarchive"
+
     compileSdk = 36
 
     compileOptions {
@@ -59,7 +61,7 @@ android {
         applicationId = "net.opendasharchive.openarchive"
         minSdk = 29
         targetSdk = 36
-        versionCode = 30019
+        versionCode = 30020
         versionName = "4.0.2"
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
@@ -84,7 +86,7 @@ android {
             signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
             isShrinkResources = false
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
 
         getByName("debug") {
@@ -146,7 +148,6 @@ android {
         }
     }
 
-    namespace = "net.opendasharchive.openarchive"
 
     configurations.all {
         resolutionStrategy {
@@ -246,16 +247,31 @@ dependencies {
     implementation(libs.coil.video)
     implementation(libs.coil.network)
 
+    // CameraX
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.video)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.camera.extensions)
+
+    // Media3 - ExoPlayer
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
+
     // Google Play Services
-    implementation(libs.google.auth)
+    //implementation(libs.google.auth)
+    //implementation(libs.google.play.asset.delivery.ktx)
+    //implementation(libs.google.play.feature.delivery)
+    //implementation(libs.google.play.feature.delivery.ktx)
     implementation(libs.google.play.review)
     implementation(libs.google.play.review.ktx)
     implementation(libs.google.play.app.update.ktx)
 
     // Google Drive API
-    implementation(libs.google.api.client.android)
-    implementation(libs.google.http.client.gson)
-    implementation(libs.google.drive.api)
+    //implementation(libs.google.api.client.android)
+    //implementation(libs.google.http.client.gson)
+    //implementation(libs.google.drive.api)
 
     // Security & Cryptography
     implementation(libs.bouncycastle.bcprov)

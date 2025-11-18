@@ -35,15 +35,8 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory {
     private fun applyTheme() {
 
         val useDarkMode = Prefs.getBoolean(getString(R.string.pref_key_use_dark_mode), false)
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val uiModeManager = getSystemService(UI_MODE_SERVICE) as UiModeManager
-            val darkMode = if (useDarkMode) UiModeManager.MODE_NIGHT_YES else UiModeManager.MODE_NIGHT_NO
-            uiModeManager.setApplicationNightMode(darkMode)
-        } else {
-            val darkMode = if (useDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
-            AppCompatDelegate.setDefaultNightMode(darkMode)
-        }
+        val nightMode = if (useDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+        AppCompatDelegate.setDefaultNightMode(nightMode)
     }
 
     override fun onCreate() {

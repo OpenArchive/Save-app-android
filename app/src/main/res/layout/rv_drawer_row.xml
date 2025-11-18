@@ -24,6 +24,7 @@
         android:layout_gravity="center_vertical"
         android:layout_marginHorizontal="10dp"
         android:gravity="center_vertical"
+        android:fontFamily="@font/montserrat_semi_bold"
         android:textColor="@color/colorOnBackground"
         tools:text="Text FPO" />
 
