@@ -78,7 +78,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:alpha="0.25"
-            android:background="@color/colorPrimary" />
+            android:background="@color/colorTertiary" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

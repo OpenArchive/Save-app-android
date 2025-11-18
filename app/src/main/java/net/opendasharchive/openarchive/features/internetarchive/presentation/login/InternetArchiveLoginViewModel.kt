@@ -70,7 +70,7 @@ class InternetArchiveLoginViewModel(
             }
 
             is InternetArchiveLoginAction.ErrorClear -> {
-                _uiState.update { it.copy(isLoginError = false) }
+                _uiState.update { it.copy(isLoginError = false, isUsernameError = false, isPasswordError = false) }
             }
         }
     }
@@ -79,13 +79,13 @@ class InternetArchiveLoginViewModel(
         _uiState.update { it.copy(isBusy = true) }
         viewModelScope.launch {
             val currentState = _uiState.value
-            loginUseCase(currentState.username, currentState.password)
+            loginUseCase.invoke(currentState.username, currentState.password)
                 .onSuccess { ia ->
                     _uiState.update { it.copy(isBusy = false) }
                     _events.send(InternetArchiveLoginEvent.LoginSuccess(space.id))
                 }
                 .onFailure { error ->
-                    _uiState.update { it.copy(isLoginError = true, isBusy = false) }
+                    _uiState.update { it.copy(isLoginError = true, isUsernameError = true, isPasswordError = true, isBusy = false) }
                     _events.send(InternetArchiveLoginEvent.LoginError(error))
                 }
         }

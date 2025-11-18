@@ -144,6 +144,7 @@
                     android:textSize="18sp" />
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/username_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
@@ -165,7 +166,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingVertical="4dp"
-                    app:endIconMode="password_toggle">
+                    app:endIconMode="password_toggle"
+                    app:endIconDrawable="@drawable/password_toggle_icon">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/password"
@@ -185,8 +187,8 @@
                     android:id="@+id/error_hint"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:text="@string/error_incorrect_username_or_password"
-                    android:textColor="@color/colorError"/>
+                    android:textColor="@color/colorError"
+                    tools:text="@string/error_incorrect_username_or_password" />
 
             </LinearLayout>
 
@@ -231,7 +233,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/remove_from_app"
-                    android:textColor="@color/colorDanger"
+                    android:textColor="@color/red_bg"
                     android:textFontWeight="600"
                     android:textSize="18sp" />
 
@@ -268,8 +270,10 @@
                 style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat_semi_bold"
                 android:text="@string/back"
-                android:textColor="@color/colorText" />
+                android:textColor="@color/colorText"
+                android:textSize="18sp" />
 
         </LinearLayout>
 
@@ -286,11 +290,36 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:enabled="false"
+                android:fontFamily="@font/montserrat_semi_bold"
                 android:paddingHorizontal="24dp"
                 android:paddingVertical="8dp"
                 android:text="@string/action_next"
+                android:textSize="18sp"
                 app:backgroundTint="@color/button_color" />
         </LinearLayout>
 
     </LinearLayout>
+
+    <!-- Loading Overlay -->
+    <FrameLayout
+        android:id="@+id/loading_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/transparent_loading_overlay"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true" />
+
+    </FrameLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -60,3 +60,4 @@ fastlane/.env
 /.kotlin/
 /app/release/
 /app/prod/
+/app/prod/release/save-unspecified-prod-release.aab
