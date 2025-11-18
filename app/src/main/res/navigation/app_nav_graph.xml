@@ -36,8 +36,7 @@
 
     <fragment
         android:id="@+id/fragment_space_setup"
-        android:name="net.opendasharchive.openarchive.features.settings.SpaceSetupFragment"
-        tools:layout="@layout/fragment_space_setup">
+        android:name="net.opendasharchive.openarchive.features.settings.SpaceSetupFragment">
         <action
             android:id="@+id/action_fragment_space_setup_to_fragment_web_dav"
             app:destination="@id/fragment_web_dav"
@@ -56,13 +55,6 @@
         <action
             android:id="@+id/action_fragment_space_setup_to_fragment_snowbird"
             app:destination="@id/fragment_snowbird"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_fragment_space_setup_to_fragment_gdrive"
-            app:destination="@id/fragment_gdrive"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
@@ -257,19 +249,6 @@
         <argument
             android:name="dweb_repo_key"
             app:argType="string" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/fragment_gdrive"
-        android:name="net.opendasharchive.openarchive.services.gdrive.GDriveFragment"
-        tools:layout="@layout/fragment_gdrive">
-        <action
-            android:id="@+id/action_fragment_gdrive_to_fragment_space_setup_success"
-            app:destination="@id/fragment_space_setup_success"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment

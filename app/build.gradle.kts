@@ -249,18 +249,18 @@ dependencies {
     implementation(libs.androidx.media3.ui)
 
     // Google Play Services
-    implementation(libs.google.auth)
-    implementation(libs.google.play.asset.delivery.ktx)
-    implementation(libs.google.play.feature.delivery)
-    implementation(libs.google.play.feature.delivery.ktx)
+    //implementation(libs.google.auth)
+    //implementation(libs.google.play.asset.delivery.ktx)
+    //implementation(libs.google.play.feature.delivery)
+    //implementation(libs.google.play.feature.delivery.ktx)
     implementation(libs.google.play.review)
     implementation(libs.google.play.review.ktx)
     implementation(libs.google.play.app.update.ktx)
 
     // Google Drive API
-    implementation(libs.google.api.client.android)
-    implementation(libs.google.http.client.gson)
-    implementation(libs.google.drive.api)
+    //implementation(libs.google.api.client.android)
+    //implementation(libs.google.http.client.gson)
+    //implementation(libs.google.drive.api)
 
     // Security & Cryptography
     implementation(libs.bouncycastle.bcprov)
