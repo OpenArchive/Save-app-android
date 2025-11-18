@@ -619,6 +619,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     }
 
     private fun openDrawer() {
+        if (binding.drawerLayout.getDrawerLockMode(binding.drawerContent) == DrawerLayout.LOCK_MODE_LOCKED_CLOSED) {
+            return
+        }
         binding.drawerLayout.openDrawer(binding.drawerContent)
     }
 
@@ -669,7 +672,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 binding.folders.alpha = 1f
                 binding.btnAddFolder.alpha = 1f
             }
-        binding.dimOverlay.animate().alpha(0f).setDuration(200)
+        binding.dimOverlay.animate().alpha(0f).duration = 200L
         binding.navigationDrawerHeader.elevation = 0f
     }
 
@@ -677,11 +680,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         Space.current?.setAvatar(binding.currentSpaceIcon)
         mSpaceAdapter.notifyDataSetChanged()
 
-        if (Space.current == null) {
-            binding.btnAddFolder.visibility = View.INVISIBLE
-        } else {
-            binding.btnAddFolder.visibility = View.VISIBLE
-        }
     }
 
     // ----- Refresh & Update Methods -----
@@ -770,11 +768,14 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         if (currentSpace != null) {
             binding.spaceNameLayout.visibility = View.VISIBLE
             binding.currentSpaceName.text = currentSpace.friendlyName
+            binding.btnAddFolder.visibility = View.VISIBLE
             updateCurrentSpaceAtDrawer()
             currentSpace.setAvatar(binding.contentMain.spaceIcon)
         } else {
             binding.contentMain.spaceIcon.visibility = View.INVISIBLE
             binding.spaceNameLayout.visibility = View.INVISIBLE
+            binding.btnAddFolder.visibility = View.INVISIBLE
+            closeDrawer()
         }
 
         mSpaceAdapter.update(Space.getAll().asSequence().toList())
@@ -782,6 +783,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         refreshProjects()
         refreshCurrentProject()
         updateCurrentFolderVisibility()
+        invalidateOptionsMenu()
     }
 
     private fun refreshProjects(setProjectId: Long? = null) {
@@ -938,8 +940,18 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         val shouldShowSideMenu =
             Space.current != null && mCurrentPagerItem != mPagerAdapter.settingsIndex
+
         menu?.findItem(R.id.menu_folders)?.apply {
             isVisible = shouldShowSideMenu
+        }
+
+        binding.drawerLayout.setDrawerLockMode(
+            if (shouldShowSideMenu) DrawerLayout.LOCK_MODE_UNLOCKED
+            else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+        )
+
+        if (!shouldShowSideMenu) {
+            closeDrawer()
         }
         return super.onPrepareOptionsMenu(menu)
     }

@@ -153,7 +153,18 @@ object Picker {
 
     private val mFilePickerIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
         addCategory(Intent.CATEGORY_OPENABLE)
-        type = "application/*"
+        type = "*/*"
+
+        putExtra(
+            Intent.EXTRA_MIME_TYPES,
+            arrayOf(
+                "application/pdf", // pdf
+                "image/*",         // all images
+                "video/*",         // all videos
+                "audio/mpeg",      // mp3 (most devices)
+                "audio/mp3"        // some devices use this
+            )
+        )
     }
 
     /**

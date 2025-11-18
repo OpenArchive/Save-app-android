@@ -54,6 +54,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -167,13 +168,6 @@ private fun InternetArchiveLoginContent(
 
     val context = LocalContext.current
 
-    LaunchedEffect(state.isLoginError) {
-        while (state.isLoginError) {
-            delay(3000)
-            onAction(InternetArchiveLoginAction.ErrorClear)
-        }
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -206,7 +200,10 @@ private fun InternetArchiveLoginContent(
 
         CustomTextField(
             value = state.username,
-            onValueChange = { onAction(InternetArchiveLoginAction.UpdateUsername(it)) },
+            onValueChange = {
+                onAction(InternetArchiveLoginAction.ErrorClear)
+                onAction(InternetArchiveLoginAction.UpdateUsername(it))
+            },
             label = stringResource(R.string.label_username),
             placeholder = stringResource(R.string.prompt_email),
             isError = state.isUsernameError,
@@ -219,7 +216,10 @@ private fun InternetArchiveLoginContent(
 
         CustomSecureField(
             value = state.password,
-            onValueChange = { onAction(InternetArchiveLoginAction.UpdatePassword(it)) },
+            onValueChange = {
+                onAction(InternetArchiveLoginAction.ErrorClear)
+                onAction(InternetArchiveLoginAction.UpdatePassword(it))
+            },
             label = stringResource(R.string.label_password),
             placeholder = stringResource(R.string.prompt_password),
             isError = state.isPasswordError,
@@ -339,7 +339,9 @@ private fun InternetArchiveLoginPreview() {
             state = InternetArchiveLoginState(
                 username = "",
                 password = "",
-                isLoginError = true
+                isLoginError = true,
+                isPasswordError = true,
+                isUsernameError = true
             ),
             onAction = {}
         )
@@ -460,7 +462,7 @@ fun CustomSecureField(
                 modifier = Modifier.sizeIn(ThemeDimensions.touchable),
                 onClick = { showPassword = !showPassword }) {
                 Icon(
-                    imageVector = if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                    painter = if (showPassword) painterResource(R.drawable.ic_visibility) else painterResource(R.drawable.ic_visibility_off),
                     contentDescription = "show password"
                 )
             }

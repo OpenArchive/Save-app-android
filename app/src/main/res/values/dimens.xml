@@ -35,4 +35,10 @@
 
     <dimen name="spaces_list_max_height">280dp</dimen>
 
+    <dimen name="selection_button_corner_radius">30dp</dimen>
+    <dimen name="selection_button_stroke_width">1dp</dimen>
+    <dimen name="selection_button_icon_padding_horizontal">14dp</dimen>
+    <dimen name="selection_button_text_padding_horizontal">22dp</dimen>
+    <dimen name="selection_button_padding_vertical">10dp</dimen>
+
 </resources>

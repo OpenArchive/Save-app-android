@@ -182,8 +182,7 @@ fun BaseDialogTitle(
 ) {
     Text(
         text = text,
-        style = MaterialTheme.typography.headlineSmall.copy(
-            fontSize = 18.sp,
+        style = MaterialTheme.typography.titleLarge.copy(
             fontWeight = FontWeight.Bold
         ),
         textAlign = TextAlign.Center,

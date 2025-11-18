@@ -209,7 +209,7 @@ object SaveTextStyles {
         fontFamily = MontserratFontFamily,
         fontSize = 11.sp,
         fontWeight = FontWeight.Normal,
-        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+        fontStyle = FontStyle.Italic,
         letterSpacing = 0.01.sp,
         lineHeight = 14.sp,
     )
