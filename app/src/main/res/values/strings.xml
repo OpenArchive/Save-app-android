@@ -118,6 +118,9 @@
     <string name="uploads_notification_descriptions">These notifications show up while this app is performing media uploads.</string>
 
     <string name="action_upload">Upload</string>
+<!--    TODO: Add translations for this?-->
+    <string name="in_app_update_ready" translatable="false">A new version is ready to install.</string>
+    <string name="in_app_update_restart" translatable="false">Restart</string>
 
     <!-- Passcode Settings -->
     <string name="multiple_failed_attempts_message">App is locked due to multiple failed attempts. Please try again later.</string>
