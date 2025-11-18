@@ -36,8 +36,7 @@
 
     <fragment
         android:id="@+id/fragment_space_setup"
-        android:name="net.opendasharchive.openarchive.features.settings.SpaceSetupFragment"
-        tools:layout="@layout/fragment_space_setup">
+        android:name="net.opendasharchive.openarchive.features.settings.SpaceSetupFragment">
         <action
             android:id="@+id/action_fragment_space_setup_to_fragment_web_dav"
             app:destination="@id/fragment_web_dav"
