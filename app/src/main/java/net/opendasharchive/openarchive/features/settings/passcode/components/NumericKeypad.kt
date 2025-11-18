@@ -196,7 +196,7 @@ private fun NumberButton(
 
         when (label) {
             "delete" -> Icon(
-                imageVector = Icons.Default.Backspace,
+                painter = painterResource(R.drawable.ic_backspace),
                 contentDescription = "Delete",
                 tint = MaterialTheme.colorScheme.onBackground
             )
@@ -210,8 +210,7 @@ private fun NumberButton(
             else -> Text(
                 text = label,
                 style = MaterialTheme.typography.headlineSmall.copy(
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
             )

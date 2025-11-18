@@ -20,7 +20,7 @@
     <string name="folder_rename_success">Folder renamed</string>
     <string name="folder_not_found">Folder not found</string>
     <string name="folder_removed">Folder removed</string>
-    <string name="folder_archived">Folder archived</string>
+    <string name="folder_archived">Folder archived successfully…</string>
     <string name="content_picker_label">Add media from</string>
     <string name="disable_passcode_dialog_title">Disable Passcode</string>
     <string name="disable_passcode_dialog_msg">Are you sure you want to disable the passcode?</string>
@@ -253,12 +253,13 @@
     <string name="preview_media">Preview Upload</string>
     <string name="add_more">Add More</string>
     <string name="select_all">Select All</string>
+    <string name="deselect_all">Deselect All</string>
     <string name="lbl_got_it">Got it</string>
     <string name="do_not_show_me_this_again">Do not show me this again</string>
     <string name="edit_multiple">Edit Multiple</string>
     <string name="press_and_hold_options_media_screen_title">Add Media</string>
     <string name="press_and_hold_options_media_screen_message">Tap + to pick from image gallery or press and hold to add media from other apps.</string>
-    <string name="press_and_hold_to_select_and_edit_multiple_media">Press and hold to select and edit multiple media.</string>
+    <string name="press_and_hold_to_select_and_edit_multiple_media">Press and hold to select and edit multiple media items.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Once uploaded, you will not be able to edit media.</string>
     <string name="edit_media_info">Edit Media Info</string>
     <string name="counter" translatable="false">%1$d/%2$d</string>
@@ -354,4 +355,8 @@
     <string name="tor_connection_exception" translatable="false">Unable to connect to Orbot/Tor.</string>
     <string name="tor_connection_timeout" translatable="false">Unable to connect to Orbot/Tor: TIMEOUT</string>
     <string name="tor_connection_invalid" translatable="false">Unable to connect to Orbot/Tor: INVALID</string>
+
+
+
+    <string name="separator" translatable="false">separator</string>
 </resources>

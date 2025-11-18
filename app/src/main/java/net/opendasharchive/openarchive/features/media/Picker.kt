@@ -17,6 +17,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
+import net.opendasharchive.openarchive.features.media.camera.CameraActivity
+import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
@@ -130,11 +132,48 @@ object Picker {
             }
         }
 
+        // Custom camera launcher
+        val customCameraLauncher = activity.registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val capturedUris = result.data?.getStringArrayListExtra(CameraActivity.EXTRA_CAPTURED_URIS)
+                if (!capturedUris.isNullOrEmpty()) {
+                    val uris = capturedUris.map { Uri.parse(it) }
+                    val snackbar = showProgressSnackBar(activity, root, activity.getString(R.string.importing_media))
+
+                    activity.lifecycleScope.launch(Dispatchers.IO) {
+                        try {
+                            // Import the captured media with proof generation enabled
+                            // This ensures proper mimetype detection and Media object setup
+                            val media = import(activity, project(), uris, true)
+
+                            activity.lifecycleScope.launch(Dispatchers.Main) {
+                                snackbar.dismiss()
+                                completed(media)
+                            }
+                        } catch (e: Exception) {
+                            AppLogger.e("Error processing camera captures", e)
+                            activity.lifecycleScope.launch(Dispatchers.Main) {
+                                snackbar.dismiss()
+                                Toast.makeText(activity, "Failed to process captures", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                } else {
+                    AppLogger.w("No captures returned from custom camera")
+                }
+            } else {
+                AppLogger.w("Custom camera capture cancelled or failed")
+            }
+        }
+
         return MediaLaunchers(
             galleryLauncher = galleryLauncher,
             filePickerLauncher = filePickerLauncher,
             cameraLauncher = legacyCameraLauncher,
-            modernCameraLauncher = modernCameraLauncher
+            modernCameraLauncher = modernCameraLauncher,
+            customCameraLauncher = customCameraLauncher
         )
     }
 
@@ -153,7 +192,27 @@ object Picker {
 
     private val mFilePickerIntent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
         addCategory(Intent.CATEGORY_OPENABLE)
-        type = "application/*"
+        type = "*/*"
+
+        putExtra(
+            Intent.EXTRA_MIME_TYPES,
+            arrayOf(
+                "application/pdf", // pdf
+                "image/*",         // all images
+                "video/*",         // all videos
+                "audio/mpeg",      // mp3 (most devices)
+                "audio/mp3"        // some devices use this
+            )
+        )
+    }
+
+    /**
+     * Launch custom camera with configuration options.
+     * Supports both photo and video capture with preview functionality.
+     */
+    fun launchCustomCamera(activity: Activity, launcher: ActivityResultLauncher<Intent>, config: CameraConfig = CameraConfig()) {
+        val intent = CameraActivity.createIntent(activity, config)
+        launcher.launch(intent)
     }
 
     /**
@@ -275,7 +334,8 @@ object Picker {
         }
 
         media.originalFilePath = Uri.fromFile(file).toString()
-        media.mimeType = Utility.getMimeType(context, uri) ?: ""
+        // Enhanced mime type detection for file URIs
+        media.mimeType = getMimeTypeWithFallback(context, uri, file?.path)
         media.createDate = createDate
         media.updateDate = media.createDate
         media.sStatus = Media.Status.Local
@@ -332,5 +392,44 @@ object Picker {
         (bar.view as? Snackbar.SnackbarLayout)?.addView(ProgressBar(activity))
         bar.show()
         return bar
+    }
+    
+    /**
+     * Enhanced mime type detection that falls back to file extension detection
+     * for file URIs where ContentResolver might not have mime type info.
+     */
+    private fun getMimeTypeWithFallback(context: Context, uri: Uri, filePath: String?): String {
+        // First try the standard way
+        val standardMimeType = Utility.getMimeType(context, uri)
+        if (!standardMimeType.isNullOrEmpty()) {
+            return standardMimeType
+        }
+        
+        // Fallback to file extension detection
+        val extension = when {
+            filePath != null -> File(filePath).extension
+            uri.path != null -> File(uri.path!!).extension
+            else -> null
+        }
+        
+        return when (extension?.lowercase()) {
+            "jpg", "jpeg" -> "image/jpeg"
+            "png" -> "image/png"
+            "gif" -> "image/gif"
+            "webp" -> "image/webp"
+            "mp4" -> "video/mp4"
+            "mov" -> "video/quicktime"
+            "avi" -> "video/x-msvideo"
+            "mkv" -> "video/x-matroska"
+            "webm" -> "video/webm"
+            "mp3" -> "audio/mpeg"
+            "wav" -> "audio/wav"
+            "ogg" -> "audio/ogg"
+            "m4a" -> "audio/mp4"
+            else -> {
+                AppLogger.w("Unknown file extension '$extension' for URI: $uri")
+                "application/octet-stream" // Generic binary type
+            }
+        }
     }
 }

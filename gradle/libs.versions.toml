@@ -1,17 +1,17 @@
 [versions]
-activity = "1.11.0"
-agp = "8.13.0"
+activity = "1.12.0-rc01"
+agp = "8.13.1"
 appcompat = "1.7.1"
 biometric = "1.1.0"
 coil = "3.3.0"
-compose = "1.9.3"
+compose = "1.9.4"
 compose-material-icons = "1.7.8"
 compose-preference = "1.1.1"
 constraintlayout = "2.2.1"
 constraintlayout-compos = "1.1.1"
 coordinatorlayout = "1.3.0"
 core = "1.17.0"
-core-splashscreen = "1.2.0-rc01"
+core-splashscreen = "1.2.0"
 coroutines = "1.10.2"
 detekt = "1.23.8"
 detekt-compose = "0.4.27"
@@ -26,13 +26,13 @@ junit = "4.13.2"
 junit-android = "1.3.0"
 androidx-test-runner = "1.7.0"
 koin = "4.1.1"
-kotlin = "2.2.20"
-ksp = "2.2.20-2.0.4"
+kotlin = "2.2.21"
+ksp = "2.3.2"
 lifecycle = "2.9.4"
 material = "1.13.0"
 material3 = "1.4.0"
 mixpanel = "8.2.4"
-navigation = "2.9.5"
+navigation = "2.9.6"
 okhttp = "4.12.0"
 preference = "1.2.1"
 recyclerview = "1.4.0"
@@ -44,7 +44,9 @@ robolectric = "4.16"
 serialization = "1.9.0"
 timber = "5.0.1"
 viewpager2 = "1.1.0"
-work = "2.10.5"
+work = "2.11.0"
+camerax = "1.5.1"
+media3 = "1.8.0"
 
 audio-waveform = "1.0.1"
 bitcoinj-core = "0.16.2"
@@ -65,10 +67,10 @@ netcipher = "2.2.0-alpha"
 permissionx = "1.8.1"
 proofmode = "1.0.30"
 satyan-sugar = "1.5"
-tor-android = "0.4.8.17.2"
+tor-android = "0.4.8.19"
 jtorctl = "0.4.5.7"
-firebase-crashlytics = "20.0.2"
-google-gms-google-services = "4.4.3"
+firebase-crashlytics = "20.0.3"
+google-gms-google-services = "4.4.4"
 google-firebase-crashlytics = "3.0.6"
 
 [libraries]
@@ -141,6 +143,18 @@ coil = { group = "io.coil-kt.coil3", name = "coil", version.ref = "coil" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version .ref= "coil" }
 coil-video = { group = "io.coil-kt.coil3", name = "coil-video", version.ref = "coil" }
 coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
+
+# CameraX
+androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "camerax" }
+androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camerax" }
+androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camerax" }
+androidx-camera-video = { group = "androidx.camera", name = "camera-video", version.ref = "camerax" }
+androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
+androidx-camera-extensions = { group = "androidx.camera", name = "camera-extensions", version.ref = "camerax" }
+
+# Media3 ExoPlayer
+androidx-media3-exoplayer = { group = "androidx.media3", name = "media3-exoplayer", version.ref = "media3" }
+androidx-media3-ui = { group = "androidx.media3", name = "media3-ui", version.ref = "media3" }
 
 # Utilities
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }

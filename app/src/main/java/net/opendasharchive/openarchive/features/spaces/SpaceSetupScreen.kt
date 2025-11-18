@@ -45,9 +45,7 @@ fun SpaceSetupScreen(
         ) {
             Text(
                 text = stringResource(R.string.to_get_started_connect_to_a_server_to_store_your_media),
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.titleLarge.copy(
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground
                 )

@@ -169,7 +169,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         findPreference<Preference>(Prefs.THEME)?.setOnPreferenceChangeListener { _, newValue ->
-            Theme.set(requireActivity(), Theme.get(newValue as? String))
+            Theme.set(Theme.get(newValue as? String))
             true
         }
 
@@ -185,7 +185,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_dark_mode)?.setOnPreferenceChangeListener { pref, newValue ->
             val useDarkMode = newValue as Boolean
             val theme = if (useDarkMode) Theme.DARK else Theme.LIGHT
-            Theme.set(requireActivity(), theme)
+            Theme.set(theme)
             // Save the preference
             Prefs.putBoolean(getString(R.string.pref_key_use_dark_mode), useDarkMode)
             true
