@@ -104,7 +104,7 @@ class SpaceSetupActivity : BaseActivity() {
                 return // Early return to avoid setting graph again
             }
             StartDestination.DWEB_DASHBOARD -> {
-                navGraph.setStartDestination(R.id.fragment_snowbird)
+                navGraph.setStartDestination(R.id.snowbird_nav_graph)
             }
             else -> {
                 navGraph.setStartDestination(R.id.fragment_space_setup)

@@ -310,14 +310,7 @@
     <string name="signature_title" translatable="false">Your signature</string>
     <string name="reply_title" translatable="false">Default reply action</string>
 
-    <!-- Sync Preferences -->
-    <string name="sync_title" translatable="false">Sync email periodically</string>
-    <string name="attachment_title" translatable="false">Download incoming attachments</string>
-    <string name="attachment_summary_on" translatable="false">Automatically download attachments for incoming emails</string>
-    <string name="attachment_summary_off" translatable="false">Only download attachments when manually requested</string>
 
-    <string name="pref_media_servers" translatable="false">pref_media_servers</string>
-    <string name="pref_media_folders" translatable="false">pref_media_folders</string>
 
     <string name="pref_title_secure">Secure</string>
     <string name="pref_title_archive">Archive</string>
@@ -343,6 +336,12 @@
     <string name="error_no_internet">Internet not available</string>
     <string name="save_by_open_archive">Save by OpenArchive</string>
     <string name="discover_the_save_app">Learn More</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title" translatable="false">Sync email periodically</string>
+    <string name="attachment_title" translatable="false">Download incoming attachments</string>
+    <string name="attachment_summary_on" translatable="false">Automatically download attachments for incoming emails</string>
+    <string name="attachment_summary_off" translatable="false">Only download attachments when manually requested</string>
 
     <string name="pref_media_servers" translatable="false">pref_media_servers</string>
     <string name="pref_media_folders" translatable="false">pref_media_folders</string>
