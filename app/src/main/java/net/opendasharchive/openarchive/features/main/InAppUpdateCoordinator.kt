@@ -19,7 +19,7 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 
 /** Handles Google Play in-app update flows and keeps MainActivity lean. */
-class InAppUpdateCoordinator(
+internal class InAppUpdateCoordinator(
     private val activity: Activity,
     private val rootView: View,
     private val updateLauncher: ActivityResultLauncher<IntentSenderRequest>
