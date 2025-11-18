@@ -154,7 +154,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         }
 
 
-
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 //            window.insetsController?.let {
 //                it.hide(WindowInsets.Type.statusBars())
@@ -464,7 +463,11 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             it.description = newName
             it.save()
             refreshCurrentProject()
-            Snackbar.make(binding.root, getString(R.string.folder_rename_success), Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(
+                binding.root,
+                getString(R.string.folder_rename_success),
+                Snackbar.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -510,9 +513,17 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 refreshProjects()
                 updateCurrentFolderVisibility()
                 refreshCurrentProject()
-                Snackbar.make(binding.root, getString(R.string.folder_archived), Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.folder_archived),
+                    Snackbar.LENGTH_SHORT
+                ).show()
             } else {
-                Snackbar.make(binding.root, getString(R.string.folder_not_found), Snackbar.LENGTH_LONG).show()
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.folder_not_found),
+                    Snackbar.LENGTH_LONG
+                ).show()
             }
         }
 
@@ -522,7 +533,11 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             if (getSelectedProject() != null) {
                 showDeleteFolderConfirmDialog()
             } else {
-                Snackbar.make(binding.root, getString(R.string.folder_not_found), Snackbar.LENGTH_LONG).show()
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.folder_not_found),
+                    Snackbar.LENGTH_LONG
+                ).show()
             }
         }
 
@@ -592,7 +607,11 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                     refreshProjects()
                     updateCurrentFolderVisibility()
                     refreshCurrentProject()
-                    Snackbar.make(binding.root, getString(R.string.folder_removed), Snackbar.LENGTH_SHORT).show()
+                    Snackbar.make(
+                        binding.root,
+                        getString(R.string.folder_removed),
+                        Snackbar.LENGTH_SHORT
+                    ).show()
                 }
             }
             neutralButton {
@@ -799,7 +818,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     }
 
 
-
     private fun refreshCurrentProject() {
         val project = getSelectedProject()
 
@@ -846,9 +864,15 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         if (Space.current?.tType == Space.Type.INTERNET_ARCHIVE) {
             // We cannot browse the Internet Archive. Directly forward to creating a project,
             // as it doesn't make sense to show a one-option menu.
-            intent.putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.ADD_NEW_FOLDER.name)
+            intent.putExtra(
+                SpaceSetupActivity.LABEL_START_DESTINATION,
+                StartDestination.ADD_NEW_FOLDER.name
+            )
         } else {
-            intent.putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.ADD_FOLDER.name)
+            intent.putExtra(
+                SpaceSetupActivity.LABEL_START_DESTINATION,
+                StartDestination.ADD_FOLDER.name
+            )
         }
         mNewFolderResultLauncher.launch(intent)
     }
@@ -860,17 +884,30 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 if (Prefs.addMediaHint) {
                     when (mediaType) {
                         AddMediaType.CAMERA -> {
-                            // Use custom camera instead of system camera
-                            val cameraConfig = CameraConfig(
-                                allowVideoCapture = true,
-                                allowPhotoCapture = true,
-                                allowMultipleCapture = false,
-                                enablePreview = true,
-                                showFlashToggle = true,
-                                showGridToggle = true,
-                                showCameraSwitch = true
-                            )
-                            Picker.launchCustomCamera(this@MainActivity, mediaLaunchers.customCameraLauncher, cameraConfig)
+                            if (appConfig.useCustomCamera) {
+                                // Use custom camera instead of system camera
+                                val cameraConfig = CameraConfig(
+                                    allowVideoCapture = true,
+                                    allowPhotoCapture = true,
+                                    allowMultipleCapture = false,
+                                    enablePreview = true,
+                                    showFlashToggle = true,
+                                    showGridToggle = true,
+                                    showCameraSwitch = true
+                                )
+                                Picker.launchCustomCamera(
+                                    this@MainActivity,
+                                    mediaLaunchers.customCameraLauncher,
+                                    cameraConfig
+                                )
+                            } else {
+                                permissionManager.checkCameraPermission {
+                                    Picker.takePhotoModern(
+                                        activity = this@MainActivity,
+                                        launcher = mediaLaunchers.modernCameraLauncher
+                                    )
+                                }
+                            }
                         }
 
                         AddMediaType.GALLERY -> {
@@ -903,7 +940,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     private fun importSharedMedia(imageIntent: Intent?) {
         if (imageIntent?.action != Intent.ACTION_SEND) return
-        val uri = imageIntent.data ?: imageIntent.clipData?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.uri
+        val uri =
+            imageIntent.data ?: imageIntent.clipData?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.uri
         val path = uri?.path ?: return
         if (path.contains(packageName)) return
 

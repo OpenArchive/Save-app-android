@@ -20,7 +20,8 @@ val passcodeModule = module {
             maxRetryLimitEnabled = false,
             biometricAuthEnabled = false,
             maxFailedAttempts = 5,
-            isDwebEnabled = false
+            isDwebEnabled = false,
+            useCustomCamera = true,
         )
     }
 

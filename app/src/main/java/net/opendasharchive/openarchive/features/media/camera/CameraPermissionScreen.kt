@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.sp
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import androidx.compose.ui.tooling.preview.Preview
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 
 @Composable
 fun CameraPermissionScreen(
@@ -128,7 +130,7 @@ fun CameraPermissionScreen(
             } else {
                 // Normal permission request flow
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     OutlinedButton(
@@ -182,5 +184,19 @@ fun CameraPermissionScreen(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun CameraPermissionScreenPreview() {
+    SaveAppTheme {
+        CameraPermissionScreen(
+            isCameraPermissionPermanentlyDenied = false,
+            needsAudioPermission = true,
+            onRequestPermissions = {},
+            onOpenSettings = {},
+            onCancel = {}
+        )
     }
 }
