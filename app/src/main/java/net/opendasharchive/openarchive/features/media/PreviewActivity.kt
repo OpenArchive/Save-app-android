@@ -30,6 +30,10 @@ import net.opendasharchive.openarchive.util.extensions.isVisible
 import net.opendasharchive.openarchive.util.extensions.show
 import net.opendasharchive.openarchive.util.extensions.toggle
 import kotlin.math.max
+import net.opendasharchive.openarchive.features.media.camera.CameraConfig
+import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
+import org.koin.android.ext.android.inject
+import kotlin.getValue
 
 class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Listener {
 
@@ -43,6 +47,8 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
             context.startActivity(i)
         }
     }
+
+    private val appConfig by inject<AppConfig>()
 
     private lateinit var mBinding: ActivityPreviewBinding
 
@@ -136,8 +142,30 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
                     }
 
                     R.id.action_upload_camera -> {
-                        //Picker.takePhoto(this@PreviewActivity, mediaLaunchers.cameraLauncher)
-                        Picker.takePhotoModern(this@PreviewActivity, mediaLaunchers.modernCameraLauncher)
+                        if (appConfig.useCustomCamera) {
+                            // Use custom camera with photo and video support
+                            val cameraConfig = CameraConfig(
+                                allowVideoCapture = true,
+                                allowPhotoCapture = true,
+                                allowMultipleCapture = false, // Allow adding multiple items
+                                enablePreview = true,
+                                showFlashToggle = true,
+                                showGridToggle = true,
+                                showCameraSwitch = true
+                            )
+                            Picker.launchCustomCamera(
+                                this@PreviewActivity,
+                                mediaLaunchers.customCameraLauncher,
+                                cameraConfig
+                            )
+                        } else {
+                            permissionManager.checkCameraPermission {
+                                Picker.takePhotoModern(
+                                    activity = this@PreviewActivity,
+                                    launcher = mediaLaunchers.modernCameraLauncher
+                                )
+                            }
+                        }
                     }
 
                     R.id.action_upload_files -> {
@@ -161,10 +189,30 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
             val modalBottomSheet = ContentPickerFragment { action ->
                 when (action) {
                     AddMediaType.CAMERA -> {
-//                        permissionManager.checkCameraPermission {
-                            Picker.takePhotoModern(this@PreviewActivity, mediaLaunchers.modernCameraLauncher)
-//                        }
-
+                        if (appConfig.useCustomCamera) {
+                            // Use custom camera with photo and video support
+                            val cameraConfig = CameraConfig(
+                                allowVideoCapture = true,
+                                allowPhotoCapture = true,
+                                allowMultipleCapture = true, // Allow adding multiple items in preview
+                                enablePreview = true,
+                                showFlashToggle = true,
+                                showGridToggle = true,
+                                showCameraSwitch = true
+                            )
+                            Picker.launchCustomCamera(
+                                this@PreviewActivity,
+                                mediaLaunchers.customCameraLauncher,
+                                cameraConfig
+                            )
+                        } else {
+                            permissionManager.checkCameraPermission {
+                                Picker.takePhotoModern(
+                                    activity = this@PreviewActivity,
+                                    launcher = mediaLaunchers.modernCameraLauncher
+                                )
+                            }
+                        }
                     }
                     AddMediaType.FILES -> Picker.pickFiles(mediaLaunchers.filePickerLauncher)
                     AddMediaType.GALLERY -> onClick(mBinding.btAddMore)

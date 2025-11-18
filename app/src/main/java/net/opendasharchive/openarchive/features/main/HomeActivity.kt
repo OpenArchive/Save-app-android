@@ -19,11 +19,16 @@ import net.opendasharchive.openarchive.features.main.ui.SaveNavGraph
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.MediaLaunchers
 import net.opendasharchive.openarchive.features.media.Picker
+import net.opendasharchive.openarchive.features.media.camera.CameraConfig
+import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
+import kotlin.getValue
 
 class HomeActivity: FragmentActivity() {
 
+    private val appConfig by inject<AppConfig>()
     private val viewModel by viewModel<HomeViewModel>()
 
     // We'll hold a reference to the media launchers registered with Picker.
@@ -150,8 +155,30 @@ class HomeActivity: FragmentActivity() {
             // insert that logic here (e.g., check Prefs.addMediaHint).
             when (mediaType) {
                 AddMediaType.CAMERA -> {
-                    // Launch the camera using Picker.
-                    Picker.takePhotoModern(this, mediaLaunchers.modernCameraLauncher)
+                    if (appConfig.useCustomCamera) {
+                        // Use custom camera with photo and video support
+                        val cameraConfig = CameraConfig(
+                            allowVideoCapture = true,
+                            allowPhotoCapture = true,
+                            allowMultipleCapture = false, // Single capture for main screen
+                            enablePreview = true,
+                            showFlashToggle = true,
+                            showGridToggle = true,
+                            showCameraSwitch = true
+                        )
+                        Picker.launchCustomCamera(
+                            this,
+                            mediaLaunchers.customCameraLauncher,
+                            cameraConfig
+                        )
+                    } else {
+
+                            Picker.takePhotoModern(
+                                activity = this@HomeActivity,
+                                launcher = mediaLaunchers.modernCameraLauncher
+                            )
+
+                    }
                 }
                 AddMediaType.GALLERY -> {
                     // Launch the gallery/image picker.
