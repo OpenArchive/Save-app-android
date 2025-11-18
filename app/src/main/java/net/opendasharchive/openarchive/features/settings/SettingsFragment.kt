@@ -14,7 +14,6 @@ import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
-import net.opendasharchive.openarchive.features.core.dialog.showWarningDialog
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
@@ -116,14 +115,15 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         getPrefByKey<Preference>(R.string.pref_media_servers)?.setOnPreferenceClickListener {
             val intent = Intent(context, SpaceSetupActivity::class.java)
-            intent.putExtra("start_destination", StartDestination.SPACE_LIST.name)
+            intent.putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.SPACE_LIST.name)
             startActivity(intent)
             true
         }
 
         getPrefByKey<Preference>(R.string.pref_media_folders)?.setOnPreferenceClickListener {
-            val intent = Intent(context, FoldersActivity::class.java)
-            intent.putExtra(FoldersActivity.EXTRA_SHOW_ARCHIVED, true)
+            val intent = Intent(context, SpaceSetupActivity::class.java)
+            intent.putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.ARCHIVED_FOLDER_LIST.name)
+            intent.putExtra(FoldersFragment.EXTRA_SHOW_ARCHIVED, true)
             startActivity(intent)
             true
         }
@@ -169,7 +169,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         findPreference<Preference>(Prefs.THEME)?.setOnPreferenceChangeListener { _, newValue ->
-            Theme.set(requireActivity(), Theme.get(newValue as? String))
+            Theme.set(Theme.get(newValue as? String))
             true
         }
 
@@ -185,7 +185,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_dark_mode)?.setOnPreferenceChangeListener { pref, newValue ->
             val useDarkMode = newValue as Boolean
             val theme = if (useDarkMode) Theme.DARK else Theme.LIGHT
-            Theme.set(requireActivity(), theme)
+            Theme.set(theme)
             // Save the preference
             Prefs.putBoolean(getString(R.string.pref_key_use_dark_mode), useDarkMode)
             true

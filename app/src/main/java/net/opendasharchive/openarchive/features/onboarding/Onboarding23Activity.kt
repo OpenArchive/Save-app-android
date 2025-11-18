@@ -7,6 +7,7 @@ import android.text.Spanned
 import android.view.Window
 import android.view.WindowManager
 import android.view.animation.BounceInterpolator
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
@@ -38,6 +39,14 @@ class Onboarding23Activity : BaseActivity() {
                 )
             )
         }
+
+        // Handle back button to exit app instead of returning to MainActivity
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // Exit the app when back is pressed during onboarding
+                finishAffinity()
+            }
+        })
 
         for (textView in arrayOf(
             mBinding.titleBlock.shareText,

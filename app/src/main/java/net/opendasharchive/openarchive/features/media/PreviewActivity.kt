@@ -6,8 +6,11 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup.MarginLayoutParams
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.GridLayoutManager
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivityPreviewBinding
@@ -23,8 +26,10 @@ import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.hide
+import net.opendasharchive.openarchive.util.extensions.isVisible
 import net.opendasharchive.openarchive.util.extensions.show
 import net.opendasharchive.openarchive.util.extensions.toggle
+import kotlin.math.max
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 
 class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Listener {
@@ -66,10 +71,14 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
 
     private lateinit var permissionManager: PermissionManager
 
+    private var navigationBarInset = 0
+    private var initialMediaGridBottomPadding = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         mBinding = ActivityPreviewBinding.inflate(layoutInflater)
+        initialMediaGridBottomPadding = mBinding.mediaGrid.paddingBottom
 
         mBinding.btAddMoreLayout.applyEdgeToEdgeInsets(WindowInsetsCompat.Type.navigationBars()) { insets ->
             bottomMargin = insets.bottom
@@ -97,6 +106,13 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
         mBinding.mediaGrid.layoutManager = GridLayoutManager(this, 2)
         mBinding.mediaGrid.adapter = PreviewAdapter(this)
         mBinding.mediaGrid.setHasFixedSize(true)
+        mBinding.mediaGrid.clipToPadding = false
+        ViewCompat.setOnApplyWindowInsetsListener(mBinding.mediaGrid) { _, windowInsets ->
+            navigationBarInset = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            requestRecyclerBottomPaddingUpdate()
+            windowInsets
+        }
+        requestRecyclerBottomPaddingUpdate()
 
         mBinding.btAddMore.setOnClickListener(this)
         mBinding.btBatchEdit.setOnClickListener(this)
@@ -252,17 +268,38 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
     }
 
     override fun mediaSelectionChanged() {
-        if (mMedia.firstOrNull { it.selected } != null) {
+        val selectedCount = mMedia.count { it.selected }
+        val hasSelection = selectedCount > 0
+        val totalCount = mMedia.size
+
+        if (hasSelection) {
             mBinding.btAddMore.hide()
             mBinding.bottomBar.show()
         } else {
             mBinding.btAddMore.toggle(mProject != null)
             mBinding.bottomBar.hide()
         }
+
+        val shouldShowDeselectAll = totalCount > 1 && selectedCount == totalCount
+        val selectButtonText = if (shouldShowDeselectAll) {
+            R.string.deselect_all
+        } else {
+            R.string.select_all
+        }
+        mBinding.btSelectAll.setText(selectButtonText)
+
+        requestRecyclerBottomPaddingUpdate()
     }
 
     private fun refresh() {
-        mMedia = Media.getByStatus(listOf(Media.Status.Local), Media.ORDER_CREATED)
+        val media = Media.getByStatus(listOf(Media.Status.Local), Media.ORDER_CREATED)
+        media.forEach {
+            if (it.selected) {
+                it.selected = false
+                it.save()
+            }
+        }
+        mMedia = media
     }
 
     private fun showFirstTimeBatch() {
@@ -326,5 +363,31 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
                 }
             }
         }
+    }
+
+    private fun requestRecyclerBottomPaddingUpdate() {
+        mBinding.mediaGrid.post {
+            updateRecyclerBottomPadding()
+        }
+    }
+
+    private fun updateRecyclerBottomPadding() {
+        val overlayHeight = max(
+            visibleHeightWithBottomMargin(mBinding.btAddMoreLayout),
+            visibleHeightWithBottomMargin(mBinding.bottomBar)
+        )
+
+        val targetBottomPadding = initialMediaGridBottomPadding + max(navigationBarInset, overlayHeight)
+
+        if (mBinding.mediaGrid.paddingBottom != targetBottomPadding) {
+            mBinding.mediaGrid.updatePadding(bottom = targetBottomPadding)
+        }
+    }
+
+    private fun visibleHeightWithBottomMargin(view: View): Int {
+        if (!view.isVisible || view.height == 0) return 0
+        val lp = view.layoutParams as? MarginLayoutParams
+
+        return view.height + (lp?.bottomMargin ?: 0)
     }
 }

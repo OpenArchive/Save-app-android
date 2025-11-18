@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="title_activity_login">Logga in</string>
-    <string name="title_media_list">Uppladdningar</string>
-
     <!-- Alert Values -->
 
     <string name="action_settings">Inställningar</string>
@@ -20,10 +17,6 @@
 
     <string name="error">Fel</string>
 
-    <string name="prefs_user_interface_title">Presentation</string>
-    <string name="prefs_theme_title">Tema</string>
-    <string name="prefs_theme_light">Ljust</string>
-    <string name="prefs_theme_dark">Mörkt</string>
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
@@ -42,14 +35,12 @@
     <string name="action_done">Färdig</string>
     <string name="edit">Ändra</string>
     <string name="menu_done">Färdig</string>
-    <string name="remove">Ta bort</string>
+    <string name="lbl_remove">Ta bort</string>
     <string name="new_folder">Ny mapp</string>
     <string name="metadata">Metadata</string>
 
-    <string name="action_install">Installera</string>
     <string name="create">Skapa</string>
     <string name="add">Lägg till</string>
-    <string name="authenticate">Autentisera</string>
     <string name="back">Tillbaka</string>
     <string name="account">Konto</string>
     <string name="general">Generell</string>
@@ -61,9 +52,8 @@
     <string name="select_all">Markera allt</string>
     <string name="lbl_got_it">Förstått</string>
     <string name="skip">Hoppa över</string>
-    <string name="retry">Försök igen</string>
+    <string name="lbl_retry">Försök igen</string>
 
     <string name="files">Filer</string>
-    <string name="undo">Ångra</string>
 
 </resources>

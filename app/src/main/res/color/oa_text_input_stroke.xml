@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Focused always wins -->
+    <item android:state_focused="true" android:color="@color/colorTertiary"/>
+
+    <!-- Activated but NOT focused (some builds mark active when label is collapsed) -->
+    <item android:state_activated="true" android:state_focused="false"
+        android:color="@color/c23_grey" android:alpha="0.7"/>
+
+    <!-- Hovered but not focused -->
+    <item android:state_hovered="true" android:state_focused="false"
+        android:color="@color/c23_grey" android:alpha="0.7" />
+
+    <!-- Disabled -->
+    <item android:state_enabled="false"
+        android:color="@color/c23_grey" android:alpha="0.38"/>
+
+    <!-- Default (enabled, not focused) -->
+    <item android:color="@color/c23_dark_grey" android:alpha="0.7"/>
+</selector>

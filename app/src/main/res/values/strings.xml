@@ -1,71 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-
-    <string name="navigation_drawer_open">Drawer Open</string>
-    <string name="navigation_drawer_close">Drawer Closed</string>
-
-    <!-- Activities -->
     <string name="app_name" translatable="false">Save</string>
-    <string name="app_subtext">Archive Your Media\n<a href="#">learn more</a></string>
-<!--    <string name="app_subtext">Archive Your Media&#10;&lt;a href="#"&gt;learn more&lt;/a&gt;</string>-->
     <string name="web_client_id" translatable="false">741316235729-ohg8quvto8ajl8qpil4r9rm1o3gfml3t.apps.googleusercontent.com</string>
-
-    <string name="title_activity_login">Log in</string>
     <string name="title_activity_first_start">First Start</string>
-    <string name="title_media_list">Uploads</string>
-
-    <!-- General -->
-
-    <!-- Default Values -->
     <string name="default_tags" translatable="false">OpenArchive</string>
-
-    <!-- Alert Values -->
-
     <string name="action_settings">Settings</string>
-
-    <!-- FirstStartActivity -->
     <string name="internet_archive">Internet Archive</string>
     <string name="internet_archive_description">Upload your media to a free public account on the Internet Archive.</string>
     <string name="dweb_title">DWeb Service</string>
-    <string name="dweb_description">Connect to the decentralized web</string>
-    <string name="gdrive" translatable="false">Google Drive</string>
-    <string name="gdrive_tm" translatable="false">Google Drive™</string>
-    <string name="upload_to_gdrive">Upload to Google Drive</string>
-    <string name="sign_in_or_create_an_account_with_gdrive">Sign in or create an account with Google Drive</string>
-
-    <!--<string name="sign_up_btn">Don\'t have a virtual library card?\n<a href="https://archive.org/account/login.createaccount.php">Register for free.</a></string>-->
-
-    <!-- MainActivity -->
+    <string name="dweb_description">Connect to the\ndecentralized web</string>
     <string name="servers">Servers</string>
     <string name="add_server">Add Server</string>
-
     <string name="lbl_rename_folder">Rename Folder</string>
     <string name="lbl_select_media">Select Media</string>
     <string name="lbl_remove_folder">Remove Folder</string>
-
-    <string name="popup_rename_folder">Rename folder</string>
-    <string name="popup_select_media">Select media</string>
     <string name="popup_archive_folder">Archive folder</string>
     <string name="popup_remove_folder">Remove folder from app</string>
-
     <string name="folder_empty_warning">Folder name cannot be empty</string>
     <string name="folder_rename_success">Folder renamed</string>
     <string name="folder_not_found">Folder not found</string>
     <string name="folder_removed">Folder removed</string>
-    <string name="folder_archived">Folder archived</string>
-
-    <!-- MainFragment -->
-
-    <!-- Settings Fragment -->
+    <string name="folder_archived">Folder archived successfully…</string>
+    <string name="content_picker_label">Add media from</string>
     <string name="disable_passcode_dialog_title">Disable Passcode</string>
     <string name="disable_passcode_dialog_msg">Are you sure you want to disable the passcode?</string>
-
     <string name="tor_disabled_title">Onion routing under development</string>
     <string name="tor_disabled_message">This feature is currently under development. For now, you can use Orbot or any VPN of your choice to enhance your privacy and security.</string>
-    <string name="tor_download_btn_label">"Download Orbot"</string>
+    <string name="tor_download_btn_label">Download Orbot</string>
 
-    <!-- ViewMediaActivity -->
-    <string name="iv_content_desc">Main Image</string>
 
     <!-- Errors -->
 
@@ -73,18 +35,11 @@
     <string name="lbl_Cancel">Cancel</string>
     <string name="lbl_ok">OK</string>
     <string name="lbl_confirm">Confirm</string>
-    <string name="archive_title">E-mail Confirmation</string>
-    <string name="archive_message">Please confirm your e-mail address and return to connect your Internet Archive account.</string>
-
-    <!-- original CC license questions
-    <string name="info_license_deriv">Allow adaptations of your work to be shared?</string>
-    <string name="info_license_sharealike">Require modified versions to also share?</string>
-    <string name="info_license_comm">Allow commercial uses of your work?</string>
-    -->
-
+    <string name="lbl_remove">Remove</string>
+    <string name="lbl_retry">Retry</string>
 
     <string name="license_label">License</string>
-    <string name="info_license_cc0">Waive all restrictions, requirements, and attribution (CC0)</string>
+    <string name="info_license_cc0">Waive all restrictions, requirements, and attribution (CC0).</string>
     <string name="info_license_deriv">Allow anyone to remix and share?</string>
     <string name="info_license_sharealike">Require them to share like you have?</string>
     <string name="info_license_comm">Allow commercial use?</string>
@@ -102,29 +57,17 @@
 
     <string name="prefs_use_tor_title">Turn on Onion Routing</string>
     <string name="prefs_use_tor_summary">Transfer via the Tor Network only</string>
-    <string name="prefs_install_tor_summary">Please install Orbot to enable</string>
-    <string name="prefs_prohibit_screenshots_title">Block screenshots</string>
-    <string name="prefs_prohibit_screenshots_summary">Prevent screenshots and screen-recordings of this app.</string>
 
-    <string name="prefs_user_interface_title">Presentation</string>
-    <string name="prefs_theme_title">Theme</string>
-<!--    <string name="prefs_theme_summary">Change Save\'s theme to light/dark</string>-->
-    <string name="prefs_theme_summary">Change Save’s theme to light/dark</string>
-    <string name="prefs_theme_system">System Controlled</string>
-    <string name="prefs_theme_light">Light</string>
-    <string name="prefs_theme_dark">Dark</string>
+    <string name="prefs_theme_system" translatable="false">System Controlled</string>
+    <string name="prefs_theme_light" translatable="false">Light</string>
+    <string name="prefs_theme_dark" translatable="false">Dark</string>
     <string name="prefs_theme_val_system" translatable="false">system</string>
     <string name="prefs_theme_val_light" translatable="false">light</string>
     <string name="prefs_theme_val_dark" translatable="false">dark</string>
 
     <string name="prefs_use_proofmode_title">Enable ProofMode</string>
-    <string name="prefs_use_proofmode_summary">Share ProofMode public key</string>
-<!--    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a system that enables authentication and verification of multimedia content, <a href="%1$s" style="text-decoration: underline;">learn more here</a>]]></string>-->
-    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a way to enhance the authentication and verification of multimedia content. <a href=\"%1$s\"><u>learn more here.</u></a>]]></string>
-    <!--    <string name="prefs_use_proofmode_description">-->
-<!--        ProofMode is a system that enables authentication and verification of multimedia content, &lt;a href="%1$s" style="text-decoration: underline;"&gt;learn more here&lt;/a&gt;-->
-<!--    </string>-->
-
+    <string name="prefs_use_proofmode_summary" translatable="false">Share ProofMode public key</string>
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a way to enhance the authentication and verification of multimedia content. <a href=\"%1$s\"><u>Learn more here.</u></a>]]></string>
 
     <string name="proof_mode_warning_text"><![CDATA[
     To help verify where your media was captured, ProofMode gathers data from nearby cell towers to corroborate your location. To add credibility and context, it then includes a separate metadata file with your media*. Android requires location access to collect this information.<br/><br/>
@@ -196,69 +139,48 @@
     <string name="tap_to_add">Tap the button below to add media</string>
     <string name="tap_to_add_folder">Tap the button below to add a folder</string>
     <string name="tap_to_add_server">Tap the button below to add a server</string>
-    <string name="to_get_started_connect_to_a_server_to_store_your_media">To get started, connect to a server to store your media</string>
+    <string name="to_get_started_connect_to_a_server_to_store_your_media">To get started, connect to a server to store your media.</string>
     <string name="to_get_started_more_hint_dweb">You can add multiple private servers and\none IA or DWeb server account at any time.</string>
     <string name="to_get_started_more_hint">You can add multiple private servers and\none IA account at any time.</string>
-    <string name="in_the_side_menu_you_can_add_another_server_and_connect_to_multiple_servers">In the side menu, you can add another server and connect to multiple servers</string>
-    <string name="send_directly_to_a_private_server">Connect to a secure WebDAV server</string>
-    <string name="upload_to_the_internet_archive">Connect to a free public server</string>
+    <string name="send_directly_to_a_private_server">Connect to a secure\nWebDAV server</string>
+    <string name="upload_to_the_internet_archive">Connect to a free\npublic server</string>
     <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">Connect to a WebDAV-compatible servers, e.g. Nexcloud and ownCloud.</string>
     <string name="action_next">Next</string>
     <string name="action_done">Done</string>
     <string name="status_flagged">Significant Content</string>
     <string name="select_where_to_store_your_media">Choose a new or existing folder to save your media in.</string>
     <string name="you_have_successfully_connected_to_a_private_server">You have successfully connected to a private server!</string>
-    <string name="you_have_successfully_connected_to_dropbox">You have successfully connected to Dropbox!</string>
     <string name="you_have_successfully_connected_to_the_internet_archive">You have successfully connected to the Internet Archive!</string>
-    <string name="you_have_successfully_connected_to_gdrive">You have successfully connected to Google Drive!</string>
+    <string name="you_have_successfully_connected_to_gdrive" translatable="false">You have successfully connected to Google Drive!</string>
     <string name="create_a_new_folder">Create a New Folder</string>
     <string name="create_new_folder_title">Please name your folder</string>
     <string name="create_new_folder_subtitle">This folder will be created on your server and added to Save.</string>
-    <string name="create_new_folder_hint">Enter folder name</string>
+    <string name="create_new_folder_hint"><i>Enter folder name</i></string>
     <string name="edit">Edit</string>
     <string name="menu_done">Done</string>
     <string name="remove_from_app">Remove from app</string>
     <string name="action_remove_project">Are you sure you want to remove your project?</string>
-    <string name="remove">Remove</string>
     <string name="action_archive_project">Archive Project</string>
     <string name="action_unarchive_project">Unarchive Project</string>
-    <string name="IA_login_error">Please login with valid Internet Archive credentials.</string>
-    <string name="access_key">Access Key</string>
-    <string name="secret_key">Secret Key</string>
-    <string name="info_archiveorg_keys"><b><i>Save</i></b> needs your Internet Archive account\'s API keys to be able to upload media.</string>
-    <string name="action_acquire_keys">Acquire Keys</string>
     <string name="new_folder">New Folder</string>
     <string name="please_do_not_include_special_characters_in_the_name">Please do not include special characters in the name.</string>
     <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">Are you sure you want to remove this server from the app?</string>
     <string name="folder_name_already_exists">Folder name already exists.</string>
-    <string name="dropbox">Dropbox</string>
+    <string name="dropbox" translatable="false">Dropbox</string>
     <string name="metadata">Metadata</string>
 
     <string name="btn_lbl_remove_media">Remove Media</string>
-    <string name="confirm_remove_media">Are you sure you want to remove this Media?</string>
-
     <string name="popup_flag_title">Flag Significant Content</string>
     <string name="popup_flag_desc">When you flag an item, it is routed into a subfolder within the chosen project folder on the private server.</string>
-
     <string name="set_creative_commons_license_for_all_folders_on_this_server">Set creative commons licenses for folders on this server.</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Set the same Creative Commons license for ALL folders on this server.</string>
-    <string name="set_unique_creative_commons_licenses_for_each_individual_folder_on_this_server">Set unique Creative Commons licenses for EACH INDIVIDUAL folder on this server.</string>
-
-    <string name="action_install">Install</string>
-    <string name="login_activity_logging_message">Logging in…</string>
     <string name="you_already_have_a_server_with_these_credentials">You already have a server with these credentials</string>
-    <string name="tor_connection_exception">Unable to connect to Orbot/Tor.</string>
-    <string name="tor_connection_timeout">Unable to connect to Orbot/Tor: TIMEOUT</string>
-    <string name="tor_connection_invalid">Unable to connect to Orbot/Tor: INVALID</string>
-    <string name="unsecured_internet_connection">Detected an unsecured internet connection</string>
-    <string name="version__">Version %s</string>
+
 
     <!-- Space Setup -->
     <string name="space_setup_title">Select a Server</string>
     <!-- WebDAV related strings -->
     <string name="private_server">Private Server</string>
-    <string name="edit_private_server">Edit Private Server</string>
-    <string name="empty_name_warning">Name cannot be empty</string>
 
     <string name="unsaved_changes">Unsaved changes!</string>
     <string name="do_you_want_to_save">Do you want to save</string>
@@ -277,13 +199,11 @@
     <string name="uploading_is_paused">Uploading is paused</string>
 
     <!-- Clean Insights measurement -->
-    <string name="server_name_optional">Server Name (Optional)</string>
-    <string name="dropbox_id">Dropbox ID:</string>
+    <string name="server_name_optional"><i>Server Name (Optional)</i></string>
     <string name="add_another_account">Add new server</string>
-    <string name="prefs_proofmode_key_encryption_title_all">Secure ProofMode Key with Biometrics or Device Passcode</string>
-    <string name="prefs_proofmode_key_encryption_title_biometrics">Secure ProofMode Key with Biometrics</string>
-    <string name="prefs_proofmode_key_encryption_title_passcode">Secure ProofMode Key with Device Passcode</string>
-    <string name="prefs_proofmode_key_encryption_summary">Changing this will create a new key! If you exported and signed that one before, you will need to do it again with the new one.</string>
+    <string name="prefs_proofmode_key_encryption_title_all" translatable="false">Secure ProofMode Key with Biometrics or Device Passcode</string>
+    <string name="prefs_proofmode_key_encryption_title_biometrics" translatable="false">Secure ProofMode Key with Biometrics</string>
+    <string name="prefs_proofmode_key_encryption_title_passcode" translatable="false">Secure ProofMode Key with Device Passcode</string>
     <string name="biometrics_title">Unlock ProofMode Key</string>
     <string name="folders">Folders</string>
     <string name="create_folder_name">Create Folder Name</string>
@@ -292,17 +212,14 @@
     <string name="add">Add</string>
     <string name="no_more_folders">No (more) folders</string>
 
-    <string name="upload_to_dropbox">Upload to Dropbox</string>
-    <string name="sign_in_or_create_an_account_with_dropbox">Sign in or create an account with Dropbox</string>
-    <string name="authenticate">Authenticate</string>
+    <string name="sign_in_or_create_an_account_with_dropbox" translatable="false">Sign in or create an account with Dropbox</string>
+    <string name="authenticate" translatable="false">Authenticate</string>
     <string name="back">Back</string>
     <string name="my_media">My Media</string>
-    <string name="if_you_do_not_have_existing_keys_learn_how_to_acquire_keys">If you do not have existing keys, <b>learn how</b> to acquire keys.</string>
     <string name="server_info">Server info</string>
     <string name="enter_url"><i>Enter URL</i></string>
     <string name="account">Account</string>
     <string name="general">General</string>
-    <string name="connectivity_data"><![CDATA[Connectivity & Data]]></string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Only upload media when you are connected to Wi-Fi</string>
     <string name="security">Security</string>
     <string name="proofmode">ProofMode</string>
@@ -313,120 +230,57 @@
     <string name="intro_header_verify" translatable="false">Verify</string>
     <string name="intro_header_encrypt" translatable="false">Encrypt</string>
     <string name="intro_text_secure">Send your media securely to private servers and lock the app with a pin.</string>
-    <string name="intro_text_archive"><![CDATA[Keep your media verifiable, safe and organized for the long-term by uploading it to private or public servers like Nextcloud or the Internet Archive.<br>Communicate your intentions for future use by adding a <a href=\"%1$s\"><u>Creative Commons License</u></a>.]]></string>
-<!--    <string name="intro_text_archive">Keep your media verifiable, safe and organized for the long-term by uploading it to private or public servers like Nextcloud or the Internet Archive.&lt;br&gt;Communicate your intentions for future use by adding a &lt;a href="%1$s" style="text-decoration: underline;"&gt;Creative Commons License&lt;/a&gt;.</string>-->
+    <string name="intro_text_archive"><![CDATA[Upload media to Nextcloud or the Internet Archive to keep your media verifiable, safe, and organized for the long term.<br><br>Choose <a href=\"%1$s\"><u>Creative Commons Licensing.</u></a>]]></string>
 
     <string name="intro_link_archive" translatable="false">https://creativecommons.org</string>
-    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href=\"%1$s\"><u>ProofMode</u></a>.]]></string>
+    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
     <string name="intro_link_verify" translatable="false">https://proofmode.org</string>
-    <string name="intro_text_encrypt_old">Automatically upload over TLS (Transport Layer Security) and use Orbot to protect your media in transit over the Tor network.</string>
-    <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> always uploads over TLS (Transport Layer Security) to protect your media in transit.<br>To further enhance security, enable <a href=\"%1$s\"><u>Orbot</u></a> to prevent interception of your media from your phone to the server.]]></string>
-<!--    <string name="intro_text_encrypt">-->
-<!--        &lt;b&gt;&lt;i&gt;Save&lt;/i&gt;&lt;/b&gt; always uploads over TLS (Transport Layer Security) to protect your media in transit.&lt;br&gt;-->
-<!--        To further enhance security, enable &lt;a href="%1$s" style="text-decoration: underline;"&gt;Tor&lt;/a&gt; to prevent interception of your media from your phone to the server.-->
-<!--    </string>-->
-    <string name="intro_link_encrypt" translatable="false">https://orbot.app/</string>
+    <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> always uploads over TLS (Transport Layer Security) to protect your media in transit.<br>To further enhance security, enable <a href=\"%1$s\"><u>Tor</u></a> to prevent interception of your media from your phone to the server.]]></string>
+    <string name="intro_link_encrypt" translatable="false">https://www.torproject.org</string>
 
     <string name="next">Next</string>
     <string name="done">Done</string>
     <string name="secure_mobile_media_preservation">Secure Mobile Media Preservation</string>
     <string name="get_started">Get Started</string>
-    <string name="proofmode_permissions_explanation">ProofMode gathers metadata from local cell towers to help verify media. Android requires permission to enable this setting. Save will only use this setting to capture data and will NOT access your phone to make/manage calls.</string>
     <string name="archived_folders">Archived Folders</string>
     <string name="view_archived_folders">View Archived Folders</string>
     <string name="learn_more_about_creative_commons">Learn more about Creative Commons.</string>
     <string name="refresh">Refresh</string>
-    <string name="to_get_started_please_create_a_folder">To get started, please create a folder</string>
-    <string name="before_adding_media_create_a_new_folder_first">Before adding media, create a new folder first.</string>
     <string name="is_video">is video</string>
-    <string name="use_upload_chunking_nextcloud_only">Use Upload Chunking (Nextcloud Only)</string>
-    <string name="chunking_explanation">\"Chunking\" uploads media in pieces so you don\'t have to restart your upload if your connection is interrupted.</string>
     <string name="preview_media">Preview Upload</string>
     <string name="add_more">Add More</string>
     <string name="select_all">Select All</string>
+    <string name="deselect_all">Deselect All</string>
     <string name="lbl_got_it">Got it</string>
     <string name="do_not_show_me_this_again">Do not show me this again</string>
     <string name="edit_multiple">Edit Multiple</string>
     <string name="press_and_hold_options_media_screen_title">Add Media</string>
     <string name="press_and_hold_options_media_screen_message">Tap + to pick from image gallery or press and hold to add media from other apps.</string>
-    <string name="press_and_hold_to_select_and_edit_multiple_media">Press and hold to select and edit multiple media.</string>
+    <string name="press_and_hold_to_select_and_edit_multiple_media">Press and hold to select and edit multiple media items.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Once uploaded, you will not be able to edit media.</string>
     <string name="edit_media_info">Edit Media Info</string>
-    <string name="counter">%1$d/%2$d</string>
-    <string name="add_a_location_optional">Add a location (optional)</string>
-    <string name="add_notes_optional">Add notes (optional)</string>
+    <string name="counter" translatable="false">%1$d/%2$d</string>
+    <string name="add_a_location_optional"><i>Add a location (optional)</i></string>
+    <string name="add_notes_optional"><i>Add notes (optional)</i></string>
     <string name="skip">Skip</string>
-    <string name="add_camera">Add Images from Camera</string>
-    <string name="add_images_or_video">Add Images or Video</string>
-    <string name="add_files">Add Files</string>
 
-    <string name="ia_learn_how_title">How to Acquire Keys in 3 easy steps</string>
-    <string name="ia_learn_how_summary_step_1">Step 1: Log into the Internet Archive. If you don\'t have an account, create one.</string>
-    <string name="ia_learn_how_summary_step_2">Step 2: If you are creating a new account, verify your email.</string>
-    <string name="ia_learn_how_summary_step_3">Step 3: Generate your API keys by selecting the box and it will auto load in the app!</string>
 
     <string name="upload_unsuccessful">Upload Unsuccessful</string>
     <string name="upload_unsuccessful_description">Unable to upload due to session error, please try again or contact support.</string>
-    <string name="retry">Retry</string>
+
 
     <string name="edit_media">Edit Media</string>
 
-    <string name="add_media_using">Add Media using:</string>
+    <string name="add_media_using" translatable="false">Add Media using:</string>
     <string name="camera">Camera</string>
     <string name="photo_gallery">Photo Gallery</string>
     <string name="files">Files</string>
-    <string name="health_checks">Health Checks</string>
-    <string name="passcode_setup" translatable="false">Setup Passcode</string>
-    <string name="passcode_entry" translatable="false">Enter Passcode</string>
-    <string name="help_improve_the_app_by_running_health_checks_when_uploads_fail">Help improve the app by running health checks when uploads fail.</string>
-    <string name="health_checks_help_us_understand_why_uploads_fail">Health checks help us understand why uploads fail.</string>
-    <string name="contribute_your_data_to_be_part_of_the_solution">Contribute your data to be part of the solution.</string>
-    <string name="with_your_permission_we_ll_run_a_check_each_time_you_encounter_an_error_while_uploading">With your permission, we\'ll run a check each time you encounter an error while uploading.</string>
-    <string name="health_checks_capture">Health checks capture</string>
-    <string name="error_description">– Error description</string>
-    <string name="size_and_type_of_media">– Size and type of media</string>
-    <string name="number_of_retries">– Number of retries</string>
-    <string name="network_type">– Network type</string>
-    <string name="locale">– Locale</string>
-    <string name="allow_health_checks">Allow health checks?</string>
-    <string name="by_allowing_health_checks_you_give_permission_for_the_app_to_securely_send_health_check_data_to_the_s_team">By allowing health checks, you give permission for the app to securely send health check data to the %s team.</string>
-    <string name="no_thanks">No thanks</string>
-    <string name="undo">Undo</string>
-    <string name="gdrive_id">Google Drive ID</string>
-    <string name="gdrive_disclaimer_1" formatted="true">%1$s\'s use and transfer of information received from %2$s APIs to any other app adheres to %3$s, including the Limited Use requirements.</string>
-    <string name="google_name" translatable="false">Google</string>
-    <string name="gdrive_sudp_name" translatable="false"><![CDATA[<a href=\"https://developers.google.com/terms/api-services-user-data-policy\">Google API Services User Data Policy</a>]]></string>
-    <string name="gdrive_disclaimer_2" formatted="true">%1$s\'s APIs allow you to send media to your %2$s via %3$s. %3$s, however, cannot see or access anything on your %2$s, which you didn\'t create with %3$s in the first place.</string>
-    <string name="gdrive_auth_insufficient_permissions" formatted="true">%1$s cannot work properly if you don\'t allow it to write to your %2$s. Please try the authorization again and make sure to grant all the access permissions listed.</string>
-    <string name="new_user">new user</string>
 
     <!-- Internet Archive Settings -->
     <string name="label_email">Email</string>
     <string name="label_screen_name">Screen Name</string>
-    <string name="label_login">Login</string>
     <string name="label_create_login">Create one</string>
     <string name="prompt_no_account">No account?</string>
-    <string name="action_continue">Continue</string>
-
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
-
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
-
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails</string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
-
-    <string name="pref_media_servers">pref_media_servers</string>
-    <string name="pref_media_folders">pref_media_folders</string>
 
     <string name="pref_title_secure">Secure</string>
     <string name="pref_title_archive">Archive</string>
@@ -437,16 +291,6 @@
     <string name="pref_summary_media_folders">Manage your archived folders</string>
     <string name="pref_summary_privacy_policy">Read our Terms and Privacy Policy</string>
 
-    <string name="pref_app_passcode" translatable="false">passcode_enabled</string>
-    <string name="pref_key_proof_mode" translatable="false">pref_proof_mode</string>
-    <string name="pref_key_use_proof_mode" translatable="false">use_proofmode</string>
-    <string name="pref_key_use_tor" translatable="false">pref_use_tor</string>
-    <string name="pref_key_use_dark_mode">pref_is_dark_mode</string>
-    <string name="pref_key_about_app" translatable="false">pref_about_app</string>
-    <string name="pref_key_privacy_policy" translatable="false">pref_privacy_policy</string>
-    <string name="pref_key_app_version" translatable="false">pref_app_version</string>
-
-
     <!-- General -->
     <string name="label_success_title">Success!</string>
     <string name="label_warning_title">Warning!</string>
@@ -454,13 +298,62 @@
     <string name="label_got_it">Got it</string>
 
     <!-- Create New Folder -->
-    <string name="create_folder_ok_message">You have added a folder successfully</string>
+    <string name="create_folder_ok_message">You have added a folder successfully.</string>
     <string name="msg_edit_server_success">You have changed your server settings successfully.</string>
     <string name="expand">Expand</string>
     <string name="lbl_no_servers">No servers added yet.</string>
     <string name="lbl_no_archived_folders">No archived folders found.</string>
     <string name="error_no_internet">Internet not available</string>
-    <string name="unavailable">unavailable</string>
     <string name="save_by_open_archive">Save by OpenArchive</string>
     <string name="discover_the_save_app">Learn More</string>
+
+    <string name="pref_media_servers" translatable="false">pref_media_servers</string>
+    <string name="pref_media_folders" translatable="false">pref_media_folders</string>
+    <string name="pref_key_about_app" translatable="false">pref_about_app</string>
+    <string name="pref_key_privacy_policy" translatable="false">pref_privacy_policy</string>
+    <string name="pref_key_app_version" translatable="false">pref_app_version</string>
+    <string name="pref_app_passcode" translatable="false">passcode_enabled</string>
+    <string name="pref_key_proof_mode" translatable="false">pref_proof_mode</string>
+    <string name="pref_key_use_proof_mode" translatable="false">use_proofmode</string>
+    <string name="pref_key_use_tor" translatable="false">pref_use_tor</string>
+    <string name="pref_key_use_dark_mode" translatable="false">pref_is_dark_mode</string>
+
+    <string name="iv_content_desc" translatable="false">Main Image</string>
+    <string name="gdrive_id" translatable="false">Google Drive ID</string>
+    <string name="gdrive_disclaimer_1" translatable="false" formatted="true">%1$s\'s use and transfer of information received from %2$s APIs to any other app adheres to %3$s, including the Limited Use requirements.</string>
+    <string name="google_name" translatable="false">Google</string>
+    <string name="gdrive_sudp_name"  translatable="false"><![CDATA[<a href=\"https://developers.google.com/terms/api-services-user-data-policy\">Google API Services User Data Policy</a>]]></string>
+    <string name="gdrive_disclaimer_2" translatable="false" formatted="true">%1$s\'s APIs allow you to send media to your %2$s via %3$s. %3$s, however, cannot see or access anything on your %2$s, which you didn\'t create with %3$s in the first place.</string>
+    <string name="gdrive_auth_insufficient_permissions" translatable="false" formatted="true">%1$s cannot work properly if you don\'t allow it to write to your %2$s. Please try the authorization again and make sure to grant all the access permissions listed.</string>
+    <string name="gdrive" translatable="false">Google Drive</string>
+    <string name="gdrive_tm" translatable="false">Google Drive™</string>
+    <string name="sign_in_or_create_an_account_with_gdrive" translatable="false">Sign in or create an account with Google Drive</string>
+
+    <string name="health_checks" translatable="false">Health Checks</string>
+    <string name="passcode_setup" translatable="false">Setup Passcode</string>
+    <string name="passcode_entry" translatable="false">Enter Passcode</string>
+    <string name="health_checks_help_us_understand_why_uploads_fail" translatable="false">Health checks help us understand why uploads fail.</string>
+    <string name="contribute_your_data_to_be_part_of_the_solution" translatable="false">Contribute your data to be part of the solution.</string>
+    <string name="with_your_permission_we_ll_run_a_check_each_time_you_encounter_an_error_while_uploading" translatable="false">With your permission, we\'ll run a check each time you encounter an error while uploading.</string>
+    <string name="health_checks_capture" translatable="false">Health checks capture</string>
+    <string name="error_description" translatable="false">– Error description</string>
+    <string name="size_and_type_of_media" translatable="false">– Size and type of media</string>
+    <string name="number_of_retries" translatable="false">– Number of retries</string>
+    <string name="network_type" translatable="false">– Network type</string>
+    <string name="locale" translatable="false">– Locale</string>
+    <string name="allow_health_checks" translatable="false">Allow health checks?</string>
+    <string name="by_allowing_health_checks_you_give_permission_for_the_app_to_securely_send_health_check_data_to_the_s_team" translatable="false">By allowing health checks, you give permission for the app to securely send health check data to the %s team.</string>
+    <string name="no_thanks" translatable="false">No thanks</string>
+
+    <string name="add_camera" translatable="false">Add Images from Camera</string>
+    <string name="add_images_or_video" translatable="false">Add Images or Video</string>
+    <string name="add_files" translatable="false">Add Files</string>
+
+    <string name="tor_connection_exception" translatable="false">Unable to connect to Orbot/Tor.</string>
+    <string name="tor_connection_timeout" translatable="false">Unable to connect to Orbot/Tor: TIMEOUT</string>
+    <string name="tor_connection_invalid" translatable="false">Unable to connect to Orbot/Tor: INVALID</string>
+
+
+
+    <string name="separator" translatable="false">separator</string>
 </resources>
