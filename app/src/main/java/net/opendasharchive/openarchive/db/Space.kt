@@ -13,7 +13,6 @@ import com.orm.SugarRecord
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
-import net.opendasharchive.openarchive.services.gdrive.GDriveConduit
 import net.opendasharchive.openarchive.services.internetarchive.IaConduit
 import net.opendasharchive.openarchive.util.Prefs
 import okhttp3.HttpUrl
@@ -55,10 +54,6 @@ data class Space(
                 host = IaConduit.ARCHIVE_API_ENDPOINT
             }
 
-            Type.GDRIVE -> {
-                name = GDriveConduit.NAME
-            }
-
             Type.RAVEN -> "Raven"
         }
     }
@@ -66,7 +61,6 @@ data class Space(
     enum class Type(val id: Int, val friendlyName: String) {
         WEBDAV(0, "Private Server"),
         INTERNET_ARCHIVE(1, IaConduit.NAME),
-        GDRIVE(4, GDriveConduit.NAME),
         RAVEN(5, "DWeb Service"),
     }
 
@@ -204,8 +198,6 @@ data class Space(
 
             Type.INTERNET_ARCHIVE -> ContextCompat.getDrawable(context, R.drawable.ic_internet_archive)
 
-            Type.GDRIVE -> ContextCompat.getDrawable(context, R.drawable.logo_gdrive_outline)
-
             Type.RAVEN -> ContextCompat.getDrawable(context, R.drawable.snowbird)
 
         }
@@ -218,8 +210,6 @@ data class Space(
             Type.WEBDAV -> painterResource(R.drawable.ic_space_private_server)
 
             Type.INTERNET_ARCHIVE -> painterResource(R.drawable.ic_space_interent_archive)
-
-            Type.GDRIVE -> painterResource(R.drawable.logo_gdrive_outline)
 
             Type.RAVEN -> painterResource(R.drawable.ic_space_dweb)
         }

@@ -152,18 +152,18 @@ detekt-rules-compose = { group = "ru.kode", name = "detekt-rules-compose", versi
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebase-crashlytics" }
 
 # Google - APIs
-google-api-client-android = { group = "com.google.api-client", name = "google-api-client-android", version.ref = "google-api-client-android" }
-google-http-client-gson = { group = "com.google.http-client", name = "google-http-client-gson", version.ref = "google-http-client-gson" }
-google-drive-api = { group = "com.google.apis", name = "google-api-services-drive", version = "v3-rev136-1.25.0" }
+#google-api-client-android = { group = "com.google.api-client", name = "google-api-client-android", version.ref = "google-api-client-android" }
+#google-http-client-gson = { group = "com.google.http-client", name = "google-http-client-gson", version.ref = "google-http-client-gson" }
+#google-drive-api = { group = "com.google.apis", name = "google-api-services-drive", version = "v3-rev136-1.25.0" }
 
 # Google - Material Design
 google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 # Google - Play Services
-google-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "google-gms-auth" }
-google-play-asset-delivery-ktx = { group = "com.google.android.play", name = "asset-delivery-ktx", version.ref = "google-play-asset-delivery-ktx" }
-google-play-feature-delivery = { group = "com.google.android.play", name = "feature-delivery", version.ref = "google-play-feature-delivery" }
-google-play-feature-delivery-ktx = { group = "com.google.android.play", name = "feature-delivery-ktx", version.ref = "google-play-feature-delivery" }
+#google-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "google-gms-auth" }
+#google-play-asset-delivery-ktx = { group = "com.google.android.play", name = "asset-delivery-ktx", version.ref = "google-play-asset-delivery-ktx" }
+#google-play-feature-delivery = { group = "com.google.android.play", name = "feature-delivery", version.ref = "google-play-feature-delivery" }
+#google-play-feature-delivery-ktx = { group = "com.google.android.play", name = "feature-delivery-ktx", version.ref = "google-play-feature-delivery" }
 google-play-review = { group = "com.google.android.play", name = "review", version.ref = "google-play-review" }
 google-play-review-ktx = { group = "com.google.android.play", name = "review-ktx", version.ref = "google-play-review" }
 google-play-app-update-ktx = { group = "com.google.android.play", name = "app-update-ktx", version.ref = "google-play-app-update-ktx" }

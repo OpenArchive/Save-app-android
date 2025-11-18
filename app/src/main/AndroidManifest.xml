@@ -117,10 +117,6 @@
         </activity>
 
         <activity
-            android:name=".services.gdrive.GDriveActivity"
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
             android:name=".features.settings.ProofModeSettingsActivity"
             android:exported="false"
             android:label="@string/proofmode"
