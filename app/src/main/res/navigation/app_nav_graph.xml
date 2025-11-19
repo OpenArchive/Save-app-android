@@ -261,6 +261,11 @@
     </fragment>
 
     <composable
+        android:id="@+id/fragment_app_masking"
+        android:name="net.opendasharchive.openarchive.features.settings.app_masking.AppMaskingScreenKt\$AppMaskingScreen"
+        android:label="@string/label_app_masking" />
+
+    <composable
         android:id="@+id/fragment_add_folder"
         android:name="net.opendasharchive.openarchive.features.folders.AddFolderScreenKt\$AddFolderScreen"
         android:label="@string/add_a_folder">

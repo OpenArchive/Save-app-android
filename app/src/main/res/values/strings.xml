@@ -365,4 +365,28 @@
 
 
     <string name="separator" translatable="false">separator</string>
+
+
+
+    <!-- App Masking -->
+    <string name="app_mask_heading" translatable="false">Choose how Save appears</string>
+    <string name="app_mask_subheading" translatable="false">Pick a cover story. You can change back to the original icon anytime.</string>
+    <string name="app_mask_tip_title" translatable="false">Reminder</string>
+    <string name="app_mask_tip_description" translatable="false">Android may still list “Save” inside system settings. These disguises focus on the launcher experience.</string>
+    <string name="app_mask_default_label" translatable="false">Save (default)</string>
+    <string name="app_mask_default_description" translatable="false">Keep the standard Save name and icon.</string>
+    <string name="app_mask_calculator_label" translatable="false">QuickCalc</string>
+    <string name="app_mask_calculator_description" translatable="false">Lightweight calculator for instant sums.</string>
+    <string name="app_mask_dictionary_label" translatable="false">LexiNote</string>
+    <string name="app_mask_dictionary_description" translatable="false">Offline dictionary and vocab deck.</string>
+    <string name="app_mask_calendar_label" translatable="false">Daylight Planner</string>
+    <string name="app_mask_calendar_description" translatable="false">Minimal calendar for jotting reminders.</string>
+    <string name="app_mask_use_this_look" translatable="false">Use this look</string>
+    <string name="app_mask_current_look" translatable="false">Current look</string>
+    <string name="app_mask_active_badge" translatable="false">Active</string>
+    <string name="app_mask_confirm_title" translatable="false">Switch appearance?</string>
+    <string name="app_mask_confirm_description" translatable="false">Save will restart and appear as %1$s.</string>
+    <string name="app_mask_confirm_action" translatable="false">Confirm</string>
+    <string name="app_mask_applying" translatable="false">Applying new appearance\u2026</string>
+    <string name="app_mask_applying_named" translatable="false">Applying %1$s appearance\u2026</string>
 </resources>

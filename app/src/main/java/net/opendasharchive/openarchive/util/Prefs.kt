@@ -12,6 +12,7 @@ import org.witness.proofmode.ProofModeConstants
 object Prefs {
     const val PASSCODE_ENABLED = "passcode_enabled"
     private const val DID_COMPLETE_ONBOARDING = "did_complete_onboarding"
+    private const val RETURN_TO_SETTINGS_AFTER_RESTART = "return_to_settings_after_restart"
     const val UPLOAD_WIFI_ONLY = "upload_wifi_only"
     private const val NEARBY_USE_BLUETOOTH = "nearby_use_bluetooth"
     private const val NEARBY_USE_WIFI = "nearby_use_wifi"
@@ -152,6 +153,12 @@ object Prefs {
         get() = prefs?.getBoolean(ADD_FOLDER_HINT_SHOWN, false) ?: false
         set(value) {
             prefs?.edit()?.putBoolean(ADD_FOLDER_HINT_SHOWN, value)?.apply()
+        }
+
+    var returnToSettingsAfterRestart: Boolean
+        get() = prefs?.getBoolean(RETURN_TO_SETTINGS_AFTER_RESTART, false) ?: false
+        set(value) {
+            prefs?.edit()?.putBoolean(RETURN_TO_SETTINGS_AFTER_RESTART, value)?.apply()
         }
 
     var licenseUrl: String?

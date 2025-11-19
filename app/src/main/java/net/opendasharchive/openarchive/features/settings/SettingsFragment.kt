@@ -16,7 +16,6 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.features.onboarding.StartDestination
-import net.opendasharchive.openarchive.features.settings.app_masking.AppMaskingActivity
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupActivity
@@ -120,7 +119,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
         // Check if app masking is enabled in the app config
         if (appConfig.appMaskingEnabled) {
             getPrefByKey<Preference>(R.string.pref_app_masking)?.setOnPreferenceClickListener {
-                startActivity(Intent(context, AppMaskingActivity::class.java))
+                val intent = Intent(context, SpaceSetupActivity::class.java).apply {
+                    putExtra(
+                        SpaceSetupActivity.LABEL_START_DESTINATION,
+                        StartDestination.APP_MASKING.name
+                    )
+                }
+                startActivity(intent)
                 true
             }
         } else {

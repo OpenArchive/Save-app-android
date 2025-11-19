@@ -25,6 +25,7 @@
             android:icon="@null"
             android:iconSpaceReserved="false"
             android:key="@string/pref_app_masking"
+            android:layout="@layout/custom_preference_switch"
             android:singleLineTitle="false"
             android:title="App Masking"
             app:icon="@null"

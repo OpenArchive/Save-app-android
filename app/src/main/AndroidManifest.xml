@@ -132,14 +132,14 @@
             </intent-filter>
         </activity-alias>
 
-        <!-- Example alias #1 (e.g. “Calculator” icon) -->
+        <!-- Calculator disguise -->
         <activity-alias
             android:name="${applicationId}.alias.MaskAlias"
             android:enabled="false"
             android:exported="true"
-            android:icon="@mipmap/ic_launcher_calculator"
-            android:label="@string/app_name_masked"
-            android:roundIcon="@mipmap/ic_launcher_calculator"
+            android:icon="@mipmap/ic_mask_launcher_calculator"
+            android:label="@string/app_mask_calculator_label"
+            android:roundIcon="@mipmap/ic_mask_launcher_calculator"
             android:targetActivity=".features.main.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -147,12 +147,35 @@
             </intent-filter>
         </activity-alias>
 
-        <activity
-            android:name=".features.settings.app_masking.AppMaskingActivity"
-            android:exported="false"
-            android:label="@string/label_app_masking"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
+        <!-- Dictionary disguise -->
+        <activity-alias
+            android:name="${applicationId}.alias.DictionaryAlias"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_mask_launcher_dictionary"
+            android:label="@string/app_mask_dictionary_label"
+            android:roundIcon="@mipmap/ic_mask_launcher_dictionary"
+            android:targetActivity=".features.main.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Calendar disguise -->
+        <activity-alias
+            android:name="${applicationId}.alias.CalendarAlias"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_calendar"
+            android:label="@string/app_mask_calendar_label"
+            android:roundIcon="@mipmap/ic_launcher_calendar"
+            android:targetActivity=".features.main.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
 
         <activity
             android:name=".features.settings.ProofModeSettingsActivity"

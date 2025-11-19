@@ -283,6 +283,13 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             serverListCurOffset = serverListOffset
         }
 
+        if (Prefs.returnToSettingsAfterRestart) {
+            Prefs.returnToSettingsAfterRestart = false
+            binding.contentMain.pager.post {
+                mCurrentPagerItem = mPagerAdapter.settingsIndex
+            }
+        }
+
         // ─────────────────────────────────────────────────────────────────────────
         // Only now, after UI is ready, do we fire the in‐app review if needed.
         if (shouldPromptReview) {

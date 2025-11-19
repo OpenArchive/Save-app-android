@@ -21,7 +21,8 @@ enum class StartDestination {
     DWEB_DASHBOARD,
     ADD_FOLDER,
     ADD_NEW_FOLDER,
-    ARCHIVED_FOLDER_LIST
+    ARCHIVED_FOLDER_LIST,
+    APP_MASKING
 }
 
 class SpaceSetupActivity : BaseActivity() {
@@ -79,6 +80,9 @@ class SpaceSetupActivity : BaseActivity() {
         when (startDestination) {
             StartDestination.SPACE_LIST -> {
                 navGraph.setStartDestination(R.id.fragment_space_list)
+            }
+            StartDestination.APP_MASKING -> {
+                navGraph.setStartDestination(R.id.fragment_app_masking)
             }
             StartDestination.ADD_FOLDER -> {
                 navGraph.setStartDestination(R.id.fragment_add_folder)
