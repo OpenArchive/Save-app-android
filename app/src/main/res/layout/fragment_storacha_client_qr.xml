@@ -37,15 +37,15 @@
         <!-- Instructions -->
         <TextView
             android:id="@+id/tv_instructions"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:layout_weight="1"
             android:gravity="start|center_vertical"
-            android:layout_marginStart="16dp"
+            android:lineSpacingExtra="2dp"
             android:text="@string/this_is_your_qr_code_to_request_access_please_ask_the_admin_to_scab_your_code_to_gain_access_to_soace"
             android:textColor="@color/colorSectionHeaderText"
-            android:textSize="16sp"
-            android:lineSpacingExtra="2dp" />
+            android:textSize="16sp" />
 
     </LinearLayout>
 
@@ -110,17 +110,7 @@
                 app:layout_constraintTop_toBottomOf="@id/fl_qr_code">
 
                 <!-- DID Label -->
-                <TextView
-                    android:id="@+id/tv_did_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:text="@string/did_access_key"
-                    android:textSize="14sp"
-                    android:typeface="serif"
-                    android:textStyle="bold"
-                    android:textColor="@color/c23_dark_grey"
-                    android:letterSpacing="0.02" />
+
 
                 <!-- DID Text Card -->
                 <com.google.android.material.card.MaterialCardView
@@ -149,8 +139,7 @@
                             android:lineSpacingExtra="1dp"
                             android:textColor="@color/colorOnSurface"
                             android:textIsSelectable="true"
-                            android:textSize="14sp"
-                            android:text="This is the text"/>
+                            android:textSize="14sp"/>
 
                         <View
                             android:layout_width="2dp"
@@ -173,6 +162,17 @@
                     </LinearLayout>
 
                 </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/click_on_view_spaces_once_nadmin_has_granted_access"
+                    android:textSize="12sp"
+                    android:typeface="serif"
+                    android:textColor="@color/black"
+                    android:letterSpacing="0.02" />
 
             </LinearLayout>
 

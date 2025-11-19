@@ -9,6 +9,11 @@
     android:gravity="center"
     tools:context=".features.settings.SpaceSetupSuccessFragment">
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+
             <ProgressBar
                 android:layout_width="24dp"
                 android:layout_height="24dp"
@@ -33,8 +38,8 @@
                 android:textAlignment="center"
                 android:textFontWeight="600"
                 android:layout_marginBottom="16dp"
-                android:textSize="20sp"
-                android:textColor="@android:color/black" />
+                android:textSize="18sp"
+                android:textColor="@color/colorOnSurface" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -43,10 +48,10 @@
                 android:paddingEnd="32dp"
                 android:text="@string/please_check_your_inbox_and_click_the_link_on_the_verification_email"
                 android:textAlignment="center"
-                android:textFontWeight="400"
+                android:textFontWeight="500"
                 android:layout_marginBottom="24dp"
-                android:textSize="16sp"
-                android:textColor="@android:color/darker_gray" />
+                android:textSize="14sp"
+                android:textColor="@color/colorOnSurface" />
 
             <TextView
                 android:id="@+id/email_id"
@@ -55,8 +60,13 @@
                 android:paddingStart="32dp"
                 android:paddingEnd="32dp"
                 android:textAlignment="center"
-                android:textSize="11sp"
+                android:textSize="14sp"
                 android:textColor="@android:color/darker_gray"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.5"/>
 
             <TextView
                 android:id="@+id/tv_change_email_link"
@@ -67,9 +77,10 @@
                 android:layout_marginTop="32dp"
                 android:text="@string/change_email_link"
                 android:textAlignment="center"
-                android:textSize="14sp"
+                android:textSize="16sp"
+                android:layout_marginBottom="40dp"
                 android:textStyle="bold"
                 android:linksClickable="true"
-                android:textColor="@android:color/darker_gray"/>
+                android:textColor="@color/colorOnSurface"/>
 
 </LinearLayout>

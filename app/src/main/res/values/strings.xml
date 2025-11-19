@@ -329,7 +329,7 @@
     <string name="users_can_read_the_content_within_the_space">Users can read the content within the space</string>
     <string name="users_can_write_content_to_the_space">Users can write content to the space</string>
     <string name="define_access_to_the_following_did_key">Define access to the following DID key</string>
-    <string name="this_is_your_qr_code_to_request_access_please_ask_the_admin_to_scab_your_code_to_gain_access_to_soace">This is your QR code to request access, Please ask the admin to scan your code to gain access to space</string>
+    <string name="this_is_your_qr_code_to_request_access_please_ask_the_admin_to_scab_your_code_to_gain_access_to_soace">Here is your identity. Send this to an admin so they can add you to their space.</string>
     <string name="storacha_qr">storacha qr</string>
     <string name="no_did_has_access_to_this_space">No DIDs currently have access to this space. Tap “Add” to grant access.</string>
     <string name="no_spaces_available">No Spaces Available</string>
@@ -438,4 +438,5 @@
 
 
     <string name="separator" translatable="false">separator</string>
+    <string name="click_on_view_spaces_once_nadmin_has_granted_access">Click on view spaces once\nadmin has granted access</string>
 </resources>
