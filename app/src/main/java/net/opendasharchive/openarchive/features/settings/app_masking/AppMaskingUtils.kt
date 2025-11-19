@@ -1,17 +1,22 @@
 package net.opendasharchive.openarchive.features.settings.app_masking
 
-import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.edit
 import net.opendasharchive.openarchive.R
 
+enum class AppMaskId {
+    DEFAULT,
+    CALCULATOR,
+    DICTIONARY,
+    CALENDAR
+}
+
 data class AppMask(
-    val id: String,
+    val id: AppMaskId,
     val alias: String,
     @StringRes val titleRes: Int,
     @StringRes val descriptionRes: Int,
@@ -32,28 +37,28 @@ object AppMaskingUtils {
         val packageName = context.packageName
         return listOf(
             AppMask(
-                id = "default",
+                id = AppMaskId.DEFAULT,
                 alias = packageName.alias(DEFAULT_ALIAS_SUFFIX),
                 titleRes = R.string.app_mask_default_label,
                 descriptionRes = R.string.app_mask_default_description,
                 iconRes = R.drawable.ic_mask_save_icon
             ),
             AppMask(
-                id = "calculator",
+                id = AppMaskId.CALCULATOR,
                 alias = packageName.alias(CALCULATOR_ALIAS_SUFFIX),
                 titleRes = R.string.app_mask_calculator_label,
                 descriptionRes = R.string.app_mask_calculator_description,
                 iconRes = R.drawable.ic_mask_save_calculator
             ),
             AppMask(
-                id = "dictionary",
+                id = AppMaskId.DICTIONARY,
                 alias = packageName.alias(DICTIONARY_ALIAS_SUFFIX),
                 titleRes = R.string.app_mask_dictionary_label,
                 descriptionRes = R.string.app_mask_dictionary_description,
                 iconRes = R.drawable.ic_mask_save_dictionary
             ),
             AppMask(
-                id = "calendar",
+                id = AppMaskId.CALENDAR,
                 alias = packageName.alias(CALENDAR_ALIAS_SUFFIX),
                 titleRes = R.string.app_mask_calendar_label,
                 descriptionRes = R.string.app_mask_calendar_description,
@@ -81,35 +86,30 @@ object AppMaskingUtils {
         return context.getString(mask.titleRes)
     }
 
-    fun setLauncherActivityAlias(context: Context, mask: AppMask) {
-        val pm = context.packageManager
-        val allAliases = getMaskOptions(context).map { it.alias }.distinct()
+    fun setLauncherActivityAlias(context: Context, mask: AppMask): Result<Unit> {
+        return try {
+            val pm = context.packageManager
+            val allAliases = getMaskOptions(context).map { it.alias }.distinct()
 
-        allAliases.forEach { alias ->
-            val newState =
-                if (alias == mask.alias) {
-                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                } else {
-                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-                }
-            val componentName = ComponentName(context, alias)
-            pm.setComponentEnabledSetting(componentName, newState, PackageManager.DONT_KILL_APP)
+            allAliases.forEach { alias ->
+                val newState =
+                    if (alias == mask.alias) {
+                        PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                    } else {
+                        PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+                    }
+                val componentName = ComponentName(context, alias)
+                pm.setComponentEnabledSetting(componentName, newState, PackageManager.DONT_KILL_APP)
+            }
+
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit {
+                putString(KEY_ENABLED_ALIAS, mask.alias)
+            }
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
-
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit {
-            putString(KEY_ENABLED_ALIAS, mask.alias)
-        }
-    }
-
-    fun restartApp(activity: Activity?) {
-        activity ?: return
-        val launchIntent = activity.packageManager
-            .getLaunchIntentForPackage(activity.packageName)
-            ?.apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            } ?: return
-        activity.startActivity(launchIntent)
-        activity.finishAffinity()
     }
 
     private fun String.alias(suffix: String): String = "$this.alias.$suffix"

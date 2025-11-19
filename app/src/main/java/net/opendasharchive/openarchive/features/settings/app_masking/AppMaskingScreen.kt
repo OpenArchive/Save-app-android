@@ -3,9 +3,6 @@ package net.opendasharchive.openarchive.features.settings.app_masking
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -24,12 +21,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -38,7 +37,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,25 +50,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import androidx.compose.ui.res.colorResource
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.util.Prefs
 
-private val defaultGradient = listOf(Color(0xFF00B4A6), Color(0xFF00B4A6))
-private val calculatorGradient = listOf(Color(0xFFF44336), Color(0xFF9C27B0))
-private val dictionaryGradient = listOf(Color(0xFFFF9800), Color(0xFFFFC107))
-private val calendarGradient = listOf(Color(0xFF009688), Color(0xFF673AB7))
-
 private val maskGradients = mapOf(
-    "default" to defaultGradient,
-    "calculator" to calculatorGradient,
-    "dictionary" to dictionaryGradient,
-    "calendar" to calendarGradient
+    AppMaskId.DEFAULT to listOf(Color(0xFF00B4A6), Color(0xFF00B4A6)),
+    AppMaskId.CALCULATOR to listOf(Color(0xFFF44336), Color(0xFF9C27B0)),
+    AppMaskId.DICTIONARY to listOf(Color(0xFFFF9800), Color(0xFFFFC107)),
+    AppMaskId.CALENDAR to listOf(Color(0xFF009688), Color(0xFF673AB7))
 )
 
 @Composable
@@ -79,55 +69,76 @@ fun AppMaskingScreen() {
     val maskOptions = remember(context) { AppMaskingUtils.getMaskOptions(context) }
     var currentMask by remember { mutableStateOf(AppMaskingUtils.getCurrentMask(context)) }
     var pendingMask by remember { mutableStateOf<AppMask?>(null) }
-    var isApplying by remember { mutableStateOf(false) }
-    var maskBeingApplied by remember { mutableStateOf<AppMask?>(null) }
-    val coroutineScope = rememberCoroutineScope()
+    var isClosing by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
     val activity = context.findActivity()
 
     SaveAppTheme {
         AppMaskingScreenContent(
             masks = maskOptions,
             currentMask = currentMask,
-            isApplying = isApplying,
-            maskApplying = maskBeingApplied,
+            isClosing = isClosing,
+            errorMessage = errorMessage,
+            onErrorDismissed = { errorMessage = null },
             onMaskSelected = { mask ->
-                pendingMask = mask
+                if (!isClosing) {
+                    pendingMask = mask
+                }
             }
         )
 
         MaskConfirmSheet(
             mask = pendingMask,
-            onDismiss = { pendingMask = null },
+            onDismiss = {
+                if (!isClosing) {
+                    pendingMask = null
+                }
+            },
             onConfirm = { mask ->
                 pendingMask = null
-                coroutineScope.launch {
-                    isApplying = true
-                    maskBeingApplied = mask
-                    delay(180)
-                    withContext(Dispatchers.IO) {
-                        AppMaskingUtils.setLauncherActivityAlias(context.applicationContext, mask)
+
+                // Apply the mask change immediately
+                val result = AppMaskingUtils.setLauncherActivityAlias(context.applicationContext, mask)
+
+                result.fold(
+                    onSuccess = {
+                        Prefs.returnToSettingsAfterRestart = true
+                        currentMask = mask
+                        isClosing = true
+
+                        // Brief delay for smooth UX - allows user to see the change succeeded
+                        // This is intentional UX polish, not a technical requirement
+                        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                            activity?.finish()
+                        }, 300)
+                    },
+                    onFailure = {
+                        errorMessage = context.getString(R.string.app_mask_error)
                     }
-                    Prefs.returnToSettingsAfterRestart = true
-                    currentMask = mask
-                    delay(240)
-                    isApplying = false
-                    AppMaskingUtils.restartApp(activity)
-                }
+                )
             }
         )
     }
-
-
 }
 
 @Composable
 private fun AppMaskingScreenContent(
     masks: List<AppMask>,
     currentMask: AppMask,
-    isApplying: Boolean,
-    maskApplying: AppMask?,
+    isClosing: Boolean,
+    errorMessage: String?,
+    onErrorDismissed: () -> Unit,
     onMaskSelected: (AppMask) -> Unit
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    androidx.compose.runtime.LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            onErrorDismissed()
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
@@ -161,36 +172,30 @@ private fun AppMaskingScreenContent(
             }
         }
 
-        AnimatedVisibility(
-            visible = isApplying,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
+        // Brief success overlay before closing - unique to Save
+        if (isClosing) {
             Surface(
-                modifier = Modifier
-                    .fillMaxSize(),
-                color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.65f)
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.7f)
             ) {
-                Column(
+                Box(
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
-                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = maskApplying?.let {
-                            stringResource(
-                                id = R.string.app_mask_applying_named,
-                                stringResource(id = it.titleRes)
-                            )
-                        } ?: stringResource(id = R.string.app_mask_applying),
+                        text = stringResource(id = R.string.app_mask_success),
+                        style = MaterialTheme.typography.titleMedium,
                         color = Color.White,
                         fontWeight = FontWeight.Medium
                     )
                 }
             }
         }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }
 
@@ -263,7 +268,12 @@ private fun MaskCard(
             if (isActive) {
                 ActiveBadge(primaryTint = badgeColor)
             } else {
-                TextButton(onClick = onSelect) {
+                TextButton(
+                    onClick = onSelect,
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.tertiary
+                    )
+                ) {
                     Text(text = stringResource(id = R.string.app_mask_use_this_look))
                 }
             }
@@ -288,7 +298,7 @@ private fun ActiveBadge(primaryTint: Color) {
 }
 
 private fun gradientFor(mask: AppMask): List<Color> {
-    return maskGradients[mask.id] ?: defaultGradient
+    return maskGradients[mask.id] ?: listOf(Color(0xFF00B4A6), Color(0xFF00B4A6))
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -363,7 +373,10 @@ private fun MaskConfirmSheetContent(
         ) {
             TextButton(
                 onClick = onDismiss,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = colorResource(R.color.colorOnBackground)
+                )
             ) {
                 Text(text = stringResource(id = R.string.action_cancel))
             }
@@ -373,7 +386,7 @@ private fun MaskConfirmSheetContent(
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.tertiary,
-                    contentColor = MaterialTheme.colorScheme.onTertiary
+                    contentColor = colorResource(R.color.black)
                 )
             ) {
                 Text(text = stringResource(id = R.string.app_mask_confirm_action))
@@ -394,33 +407,34 @@ private tailrec fun Context.findActivity(): Activity? = when (this) {
 private fun AppMaskingScreenPreview() {
     val mockMasks = listOf(
         AppMask(
-            "default",
+            AppMaskId.DEFAULT,
             "a",
             R.string.app_mask_default_label,
             R.string.app_mask_default_description,
-            R.drawable.ic_mask_quickcalc_foreground
+            R.drawable.ic_mask_save_icon
         ),
         AppMask(
-            "calculator",
+            AppMaskId.CALCULATOR,
             "b",
             R.string.app_mask_calculator_label,
             R.string.app_mask_calculator_description,
-            R.drawable.ic_mask_daylight_foreground
+            R.drawable.ic_mask_save_calculator
         ),
         AppMask(
-            "calendar",
+            AppMaskId.CALENDAR,
             "c",
             R.string.app_mask_calendar_label,
             R.string.app_mask_calendar_description,
-            R.drawable.ic_mask_lexinote_foreground
+            R.drawable.ic_mask_save_calendar
         )
     )
     DefaultScaffoldPreview {
         AppMaskingScreenContent(
             masks = mockMasks,
             currentMask = mockMasks.first(),
-            isApplying = false,
-            maskApplying = null,
+            isClosing = false,
+            errorMessage = null,
+            onErrorDismissed = {},
             onMaskSelected = {}
         )
     }
@@ -433,7 +447,7 @@ private fun MaskConfirmSheetPreview() {
 
         MaskConfirmSheetContent(
             sheetMask = AppMask(
-                "dictionary",
+                AppMaskId.DICTIONARY,
                 "b",
                 R.string.app_mask_dictionary_label,
                 R.string.app_mask_dictionary_description,

@@ -369,24 +369,24 @@
 
 
     <!-- App Masking -->
-    <string name="app_mask_heading" translatable="false">Choose how Save appears</string>
-    <string name="app_mask_subheading" translatable="false">Pick a cover story. You can change back to the original icon anytime.</string>
-    <string name="app_mask_tip_title" translatable="false">Reminder</string>
-    <string name="app_mask_tip_description" translatable="false">Android may still list “Save” inside system settings. These disguises focus on the launcher experience.</string>
-    <string name="app_mask_default_label" translatable="false">Save (default)</string>
-    <string name="app_mask_default_description" translatable="false">Keep the standard Save name and icon.</string>
-    <string name="app_mask_calculator_label" translatable="false">QuickCalc</string>
-    <string name="app_mask_calculator_description" translatable="false">Lightweight calculator for instant sums.</string>
-    <string name="app_mask_dictionary_label" translatable="false">LexiNote</string>
-    <string name="app_mask_dictionary_description" translatable="false">Offline dictionary and vocab deck.</string>
-    <string name="app_mask_calendar_label" translatable="false">Daylight Planner</string>
-    <string name="app_mask_calendar_description" translatable="false">Minimal calendar for jotting reminders.</string>
+    <string name="app_mask_heading" translatable="false">Choose how the app appears</string>
+    <string name="app_mask_subheading" translatable="false">Change the launcher name and icon. You can always switch back to the original.</string>
+    <string name="app_mask_tip_title" translatable="false">Note</string>
+    <string name="app_mask_tip_description" translatable="false">Android may still list the original app name in system settings. These options only change the launcher icon and label.</string>
+    <string name="app_mask_default_label" translatable="false">Save</string>
+    <string name="app_mask_default_description" translatable="false">Standard Save name and icon.</string>
+    <string name="app_mask_calculator_label" translatable="false">Calc</string>
+    <string name="app_mask_calculator_description" translatable="false">Simple calculator for everyday math.</string>
+    <string name="app_mask_dictionary_label" translatable="false">Notes</string>
+    <string name="app_mask_dictionary_description" translatable="false">Private notes and word lists.</string>
+    <string name="app_mask_calendar_label" translatable="false">Calendar</string>
+    <string name="app_mask_calendar_description" translatable="false">Basic calendar for events and reminders.</string>
     <string name="app_mask_use_this_look" translatable="false">Use this look</string>
     <string name="app_mask_current_look" translatable="false">Current look</string>
     <string name="app_mask_active_badge" translatable="false">Active</string>
     <string name="app_mask_confirm_title" translatable="false">Switch appearance?</string>
-    <string name="app_mask_confirm_description" translatable="false">Save will restart and appear as %1$s.</string>
-    <string name="app_mask_confirm_action" translatable="false">Confirm</string>
-    <string name="app_mask_applying" translatable="false">Applying new appearance\u2026</string>
-    <string name="app_mask_applying_named" translatable="false">Applying %1$s appearance\u2026</string>
+    <string name="app_mask_confirm_description" translatable="false">The app will close and appear as %1$s when you reopen it.</string>
+    <string name="app_mask_confirm_action" translatable="false">Switch and close</string>
+    <string name="app_mask_success" translatable="false">Appearance changed successfully</string>
+    <string name="app_mask_error" translatable="false">Failed to apply appearance. Please try again.</string>
 </resources>
