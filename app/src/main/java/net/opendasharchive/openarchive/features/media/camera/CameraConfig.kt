@@ -10,7 +10,8 @@ data class CameraConfig(
     val showFlashToggle: Boolean = true,
     val showGridToggle: Boolean = true,
     val showCameraSwitch: Boolean = true,
-    val initialMode: CameraCaptureMode = CameraCaptureMode.PHOTO
+    val initialMode: CameraCaptureMode = CameraCaptureMode.PHOTO,
+    val useCleanFilenames: Boolean = false // When true, uses IMG_123.jpg instead of 20250119_143045.IMG_123.jpg
 ) : Serializable
 
 enum class CameraCaptureMode : Serializable {

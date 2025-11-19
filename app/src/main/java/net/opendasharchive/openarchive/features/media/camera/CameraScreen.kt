@@ -157,6 +157,7 @@ fun CameraScreen(
                         viewModel.capturePhoto(
                             context = context,
                             imageCapture = capture,
+                            useCleanFilenames = config.useCleanFilenames,
                             onSuccess = { uri ->
                                 AppLogger.d("Photo captured: $uri")
                             },
@@ -171,6 +172,7 @@ fun CameraScreen(
                         viewModel.startVideoRecording(
                             context = context,
                             videoCapture = capture,
+                            useCleanFilenames = config.useCleanFilenames,
                             onSuccess = { uri ->
                                 AppLogger.d("Video captured: $uri")
                             },

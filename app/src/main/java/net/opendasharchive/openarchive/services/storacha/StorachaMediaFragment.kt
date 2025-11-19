@@ -566,6 +566,7 @@ class StorachaMediaFragment :
                     showFlashToggle = true,
                     showGridToggle = true,
                     showCameraSwitch = true,
+                    useCleanFilenames = true, // Use IMG_123.jpg instead of 20250119_143045.IMG_123.jpg
                 )
             Picker.launchCustomCamera(
                 requireActivity(),

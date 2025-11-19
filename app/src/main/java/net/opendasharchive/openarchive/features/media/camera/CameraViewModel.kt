@@ -56,13 +56,18 @@ class CameraViewModel : ViewModel() {
     fun capturePhoto(
         context: Context,
         imageCapture: ImageCapture,
+        useCleanFilenames: Boolean = false,
         onSuccess: (Uri) -> Unit,
         onError: (Exception) -> Unit
     ) {
         viewModelScope.launch {
             try {
                 val filename = "IMG_${System.currentTimeMillis()}.jpg"
-                val outputFile = Utility.getOutputMediaFileByCacheNoTimestamp(context, filename)
+                val outputFile = if (useCleanFilenames) {
+                    Utility.getOutputMediaFileByCacheNoTimestamp(context, filename)
+                } else {
+                    Utility.getOutputMediaFileByCache(context, filename)
+                }
                 
                 if (outputFile == null) {
                     onError(Exception("Failed to create output file"))
@@ -111,6 +116,7 @@ class CameraViewModel : ViewModel() {
     fun startVideoRecording(
         context: Context,
         videoCapture: androidx.camera.video.VideoCapture<androidx.camera.video.Recorder>,
+        useCleanFilenames: Boolean = false,
         onSuccess: (Uri) -> Unit,
         onError: (Exception) -> Unit
     ) {
@@ -118,10 +124,14 @@ class CameraViewModel : ViewModel() {
             AppLogger.w("Video recording already in progress")
             return
         }
-        
+
         try {
             val filename = "VID_${System.currentTimeMillis()}.mp4"
-            val outputFile = Utility.getOutputMediaFileByCacheNoTimestamp(context, filename)
+            val outputFile = if (useCleanFilenames) {
+                Utility.getOutputMediaFileByCacheNoTimestamp(context, filename)
+            } else {
+                Utility.getOutputMediaFileByCache(context, filename)
+            }
             
             if (outputFile == null) {
                 onError(Exception("Failed to create output file"))
