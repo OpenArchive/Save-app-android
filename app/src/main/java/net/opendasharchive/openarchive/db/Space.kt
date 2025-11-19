@@ -2,24 +2,18 @@ package net.opendasharchive.openarchive.db
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
 import com.orm.SugarRecord
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
-import net.opendasharchive.openarchive.services.gdrive.GDriveConduit
 import net.opendasharchive.openarchive.services.internetarchive.IaConduit
-import net.opendasharchive.openarchive.util.DrawableUtil
 import net.opendasharchive.openarchive.util.Prefs
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -49,7 +43,6 @@ data class Space(
     private var licenseUrl: String? = null,
     // private var chunking: Boolean? = null
 ) : SugarRecord() {
-
     constructor(type: Type) : this() {
         tType = type
 
@@ -60,33 +53,34 @@ data class Space(
                 host = IaConduit.ARCHIVE_API_ENDPOINT
             }
 
-            Type.GDRIVE -> {
-                name = GDriveConduit.NAME
-            }
-
             Type.RAVEN -> "Raven"
             Type.STORACHA -> "Storacha Service"
         }
     }
 
-    enum class Type(val id: Int, val friendlyName: String) {
+    enum class Type(
+        val id: Int,
+        val friendlyName: String,
+    ) {
         WEBDAV(0, "Private Server"),
         INTERNET_ARCHIVE(1, IaConduit.NAME),
-        GDRIVE(4, GDriveConduit.NAME),
         RAVEN(5, "DWeb Service"),
         STORACHA(7, "Storacha Service"),
     }
 
     enum class IconStyle {
-        SOLID, OUTLINE
+        SOLID,
+        OUTLINE,
     }
 
     companion object {
-        fun getAll(): Iterator<Space> {
-            return findAll(Space::class.java)
-        }
+        fun getAll(): Iterator<Space> = findAll(Space::class.java)
 
-        fun get(type: Type, host: String? = null, username: String? = null): List<Space> {
+        fun get(
+            type: Type,
+            host: String? = null,
+            username: String? = null,
+        ): List<Space> {
             var whereClause = "type = ?"
             val whereArgs = mutableListOf(type.id.toString())
 
@@ -101,14 +95,20 @@ data class Space(
             }
 
             return find(
-                Space::class.java, whereClause, whereArgs.toTypedArray(),
-                null, null, null
+                Space::class.java,
+                whereClause,
+                whereArgs.toTypedArray(),
+                null,
+                null,
+                null,
             )
         }
 
-        fun has(type: Type, host: String? = null, username: String? = null): Boolean {
-            return get(type, host, username).isNotEmpty()
-        }
+        fun has(
+            type: Type,
+            host: String? = null,
+            username: String? = null,
+        ): Boolean = get(type, host, username).isNotEmpty()
 
         var current: Space?
             get() {
@@ -120,9 +120,7 @@ data class Space(
                 Prefs.currentSpaceId = value?.id ?: -1
             }
 
-        fun get(id: Long): Space? {
-            return findById(Space::class.java, id)
-        }
+        fun get(id: Long): Space? = findById(Space::class.java, id)
 
         fun navigate(activity: AppCompatActivity) {
             if (getAll().hasNext()) {
@@ -174,24 +172,26 @@ data class Space(
 //        }
 
     val projects: List<Project>
-        get() = find(
-            Project::class.java,
-            "space_id = ? AND NOT archived",
-            arrayOf(id.toString()),
-            null,
-            "id DESC",
-            null
-        )
+        get() =
+            find(
+                Project::class.java,
+                "space_id = ? AND NOT archived",
+                arrayOf(id.toString()),
+                null,
+                "id DESC",
+                null,
+            )
 
     val archivedProjects: List<Project>
-        get() = find(
-            Project::class.java,
-            "space_id = ? AND archived",
-            arrayOf(id.toString()),
-            null,
-            "id DESC",
-            null
-        )
+        get() =
+            find(
+                Project::class.java,
+                "space_id = ? AND archived",
+                arrayOf(id.toString()),
+                null,
+                "id DESC",
+                null,
+            )
 
     fun hasProject(description: String): Boolean {
         // Cannot use `count` from Kotlin due to strange <T> in method signature.
@@ -199,67 +199,40 @@ data class Space(
             Project::class.java,
             "space_id = ? AND description = ?",
             id.toString(),
-            description
-        ).size > 0
+            description,
+        ).isNotEmpty()
     }
 
-    fun getAvatar(context: Context, style: IconStyle = IconStyle.SOLID): Drawable? {
+    fun getAvatar(context: Context): Drawable? =
+        when (tType) {
+            Type.WEBDAV -> ContextCompat.getDrawable(context, R.drawable.ic_private_server)
 
-
-        return when (tType) {
-            Type.WEBDAV -> ContextCompat.getDrawable(
-                context,
-                R.drawable.ic_private_server
-            ) // ?.tint(color)
-
-            Type.INTERNET_ARCHIVE -> ContextCompat.getDrawable(
-                context,
-                R.drawable.ic_internet_archive
-            ) // ?.tint(color)
-
-            Type.GDRIVE -> ContextCompat.getDrawable(
-                context,
-                R.drawable.logo_gdrive_outline
-            ) // ?.tint(color)
+            Type.INTERNET_ARCHIVE ->
+                ContextCompat.getDrawable(
+                    context,
+                    R.drawable.ic_internet_archive,
+                )
 
             Type.RAVEN -> ContextCompat.getDrawable(context, R.drawable.snowbird) // ?.tint(color)
 
-            Type.STORACHA -> ContextCompat.getDrawable(context, R.drawable.storacha ) // ?.tint(color)
-
-            else -> {
-                val color = ContextCompat.getColor(context, R.color.colorOnBackground)
-                BitmapDrawable(
-                    context.resources,
-                    DrawableUtil.createCircularTextDrawable(initial, color)
-                )
-            }
-
+            Type.STORACHA ->
+                ContextCompat.getDrawable(
+                    context,
+                    R.drawable.storacha,
+                ) // ?.tint(color)
         }
-    }
 
     @Composable
-    fun getAvatar(): Painter {
-
-        return when (tType) {
+    fun getAvatar(): Painter =
+        when (tType) {
             Type.WEBDAV -> painterResource(R.drawable.ic_space_private_server)
 
             Type.INTERNET_ARCHIVE -> painterResource(R.drawable.ic_space_interent_archive)
 
-            Type.GDRIVE -> painterResource(R.drawable.logo_gdrive_outline)
-
             Type.RAVEN -> painterResource(R.drawable.ic_space_dweb)
 
             Type.STORACHA -> painterResource(R.drawable.storacha)
-
-            null -> {
-                val context = LocalContext.current
-                val color = ContextCompat.getColor(context, R.color.colorOnBackground)
-                val bitmap = DrawableUtil.createCircularTextDrawable(initial, color)
-                val imageBitmap = bitmap.asImageBitmap()
-                BitmapPainter(imageBitmap)
-            }
         }
-    }
 
     fun setAvatar(view: ImageView) {
         when (tType) {
@@ -269,7 +242,6 @@ data class Space(
 
             else -> {
                 view.setImageDrawable(getAvatar(view.context))
-
             }
         }
     }

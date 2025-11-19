@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.features.main
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Point
@@ -16,6 +17,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.PopupWindow
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -62,6 +64,7 @@ import net.opendasharchive.openarchive.features.media.ContentPickerFragment
 import net.opendasharchive.openarchive.features.media.MediaLaunchers
 import net.opendasharchive.openarchive.features.media.Picker
 import net.opendasharchive.openarchive.features.media.PreviewActivity
+import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.features.onboarding.Onboarding23Activity
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.features.onboarding.StartDestination
@@ -138,6 +141,16 @@ class MainActivity :
 
     private lateinit var reviewManager: ReviewManager
     private var shouldPromptReview = false
+    private var shouldCheckForUpdate = false
+
+    private var inAppUpdateCoordinator: InAppUpdateCoordinator? = null
+
+    private val inAppUpdateLauncher =
+        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+            if (result.resultCode != Activity.RESULT_OK) {
+                AppLogger.w("In-app update flow failed or cancelled: ${result.resultCode}")
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
 //        enableEdgeToEdge()
@@ -210,6 +223,13 @@ class MainActivity :
         setupFolderBar()
         setupBottomSheetObserver()
 
+        inAppUpdateCoordinator = InAppUpdateCoordinator(
+            activity = this,
+            rootView = binding.root,
+            updateLauncher = inAppUpdateLauncher
+        )
+
+
         if (appConfig.isDwebEnabled) {
             permissionManager.checkNotificationPermission {
                 AppLogger.i("Notification permission granted")
@@ -244,6 +264,9 @@ class MainActivity :
         reviewManager = ReviewManagerFactory.create(this)
         InAppReviewHelper.requestReviewInfo(this)
         shouldPromptReview = InAppReviewHelper.onAppLaunched()
+
+        // Set flag to check for app updates on first onResume
+        shouldCheckForUpdate = Prefs.didCompleteOnboarding
     }
 
     override fun onResume() {
@@ -262,11 +285,23 @@ class MainActivity :
         // Only now, after UI is ready, do we fire the in‐app review if needed.
         if (shouldPromptReview) {
             lifecycleScope.launch(Dispatchers.Main) {
-                // Wait a small delay so we don’t interrupt initial load (e.g. 2 seconds).
+                // Wait a small delay so we don't interrupt initial load (e.g. 2 seconds).
                 delay(2_000)
                 InAppReviewHelper.showReviewIfPossible(this@MainActivity, reviewManager)
                 InAppReviewHelper.markReviewDone()
                 shouldPromptReview = false
+            }
+        }
+        // ─────────────────────────────────────────────────────────────────────────
+
+        // ─────────────────────────────────────────────────────────────────────────
+        // Check for in-app updates after UI is fully loaded and stable.
+        if (shouldCheckForUpdate) {
+            lifecycleScope.launch(Dispatchers.Main) {
+                // Wait longer to ensure all UI initialization is complete (e.g. 3 seconds).
+                delay(3_000)
+                inAppUpdateCoordinator?.onResume()
+                shouldCheckForUpdate = false
             }
         }
         // ─────────────────────────────────────────────────────────────────────────
@@ -588,28 +623,27 @@ class MainActivity :
 
     private fun showDeleteSelectedMediaConfirmDialog() {
         dialogManager.showDialog(
-            config =
-                DialogConfig(
-                    type = DialogType.Warning,
-                    title = R.string.menu_delete.asUiText(),
-                    message = R.string.menu_delete_desc.asUiText(),
-                    icon = UiImage.DrawableResource(R.drawable.ic_trash),
-                    positiveButton =
-                        ButtonData(
-                            text = R.string.lbl_ok.asUiText(),
-                            action = {
-                                getCurrentMediaFragment()?.deleteSelected()
-                                updateSelectedCount(0)
-                                refreshCurrentFolderCount()
-                            },
-                        ),
-                    neutralButton =
-                        ButtonData(
-                            text = UiText.StringResource(R.string.lbl_Cancel),
-                            action = {
-                            },
-                        ),
+            config = DialogConfig(
+                type = DialogType.Warning,
+                title = R.string.menu_delete.asUiText(),
+                message = R.string.menu_delete_desc.asUiText(),
+                icon = UiImage.DrawableResource(R.drawable.ic_trash),
+                positiveButton = ButtonData(
+                    text = R.string.lbl_ok.asUiText(),
+                    action = {
+                        getCurrentMediaFragment()?.deleteSelected()
+                        updateSelectedCount(0)
+                        refreshCurrentFolderCount()
+                    }
                 ),
+                neutralButton =
+                    ButtonData(
+                        text = UiText.StringResource(R.string.lbl_Cancel),
+                        action = {
+
+                        }
+                    )
+            )
         )
     }
 
@@ -658,6 +692,9 @@ class MainActivity :
     }
 
     private fun openDrawer() {
+        if (binding.drawerLayout.getDrawerLockMode(binding.drawerContent) == DrawerLayout.LOCK_MODE_LOCKED_CLOSED) {
+            return
+        }
         binding.drawerLayout.openDrawer(binding.drawerContent)
     }
 
@@ -717,10 +754,7 @@ class MainActivity :
                 binding.folders.alpha = 1f
                 binding.btnAddFolder.alpha = 1f
             }
-        binding.dimOverlay
-            .animate()
-            .alpha(0f)
-            .setDuration(200)
+        binding.dimOverlay.animate().alpha(0f).duration = 200L
         binding.navigationDrawerHeader.elevation = 0f
     }
 
@@ -728,11 +762,6 @@ class MainActivity :
         Space.current?.setAvatar(binding.currentSpaceIcon)
         mSpaceAdapter.notifyDataSetChanged()
 
-        if (Space.current == null) {
-            binding.btnAddFolder.visibility = View.INVISIBLE
-        } else {
-            binding.btnAddFolder.visibility = View.VISIBLE
-        }
     }
 
     // ----- Refresh & Update Methods -----
@@ -823,11 +852,14 @@ class MainActivity :
         if (currentSpace != null) {
             binding.spaceNameLayout.visibility = View.VISIBLE
             binding.currentSpaceName.text = currentSpace.friendlyName
+            binding.btnAddFolder.visibility = View.VISIBLE
             updateCurrentSpaceAtDrawer()
             currentSpace.setAvatar(binding.contentMain.spaceIcon)
         } else {
             binding.contentMain.spaceIcon.visibility = View.INVISIBLE
             binding.spaceNameLayout.visibility = View.INVISIBLE
+            binding.btnAddFolder.visibility = View.INVISIBLE
+            closeDrawer()
         }
 
         val spaces = Space.getAll().asSequence().toMutableList()
@@ -839,6 +871,7 @@ class MainActivity :
         refreshProjects()
         refreshCurrentProject()
         updateCurrentFolderVisibility()
+        invalidateOptionsMenu()
     }
 
     private fun refreshProjects(setProjectId: Long? = null) {
@@ -851,6 +884,7 @@ class MainActivity :
         }
         mFolderAdapter.update(projects)
     }
+
 
     private fun refreshCurrentProject() {
         val project = getSelectedProject()
@@ -919,11 +953,29 @@ class MainActivity :
                 if (Prefs.addMediaHint) {
                     when (mediaType) {
                         AddMediaType.CAMERA -> {
-                            permissionManager.checkCameraPermission {
-                                Picker.takePhotoModern(
-                                    this@MainActivity,
-                                    mediaLaunchers.modernCameraLauncher,
+                            if (appConfig.useCustomCamera) {
+                                // Use custom camera instead of system camera
+                                val cameraConfig = CameraConfig(
+                                    allowVideoCapture = true,
+                                    allowPhotoCapture = true,
+                                    allowMultipleCapture = false,
+                                    enablePreview = true,
+                                    showFlashToggle = true,
+                                    showGridToggle = true,
+                                    showCameraSwitch = true
                                 )
+                                Picker.launchCustomCamera(
+                                    this@MainActivity,
+                                    mediaLaunchers.customCameraLauncher,
+                                    cameraConfig
+                                )
+                            } else {
+                                permissionManager.checkCameraPermission {
+                                    Picker.takePhotoModern(
+                                        activity = this@MainActivity,
+                                        launcher = mediaLaunchers.modernCameraLauncher
+                                    )
+                                }
                             }
                         }
 
@@ -1011,6 +1063,15 @@ class MainActivity :
                 )
         menu?.findItem(R.id.menu_folders)?.apply {
             isVisible = shouldShowSideMenu
+        }
+
+        binding.drawerLayout.setDrawerLockMode(
+            if (shouldShowSideMenu) DrawerLayout.LOCK_MODE_UNLOCKED
+            else DrawerLayout.LOCK_MODE_LOCKED_CLOSED
+        )
+
+        if (!shouldShowSideMenu) {
+            closeDrawer()
         }
         return super.onPrepareOptionsMenu(menu)
     }
@@ -1105,6 +1166,7 @@ class MainActivity :
     }
 
     override fun onDestroy() {
+        inAppUpdateCoordinator?.onDestroy()
         super.onDestroy()
 
         // Clear pending callbacks/messages

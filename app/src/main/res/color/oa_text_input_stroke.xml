@@ -5,16 +5,16 @@
 
     <!-- Activated but NOT focused (some builds mark active when label is collapsed) -->
     <item android:state_activated="true" android:state_focused="false"
-        android:color="?attr/colorOnBackground"/>
+        android:color="@color/c23_grey" android:alpha="0.7"/>
 
     <!-- Hovered but not focused -->
     <item android:state_hovered="true" android:state_focused="false"
-        android:color="?attr/colorOnBackground"/>
+        android:color="@color/c23_grey" android:alpha="0.7" />
 
     <!-- Disabled -->
     <item android:state_enabled="false"
-        android:color="?attr/colorOnBackground" android:alpha="0.38"/>
+        android:color="@color/c23_grey" android:alpha="0.38"/>
 
     <!-- Default (enabled, not focused) -->
-    <item android:color="@color/colorOutline"/>
+    <item android:color="@color/c23_dark_grey" android:alpha="0.7"/>
 </selector>

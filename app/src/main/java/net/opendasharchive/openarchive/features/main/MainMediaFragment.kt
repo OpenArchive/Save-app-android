@@ -235,8 +235,8 @@ class MainMediaFragment : BaseFragment() {
 
     private fun createMediaList(collection: Collection, media: List<Media>): View {
         val holder = SectionViewHolder(ViewSectionBinding.inflate(layoutInflater))
-        holder.recyclerView.setHasFixedSize(true)
         holder.recyclerView.layoutManager = GridLayoutManager(activity, COLUMN_COUNT)
+        holder.recyclerView.isNestedScrollingEnabled = false
 
         holder.setHeader(collection, media)
 

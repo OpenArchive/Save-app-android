@@ -258,9 +258,6 @@
     <ID>FinalNewline:FoldersActivity.kt$net.opendasharchive.openarchive.features.settings.FoldersActivity.kt</ID>
     <ID>FinalNewline:FullscreenDimmingOverlay.kt$net.opendasharchive.openarchive.util.FullscreenDimmingOverlay.kt</ID>
     <ID>FinalNewline:FullscreenOverlayManager.kt$net.opendasharchive.openarchive.util.FullscreenOverlayManager.kt</ID>
-    <ID>FinalNewline:GDriveActivity.kt$net.opendasharchive.openarchive.services.gdrive.GDriveActivity.kt</ID>
-    <ID>FinalNewline:GDriveConduit.kt$net.opendasharchive.openarchive.services.gdrive.GDriveConduit.kt</ID>
-    <ID>FinalNewline:GDriveFragment.kt$net.opendasharchive.openarchive.services.gdrive.GDriveFragment.kt</ID>
     <ID>FinalNewline:GeneralSettingsActivity.kt$net.opendasharchive.openarchive.features.settings.GeneralSettingsActivity.kt</ID>
     <ID>FinalNewline:HapticManager.kt$net.opendasharchive.openarchive.features.settings.passcode.HapticManager.kt</ID>
     <ID>FinalNewline:HashingStrategy.kt$net.opendasharchive.openarchive.features.settings.passcode.HashingStrategy.kt</ID>
@@ -1172,7 +1169,6 @@
     <ID>MagicNumber:SnowbirdServiceStatus.kt$SnowbirdServiceStatus.Companion$4</ID>
     <ID>MagicNumber:SnowbirdServiceStatus.kt$SnowbirdServiceStatus.Companion$5</ID>
     <ID>MagicNumber:SnowbirdServiceStatus.kt$SnowbirdServiceStatus.Companion$6</ID>
-    <ID>MagicNumber:Space.kt$Space.Type.GDRIVE$4</ID>
     <ID>MagicNumber:Space.kt$Space.Type.RAVEN$5</ID>
     <ID>MagicNumber:SpaceAdapter.kt$SpaceAdapter.ViewHolder$32</ID>
     <ID>MagicNumber:SpaceDrawerAdapter.kt$SpaceDrawerAdapter.SpaceViewHolder$21</ID>

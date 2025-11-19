@@ -1,5 +1,7 @@
 package net.opendasharchive.openarchive.services.webdav
 
+import android.content.res.ColorStateList
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -14,6 +16,8 @@ import android.view.inputmethod.EditorInfo
 import androidx.activity.addCallback
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.core.view.WindowInsetsCompat
@@ -51,6 +55,7 @@ import java.io.IOException
 import kotlin.coroutines.suspendCoroutine
 import androidx.core.net.toUri
 import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
+import com.google.android.material.textfield.TextInputLayout
 
 class WebDavFragment : BaseFragment() {
 
@@ -407,8 +412,8 @@ class WebDavFragment : BaseFragment() {
             binding.errorHint.text = getString(R.string.error_incorrect_username_or_password)
             binding.errorHint.show()
             // Set error state on username and password fields
-            binding.username.error = " "
-            binding.password.error = " "
+            binding.usernameLayout.error = " "
+            binding.passwordLayout.error = " "
         }
     }
 
@@ -416,7 +421,9 @@ class WebDavFragment : BaseFragment() {
         binding.errorHint.hide()
         // Clear error states from TextFields
         binding.username.error = null
+        binding.usernameLayout.error = null
         binding.password.error = null
+        binding.passwordLayout.error = null
     }
 
     private fun showLoadingOverlay(show: Boolean) {

@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -20,6 +24,10 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
 
     <queries>
@@ -110,10 +118,6 @@
         </activity>
 
         <activity
-            android:name=".services.gdrive.GDriveActivity"
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
             android:name=".features.settings.ProofModeSettingsActivity"
             android:exported="false"
             android:label="@string/proofmode"
@@ -140,6 +144,13 @@
             android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
+
+        <activity
+            android:name=".features.media.camera.CameraActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:taskAffinity=""
+            android:theme="@style/SaveAppTheme.NoActionBar" />
 
         <activity
             android:name=".features.onboarding.SpaceSetupActivity"

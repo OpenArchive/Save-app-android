@@ -253,6 +253,7 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/keyboard_arrow_right"
                         android:visibility="invisible"
+                        android:contentDescription="@string/separator"
                         app:tint="@color/colorOnBackground" />
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -264,12 +265,14 @@
                         app:boxBackgroundMode="none"
                         app:boxCollapsedPaddingTop="0dp"
                         app:boxStrokeWidth="0dp"
+                        android:gravity="center_vertical"
                         app:errorEnabled="false"
                         app:hintEnabled="false">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/et_folder_name"
-                            android:layout_width="match_parent"
+                            android:paddingVertical="1dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:imeOptions="actionDone"
                             android:maxLines="1"
