@@ -62,7 +62,7 @@ class CameraViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val filename = "IMG_${System.currentTimeMillis()}.jpg"
-                val outputFile = Utility.getOutputMediaFileByCache(context, filename)
+                val outputFile = Utility.getOutputMediaFileByCacheNoTimestamp(context, filename)
                 
                 if (outputFile == null) {
                     onError(Exception("Failed to create output file"))
@@ -121,7 +121,7 @@ class CameraViewModel : ViewModel() {
         
         try {
             val filename = "VID_${System.currentTimeMillis()}.mp4"
-            val outputFile = Utility.getOutputMediaFileByCache(context, filename)
+            val outputFile = Utility.getOutputMediaFileByCacheNoTimestamp(context, filename)
             
             if (outputFile == null) {
                 onError(Exception("Failed to create output file"))
