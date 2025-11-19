@@ -36,15 +36,16 @@
 
             <TextView
                 android:layout_marginTop="8dp"
+                android:fontFamily="@font/montserrat_medium"
                 android:id="@+id/help_text_sub_header"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:gravity="center"
                 android:layout_weight="1"
                 android:lines="3"
+                android:textSize="14sp"
                 android:text="@string/storacha_is_a_decentralized_media_storage_system_using_ipfs_ucan_and_dids"
-                android:textColor="@color/colorSectionHeaderText"
-                android:textSize="15sp" />
+                android:textColor="@color/colorOnBackground" />
 
         </LinearLayout>
 
@@ -59,8 +60,8 @@
             android:focusable="true"
             app:cardBackgroundColor="@color/colorBackground"
             app:cardCornerRadius="8dp"
-            app:cardElevation="2dp"
-            app:strokeColor="@color/colorOnBackground"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/c23_grey"
             app:strokeWidth="1dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -136,8 +137,8 @@
             android:focusable="true"
             app:cardBackgroundColor="@color/colorBackground"
             app:cardCornerRadius="8dp"
-            app:cardElevation="2dp"
-            app:strokeColor="@color/colorOnBackground"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/c23_grey"
             app:strokeWidth="1dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -213,8 +214,8 @@
             android:focusable="true"
             app:cardBackgroundColor="@color/colorBackground"
             app:cardCornerRadius="8dp"
-            app:cardElevation="2dp"
-            app:strokeColor="@color/colorOnBackground"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/c23_grey"
             app:strokeWidth="1dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -300,6 +301,7 @@
                 android:layout_height="24dp"
                 android:layout_marginEnd="8dp"
                 android:importantForAccessibility="no"
+                android:tint="@color/colorOnSurface"
                 android:src="@drawable/ic_info" />
 
             <TextView

@@ -51,7 +51,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:linksClickable="true"
-            android:text="@string/prompt_email" />
+            android:text="@string/account" />
 
 
         <com.google.android.material.textfield.TextInputLayout
@@ -64,7 +64,7 @@
                     android:id="@+id/tv_email"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="@string/email_address"
+                    android:hint="@string/prompt_email_italics"
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
                     android:singleLine="true"
@@ -73,15 +73,34 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
-            android:id="@+id/tv_sign_up_link"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:linksClickable="true"
             android:padding="24dp"
-            android:text="@string/sign_up_storacha"
-            android:textStyle="bold" />
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/tv_sign_up_link"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:paddingEnd="8dp"
+                android:paddingStart="0dp"
+                android:linksClickable="true"
+                android:text="@string/sign_up_storacha"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/tv_create_one"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:textColor="@color/colorTertiary"
+                android:linksClickable="true"
+                android:text="@string/label_create_login"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+
 
         <View
             android:layout_width="match_parent"

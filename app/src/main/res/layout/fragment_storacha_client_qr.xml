@@ -147,9 +147,10 @@
                             android:gravity="center"
                             android:layout_margin="16dp"
                             android:lineSpacingExtra="1dp"
-                            android:textColor="@color/c23_dark_grey"
+                            android:textColor="@color/colorOnSurface"
                             android:textIsSelectable="true"
-                            android:textSize="14sp" />
+                            android:textSize="14sp"
+                            android:text="This is the text"/>
 
                         <View
                             android:layout_width="2dp"

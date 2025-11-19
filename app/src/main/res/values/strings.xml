@@ -87,6 +87,7 @@
     <!-- Strings related to login -->
     <string name="prompt_username"><i>Username</i></string>
     <string name="prompt_email">Email</string>
+    <string name="prompt_email_italics"><i>Email</i></string>
     <string name="prompt_password"><i>Password</i></string>
 
     <string name="label_username">@string/prompt_email</string>
@@ -310,14 +311,14 @@
     <string name="storacha">Storacha</string>
     <string name="manage_accounts">Manage Accounts</string>
     <string name="my_spaces">My Spaces</string>
-    <string name="join_space">Join space</string>
+    <string name="join_space">Join Space</string>
     <string name="create_or_edit_accounts">Create or edit accounts</string>
     <string name="access_your_saved_spaces">Access your spaces</string>
     <string name="connect_to_an_existing_space">Join an existing shared space</string>
     <string name="you_can_add_multiple_private_servers_and_one_ia_account_at_any_time">You can add multiple private servers and one IA account at any time.</string>
-    <string name="storacha_disclaimer"><![CDATA[Files uploaded to the Storacha network are publicly accessible through their CID and may remain permanently available across decentralized nodes. <a href="https://docs.storacha.network/how-to/upload/">Learn more</a>.]]></string>
+    <string name="storacha_disclaimer"><![CDATA[Files uploaded to the Storacha network are publicly accessible through their CID and may remain permanently available across decentralized nodes. <a href="https://docs.storacha.network/how-to/upload/">Learn more.</a>]]></string>
     <string name="storacha_is_a_decentralized_media_storage_system_using_ipfs_ucan_and_dids">Storacha lets you store media securely using decentralized technologies (IPFS, UCAN, and DIDs).</string>
-    <string name="sign_up_storacha"><![CDATA[Don\'t have an account? <a href="https://console.storacha.network">Create one</a>]]></string>
+    <string name="sign_up_storacha">Don\'t have an account?</string>
     <string name="email_has_been_verified_and_the_spaces_have_been_added_to_save">Your email has been verified, and the spaces have been added to Save.</string>
     <string name="email_address">Email address</string>
     <string name="users_can_delete_the_content_within_the_space">Users can delete the content within the space</string>
@@ -337,7 +338,7 @@
     <string name="logout_confirmation">Are you sure you want to logout?</string>
     <string name="please_check_your_inbox_and_click_the_link_on_the_verification_email">Please check your inbox and click the link on the verification email.</string>
     <string name="verification_email_sent">Verification Email Sent</string>
-    <string name="change_email_link"><![CDATA[Email is incorrect? <a href="#">Change now</a>.]]></string>
+    <string name="change_email_link"><![CDATA[Email is incorrect? <a href="#">Change now.</a>]]></string>
     <string name="access">Access</string>
     <string name="email_verification">Email Verification</string>
     <string name="add_account">Add Account</string>

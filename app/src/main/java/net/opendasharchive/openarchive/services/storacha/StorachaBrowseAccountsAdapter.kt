@@ -59,6 +59,9 @@ class StorachaBrowseAccountsAdapter(
             binding.rvTick.setOnClickListener {
                 onClick.invoke(account)
             }
+            binding.root.setOnClickListener {
+                onClick.invoke(account)
+            }
         }
     }
 }

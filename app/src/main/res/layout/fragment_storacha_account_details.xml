@@ -120,6 +120,7 @@
                 android:layout_height="36dp"
                 android:layout_weight="1"
                 android:layout_marginEnd="8dp"
+                android:textColor="@color/colorTertiary"
                 android:text="Sort by Name"
                 android:textSize="12sp" />
 
@@ -127,6 +128,7 @@
                 android:id="@+id/btn_sort_size"
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="0dp"
+                android:textColor="@color/colorTertiary"
                 android:layout_height="36dp"
                 android:layout_weight="1"
                 android:text="Sort by Size"

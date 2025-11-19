@@ -41,6 +41,8 @@
         android:gravity="center"
         android:text="@string/no_did_has_access_to_this_space"
         android:textSize="18sp"
+        android:textColor="@color/colorOnSurface"
+        android:textFontWeight="600"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

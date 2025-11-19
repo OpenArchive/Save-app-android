@@ -66,6 +66,8 @@
         android:visibility="gone"
         android:text="@string/no_media_available"
         android:textSize="18sp"
+        android:textColor="@color/colorOnSurface"
+        android:textFontWeight="600"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -83,7 +85,9 @@
         android:contentDescription="ADD"
         android:paddingHorizontal="16dp"
         android:src="@drawable/baseline_add_24"
-        app:rippleColor="@color/c23_light_grey" />
+        android:tintMode="src_atop"
+        android:tint="@color/black"
+        app:rippleColor="@color/background" />
 
     <!-- Upload overlay to block interactions -->
     <FrameLayout
@@ -117,7 +121,7 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/uploading_files"
                 android:textSize="18sp"
-                android:textColor="@android:color/black"
+                android:textColor="@color/colorOnSurface"
                 android:textStyle="bold"
                 android:gravity="center" />
 
@@ -127,7 +131,7 @@
                 android:layout_marginTop="8dp"
                 android:text="Please wait..."
                 android:textSize="14sp"
-                android:textColor="@android:color/darker_gray"
+                android:textColor="@color/colorOnSurface"
                 android:gravity="center" />
 
         </LinearLayout>

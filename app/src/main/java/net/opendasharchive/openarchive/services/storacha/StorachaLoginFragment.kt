@@ -1,7 +1,9 @@
 package net.opendasharchive.openarchive.services.storacha
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
 import android.text.Editable
 import android.text.Html
 import android.text.TextWatcher
@@ -13,6 +15,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.core.net.toUri
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
@@ -29,6 +32,10 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class StorachaLoginFragment : BaseFragment() {
     private lateinit var viewBinding: FragmentStorachaLoginBinding
     private val viewModel: StorachaLoginViewModel by viewModel()
+
+    private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        // No action needed on return
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -76,6 +83,15 @@ class StorachaLoginFragment : BaseFragment() {
 
         // Setup login button click
         viewBinding.btLogin.setOnClickListener { performLogin() }
+
+        viewBinding.tvCreateOne.setOnClickListener {
+            launcher.launch(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    "https://console.storacha.network".toUri(),
+                ),
+            )
+        }
 
         // Setup Enter key to trigger login and dismiss keyboard
         viewBinding.tvEmail.setOnEditorActionListener { _, actionId, _ ->
