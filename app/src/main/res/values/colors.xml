@@ -143,6 +143,7 @@
      -->
     <color name="colorIcon">@color/white</color>
     <color name="colorPill">#E3E3E4</color>
+    <color name="colorPillTransparent">#80E3E3E4</color>
     <color name="dragHandle">@color/c24_cream_70</color>
     <color name="colorMediaOverlayIcon">@color/white</color>
     <color name="colorDanger">@color/red</color>

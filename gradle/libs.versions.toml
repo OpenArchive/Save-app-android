@@ -4,7 +4,6 @@ agp = "8.13.1"
 androidx-security-crypto = "1.1.0"
 androidx-test-runner = "1.7.0"
 appcompat = "1.7.1"
-audio-waveform = "1.0.1"
 biometric = "1.1.0"
 bitcoinj-core = "0.16.2"
 bouncycastle-bcpg = "1.71"
@@ -205,7 +204,6 @@ robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "
 work-testing = { group = "androidx.work", name = "work-testing", version.ref = "work" }
 
 # Third-Party Libraries
-audio-waveform = { group = "com.github.derlio", name = "audio-waveform", version.ref = "audio-waveform" }
 bitcoinj-core = { group = "org.bitcoinj", name = "bitcoinj-core", version.ref = "bitcoinj-core" }
 clean-insights = { group = "org.cleaninsights.sdk", name = "clean-insights-sdk", version.ref = "clean-insights" }
 dotsindicator = { group = "com.tbuonomo", name = "dotsindicator", version.ref = "dotsindicator" }

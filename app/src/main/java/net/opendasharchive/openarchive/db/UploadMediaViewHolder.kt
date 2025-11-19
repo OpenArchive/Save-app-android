@@ -7,12 +7,9 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import coil3.load
 import coil3.request.crossfade
+import coil3.request.error
 import coil3.request.placeholder
-import com.github.derlio.waveform.soundfile.SoundFile
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
+import java.io.File
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.RvMediaRowSmallBinding
@@ -25,12 +22,6 @@ class UploadMediaViewHolder(
     private val binding: RvMediaRowSmallBinding,
     private val onDeleteClick: (Int) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
-
-
-    companion object {
-        val soundCache = HashMap<String, SoundFile>()
-    }
-
 
     private val mContext = itemView.context
 
@@ -51,85 +42,107 @@ class UploadMediaViewHolder(
             if (media?.sStatus == Media.Status.Uploaded || !doImageFade) 1f else 0.5f
 
         if (media?.mimeType?.startsWith("image") == true) {
-            val progress = CircularProgressDrawable(mContext)
-            progress.strokeWidth = 5f
-            progress.centerRadius = 30f
-            progress.start()
-
-            binding.image.apply {
-                scaleType = ImageView.ScaleType.CENTER_CROP
-                show()
-                load(media.fileUri) {
-                    placeholder(progress)
-                    crossfade(true)
-                }
+            val fileExists = try {
+                media.fileUri.path?.let { path ->
+                    File(path).exists()
+                } ?: false
+            } catch (e: Exception) {
+                AppLogger.e(e)
+                false
             }
-            binding.waveform.hide()
-        } else if (media?.mimeType?.startsWith("video") == true) {
-            val progress = CircularProgressDrawable(mContext)
-            progress.strokeWidth = 5f
-            progress.centerRadius = 30f
-            progress.start()
-            binding.image.apply {
-                scaleType = ImageView.ScaleType.CENTER_CROP
-                show()
-                load(media.fileUri) {
-                    placeholder(progress)
+
+            if (fileExists) {
+                val progress = CircularProgressDrawable(mContext)
+                progress.strokeWidth = 5f
+                progress.centerRadius = 30f
+                progress.start()
+
+                binding.image.apply {
+                    scaleType = ImageView.ScaleType.CENTER_CROP
+                    setPadding(0, 0, 0, 0)
+                    clearColorFilter()
+                    show()
+                    load(media.fileUri) {
+                        placeholder(progress)
+                        error(R.drawable.ic_image)
+                        crossfade(true)
+                    }
                 }
-            }
-            binding.waveform.hide()
-        } else if (media?.mimeType?.startsWith("audio") == true) {
-
-            val soundFile = soundCache[media.originalFilePath]
-
-            if (soundFile != null) {
-                binding.image.hide()
-                binding.waveform.setAudioFile(soundFile)
-                binding.waveform.show()
             } else {
-                binding.image.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        mContext,
-                        R.drawable.no_thumbnail
-                    )
-                )
-                binding.image.scaleType = ImageView.ScaleType.CENTER_CROP
-                binding.image.show()
-                binding.waveform.hide()
+                AppLogger.w("Image file not found: ${media.fileUri.path}")
+                val padding = (12 * mContext.resources.displayMetrics.density).toInt()
+                binding.image.apply {
+                    scaleType = ImageView.ScaleType.FIT_CENTER
+                    setPadding(padding, padding, padding, padding)
+                    setImageResource(R.drawable.ic_image)
+                    setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
+                    show()
+                }
+            }
+        } else if (media?.mimeType?.startsWith("video") == true) {
+            val fileExists = try {
+                media.fileUri.path?.let { path ->
+                    File(path).exists()
+                } ?: false
+            } catch (e: Exception) {
+                AppLogger.e(e)
+                false
+            }
 
-                CoroutineScope(Dispatchers.IO).launch {
-                    @Suppress("NAME_SHADOWING")
-                    val soundFile = try {
-                        SoundFile.create(media.originalFilePath) {
-                            return@create true
-                        }
-                    } catch (e: Throwable) {
-                        Timber.d(e)
+            if (fileExists) {
+                val progress = CircularProgressDrawable(mContext)
+                progress.strokeWidth = 5f
+                progress.centerRadius = 30f
+                progress.start()
 
-                        null
-                    }
-
-                    if (soundFile != null) {
-                        soundCache[media.originalFilePath] = soundFile
-
-                        MainScope().launch {
-                            binding.waveform.setAudioFile(soundFile)
-                            binding.image.hide()
-                            binding.waveform.show()
-                        }
+                binding.image.apply {
+                    scaleType = ImageView.ScaleType.CENTER_CROP
+                    setPadding(0, 0, 0, 0)
+                    clearColorFilter()
+                    show()
+                    load(media.fileUri) {
+                        placeholder(progress)
+                        error(R.drawable.ic_video)
                     }
                 }
+            } else {
+                AppLogger.w("Video file not found: ${media.fileUri.path}")
+                val padding = (12 * mContext.resources.displayMetrics.density).toInt()
+                binding.image.apply {
+                    scaleType = ImageView.ScaleType.FIT_CENTER
+                    setPadding(padding, padding, padding, padding)
+                    setImageResource(R.drawable.ic_video)
+                    setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
+                    show()
+                }
+            }
+        } else if (media?.mimeType?.startsWith("audio") == true) {
+            val padding = (12 * mContext.resources.displayMetrics.density).toInt()
+            binding.image.apply {
+                scaleType = ImageView.ScaleType.FIT_CENTER
+                setPadding(padding, padding, padding, padding)
+                setImageResource(R.drawable.ic_music)
+                setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
+                show()
+            }
+        } else if (media?.mimeType == "application/pdf") {
+            val padding = (12 * mContext.resources.displayMetrics.density).toInt()
+            binding.image.apply {
+                scaleType = ImageView.ScaleType.FIT_CENTER
+                setPadding(padding, padding, padding, padding)
+                setImageResource(R.drawable.ic_pdf)
+                setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
+                show()
             }
         } else {
-            binding.image.setImageDrawable(
-                ContextCompat.getDrawable(
-                    mContext,
-                    R.drawable.ic_unknown_file
-                )
-            )
-            binding.image.scaleType = ImageView.ScaleType.CENTER_INSIDE
-            binding.image.show()
-            binding.waveform.hide()
+            val padding = (12 * mContext.resources.displayMetrics.density).toInt()
+            binding.image.apply {
+                scaleType = ImageView.ScaleType.FIT_CENTER
+                setPadding(padding, padding, padding, padding)
+                setImageResource(R.drawable.ic_unknown_file)
+                setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
+                show()
+            }
         }
 
         if (media != null) {

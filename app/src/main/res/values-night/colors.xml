@@ -48,6 +48,7 @@
     <color name="colorSectionHeader">#00B4A6</color>
     <color name="tabBarMenuButton">@color/c24_cream_95</color>
     <color name="colorPill">@color/c23_dark_grey</color>
+    <color name="colorPillTransparent">#80333333</color>
     <color name="dragHandle">@color/c23_grey</color>
     <color name="splashBackground">#151515</color>
     <color name="swipeBackground">@color/black</color>

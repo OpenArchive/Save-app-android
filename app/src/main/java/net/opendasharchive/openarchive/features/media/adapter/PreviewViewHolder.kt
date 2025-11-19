@@ -6,12 +6,9 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import coil3.load
+import coil3.request.error
 import coil3.request.placeholder
-import com.github.derlio.waveform.soundfile.SoundFile
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
+import java.io.File
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.RvMediaBoxBinding
@@ -20,10 +17,6 @@ import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show
 
 class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolder(binding.root) {
-
-    companion object {
-        val soundCache = HashMap<String, SoundFile>()
-    }
 
     private val mContext = itemView.context
 
@@ -52,84 +45,120 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
         }
 
         if (media?.mimeType?.startsWith("image") == true) {
-            // static images
-            binding.image.apply {
-                setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
-                scaleType = ImageView.ScaleType.CENTER_CROP
-                show()
-                binding.waveform.hide()
-                load(media.fileUri) {
-                    placeholder(progress)
+            // static images - check if file exists before attempting to load
+            val fileExists = try {
+                media.fileUri.path?.let { path ->
+                    File(path).exists()
+                } ?: false
+            } catch (e: Exception) {
+                AppLogger.e(e)
+                false
+            }
+
+            if (fileExists) {
+                binding.image.apply {
+                    setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+                    scaleType = ImageView.ScaleType.CENTER_CROP
+                    setPadding(0, 0, 0, 0)
+                    clearColorFilter()
+                    show()
+                    load(media.fileUri) {
+                        placeholder(progress)
+                        error(R.drawable.ic_image)
+                    }
+                }
+            } else {
+                AppLogger.w("Image file not found: ${media.fileUri.path}")
+                val padding = (24 * mContext.resources.displayMetrics.density).toInt()
+                binding.image.apply {
+                    scaleType = ImageView.ScaleType.FIT_CENTER
+                    setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+                    setPadding(padding, padding, padding, padding)
+                    setImageResource(R.drawable.ic_image)
+                    setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
+                    show()
                 }
             }
             binding.videoIndicator.hide()
         } else if (media?.mimeType?.startsWith("video") == true) {
-            // video thumbnail
-            binding.image.apply {
-                setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
-                scaleType = ImageView.ScaleType.CENTER_CROP
-                show()
-                binding.waveform.hide()
-                load(media.fileUri) {
-                    placeholder(progress)
+            // video thumbnail - check if file exists before attempting to load
+            val fileExists = try {
+                media.fileUri.path?.let { path ->
+                    File(path).exists()
+                } ?: false
+            } catch (e: Exception) {
+                AppLogger.e(e)
+                false
+            }
+
+            if (fileExists) {
+                binding.image.apply {
+                    setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+                    scaleType = ImageView.ScaleType.CENTER_CROP
+                    setPadding(0, 0, 0, 0)
+                    clearColorFilter()
+                    show()
+                    load(media.fileUri) {
+                        placeholder(progress)
+                        error(R.drawable.ic_video)
+                    }
+                }
+            } else {
+                AppLogger.w("Video file not found: ${media.fileUri.path}")
+                val padding = (24 * mContext.resources.displayMetrics.density).toInt()
+                binding.image.apply {
+                    scaleType = ImageView.ScaleType.FIT_CENTER
+                    setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+                    setPadding(padding, padding, padding, padding)
+                    setImageResource(R.drawable.ic_video)
+                    setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
+                    show()
                 }
             }
             binding.videoIndicator.show()
-
         } else if (media?.mimeType?.startsWith("audio") == true) {
             binding.videoIndicator.hide()
-            val soundFile = soundCache[media.originalFilePath]
-            if (soundFile != null) {
-                binding.image.setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
-                binding.image.hide()
-                binding.waveform.setAudioFile(soundFile)
-                binding.waveform.show()
-            } else {
-                binding.image.apply {
-                    setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.no_thumbnail))
-                    scaleType = ImageView.ScaleType.CENTER_CROP
-                    show()
-                }
-                binding.waveform.hide()
-
-                val audioPath = media.fileUri.path
-
-                if (audioPath.isNullOrEmpty()) {
-                    AppLogger.w("Unable to load audio waveform, invalid file uri: ${media.originalFilePath}")
-                } else {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val sf = runCatching {
-                            SoundFile.create(audioPath) { true }
-                        }.getOrNull()
-
-                        sf?.let {
-                            soundCache[media.originalFilePath] = it
-                            MainScope().launch {
-                                binding.waveform.setAudioFile(it)
-                                binding.image.hide()
-                                binding.waveform.show()
-                            }
-                        }
-                    }
-                }
-            }
-        } else if (media?.mimeType?.startsWith("application") == true) {
+            val padding = (24 * mContext.resources.displayMetrics.density).toInt()
             binding.image.apply {
-                load(R.drawable.ic_unknown_file)
-                scaleType = ImageView.ScaleType.CENTER_INSIDE
-                setBackgroundColor(ContextCompat.getColor(mContext, R.color.colorPrimaryBright))
+                scaleType = ImageView.ScaleType.FIT_CENTER
+                setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+                setPadding(padding, padding, padding, padding)
+                setImageResource(R.drawable.ic_music)
+                setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
                 show()
             }
-            binding.waveform.hide()
+        } else if (media?.mimeType == "application/pdf") {
+            val padding = (24 * mContext.resources.displayMetrics.density).toInt()
+            binding.image.apply {
+                scaleType = ImageView.ScaleType.FIT_CENTER
+                setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+                setPadding(padding, padding, padding, padding)
+                setImageResource(R.drawable.ic_pdf)
+                setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
+                show()
+            }
+            binding.videoIndicator.hide()
+        } else if (media?.mimeType?.startsWith("application") == true) {
+            val padding = (24 * mContext.resources.displayMetrics.density).toInt()
+            binding.image.apply {
+                scaleType = ImageView.ScaleType.FIT_CENTER
+                setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+                setPadding(padding, padding, padding, padding)
+                setImageResource(R.drawable.ic_unknown_file)
+                setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
+                show()
+            }
             binding.videoIndicator.hide()
         } else {
+            val padding = (24 * mContext.resources.displayMetrics.density).toInt()
             binding.image.apply {
-                load(R.drawable.no_thumbnail)
-                scaleType = ImageView.ScaleType.CENTER_INSIDE
+                scaleType = ImageView.ScaleType.FIT_CENTER
                 setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+                setPadding(padding, padding, padding, padding)
+                setImageResource(R.drawable.no_thumbnail)
+                setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
                 show()
             }
-            binding.waveform.hide()
             binding.videoIndicator.hide()
         }
         media?.let { updateOverlay(it) }

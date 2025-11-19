@@ -11,11 +11,11 @@ import android.view.View
 import android.widget.ImageView
 import androidx.core.net.toUri
 import coil3.load
-import com.github.derlio.waveform.SimpleWaveformView
+import coil3.request.error
 import net.opendasharchive.openarchive.R
+import java.io.File
 import net.opendasharchive.openarchive.databinding.ActivityReviewBinding
 import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.db.UploadMediaViewHolder
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
@@ -87,7 +87,6 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
 
         mBinding.btFlag.setOnClickListener(this)
 
-        mBinding.waveform.setOnClickListener(this)
         mBinding.image.setOnClickListener(this)
 
         mBinding.btPageBack.setOnClickListener {
@@ -229,7 +228,7 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
 
             mBinding.counter.text = getString(R.string.counter, mIndex + 1, mStore.size)
 
-            load(mMedia, mBinding.image, mBinding.waveform)
+            load(mMedia, mBinding.image)
         }
 
         updateFlagState()
@@ -318,28 +317,48 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
-    private fun load(media: Media?, imageView: ImageView, waveform: SimpleWaveformView? = null) {
+    private fun load(media: Media?, imageView: ImageView) {
         imageView.show()
-        waveform?.hide()
 
         if (media?.mimeType?.startsWith("image") == true) {
-            imageView.load(media.fileUri)
+            val fileExists = try {
+                media.fileUri.path?.let { path ->
+                    File(path).exists()
+                } ?: false
+            } catch (e: Exception) {
+                false
+            }
+
+            if (fileExists) {
+                imageView.load(media.fileUri) {
+                    error(R.drawable.ic_image)
+                }
+            } else {
+                imageView.setImageResource(R.drawable.ic_image)
+            }
         }
         else if (media?.mimeType?.startsWith("video") == true) {
+            val fileExists = try {
+                media.originalFilePath?.let { path ->
+                    File(path).exists()
+                } ?: false
+            } catch (e: Exception) {
+                false
+            }
 
-            imageView.load(media.originalFilePath.toUri())
+            if (fileExists) {
+                imageView.load(media.originalFilePath.toUri()) {
+                    error(R.drawable.ic_video)
+                }
+            } else {
+                imageView.setImageResource(R.drawable.ic_video)
+            }
         }
         else if (media?.mimeType?.startsWith("audio") == true) {
-            imageView.setImageResource(R.drawable.audio_waveform)
-
-            if (waveform != null) {
-                val soundFile = UploadMediaViewHolder.soundCache[media.originalFilePath]
-                if (soundFile != null) {
-                    waveform.setAudioFile(soundFile)
-                    waveform.show()
-                    imageView.hide()
-                }
-            }
+            imageView.setImageResource(R.drawable.ic_music)
+        }
+        else if (media?.mimeType == "application/pdf") {
+            imageView.setImageResource(R.drawable.ic_pdf)
         }
         else {
             imageView.setImageResource(R.drawable.no_thumbnail)
