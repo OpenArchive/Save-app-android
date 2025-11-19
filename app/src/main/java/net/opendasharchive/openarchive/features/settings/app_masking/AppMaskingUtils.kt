@@ -1,7 +1,9 @@
 package net.opendasharchive.openarchive.features.settings.app_masking
 
+import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -18,9 +20,9 @@ enum class AppMaskId {
 data class AppMask(
     val id: AppMaskId,
     val alias: String,
-    @StringRes val titleRes: Int,
-    @StringRes val descriptionRes: Int,
-    @DrawableRes val iconRes: Int
+    @param:StringRes val titleRes: Int,
+    @param:StringRes val descriptionRes: Int,
+    @param:DrawableRes val iconRes: Int
 )
 
 object AppMaskingUtils {
@@ -110,6 +112,17 @@ object AppMaskingUtils {
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    fun restartApp(activity: Activity?) {
+        activity ?: return
+        val launchIntent = activity.packageManager
+            .getLaunchIntentForPackage(activity.packageName)
+            ?.apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            } ?: return
+        activity.startActivity(launchIntent)
+        activity.finishAffinity()
     }
 
     private fun String.alias(suffix: String): String = "$this.alias.$suffix"

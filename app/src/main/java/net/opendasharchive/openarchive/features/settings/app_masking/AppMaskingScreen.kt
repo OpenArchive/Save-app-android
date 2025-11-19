@@ -18,9 +18,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -63,13 +67,19 @@ private val maskGradients = mapOf(
     AppMaskId.CALENDAR to listOf(Color(0xFF009688), Color(0xFF673AB7))
 )
 
+private sealed class MaskingUiState {
+    object Idle : MaskingUiState()
+    object Applying : MaskingUiState()
+    data class Success(val mask: AppMask) : MaskingUiState()
+}
+
 @Composable
 fun AppMaskingScreen() {
     val context = LocalContext.current
     val maskOptions = remember(context) { AppMaskingUtils.getMaskOptions(context) }
     var currentMask by remember { mutableStateOf(AppMaskingUtils.getCurrentMask(context)) }
     var pendingMask by remember { mutableStateOf<AppMask?>(null) }
-    var isClosing by remember { mutableStateOf(false) }
+    var uiState by remember { mutableStateOf<MaskingUiState>(MaskingUiState.Idle) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val activity = context.findActivity()
 
@@ -77,11 +87,11 @@ fun AppMaskingScreen() {
         AppMaskingScreenContent(
             masks = maskOptions,
             currentMask = currentMask,
-            isClosing = isClosing,
+            uiState = uiState,
             errorMessage = errorMessage,
             onErrorDismissed = { errorMessage = null },
             onMaskSelected = { mask ->
-                if (!isClosing) {
+                if (uiState is MaskingUiState.Idle) {
                     pendingMask = mask
                 }
             }
@@ -90,29 +100,41 @@ fun AppMaskingScreen() {
         MaskConfirmSheet(
             mask = pendingMask,
             onDismiss = {
-                if (!isClosing) {
+                if (uiState is MaskingUiState.Idle) {
                     pendingMask = null
                 }
             },
             onConfirm = { mask ->
                 pendingMask = null
+                uiState = MaskingUiState.Applying
 
-                // Apply the mask change immediately
+                // Track start time for minimum progress display
+                val startTime = System.currentTimeMillis()
+
+                // Apply the mask change
                 val result = AppMaskingUtils.setLauncherActivityAlias(context.applicationContext, mask)
 
                 result.fold(
                     onSuccess = {
                         Prefs.returnToSettingsAfterRestart = true
                         currentMask = mask
-                        isClosing = true
 
-                        // Brief delay for smooth UX - allows user to see the change succeeded
-                        // This is intentional UX polish, not a technical requirement
+                        // Ensure progress is shown for minimum 600ms for better UX
+                        val elapsed = System.currentTimeMillis() - startTime
+                        val remainingDelay = (600 - elapsed).coerceAtLeast(0)
+
+                        // Show progress for minimum duration, then transition to success
                         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
-                            activity?.finish()
-                        }, 300)
+                            uiState = MaskingUiState.Success(mask)
+
+                            // Show success state, then restart
+                            android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                                AppMaskingUtils.restartApp(activity)
+                            }, 800)
+                        }, remainingDelay)
                     },
                     onFailure = {
+                        uiState = MaskingUiState.Idle
                         errorMessage = context.getString(R.string.app_mask_error)
                     }
                 )
@@ -125,7 +147,7 @@ fun AppMaskingScreen() {
 private fun AppMaskingScreenContent(
     masks: List<AppMask>,
     currentMask: AppMask,
-    isClosing: Boolean,
+    uiState: MaskingUiState,
     errorMessage: String?,
     onErrorDismissed: () -> Unit,
     onMaskSelected: (AppMask) -> Unit
@@ -141,52 +163,88 @@ private fun AppMaskingScreenContent(
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 24.dp)
+            modifier = Modifier.fillMaxSize()
         ) {
             item {
-                Text(
-                    text = stringResource(id = R.string.app_mask_heading),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = stringResource(id = R.string.app_mask_subheading),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                InfoBanner()
-                Spacer(modifier = Modifier.height(16.dp))
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)) {
+                    Text(
+                        text = stringResource(id = R.string.app_mask_subheading),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    InfoBanner()
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
 
             items(masks, key = { it.id }) { mask ->
-                MaskCard(
-                    mask = mask,
-                    isActive = mask.alias == currentMask.alias,
-                    onSelect = { onMaskSelected(mask) }
-                )
-                Spacer(modifier = Modifier.height(12.dp))
+                Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                    MaskCard(
+                        mask = mask,
+                        isActive = mask.alias == currentMask.alias,
+                        onSelect = { onMaskSelected(mask) }
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
             }
         }
 
-        // Brief success overlay before closing - unique to Save
-        if (isClosing) {
+        // Progress overlay while applying mask
+        if (uiState is MaskingUiState.Applying) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.7f)
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
             ) {
-                Box(
+                Column(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.tertiary,
+                        strokeWidth = 3.dp
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = stringResource(id = R.string.app_mask_applying),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+        }
+
+        // Success overlay with new mask icon before restart
+        if (uiState is MaskingUiState.Success) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    MaskIcon(
+                        mask = uiState.mask,
+                        size = 96.dp,
+                        iconSize = 48.dp,
+                        cornerRadius = 28.dp
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
                     Text(
                         text = stringResource(id = R.string.app_mask_success),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.White,
-                        fontWeight = FontWeight.Medium
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(id = R.string.app_mask_restarting),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                     )
                 }
             }
@@ -201,23 +259,24 @@ private fun AppMaskingScreenContent(
 
 @Composable
 private fun InfoBanner() {
-    Surface(
+    Card(
         modifier = Modifier.fillMaxWidth(),
-        tonalElevation = 2.dp,
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant
+        shape = RoundedCornerShape(8.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = stringResource(id = R.string.app_mask_tip_title),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                Icons.Outlined.Info,
+                tint = MaterialTheme.colorScheme.tertiary,
+                contentDescription = null
             )
-            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = stringResource(id = R.string.app_mask_tip_description),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -432,7 +491,7 @@ private fun AppMaskingScreenPreview() {
         AppMaskingScreenContent(
             masks = mockMasks,
             currentMask = mockMasks.first(),
-            isClosing = false,
+            uiState = MaskingUiState.Applying,
             errorMessage = null,
             onErrorDismissed = {},
             onMaskSelected = {}
