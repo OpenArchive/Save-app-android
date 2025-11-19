@@ -17,7 +17,6 @@
     <string name="folder_rename_success">Carpeta renombrada</string>
     <string name="folder_not_found">Carpeta no encontrada</string>
     <string name="folder_removed">Carpeta eliminada</string>
-    <string name="folder_archived">Carpeta archivada</string>
     <string name="content_picker_label">Añadir medios desde</string>
     <string name="disable_passcode_dialog_title">Deshabilitar Código de Acceso</string>
     <string name="disable_passcode_dialog_msg">¿Tienes seguridad de querer deshabilitar el código de acceso\?</string>
@@ -223,12 +222,13 @@
     <string name="preview_media">Previsualizar Subida</string>
     <string name="add_more">Agregar Más</string>
     <string name="select_all">Seleccionar Todos</string>
+    <string name="deselect_all">Deseleccionar Todo</string>
     <string name="lbl_got_it">Entendido</string>
     <string name="do_not_show_me_this_again">No mostrarme esto de nuevo</string>
     <string name="edit_multiple">Editar Múltiples</string>
     <string name="press_and_hold_options_media_screen_title">Añadir Medios</string>
     <string name="press_and_hold_options_media_screen_message">Tocar + para elegir de la galería de imágenes o presiona y mantén para añadir medios desde otras apps. </string>
-    <string name="press_and_hold_to_select_and_edit_multiple_media">Presionar y sostener para seleccionar medios y editar múltiples medios.</string>
+    <string name="press_and_hold_to_select_and_edit_multiple_media">Mantén presionado para seleccionar y editar múltiples ítems de medios.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Una vez subidos, no podrás editar los medios.</string>
     <string name="edit_media_info">Editar Info de Medios</string>
     <string name="add_a_location_optional"><i>Añade una ubicación (opcional)</i></string>
