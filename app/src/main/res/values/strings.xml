@@ -352,7 +352,7 @@
     <string name="send_directly_to_storacha_server">Connect to the Storacha network</string>
     <string name="did_access_key">Enter DID Key</string>
     <string name="browse_files">Files</string>
-    <string name="no_media_available">No Media Available</string>
+    <string name="no_media_available">No Media Available.</string>
     <string name="revoke_access">Revoke Access?\n</string>
     <string name="revoke_access_prompt">"This will revoke access to this DID for this Space\n "</string>
     <string name="revoke">Revoke</string>

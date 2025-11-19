@@ -359,54 +359,86 @@ class StorachaMediaFragment :
         val userDid = DidManager(requireContext()).getOrCreateDid()
         val spaceDid = args.spaceId
 
-        // Use the same pattern as Picker.kt - get display name from URI
-        val title = Utility.getUriDisplayName(requireContext(), uri) ?: "IMG_${System.currentTimeMillis()}.jpg"
-        val tempFile = Utility.getOutputMediaFileByCache(requireContext(), title)
-
-        if (tempFile == null) {
-            Timber.e("Failed to create temp file for URI: $uri")
-            showError("Failed to create temporary file")
-            return
+        // Check if URI is a FileProvider URI pointing to our cache directory
+        val tempFile = try {
+            if (uri.scheme == "content" && uri.authority == "${requireContext().packageName}.provider") {
+                // This is likely from our camera - try to get the actual file path
+                Timber.d("Camera URI detected: $uri, path: ${uri.path}")
+                val path = uri.path?.removePrefix("/cache/")
+                if (path != null && path != uri.path) {
+                    val existingFile = File(requireContext().cacheDir, path)
+                    Timber.d("Checking for existing file at: ${existingFile.absolutePath}, exists: ${existingFile.exists()}, size: ${existingFile.length()}")
+                    if (existingFile.exists() && existingFile.length() > 0) {
+                        Timber.d("Using existing camera file: ${existingFile.absolutePath}, size: ${existingFile.length()} bytes")
+                        existingFile
+                    } else {
+                        Timber.w("File does not exist or is empty: ${existingFile.absolutePath}")
+                        null
+                    }
+                } else {
+                    Timber.w("Could not extract path from URI: $uri")
+                    null
+                }
+            } else null
+        } catch (e: Exception) {
+            Timber.e(e, "Error checking for existing file")
+            null
         }
 
-        // Use the exact same pattern as Picker.kt for file copying
-        try {
-            requireContext().contentResolver.openInputStream(uri)?.use { inputStream ->
-                if (!Utility.writeStreamToFile(inputStream, tempFile)) {
-                    Timber.e("Failed to write stream to file for URI: $uri")
-                    showError("Failed to copy image data")
-                    return
-                }
-            } ?: run {
-                Timber.e("Failed to open input stream for URI: $uri")
-                showError("Failed to read image")
+        val finalTempFile = if (tempFile != null) {
+            // Use the existing file from camera
+            tempFile
+        } else {
+            // Need to copy from URI (gallery, etc.)
+            val title = Utility.getUriDisplayName(requireContext(), uri) ?: "IMG_${System.currentTimeMillis()}.jpg"
+            val newTempFile = Utility.getOutputMediaFileByCacheNoTimestamp(requireContext(), title)
+
+            if (newTempFile == null) {
+                Timber.e("Failed to create temp file for URI: $uri")
+                showError("Failed to create temporary file")
                 return
             }
-        } catch (e: java.io.FileNotFoundException) {
-            Timber.e(e, "File not found for URI: $uri")
-            showError("File not found")
-            return
-        } catch (e: SecurityException) {
-            Timber.e(e, "Permission denied for URI: $uri")
-            showError("Permission denied to read image")
-            return
-        } catch (e: java.io.IOException) {
-            Timber.e(e, "IO error reading URI: $uri")
-            showError("Failed to read image: ${e.message}")
-            return
-        }
 
-        // Verify file was actually written with content
-        if (!tempFile.exists() || tempFile.length() == 0L) {
-            Timber.e("Temp file is empty after copy. File exists: ${tempFile.exists()}, size: ${tempFile.length()}")
-            showError("Image file is empty (0 bytes). Please try again.")
-            return
-        }
+            // Use the exact same pattern as Picker.kt for file copying
+            try {
+                requireContext().contentResolver.openInputStream(uri)?.use { inputStream ->
+                    if (!Utility.writeStreamToFile(inputStream, newTempFile)) {
+                        Timber.e("Failed to write stream to file for URI: $uri")
+                        showError("Failed to copy image data")
+                        return
+                    }
+                } ?: run {
+                    Timber.e("Failed to open input stream for URI: $uri")
+                    showError("Failed to read image")
+                    return
+                }
+            } catch (e: java.io.FileNotFoundException) {
+                Timber.e(e, "File not found for URI: $uri")
+                showError("File not found")
+                return
+            } catch (e: SecurityException) {
+                Timber.e(e, "Permission denied for URI: $uri")
+                showError("Permission denied to read image")
+                return
+            } catch (e: java.io.IOException) {
+                Timber.e(e, "IO error reading URI: $uri")
+                showError("Failed to read image: ${e.message}")
+                return
+            }
 
-        Timber.d("Successfully copied file from URI to temp file: ${tempFile.absolutePath}, size: ${tempFile.length()} bytes")
+            // Verify file was actually written with content
+            if (!newTempFile.exists() || newTempFile.length() == 0L) {
+                Timber.e("Temp file is empty after copy. File exists: ${newTempFile.exists()}, size: ${newTempFile.length()}")
+                showError("Image file is empty (0 bytes). Please try again.")
+                return
+            }
+
+            Timber.d("Successfully copied file from URI to temp file: ${newTempFile.absolutePath}, size: ${newTempFile.length()} bytes")
+            newTempFile
+        }
 
         // Generate proper CAR file from the temporary file (writes directly to cache dir)
-        val carResult = CarFileCreator.createCarFile(tempFile, requireContext().cacheDir)
+        val carResult = CarFileCreator.createCarFile(finalTempFile, requireContext().cacheDir)
 
         val uploadSessionId = args.sessionId.ifEmpty { null }
 
@@ -414,7 +446,7 @@ class StorachaMediaFragment :
         lastFailedUpload =
             FailedUploadData(
                 uri = uri,
-                tempFile = tempFile,
+                tempFile = finalTempFile,
                 carFile = carResult.carFile,
                 userDid = userDid,
                 spaceDid = spaceDid,
@@ -422,7 +454,7 @@ class StorachaMediaFragment :
                 isAdmin = args.isAdmin,
             )
 
-        viewModel.uploadFile(tempFile, carResult, userDid, spaceDid, uploadSessionId, args.isAdmin)
+        viewModel.uploadFile(finalTempFile, carResult, userDid, spaceDid, uploadSessionId, args.isAdmin)
     }
 
     private fun handleSelectedFiles(uris: List<Uri>) {
@@ -482,7 +514,7 @@ class StorachaMediaFragment :
 
     private fun launchCamera() {
         try {
-            val photoFile = Utility.getOutputMediaFileByCache(requireContext(), "IMG_${System.currentTimeMillis()}.jpg")
+            val photoFile = Utility.getOutputMediaFileByCacheNoTimestamp(requireContext(), "IMG_${System.currentTimeMillis()}.jpg")
 
             photoFile?.let {
                 capturedImageUri = androidx.core.content.FileProvider.getUriForFile(
