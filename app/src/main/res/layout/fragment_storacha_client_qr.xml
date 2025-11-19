@@ -202,7 +202,7 @@
             android:textFontWeight="500"
             android:id="@+id/btn_continue"
             android:paddingHorizontal="32dp"
-            android:text="@string/view_spaces" />
+            android:text="@string/my_spaces" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

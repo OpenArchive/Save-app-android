@@ -329,7 +329,7 @@
     <string name="users_can_read_the_content_within_the_space">Users can read the content within the space</string>
     <string name="users_can_write_content_to_the_space">Users can write content to the space</string>
     <string name="define_access_to_the_following_did_key">Define access to the following DID key</string>
-    <string name="this_is_your_qr_code_to_request_access_please_ask_the_admin_to_scab_your_code_to_gain_access_to_soace">Here is your identity. Send this to an admin so they can add you to their space.</string>
+    <string name="this_is_your_qr_code_to_request_access_please_ask_the_admin_to_scab_your_code_to_gain_access_to_soace">Here is your identity.\nShare this QR code or ID with an admin so they can add you to their space.</string>
     <string name="storacha_qr">storacha qr</string>
     <string name="no_did_has_access_to_this_space">No DIDs currently have access to this space. Tap “Add” to grant access.</string>
     <string name="no_spaces_available">No Spaces Available</string>
@@ -350,7 +350,7 @@
     <string name="spaces">Spaces</string>
     <string name="no_files_available">No files Available</string>
     <string name="send_directly_to_storacha_server">Connect to the Storacha network</string>
-    <string name="did_access_key">Enter DID Key</string>
+    <string name="did_access_key"><i>Enter DID Key</i></string>
     <string name="browse_files">Files</string>
     <string name="no_media_available">No Media Available.</string>
     <string name="revoke_access">Revoke Access?\n</string>
@@ -422,7 +422,7 @@
     <string name="there_was_a_problem_with_the_storage_service_please_try_again">There was a problem with the storage service. Please try again.</string>
     <string name="there_might_not_be_enough_storage_space_available_please_try_again_or_contact_support">There might not be enough storage space available. Please try again or contact support.</string>
     <string name="something_went_wrong_with_the_upload_please_try_again">Something went wrong with the upload. Please try again.</string>
-    <string name="enter_a_did_access_key_manually_or_scan_a_qr_code_to_add_one">Enter a DID access key manually, or scan a QR code to add one</string>
+    <string name="enter_a_did_access_key_manually_or_scan_a_qr_code_to_add_one">To add someone, enter the <b>DID key</b> they shared with you or scan their <b>QR code</b>. They can find this information by tapping <b>Join Space</b> in their app.</string>
 
     <!-- Session Management -->
     <string name="email_verification_required_title">Email Verification Required</string>
@@ -438,5 +438,5 @@
 
 
     <string name="separator" translatable="false">separator</string>
-    <string name="click_on_view_spaces_once_nadmin_has_granted_access">Click on view spaces once\nadmin has granted access</string>
+    <string name="click_on_view_spaces_once_nadmin_has_granted_access">Once the admin approves you,\nthe space will appear under My Spaces.</string>
 </resources>

@@ -75,7 +75,7 @@
                 android:layout_height="28dp"
                 android:importantForAccessibility="no"
                 android:padding="2dp"
-                android:src="@drawable/ic_account_circle"
+                android:src="@drawable/ic_account"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"

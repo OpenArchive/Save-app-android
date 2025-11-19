@@ -30,7 +30,7 @@
             android:layout_marginEnd="@dimen/activity_vertical_margin"
             android:importantForAccessibility="no"
             app:tint="@color/colorOnPrimaryContainer"
-            android:src="@drawable/ic_account_circle" />
+            android:src="@drawable/ic_account" />
 
         <LinearLayout
             android:paddingVertical="4dp"

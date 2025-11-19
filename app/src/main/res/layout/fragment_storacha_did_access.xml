@@ -19,7 +19,8 @@
         android:layout_marginVertical="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
+        android:textFontWeight="400"
+        android:gravity="start"
         android:text="@string/enter_a_did_access_key_manually_or_scan_a_qr_code_to_add_one"/>
 
     <LinearLayout

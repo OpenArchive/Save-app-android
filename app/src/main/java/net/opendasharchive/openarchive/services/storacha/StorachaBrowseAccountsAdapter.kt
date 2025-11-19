@@ -40,7 +40,7 @@ class StorachaBrowseAccountsAdapter(
         fun bind(account: Account) {
             if (!isDid) {
                 val icon =
-                    ContextCompat.getDrawable(binding.icon.context, R.drawable.ic_account_circle)
+                    ContextCompat.getDrawable(binding.icon.context, R.drawable.ic_account)
                 icon?.setTint(
                     ContextCompat.getColor(
                         binding.icon.context,

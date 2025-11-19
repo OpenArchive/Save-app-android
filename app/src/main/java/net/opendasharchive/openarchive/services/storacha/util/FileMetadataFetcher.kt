@@ -18,12 +18,13 @@ data class FileMetadata(
 enum class FileType(
     val iconRes: Int,
 ) {
-    IMAGE(R.drawable.ic_image_gallery_line),
-    VIDEO(R.drawable.ic_video_document),
-    AUDIO(R.drawable.audio_waveform),
-    PDF(R.drawable.ic_pdf_document),
-    DOCUMENT(R.drawable.ic_unknown_file),
-    UNKNOWN(R.drawable.ic_unknown_file),
+    IMAGE(R.drawable.ic_image),
+    VIDEO(R.drawable.ic_video),
+    AUDIO(R.drawable.ic_music),
+    PDF(R.drawable.ic_pdf),
+    DOCUMENT(R.drawable.ic_doc),
+    ZIP(R.drawable.ic_zip),
+    UNKNOWN(R.drawable.ic_unknown),
 }
 
 class FileMetadataFetcher(
@@ -147,6 +148,7 @@ class FileMetadataFetcher(
             "mp4", "avi", "mkv", "mov", "wmv", "flv", "webm", "m4v" -> FileType.VIDEO
             "mp3", "wav", "flac", "aac", "ogg", "m4a", "wma" -> FileType.AUDIO
             "pdf" -> FileType.PDF
+            "zip" -> FileType.ZIP
             "doc", "docx", "txt", "rtf", "odt", "xls", "xlsx", "ppt", "pptx", "csv" -> FileType.DOCUMENT
             else -> FileType.UNKNOWN
         }
