@@ -72,7 +72,7 @@
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
-    <string name="prompt_username"><i>Ім'я користувача</i></string>
+    <string name="prompt_username"><i>Ім\'я користувача</i></string>
     <string name="prompt_email">Ел. пошта</string>
     <string name="prompt_password"><i>Пароль</i></string>
 
@@ -184,7 +184,7 @@
     <string name="uploading_is_paused">Вивантаження призупинено</string>
 
     <!-- Clean Insights measurement -->
-    <string name="server_name_optional"><i>Назва сервера (необов'язково)</i></string>
+    <string name="server_name_optional"><i>Назва сервера (необов\'язково)</i></string>
     <string name="add_another_account">Додати новий сервер</string>
     <string name="biometrics_title">Розблокувати ключ ProofMode</string>
     <string name="folders">Теки</string>
@@ -231,8 +231,8 @@
     <string name="press_and_hold_to_select_and_edit_multiple_media">Натисніть та тримайте для обрання та редагування декількох медіафайлів.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Після вивантаження медіафайлів втрачається можливість їхнього редагування</string>
     <string name="edit_media_info">Редагувати дані медіафайлу</string>
-    <string name="add_a_location_optional"><i>Додати місцеперебування (необов'язково)</i></string>
-    <string name="add_notes_optional"><i>Додати примітки (необов'язково)</i></string>
+    <string name="add_a_location_optional"><i>Додати місцеперебування (необов\'язково)</i></string>
+    <string name="add_notes_optional"><i>Додати примітки (необов\'язково)</i></string>
     <string name="skip">Пропустити</string>
 
 
