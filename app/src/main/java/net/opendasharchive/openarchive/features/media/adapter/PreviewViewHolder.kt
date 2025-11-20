@@ -1,11 +1,13 @@
 package net.opendasharchive.openarchive.features.media.adapter
 
 import android.annotation.SuppressLint
+import android.content.res.ColorStateList
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import coil3.load
+import coil3.request.crossfade
 import coil3.request.error
 import coil3.request.placeholder
 import java.io.File
@@ -28,7 +30,12 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
 
         itemView.tag = media?.id
 
-        if (batchMode && media?.selected == true) {
+        resetImageState()
+        hideTitle()
+
+        val isSelected = batchMode && media?.selected == true
+
+        if (isSelected) {
             itemView.setBackgroundResource(R.color.colorPrimary)
             binding.selectedIndicator.show()
         } else {
@@ -74,10 +81,13 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
                     scaleType = ImageView.ScaleType.FIT_CENTER
                     setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
                     setPadding(padding, padding, padding, padding)
-                    setImageResource(R.drawable.ic_image)
-                    setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
+                    load(R.drawable.ic_image) {
+                        crossfade(false)
+                    }
+                    applyPlaceholderTint(isSelected)
                     show()
                 }
+                showTitle(media?.title)
             }
             binding.videoIndicator.hide()
         } else if (media?.mimeType?.startsWith("video") == true) {
@@ -110,58 +120,79 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
                     scaleType = ImageView.ScaleType.FIT_CENTER
                     setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
                     setPadding(padding, padding, padding, padding)
-                    setImageResource(R.drawable.ic_video)
-                    setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
+                    load(R.drawable.ic_video) {
+                        crossfade(false)
+                    }
+                    applyPlaceholderTint(isSelected)
                     show()
                 }
+                showTitle(media?.title)
             }
             binding.videoIndicator.show()
         } else if (media?.mimeType?.startsWith("audio") == true) {
             binding.videoIndicator.hide()
-            val padding = (24 * mContext.resources.displayMetrics.density).toInt()
-            binding.image.apply {
-                scaleType = ImageView.ScaleType.FIT_CENTER
-                setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
-                setPadding(padding, padding, padding, padding)
-                setImageResource(R.drawable.ic_music)
-                setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
-                show()
-            }
+            placeholderIcon(R.drawable.ic_music, media?.title, isSelected)
         } else if (media?.mimeType == "application/pdf") {
-            val padding = (24 * mContext.resources.displayMetrics.density).toInt()
-            binding.image.apply {
-                scaleType = ImageView.ScaleType.FIT_CENTER
-                setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
-                setPadding(padding, padding, padding, padding)
-                setImageResource(R.drawable.ic_pdf)
-                setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
-                show()
-            }
+            placeholderIcon(R.drawable.ic_pdf, media?.title, isSelected)
             binding.videoIndicator.hide()
         } else if (media?.mimeType?.startsWith("application") == true) {
-            val padding = (24 * mContext.resources.displayMetrics.density).toInt()
-            binding.image.apply {
-                scaleType = ImageView.ScaleType.FIT_CENTER
-                setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
-                setPadding(padding, padding, padding, padding)
-                setImageResource(R.drawable.ic_unknown_file)
-                setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
-                show()
-            }
+            placeholderIcon(R.drawable.ic_unknown_file, media?.title, isSelected)
             binding.videoIndicator.hide()
         } else {
-            val padding = (24 * mContext.resources.displayMetrics.density).toInt()
-            binding.image.apply {
-                scaleType = ImageView.ScaleType.FIT_CENTER
-                setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
-                setPadding(padding, padding, padding, padding)
-                setImageResource(R.drawable.no_thumbnail)
-                setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
-                show()
-            }
+            placeholderIcon(R.drawable.no_thumbnail, media?.title, isSelected)
             binding.videoIndicator.hide()
         }
         media?.let { updateOverlay(it) }
+    }
+
+    private fun resetImageState() {
+        binding.image.apply {
+            setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+            setPadding(0, 0, 0, 0)
+            scaleType = ImageView.ScaleType.CENTER_CROP
+            clearColorFilter()
+            imageTintList = null
+        }
+        hideTitle()
+    }
+
+    private fun placeholderIcon(drawableRes: Int, title: String?, isSelected: Boolean) {
+        val padding = (24 * mContext.resources.displayMetrics.density).toInt()
+        binding.image.apply {
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+            setPadding(padding, padding, padding, padding)
+            load(drawableRes) {
+                crossfade(false)
+            }
+            clearColorFilter()
+            applyPlaceholderTint(isSelected)
+            show()
+        }
+        showTitle(title)
+    }
+
+    private fun showTitle(title: String?) {
+        if (title.isNullOrBlank()) {
+            hideTitle()
+        } else {
+            binding.mediaTitle.text = title
+            binding.mediaTitle.show()
+        }
+    }
+
+    private fun hideTitle() {
+        binding.mediaTitle.text = ""
+        binding.mediaTitle.hide()
+    }
+
+    private fun applyPlaceholderTint(isSelected: Boolean) {
+        val tint = if (isSelected) {
+            ContextCompat.getColor(mContext, R.color.colorOnPrimaryContainer)
+        } else {
+            ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant)
+        }
+        binding.image.imageTintList = ColorStateList.valueOf(tint)
     }
 
     private fun updateOverlay(media: Media) {
