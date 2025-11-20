@@ -46,10 +46,10 @@ class MainMediaViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHol
 
         // Update selection visuals.
         if (isSelected) {
-            itemView.setBackgroundResource(R.color.colorTertiary)
+            //itemView.setBackgroundResource(R.color.colorTertiary)
             binding.selectedIndicator.show()
         } else {
-            itemView.setBackgroundResource(R.color.transparent)
+            //itemView.setBackgroundResource(R.color.transparent)
             binding.selectedIndicator.hide()
         }
 

@@ -58,7 +58,7 @@
     <color name="colorRipple">#33e3e3e4</color>
     <color name="bottomSheetBackground">@color/eigengrau</color>
     <color name="colorSkipButton">@color/c23_teal</color>
-    <color name="selection_button_glass">#80FFFFFF</color>
+    <color name="selection_button_glass">#292828</color>
     <color name="selection_button_stroke">#CCFFFFFF</color>
     <color name="selection_button_ripple">#B3FFFFFF</color>
 

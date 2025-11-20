@@ -20,9 +20,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <View
+            android:id="@+id/image_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorPillTransparent" />
+
         <ImageView
             android:id="@+id/image"
-            android:background="@color/colorPillTransparent"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
@@ -30,6 +35,7 @@
             tools:ignore="ContentDescription" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            tools:visibility="invisible"
             android:id="@+id/overlay_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -64,7 +70,11 @@
                 app:tint="@color/colorDanger"
                 tools:visibility="invisible" />
 
+
+
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
         <View
             android:id="@+id/selected_indicator"
@@ -110,7 +120,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:maxLines="1"
         android:singleLine="true"
-        android:ellipsize="start"
+        android:ellipsize="end"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="template.jpg" />
 

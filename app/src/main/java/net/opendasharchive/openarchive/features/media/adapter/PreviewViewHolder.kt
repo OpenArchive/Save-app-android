@@ -36,10 +36,10 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
         val isSelected = batchMode && media?.selected == true
 
         if (isSelected) {
-            itemView.setBackgroundResource(R.color.colorPrimary)
+            //itemView.setBackgroundResource(R.color.colorPrimary)
             binding.selectedIndicator.show()
         } else {
-            itemView.setBackgroundResource(R.color.transparent)
+            //itemView.setBackgroundResource(R.color.transparent)
             binding.selectedIndicator.hide()
         }
 
