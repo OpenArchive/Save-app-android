@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.db
 
+import android.content.res.ColorStateList
 import android.text.format.Formatter
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
@@ -9,7 +10,6 @@ import coil3.load
 import coil3.request.crossfade
 import coil3.request.error
 import coil3.request.placeholder
-import java.io.File
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.RvMediaRowSmallBinding
@@ -38,110 +38,72 @@ class UploadMediaViewHolder(
         AppLogger.i("Binding media item ${media?.id} with status ${media?.sStatus} and progress ${media?.uploadPercentage}")
         itemView.tag = media?.id
 
+        resetImage()
+
         binding.image.alpha =
             if (media?.sStatus == Media.Status.Uploaded || !doImageFade) 1f else 0.5f
 
-        if (media?.mimeType?.startsWith("image") == true) {
-            val fileExists = try {
-                media.fileUri.path?.let { path ->
-                    File(path).exists()
-                } ?: false
-            } catch (e: Exception) {
-                AppLogger.e(e)
-                false
-            }
-
-            if (fileExists) {
-                val progress = CircularProgressDrawable(mContext)
-                progress.strokeWidth = 5f
-                progress.centerRadius = 30f
-                progress.start()
+        when {
+            media?.mimeType?.startsWith("image") == true -> {
+                val progress = CircularProgressDrawable(mContext).apply {
+                    strokeWidth = 5f
+                    centerRadius = 30f
+                    start()
+                }
 
                 binding.image.apply {
                     scaleType = ImageView.ScaleType.CENTER_CROP
                     setPadding(0, 0, 0, 0)
-                    clearColorFilter()
                     show()
                     load(media.fileUri) {
                         placeholder(progress)
                         error(R.drawable.ic_image)
                         crossfade(true)
+                        listener(onError = { _, result ->
+                            AppLogger.w("Failed to load image: ${result.throwable.message}")
+                            showPlaceholderIcon(R.drawable.ic_image)
+                        })
                     }
                 }
-            } else {
-                AppLogger.w("Image file not found: ${media.fileUri.path}")
-                val padding = (12 * mContext.resources.displayMetrics.density).toInt()
-                binding.image.apply {
-                    scaleType = ImageView.ScaleType.FIT_CENTER
-                    setPadding(padding, padding, padding, padding)
-                    setImageResource(R.drawable.ic_image)
-                    setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
-                    show()
-                }
-            }
-        } else if (media?.mimeType?.startsWith("video") == true) {
-            val fileExists = try {
-                media.fileUri.path?.let { path ->
-                    File(path).exists()
-                } ?: false
-            } catch (e: Exception) {
-                AppLogger.e(e)
-                false
             }
 
-            if (fileExists) {
-                val progress = CircularProgressDrawable(mContext)
-                progress.strokeWidth = 5f
-                progress.centerRadius = 30f
-                progress.start()
+            media?.mimeType?.startsWith("video") == true -> {
+                val progress = CircularProgressDrawable(mContext).apply {
+                    strokeWidth = 5f
+                    centerRadius = 30f
+                    start()
+                }
 
                 binding.image.apply {
                     scaleType = ImageView.ScaleType.CENTER_CROP
                     setPadding(0, 0, 0, 0)
-                    clearColorFilter()
                     show()
                     load(media.fileUri) {
                         placeholder(progress)
                         error(R.drawable.ic_video)
+                        crossfade(true)
+                        listener(onError = { _, result ->
+                            AppLogger.w("Failed to load video thumbnail: ${result.throwable.message}")
+                            showPlaceholderIcon(R.drawable.ic_video)
+                        })
                     }
                 }
-            } else {
-                AppLogger.w("Video file not found: ${media.fileUri.path}")
-                val padding = (12 * mContext.resources.displayMetrics.density).toInt()
-                binding.image.apply {
-                    scaleType = ImageView.ScaleType.FIT_CENTER
-                    setPadding(padding, padding, padding, padding)
-                    setImageResource(R.drawable.ic_video)
-                    setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
-                    show()
-                }
             }
-        } else if (media?.mimeType?.startsWith("audio") == true) {
-            val padding = (12 * mContext.resources.displayMetrics.density).toInt()
-            binding.image.apply {
-                scaleType = ImageView.ScaleType.FIT_CENTER
-                setPadding(padding, padding, padding, padding)
-                setImageResource(R.drawable.ic_music)
-                setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
-                show()
+
+            media?.mimeType?.startsWith("audio") == true -> {
+                showPlaceholderIcon(R.drawable.ic_music)
             }
-        } else if (media?.mimeType == "application/pdf") {
-            val padding = (12 * mContext.resources.displayMetrics.density).toInt()
-            binding.image.apply {
-                scaleType = ImageView.ScaleType.FIT_CENTER
-                setPadding(padding, padding, padding, padding)
-                setImageResource(R.drawable.ic_pdf)
-                setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
-                show()
+
+            media?.mimeType == "application/pdf" -> {
+                showPlaceholderIcon(R.drawable.ic_pdf)
             }
-        } else {
-            val padding = (12 * mContext.resources.displayMetrics.density).toInt()
-            binding.image.apply {
-                scaleType = ImageView.ScaleType.FIT_CENTER
-                setPadding(padding, padding, padding, padding)
-                setImageResource(R.drawable.ic_unknown_file)
-                setColorFilter(ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant))
-                show()
+
+            media?.mimeType?.startsWith("application") == true -> {
+                showPlaceholderIcon(R.drawable.ic_unknown_file)
+            }
+
+            else -> {
+                showPlaceholderIcon(R.drawable.ic_unknown_file)
             }
         }
 
@@ -214,5 +176,34 @@ class UploadMediaViewHolder(
         } else {
             binding.title.hide()
         }
+    }
+
+    private fun resetImage() {
+        binding.image.apply {
+            setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+            setPadding(0, 0, 0, 0)
+            scaleType = ImageView.ScaleType.CENTER_CROP
+            clearColorFilter()
+            imageTintList = null
+        }
+    }
+
+    private fun showPlaceholderIcon(drawableRes: Int) {
+        val padding = (12 * mContext.resources.displayMetrics.density).toInt()
+        binding.image.apply {
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+            setPadding(padding, padding, padding, padding)
+            load(drawableRes) {
+                crossfade(false)
+            }
+            applyPlaceholderTint()
+            show()
+        }
+    }
+
+    private fun applyPlaceholderTint() {
+        val tint = ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant)
+        binding.image.imageTintList = ColorStateList.valueOf(tint)
     }
 }

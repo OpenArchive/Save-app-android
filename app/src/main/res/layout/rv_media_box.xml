@@ -21,6 +21,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <View
+            tools:visibility="invisible"
             android:id="@+id/image_background"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -80,8 +81,7 @@
             android:id="@+id/selected_indicator"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:alpha="0.25"
-            android:background="@color/colorTertiary" />
+            android:background="@drawable/bg_selected_overlay" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
