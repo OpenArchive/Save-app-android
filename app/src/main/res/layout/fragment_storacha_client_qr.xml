@@ -44,7 +44,7 @@
             android:gravity="start|center_vertical"
             android:lineSpacingExtra="2dp"
             android:text="@string/this_is_your_qr_code_to_request_access_please_ask_the_admin_to_scab_your_code_to_gain_access_to_soace"
-            android:textColor="@color/colorSectionHeaderText"
+            android:textColor="@color/colorOnSurface"
             android:textSize="16sp" />
 
     </LinearLayout>

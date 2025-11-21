@@ -162,6 +162,11 @@ class StorachaLoginFragment : BaseFragment() {
     }
 
     private fun performLogin() {
+        // Prevent duplicate calls while loading
+        if (viewModel.isLoading.value == true) {
+            return
+        }
+
         val email =
             viewBinding.tvEmail.text
                 .toString()

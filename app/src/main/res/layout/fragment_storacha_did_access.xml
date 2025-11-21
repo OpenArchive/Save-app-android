@@ -54,7 +54,7 @@
             android:layout_height="match_parent"
             android:importantForAccessibility="no"
             android:src="@drawable/ic_qr_code"
-            />
+            app:tint="@color/colorSurface" />
     </LinearLayout>
 
     <View

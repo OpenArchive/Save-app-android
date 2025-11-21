@@ -40,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="start"
                 android:text="@string/access_your_account_using_your_registered_email_address"
-                android:textColor="@color/colorSectionHeaderText"
+                android:textColor="@color/colorOnSurface"
                 android:textSize="16sp" />
         </LinearLayout>
 
