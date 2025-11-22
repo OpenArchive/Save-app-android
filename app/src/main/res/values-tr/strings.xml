@@ -17,6 +17,7 @@
     <string name="folder_rename_success">Klasör yeniden adlandırıldı</string>
     <string name="folder_not_found">Klasör bulunamadı</string>
     <string name="folder_removed">Klasör silindi</string>
+    <string name="folder_archived">Klasör arşivlendi…</string>
     <string name="content_picker_label">Şuradan ortam ekle</string>
     <string name="disable_passcode_dialog_title">Parola kodunu devre dışı bırak</string>
     <string name="disable_passcode_dialog_msg">Parola kodunu devre dışı bırakmak istediğinize emin misiniz\?</string>
@@ -105,8 +106,7 @@
     <string name="uploads_notification_descriptions">Bu bildirimler, bu uygulama ortam yüklemelerini yaparken görüntülenir.</string>
 
     <string name="action_upload">Yükle</string>
-
-    <!-- Passcode Settings -->
+<!-- Passcode Settings -->
     <string name="multiple_failed_attempts_message">Birden fazla başarısız deneme nedeniyle uygulama kilitlendi. Lütfen bir süre sonra yeniden deneyin.</string>
     <string name="passcode_not_set">Parola kodu ayarlanmamış</string>
     <string name="passcode_remaining_attempts">Parola kodu hatalı. %1$d deneme hakkınız kaldı.</string>
@@ -208,7 +208,7 @@
     <string name="intro_text_secure">Ortamınızı güvenli bir şekilde özel sunuculara gönderin ve uygulamayı bir PIN kodu ile kilitleyin.</string>
     <string name="intro_text_archive"><![CDATA[Ortamınızı uzun vadede doğrulanabilir, güvenli ve düzenli tutmak için Nextcloud veya İnternet Archive üzerine yükleyin.<br><br><a href=\"%1$s\"><u>Creative Commons Lisansı.</u> kullanın </a>]]></string>
 
-    <string name="intro_text_verify"><![CDATA[Ortamınız için SHA256 karmaları ve <a href=\"%1$s\"><u>ProofMode</u></a> ile kimlik ve gerçekliği doğrulayın.]]></string>
+    <string name="intro_text_verify">&lt;![ CDATA[Ortamınız için SHA256 karmaları ve &lt;a href=\"%1$s\"&gt;&lt;u&gt;ProofMode&lt;/u&gt;&lt;/a&gt; ile kimlik ve gerçekliği doğrulayın.]]&gt;</string>
     <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> aktarım sırasında ortamınızı korumak için her zaman TLS (Transport Layer Security) ile yükleme yapar.<br>Ek güvenlik sağlamak için,  ortamınızın telefonunuzdan sunucuya gönderilirken ele geçirilmesini önleyen <a href=\"%1$s\"><u>Tor</u></a> özelliğini açın.]]></string>
     <string name="next">İleri</string>
     <string name="done">Bitti</string>
