@@ -9,16 +9,30 @@
     android:background="@drawable/list_item_background_selector"
     android:filterTouchesWhenObscured="true">
 
-    <ImageView
-        android:id="@+id/icon"
+    <FrameLayout
+        android:id="@+id/iconContainer"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginTop="4dp"
-        android:importantForAccessibility="no"
-        android:src="@drawable/ic_folder_new"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_folder_new" />
+
+        <ProgressBar
+            android:id="@+id/loadingSpinner"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:visibility="visible" />
+
+    </FrameLayout>
 
     <TextView
         android:id="@+id/name"
@@ -35,7 +49,7 @@
         android:ellipsize="end"
         android:lineSpacingMultiplier="0.9"
         android:includeFontPadding="false"
-        app:layout_constraintTop_toBottomOf="@id/icon"
+        app:layout_constraintTop_toBottomOf="@id/iconContainer"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

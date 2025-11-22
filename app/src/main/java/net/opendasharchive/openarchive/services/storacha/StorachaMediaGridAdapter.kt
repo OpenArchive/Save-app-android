@@ -2,6 +2,7 @@ package net.opendasharchive.openarchive.services.storacha
 
 import android.content.Intent
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
@@ -10,6 +11,7 @@ import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.R
@@ -58,9 +60,20 @@ class StorachaMediaGridAdapter(
     ) : RecyclerView.ViewHolder(
             binding.root,
         ) {
+        private var currentJob: Job? = null
+        private var currentCid: String? = null
+
         fun bind(file: UploadEntry) {
-            // Set default icon while loading
-            setIcon(FileType.UNKNOWN)
+            // Cancel any pending work from previous binding
+            currentJob?.cancel()
+            Picasso.get().cancelRequest(binding.icon)
+
+            // Track which item this ViewHolder is now displaying
+            currentCid = file.cid
+
+            // Show spinner and hide icon while loading
+            binding.loadingSpinner.visibility = View.VISIBLE
+            binding.icon.visibility = View.INVISIBLE
             binding.name.text = file.cid.take(12) + "..."
             binding.didKey.text = file.cid
 
@@ -72,24 +85,46 @@ class StorachaMediaGridAdapter(
             // Check cache first
             val cachedMetadata = metadataCache[file.cid]
             if (cachedMetadata != null) {
+                // For cached items, hide spinner immediately since we have data
+                binding.loadingSpinner.visibility = View.GONE
+                binding.icon.visibility = View.VISIBLE
                 updateWithMetadata(cachedMetadata, file)
             } else {
                 // Fetch metadata asynchronously
-                CoroutineScope(Dispatchers.Main).launch {
+                val expectedCid = file.cid
+                currentJob = CoroutineScope(Dispatchers.Main).launch {
                     try {
                         val metadata =
                             withContext(Dispatchers.IO) {
                                 metadataFetcher.fetchFileMetadata(file.gatewayUrl)
                             }
-                        metadataCache[file.cid] = metadata
-                        if (metadata != null) {
-                            updateWithMetadata(metadata, file)
+
+                        // Only update if this ViewHolder is still showing the same item
+                        if (currentCid == expectedCid) {
+                            metadataCache[file.cid] = metadata
+                            if (metadata != null) {
+                                updateWithMetadata(metadata, file)
+                            } else {
+                                // No metadata found, show default icon
+                                hideSpinnerAndShowIcon()
+                                setIcon(FileType.UNKNOWN)
+                            }
                         }
                     } catch (e: Exception) {
                         Timber.e(e, "Failed to fetch metadata for ${file.cid}")
+                        // Only update if still showing the same item
+                        if (currentCid == expectedCid) {
+                            hideSpinnerAndShowIcon()
+                            setIcon(FileType.UNKNOWN)
+                        }
                     }
                 }
             }
+        }
+
+        private fun hideSpinnerAndShowIcon() {
+            binding.loadingSpinner.visibility = View.GONE
+            binding.icon.visibility = View.VISIBLE
         }
 
         private fun updateWithMetadata(
@@ -100,8 +135,9 @@ class StorachaMediaGridAdapter(
 
             // Load thumbnail for images, otherwise show appropriate icon
             if (metadata.fileType == FileType.IMAGE) {
-                loadImageThumbnail(metadata.directUrl)
+                loadImageThumbnail(metadata.directUrl, file.cid)
             } else {
+                hideSpinnerAndShowIcon()
                 setIcon(metadata.fileType)
             }
 
@@ -121,12 +157,19 @@ class StorachaMediaGridAdapter(
         private fun setIcon(fileType: FileType) {
             // Reset scale type for icons - use CENTER_INSIDE for proper centering
             binding.icon.scaleType = android.widget.ImageView.ScaleType.CENTER_INSIDE
-            val icon = ContextCompat.getDrawable(binding.icon.context, fileType.iconRes)
-            icon?.setTint(ContextCompat.getColor(binding.icon.context, R.color.colorOnBackground))
+            // Set the icon drawable
+            val icon = ContextCompat.getDrawable(binding.icon.context, fileType.iconRes)?.mutate()
             binding.icon.setImageDrawable(icon)
+            // Apply tint via imageTintList (more reliable than drawable tint)
+            binding.icon.imageTintList = android.content.res.ColorStateList.valueOf(
+                ContextCompat.getColor(binding.icon.context, R.color.colorOnBackground)
+            )
+            // Ensure icon is visible after setting
+            binding.icon.visibility = View.VISIBLE
+            binding.loadingSpinner.visibility = View.GONE
         }
 
-        private fun loadImageThumbnail(imageUrl: String) {
+        private fun loadImageThumbnail(imageUrl: String, expectedCid: String) {
             Timber.d("Attempting to load image: $imageUrl")
 
             // Clear any tint/color filter that might be making images black
@@ -147,18 +190,27 @@ class StorachaMediaGridAdapter(
                     binding.icon,
                     object : Callback {
                         override fun onSuccess() {
-                            Timber.d("✅ Successfully loaded image: $imageUrl")
-                            // Double-check tint is cleared after loading
-                            binding.icon.imageTintList = null
-                            binding.icon.clearColorFilter()
+                            // Only update if still showing the same item
+                            if (currentCid == expectedCid) {
+                                Timber.d("✅ Successfully loaded image: $imageUrl")
+                                // Hide spinner and show the loaded image
+                                hideSpinnerAndShowIcon()
+                                // Double-check tint is cleared after loading
+                                binding.icon.imageTintList = null
+                                binding.icon.clearColorFilter()
+                            }
                         }
 
                         override fun onError(e: Exception?) {
-                            Timber.e("❌ Failed to load image: $imageUrl")
-                            Timber.e("Error details: ${e?.message}")
-                            e?.printStackTrace()
-                            // Reset to icon on error
-                            setIcon(FileType.IMAGE)
+                            // Only update if still showing the same item
+                            if (currentCid == expectedCid) {
+                                Timber.e("❌ Failed to load image: $imageUrl")
+                                Timber.e("Error details: ${e?.message}")
+                                e?.printStackTrace()
+                                // Hide spinner and show icon on error
+                                hideSpinnerAndShowIcon()
+                                setIcon(FileType.IMAGE)
+                            }
                         }
                     },
                 )

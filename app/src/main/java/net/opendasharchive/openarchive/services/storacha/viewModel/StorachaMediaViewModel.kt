@@ -39,6 +39,7 @@ class StorachaMediaViewModel(
     private var isLoading = false
     private var isFirstLoad = true
     private var isRefreshing = false
+    private var pendingRefresh: Triple<String, String, String?>? = null
 
     private val _uploadResult = MutableLiveData<Result<UploadResponse>?>()
     val uploadResult: LiveData<Result<UploadResponse>?> get() = _uploadResult
@@ -72,6 +73,13 @@ class StorachaMediaViewModel(
         spaceDid: String,
         sessionId: String?,
     ) {
+        // If a refresh is requested while loading, queue it for after current load completes
+        if (isLoading && isRefreshing) {
+            Timber.d("Queuing refresh request for after current load completes")
+            pendingRefresh = Triple(userDid, spaceDid, sessionId)
+            return
+        }
+
         if (isLoading || !hasMoreData) {
             Timber.d("loadMoreMediaEntries blocked: isLoading=$isLoading, hasMoreData=$hasMoreData")
             return
@@ -153,6 +161,14 @@ class StorachaMediaViewModel(
                 _loading.value = false
                 isLoading = false
                 _loadingState.value = LoadingState.NONE
+
+                // Check if there's a pending refresh to execute
+                pendingRefresh?.let { (pUserDid, pSpaceDid, pSessionId) ->
+                    Timber.d("Executing pending refresh")
+                    pendingRefresh = null
+                    refreshFromStart()
+                    loadMoreMediaEntries(pUserDid, pSpaceDid, pSessionId)
+                }
             }
         }
     }
