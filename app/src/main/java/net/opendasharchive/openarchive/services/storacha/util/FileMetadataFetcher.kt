@@ -5,7 +5,6 @@ import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.R
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import timber.log.Timber
 import java.util.regex.Pattern
 
 data class FileMetadata(
@@ -30,115 +29,53 @@ enum class FileType(
 class FileMetadataFetcher(
     private val client: OkHttpClient,
 ) {
-    suspend fun fetchFileMetadata(gatewayUrl: String): FileMetadata? =
-        withContext(Dispatchers.IO) {
-            try {
-                val request =
-                    Request
-                        .Builder()
-                        .url(gatewayUrl)
-                        .build()
+    // Pre-compile patterns for better performance
+    private val linkPattern = Pattern.compile("<a\\s+href=\"(?:/ipfs/[^/]+/)?([^\"]+)\">([^<]+)</a>")
+    private val sizePattern = Pattern.compile("([0-9]+(?:\\.[0-9]+)?\\s*[KMGT]?B)", Pattern.CASE_INSENSITIVE)
+    private val base58Chars = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toSet()
 
-                val response = client.newCall(request).execute()
-                if (!response.isSuccessful) {
-                    Timber.e("Failed to fetch metadata: ${response.code}")
-                    return@withContext null
-                }
-
-                val html = response.body?.string() ?: return@withContext null
-                response.close()
-
-                parseFileMetadata(html, gatewayUrl)
-            } catch (e: Exception) {
-                Timber.e(e, "Error fetching file metadata")
-                null
-            }
-        }
-
-    private fun parseFileMetadata(
-        html: String,
-        baseUrl: String,
-    ): FileMetadata? {
+    suspend fun fetchFileMetadata(gatewayUrl: String): FileMetadata? = withContext(Dispatchers.IO) {
         try {
-            // Pattern to match IPFS directory file links
-            // Looks for: <a href="/ipfs/hash/filename">filename</a>
-            val linkPattern =
-                Pattern.compile("<a\\s+href=\"(?:/ipfs/[^/]+/)?([^\"]+)\">([^<]+)</a>")
-            val matcher = linkPattern.matcher(html)
-
-            while (matcher.find()) {
-                val href = matcher.group(1)?.trim() ?: continue
-                val linkText = matcher.group(2)?.trim() ?: continue
-
-                // Skip parent directory links and empty links
-                if (href == "../" || linkText == ".." || href.isEmpty() || linkText.isEmpty()) continue
-
-                // Use the link text as filename (this should be the actual filename)
-                val fileName = linkText
-
-                // Skip if this looks like an IPFS hash rather than a filename
-                if (isIpfsHash(fileName)) continue
-
-                val directUrl = baseUrl.trimEnd('/') + "/" + fileName
-                val fileType = determineFileType(fileName)
-
-                // Try to extract file size from the HTML around this link
-                val context =
-                    try {
-                        val start = maxOf(0, matcher.start() - 100)
-                        val end = minOf(html.length, matcher.end() + 200)
-                        html.substring(start, end)
-                    } catch (_: Exception) {
-                        html.substring(matcher.end(), minOf(html.length, matcher.end() + 100))
-                    }
-
-                val sizePattern =
-                    Pattern.compile("([0-9]+(?:\\.[0-9]+)?\\s*[KMGT]?B)", Pattern.CASE_INSENSITIVE)
-                val sizeMatcher = sizePattern.matcher(context)
-                val fileSize =
-                    if (sizeMatcher.find()) {
-                        sizeMatcher.group(1) ?: "Unknown size"
-                    } else {
-                        "Unknown size"
-                    }
-
-                Timber.d("Parsed file: $fileName, size: $fileSize, direct URL: $directUrl")
-
-                return FileMetadata(
-                    fileName = fileName,
-                    fileSize = fileSize,
-                    fileType = fileType,
-                    directUrl = directUrl,
-                )
+            val request = Request.Builder().url(gatewayUrl).build()
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) return@withContext null
+                response.body?.string()?.let { parseFileMetadata(it, gatewayUrl) }
             }
-        } catch (e: Exception) {
-            Timber.e(e, "Error parsing file metadata from HTML")
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun parseFileMetadata(html: String, baseUrl: String): FileMetadata? {
+        val matcher = linkPattern.matcher(html)
+
+        while (matcher.find()) {
+            val href = matcher.group(1)?.trim() ?: continue
+            val fileName = matcher.group(2)?.trim() ?: continue
+
+            if (href == "../" || fileName == ".." || href.isEmpty() || fileName.isEmpty()) continue
+            if (isIpfsHash(fileName)) continue
+
+            val directUrl = "${baseUrl.trimEnd('/')}/$fileName"
+            val fileType = determineFileType(fileName)
+
+            // Extract file size from context around the link
+            val start = maxOf(0, matcher.start() - 100)
+            val end = minOf(html.length, matcher.end() + 200)
+            val context = html.substring(start, end)
+            val sizeMatcher = sizePattern.matcher(context)
+            val fileSize = if (sizeMatcher.find()) sizeMatcher.group(1) ?: "Unknown size" else "Unknown size"
+
+            return FileMetadata(fileName, fileSize, fileType, directUrl)
         }
         return null
     }
 
-    private fun isIpfsHash(text: String): Boolean {
-        // IPFS hash patterns:
-        // - CIDv0: Qm... (46 chars, base58)
-        // - CIDv1: bafy... bafz... baga... etc. (variable length, typically 52-64 chars)
-        // - Other CID prefixes: baae, baai, baan, etc.
-
-        return when {
-            // CIDv0 pattern: starts with Qm, exactly 46 characters, base58
-            text.startsWith("Qm") && text.length == 46 && text.all { it.isBase58() } -> true
-
-            // CIDv1 pattern: starts with 'ba', typically 52-64 characters, no file extension
-            text.startsWith("ba") && text.length in 52..64 && !text.contains('.') -> true
-
-            // Additional safety: if it's very long and has no extension, likely a hash
-            text.length > 100 && !text.contains('.') -> true
-
-            else -> false
-        }
-    }
-
-    private fun Char.isBase58(): Boolean {
-        return this in "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+    private fun isIpfsHash(text: String): Boolean = when {
+        text.startsWith("Qm") && text.length == 46 && text.all { it in base58Chars } -> true
+        text.startsWith("ba") && text.length in 52..64 && '.' !in text -> true
+        text.length > 100 && '.' !in text -> true
+        else -> false
     }
 
     private fun determineFileType(fileName: String): FileType {

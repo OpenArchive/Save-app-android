@@ -1,9 +1,11 @@
 package net.opendasharchive.openarchive.services.storacha
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
@@ -21,7 +23,6 @@ import net.opendasharchive.openarchive.services.storacha.util.FileMetadata
 import net.opendasharchive.openarchive.services.storacha.util.FileMetadataFetcher
 import net.opendasharchive.openarchive.services.storacha.util.FileType
 import okhttp3.OkHttpClient
-import timber.log.Timber
 
 class StorachaMediaGridAdapter(
     client: OkHttpClient,
@@ -36,19 +37,12 @@ class StorachaMediaGridAdapter(
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int,
-    ): MediaGridViewHolder {
-        val binding =
-            StorachaMediaGridItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return MediaGridViewHolder(binding, onClick)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MediaGridViewHolder {
+        val binding = StorachaMediaGridItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return MediaGridViewHolder(binding)
     }
 
-    override fun onBindViewHolder(
-        holder: MediaGridViewHolder,
-        position: Int,
-    ) {
+    override fun onBindViewHolder(holder: MediaGridViewHolder, position: Int) {
         holder.bind(files[position])
     }
 
@@ -56,164 +50,107 @@ class StorachaMediaGridAdapter(
 
     inner class MediaGridViewHolder(
         private val binding: StorachaMediaGridItemBinding,
-        private val onClick: (file: UploadEntry) -> Unit,
-    ) : RecyclerView.ViewHolder(
-            binding.root,
-        ) {
+    ) : RecyclerView.ViewHolder(binding.root) {
         private var currentJob: Job? = null
         private var currentCid: String? = null
+        private val context get() = binding.root.context
 
         fun bind(file: UploadEntry) {
-            // Cancel any pending work from previous binding
             currentJob?.cancel()
             Picasso.get().cancelRequest(binding.icon)
-
-            // Track which item this ViewHolder is now displaying
             currentCid = file.cid
 
-            // Show spinner and hide icon while loading
             binding.loadingSpinner.visibility = View.VISIBLE
             binding.icon.visibility = View.INVISIBLE
-            binding.name.text = file.cid.take(12) + "..."
+            binding.name.text = "${file.cid.take(12)}..."
             binding.didKey.text = file.cid
+            binding.root.setOnClickListener { onClick(file) }
 
-            // Set fallback click handler immediately
-            binding.root.setOnClickListener {
-                onClick.invoke(file)
-            }
+            metadataCache[file.cid]?.let { metadata ->
+                showIcon()
+                updateWithMetadata(metadata, file)
+            } ?: fetchMetadata(file)
+        }
 
-            // Check cache first
-            val cachedMetadata = metadataCache[file.cid]
-            if (cachedMetadata != null) {
-                // For cached items, hide spinner immediately since we have data
-                binding.loadingSpinner.visibility = View.GONE
-                binding.icon.visibility = View.VISIBLE
-                updateWithMetadata(cachedMetadata, file)
-            } else {
-                // Fetch metadata asynchronously
-                val expectedCid = file.cid
-                currentJob = CoroutineScope(Dispatchers.Main).launch {
-                    try {
-                        val metadata =
-                            withContext(Dispatchers.IO) {
-                                metadataFetcher.fetchFileMetadata(file.gatewayUrl)
-                            }
+        private fun fetchMetadata(file: UploadEntry) {
+            val expectedCid = file.cid
+            currentJob = CoroutineScope(Dispatchers.Main).launch {
+                val metadata = withContext(Dispatchers.IO) {
+                    metadataFetcher.fetchFileMetadata(file.gatewayUrl)
+                }
 
-                        // Only update if this ViewHolder is still showing the same item
-                        if (currentCid == expectedCid) {
-                            metadataCache[file.cid] = metadata
-                            if (metadata != null) {
-                                updateWithMetadata(metadata, file)
-                            } else {
-                                // No metadata found, show default icon
-                                hideSpinnerAndShowIcon()
-                                setIcon(FileType.UNKNOWN)
-                            }
-                        }
-                    } catch (e: Exception) {
-                        Timber.e(e, "Failed to fetch metadata for ${file.cid}")
-                        // Only update if still showing the same item
-                        if (currentCid == expectedCid) {
-                            hideSpinnerAndShowIcon()
-                            setIcon(FileType.UNKNOWN)
-                        }
+                if (currentCid == expectedCid) {
+                    metadataCache[file.cid] = metadata
+                    if (metadata != null) {
+                        updateWithMetadata(metadata, file)
+                    } else {
+                        showIcon()
+                        setIcon(FileType.UNKNOWN)
                     }
                 }
             }
         }
 
-        private fun hideSpinnerAndShowIcon() {
+        private fun showIcon() {
             binding.loadingSpinner.visibility = View.GONE
             binding.icon.visibility = View.VISIBLE
         }
 
-        private fun updateWithMetadata(
-            metadata: FileMetadata,
-            file: UploadEntry,
-        ) {
+        private fun updateWithMetadata(metadata: FileMetadata, file: UploadEntry) {
             binding.name.text = metadata.fileName
 
-            // Load thumbnail for images, otherwise show appropriate icon
             if (metadata.fileType == FileType.IMAGE) {
                 loadImageThumbnail(metadata.directUrl, file.cid)
             } else {
-                hideSpinnerAndShowIcon()
+                showIcon()
                 setIcon(metadata.fileType)
             }
 
-            // Set click handler to open in browser
             binding.root.setOnClickListener {
-                try {
-                    val intent = Intent(Intent.ACTION_VIEW, metadata.directUrl.toUri())
-                    binding.root.context.startActivity(intent)
-                } catch (e: Exception) {
-                    Timber.e(e, "Failed to open file in browser")
-                    // Fallback to original click handler
-                    onClick.invoke(file)
+                runCatching {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, metadata.directUrl.toUri()))
+                }.onFailure {
+                    onClick(file)
                 }
             }
         }
 
         private fun setIcon(fileType: FileType) {
-            // Reset scale type for icons - use CENTER_INSIDE for proper centering
-            binding.icon.scaleType = android.widget.ImageView.ScaleType.CENTER_INSIDE
-            // Set the icon drawable
-            val icon = ContextCompat.getDrawable(binding.icon.context, fileType.iconRes)?.mutate()
-            binding.icon.setImageDrawable(icon)
-            // Apply tint via imageTintList (more reliable than drawable tint)
-            binding.icon.imageTintList = android.content.res.ColorStateList.valueOf(
-                ContextCompat.getColor(binding.icon.context, R.color.colorOnBackground)
-            )
-            // Ensure icon is visible after setting
-            binding.icon.visibility = View.VISIBLE
+            binding.icon.apply {
+                scaleType = ImageView.ScaleType.CENTER_INSIDE
+                setImageDrawable(ContextCompat.getDrawable(context, fileType.iconRes)?.mutate())
+                imageTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.colorOnBackground))
+                visibility = View.VISIBLE
+            }
             binding.loadingSpinner.visibility = View.GONE
         }
 
         private fun loadImageThumbnail(imageUrl: String, expectedCid: String) {
-            Timber.d("Attempting to load image: $imageUrl")
+            binding.icon.apply {
+                imageTintList = null
+                clearColorFilter()
+                scaleType = ImageView.ScaleType.CENTER_CROP
+            }
 
-            // Clear any tint/color filter that might be making images black
-            binding.icon.imageTintList = null
-            binding.icon.clearColorFilter()
-            binding.icon.colorFilter = null
-
-            // Set scale type for images
-            binding.icon.scaleType = android.widget.ImageView.ScaleType.CENTER_CROP
-
-            // Load image directly with Picasso - larger size to fill the 80dp ImageView
-            Picasso
-                .get()
+            Picasso.get()
                 .load(imageUrl)
                 .resize(240, 240)
                 .centerCrop()
-                .into(
-                    binding.icon,
-                    object : Callback {
-                        override fun onSuccess() {
-                            // Only update if still showing the same item
-                            if (currentCid == expectedCid) {
-                                Timber.d("✅ Successfully loaded image: $imageUrl")
-                                // Hide spinner and show the loaded image
-                                hideSpinnerAndShowIcon()
-                                // Double-check tint is cleared after loading
-                                binding.icon.imageTintList = null
-                                binding.icon.clearColorFilter()
-                            }
+                .into(binding.icon, object : Callback {
+                    override fun onSuccess() {
+                        if (currentCid == expectedCid) {
+                            showIcon()
+                            binding.icon.imageTintList = null
                         }
+                    }
 
-                        override fun onError(e: Exception?) {
-                            // Only update if still showing the same item
-                            if (currentCid == expectedCid) {
-                                Timber.e("❌ Failed to load image: $imageUrl")
-                                Timber.e("Error details: ${e?.message}")
-                                e?.printStackTrace()
-                                // Hide spinner and show icon on error
-                                hideSpinnerAndShowIcon()
-                                setIcon(FileType.IMAGE)
-                            }
+                    override fun onError(e: Exception?) {
+                        if (currentCid == expectedCid) {
+                            showIcon()
+                            setIcon(FileType.IMAGE)
                         }
-                    },
-                )
+                    }
+                })
         }
     }
 }

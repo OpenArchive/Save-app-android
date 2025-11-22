@@ -167,6 +167,18 @@ class StorachaMediaFragment :
         val sessionId = args.sessionId.ifEmpty { null }
         val userDid = DidManager(requireContext()).getOrCreateDid()
         viewModel.reset()
+
+        // Set callback to check if more loading is needed after each load completes
+        viewModel.onLoadComplete = {
+            (mBinding.rvMediaList.layoutManager as? GridLayoutManager)?.let { layoutManager ->
+                val lastVisible = layoutManager.findLastVisibleItemPosition()
+                val total = layoutManager.itemCount
+                if (lastVisible >= total - 3 && total > 0) {
+                    viewModel.loadMoreMediaEntries(userDid, spaceDid, sessionId)
+                }
+            }
+        }
+
         viewModel.loadMoreMediaEntries(userDid, spaceDid, sessionId)
 
         viewModel.loading.observe(viewLifecycleOwner) { isLoading ->
@@ -280,16 +292,11 @@ class StorachaMediaFragment :
                     dx: Int,
                     dy: Int,
                 ) {
-                    if (dy > 0) { // Scrolling down
+                    if (dy > 0 && viewModel.loading.value != true) {
                         val layoutManager = recyclerView.layoutManager as GridLayoutManager
-                        val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
-                        val totalItemCount = layoutManager.itemCount
-                        val threshold = 3 // Load more when 3 items from the end
-
-                        if (lastVisibleItem >= totalItemCount - threshold && totalItemCount > 0) {
-                            Timber.d(
-                                "Scroll trigger: lastVisible=$lastVisibleItem, total=$totalItemCount, loading=${viewModel.loading.value}",
-                            )
+                        val lastVisible = layoutManager.findLastVisibleItemPosition()
+                        val total = layoutManager.itemCount
+                        if (lastVisible >= total - 3 && total > 0) {
                             viewModel.loadMoreMediaEntries(userDid, spaceDid, sessionId)
                         }
                     }
