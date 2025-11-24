@@ -6,8 +6,6 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.util.Base64
 import androidx.preference.PreferenceManager
-import org.witness.proofmode.ProofMode
-import org.witness.proofmode.ProofModeConstants
 
 object Prefs {
     const val PASSCODE_ENABLED = "passcode_enabled"
@@ -17,8 +15,10 @@ object Prefs {
     private const val NEARBY_USE_WIFI = "nearby_use_wifi"
     const val USE_TOR = "pref_use_tor"
     const val PROHIBIT_SCREENSHOTS = "prohibit_screenshots"
-    const val USE_PROOFMODE = "use_proofmode"
-    const val USE_PROOFMODE_KEY_ENCRYPTION = "proofmode_key_encryption"
+    const val USE_C2PA = "use_c2pa"
+    const val USE_C2PA_KEY_ENCRYPTION = "c2pa_key_encryption"
+    private const val C2PA_LOCATION = "c2pa_location"
+    private const val C2PA_ENCRYPTED_PRIVATE_KEY = "c2pa_encrypted_private_key"
     // private const val USE_NEXTCLOUD_CHUNKING = "upload_nextcloud_chunks"
     const val THEME = "theme"
     private const val CURRENT_SPACE_ID = "current_space"
@@ -29,7 +29,6 @@ object Prefs {
     private const val IA_HINT_SHOWN = "ft.ia"
     private const val ADD_FOLDER_HINT_SHOWN = "ft.add_folder"
     private const val LICENSE_URL = "archive_pref_share_license_url"
-    private const val PROOFMODE_ENCRYPTED_PASSPHRASE = "proof_mode_encrypted_passphrase"
 
     val TOR_DOWNLOAD_URL = Uri.parse("https://play.google.com/store/apps/details?id=org.torproject.android")
 
@@ -103,8 +102,8 @@ object Prefs {
             prefs?.edit()?.putBoolean(NEARBY_USE_WIFI, value)?.apply()
         }
 
-    val useProofMode: Boolean
-        get() = prefs?.getBoolean(USE_PROOFMODE, false) ?: false
+    val useC2pa: Boolean
+        get() = prefs?.getBoolean(USE_C2PA, false) ?: false
 
     var useTor: Boolean
         get() = prefs?.getBoolean(USE_TOR, false) ?: false
@@ -166,46 +165,26 @@ object Prefs {
             prefs?.edit()?.putBoolean(PASSCODE_ENABLED, value)?.apply()
         }
 
-    var proofModeLocation: Boolean
-        get() = prefs?.getBoolean(ProofMode.PREF_OPTION_LOCATION, false) ?: false
+    var c2paLocation: Boolean
+        get() = prefs?.getBoolean(C2PA_LOCATION, false) ?: false
         set(value) {
-            prefs?.edit()?.putBoolean(ProofMode.PREF_OPTION_LOCATION, value)?.apply()
+            prefs?.edit()?.putBoolean(C2PA_LOCATION, value)?.apply()
         }
 
-    var proofModeNetwork: Boolean
-        get() = prefs?.getBoolean(ProofMode.PREF_OPTION_NETWORK, false) ?: false
+    var useC2paKeyEncryption: Boolean
+        get() = prefs?.getBoolean(USE_C2PA_KEY_ENCRYPTION, false) ?: false
         set(value) {
-            prefs?.edit()?.putBoolean(ProofMode.PREF_OPTION_NETWORK, value)?.apply()
+            prefs?.edit()?.putBoolean(USE_C2PA_KEY_ENCRYPTION, value)?.apply()
         }
 
-    var useProofModeKeyEncryption: Boolean
-        get() = prefs?.getBoolean(USE_PROOFMODE_KEY_ENCRYPTION, false) ?: false
-        set(value) {
-            prefs?.edit()?.putBoolean(USE_PROOFMODE_KEY_ENCRYPTION, value)?.apply()
-        }
-
-    var proofModeEncryptedPassphrase: ByteArray?
+    var c2paEncryptedPrivateKey: ByteArray?
         get() {
-            val passphrase = prefs?.getString(PROOFMODE_ENCRYPTED_PASSPHRASE, null) ?: return null
-
-            return Base64.decode(passphrase, Base64.DEFAULT)
+            val key = prefs?.getString(C2PA_ENCRYPTED_PRIVATE_KEY, null) ?: return null
+            return Base64.decode(key, Base64.DEFAULT)
         }
         set(value) {
-            val passphrase =
-                if (value == null) null else Base64.encodeToString(value, Base64.DEFAULT)
-
-            prefs?.edit()?.putString(PROOFMODE_ENCRYPTED_PASSPHRASE, passphrase)?.apply()
-        }
-
-    /**
-     * Only set this right before initializing `MediaWatcher`!
-     * This needs to be the unencrypted passphrase for `MediaWatcher` to read.
-     * But we don't want to store this, so overwrite right after!
-     */
-    var temporaryUnencryptedProofModePassphrase: String?
-        get() = prefs?.getString(ProofModeConstants.PREFS_KEY_PASSPHRASE, null) ?: ProofModeConstants.PREFS_KEY_PASSPHRASE_DEFAULT
-        set(value) {
-            prefs?.edit()?.putString(ProofModeConstants.PREFS_KEY_PASSPHRASE, value)?.apply()
+            val key = if (value == null) null else Base64.encodeToString(value, Base64.DEFAULT)
+            prefs?.edit()?.putString(C2PA_ENCRYPTED_PRIVATE_KEY, key)?.apply()
         }
 
     val theme: Theme

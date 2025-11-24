@@ -65,18 +65,18 @@
     <string name="prefs_theme_val_light" translatable="false">light</string>
     <string name="prefs_theme_val_dark" translatable="false">dark</string>
 
-    <string name="prefs_use_proofmode_title">Enable ProofMode</string>
-    <string name="prefs_use_proofmode_summary" translatable="false">Share ProofMode public key</string>
-    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a way to enhance the authentication and verification of multimedia content. <a href=\"%1$s\"><u>Learn more here.</u></a>]]></string>
+    <string name="prefs_use_proofmode_title">Enable Content Credentials</string>
+    <string name="prefs_use_proofmode_summary" translatable="false">Share C2PA certificate</string>
+    <string name="prefs_use_proofmode_description"><![CDATA[Content Credentials (C2PA) provide tamper-evident metadata that helps verify the authenticity of your media. <a href=\"%1$s\"><u>Learn more here.</u></a>]]></string>
 
     <string name="proof_mode_warning_text"><![CDATA[
-    To help verify where your media was captured, ProofMode gathers data from nearby cell towers to corroborate your location. To add credibility and context, it then includes a separate metadata file with your media*. Android requires location access to collect this information.<br/><br/>
-    <b>*Neither <i>Save</i> nor <i>OpenArchive</i> will be able to access or store this location data, it will only be accessible to those with access to the server files.</b>
+    To help verify where your media was captured, Content Credentials can include location data to corroborate your location. This metadata is embedded directly in your media files using the C2PA standard. Android requires location access to collect this information.<br/><br/>
+    <b>*Neither <i>Save</i> nor <i>OpenArchive</i> will be able to access or store this location data, it will only be accessible to those with access to the media files.</b>
     ]]>
     </string>
 
-    <string name="prefs_share_proofmode_title">ProofMode Identity</string>
-    <string name="prefs_share_proofmode_summary">Share ProofMode Public Key</string>
+    <string name="prefs_share_proofmode_title">Content Credentials Identity</string>
+    <string name="prefs_share_proofmode_summary">Share C2PA Certificate</string>
 
 
     <!-- Strings for ProofMode Activity -->
@@ -204,10 +204,10 @@
     <!-- Clean Insights measurement -->
     <string name="server_name_optional"><i>Server Name (Optional)</i></string>
     <string name="add_another_account">Add new server</string>
-    <string name="prefs_proofmode_key_encryption_title_all" translatable="false">Secure ProofMode Key with Biometrics or Device Passcode</string>
-    <string name="prefs_proofmode_key_encryption_title_biometrics" translatable="false">Secure ProofMode Key with Biometrics</string>
-    <string name="prefs_proofmode_key_encryption_title_passcode" translatable="false">Secure ProofMode Key with Device Passcode</string>
-    <string name="biometrics_title">Unlock ProofMode Key</string>
+    <string name="prefs_proofmode_key_encryption_title_all" translatable="false">Secure C2PA Key with Biometrics or Device Passcode</string>
+    <string name="prefs_proofmode_key_encryption_title_biometrics" translatable="false">Secure C2PA Key with Biometrics</string>
+    <string name="prefs_proofmode_key_encryption_title_passcode" translatable="false">Secure C2PA Key with Device Passcode</string>
+    <string name="biometrics_title">Unlock C2PA Key</string>
     <string name="folders">Folders</string>
     <string name="create_folder_name">Create Folder Name</string>
     <string name="folder_name">Folder Name</string>
@@ -225,7 +225,7 @@
     <string name="general">General</string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Only upload media when you are connected to Wi-Fi</string>
     <string name="security">Security</string>
-    <string name="proofmode">ProofMode</string>
+    <string name="proofmode">Content Credentials</string>
     <string name="no_webbrowser_found_error">No application can handle this request. Please install a webbrowser.</string>
 
     <string name="intro_header_secure" translatable="false">Secure</string>
@@ -236,8 +236,8 @@
     <string name="intro_text_archive"><![CDATA[Upload media to Nextcloud or the Internet Archive to keep your media verifiable, safe, and organized for the long term.<br><br>Choose <a href=\"%1$s\"><u>Creative Commons Licensing.</u></a>]]></string>
 
     <string name="intro_link_archive" translatable="false">https://creativecommons.org</string>
-    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
-    <string name="intro_link_verify" translatable="false">https://proofmode.org</string>
+    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with <a href=\"%1$s\"><u>Content Credentials (C2PA).</u></a>]]></string>
+    <string name="intro_link_verify" translatable="false">https://c2pa.org</string>
     <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> always uploads over TLS (Transport Layer Security) to protect your media in transit.<br>To further enhance security, enable <a href=\"%1$s\"><u>Tor</u></a> to prevent interception of your media from your phone to the server.]]></string>
     <string name="intro_link_encrypt" translatable="false">https://www.torproject.org</string>
 
@@ -317,7 +317,7 @@
     <string name="pref_key_app_version" translatable="false">pref_app_version</string>
     <string name="pref_app_passcode" translatable="false">passcode_enabled</string>
     <string name="pref_key_proof_mode" translatable="false">pref_proof_mode</string>
-    <string name="pref_key_use_proof_mode" translatable="false">use_proofmode</string>
+    <string name="pref_key_use_proof_mode" translatable="false">use_c2pa</string>
     <string name="pref_key_use_tor" translatable="false">pref_use_tor</string>
     <string name="pref_key_use_dark_mode" translatable="false">pref_is_dark_mode</string>
 

@@ -58,6 +58,13 @@ pluginManagement {
         }
     }
 }
+val localProperties = java.util.Properties().apply {
+    val file = file("local.properties")
+    if (file.exists()) {
+        load(file.inputStream())
+    }
+}
+
 dependencyResolutionManagement {
 
     /**
@@ -77,9 +84,13 @@ dependencyResolutionManagement {
         mavenCentral()
 
         gradlePluginPortal()
-        maven("https://raw.githubusercontent.com/guardianproject/gpmaven/master") {
+        maven("https://maven.pkg.github.com/contentauth/c2pa-android") {
             content {
-                includeModule("org.proofmode", "android-libproofmode")
+                includeModule("org.contentauth", "c2pa")
+            }
+            credentials {
+                username = localProperties.getProperty("GITHUB_USER") ?: ""
+                password = localProperties.getProperty("GITHUB_TOKEN") ?: ""
             }
         }
 

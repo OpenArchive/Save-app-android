@@ -11,7 +11,6 @@ import net.opendasharchive.openarchive.services.Conduit
 import net.opendasharchive.openarchive.services.SaveClient
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import java.io.File
 import java.io.IOException
 
 class IaConduit(media: Media, context: Context) : Conduit(media, context) {
@@ -43,8 +42,6 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
 
             val fileName = getUploadFileName(mMedia, true)
             val metaJson = gson.toJson(mMedia)
-            // Commenting out proof generation - 17th April 2025
-            // val proof = getProof()
 
             if (mMedia.serverUrl.isBlank()) {
                 // TODO this should make sure we aren't accidentally using one of archive.org's metadata fields by accident
@@ -57,14 +54,9 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
             // upload content synchronously for progress
             client.uploadContent(fileName, mimeType)
 
-            // upload metadata and proofs async, and report failures
+            // upload metadata async and report failures
             client.uploadMetaData(metaJson, fileName)
-
-            // Commenting out proof generation - 17th April 2025
-            // Upload ProofMode metadata, if enabled and successfully created.
-            // for (file in proof) {
-            //      client.uploadProofFiles(file)
-            // }
+            // Note: C2PA manifests are embedded directly in media files, no separate proof files needed
 
             jobSucceeded()
 
@@ -117,27 +109,6 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
         )
 
         val url = "${ARCHIVE_API_ENDPOINT}/${mMedia.serverUrl}/$fileName.meta.json"
-
-        val request = Request.Builder()
-            .url(url)
-            .put(requestBody)
-            .headers(metadataHeader())
-            .build()
-
-        enqueue(request)
-    }
-
-    /// upload proof mode
-    @Throws(IOException::class)
-    private fun OkHttpClient.uploadProofFiles(uploadFile: File) {
-        val requestBody = RequestBodyUtil.create(
-            mContext.contentResolver,
-            Uri.fromFile(uploadFile),
-            uploadFile.length(),
-            textMediaType, createListener(cancellable = { !mCancelled })
-        )
-
-        val url = "$ARCHIVE_API_ENDPOINT/${mMedia.serverUrl}/${uploadFile.name}"
 
         val request = Request.Builder()
             .url(url)
@@ -214,7 +185,7 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
         return builder.build()
     }
 
-    /// headers for meta-data and proof mode
+    /// headers for meta-data
     private fun metadataHeader(): Headers {
         return Headers.Builder()
             .add("x-amz-auto-make-bucket", "1")

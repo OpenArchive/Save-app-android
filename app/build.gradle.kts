@@ -151,7 +151,11 @@ android {
     configurations.all {
         resolutionStrategy {
             force("org.bouncycastle:bcprov-jdk15to18:1.72")
+            force("org.bouncycastle:bcpkix-jdk15to18:1.72")
+            force("com.squareup.okhttp3:okhttp:4.12.0")
             exclude(group = "org.bouncycastle", module = "bcprov-jdk15on")
+            exclude(group = "org.bouncycastle", module = "bcprov-jdk18on")
+            exclude(group = "org.bouncycastle", module = "bcpkix-jdk18on")
         }
     }
 }
@@ -273,19 +277,8 @@ dependencies {
     implementation(libs.jtorctl)
     implementation(libs.bitcoinj.core)
 
-    // ProofMode
-    implementation(libs.proofmode) {
-        exclude(group = "org.bitcoinj")
-        exclude(group = "com.google.protobuf")
-        exclude(group = "org.slf4j")
-        exclude(group = "net.jcip")
-        exclude(group = "commons-cli")
-        exclude(group = "org.json")
-        exclude(group = "com.google.guava")
-        exclude(group = "com.google.guava", module = "guava-jdk5")
-        exclude(group = "com.google.code.findbugs", module = "annotations")
-        exclude(group = "com.squareup.okio", module = "okio")
-    }
+    // C2PA - Content Authenticity
+    implementation(libs.c2pa)
 
     // Utilities
     implementation(libs.timber)

@@ -75,8 +75,8 @@ import net.opendasharchive.openarchive.upload.UploadManagerFragment
 import net.opendasharchive.openarchive.upload.UploadService
 import net.opendasharchive.openarchive.util.InAppReviewHelper
 import net.opendasharchive.openarchive.util.PermissionManager
+import net.opendasharchive.openarchive.util.C2paHelper
 import net.opendasharchive.openarchive.util.Prefs
-import net.opendasharchive.openarchive.util.ProofModeHelper
 import net.opendasharchive.openarchive.util.extensions.Position
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.cloak
@@ -313,10 +313,10 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     override fun onStart() {
         super.onStart()
 
-        // Initialize ProofMode on background thread to avoid ANR during RSA key generation
+        // Initialize C2PA on background thread to avoid ANR during certificate generation
         lifecycleScope.launch(Dispatchers.IO) {
-            ProofModeHelper.init(this@MainActivity) {
-                // Check for any queued uploads and restart, only after ProofMode is correctly initialized.
+            C2paHelper.init(this@MainActivity) {
+                // Check for any queued uploads and restart, only after C2PA is correctly initialized.
                 UploadService.startUploadService(this@MainActivity)
             }
         }

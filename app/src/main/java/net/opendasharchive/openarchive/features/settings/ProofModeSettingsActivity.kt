@@ -25,10 +25,9 @@ import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivitySettingsContainerBinding
 import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.util.C2paHelper
 import net.opendasharchive.openarchive.util.Hbks
 import net.opendasharchive.openarchive.util.Prefs
-import net.opendasharchive.openarchive.util.ProofModeHelper
-import org.witness.proofmode.crypto.pgp.PgpUtils
 import timber.log.Timber
 import java.io.IOException
 import java.util.UUID
@@ -40,9 +39,9 @@ class ProofModeSettingsActivity : BaseActivity() {
 
         private val enrollBiometrics =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                findPreference<SwitchPreferenceCompat>(Prefs.USE_PROOFMODE_KEY_ENCRYPTION)?.let {
+                findPreference<SwitchPreferenceCompat>(Prefs.USE_C2PA_KEY_ENCRYPTION)?.let {
                     MainScope().launch {
-                        enableProofModeKeyEncryption(it)
+                        enableC2paKeyEncryption(it)
                     }
                 }
             }
@@ -50,18 +49,18 @@ class ProofModeSettingsActivity : BaseActivity() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.prefs_proof_mode, rootKey)
 
-            val proofModeSwitch = findPreference<SwitchPreferenceCompat>(Prefs.USE_PROOFMODE)
+            val c2paSwitch = findPreference<SwitchPreferenceCompat>(Prefs.USE_C2PA)
 
             // Check if permission is granted
             val hasPermission = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
                     && ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
             if (!hasPermission) {
-                proofModeSwitch?.isChecked = false // Uncheck if permission not granted
-                Prefs.putBoolean(Prefs.USE_PROOFMODE, false)
+                c2paSwitch?.isChecked = false // Uncheck if permission not granted
+                Prefs.putBoolean(Prefs.USE_C2PA, false)
                 Toast.makeText(requireContext(), getString(R.string.phone_permission_required), Toast.LENGTH_LONG).show()
             } else {
-                proofModeSwitch?.isChecked = Prefs.getBoolean(Prefs.USE_PROOFMODE, false)
+                c2paSwitch?.isChecked = Prefs.getBoolean(Prefs.USE_C2PA, false)
             }
 
             getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_proof_mode)?.setOnPreferenceChangeListener { preference, newValue ->
@@ -96,7 +95,7 @@ class ProofModeSettingsActivity : BaseActivity() {
             }
 
             val pkePreference =
-                findPreference<SwitchPreferenceCompat>(Prefs.USE_PROOFMODE_KEY_ENCRYPTION)
+                findPreference<SwitchPreferenceCompat>(Prefs.USE_C2PA_KEY_ENCRYPTION)
             val activity = activity
             val availability = Hbks.deviceAvailablity(requireContext())
 
@@ -118,15 +117,15 @@ class ProofModeSettingsActivity : BaseActivity() {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && availability is Hbks.Availability.Enroll) {
                             enrollBiometrics.launch(Hbks.enrollIntent(availability.type))
                         } else {
-                            enableProofModeKeyEncryption(pkePreference)
+                            enableC2paKeyEncryption(pkePreference)
                         }
                     } else {
-                        if (Prefs.proofModeEncryptedPassphrase != null) {
-                            Prefs.proofModeEncryptedPassphrase = null
+                        if (Prefs.c2paEncryptedPrivateKey != null) {
+                            Prefs.c2paEncryptedPrivateKey = null
 
                             Hbks.removeKey()
 
-                            ProofModeHelper.restartApp(activity)
+                            C2paHelper.restartApp(activity)
                         }
                     }
 
@@ -137,19 +136,18 @@ class ProofModeSettingsActivity : BaseActivity() {
             }
         }
 
-        private fun enableProofModeKeyEncryption(pkePreference: SwitchPreferenceCompat) {
+        private fun enableC2paKeyEncryption(pkePreference: SwitchPreferenceCompat) {
 
             val key = Hbks.loadKey() ?: Hbks.createKey()
 
-            if (key != null && Prefs.proofModeEncryptedPassphrase == null) {
+            if (key != null && Prefs.c2paEncryptedPrivateKey == null) {
                 createPassphrase(key, activity) {
                     if (it != null) {
-                        ProofModeHelper.removePgpKey(requireContext())
+                        C2paHelper.removeCertificates(requireContext())
 
                         // We need to kill the app and restart,
-                        // since the ProofMode singleton loads the passphrase
-                        // in its singleton constructor. Urgh.
-                        ProofModeHelper.restartApp(requireActivity())
+                        // to re-initialize C2PA with the new encrypted key.
+                        C2paHelper.restartApp(requireActivity())
                     } else {
                         Hbks.removeKey()
 
@@ -218,19 +216,18 @@ class ProofModeSettingsActivity : BaseActivity() {
 
     companion object {
 
-        private fun shareKey(activity: Activity) {
+        fun shareCertificate(activity: Activity) {
             try {
-                val mPgpUtils = PgpUtils.getInstance(activity, null)
-                val pubKey = mPgpUtils.publicKeyString
+                val certPem = C2paHelper.getCertificatePem(activity)
 
-                if (pubKey.isNotEmpty()) {
+                if (!certPem.isNullOrEmpty()) {
                     val intent = Intent(Intent.ACTION_SEND)
                     intent.type = "text/plain"
-                    intent.putExtra(Intent.EXTRA_TEXT, pubKey)
+                    intent.putExtra(Intent.EXTRA_TEXT, certPem)
                     activity.startActivity(intent)
                 }
             } catch (ioe: IOException) {
-                Timber.d("error publishing key")
+                Timber.d("error publishing certificate")
             }
         }
 
@@ -246,15 +243,15 @@ class ProofModeSettingsActivity : BaseActivity() {
                     return@encrypt completed(null)
                 }
 
-                Prefs.proofModeEncryptedPassphrase = ciphertext
+                Prefs.c2paEncryptedPrivateKey = ciphertext
 
                 Hbks.decrypt(
-                    Prefs.proofModeEncryptedPassphrase,
+                    Prefs.c2paEncryptedPrivateKey,
                     key,
                     activity
-                ) { decrpytedPassphrase, _ ->
-                    if (decrpytedPassphrase == null || decrpytedPassphrase != passphrase) {
-                        Prefs.proofModeEncryptedPassphrase = null
+                ) { decryptedPassphrase, _ ->
+                    if (decryptedPassphrase == null || decryptedPassphrase != passphrase) {
+                        Prefs.c2paEncryptedPrivateKey = null
 
                         return@decrypt completed(null)
                     }

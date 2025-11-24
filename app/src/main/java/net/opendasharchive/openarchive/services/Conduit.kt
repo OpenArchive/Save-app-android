@@ -13,11 +13,7 @@ import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.services.internetarchive.IaConduit
 import net.opendasharchive.openarchive.services.webdav.WebDavConduit
 import net.opendasharchive.openarchive.upload.BroadcastManager
-import net.opendasharchive.openarchive.util.Prefs
 import okhttp3.HttpUrl
-import org.witness.proofmode.storage.DefaultStorageProvider
-import java.io.File
-import java.io.FileNotFoundException
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -44,23 +40,6 @@ abstract class Conduit(
 
     open fun cancel() {
         mCancelled = true
-    }
-
-    fun getProof(): Array<out File> {
-        if (!Prefs.useProofMode) return emptyArray()
-        try {
-        // Here we are simply fetching the files. Don't generate proof here. This is only called during upload.
-        // Generating Proof here won't make sense because the file can be created well before it could be uploaded.
-          //var files = ProofMode.getProofDir(mContext, mMedia.mediaHashString).listFiles() ?: emptyArray()
-          var files = DefaultStorageProvider(mContext).getHashStorageDir(mMedia.mediaHashString)?.listFiles() ?: emptyArray()
-          return files
-        } catch (exception: FileNotFoundException) {
-            AppLogger.e(exception)
-            return emptyArray()
-        } catch (exception: SecurityException) {
-            AppLogger.e(exception)
-            return emptyArray()
-        }
     }
 
     /**

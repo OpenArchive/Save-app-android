@@ -25,11 +25,10 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Project
+import net.opendasharchive.openarchive.util.C2paHelper
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Utility
 import net.opendasharchive.openarchive.util.extensions.makeSnackBar
-import org.witness.proofmode.ProofMode
-import org.witness.proofmode.crypto.HashUtils
 import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
@@ -340,46 +339,49 @@ object Picker {
         media.updateDate = media.createDate
         media.sStatus = Media.Status.Local
 
-        //We generate hash regardless if proof is on or off because we don't want unexpected behaviour when we are looking for proof files when uploaded later.
-        // Generate hash regardless of proof mode setting for consistency
-        try {
-            media.mediaHashString = file?.let {
-                HashUtils.getSHA256FromFileContent(it.inputStream())
-            } ?: ""
-        } catch (e: Exception) {
-            AppLogger.e("Failed to generate hash for media", e)
-            media.mediaHashString = ""
-        }
-
         media.projectId = project.id
         media.title = title
         media.save()
 
-        // Generate ProofMode data if enabled
-        if (generateProof && Prefs.useProofMode) {
-
+        // Sign media with C2PA if enabled
+        if (generateProof && Prefs.useC2pa) {
             try {
-                //If Proof mode is on we need this to be on always
-                // Ensure location and network tracking are enabled for camera captures
-                // Only enabled for camera captures (generateProof = true)
-                Prefs.proofModeLocation = true
-                Prefs.proofModeNetwork = true
+                // Enable location tracking for camera captures
+                Prefs.c2paLocation = true
 
-                AppLogger.d("Generating ProofMode data for URI: $uri, Hash: ${media.mediaHashString}")
+                AppLogger.d("Signing media with C2PA for: ${media.title}")
 
-                // Generate proof using the ProofMode library
-                ProofMode.generateProof(context, uri, media.mediaHashString)
+                // Sign the media file with C2PA manifest
+                // C2PA embeds the manifest directly into the file
+                file?.let { mediaFile ->
+                    val tempFile = File(mediaFile.parent, "temp_${mediaFile.name}")
 
-                AppLogger.i("ProofMode generation completed for media: ${media.title}")
+                    val success = C2paHelper.signMedia(
+                        context = context,
+                        sourcePath = mediaFile.absolutePath,
+                        destPath = tempFile.absolutePath,
+                        location = null // TODO: Add location if permission granted
+                    )
+
+                    if (success) {
+                        // Replace original with signed version
+                        tempFile.copyTo(mediaFile, overwrite = true)
+                        tempFile.delete()
+                        AppLogger.i("C2PA signing completed for media: ${media.title}")
+                    } else {
+                        tempFile.delete()
+                        AppLogger.w("C2PA signing failed for media: ${media.title}")
+                    }
+                }
             } catch (e: Exception) {
-                AppLogger.e("Failed to generate ProofMode data", e)
-                Timber.w("ProofMode generation failed: ${e.message}")
+                AppLogger.e("Failed to sign media with C2PA", e)
+                Timber.w("C2PA signing failed: ${e.message}")
             }
         } else {
             if (generateProof) {
-                AppLogger.w("ProofMode generation requested but useProofMode is disabled")
+                AppLogger.w("C2PA signing requested but useC2pa is disabled")
             }
-            Timber.w("Skipping proof generation - generateProof: $generateProof, useProofMode: ${Prefs.useProofMode}")
+            Timber.w("Skipping C2PA signing - generateProof: $generateProof, useC2pa: ${Prefs.useC2pa}")
         }
         return media
     }
