@@ -9,24 +9,38 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.core.net.toUri
+import androidx.exifinterface.media.ExifInterface
+import coil3.ImageLoader
 import coil3.load
 import coil3.request.error
-import net.opendasharchive.openarchive.R
+import coil3.video.VideoFrameDecoder
+import coil3.video.videoFrameMillis
 import java.io.File
+import java.io.IOException
+import java.text.NumberFormat
+import kotlin.math.max
+import kotlin.math.min
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivityReviewBinding
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
+import net.opendasharchive.openarchive.util.PdfThumbnailLoader
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show
 import net.opendasharchive.openarchive.util.extensions.toggle
-import java.text.NumberFormat
-import kotlin.math.max
-import kotlin.math.min
 
 class ReviewActivity : BaseActivity(), View.OnClickListener {
 
@@ -56,6 +70,13 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
     private var mIndex = 0
 
     private var mBatchMode = false
+    private val pdfScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private val pdfThumbnailJobs = mutableMapOf<ImageView, Job>()
+    private val videoImageLoader by lazy {
+        ImageLoader.Builder(this)
+            .components { add(VideoFrameDecoder.Factory()) }
+            .build()
+    }
 
     private val mMedia
         get() = mStore.getOrNull(mIndex)
@@ -173,12 +194,6 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
 
     override fun onClick(view: View?) {
         when (view) {
-//            mBinding.waveform, mBinding.image -> {
-//                if (mMedia?.mimeType?.startsWith("image") == true) {
-//                    val draweeView = SimpleDraweeView(this)
-//                    draweeView.setImageURI(mMedia?.fileUri)
-//                }
-//            }
             mBinding.btFlag -> {
                 showFirstTimeFlag()
 
@@ -260,7 +275,16 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
         }
         else {
             mBinding.description.setText(mMedia?.description)
-            mBinding.location.setText(mMedia?.location)
+
+            // Try to populate location from EXIF if not already set
+            val currentLocation = mMedia?.location
+            val locationToDisplay = if (currentLocation.isNullOrEmpty()) {
+                extractLocationFromExif(mMedia) ?: ""
+            } else {
+                currentLocation
+            }
+
+            mBinding.location.setText(locationToDisplay)
         }
     }
 
@@ -290,12 +314,13 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
         }
 
     private fun showFirstTimeFlag() {
-        //TODO:
-        if (!Prefs.flagHintShown) return
+        if (Prefs.flagHintShown) return
 
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             title = UiText.StringResource(R.string.popup_flag_title)
             message = UiText.StringResource(R.string.popup_flag_desc)
+            icon = UiImage.DrawableResource(R.drawable.ic_flag_selected)
+            iconColor = Color(getColor(R.color.orange_light))
             positiveButton {
                 text = UiText.StringResource(R.string.lbl_got_it)
                 action = {
@@ -319,6 +344,7 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
 
     private fun load(media: Media?, imageView: ImageView) {
         imageView.show()
+        clearPdfJob(imageView)
 
         if (media?.mimeType?.startsWith("image") == true) {
             val fileExists = try {
@@ -338,30 +364,111 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
             }
         }
         else if (media?.mimeType?.startsWith("video") == true) {
-            val fileExists = try {
-                media.originalFilePath?.let { path ->
-                    File(path).exists()
-                } ?: false
-            } catch (e: Exception) {
-                false
+            val videoUri = when {
+                !media.originalFilePath.isNullOrBlank() -> media.originalFilePath.toUri()
+                else -> media.fileUri
             }
 
-            if (fileExists) {
-                imageView.load(media.originalFilePath.toUri()) {
-                    error(R.drawable.ic_video)
-                }
-            } else {
-                imageView.setImageResource(R.drawable.ic_video)
+            imageView.setImageResource(R.drawable.ic_video)
+            imageView.load(videoUri, videoImageLoader) {
+                videoFrameMillis(1000) // Use a representative frame
+                error(R.drawable.ic_video)
+                listener(onError = { _, _ ->
+                    imageView.setImageResource(R.drawable.ic_video)
+                })
             }
         }
         else if (media?.mimeType?.startsWith("audio") == true) {
             imageView.setImageResource(R.drawable.ic_music)
         }
         else if (media?.mimeType == "application/pdf") {
-            imageView.setImageResource(R.drawable.ic_pdf)
+            loadPdfPreview(media, imageView)
         }
         else {
             imageView.setImageResource(R.drawable.no_thumbnail)
+        }
+    }
+
+    private fun clearPdfJob(imageView: ImageView) {
+        pdfThumbnailJobs.remove(imageView)?.cancel()
+    }
+
+    private fun loadPdfPreview(media: Media?, imageView: ImageView) {
+        imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+        imageView.setPadding(0, 0, 0, 0)
+        imageView.imageTintList = null
+        imageView.setImageResource(R.drawable.ic_pdf)
+
+        if (media == null) return
+
+        pdfThumbnailJobs[imageView] = PdfThumbnailLoader.loadThumbnail(
+            imageView = imageView,
+            uri = media.fileUri,
+            placeholderRes = R.drawable.ic_pdf,
+            scope = pdfScope,
+            context = this,
+            maxDimensionPx = 1200
+        )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        pdfScope.cancel()
+        pdfThumbnailJobs.values.forEach { it.cancel() }
+        pdfThumbnailJobs.clear()
+    }
+
+    /**
+     * Extracts GPS location from image EXIF data.
+     * Returns formatted location string (latitude, longitude) or null if not available.
+     */
+    private fun extractLocationFromExif(media: Media?): String? {
+        if (media == null || !media.mimeType.startsWith("image")) {
+            return null
+        }
+
+        return try {
+            val exif: ExifInterface? = when {
+                // Try to open from file URI first (handles content:// URIs)
+                media.fileUri != null -> {
+                    try {
+                        contentResolver.openInputStream(media.fileUri)?.use { inputStream ->
+                            ExifInterface(inputStream)
+                        }
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+                // Fall back to file path if available
+                !media.originalFilePath.isNullOrEmpty() -> {
+                    val file = File(media.originalFilePath)
+                    if (file.exists()) {
+                        ExifInterface(file.absolutePath)
+                    } else {
+                        null
+                    }
+                }
+                else -> null
+            }
+
+            if (exif != null) {
+                val latLong = FloatArray(2)
+                if (exif.getLatLong(latLong)) {
+                    val latitude = latLong[0].toDouble()
+                    val longitude = latLong[1].toDouble()
+
+                    // Format as readable coordinates
+                    String.format("%.6f, %.6f", latitude, longitude)
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+        } catch (e: IOException) {
+            null
+        } catch (e: Exception) {
+            null
         }
     }
 }

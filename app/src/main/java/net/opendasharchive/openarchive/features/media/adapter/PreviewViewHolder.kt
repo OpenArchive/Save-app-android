@@ -7,20 +7,29 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import coil3.load
+import coil3.request.Disposable
 import coil3.request.crossfade
 import coil3.request.error
 import coil3.request.placeholder
 import java.io.File
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.RvMediaBoxBinding
 import net.opendasharchive.openarchive.db.Media
+import net.opendasharchive.openarchive.util.PdfThumbnailLoader
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show
 
 class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolder(binding.root) {
 
     private val mContext = itemView.context
+    private val pdfScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private var pdfThumbnailJob: Job? = null
+    private var imageRequest: Disposable? = null
 
     fun bind(
         media: Media? = null,
@@ -29,6 +38,7 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
     ) {
 
         itemView.tag = media?.id
+        binding.image.tag = media?.id
 
         resetImageState()
         hideTitle()
@@ -69,7 +79,7 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
                     setPadding(0, 0, 0, 0)
                     clearColorFilter()
                     show()
-                    load(media.fileUri) {
+                    imageRequest = load(media.fileUri) {
                         placeholder(progress)
                         error(R.drawable.ic_image)
                     }
@@ -81,7 +91,7 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
                     scaleType = ImageView.ScaleType.FIT_CENTER
                     setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
                     setPadding(padding, padding, padding, padding)
-                    load(R.drawable.ic_image) {
+                    imageRequest = load(R.drawable.ic_image) {
                         crossfade(false)
                     }
                     applyPlaceholderTint(isSelected)
@@ -108,7 +118,7 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
                     setPadding(0, 0, 0, 0)
                     clearColorFilter()
                     show()
-                    load(media.fileUri) {
+                    imageRequest = load(media.fileUri) {
                         placeholder(progress)
                         error(R.drawable.ic_video)
                     }
@@ -120,7 +130,7 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
                     scaleType = ImageView.ScaleType.FIT_CENTER
                     setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
                     setPadding(padding, padding, padding, padding)
-                    load(R.drawable.ic_video) {
+                    imageRequest = load(R.drawable.ic_video) {
                         crossfade(false)
                     }
                     applyPlaceholderTint(isSelected)
@@ -133,7 +143,7 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
             binding.videoIndicator.hide()
             placeholderIcon(R.drawable.ic_music, media?.title, isSelected)
         } else if (media?.mimeType == "application/pdf") {
-            placeholderIcon(R.drawable.ic_pdf, media?.title, isSelected)
+            loadPdfThumbnail(media, isSelected)
             binding.videoIndicator.hide()
         } else if (media?.mimeType?.startsWith("application") == true) {
             placeholderIcon(R.drawable.ic_unknown_file, media?.title, isSelected)
@@ -146,6 +156,11 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
     }
 
     private fun resetImageState() {
+        pdfThumbnailJob?.cancel()
+        pdfThumbnailJob = null
+        imageRequest?.dispose()
+        imageRequest = null
+        binding.image.setImageDrawable(null)
         binding.image.apply {
             setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
             setPadding(0, 0, 0, 0)
@@ -162,7 +177,7 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
             scaleType = ImageView.ScaleType.FIT_CENTER
             setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
             setPadding(padding, padding, padding, padding)
-            load(drawableRes) {
+            imageRequest = load(drawableRes) {
                 crossfade(false)
             }
             clearColorFilter()
@@ -233,6 +248,55 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
                 binding.progressText.hide()
                 binding.error.hide()
             }
+        }
+    }
+
+    private fun loadPdfThumbnail(media: Media?, isSelected: Boolean) {
+        if (media == null) {
+            showPdfPlaceholder(null, isSelected)
+            return
+        }
+
+        val uri = media.fileUri
+        val file = media.file
+        if (uri.scheme == "file" && !file.exists()) {
+            showPdfPlaceholder(media.title, isSelected)
+            return
+        }
+
+        pdfThumbnailJob = PdfThumbnailLoader.loadThumbnail(
+            imageView = binding.image,
+            uri = uri,
+            placeholderRes = R.drawable.ic_pdf,
+            scope = pdfScope,
+            maxDimensionPx = 512,
+            context = mContext,
+            requestKey = media.id,
+            onPlaceholder = { showPdfPlaceholder(null, isSelected) }
+        ) { success ->
+            if (success) {
+                hideTitle()
+            } else {
+                showTitle(media.title)
+            }
+        }
+    }
+
+    private fun showPdfPlaceholder(title: String?, isSelected: Boolean) {
+        val padding = (24 * mContext.resources.displayMetrics.density).toInt()
+        binding.image.apply {
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+            setPadding(padding, padding, padding, padding)
+            setImageResource(R.drawable.ic_pdf)
+            clearColorFilter()
+            applyPlaceholderTint(isSelected)
+            show()
+        }
+        if (title.isNullOrBlank()) {
+            hideTitle()
+        } else {
+            showTitle(title)
         }
     }
 }

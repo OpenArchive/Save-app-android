@@ -171,13 +171,14 @@
     <string name="folder_name_already_exists">Folder name already exists.</string>
     <string name="dropbox" translatable="false">Dropbox</string>
     <string name="metadata">Metadata</string>
+    <string name="web_dav_host_error">A server with the specified hostname could not be found.</string>
 
     <string name="btn_lbl_remove_media">Remove Media</string>
     <string name="popup_flag_title">Flag Significant Content</string>
     <string name="popup_flag_desc">When you flag an item, it is routed into a subfolder within the chosen project folder on the private server.</string>
     <string name="set_creative_commons_license_for_all_folders_on_this_server">Set creative commons licenses for folders on this server.</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Set the same Creative Commons license for ALL folders on this server.</string>
-    <string name="you_already_have_a_server_with_these_credentials">You already have a server with these credentials</string>
+    <string name="you_already_have_a_server_with_these_credentials">You already have a server with these credentials.</string>
 
 
     <!-- Space Setup -->
