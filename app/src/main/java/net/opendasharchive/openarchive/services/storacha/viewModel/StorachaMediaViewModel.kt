@@ -15,34 +15,32 @@ import timber.log.Timber
 import java.io.File
 
 enum class LoadingState {
-    NONE, LOADING_FILES, LOADING_MORE, UPLOADING
+    NONE,
+    LOADING_FILES,
+    LOADING_MORE,
+    UPLOADING,
 }
 
 class StorachaMediaViewModel(
     private val apiService: StorachaApiService,
     private val bridgeUploader: BridgeUploader,
 ) : ViewModel() {
+    companion object {
+        private const val PAGE_SIZE = 20
+        private const val HTTP_UNAUTHORIZED = 401
+    }
+
     private val _media = MutableLiveData<List<UploadEntry>>(emptyList())
     val media: LiveData<List<UploadEntry>> get() = _media
 
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean> get() = _loading
 
-    private val _loadingState = MutableLiveData<LoadingState>(LoadingState.NONE)
+    private val _loadingState = MutableLiveData(LoadingState.NONE)
     val loadingState: LiveData<LoadingState> get() = _loadingState
 
     private val _isEmpty = MutableLiveData<Boolean>()
     val isEmpty: LiveData<Boolean> get() = _isEmpty
-
-    private var currentCursor: String? = null
-    private var hasMoreData: Boolean = true
-    private var isLoading = false
-    private var isFirstLoad = true
-    private var isRefreshing = false
-    private var pendingRefresh: Triple<String, String, String?>? = null
-
-    // Callback for UI to check if more loading is needed
-    var onLoadComplete: (() -> Unit)? = null
 
     private val _uploadResult = MutableLiveData<Result<UploadResponse>?>()
     val uploadResult: LiveData<Result<UploadResponse>?> get() = _uploadResult
@@ -50,21 +48,24 @@ class StorachaMediaViewModel(
     private val _sessionExpired = MutableLiveData<Boolean>()
     val sessionExpired: LiveData<Boolean> get() = _sessionExpired
 
+    private var paginationState = PaginationState()
+
+    var onLoadComplete: (() -> Unit)? = null
+
     fun reset() {
-        currentCursor = null
-        hasMoreData = true
-        isFirstLoad = true
+        paginationState = PaginationState()
         _media.value = emptyList()
         _isEmpty.value = false
     }
 
     fun refreshFromStart() {
-        // Reset pagination without clearing current data
-        currentCursor = null
-        hasMoreData = true
-        isFirstLoad = true
-        isRefreshing = true
-        // Don't clear _media.value to avoid flickering
+        paginationState =
+            paginationState.copy(
+                cursor = null,
+                hasMoreData = true,
+                isFirstLoad = true,
+                isRefreshing = true,
+            )
     }
 
     fun clearUploadResult() {
@@ -76,68 +77,45 @@ class StorachaMediaViewModel(
         spaceDid: String,
         sessionId: String?,
     ) {
-        if (isLoading && isRefreshing) {
-            pendingRefresh = Triple(userDid, spaceDid, sessionId)
-            return
-        }
-
-        if (isLoading || !hasMoreData) return
+        if (paginationState.isLoading || !paginationState.hasMoreData) return
 
         _loading.value = true
-        isLoading = true
-        _loadingState.value = if (isFirstLoad) LoadingState.LOADING_FILES else LoadingState.LOADING_MORE
+        paginationState =
+            paginationState.copy(
+                isLoading = true,
+                loadingState = if (paginationState.isFirstLoad) LoadingState.LOADING_FILES else LoadingState.LOADING_MORE,
+            )
+        _loadingState.value = paginationState.loadingState
 
         viewModelScope.launch {
             try {
-                val response = apiService.listUploads(
-                    userDid = userDid,
-                    spaceDid = spaceDid,
-                    cursor = currentCursor,
-                    size = 20,
-                    sessionId = sessionId?.takeIf { it.isNotEmpty() },
-                )
+                Timber.d("Loading page: cursor=${paginationState.cursor?.take(15)}...")
 
-                val newEntries = response.uploads
-                val currentEntries = _media.value ?: emptyList()
+                val response =
+                    apiService.listUploads(
+                        userDid = userDid,
+                        spaceDid = spaceDid,
+                        cursor = paginationState.cursor,
+                        size = PAGE_SIZE,
+                        sessionId = sessionId?.takeIf { it.isNotEmpty() },
+                    )
 
-                val updatedEntries = if (isRefreshing || (isFirstLoad && currentEntries.isEmpty())) {
-                    newEntries
-                } else {
-                    val existingCids = currentEntries.map { it.cid }.toSet()
-                    currentEntries + newEntries.filterNot { existingCids.contains(it.cid) }
-                }
-                _media.value = updatedEntries
-
-                val addedCount = updatedEntries.size - currentEntries.size
-
-                if (isFirstLoad) {
-                    _isEmpty.value = updatedEntries.isEmpty()
-                    isFirstLoad = false
-                }
-
-                isRefreshing = false
-                currentCursor = response.cursor
-                hasMoreData = response.hasMore && addedCount > 0
+                handleLoadSuccess(response.uploads, response.hasMore)
             } catch (e: HttpException) {
-                if (e.code() == 401) {
-                    _sessionExpired.value = true
-                }
-                isRefreshing = false
+                handleLoadError(e)
             } catch (e: Exception) {
-                isRefreshing = false
+                handleLoadError(e)
             } finally {
                 _loading.value = false
-                isLoading = false
+                paginationState =
+                    paginationState.copy(
+                        isLoading = false,
+                        loadingState = LoadingState.NONE,
+                    )
                 _loadingState.value = LoadingState.NONE
 
-                pendingRefresh?.let { (pUserDid, pSpaceDid, pSessionId) ->
-                    pendingRefresh = null
-                    refreshFromStart()
-                    loadMoreMediaEntries(pUserDid, pSpaceDid, pSessionId)
-                } ?: run {
-                    if (hasMoreData) {
-                        onLoadComplete?.invoke()
-                    }
+                if (paginationState.hasMoreData) {
+                    onLoadComplete?.invoke()
                 }
             }
         }
@@ -155,7 +133,6 @@ class StorachaMediaViewModel(
             _loading.value = true
             _loadingState.value = LoadingState.UPLOADING
             try {
-                // Use the complete bridge workflow with CAR files
                 val bridgeResult =
                     bridgeUploader.uploadFile(
                         carFile = carResult.carFile,
@@ -167,38 +144,104 @@ class StorachaMediaViewModel(
                         isAdmin = isAdmin,
                     )
 
-                val uploadResponse =
-                    UploadResponse(
-                        success = true,
-                        cid = bridgeResult.rootCid,
-                        size = bridgeResult.size,
+                _uploadResult.value =
+                    Result.success(
+                        UploadResponse(
+                            success = true,
+                            cid = bridgeResult.rootCid,
+                            size = bridgeResult.size,
+                        ),
                     )
-                _uploadResult.value = Result.success(uploadResponse)
 
-                // Refresh the media list after successful upload
                 refreshFromStart()
                 loadMoreMediaEntries(userDid, spaceDid, sessionId)
             } catch (e: HttpException) {
-                if (e.code() == 401) {
+                if (e.code() == HTTP_UNAUTHORIZED) {
                     _sessionExpired.value = true
                 }
                 _uploadResult.value = Result.failure(e)
             } catch (e: Exception) {
                 _uploadResult.value = Result.failure(e)
             } finally {
-                // Clean up temporary CAR file
-                try {
-                    if (carResult.carFile.exists()) {
-                        carResult.carFile.delete()
-                        Timber.d("Deleted temporary CAR file: ${carResult.carFile.name}")
-                    }
-                } catch (e: Exception) {
-                    Timber.e("Failed to delete CAR file: ${e.message}")
-                }
-
+                cleanupCarFile(carResult.carFile)
                 _loading.value = false
                 _loadingState.value = LoadingState.NONE
             }
         }
     }
+
+    private fun handleLoadSuccess(
+        newEntries: List<UploadEntry>,
+        hasMore: Boolean,
+    ) {
+        val currentEntries = _media.value ?: emptyList()
+        val isReplacingList =
+            paginationState.isRefreshing || (paginationState.isFirstLoad && currentEntries.isEmpty())
+
+        val updatedEntries =
+            if (isReplacingList) {
+                newEntries
+            } else {
+                val existingCids = currentEntries.map { it.cid }.toSet()
+                currentEntries + newEntries.filterNot { existingCids.contains(it.cid) }
+            }
+
+        _media.value = updatedEntries
+
+        val addedCount =
+            if (isReplacingList) {
+                newEntries.size
+            } else {
+                updatedEntries.size - currentEntries.size
+            }
+
+        Timber.d("Loaded: total=${updatedEntries.size}, added=$addedCount, hasMore=$hasMore")
+
+        if (paginationState.isFirstLoad) {
+            _isEmpty.value = updatedEntries.isEmpty()
+        }
+
+        // Use last item's CID as cursor for next page (workaround for server pagination bug)
+        val nextCursor = newEntries.lastOrNull()?.cid
+        val actualHasMore = newEntries.isNotEmpty() && addedCount > 0 && hasMore
+
+        paginationState =
+            paginationState.copy(
+                cursor = nextCursor,
+                hasMoreData = actualHasMore,
+                isFirstLoad = false,
+                isRefreshing = false,
+            )
+    }
+
+    private fun handleLoadError(error: Exception) {
+        if (error is HttpException && error.code() == HTTP_UNAUTHORIZED) {
+            _sessionExpired.value = true
+        }
+        Timber.e(error, "Failed to load page")
+        paginationState =
+            paginationState.copy(
+                isRefreshing = false,
+            )
+    }
+
+    private fun cleanupCarFile(carFile: File) {
+        try {
+            if (carFile.exists()) {
+                carFile.delete()
+                Timber.d("Deleted temporary CAR file: ${carFile.name}")
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to delete CAR file")
+        }
+    }
+
+    private data class PaginationState(
+        val cursor: String? = null,
+        val hasMoreData: Boolean = true,
+        val isLoading: Boolean = false,
+        val isFirstLoad: Boolean = true,
+        val isRefreshing: Boolean = false,
+        val loadingState: LoadingState = LoadingState.NONE,
+    )
 }

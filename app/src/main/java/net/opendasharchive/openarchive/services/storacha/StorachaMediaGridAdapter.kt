@@ -76,7 +76,7 @@ class StorachaMediaGridAdapter(
             val expectedCid = file.cid
             currentJob = CoroutineScope(Dispatchers.Main).launch {
                 val metadata = withContext(Dispatchers.IO) {
-                    metadataFetcher.fetchFileMetadata(file.gatewayUrl)
+                    metadataFetcher.fetchFileMetadata(file.gatewayUrl.replace(".w3s.",".dweb."))
                 }
 
                 if (currentCid == expectedCid) {
