@@ -359,4 +359,35 @@
 
 
     <string name="separator" translatable="false">separator</string>
+
+    <!-- TODO: Camera feature strings - Add translations when ready -->
+    <!-- Camera Permission Screen -->
+    <string name="camera_access_blocked" translatable="false">Camera Access Blocked</string>
+    <string name="camera_permission_required" translatable="false">Camera Permission Required</string>
+    <string name="camera_and_microphone" translatable="false"> and microphone</string>
+    <string name="camera_access_permanently_denied" translatable="false">Camera%1$s access has been permanently denied. Please enable it in Settings to use this feature.</string>
+    <string name="camera_microphone_permission_description" translatable="false">This app needs access to your camera and microphone to capture photos and videos.</string>
+    <string name="camera_permission_description" translatable="false">This app needs access to your camera to capture photos.</string>
+    <string name="open_settings" translatable="false">Open Settings</string>
+    <string name="grant_permission" translatable="false">Grant Permission</string>
+    <string name="open_app_settings" translatable="false">Open App Settings</string>
+
+    <!-- Camera Preview Screen -->
+    <string name="captured_photo" translatable="false">Captured Photo</string>
+    <string name="photo_label" translatable="false">PHOTO</string>
+    <string name="video_label" translatable="false">VIDEO</string>
+    <string name="retake" translatable="false">Retake</string>
+    <string name="use" translatable="false">Use</string>
+    <string name="pause" translatable="false">Pause</string>
+    <string name="play" translatable="false">Play</string>
+    <string name="video" translatable="false">Video</string>
+
+    <!-- Camera Controls -->
+    <string name="switch_camera" translatable="false">Switch Camera</string>
+    <string name="capture_photo" translatable="false">Capture Photo</string>
+    <string name="start_recording" translatable="false">Start Recording</string>
+    <string name="done_with_count" translatable="false">Done (%d)</string>
+    <string name="close" translatable="false">Close</string>
+    <string name="grid" translatable="false">Grid</string>
+    <string name="flash" translatable="false">Flash</string>
 </resources>

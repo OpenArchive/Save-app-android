@@ -165,6 +165,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.exifinterface)
 
     // AndroidX UI Components
     implementation(libs.androidx.constraintlayout)
