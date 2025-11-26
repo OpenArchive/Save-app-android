@@ -44,15 +44,6 @@
             android:src="@drawable/no_thumbnail"
             tools:ignore="ContentDescription" />
 
-        <com.github.derlio.waveform.SimpleWaveformView
-            android:id="@+id/waveform"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="3dp"
-            android:visibility="gone"
-            app:indicatorColor="#aa0000"
-            app:waveformColor="#999999" />
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/overlay_container"
             android:layout_width="match_parent"

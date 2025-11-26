@@ -17,7 +17,6 @@
     <string name="folder_rename_success">تمت إعادة تسمية المجلد</string>
     <string name="folder_not_found">لم يتم العثور على المجلد</string>
     <string name="folder_removed">تمت إزالة المجلد</string>
-    <string name="folder_archived">تمت أرشفة المجلد</string>
     <string name="content_picker_label">إضافة الوسائط من</string>
     <string name="disable_passcode_dialog_title">تعطيل رمز المرور</string>
     <string name="disable_passcode_dialog_msg">هل أنت متيقِّن من تعطيل رمز المرور؟</string>
@@ -155,6 +154,7 @@
     <string name="folder_name_already_exists">اسم المجلد موجود بالفعل.</string>
     <string name="metadata">البيانات الوصفية</string>
 
+    <string name="web_dav_host_error">تعذّر العثور على خادم باسم المضيف المحدد.</string>
     <string name="btn_lbl_remove_media">أزِل الوسائط</string>
     <string name="popup_flag_title">أشِّر على المحتوى المميز</string>
     <string name="popup_flag_desc">عندما تضع العلامة على عنصر ما، يتم توجيهها نحو مجلد فرعي داخل مجلد المشروع المختار على الخادم الخاص.</string>
@@ -223,12 +223,13 @@
     <string name="preview_media">معاينة التحميل</string>
     <string name="add_more">إضافة المزيد</string>
     <string name="select_all">حدد الكل</string>
+    <string name="deselect_all">إزالة الاختيار عن الكل </string>
     <string name="lbl_got_it">مفهوم</string>
     <string name="do_not_show_me_this_again">لا تُظهِر لي هذا مجددا</string>
     <string name="edit_multiple">التعديل المتعدد</string>
     <string name="press_and_hold_options_media_screen_title">إضافة وسائط</string>
     <string name="press_and_hold_options_media_screen_message">‫المس علامة + للاختيار من مَعْرِض الصور أو اضغط مع الاستمرار في ذلك لإضافة الوسائط من تطبيقات أخرى.</string>
-    <string name="press_and_hold_to_select_and_edit_multiple_media">اضغط مع الإبقاء لتحديد وتعديل وسائط متعددة.</string>
+    <string name="press_and_hold_to_select_and_edit_multiple_media">اضغط مع الإبقاء لتحديد وتعديل عناصر وسائط متعددة.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">بمجرد التحميل، لن تتمكن من تعديل الوسائط.</string>
     <string name="edit_media_info">تعديل معلومات الوسائط</string>
     <string name="add_a_location_optional"><i>إضافة موقع (اختياري)</i></string>

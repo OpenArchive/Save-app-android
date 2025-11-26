@@ -17,7 +17,6 @@
     <string name="folder_rename_success">Теку перейменовано</string>
     <string name="folder_not_found">Теку не знайдено</string>
     <string name="folder_removed">Теку видалено</string>
-    <string name="folder_archived">Теку архівовано</string>
     <string name="content_picker_label">Додати медіафайли з</string>
     <string name="disable_passcode_dialog_title">Вимкнути код доступу</string>
     <string name="disable_passcode_dialog_msg">Ви впевнені, що хочете вимкнути застосування коду доступу\?</string>
@@ -155,6 +154,7 @@
     <string name="folder_name_already_exists">Тека з такою назвою вже існує.</string>
     <string name="metadata">Метадані</string>
 
+    <string name="web_dav_host_error">Не вдалось знайти сервер з визначеною назвою.</string>
     <string name="btn_lbl_remove_media">Вилучити медіа</string>
     <string name="popup_flag_title">Позначте важливий вміст</string>
     <string name="popup_flag_desc">Коли ви позначаєте елемент, він поміщається до підтеки у вибраній теці проєкту на приватному сервері.</string>
@@ -223,12 +223,13 @@
     <string name="preview_media">Попередній перегляд вивантаження</string>
     <string name="add_more">Додати більше</string>
     <string name="select_all">Вибрати всі</string>
+    <string name="deselect_all">Зняти вибір з усіх</string>
     <string name="lbl_got_it">Зрозуміло</string>
     <string name="do_not_show_me_this_again">Не показувати знову</string>
     <string name="edit_multiple">Редагувати декілька</string>
     <string name="press_and_hold_options_media_screen_title">Додати медіафайли</string>
     <string name="press_and_hold_options_media_screen_message">Торкніться + для вибору файлів з Галереї або натисніть та утримуйте для додавання медіафайлів з інших застосунків.</string>
-    <string name="press_and_hold_to_select_and_edit_multiple_media">Натисніть й утримуйте для обрання та редагування декількох медіафайлів.</string>
+    <string name="press_and_hold_to_select_and_edit_multiple_media">Натисніть та тримайте для обрання та редагування декількох медіафайлів.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Після вивантаження медіафайлів втрачається можливість їхнього редагування</string>
     <string name="edit_media_info">Редагувати дані медіафайлу</string>
     <string name="add_a_location_optional"><i>Додати місцеперебування (необов\'язково)</i></string>

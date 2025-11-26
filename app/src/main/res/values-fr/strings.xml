@@ -17,7 +17,6 @@
     <string name="folder_rename_success">Le dossier a été renommé</string>
     <string name="folder_not_found">Le dossier est introuvable</string>
     <string name="folder_removed">Le dossier a été supprimé</string>
-    <string name="folder_archived">Le dossier a été archivé</string>
     <string name="content_picker_label">Ajouter des médias depuis</string>
     <string name="disable_passcode_dialog_title">Désactiver le code d’accès</string>
     <string name="disable_passcode_dialog_msg">Voulez-vous vraiment désactiver le code d’accès \?</string>
@@ -155,6 +154,7 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="folder_name_already_exists">Un dossier portant ce nom existe déjà.</string>
     <string name="metadata">Métadonnées</string>
 
+    <string name="web_dav_host_error">Aucun serveur avec le nom d\'hôte spécifié n\'a pu être trouvé.</string>
     <string name="btn_lbl_remove_media">Supprimer le média</string>
     <string name="popup_flag_title">Marquer un contenu important</string>
     <string name="popup_flag_desc">Quand vous marquez un élément, il est acheminé dans un sous-dossier du dossier du projet choisi sur le serveur privé.</string>
@@ -223,12 +223,13 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="preview_media">Aperçu du téléversement</string>
     <string name="add_more">En ajouter d’autres</string>
     <string name="select_all">Tout sélectionner</string>
+    <string name="deselect_all">Tout dessélectionner</string>
     <string name="lbl_got_it">J’ai compris</string>
     <string name="do_not_show_me_this_again">Ne plus afficher</string>
     <string name="edit_multiple">Modifier plusieurs</string>
     <string name="press_and_hold_options_media_screen_title">Ajouter des médias</string>
     <string name="press_and_hold_options_media_screen_message">Touchez + pour choisir dans la photothèque ou touchez et maintenez pour ajouter des médias d’autres applis.</string>
-    <string name="press_and_hold_to_select_and_edit_multiple_media">Touchez et maintenez pour choisir plusieurs médias et les modifier.</string>
+    <string name="press_and_hold_to_select_and_edit_multiple_media">Maintenez la touche enfoncée pour sélectionner et modifier plusieurs contenus multimédias.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Une fois téléversé, vous ne pourrez plus le modifier.</string>
     <string name="edit_media_info">Modifier les renseignements du média</string>
     <string name="add_a_location_optional"><i>Ajouter un emplacement (facultatif)</i></string>

@@ -66,7 +66,7 @@ class WebDavFragment : BaseFragment() {
     private var originalName: String? = null
     private var isNameChanged = false
 
-    private val args: WebDavFragmentArgs by navArgs()
+    private val args: WebDavScreenFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -461,7 +461,7 @@ class WebDavFragment : BaseFragment() {
 
     private fun navigate(spaceId: Long) = CoroutineScope(Dispatchers.Main).launch {
             val action =
-                WebDavFragmentDirections.actionFragmentWebDavToFragmentSetupLicense(
+                WebDavScreenFragmentDirections.actionFragmentWebDavToFragmentSetupLicense(
                     spaceId = spaceId,
                     spaceType = Space.Type.WEBDAV
                 )

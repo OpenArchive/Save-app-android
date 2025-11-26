@@ -86,7 +86,6 @@ dependencyResolutionManagement {
         maven("https://jitpack.io") {
             content {
                 includeModule("com.github.esafirm", "android-image-picker")
-                includeModule("com.github.derlio", "audio-waveform")
                 includeModule("com.github.abdularis", "circularimageview")
                 includeModule("com.github.guardianproject", "sardine-android")
             }

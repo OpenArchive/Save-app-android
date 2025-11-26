@@ -17,7 +17,6 @@
     <string name="folder_rename_success">Klasör yeniden adlandırıldı</string>
     <string name="folder_not_found">Klasör bulunamadı</string>
     <string name="folder_removed">Klasör silindi</string>
-    <string name="folder_archived">Klasör arşivlendi</string>
     <string name="content_picker_label">Şuradan ortam ekle</string>
     <string name="disable_passcode_dialog_title">Parola kodunu devre dışı bırak</string>
     <string name="disable_passcode_dialog_msg">Parola kodunu devre dışı bırakmak istediğinize emin misiniz\?</string>
@@ -155,6 +154,7 @@
     <string name="folder_name_already_exists">Klasör adı zaten var.</string>
     <string name="metadata">Üst veriler</string>
 
+    <string name="web_dav_host_error">A server with the specified hostname could not be found.</string>
     <string name="btn_lbl_remove_media">Ortamı sil</string>
     <string name="popup_flag_title">Önemli içerik olarak işaretle</string>
     <string name="popup_flag_desc">Bir ögeyi işaretlediğinizde, özel sunucu üzerinde seçilmiş proje klasöründeki bir alt klasöre yönlendirilir.</string>
@@ -209,7 +209,7 @@
     <string name="intro_text_secure">Ortamınızı güvenli bir şekilde özel sunuculara gönderin ve uygulamayı bir PIN kodu ile kilitleyin.</string>
     <string name="intro_text_archive"><![CDATA[Ortamınızı uzun vadede doğrulanabilir, güvenli ve düzenli tutmak için Nextcloud veya İnternet Archive üzerine yükleyin.<br><br><a href=\"%1$s\"><u>Creative Commons Lisansı.</u> kullanın </a>]]></string>
 
-    <string name="intro_text_verify"><![CDATA[Ortamınız için SHA256 karmaları ve <a href="%1$s"><u>ProofMode</u></a> ile kimlik ve gerçekliği doğrulayın.]]></string>
+    <string name="intro_text_verify"><![CDATA[Ortamınız için SHA256 karmaları ve <a href=\"%1$s\"><u>ProofMode</u></a> ile kimlik ve gerçekliği doğrulayın.]]></string>
     <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> aktarım sırasında ortamınızı korumak için her zaman TLS (Transport Layer Security) ile yükleme yapar.<br>Ek güvenlik sağlamak için,  ortamınızın telefonunuzdan sunucuya gönderilirken ele geçirilmesini önleyen <a href=\"%1$s\"><u>Tor</u></a> özelliğini açın.]]></string>
     <string name="next">İleri</string>
     <string name="done">Bitti</string>
@@ -223,12 +223,13 @@
     <string name="preview_media">Yükleme ön izleme</string>
     <string name="add_more">Başka ekle</string>
     <string name="select_all">Tümünü seç</string>
+    <string name="deselect_all">Tümünü bırak</string>
     <string name="lbl_got_it">Anladım</string>
     <string name="do_not_show_me_this_again">Bunu bir daha gösterme</string>
     <string name="edit_multiple">Birkaç ögeyi düzenle</string>
     <string name="press_and_hold_options_media_screen_title">Ortam ekle</string>
     <string name="press_and_hold_options_media_screen_message">Resim galerisinden seçim yapmak için + üzerine dokunun ya da diğer uygulamalardan ortam eklemek için basılı tutun.</string>
-    <string name="press_and_hold_to_select_and_edit_multiple_media">Birkaç ortamı seçmek ve düzenlemek için basılı tutun</string>
+    <string name="press_and_hold_to_select_and_edit_multiple_media">Birkaç ortamı seçmek ve düzenlemek için dokunup basılı tutun.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Yüklendikten sonra ortamı düzenleyemeyeceksiniz.</string>
     <string name="edit_media_info">Ortam bilgilerini düzenle</string>
     <string name="add_a_location_optional"><i>Bir konum ekle (isteğe bağlı)</i></string>

@@ -5,6 +5,7 @@
 
     <color name="red">#ff0000</color>
     <color name="red_bg">#DC341E</color>
+    <color name="orange_light">#FFBB33</color>
     <color name="green">#00ff00</color>
     <color name="blue">#0000ff</color>
     <color name="black">#000000</color>
@@ -143,6 +144,7 @@
      -->
     <color name="colorIcon">@color/white</color>
     <color name="colorPill">#E3E3E4</color>
+    <color name="colorPillTransparent">#80E3E3E4</color>
     <color name="dragHandle">@color/c24_cream_70</color>
     <color name="colorMediaOverlayIcon">@color/white</color>
     <color name="colorDanger">@color/red</color>
@@ -158,8 +160,8 @@
     <color name="swipeBackground">@color/c24_cream_80</color>
     <color name="colorRipple">#bbe3e3e4</color>
     <color name="bottomSheetBackground">@color/c24_cream_100</color>
-    <color name="selection_button_glass">#CCFFFFFF</color>
-    <color name="selection_button_stroke">#66FFFFFF</color>
+    <color name="selection_button_glass">#FFFFFF</color>
+    <color name="selection_button_stroke">#66292828</color>
     <color name="selection_button_ripple">#99FFFFFF</color>
 
 </resources>
