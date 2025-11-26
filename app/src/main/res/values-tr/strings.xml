@@ -153,15 +153,13 @@
     <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">Bu sunucuyu uygulamadan kaldırmak istediğinize emin misiniz\?</string>
     <string name="folder_name_already_exists">Klasör adı zaten var.</string>
     <string name="metadata">Üst veriler</string>
+    <string name="web_dav_host_error">Belirtilen sunucu adıyla bir sunucu bulunamadı.</string>
 
     <string name="btn_lbl_remove_media">Ortamı sil</string>
     <string name="popup_flag_title">Önemli içerik olarak işaretle</string>
     <string name="popup_flag_desc">Bir ögeyi işaretlediğinizde, özel sunucu üzerinde seçilmiş proje klasöründeki bir alt klasöre yönlendirilir.</string>
     <string name="set_creative_commons_license_for_all_folders_on_this_server">Bu sunucudaki klasörler için Creative Commons lisansını ayarlayın.</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Bu sunucudaki TÜM klasörler için aynı Creative Commons lisansı ayarlayın.</string>
-    <string name="you_already_have_a_server_with_these_credentials">Bu kimlik doğrulama bilgileriyle zaten bir sunucunuz var</string>
-
-
     <!-- Space Setup -->
     <string name="space_setup_title">Bir sunucu seçin</string>
     <!-- WebDAV related strings -->
