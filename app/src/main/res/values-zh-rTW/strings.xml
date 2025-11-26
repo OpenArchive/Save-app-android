@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="title_activity_login">登入</string>
-    <string name="title_media_list">上傳項目</string>
-
     <!-- Alert Values -->
 
     <string name="action_settings">設定</string>
@@ -20,11 +17,6 @@
 
     <string name="error">錯誤</string>
 
-    <string name="prefs_prohibit_screenshots_title">關閉螢幕截圖</string>
-    <string name="prefs_user_interface_title">呈現</string>
-    <string name="prefs_theme_title">主題</string>
-    <string name="prefs_theme_light">亮色</string>
-    <string name="prefs_theme_dark">深色</string>
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
@@ -44,16 +36,12 @@
     <string name="action_done">完成</string>
     <string name="edit">編輯</string>
     <string name="menu_done">完成</string>
-    <string name="remove">移除</string>
+    <string name="lbl_remove">移除</string>
     <string name="new_folder">新資料夾</string>
     <string name="metadata">中繼資料</string>
 
-    <string name="action_install">安裝</string>
-    <string name="login_activity_logging_message">正在登录…</string>
     <string name="create">建立</string>
     <string name="add">新增</string>
-    <string name="upload_to_dropbox">上傳到 Dropbox</string>
-    <string name="authenticate">驗證</string>
     <string name="back">返回</string>
     <string name="account">帳號</string>
     <string name="general">一般</string>
@@ -63,12 +51,10 @@
     <string name="get_started">開始</string>
     <string name="refresh">更新</string>
     <string name="select_all">選擇全部</string>
-    <string name="got_it">收到</string>
+    <string name="lbl_got_it">收到</string>
     <string name="skip">跳過</string>
-    <string name="retry">重試</string>
+    <string name="lbl_retry">重試</string>
 
     <string name="files">檔案</string>
-    <string name="no_thanks">不，謝謝</string>
-    <string name="undo">復原</string>
 
 </resources>

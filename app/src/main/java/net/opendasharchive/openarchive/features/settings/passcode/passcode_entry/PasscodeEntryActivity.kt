@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.features.settings.passcode.HapticManager
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
 import org.koin.android.ext.android.inject
@@ -13,6 +15,7 @@ import org.koin.android.ext.android.inject
 class PasscodeEntryActivity : BaseActivity() {
 
     private val repository: PasscodeRepository by inject()
+    private val hapticManager: HapticManager by inject()
 
     private val onBackPressedCallback = object : OnBackPressedCallback(enabled = true) {
         override fun handleOnBackPressed() {
@@ -32,7 +35,7 @@ class PasscodeEntryActivity : BaseActivity() {
         if (repository.isLockedOut()) {
             Toast.makeText(
                 this,
-                "App is locked due to multiple failed attempts. Please try again later.",
+                getString(R.string.multiple_failed_attempts_message),
                 Toast.LENGTH_LONG
             ).show()
             finishAndRemoveTask()
@@ -53,5 +56,10 @@ class PasscodeEntryActivity : BaseActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        hapticManager.clear() // Clear the reference to prevent leaks
     }
 }

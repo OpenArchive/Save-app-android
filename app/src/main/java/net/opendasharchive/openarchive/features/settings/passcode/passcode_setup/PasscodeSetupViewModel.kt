@@ -30,6 +30,7 @@ class PasscodeSetupViewModel(
             is PasscodeSetupUiAction.OnNumberClick -> onNumberClick(action.number)
             PasscodeSetupUiAction.OnBackspaceClick -> onBackspaceClick()
             PasscodeSetupUiAction.OnCancel -> onCancel()
+            PasscodeSetupUiAction.OnSubmit -> onSubmit()
         }
     }
 
@@ -56,11 +57,11 @@ class PasscodeSetupViewModel(
             else state.copy(passcode = state.passcode + number)
         }
 
-        // Process passcode only when the required length is reached
-        if (_uiState.value.passcode.length == config.passcodeLength) {
-            _uiState.update { it.copy(isProcessing = true) }
-            processPasscodeEntry()
-        }
+//        // Process passcode only when the required length is reached
+//        if (_uiState.value.passcode.length == config.passcodeLength) {
+//            _uiState.update { it.copy(isProcessing = true) }
+//            processPasscodeEntry()
+//        }
     }
 
     private fun onBackspaceClick() {
@@ -72,6 +73,16 @@ class PasscodeSetupViewModel(
             // Remove the last digit from the passcode if not confirming or empty
             if (state.isProcessing || state.passcode.isEmpty()) state
             else state.copy(passcode = state.passcode.dropLast(1))
+        }
+    }
+
+    private fun onSubmit() {
+        val state = _uiState.value
+
+        // Ensure passcode length is correct before submission
+        if (state.passcode.length == config.passcodeLength) {
+            _uiState.update { it.copy(isProcessing = true) }
+            processPasscodeEntry()
         }
     }
 
@@ -138,6 +149,7 @@ sealed class PasscodeSetupUiAction {
     data class OnNumberClick(val number: String) : PasscodeSetupUiAction()
     data object OnBackspaceClick : PasscodeSetupUiAction()
     data object OnCancel : PasscodeSetupUiAction()
+    data object OnSubmit: PasscodeSetupUiAction()
 }
 
 sealed class PasscodeSetupUiEvent {

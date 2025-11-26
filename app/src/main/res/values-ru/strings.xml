@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="title_activity_login">Авторизоваться</string>
-    <string name="title_media_list">Загруженная информация</string>
-
     <!-- Alert Values -->
 
     <string name="action_settings">Настройки</string>
@@ -26,10 +23,6 @@
 
     <string name="error">Ошибка</string>
 
-    <string name="prefs_prohibit_screenshots_title">Не допускать скриншоты</string>
-    <string name="prefs_theme_title">Тема</string>
-    <string name="prefs_theme_light">Светлая</string>
-    <string name="prefs_theme_dark">Темная</string>
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
@@ -51,25 +44,18 @@
     <string name="edit">Редактировать</string>
     <string name="menu_done">Готово</string>
     <string name="remove_from_app">Удалить из приложения</string>
-    <string name="remove">Удалить</string>
+    <string name="lbl_remove">Удалить</string>
     <string name="action_archive_project">Архивировать проект</string>
     <string name="action_unarchive_project">Разархивировать проект</string>
-    <string name="access_key">Ключ доступа</string>
-    <string name="secret_key">Секретный ключ</string>
-    <string name="action_acquire_keys">Получить ключи</string>
     <string name="new_folder">Новый каталог</string>
-    <string name="dropbox">Внесите свои данные, чтобы стать частью решения.</string>
     <string name="metadata">Метаданные</string>
 
     <string name="popup_flag_title">Отметить важное содержание</string>
     <string name="popup_flag_desc">Когда вы отмечаете элемент, он направляется в подпапку  выбранного проекта на частном сервере.</string>
 
-    <string name="action_install">Установить приложение</string>
     <string name="folders">Папки</string>
     <string name="create">Создать</string>
     <string name="add">Добавить</string>
-    <string name="upload_to_dropbox">Загрузить в Dropbox</string>
-    <string name="authenticate">Аутентифицировать</string>
     <string name="back">вернуться и отредактировать</string>
     <string name="account">Учетная запись</string>
     <string name="general">Общие</string>
@@ -81,19 +67,10 @@
     <string name="get_started">Начало работы</string>
     <string name="refresh">Обновить</string>
     <string name="select_all">Выбрать все</string>
-    <string name="got_it">ОК</string>
+    <string name="lbl_got_it">ОК</string>
     <string name="skip">Пропустить</string>
-    <string name="retry">Повторить</string>
+    <string name="lbl_retry">Повторить</string>
 
     <string name="files">Файлы</string>
-    <string name="health_checks">Проверка работоспособности</string>
-    <string name="help_improve_the_app_by_running_health_checks_when_uploads_fail">Помогите улучшить приложение, запустив проверки работоспособности при сбое загрузки.</string>
-    <string name="health_checks_help_us_understand_why_uploads_fail">Проверки работоспособности помогают нам понять, почему загрузка не удалась.</string>
-    <string name="contribute_your_data_to_be_part_of_the_solution">Внесите свои данные, чтобы стать частью решения.</string>
-    <string name="with_your_permission_we_ll_run_a_check_each_time_you_encounter_an_error_while_uploading">С вашего разрешения мы будем проводить проверку каждый раз, когда вы сталкиваетесь с ошибкой при загрузке.</string>
-    <string name="health_checks_capture">Проверка работоспособности покрывает</string>
-    <string name="allow_health_checks">Разрешить проверку работоспособности?</string>
-    <string name="no_thanks">Нет, спасибо</string>
-    <string name="undo">Отменить</string>
 
 </resources>

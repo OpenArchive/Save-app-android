@@ -24,7 +24,8 @@ fun SaveAppTheme(
         MaterialTheme(
             colorScheme = colors.material,
             content = content,
-            shapes = Shapes
+            shapes = Shapes,
+            typography = Typography,
         )
     }
 }

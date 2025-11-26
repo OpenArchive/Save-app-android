@@ -20,6 +20,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <View
+            tools:visibility="invisible"
+            android:id="@+id/image_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorPillTransparent" />
+
         <ImageView
             android:id="@+id/image"
             android:layout_width="match_parent"
@@ -28,34 +35,28 @@
             android:src="@drawable/no_thumbnail"
             tools:ignore="ContentDescription" />
 
-        <com.github.derlio.waveform.SimpleWaveformView
-            android:id="@+id/waveform"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            app:indicatorColor="#aa0000"
-            app:waveformColor="#999999" />
-
         <androidx.constraintlayout.widget.ConstraintLayout
+            tools:visibility="invisible"
             android:id="@+id/overlay_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/transparent_black">
+            android:background="@color/transparent_loading_overlay">
 
             <com.google.android.material.progressindicator.CircularProgressIndicator
                 android:id="@+id/progress"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
                 android:indeterminate="true"
                 android:indeterminateBehavior="cycle"
                 android:max="100"
-                app:indicatorColor="@color/colorPrimary"
-                app:indicatorSize="48dp"
+                app:indicatorColor="@color/colorTertiary"
+                app:indicatorSize="32dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:trackThickness="3dp" />
+                app:trackThickness="4dp"
+                tools:visibility="visible" />
 
             <ImageView
                 android:id="@+id/error"
@@ -67,16 +68,20 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@color/colorDanger" />
+                app:tint="@color/colorDanger"
+                tools:visibility="invisible" />
+
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
         <View
             android:id="@+id/selected_indicator"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:alpha="0.25"
-            android:background="@color/colorPrimary" />
+            android:background="@drawable/bg_selected_overlay" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -84,15 +89,16 @@
         android:id="@+id/progress_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="100%"
-        android:textSize="12sp"
-        android:visibility="gone"
         android:textColor="@color/colorPrimary"
+        android:textSize="9sp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="HardcodedText" />
+        tools:ignore="HardcodedText"
+        tools:text="65"
+        tools:visibility="visible" />
 
     <ImageView
         android:id="@+id/video_indicator"
@@ -103,5 +109,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:tint="@color/colorMediaOverlayIcon" />
+
+    <TextView
+        android:layout_margin="8dp"
+        android:id="@+id/media_title"
+        android:layout_width="wrap_content"
+        style="@style/TextAppearance.SaveApp.11pt"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:ellipsize="end"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="template.jpg" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

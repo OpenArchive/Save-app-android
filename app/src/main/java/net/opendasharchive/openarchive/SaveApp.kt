@@ -2,35 +2,46 @@ package net.opendasharchive.openarchive
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.UiModeManager
 import android.content.Context
-import android.util.Log
-import coil.Coil
-import coil.ImageLoader
-import coil.util.Logger
+import android.os.Build
+import androidx.appcompat.app.AppCompatDelegate
+import coil3.ImageLoader
+import coil3.PlatformContext
+import coil3.SingletonImageLoader
+import coil3.video.VideoFrameDecoder
 import com.orm.SugarApp
 import info.guardianproject.netcipher.proxy.OrbotHelper
 import net.opendasharchive.openarchive.core.di.coreModule
 import net.opendasharchive.openarchive.core.di.featuresModule
+import net.opendasharchive.openarchive.core.di.passcodeModule
 import net.opendasharchive.openarchive.core.di.retrofitModule
 import net.opendasharchive.openarchive.core.di.unixSocketModule
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeManager
+import net.opendasharchive.openarchive.util.Analytics
 import net.opendasharchive.openarchive.util.Prefs
-import net.opendasharchive.openarchive.util.Theme
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
-import timber.log.Timber
 
-class SaveApp : SugarApp() {
+class SaveApp : SugarApp(), SingletonImageLoader.Factory {
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
     }
 
+    private fun applyTheme() {
+
+        val useDarkMode = Prefs.getBoolean(getString(R.string.pref_key_use_dark_mode), false)
+        val nightMode = if (useDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+        AppCompatDelegate.setDefaultNightMode(nightMode)
+    }
+
     override fun onCreate() {
         super.onCreate()
+        Analytics.init(this)
         AppLogger.init(applicationContext, initDebugger = true)
         registerActivityLifecycleCallbacks(PasscodeManager())
         startKoin {
@@ -40,31 +51,15 @@ class SaveApp : SugarApp() {
                 coreModule,
                 featuresModule,
                 retrofitModule,
-                unixSocketModule
+                unixSocketModule,
+                passcodeModule
             )
         }
 
-        val imageLoader = ImageLoader.Builder(this)
-            .logger(object : Logger {
-                override var level = Log.VERBOSE
-
-                override fun log(
-                    tag: String,
-                    priority: Int,
-                    message: String?,
-                    throwable: Throwable?
-                ) {
-                    Timber.tag("Coil").log(priority, throwable, message)
-                }
-            })
-            .build()
-
-        Coil.setImageLoader(imageLoader)
         Prefs.load(this)
+        applyTheme()
 
         if (Prefs.useTor) initNetCipher()
-
-        Theme.set(Prefs.theme)
 
         CleanInsightsManager.init(this)
 
@@ -109,5 +104,14 @@ class SaveApp : SugarApp() {
 
         const val TOR_SERVICE_ID = 2602
         const val TOR_SERVICE_CHANNEL = "tor_service_channel"
+    }
+
+    override fun newImageLoader(context: PlatformContext): ImageLoader {
+        return ImageLoader.Builder(this)
+            .components {
+                add(VideoFrameDecoder.Factory())
+            }
+            .logger(AppLogger.imageLogger)
+            .build()
     }
 }

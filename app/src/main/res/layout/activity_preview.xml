@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:filterTouchesWhenObscured="true">
@@ -13,60 +14,150 @@
         android:id="@+id/media_grid"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/bt_add_more"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/common_app_bar" />
-
-    <Button
-        android:layout_marginVertical="24dp"
-        android:id="@+id/bt_add_more"
-        style="@style/Widget.Material3.Button.Icon"
-        android:backgroundTint="@color/colorTertiary"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/add_more"
-        app:icon="@drawable/baseline_add_24"
-        app:layout_constraintBottom_toTopOf="@id/bottom_bar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/common_app_bar"
+        tools:background="@color/white" />
 
     <LinearLayout
-        android:id="@+id/bottom_bar"
+        android:id="@+id/bt_add_more_layout"
         android:layout_width="match_parent"
-        android:layout_marginVertical="24dp"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginVertical="24dp"
+        android:drawableTint="@color/colorOnBackground"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:weightSum="5"
+        app:layout_constraintBottom_toTopOf="@id/bottom_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/bt_batch_edit"
-            style="?android:attr/buttonBarButtonStyle"
-            app:iconTint="@color/colorTertiary"
+            android:id="@+id/bt_add_more"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            app:icon="@drawable/ic_batchedit" />
+            android:layout_weight="2.5"
+            android:fontFamily="@font/montserrat_semi_bold"
+            android:text="@string/add_more"
+            android:textSize="18sp"
+            app:backgroundTint="@color/colorTertiary"
+            app:icon="@drawable/baseline_add_24"
+            app:iconTint="@color/black"
+            app:layout_constraintBottom_toTopOf="@id/bottom_bar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/bt_select_all"
-            style="?android:attr/buttonBarButtonStyle"
-            android:textColor="@color/colorTertiary"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/select_all" />
+    </LinearLayout>
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/bt_remove"
-            style="?android:attr/buttonBarButtonStyle"
-            app:iconTint="@color/colorTertiary"
+
+    <LinearLayout
+        android:id="@+id/bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="24dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            app:iconGravity="end"
-            app:icon="@drawable/ic_delete" />
+            android:gravity="start"
+            android:paddingStart="8dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/bt_batch_edit"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="2dp"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.OA.SelectionButton"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:paddingHorizontal="@dimen/selection_button_icon_padding_horizontal"
+                android:paddingVertical="@dimen/selection_button_padding_vertical"
+                app:backgroundTint="@color/selection_button_glass"
+                app:cornerRadius="@dimen/selection_button_corner_radius"
+                app:icon="@drawable/ic_batchedit"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconTint="@color/colorTertiary"
+                app:rippleColor="@color/selection_button_ripple"
+                app:strokeColor="@color/selection_button_stroke"
+                app:strokeWidth="@dimen/selection_button_stroke_width" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:gravity="center">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/bt_select_all"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="2dp"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.OA.SelectionButton"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:paddingHorizontal="@dimen/selection_button_text_padding_horizontal"
+                android:paddingVertical="@dimen/selection_button_padding_vertical"
+                android:text="@string/select_all"
+                android:textColor="@color/colorTertiary"
+                app:backgroundTint="@color/selection_button_glass"
+                app:cornerRadius="@dimen/selection_button_corner_radius"
+                app:rippleColor="@color/selection_button_ripple"
+                app:strokeColor="@color/selection_button_stroke"
+                app:strokeWidth="@dimen/selection_button_stroke_width" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:paddingEnd="8dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/bt_remove"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:elevation="2dp"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.OA.SelectionButton"
+                android:insetLeft="0dp"
+                android:insetTop="0dp"
+                android:insetRight="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:paddingHorizontal="@dimen/selection_button_icon_padding_horizontal"
+                android:paddingVertical="@dimen/selection_button_padding_vertical"
+                app:backgroundTint="@color/selection_button_glass"
+                app:cornerRadius="@dimen/selection_button_corner_radius"
+                app:icon="@drawable/ic_delete"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconTint="@color/colorTertiary"
+                app:rippleColor="@color/selection_button_ripple"
+                app:strokeColor="@color/selection_button_stroke"
+                app:strokeWidth="@dimen/selection_button_stroke_width" />
+        </LinearLayout>
 
     </LinearLayout>
 

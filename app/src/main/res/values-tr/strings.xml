@@ -1,45 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-
-    <string name="app_subtext">Ortamlarınızı arşivleyin\n<a href="#">bilgi alın</a></string>
-
-    <string name="title_activity_login">Oturum açın</string>
     <string name="title_activity_first_start">Önce başla</string>
-    <string name="title_media_list">Yüklemeler</string>
-
-    <!-- Alert Values -->
-
     <string name="action_settings">Ayarlar</string>
-
-    <!-- FirstStartActivity -->
     <string name="internet_archive">Internet Archive</string>
+    <string name="internet_archive_description">Ortamınızı ücretsiz ve herkese açık Internet Archive hesabına yükleyin.</string>
+    <string name="dweb_title">DWeb hizmeti</string>
+    <string name="dweb_description">Merkezi olmayan\ninternet bağlantısı kurun</string>
+    <string name="servers">Sunucular</string>
+    <string name="add_server">Başka bir hesap ekle</string>
+    <string name="lbl_rename_folder">Klasörü yeniden adlandır</string>
+    <string name="lbl_select_media">Ortam seçin</string>
+    <string name="lbl_remove_folder">Klasörü Kaldır</string>
+    <string name="popup_archive_folder">Klasörü arşivle</string>
+    <string name="popup_remove_folder">Klasörü uygulamadan kaldır</string>
+    <string name="folder_empty_warning">Klasör adı boş olamaz</string>
+    <string name="folder_rename_success">Klasör yeniden adlandırıldı</string>
+    <string name="folder_not_found">Klasör bulunamadı</string>
+    <string name="folder_removed">Klasör silindi</string>
+    <string name="content_picker_label">Şuradan ortam ekle</string>
+    <string name="disable_passcode_dialog_title">Parola kodunu devre dışı bırak</string>
+    <string name="disable_passcode_dialog_msg">Parola kodunu devre dışı bırakmak istediğinize emin misiniz\?</string>
+    <string name="tor_disabled_title">Onion yöneltme geliştiriliyor</string>
+    <string name="tor_disabled_message">Bu özellik şu anda geliştiriliyor. Şimdilik, gizliliğinizi ve güvenliğinizi artırmak için Orbot uygulamasını veya istediğiniz herhangi bir VPN hizmetini kullanabilirsiniz.</string>
+    <string name="tor_download_btn_label">Orbot indir</string>
 
-    <!--<string name="sign_up_btn">Don\'t have a virtual library card?\n<a href="https://archive.org/account/login.createaccount.php">Register for free.</a></string>-->
-
-    <!-- MainFragment -->
-
-    <!-- ViewMediaActivity -->
-    <string name="iv_content_desc">Ana görsel</string>
 
     <!-- Errors -->
 
     <!-- Server -->
     <string name="lbl_Cancel">İptal</string>
     <string name="lbl_ok">Tamam</string>
-    <string name="archive_title">E-posta onayı</string>
-    <string name="archive_message">Lütfen e-posta adresinizi doğrulayın ve Internet Archive hesabınızı bağlamaya geri dönün.</string>
+    <string name="lbl_confirm">Onayla</string>
+    <string name="lbl_remove">Kaldır</string>
+    <string name="lbl_retry">Yeniden dene</string>
 
-    <!-- original CC license questions
-    <string name="info_license_deriv">Allow adaptations of your work to be shared?</string>
-    <string name="info_license_sharealike">Require modified versions to also share?</string>
-    <string name="info_license_comm">Allow commercial uses of your work?</string>
-    -->
-
+    <string name="license_label">Lisans</string>
+    <string name="info_license_cc0">Tüm kısıtlamalardan, gereksinimlerden ve ilişkilendirmelerden kurtulun (CC0).</string>
     <string name="info_license_deriv">İsteyen herkes yeniden derleyip paylaşabilsin</string>
     <string name="info_license_sharealike">Onlardan da senin gibi paylaşmasını iste</string>
     <string name="info_license_comm">Ticari olarak kullanılabilsin</string>
 
     <string name="menu_delete">Ortamı sil</string>
+    <string name="menu_delete_desc">Ortam Save uygulamasından silinecek.\nSunucu ve fotoğraflar içinde durmayı sürdürecek.</string>
 
     <string name="hint_flag">Önemli içerik olarak işaretlemek için dokunun</string>
     <string name="answer_yes">Evet</string>
@@ -51,30 +53,37 @@
 
     <string name="prefs_use_tor_title">Onion yöneltme kullanılsın</string>
     <string name="prefs_use_tor_summary">Yalnızca Tor ağı ile aktarılsın</string>
-    <string name="prefs_install_tor_summary">Sağlamak için Orbot kurun</string>
-    <string name="prefs_prohibit_screenshots_title">Ekran görüntüsü alınmasını engelle</string>
-    <string name="prefs_prohibit_screenshots_summary">Bu uygulamadan ekran görüntüsü ve ekran kaydı alınmasını engelleyin.</string>
 
-    <string name="prefs_user_interface_title">Sunum</string>
-    <string name="prefs_theme_title">Tema</string>
-    <string name="prefs_theme_summary">Save temasını koyu ya da açık yapın</string>
-    <string name="prefs_theme_system">Sistem tarafından denetleniyor</string>
-    <string name="prefs_theme_light">Açık</string>
-    <string name="prefs_theme_dark">Koyu</string>
     <string name="prefs_use_proofmode_title">ProofMode kullanılsın</string>
-    <string name="prefs_use_proofmode_summary">Ek üst verileri alın ve tüm ortamları onaylayın.</string>
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode, çoklu ortam içeriklerinin kimliğinin ve gerçekliğinin doğrulanmasını iyileştiren bir yöntemdir. <a href=\"%1$s\"><u>Ayrıntılı bilgi alın</u></a>]]></string>
+
+    <string name="proof_mode_warning_text"><![CDATA[ 
+    ProofMode, ortamınızın nerede kaydedildiğini doğrulamaya yardımcı olmak için, konumunuzu doğrulamak amacıyla yakındaki baz istasyonlarından veri toplar. Güvenilirlik ve bağlam eklemek için, ortamınızla birlikte ayrı bir üst veri dosyası bulunur*. Android üzerinde bu bilgiyi elde etmek için konuma erişme izni istenir.<br/><br/>
+    <b>Ne <i>Save</i> ne de <i>OpenArchive</i> bu konum verilerine erişemez veya depolayamaz. Bu verilere yalnızca sunucu dosyalarına erişimi olanlar erişilebilir.</b> 
+    ]]></string>
 
     <string name="prefs_share_proofmode_title">ProofMode kimliği</string>
     <string name="prefs_share_proofmode_summary">ProofMode herkese açık anahtarını paylaş</string>
 
 
+    <!-- Strings for ProofMode Activity -->
+    <string name="phone_permission_required">Konum izni gereklidir</string>
+
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
-    <string name="prompt_email">Kullanıcı adı</string>
-    <string name="prompt_password">Parola</string>
+    <string name="prompt_username"><i>Kullanıcı adı</i></string>
+    <string name="prompt_email">E-posta</string>
+    <string name="prompt_password"><i>Parola</i></string>
+
+    <string name="label_username">\@string/prompt_email</string>
+    <string name="placeholder_email_or_username">Bir e-posta adresi ya da kullanıcı adı yazın</string>
+    <string name="label_password">\@string/prompt_password</string>
+    <string name="placeholder_password">Bir parola yazın</string>
+
     <string name="action_sign_in_short">Oturum aç</string>
     <string name="error_incorrect_username_or_password">Kullanıcı adı ya da parola hatalı</string>
+    <string name="error_incorrect_email_or_password">E-posta ya da parola hatalı</string>
     <string name="error_field_required">Bu alanın doldurulması zorunludur</string>
 
     <string name="importing_media">Ortam içe aktarılıyor…</string>
@@ -89,73 +98,95 @@
     <string name="title_activity_upload_manager">Yükleme yöneticisi</string>
 
     <string name="uploads">Yüklemeler</string>
+    <string name="upload_manager_screen_title">Sorguyu düzenle</string>
+    <string name="upload_manager_screen_subtitle">Yükleme duraklatıldı</string>
     <string name="uploading">Yükleniyor…</string>
     <string name="uploading_left">Yükleniyor… (%d kaldı)</string>
     <string name="uploads_notification_descriptions">Bu bildirimler, bu uygulama ortam yüklemelerini yaparken görüntülenir.</string>
 
     <string name="action_upload">Yükle</string>
 
+    <!-- Passcode Settings -->
+    <string name="multiple_failed_attempts_message">Birden fazla başarısız deneme nedeniyle uygulama kilitlendi. Lütfen bir süre sonra yeniden deneyin.</string>
+    <string name="passcode_not_set">Parola kodu ayarlanmamış</string>
+    <string name="passcode_remaining_attempts">Parola kodu hatalı. %1$d deneme hakkınız kaldı.</string>
+    <string name="passcode_too_many_failed_attempts">Çok fazla başarısız deneme yapıldı. Uygulama kilitlendi.</string>
+
+    <string name="passcode_lock_app">Uygulamayı parola kodu ile kilitleyin</string>
+    <string name="enter_passcode">Parola kodunuzu yazın</string>
+    <string name="passcode_do_not_match">Parola kodu ile onayı aynı değil. Yeniden deneyin.</string>
+
+    <string name="confirm_passcode">Parola kodu onayı</string>
+    <string name="set_passcode">Parola kodunu ayarla</string>
+    <string name="set_passcode_warning">Bu PIN kodunu unutmayacağınızdan emin olun. Unutursanız, uygulamayı sıfırlamanız gerekir ve uygulama içindeki tüm veriler silinir.</string>
+
+
     <!-- Strings related to Settings -->
 
-    <string name="tap_to_add">Ortam eklemek için aşağıdaki düğmeye dokunun</string>
+    <string name="tap_to_add">Ortam eklemek için aşağıdaki düğmeye dokunun.</string>
+    <string name="tap_to_add_folder">Bir klasör eklemek için aşağıdaki düğmeye dokunun</string>
+    <string name="tap_to_add_server">Bir sunucu eklemek için aşağıdaki düğmeye dokunun</string>
     <string name="to_get_started_connect_to_a_server_to_store_your_media">Başlamak için, ortamınızı saklayacağınız bir sunucuya bağlanın.</string>
-    <string name="in_the_side_menu_you_can_add_another_server_and_connect_to_multiple_servers">Yan menüden başka bir sunucu ekleyebilir ve birkaç sunucuya bağlanabilirsiniz</string>
-    <string name="send_directly_to_a_private_server">Bir WebDAV sunucusuna gönder</string>
-    <string name="upload_to_the_internet_archive">Internet Archive üzerine yükle</string>
-    <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud"><b><i>Save</i></b> yalnızca Nextcloud ve ownCloud gibi WebDAV uyumlu sunucularla bağlantı kurabilir.</string>
-    <string name="action_next">Sonraki</string>
-    <string name="action_done">Tamam</string>
+    <string name="to_get_started_more_hint_dweb">İstediğiniz zaman birden fazla özel sunucu ve\nbir IA veya DWeb sunucu hesabı ekleyebilirsiniz.</string>
+    <string name="to_get_started_more_hint">İstediğiniz zaman birden fazla özel sunucu ve\nbir IA hesabı ekleyebilirsiniz.</string>
+    <string name="send_directly_to_a_private_server">Bir güvenli WebDAV\nsunucusuna bağlanın</string>
+    <string name="upload_to_the_internet_archive">Bir güvenli herkese\naçık sunucuya bağlanın</string>
+    <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">WebDAV uyumlu bir sunucuya bağlan, Nexcloud veya ownCloud gibi.</string>
+    <string name="action_next">İleri</string>
+    <string name="action_done">Bitti</string>
     <string name="status_flagged">Önemli içerik</string>
-    <string name="select_where_to_store_your_media">Ortamınızı saklamak istediğiniz yeri seçin.</string>
+    <string name="select_where_to_store_your_media">Ortamınızı kaydetmek için yeni ya da var olan bir klasör seçin.</string>
     <string name="you_have_successfully_connected_to_a_private_server">Özel bir sunucu ile bağlantı kurdunuz!</string>
-    <string name="you_have_successfully_connected_to_dropbox">Dropbox ile bağlantı kurdunuz!</string>
     <string name="you_have_successfully_connected_to_the_internet_archive">İnternet Archive ile bağlantı kurdunuz!</string>
     <string name="create_a_new_folder">Yeni klasör oluştur</string>
+    <string name="create_new_folder_title">Klasörünüze bir ad verin</string>
+    <string name="create_new_folder_subtitle">Bu klasör sunucunuzda oluşturulacak ve Save üzerine eklenecek.</string>
+    <string name="create_new_folder_hint"><i>Klasör adını yazın</i></string>
     <string name="edit">Düzenle</string>
-    <string name="menu_done">Tamam</string>
+    <string name="menu_done">Bitti</string>
     <string name="remove_from_app">Uygulamadan kaldır</string>
-    <string name="action_remove_project">Projenizi kaldırmak istediğinize emin misiniz?</string>
-    <string name="remove">Kaldır</string>
+    <string name="action_remove_project">Projenizi kaldırmak istediğinize emin misiniz\?</string>
     <string name="action_archive_project">Projeyi arşive kaldır</string>
     <string name="action_unarchive_project">Projeyi arşivden çıkar</string>
-    <string name="IA_login_error">Lütfen geçerli Internet Archive kimlik doğrulama bilgileri ile oturum açın.</string>
-    <string name="access_key">Erişim anahtarı</string>
-    <string name="secret_key">Gizli anahtar</string>
-    <string name="info_archiveorg_keys"><b><i>Save</i></b> ortam yükleyebilmek için Internet Archive hesabınızın API anahtarlarını bilmelidir</string>
-    <string name="action_acquire_keys">Anahtarları al</string>
     <string name="new_folder">Yeni klasör</string>
     <string name="please_do_not_include_special_characters_in_the_name">Lütfen ad içinde özel karakterler kullanmayın.</string>
-    <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">Bu sunucuyu uygulamadan kaldırmak istediğinize emin misiniz?</string>
+    <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">Bu sunucuyu uygulamadan kaldırmak istediğinize emin misiniz\?</string>
     <string name="folder_name_already_exists">Klasör adı zaten var.</string>
-    <string name="dropbox">Dropbox</string>
     <string name="metadata">Üst veriler</string>
 
-    <string name="confirm_remove_media">Bu ortamı silmek istediğinize emin misiniz?</string>
-
+    <string name="web_dav_host_error">A server with the specified hostname could not be found.</string>
+    <string name="btn_lbl_remove_media">Ortamı sil</string>
     <string name="popup_flag_title">Önemli içerik olarak işaretle</string>
     <string name="popup_flag_desc">Bir ögeyi işaretlediğinizde, özel sunucu üzerinde seçilmiş proje klasöründeki bir alt klasöre yönlendirilir.</string>
-
+    <string name="set_creative_commons_license_for_all_folders_on_this_server">Bu sunucudaki klasörler için Creative Commons lisansını ayarlayın.</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Bu sunucudaki TÜM klasörler için aynı Creative Commons lisansı ayarlayın.</string>
-    <string name="set_unique_creative_commons_licenses_for_each_individual_folder_on_this_server">Bu sunucudaki HER BİR klasör için ayrı Creative Commons lisansı ayarlayın.</string>
-
-    <string name="action_install">Kur</string>
-    <string name="login_activity_logging_message">Oturum açılıyor…</string>
     <string name="you_already_have_a_server_with_these_credentials">Bu kimlik doğrulama bilgileriyle zaten bir sunucunuz var</string>
-    <string name="tor_connection_exception">Orbot/Tor bağlantısı kurulamadı.</string>
-    <string name="tor_connection_timeout">Orbot/Tor bağlantısı kurulamadı: ZAMAN AŞIMI</string>
-    <string name="tor_connection_invalid">Orbot/Tor bağlantısı kurulamadı: GEÇERSİZ</string>
-    <string name="unsecured_internet_connection">Güvenli olmayan bir internet bağlantısı algılandı</string>
-    <string name="version__">%s sürümü</string>
 
+
+    <!-- Space Setup -->
+    <string name="space_setup_title">Bir sunucu seçin</string>
+    <!-- WebDAV related strings -->
+    <string name="private_server">Özel sunucu</string>
+
+    <string name="unsaved_changes">Değişiklikler kaydedilmemiş!</string>
+    <string name="do_you_want_to_save">Kaydetmek ister misiniz</string>
+    <string name="lbl_save">Kaydet</string>
+    <string name="lbl_discard">Yok say</string>
+
+    <!-- WebDAV setup License -->
+    <string name="name_your_server">Sunucunuza bir ad verin ve bir lisans seçin</string>
+    <string name="choose_license">Bir lisans seçin</string>
+
+    <!-- Space Setup Success -->
+    <string name="space_setup_success_title">Kurulum tamamlandı</string>
+
+    <!-- Upload Manager Bottom Sheet -->
+    <string name="edit_queue">Sorguyu düzenle</string>
+    <string name="uploading_is_paused">Yükleme duraklatıldı</string>
 
     <!-- Clean Insights measurement -->
-    <string name="server_name_optional">Sunucu adı (isteğe bağlı)</string>
-    <string name="dropbox_id">Dropbox kimliği:</string>
-    <string name="add_another_account">Başka bir hesap ekle</string>
-    <string name="prefs_proofmode_key_encryption_title_all">ProofMode anahtarını biyometri veya aygıt parolası ile koruyun</string>
-    <string name="prefs_proofmode_key_encryption_title_biometrics">ProofMode anahtarını biyometri ile koruyun</string>
-    <string name="prefs_proofmode_key_encryption_title_passcode">ProofMode anahtarını aygıt parolası ile koruyun</string>
-    <string name="prefs_proofmode_key_encryption_summary">Bunu değiştirmek yeni bir anahtar oluşturur! Bunu daha önce dışa aktarıp imzaladıysanız, yenisiyle yeniden yapmanız gerekir.</string>
+    <string name="server_name_optional"><i>Sunucu adı (isteğe bağlı)</i></string>
+    <string name="add_another_account">Yeni sunucu ekle</string>
     <string name="biometrics_title">ProofMode anahtarının kilidini aç</string>
     <string name="folders">Klasörler</string>
     <string name="create_folder_name">Klasör adı oluştur</string>
@@ -163,98 +194,88 @@
     <string name="create">Oluştur</string>
     <string name="add">Ekle</string>
     <string name="no_more_folders">(Başka) klasör yok</string>
-    <string name="private_server">Özel sunucu</string>
-    <string name="upload_to_dropbox">Dropbox üzerine yükle</string>
-    <string name="sign_in_or_create_an_account_with_dropbox">Dropbox oturumu ya da hesabı aç</string>
-    <string name="authenticate">Doğrula</string>
+
     <string name="back">Geri</string>
     <string name="my_media">Ortamlarım</string>
-    <string name="if_you_do_not_have_existing_keys_learn_how_to_acquire_keys">Var olan bir anahtarınız yoksa, anahtarları nasıl alacağınızı <b>öğrenin</b>.</string>
     <string name="server_info">Sunucu bilgileri</string>
-    <string name="enter_url">Adresi yazın</string>
+    <string name="enter_url"><i>Adresi yazın</i></string>
     <string name="account">Hesap</string>
     <string name="general">Genel</string>
-    <string name="connectivity_data"><![CDATA[Connectivity & Data]]></string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Ortamlar yalnızca Wi-Fi bağlantısı varken yüklensin</string>
     <string name="security">Güvenlik</string>
     <string name="proofmode">ProofMode</string>
     <string name="no_webbrowser_found_error">Bu isteği yerine getirecek bir uygulama yok. Lütfen bir tarayıcı kurun.</string>
 
-    <string name="intro_text_secure">
-        Doğrulanmış ortamı seçtiğiniz sunucuya yükleyin. Gelecekte kullanması niyetinizi göstermesi için
-        bir Creative Commons lisansı ekleyin.
-    </string>
-    <string name="intro_text_archive">
-        Ortamınızın uzun süre güvende ve düzenli olmasını sağlayın ve uygulama içinde
-        proje klasörleri oluşturarak kişisel veya kurumsal ortam arşivinizin haritasını çıkarın.
-    </string>
-    <string name="intro_text_verify">
-        Ortamınızın kimliğini şifreli doğrulama sha256 karması ve isteğe bağlı ProofMode ile doğrulayın.
-        Her yüklemeye notlar, kişiler ve konum gibi önemli olabilecek üst veriler ekleyin.
-    </string>
-    <string name="intro_text_encrypt"><![CDATA[
-        TLS (Aktarım Katmanı Güvenliği) üzerinden otomatik olarak yükleme yapın
-        ve Tor ağı üzerinden aktarılan ortamınızı korumak için Orbot kullanın.<br />
-        <br />
-        Gelişmiş ağ güvenliği sağlamak için <a href=\"#\">Orbot kurun</a>.]]>
-    </string>
-    <string name="next">Sonraki</string>
-    <string name="done">Tamam</string>
+    <string name="intro_text_secure">Ortamınızı güvenli bir şekilde özel sunuculara gönderin ve uygulamayı bir PIN kodu ile kilitleyin.</string>
+    <string name="intro_text_archive"><![CDATA[Ortamınızı uzun vadede doğrulanabilir, güvenli ve düzenli tutmak için Nextcloud veya İnternet Archive üzerine yükleyin.<br><br><a href=\"%1$s\"><u>Creative Commons Lisansı.</u> kullanın </a>]]></string>
+
+    <string name="intro_text_verify"><![CDATA[Ortamınız için SHA256 karmaları ve <a href=\"%1$s\"><u>ProofMode</u></a> ile kimlik ve gerçekliği doğrulayın.]]></string>
+    <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> aktarım sırasında ortamınızı korumak için her zaman TLS (Transport Layer Security) ile yükleme yapar.<br>Ek güvenlik sağlamak için,  ortamınızın telefonunuzdan sunucuya gönderilirken ele geçirilmesini önleyen <a href=\"%1$s\"><u>Tor</u></a> özelliğini açın.]]></string>
+    <string name="next">İleri</string>
+    <string name="done">Bitti</string>
     <string name="secure_mobile_media_preservation">Güvenli mobil ortam koruma</string>
     <string name="get_started">Kullanmaya başlayın</string>
-    <string name="proofmode_permissions_explanation">ProofMode, ortamın doğrulanmasına yardımcı olmak için yerel baz istasyonlarından üst verileri toplar. Bu ayarın açılabilmesi için Android izninin verilmesi gereklidir. Save, bu ayarı yalnızca veri yakalamak için kullanır ve arama yapmak/yönetmek için telefonunuza ERİŞMEZ.</string>
     <string name="archived_folders">Arşivlenmiş klasörler</string>
     <string name="view_archived_folders">Arşivlenmiş klasörleri görüntüle</string>
     <string name="learn_more_about_creative_commons">Creative Commons hakkında ayrıntılı bilgi alın.</string>
     <string name="refresh">Yenile</string>
-    <string name="to_get_started_please_create_a_folder">Başlamak için bir klasör oluşturun</string>
-    <string name="before_adding_media_create_a_new_folder_first">Ortam eklemeden önce yeni bir klasör oluşturun.</string>
     <string name="is_video">video mu</string>
-    <string name="use_upload_chunking_nextcloud_only">Yükleme paketleri kullanılsın (yalnızca Nextcloud)</string>
-    <string name="chunking_explanation">\"Paketleme\", ortamı parçalar halinde yükler. Böylece bağlantınız kesilirse yüklemeyi en baştan  değil kaldığınız yerden sürdürebilirsiniz.</string>
-    <string name="preview_media">Ortam ön izlemesi</string>
+    <string name="preview_media">Yükleme ön izleme</string>
     <string name="add_more">Başka ekle</string>
     <string name="select_all">Tümünü seç</string>
-    <string name="got_it">Anladım</string>
+    <string name="deselect_all">Tümünü bırak</string>
+    <string name="lbl_got_it">Anladım</string>
     <string name="do_not_show_me_this_again">Bunu bir daha gösterme</string>
     <string name="edit_multiple">Birkaç ögeyi düzenle</string>
-    <string name="press_and_hold_to_select_and_edit_multiple_media">Birkaç ortamı seçmek ve düzenlemek için basılı tutun</string>
-    <string name="once_uploaded_you_will_not_be_able_to_edit_media">Yüklendikten sonra ortamı düzenleyemeyeceksiniz</string>
+    <string name="press_and_hold_options_media_screen_title">Ortam ekle</string>
+    <string name="press_and_hold_options_media_screen_message">Resim galerisinden seçim yapmak için + üzerine dokunun ya da diğer uygulamalardan ortam eklemek için basılı tutun.</string>
+    <string name="press_and_hold_to_select_and_edit_multiple_media">Birkaç ortamı seçmek ve düzenlemek için dokunup basılı tutun.</string>
+    <string name="once_uploaded_you_will_not_be_able_to_edit_media">Yüklendikten sonra ortamı düzenleyemeyeceksiniz.</string>
     <string name="edit_media_info">Ortam bilgilerini düzenle</string>
-    <string name="counter">%1$d/%2$d</string>
-    <string name="add_a_location_optional">Bir konum ekle (isteğe bağlı)</string>
-    <string name="add_notes_optional">Notlar ekle (isteğe bağlı)</string>
+    <string name="add_a_location_optional"><i>Bir konum ekle (isteğe bağlı)</i></string>
+    <string name="add_notes_optional"><i>Notlar ekle (isteğe bağlı)</i></string>
     <string name="skip">Atla</string>
-    <string name="add_images_or_video">Görsel ya da video ekle</string>
-    <string name="add_files">Dosya ekle</string>
 
-    <string name="ia_learn_how_title">Anahtarları 3 kolay adımda nasıl alırsınız</string>
-    <string name="ia_learn_how_summary_step_1">1. adım: Internet Archive oturumu açın. Hesabınız yoksa bir hesap açın.</string>
-    <string name="ia_learn_how_summary_step_2">2. adım: Yeni bir hesap açıyorsanız e-posta adresinizi doğrulayın.</string>
-    <string name="ia_learn_how_summary_step_3">3. adım: Kutuyu işaretleyerek uygulamaya otomatik olarak yüklenecek API anahtarlarınızı oluşturun.</string>
 
     <string name="upload_unsuccessful">Yükleme tamamlanamadı</string>
-    <string name="retry">Yeniden dene</string>
+    <string name="upload_unsuccessful_description">Oturum sorunu nedeniyle yükleme yapılamadı. Lütfen yeniden deneyin ya da destek ekibi ile görüşün.</string>
+
 
     <string name="edit_media">Ortamı düzenle</string>
-    <string name="uploading_is_paused">Yükleme duraklatıldı</string>
-    <string name="add_media_using">Şununla ortam ekleyin:</string>
+
+    <string name="camera">Kamera</string>
     <string name="photo_gallery">Fotoğraf galerisi</string>
     <string name="files">Dosyalar</string>
-    <string name="health_checks">Sağlık denetimleri</string>
-    <string name="help_improve_the_app_by_running_health_checks_when_uploads_fail">Yüklemeler başarısız olduğunda sağlık denetimlerinin yapılmasına izin vererek uygulamanın geliştirilmesine yardımcı olun. </string>
-    <string name="health_checks_help_us_understand_why_uploads_fail">Sağlık denetimleri yüklemelerin neden başarısız olduğunu anlamamızı sağlar.</string>
-    <string name="contribute_your_data_to_be_part_of_the_solution">Çözümün bir parçası olmak için verilerinizle katkıda bulunun.</string>
-    <string name="with_your_permission_we_ll_run_a_check_each_time_you_encounter_an_error_while_uploading">İzninizi alarak, yükleme sırasında bir sorun çıktığında sağlık denetimi yapacağız.</string>
-    <string name="health_checks_capture">Sağlık denetimleri yapılıyor</string>
-    <string name="error_description">– Hata açıklaması</string>
-    <string name="size_and_type_of_media">– Ortam boyutu ve türü</string>
-    <string name="number_of_retries">– Yinelenme sayısı</string>
-    <string name="network_type">– Ağ türü</string>
-    <string name="locale">– Yerel</string>
-    <string name="allow_health_checks">Sağlık denetimleri yapılabilsin</string>
-    <string name="by_allowing_health_checks_you_give_permission_for_the_app_to_securely_send_health_check_data_to_the_s_team">Bu seçenek açıldığında, uygulamanın sağlık denetimi verileri güvenli bir şekilde %s ekibine gönderilir. </string>
-    <string name="no_thanks">Hayır, teşekkürler</string>
-    <string name="undo">Geri al</string>
 
-</resources>
+    <!-- Internet Archive Settings -->
+    <string name="label_email">E-posta</string>
+    <string name="label_screen_name">Ekran adı</string>
+    <string name="label_create_login">Bir tane oluştur</string>
+    <string name="prompt_no_account">Hesabınız yok mu\?</string>
+
+    <string name="pref_title_secure">Güvenli Tutma</string>
+    <string name="pref_title_archive">Arşivleyin</string>
+    <string name="pref_title_privacy_policy">Koşullar ve gizlilik</string>
+    <string name="pref_title_media_servers">Ortam sunucuları</string>
+    <string name="pref_title_media_folders">Arşivlenmiş klasörler</string>
+    <string name="pref_summary_media_servers">Sunucularınızı yönetin</string>
+    <string name="pref_summary_media_folders">Arşivlenmiş klasörlerinizi yönetin</string>
+    <string name="pref_summary_privacy_policy">Koşullarımızı ve gizlilik ilkemizi okuyun</string>
+
+    <!-- General -->
+    <string name="label_success_title">Başarılı!</string>
+    <string name="label_warning_title">Uyarı!</string>
+    <string name="label_info_title">Bilgiler!</string>
+    <string name="label_got_it">Anladım</string>
+
+    <!-- Create New Folder -->
+    <string name="create_folder_ok_message">Bir klasör eklediniz.</string>
+    <string name="msg_edit_server_success">Sunucu ayarlarınızı değiştirdiniz.</string>
+    <string name="expand">Genişlet</string>
+    <string name="lbl_no_servers">Henüz bir sunucu eklenmemiş.</string>
+    <string name="lbl_no_archived_folders">Herhangi bir arşivlenmiş klasör bulunamadı.</string>
+    <string name="error_no_internet">İnternet erişimi yok</string>
+    <string name="save_by_open_archive">Save geliştiricisi OpenArchive</string>
+    <string name="discover_the_save_app">Ayrıntılı Bilgi Alın</string>
+
+    </resources>

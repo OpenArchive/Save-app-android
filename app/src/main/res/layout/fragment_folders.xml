@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:filterTouchesWhenObscured="true"
+    android:orientation="vertical"
+    tools:background="@color/colorBackground"
+    tools:context=".features.settings.FoldersFragment">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:filterTouchesWhenObscured="true"
+        android:orientation="vertical">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_marginHorizontal="8dp"
+            android:id="@+id/rv_projects"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_vertical_margin" />
+
+        <com.google.android.material.button.MaterialButton
+            app:backgroundTint="@color/colorTertiary"
+            android:textColor="@color/colorBackground"
+            android:id="@+id/bt_view_archived"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/activity_vertical_margin"
+            android:layout_marginHorizontal="16dp"
+            android:text="@string/view_archived_folders" />
+
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/tv_no_folders"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textColor="@color/colorOnSurface"
+        android:textFontWeight="600"
+        android:text="@string/lbl_no_archived_folders"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

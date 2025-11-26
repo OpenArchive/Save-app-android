@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "900597763618",
+    "project_id": "oasave-78ec7",
+    "storage_bucket": "oasave-78ec7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:900597763618:android:e30a7cc27956392030c47b",
+        "android_client_info": {
+          "package_name": "net.opendasharchive.openarchive.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1kOmoaIG2hzZjbD2a0fylMABO9SSo950"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:900597763618:android:6f0ce72c1443a26d30c47b",
+        "android_client_info": {
+          "package_name": "net.opendasharchive.openarchive.release"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1kOmoaIG2hzZjbD2a0fylMABO9SSo950"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

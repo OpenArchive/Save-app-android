@@ -8,6 +8,7 @@ import com.orm.SugarRecord
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.core.net.toUri
 
 data class Media(
     var originalFilePath: String = "",
@@ -111,7 +112,7 @@ data class Media(
         }
 
     val fileUri: Uri
-        get() = Uri.parse(originalFilePath)
+        get() = originalFilePath.toUri()
 
     val file: File
         get() = fileUri.toFile()

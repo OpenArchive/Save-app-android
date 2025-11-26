@@ -19,8 +19,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Backspace
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,12 +30,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
+import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.features.settings.passcode.AppHapticFeedbackType
 import net.opendasharchive.openarchive.features.settings.passcode.HapticManager
 import org.koin.compose.koinInject
@@ -42,13 +47,15 @@ private val keys = listOf(
     "1", "2", "3",
     "4", "5", "6",
     "7", "8", "9",
-    "", "0"
+    "delete", "0", "submit"
 )
 
 @Composable
 fun NumericKeypad(
     isEnabled: Boolean = true,
     onNumberClick: (String) -> Unit,
+    onDeleteClick: () -> Unit,
+    onSubmitClick: () -> Unit
 ) {
 
     Box(
@@ -73,7 +80,11 @@ fun NumericKeypad(
                             label = label,
                             enabled = isEnabled,
                             onClick = {
-                                onNumberClick(label)
+                                when (label) {
+                                    "delete" -> onDeleteClick()
+                                    "submit" -> onSubmitClick()
+                                    else -> onNumberClick(label)
+                                }
                             }
                         )
                     } else {
@@ -88,36 +99,33 @@ fun NumericKeypad(
 @Preview
 @Composable
 private fun NumericKeypadPreview() {
-    SaveAppTheme {
-        Scaffold {
-            Box(
-                modifier = Modifier.padding(it),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background),
-                    verticalArrangement = Arrangement.SpaceAround,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
 
+    DefaultScaffoldPreview {
 
-                    // Custom numeric keypad
-                    NumericKeypad(
-                        isEnabled = true,
-                        onNumberClick = { number ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            verticalArrangement = Arrangement.SpaceAround,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
-                        }
-                    )
+            // Custom numeric keypad
+            NumericKeypad(
+                isEnabled = true,
+                onNumberClick = { number ->
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                },
+                onDeleteClick = {},
+                onSubmitClick = {}
+            )
 
+            Spacer(modifier = Modifier.height(16.dp))
 
-                }
-            }
         }
+
     }
+
 }
 
 @Composable
@@ -130,8 +138,41 @@ private fun NumberButton(
 
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
+
+    // Determine background color based on button type and pressed state
     val backgroundColor by animateColorAsState(
-        targetValue = if (isPressed) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else Color.Transparent,
+        targetValue = when {
+            isPressed -> when (label) {
+                "delete" -> colorResource(R.color.red_bg).copy(alpha = 0.5f)
+                "submit" -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f)
+                else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+            }
+
+            else -> when (label) {
+                "delete" -> colorResource(R.color.red_bg).copy(alpha = 0.3f)
+                "submit" -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)
+                else -> Color.Transparent
+            }
+        },
+        animationSpec = spring(),
+        label = ""
+    )
+
+    // Determine background color based on button type and pressed state
+    val borderColor by animateColorAsState(
+        targetValue = when {
+            isPressed -> when (label) {
+                "delete" -> Color.Transparent
+                "submit" -> Color.Transparent
+                else -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)
+            }
+
+            else -> when (label) {
+                "delete" -> Color.Transparent
+                "submit" -> Color.Transparent
+                else -> MaterialTheme.colorScheme.tertiary
+            }
+        },
         animationSpec = spring(),
         label = ""
     )
@@ -144,21 +185,35 @@ private fun NumberButton(
                 indication = null,
                 enabled = enabled,
                 onClick = {
-                    hapticManager.performHapticFeedback(AppHapticFeedbackType.KeyPress)
+                    hapticManager?.performHapticFeedback(AppHapticFeedbackType.KeyPress)
                     onClick()
                 }
             )
-            .border(width = 2.dp, color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f), shape = CircleShape)
+            .border(width = 2.dp, color = borderColor, shape = CircleShape)
             .size(72.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = label,
-            style = TextStyle(
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
+
+        when (label) {
+            "delete" -> Icon(
+                painter = painterResource(R.drawable.ic_backspace),
+                contentDescription = "Delete",
+                tint = MaterialTheme.colorScheme.onBackground
             )
-        )
+
+            "submit" -> Icon(
+                painter = painterResource(R.drawable.ic_arrow_submit),
+                contentDescription = "Submit",
+                tint = MaterialTheme.colorScheme.onBackground
+            )
+
+            else -> Text(
+                text = label,
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            )
+        }
     }
 }

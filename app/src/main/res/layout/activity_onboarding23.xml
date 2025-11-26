@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:background="@color/colorBackground">
 
 
@@ -10,9 +11,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/nav_block"
-        android:layout_marginLeft="40dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginRight="40dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="32dp"
         android:orientation="vertical"
         android:weightSum="63">
 
@@ -30,12 +31,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginLeft="40dp"
         android:orientation="horizontal">
 
         <ImageView
             android:layout_width="170dp"
             android:layout_height="200dp"
+            android:layout_marginStart="-8dp"
+            android:layout_marginBottom="-8dp"
             android:importantForAccessibility="no"
             android:src="@drawable/onboarding23_app_hand" />
 
@@ -43,20 +45,23 @@
             android:id="@+id/get_started"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
             android:clickable="true"
             android:focusable="true"
-            android:orientation="vertical"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingEnd="24dp"
+            android:paddingStart="24dp"
             android:paddingBottom="10dp">
+
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/get_started"
                 android:textColor="@color/colorText"
-                android:textSize="16sp"
+                android:layout_marginEnd="16dp"
+                android:textSize="18sp"
+                android:textFontWeight="600"
                 android:textStyle="bold" />
 
             <ImageView
@@ -64,9 +69,9 @@
                 android:layout_width="24dp"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
-                android:paddingTop="8dp"
                 android:src="@drawable/onboarding23_arrow_right"
                 app:tint="@color/colorText" />
+
 
         </LinearLayout>
 

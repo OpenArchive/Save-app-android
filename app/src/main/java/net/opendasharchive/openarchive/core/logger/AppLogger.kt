@@ -1,12 +1,8 @@
 package net.opendasharchive.openarchive.core.logger
 
 import android.content.Context
-import com.orhanobut.logger.AndroidLogAdapter
-import com.orhanobut.logger.DiskLogAdapter
-import com.orhanobut.logger.FormatStrategy
-import com.orhanobut.logger.Logger
-import com.orhanobut.logger.PrettyFormatStrategy
-import net.opendasharchive.openarchive.BuildConfig
+import net.opendasharchive.openarchive.core.logger.AppLogger.init
+import net.opendasharchive.openarchive.util.Analytics
 import timber.log.Timber
 
 
@@ -37,10 +33,12 @@ object AppLogger {
     // Info Level Logging
     fun i(message: String, vararg args: Any?) {
         Timber.i(message + args.joinToString(" "))
+        Analytics.log(Analytics.APP_LOG, mapOf("info" to message + args.joinToString(" ")))
     }
 
     fun i(message: String, throwable: Throwable) {
         Timber.i(throwable, message)
+        Analytics.log(Analytics.APP_LOG, mapOf("info" to message))
     }
 
     // Debug Level Logging
@@ -55,19 +53,22 @@ object AppLogger {
     // Error Level Logging
     fun e(message: String, vararg args: Any?) {
         Timber.e(message + args.joinToString(" "))
+        Analytics.log(Analytics.APP_ERROR, mapOf("error" to message + args.joinToString(" ")))
     }
 
     fun e(message: String, throwable: Throwable) {
         Timber.e(throwable, message)
+        Analytics.log(Analytics.APP_ERROR, mapOf("error" to message))
     }
 
     fun e(throwable: Throwable) {
         Timber.e(throwable)
+        Analytics.log(Analytics.APP_ERROR, mapOf("error" to throwable.message))
     }
 
     // Warning Level Logging
     fun w(message: String, vararg args: Any?) {
-        Timber.w(message + args.joinToString(" "))
+        Timber.w("%s%s", message, args.joinToString(" "))
     }
 
     fun w(message: String, throwable: Throwable) {
@@ -76,7 +77,7 @@ object AppLogger {
 
     // Verbose Level Logging
     fun v(message: String, vararg args: Any?) {
-        Timber.v(message + args.joinToString(" "))
+        Timber.v("%s%s", message, args.joinToString(" "))
     }
 
     // Tagged Logging Methods
@@ -96,6 +97,20 @@ object AppLogger {
         override fun createStackElementTag(element: StackTraceElement): String? {
             // Customize the tag to include the class name and line number
             return "${element.fileName}:${element.lineNumber}"
+        }
+    }
+
+
+    val imageLogger = object : coil3.util.Logger {
+        override var minLevel: coil3.util.Logger.Level = coil3.util.Logger.Level.Verbose
+
+        override fun log(
+            tag: String,
+            level: coil3.util.Logger.Level,
+            message: String?,
+            throwable: Throwable?
+        ) {
+            Timber.tag("Coil3:$tag").log(level.ordinal, throwable, message)
         }
     }
 }

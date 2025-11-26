@@ -8,19 +8,21 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdJoinGroupBinding
 import net.opendasharchive.openarchive.db.SnowbirdError
 import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.db.SnowbirdRepo
 import net.opendasharchive.openarchive.extensions.getQueryParameter
 import net.opendasharchive.openarchive.extensions.showKeyboard
-import net.opendasharchive.openarchive.features.onboarding.BaseFragment
-import net.opendasharchive.openarchive.features.settings.SpaceSetupSuccessFragment
+import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.util.FullScreenOverlayCreateGroupManager
-import net.opendasharchive.openarchive.util.Utility
 import timber.log.Timber
 
-class SnowbirdJoinGroupFragment private constructor(): BaseFragment() {
+class SnowbirdJoinGroupFragment: BaseFragment() {
 
     private lateinit var viewBinding: FragmentSnowbirdJoinGroupBinding
     private lateinit var uriString: String
@@ -116,12 +118,16 @@ class SnowbirdJoinGroupFragment private constructor(): BaseFragment() {
         repo.save()
         handleCreateGroupLoadingStatus(false)
         snowbirdRepoViewModel.fetchRepos(groupKey, false)
-        Utility.showMaterialMessage(
-            requireContext(),
-            title = "Success!",
-           // message = "Successfully joined"
-        ) {
-            parentFragmentManager.popBackStack()
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Success
+            title = UiText.StringResource(R.string.label_success_title)
+            message = UiText.DynamicString("Successfully joined")
+            positiveButton {
+                text = UiText.StringResource(R.string.label_got_it)
+                action = {
+                    parentFragmentManager.popBackStack()
+                }
+            }
         }
     }
 
@@ -144,16 +150,8 @@ class SnowbirdJoinGroupFragment private constructor(): BaseFragment() {
 
     companion object {
 
-
         const val ARG_RAVEN_GROUP_URI_STRING = "space_setup_success_fragment_arg_message"
 
-        @JvmStatic
-        fun newInstance(uriString: String) =
-            SnowbirdJoinGroupFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_RAVEN_GROUP_URI_STRING, uriString)
-                }
-            }
     }
 
     override fun getToolbarTitle(): String {

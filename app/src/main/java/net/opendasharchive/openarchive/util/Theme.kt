@@ -1,5 +1,9 @@
 package net.opendasharchive.openarchive.util
 
+import android.app.UiModeManager
+import android.content.Context
+import android.content.Context.UI_MODE_SERVICE
+import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
 
 /**
@@ -45,7 +49,15 @@ enum class Theme(val mode: Int) {
          * @param name: Theme name, case insensitive.
          */
         fun get(name: String?): Theme {
-            return entries.firstOrNull { it.name.uppercase() == name?.uppercase() } ?: SYSTEM
+            return entries.firstOrNull { it.name.equals(name, ignoreCase = true) } ?: SYSTEM
         }
+
+        var darkModeEnabled: Boolean
+            get() {
+                return AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
+            }
+            set(value) {
+                AppCompatDelegate.setDefaultNightMode(if (value) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO)
+            }
     }
 }

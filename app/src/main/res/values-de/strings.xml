@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
 
-    <string name="title_activity_login">Anmelden</string>
-    <string name="title_media_list">Uploads</string>
-
     <!-- Alert Values -->
 
     <string name="action_settings">Einstellungen</string>
@@ -36,12 +33,7 @@
 
     <string name="error">Fehler</string>
 
-    <string name="prefs_prohibit_screenshots_title">Bildschirmfotos blockieren</string>
-    <string name="prefs_theme_title">Design</string>
-    <string name="prefs_theme_light">Hell</string>
-    <string name="prefs_theme_dark">Dunkel</string>
     <string name="prefs_use_proofmode_title">Aktiviere ProofMode</string>
-    <string name="prefs_use_proofmode_summary">Erfasse zusätzliche Metadaten und beglaubige alle Medien.</string>
 
     <string name="prefs_share_proofmode_summary">Teile öffentlichen ProofMode Schlüssel</string>
 
@@ -67,7 +59,6 @@
     <string name="action_upload">Upload</string>
 
     <string name="to_get_started_connect_to_a_server_to_store_your_media">Um zu beginnen, verknüpfe einen Server um Deine Medien zu speichern.</string>
-    <string name="in_the_side_menu_you_can_add_another_server_and_connect_to_multiple_servers">Im Seitenmenü kannst Du weitere Server hinzufügen und Dich mit mehreren Servern verbinden.</string>
     <string name="upload_to_the_internet_archive">Zum Internet Archive hochladen</string>
     <string name="action_next">Weiter</string>
     <string name="action_done">Fertig</string>
@@ -77,35 +68,25 @@
     <string name="edit">Bearbeiten</string>
     <string name="menu_done">Fertig</string>
     <string name="remove_from_app">Aus App entfernen</string>
-    <string name="remove">Entfernen</string>
+    <string name="lbl_remove">Entfernen</string>
     <string name="action_archive_project">Projekt archivieren</string>
     <string name="action_unarchive_project">Projekt entarchivieren</string>
-    <string name="access_key">Access Key</string>
-    <string name="secret_key">Secret Key</string>
-    <string name="action_acquire_keys">Schlüssel holen</string>
     <string name="new_folder">Neues Verzeichnis</string>
-    <string name="dropbox">Dropbox</string>
     <string name="metadata">Metadaten</string>
 
     <string name="popup_flag_title">Besonderen Inhalt markieren</string>
     <string name="popup_flag_desc">Wenn Du ein Element markierst, wird es in einem Unterordner innerhalb des ausgewählten Projektordners auf dem privaten Server abgelegt.</string>
 
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Die gleiche Creative–Commons–Lizenz für ALLE Ordner auf diesem Server verwenden.</string>
-    <string name="set_unique_creative_commons_licenses_for_each_individual_folder_on_this_server">Eigene Creative–Commons–Lizenz für JEDEN EINZELNEN Ordner auf diesem Server verwenden.</string>
 
-    <string name="action_install">Installieren</string>
     <!-- Clean Insights measurement -->
     <string name="server_name_optional">Servername (optional)</string>
     <string name="add_another_account">Server hinzufügen</string>
-    <string name="prefs_proofmode_key_encryption_title_passcode">Sichere den ProofMode-Schlüssel mit dem Gerätepasswort ab</string>
-    <string name="prefs_proofmode_key_encryption_summary">Wenn Du das änderst, wird ein neuer Schlüssel generiert! Wenn Du den Vorherigen exportiert und signiert hast, wirst Du das mit dem Neuen wiederholen müssen.</string>
     <string name="folders">Ordner</string>
     <string name="folder_name">Ordnername</string>
     <string name="create">Erstellen</string>
     <string name="add">Hinzufügen</string>
     <string name="private_server">Privater Server</string>
-    <string name="upload_to_dropbox">Auf Dropbox hochladen</string>
-    <string name="authenticate">Authentifizieren</string>
     <string name="back">Zurück</string>
     <string name="my_media">Meine Medien</string>
     <string name="server_info">Server Info</string>
@@ -121,35 +102,20 @@
     <string name="archived_folders">Archivierte Ordner</string>
     <string name="view_archived_folders">Archivierte Ordner ansehen</string>
     <string name="refresh">Aktualisieren</string>
-    <string name="to_get_started_please_create_a_folder">Ordner erstellen, um anzufangen</string>
-    <string name="before_adding_media_create_a_new_folder_first">Bevor Du Medien hinzufügen kannst, erstelle erst einen neuen Ordner.</string>
-    <string name="use_upload_chunking_nextcloud_only">Upload stückeln (nur Nextcloud)</string>
-    <string name="chunking_explanation">\"Stückeln\" lädt Medien in Stücken hoch, damit nicht der komplette Upload von vorne begonnen werden muß, wenn die Verbindung unterbrochen wurde.</string>
     <string name="select_all">Alles auswählen</string>
-    <string name="got_it">Verstanden</string>
+    <string name="lbl_got_it">Verstanden</string>
     <string name="edit_multiple">Mehrere editieren</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">Gedrückt halten, um mehrere Elemente auszuwählen.</string>
     <string name="edit_media_info">Editieren</string>
     <string name="add_a_location_optional">Ort hinzufügen (optional)</string>
     <string name="add_notes_optional">Notizen hinzufügen (optional)</string>
     <string name="skip">Überspringen</string>
-    <string name="add_files">Dateien hinzufügen</string>
 
-    <string name="ia_learn_how_summary_step_2">Schritt 2: Wenn Du einen neuen Zugang erstellst, verifiziere Deine E-Mail-Adresse.</string>
-    <string name="retry">Erneut versuchen</string>
+    <string name="lbl_retry">Erneut versuchen</string>
 
     <string name="edit_media">Medien bearbeiten</string>
     <string name="uploading_is_paused">Hochladen pausiert</string>
     <string name="photo_gallery">Fotogallerie</string>
     <string name="files">Dateien</string>
-    <string name="health_checks">Gesundheitscheck</string>
-    <string name="help_improve_the_app_by_running_health_checks_when_uploads_fail">Hilf mit, die App durch Gesundheitschecks besser zu machen, wenn das Hochladen fehlschlägt.</string>
-    <string name="health_checks_help_us_understand_why_uploads_fail">Gesundheitschecks helfen uns zu verstehen, warum das Hochladen manchmal fehlschlägt.</string>
-    <string name="contribute_your_data_to_be_part_of_the_solution">Spende Deine Daten um Teil der Lösung zu werden.</string>
-    <string name="with_your_permission_we_ll_run_a_check_each_time_you_encounter_an_error_while_uploading">Mit Deiner Erlaubnis lassen wir jedes Mal einen Check laufen, wenn ein Fehler beim Hochladen auftritt.</string>
-    <string name="health_checks_capture">Gesundheitschecks erfassen</string>
-    <string name="allow_health_checks">Erlaube Gesundheitschecks?</string>
-    <string name="no_thanks">Nein danke</string>
-    <string name="undo">Zurück</string>
 
 </resources>

@@ -3,6 +3,7 @@ package net.opendasharchive.openarchive.util
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
+import android.net.Uri
 import android.util.Base64
 import androidx.preference.PreferenceManager
 import org.witness.proofmode.ProofMode
@@ -11,10 +12,11 @@ import org.witness.proofmode.ProofModeConstants
 object Prefs {
     const val PASSCODE_ENABLED = "passcode_enabled"
     private const val DID_COMPLETE_ONBOARDING = "did_complete_onboarding"
+    private const val RETURN_TO_SETTINGS_AFTER_RESTART = "return_to_settings_after_restart"
     const val UPLOAD_WIFI_ONLY = "upload_wifi_only"
     private const val NEARBY_USE_BLUETOOTH = "nearby_use_bluetooth"
     private const val NEARBY_USE_WIFI = "nearby_use_wifi"
-    const val USE_TOR = "use_tor"
+    const val USE_TOR = "pref_use_tor"
     const val PROHIBIT_SCREENSHOTS = "prohibit_screenshots"
     const val USE_PROOFMODE = "use_proofmode"
     const val USE_PROOFMODE_KEY_ENCRYPTION = "proofmode_key_encryption"
@@ -29,6 +31,8 @@ object Prefs {
     private const val ADD_FOLDER_HINT_SHOWN = "ft.add_folder"
     private const val LICENSE_URL = "archive_pref_share_license_url"
     private const val PROOFMODE_ENCRYPTED_PASSPHRASE = "proof_mode_encrypted_passphrase"
+
+    val TOR_DOWNLOAD_URL = Uri.parse("https://play.google.com/store/apps/details?id=org.torproject.android")
 
     private var prefs: SharedPreferences? = null
 
@@ -151,6 +155,12 @@ object Prefs {
             prefs?.edit()?.putBoolean(ADD_FOLDER_HINT_SHOWN, value)?.apply()
         }
 
+    var returnToSettingsAfterRestart: Boolean
+        get() = prefs?.getBoolean(RETURN_TO_SETTINGS_AFTER_RESTART, false) ?: false
+        set(value) {
+            prefs?.edit()?.putBoolean(RETURN_TO_SETTINGS_AFTER_RESTART, value)?.apply()
+        }
+
     var licenseUrl: String?
         get() = prefs?.getString(LICENSE_URL, null)
         set(value) {
@@ -207,6 +217,7 @@ object Prefs {
 
     val theme: Theme
         get() = Theme.get(prefs?.getString(THEME, null))
+
 
     var prohibitScreenshots: Boolean
         get() = prefs?.getBoolean(PROHIBIT_SCREENSHOTS, false) ?: false

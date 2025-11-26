@@ -55,3 +55,9 @@ fastlane/.env
 /app/release/baselineProfiles/0/save-unspecified-release.dm
 /app/release/baselineProfiles/1/save-unspecified-release.dm
 /app/release/output-metadata.json
+/app/src/main/assets/.env
+/.kotlin/sessions/kotlin-compiler-1215430679833621634.salive
+/.kotlin/
+/app/release/
+/app/prod/
+/app/prod/release/save-unspecified-prod-release.aab

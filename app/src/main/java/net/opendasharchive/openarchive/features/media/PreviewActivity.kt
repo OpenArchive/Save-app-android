@@ -1,27 +1,39 @@
 package net.opendasharchive.openarchive.features.media
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.view.ContextThemeWrapper
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.TextView
+import android.view.ViewGroup.MarginLayoutParams
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.GridLayoutManager
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivityPreviewBinding
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.features.core.BaseActivity
-import net.opendasharchive.openarchive.util.AlertHelper
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.asUiImage
+import net.opendasharchive.openarchive.features.core.asUiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
+import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
+import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.hide
+import net.opendasharchive.openarchive.util.extensions.isVisible
 import net.opendasharchive.openarchive.util.extensions.show
 import net.opendasharchive.openarchive.util.extensions.toggle
+import kotlin.math.max
+import net.opendasharchive.openarchive.features.media.camera.CameraConfig
+import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
+import org.koin.android.ext.android.inject
+import kotlin.getValue
 
 class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Listener {
 
@@ -35,6 +47,8 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
             context.startActivity(i)
         }
     }
+
+    private val appConfig by inject<AppConfig>()
 
     private lateinit var mBinding: ActivityPreviewBinding
 
@@ -60,11 +74,28 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
             }
         }
 
+    private lateinit var permissionManager: PermissionManager
+
+    private var navigationBarInset = 0
+    private var initialMediaGridBottomPadding = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         mBinding = ActivityPreviewBinding.inflate(layoutInflater)
+        initialMediaGridBottomPadding = mBinding.mediaGrid.paddingBottom
+
+        mBinding.btAddMoreLayout.applyEdgeToEdgeInsets(WindowInsetsCompat.Type.navigationBars()) { insets ->
+            bottomMargin = insets.bottom
+        }
+
+        mBinding.bottomBar.applyEdgeToEdgeInsets(WindowInsetsCompat.Type.navigationBars()) { insets ->
+            bottomMargin = insets.bottom
+        }
+
         setContentView(mBinding.root)
+
+        permissionManager = PermissionManager(this, dialogManager)
 
         mProject = Project.getById(intent.getLongExtra(PROJECT_ID_EXTRA, -1))
 
@@ -80,6 +111,13 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
         mBinding.mediaGrid.layoutManager = GridLayoutManager(this, 2)
         mBinding.mediaGrid.adapter = PreviewAdapter(this)
         mBinding.mediaGrid.setHasFixedSize(true)
+        mBinding.mediaGrid.clipToPadding = false
+        ViewCompat.setOnApplyWindowInsetsListener(mBinding.mediaGrid) { _, windowInsets ->
+            navigationBarInset = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            requestRecyclerBottomPaddingUpdate()
+            windowInsets
+        }
+        requestRecyclerBottomPaddingUpdate()
 
         mBinding.btAddMore.setOnClickListener(this)
         mBinding.btBatchEdit.setOnClickListener(this)
@@ -104,7 +142,30 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
                     }
 
                     R.id.action_upload_camera -> {
-                        Picker.takePhoto(this@PreviewActivity, mediaLaunchers.cameraLauncher)
+                        if (appConfig.useCustomCamera) {
+                            // Use custom camera with photo and video support
+                            val cameraConfig = CameraConfig(
+                                allowVideoCapture = true,
+                                allowPhotoCapture = true,
+                                allowMultipleCapture = false, // Allow adding multiple items
+                                enablePreview = true,
+                                showFlashToggle = true,
+                                showGridToggle = true,
+                                showCameraSwitch = true
+                            )
+                            Picker.launchCustomCamera(
+                                this@PreviewActivity,
+                                mediaLaunchers.customCameraLauncher,
+                                cameraConfig
+                            )
+                        } else {
+                            permissionManager.checkCameraPermission {
+                                Picker.takePhotoModern(
+                                    activity = this@PreviewActivity,
+                                    launcher = mediaLaunchers.modernCameraLauncher
+                                )
+                            }
+                        }
                     }
 
                     R.id.action_upload_files -> {
@@ -127,7 +188,32 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
         if (Picker.canPickFiles(this)) {
             val modalBottomSheet = ContentPickerFragment { action ->
                 when (action) {
-                    AddMediaType.CAMERA -> Picker.takePhoto(this@PreviewActivity, mediaLaunchers.cameraLauncher)
+                    AddMediaType.CAMERA -> {
+                        if (appConfig.useCustomCamera) {
+                            // Use custom camera with photo and video support
+                            val cameraConfig = CameraConfig(
+                                allowVideoCapture = true,
+                                allowPhotoCapture = true,
+                                allowMultipleCapture = true, // Allow adding multiple items in preview
+                                enablePreview = true,
+                                showFlashToggle = true,
+                                showGridToggle = true,
+                                showCameraSwitch = true
+                            )
+                            Picker.launchCustomCamera(
+                                this@PreviewActivity,
+                                mediaLaunchers.customCameraLauncher,
+                                cameraConfig
+                            )
+                        } else {
+                            permissionManager.checkCameraPermission {
+                                Picker.takePhotoModern(
+                                    activity = this@PreviewActivity,
+                                    launcher = mediaLaunchers.modernCameraLauncher
+                                )
+                            }
+                        }
+                    }
                     AddMediaType.FILES -> Picker.pickFiles(mediaLaunchers.filePickerLauncher)
                     AddMediaType.GALLERY -> onClick(mBinding.btAddMore)
                 }
@@ -161,7 +247,9 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
     override fun onClick(view: View?) {
         when (view) {
             mBinding.btAddMore -> {
-                Picker.pickMedia(this, mediaLaunchers.imagePickerLauncher)
+                permissionManager.checkMediaPermissions {
+                    Picker.pickMedia(mediaLaunchers.galleryLauncher)
+                }
             }
 
             mBinding.btBatchEdit -> {
@@ -211,26 +299,57 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
     }
 
     override fun mediaSelectionChanged() {
-        if (mMedia.firstOrNull { it.selected } != null) {
+        val selectedCount = mMedia.count { it.selected }
+        val hasSelection = selectedCount > 0
+        val totalCount = mMedia.size
+
+        if (hasSelection) {
             mBinding.btAddMore.hide()
             mBinding.bottomBar.show()
         } else {
             mBinding.btAddMore.toggle(mProject != null)
             mBinding.bottomBar.hide()
         }
+
+        val shouldShowDeselectAll = totalCount > 1 && selectedCount == totalCount
+        val selectButtonText = if (shouldShowDeselectAll) {
+            R.string.deselect_all
+        } else {
+            R.string.select_all
+        }
+        mBinding.btSelectAll.setText(selectButtonText)
+
+        requestRecyclerBottomPaddingUpdate()
     }
 
     private fun refresh() {
-        mMedia = Media.getByStatus(listOf(Media.Status.Local), Media.ORDER_CREATED)
+        val media = Media.getByStatus(listOf(Media.Status.Local), Media.ORDER_CREATED)
+        media.forEach {
+            if (it.selected) {
+                it.selected = false
+                it.save()
+            }
+        }
+        mMedia = media
     }
 
     private fun showFirstTimeBatch() {
         if (Prefs.batchHintShown) return
 
-        AlertHelper.show(
-            this, R.string.press_and_hold_to_select_and_edit_multiple_media,
-            R.string.edit_multiple, R.drawable.ic_batchedit
-        )
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            icon = R.drawable.ic_media_new.asUiImage()
+            iconColor = dialogManager.requireResourceProvider().getColor(R.color.colorTertiary)
+            title = R.string.edit_multiple.asUiText()
+            message = R.string.press_and_hold_to_select_and_edit_multiple_media.asUiText()
+            positiveButton {
+                text = UiText.StringResource(R.string.lbl_got_it)
+                action = {
+                    dialogManager.dismissDialog()
+                }
+            }
+        }
+
+
 
         Prefs.batchHintShown = true
     }
@@ -247,31 +366,59 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
         }
 
         if (Prefs.dontShowUploadHint) {
+
             queue()
+
         } else {
+
             var doNotShowAgain = false
 
-            val d = AlertDialog.Builder(ContextThemeWrapper(this, R.style.AlertDialogTheme))
-                .setTitle(R.string.once_uploaded_you_will_not_be_able_to_edit_media)
-                .setIcon(R.drawable.baseline_cloud_upload_black_48)
-                .setPositiveButton(
-                    R.string.got_it
-                ) { _: DialogInterface, _: Int ->
-                    Prefs.dontShowUploadHint = doNotShowAgain
-                    queue()
-                }
-                .setNegativeButton(R.string.lbl_Cancel) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-                .setMultiChoiceItems(
-                    arrayOf(getString(R.string.do_not_show_me_this_again)),
-                    booleanArrayOf(false)
-                )
-                { _, _, isChecked ->
+            dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+                type = DialogType.Warning
+                iconColor = dialogManager.requireResourceProvider().getColor(R.color.colorTertiary)
+                message = R.string.once_uploaded_you_will_not_be_able_to_edit_media.asUiText()
+                showCheckbox = true
+                checkboxText = UiText.StringResource(R.string.do_not_show_me_this_again)
+                onCheckboxChanged = { isChecked ->
                     doNotShowAgain = isChecked
-                }.show()
-
-            // hack for making sure this dialog always shows all lines of the pretty long title, even on small screens
-            d.findViewById<TextView>(androidx.appcompat.R.id.alertTitle)?.maxLines = 99
-
+                }
+                positiveButton {
+                    text = UiText.DynamicString("Proceed to upload")
+                    action = {
+                        Prefs.dontShowUploadHint = doNotShowAgain
+                        queue()
+                    }
+                }
+                neutralButton {
+                    text = UiText.DynamicString("Actually, let me edit")
+                }
+            }
         }
+    }
+
+    private fun requestRecyclerBottomPaddingUpdate() {
+        mBinding.mediaGrid.post {
+            updateRecyclerBottomPadding()
+        }
+    }
+
+    private fun updateRecyclerBottomPadding() {
+        val overlayHeight = max(
+            visibleHeightWithBottomMargin(mBinding.btAddMoreLayout),
+            visibleHeightWithBottomMargin(mBinding.bottomBar)
+        )
+
+        val targetBottomPadding = initialMediaGridBottomPadding + max(navigationBarInset, overlayHeight)
+
+        if (mBinding.mediaGrid.paddingBottom != targetBottomPadding) {
+            mBinding.mediaGrid.updatePadding(bottom = targetBottomPadding)
+        }
+    }
+
+    private fun visibleHeightWithBottomMargin(view: View): Int {
+        if (!view.isVisible || view.height == 0) return 0
+        val lp = view.layoutParams as? MarginLayoutParams
+
+        return view.height + (lp?.bottomMargin ?: 0)
     }
 }

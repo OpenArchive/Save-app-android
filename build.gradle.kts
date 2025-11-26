@@ -1,17 +1,24 @@
 plugins {
-    id("com.android.application") version "8.6.1" apply false
-    id("org.jetbrains.kotlin.android") version "2.1.10" apply false
-    id("org.jetbrains.kotlin.plugin.compose") version "2.1.10" apply false
-    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.10" apply false
-    id("com.google.devtools.ksp") version "2.1.10-1.0.29" apply false
-}
+    // Android
+    alias(libs.plugins.android.application) apply false
 
-configurations.configureEach {
-    resolutionStrategy {
-        force("com.android.support:support-v4:1.0.0")
-    }
+    // Kotlin
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.compose.compiler) apply false
+
+    // Build Tools
+    alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.navigation.safeargs) apply false
+
+    // Code Quality
+    alias(libs.plugins.detekt.plugin) apply false
+
+    // Google Services
+    alias(libs.plugins.google.gms.google.services) apply false
+    alias(libs.plugins.google.firebase.crashlytics) apply false
 }
 
 tasks.register<Delete>("clean") {
-    delete(rootProject.buildDir)
+    delete(layout.buildDirectory)
 }

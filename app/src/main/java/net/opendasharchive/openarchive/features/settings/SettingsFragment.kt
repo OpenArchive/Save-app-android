@@ -1,7 +1,6 @@
 package net.opendasharchive.openarchive.features.settings
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -11,17 +10,28 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
+import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
+import net.opendasharchive.openarchive.features.onboarding.StartDestination
+import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupActivity
-import net.opendasharchive.openarchive.features.spaces.SpacesActivity
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Theme
 import net.opendasharchive.openarchive.util.extensions.getVersionName
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
+    private val appConfig by inject<AppConfig>()
+
     private val passcodeRepository by inject<PasscodeRepository>()
+
+    private val dialogManager: DialogStateManager by activityViewModel()
 
 
     private var passcodePreference: SwitchPreferenceCompat? = null
@@ -71,20 +81,26 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 activityResultLauncher.launch(intent)
             } else {
                 // Show confirmation dialog
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Disable Passcode")
-                    .setMessage("Are you sure you want to disable the passcode?")
-                    .setPositiveButton("Yes") { _, _ ->
-                        passcodeRepository.clearPasscode()
-                        passcodePreference?.isChecked = false
+                dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+                    type = DialogType.Warning
+                    title = UiText.StringResource(R.string.disable_passcode_dialog_title)
+                    message = UiText.StringResource(R.string.disable_passcode_dialog_msg)
+                    positiveButton {
+                        text = UiText.StringResource(R.string.answer_yes)
+                        action = {
+                            passcodeRepository.clearPasscode()
+                            passcodePreference?.isChecked = false
 
-                        // Update the FLAG_SECURE dynamically
-                        (activity as? BaseActivity)?.updateScreenshotPrevention()
+                            // Update the FLAG_SECURE dynamically
+                            (activity as? BaseActivity)?.updateScreenshotPrevention()
+                        }
                     }
-                    .setNegativeButton("No") { _, _ ->
-                        passcodePreference?.isChecked = true
+                    neutralButton {
+                        action = {
+                            passcodePreference?.isChecked = true
+                        }
                     }
-                    .show()
+                }
             }
             // Return false to avoid the preference updating immediately
             false
@@ -100,30 +116,98 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
+        // Check if app masking is enabled in the app config
+        if (appConfig.appMaskingEnabled) {
+            getPrefByKey<Preference>(R.string.pref_app_masking)?.setOnPreferenceClickListener {
+                val intent = Intent(context, SpaceSetupActivity::class.java).apply {
+                    putExtra(
+                        SpaceSetupActivity.LABEL_START_DESTINATION,
+                        StartDestination.APP_MASKING.name
+                    )
+                }
+                startActivity(intent)
+                true
+            }
+        } else {
+            // Remove the app masking preference if the feature is disabled
+            findPreference<Preference>(getString(R.string.pref_app_masking))?.isVisible = false
+        }
+
         getPrefByKey<Preference>(R.string.pref_media_servers)?.setOnPreferenceClickListener {
-            startActivity(Intent(context, SpacesActivity::class.java))
+            val intent = Intent(context, SpaceSetupActivity::class.java)
+            intent.putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.SPACE_LIST.name)
+            startActivity(intent)
             true
         }
 
         getPrefByKey<Preference>(R.string.pref_media_folders)?.setOnPreferenceClickListener {
-            startActivity(Intent(context, FoldersActivity::class.java))
+            val intent = Intent(context, SpaceSetupActivity::class.java)
+            intent.putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.ARCHIVED_FOLDER_LIST.name)
+            intent.putExtra(FoldersFragment.EXTRA_SHOW_ARCHIVED, true)
+            startActivity(intent)
             true
         }
 
-        findPreference<Preference>("proof_mode")?.setOnPreferenceClickListener {
+        getPrefByKey<Preference>(R.string.pref_key_proof_mode)?.setOnPreferenceClickListener {
             startActivity(Intent(context, ProofModeSettingsActivity::class.java))
             true
         }
 
         findPreference<Preference>(Prefs.USE_TOR)?.setOnPreferenceChangeListener { _, newValue ->
-            //Prefs.useTor = (newValue as Boolean)
+            Prefs.useTor = (newValue as Boolean)
             //torViewModel.updateTorServiceState()
-            false
+            true
+        }
+
+        getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_tor)?.apply {
+            isEnabled = true
+
+            setOnPreferenceClickListener {
+                dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+                    type = DialogType.Info
+                    iconColor = dialogManager.requireResourceProvider().getColor(R.color.colorTertiary)
+                    title = UiText.StringResource(R.string.tor_disabled_title)
+                    message = UiText.StringResource(R.string.tor_disabled_message)
+                    positiveButton {
+                        text = UiText.StringResource(R.string.tor_download_btn_label)
+                        action = {
+                            // Launch the Tor download activity
+                            val intent = Intent(Intent.ACTION_VIEW, Prefs.TOR_DOWNLOAD_URL)
+                            startActivity(intent)
+                        }
+                    }
+                    neutralButton {
+                        text = UiText.StringResource(android.R.string.cancel)
+                    }
+                }
+                true
+            }
+
+            setOnPreferenceChangeListener { _, newValue ->
+                false
+            }
         }
 
         findPreference<Preference>(Prefs.THEME)?.setOnPreferenceChangeListener { _, newValue ->
             Theme.set(Theme.get(newValue as? String))
+            true
+        }
 
+        // Retrieve the switch preference
+        val darkModeSwitch = getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_dark_mode)
+
+        // Get the saved dark mode preference
+        val isDarkModeEnabled = Prefs.getBoolean(getString(R.string.pref_key_use_dark_mode), false)
+
+        // Set the switch state based on the saved preference
+        darkModeSwitch?.isChecked = isDarkModeEnabled
+
+        getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_dark_mode)?.setOnPreferenceChangeListener { pref, newValue ->
+            val useDarkMode = newValue as Boolean
+            val theme = if (useDarkMode) Theme.DARK else Theme.LIGHT
+            Theme.set(theme)
+            // Save the preference
+            Prefs.putBoolean(getString(R.string.pref_key_use_dark_mode), useDarkMode)
             true
         }
 
@@ -138,39 +222,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val packageManager = requireActivity().packageManager
         val versionText = packageManager.getVersionName(requireActivity().packageName)
 
-        findPreference<Preference>("app_version")?.summary = versionText
+        getPrefByKey<Preference>(R.string.pref_key_app_version)?.summary = versionText
     }
 
-    private fun <T: Preference> getPrefByKey(key: Int): T? {
+    private fun <T : Preference> getPrefByKey(key: Int): T? {
         return findPreference(getString(key))
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        view.setPadding(0, 16.dpToPx(), 0, 0)
     }
-
-    fun Int.dpToPx(): Int = (this * resources.displayMetrics.density).toInt()
-
-
-//    mBinding.btAbout.text = getString(R.string.action_about, getString(R.string.app_name))
-//    mBinding.btAbout.styleAsLink()
-//    mBinding.btAbout.setOnClickListener {
-//        context?.openBrowser("https://open-archive.org/save")
-//    }
-//
-//    mBinding.btPrivacy.styleAsLink()
-//    mBinding.btPrivacy.setOnClickListener {
-//        context?.openBrowser("https://open-archive.org/privacy")
-//    }
-//
-//    val activity = activity
-//
-//    if (activity != null) {
-//        mBinding.version.text = getString(
-//            R.string.version__,
-//            activity.packageManager.getVersionName(activity.packageName)
-//        )
-//    }
 }

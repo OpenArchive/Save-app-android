@@ -7,27 +7,30 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.bundle.bundleOf
+import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.databinding.FragmentSnowbirdListGroupsBinding
+import net.opendasharchive.openarchive.databinding.FragmentSnowbirdGroupListBinding
 import net.opendasharchive.openarchive.db.SnowbirdError
 import net.opendasharchive.openarchive.db.SnowbirdGroup
-import net.opendasharchive.openarchive.features.onboarding.BaseFragment
+import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.util.SpacingItemDecoration
-import net.opendasharchive.openarchive.util.Utility
 import timber.log.Timber
 
-class SnowbirdGroupListFragment private constructor(): BaseFragment() {
+class SnowbirdGroupListFragment : BaseFragment() {
 
-    private lateinit var viewBinding: FragmentSnowbirdListGroupsBinding
+    private lateinit var viewBinding: FragmentSnowbirdGroupListBinding
     private lateinit var adapter: SnowbirdGroupsAdapter
 
     override fun onCreateView(
@@ -35,7 +38,7 @@ class SnowbirdGroupListFragment private constructor(): BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewBinding = FragmentSnowbirdListGroupsBinding.inflate(inflater)
+        viewBinding = FragmentSnowbirdGroupListBinding.inflate(inflater)
 
         return viewBinding.root
     }
@@ -71,11 +74,10 @@ class SnowbirdGroupListFragment private constructor(): BaseFragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.action_add -> {
-                        setFragmentResult(
-                            RESULT_REQUEST_KEY,
-                            bundleOf(RESULT_BUNDLE_NAVIGATION_KEY to RESULT_VAL_RAVEN_CREATE_GROUP_SCREEN)
-                        )
-                        //findNavController().navigate(SnowbirdGroupListFragmentDirections.navigateToSnowbirdCreateGroupScreen())
+
+                            val action =
+                                SnowbirdGroupListFragmentDirections.actionFragmentSnowbirdGroupListToFragmentSnowbirdCreateGroup()
+                            findNavController().navigate(action)
                         true
                     }
 
@@ -105,33 +107,26 @@ class SnowbirdGroupListFragment private constructor(): BaseFragment() {
     }
 
     private fun onClick(groupKey: String) {
-        setFragmentResult(
-            RESULT_REQUEST_KEY, bundleOf(
-                RESULT_BUNDLE_NAVIGATION_KEY to RESULT_VAL_RAVEN_REPO_LIST_SCREEN,
-                RESULT_BUNDLE_GROUP_KEY to groupKey
-            )
-        )
-        //findNavController()
-        // .navigate(SnowbirdGroupListFragmentDirections.navigateToSnowbirdListReposScreen(groupKey))
+
+            val action = SnowbirdGroupListFragmentDirections.actionFragmentSnowbirdGroupListToFragmentSnowbirdListRepos(groupKey)
+            findNavController().navigate(action)
     }
 
     private fun onLongPress(groupKey: String) {
         AppLogger.d("Long press!")
-        Utility.showMaterialPrompt(
-            requireContext(),
-            title = "Share Group",
-            message = "Would you like to share this group?",
-            positiveButtonText = "Yes",
-            negativeButtonText = "No"
-        ) { affirm ->
-            if (affirm) {
-                setFragmentResult(RESULT_REQUEST_KEY,
-                    bundleOf(
-                        RESULT_BUNDLE_NAVIGATION_KEY to RESULT_VAL_RAVEN_SHARE_SCREEN,
-                        RESULT_BUNDLE_GROUP_KEY to groupKey
-                    )
-                )
-                //findNavController().navigate(SnowbirdGroupListFragmentDirections.navigateToSnowbirdShareScreen(groupKey))
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Info
+            title = UiText.DynamicString("Share Group")
+            message = UiText.DynamicString("Would you like to share this group?")
+            positiveButton {
+                text = UiText.DynamicString("Yes")
+                action = {
+                    val action = SnowbirdGroupListFragmentDirections.actionFragmentSnowbirdGroupListToFragmentSnowbirdShareGroup(groupKey)
+                    findNavController().navigate(action)
+                }
+            }
+            neutralButton {
+                text = UiText.DynamicString("No")
             }
         }
     }
@@ -188,20 +183,6 @@ class SnowbirdGroupListFragment private constructor(): BaseFragment() {
         groups.forEach { group ->
             group.save()
         }
-    }
-
-    companion object {
-        const val RESULT_REQUEST_KEY = "raven_group_list_fragment_result"
-        const val RESULT_BUNDLE_NAVIGATION_KEY = "raven_group_list_fragment_bundle_navigation_key"
-
-        const val RESULT_VAL_RAVEN_CREATE_GROUP_SCREEN = "raven_create_group"
-        const val RESULT_VAL_RAVEN_REPO_LIST_SCREEN = "raven_repo_list_screen"
-        const val RESULT_VAL_RAVEN_SHARE_SCREEN = "raven_share_group_screen"
-
-        const val RESULT_BUNDLE_GROUP_KEY = "raven_group_list_fragment_bundle_group_id"
-
-        @JvmStatic
-        fun newInstance() = SnowbirdGroupListFragment()
     }
 
     override fun getToolbarTitle(): String {

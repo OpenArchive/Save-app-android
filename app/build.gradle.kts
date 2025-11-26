@@ -1,34 +1,71 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.plugin.compose")
-    id("org.jetbrains.kotlin.plugin.serialization")
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.navigation.safeargs)
+    alias(libs.plugins.detekt.plugin)
+    alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.google.firebase.crashlytics)
 }
+
+fun loadLocalProperties(): Properties = Properties().apply {
+    val localPropsFile = rootProject.file("local.properties")
+    if (localPropsFile.exists()) {
+        FileInputStream(localPropsFile).use { load(it) }
+    } else {
+        setProperty("MIXPANELKEY", System.getenv("MIXPANEL_KEY") ?: "")
+        setProperty("STOREFILE", System.getenv("STOREFILE") ?: "")
+        setProperty("STOREPASSWORD", System.getenv("STOREPASSWORD") ?: "")
+        setProperty("KEYALIAS", System.getenv("KEYALIAS") ?: "")
+        setProperty("KEYPASSWORD", System.getenv("KEYPASSWORD") ?: "")
+    }
+}
+
+kotlin {
+
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+        languageVersion.set(KotlinVersion.KOTLIN_2_2)
+    }
+}
+
+kotlin {
+    compilerOptions {
+
+        jvmTarget.set(JvmTarget.JVM_17)
+        languageVersion.set(KotlinVersion.KOTLIN_2_2)
+    }
+}
+
 android {
 
-    compileSdk = 34
+    namespace = "net.opendasharchive.openarchive"
+
+    compileSdk = 36
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-
-    kotlinOptions {
-        jvmTarget = "11"
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     defaultConfig {
         applicationId = "net.opendasharchive.openarchive"
         minSdk = 29
-        targetSdk = 34
-        versionCode = 30006
-        versionName = "0.7.8"
+        targetSdk = 36
+        versionCode = 30020
+        versionName = "4.0.2"
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        val localProps = loadLocalProperties()
+        resValue("string", "mixpanel_key", localProps.getProperty("MIXPANELKEY") ?: "")
     }
 
     base {
@@ -47,29 +84,44 @@ android {
             signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
             isShrinkResources = false
-            applicationIdSuffix = ".release"
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
 
         getByName("debug") {
             signingConfig = signingConfigs.getByName("debug")
-            applicationIdSuffix = ".debug"
             isMinifyEnabled = false
+        }
+    }
+
+    flavorDimensions += "env"
+
+    productFlavors {
+
+        create("dev") {
+            dimension = "env"
+            versionNameSuffix = "-dev"
+            applicationIdSuffix = ".debug"
+        }
+
+        create("staging") {
+            dimension = "env"
+            versionNameSuffix = "-staging"
+            applicationIdSuffix = ".debug"
+        }
+
+        create("prod") {
+            dimension = "env"
+            applicationIdSuffix = ".release"
         }
     }
 
     signingConfigs {
         getByName("debug") {
-            val props = Properties()
-            val localPropsFile = rootProject.file("local.properties")
-            if (localPropsFile.exists()) {
-                localPropsFile.inputStream().use { props.load(it) }
-            }
-
-            storeFile = file(props["storeFile"] as? String ?: "")
-            storePassword = props["storePassword"] as? String ?: ""
-            keyAlias = props["keyAlias"] as? String ?: ""
-            keyPassword = props["keyPassword"] as? String ?: ""
+            val props = loadLocalProperties()
+            storeFile = file(props["STOREFILE"] as? String ?: "")
+            storePassword = props["STOREPASSWORD"] as? String ?: ""
+            keyAlias = props["KEYALIAS"] as? String ?: ""
+            keyPassword = props["KEYPASSWORD"] as? String ?: ""
         }
     }
 
@@ -88,7 +140,12 @@ android {
         abortOnError = false
     }
 
-    namespace = "net.opendasharchive.openarchive"
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
+
 
     configurations.all {
         resolutionStrategy {
@@ -100,120 +157,124 @@ android {
 
 dependencies {
 
-    val composeVersion = "1.7.7"
-    val material = "1.12.0"
-    val material3 = "1.3.1"
+    // Kotlin Core
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.serialization.json)
 
-    // Core Kotlin and Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+    // AndroidX Core
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.exifinterface)
 
+    // AndroidX UI Components
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.constraintlayout.compose)
+    implementation(libs.androidx.coordinatorlayout)
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.recyclerview.selection)
+    implementation(libs.androidx.viewpager2)
+    implementation(libs.androidx.swiperefresh)
 
-    // AndroidX Libraries
-    implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("androidx.recyclerview:recyclerview:1.3.2")
-    implementation("androidx.recyclerview:recyclerview-selection:1.1.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.0")
-    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0")
-    implementation("androidx.coordinatorlayout:coordinatorlayout:1.2.0")
-    implementation("androidx.core:core-splashscreen:1.0.1")
+    // AndroidX Activity & Fragment
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.fragment.compose)
 
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.8.6")
-    implementation("androidx.navigation:navigation-ui-ktx:2.8.6")
+    // AndroidX Lifecycle
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.livedata)
+    implementation(libs.androidx.lifecycle.runtime.compose)
 
-    implementation("androidx.preference:preference-ktx:1.2.1")
-    implementation("androidx.biometric:biometric:1.1.0")
-    implementation("androidx.work:work-runtime-ktx:2.9.1")
-    implementation("androidx.security:security-crypto-ktx:1.1.0-alpha06")
+    // AndroidX Navigation
+    implementation(libs.androidx.navigation.fragment)
+    implementation(libs.androidx.navigation.ui)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation.fragment.compose)
 
-    // Compose Preferences
-    implementation("me.zhanghai.compose.preference:library:1.1.1")
+    // Compose UI
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.icons.extended)
+    implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.compose.runtime.livedata)
+    implementation(libs.compose.preferences)
 
     // Material Design
-    implementation("com.google.android.material:material:$material")
+    implementation(libs.google.material)
 
-    // AndroidX SwipeRefreshLayout
-    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.2.0-alpha01")
+    // AndroidX Other
+    implementation(libs.androidx.preferences)
+    implementation(libs.androidx.biometric)
+    implementation(libs.androidx.security.crypto)
+    implementation(libs.androidx.work)
 
-    // Compose Libraries
-    implementation("androidx.activity:activity-compose:1.9.3")
-    implementation("androidx.compose.material3:material3:$material3")
-    implementation("androidx.compose.ui:ui:$composeVersion")
-    implementation("androidx.compose.foundation:foundation:$composeVersion")
-    implementation("androidx.compose.ui:ui-tooling-preview:$composeVersion")
-    implementation("androidx.compose.material:material-icons-extended:$composeVersion")
-    debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
+    // Dependency Injection - Koin
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.koin.androidx.navigation)
+    implementation(libs.koin.compose)
+    implementation(libs.koin.compose.viewmodel)
+    implementation(libs.koin.compose.viewmodel.navigation)
 
-    // Navigation
-    implementation("androidx.navigation:navigation-compose:2.8.6")
-
-    // Preference
-    implementation("androidx.preference:preference-ktx:1.2.1")
-
-    // Dependency Injection
-    implementation("io.insert-koin:koin-core:4.1.0-Beta5")
-    implementation("io.insert-koin:koin-android:4.1.0-Beta5")
-    implementation("io.insert-koin:koin-androidx-compose:4.1.0-Beta5")
-
-    // Image Libraries
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
-    implementation("com.github.esafirm:android-image-picker:3.0.0")
-    implementation("com.squareup.picasso:picasso:2.5.2")
-    implementation("io.coil-kt:coil-compose:2.7.0")
-    implementation("io.coil-kt:coil-video:2.7.0")
-
-    // Networking and Data
     // Networking
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-    implementation("com.google.code.gson:gson:2.11.0")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
-    implementation("com.github.guardianproject:sardine-android:89f7eae512")
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.guardianproject.sardine)
 
-    // Utility Libraries
-    implementation("com.jakewharton.timber:timber:5.0.1")
-    implementation("com.orhanobut:logger:2.2.0")
-    implementation("com.github.abdularis:circularimageview:1.4")
-    implementation("com.tbuonomo:dotsindicator:5.1.0")
-    implementation("com.guolindev.permissionx:permissionx:1.6.4")
+    // Images & Media
+    implementation(libs.coil)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.video)
+    implementation(libs.coil.network)
 
-    // Barcode Scanning
-    implementation("com.google.zxing:core:3.4.1")
-    implementation("com.journeyapps:zxing-android-embedded:4.2.0")
+    // CameraX
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.video)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.camera.extensions)
 
-    // Security and Encryption
-    implementation("org.bouncycastle:bcpkix-jdk15to18:1.72")
-    implementation("org.bouncycastle:bcprov-jdk15to18:1.72")
-    api("org.bouncycastle:bcpg-jdk15to18:1.71")
+    // Media3 - ExoPlayer
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
 
     // Google Play Services
-    implementation("com.google.android.gms:play-services-auth:21.3.0")
-//    implementation("com.google.android.play:core-ktx:1.8.1")
-//    implementation("com.google.android.play:asset-delivery-ktx:2.3.0")
-//    implementation("com.google.android.play:feature-delivery-ktx:2.1.0")
-//    implementation("com.google.android.play:review-ktx:2.0.2")
-//    implementation("com.google.android.play:app-update-ktx:2.1.0")
+    //implementation(libs.google.auth)
+    //implementation(libs.google.play.asset.delivery.ktx)
+    //implementation(libs.google.play.feature.delivery)
+    //implementation(libs.google.play.feature.delivery.ktx)
+    implementation(libs.google.play.review)
+    implementation(libs.google.play.review.ktx)
+    implementation(libs.google.play.app.update.ktx)
 
     // Google Drive API
-    implementation("com.google.http-client:google-http-client-gson:1.42.3")
-    implementation("com.google.api-client:google-api-client-android:1.26.0")
-    implementation("com.google.apis:google-api-services-drive:v3-rev136-1.25.0")
+    //implementation(libs.google.api.client.android)
+    //implementation(libs.google.http.client.gson)
+    //implementation(libs.google.drive.api)
 
-    // Tor Libraries
-    implementation("info.guardianproject:tor-android:0.4.7.14")
-    implementation("info.guardianproject:jtorctl:0.4.5.7")
+    // Security & Cryptography
+    implementation(libs.bouncycastle.bcprov)
+    implementation(libs.bouncycastle.bcpkix)
+    api(libs.bouncycastle.bcpg)
+    implementation(libs.netcipher)
 
-    implementation("org.bitcoinj:bitcoinj-core:0.16.2")
-    implementation("com.eclipsesource.j2v8:j2v8:6.2.1@aar")
+    // Tor & Bitcoin
+    implementation(libs.tor.android)
+    implementation(libs.jtorctl)
+    implementation(libs.bitcoinj.core)
 
-    // ProofMode //from here: https://github.com/guardianproject/proofmode
-    implementation("org.proofmode:android-libproofmode:1.0.26") {
-        //transitive = false
+    // ProofMode
+    implementation(libs.proofmode) {
         exclude(group = "org.bitcoinj")
         exclude(group = "com.google.protobuf")
         exclude(group = "org.slf4j")
@@ -226,41 +287,49 @@ dependencies {
         exclude(group = "com.squareup.okio", module = "okio")
     }
 
-    // Guava Conflicts
-    implementation("com.google.guava:guava:31.0.1-jre")
-    implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")
+    // Utilities
+    implementation(libs.timber)
+    implementation(libs.gson)
+    implementation(libs.guava)
+    implementation(libs.guava.listenablefuture)
+    implementation(libs.dotsindicator)
+    implementation(libs.permissionx)
+    implementation(libs.satyan.sugar)
 
+    // Analytics & Tracking
+    implementation(libs.mixpanel)
+    implementation(libs.clean.insights)
 
-    implementation("com.github.satyan:sugar:1.5")
+    // Firebase
+    implementation(libs.firebase.crashlytics)
 
+    // Testing
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.work.testing)
+    androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.androidx.test.runner)
 
-    // adding web dav support: https://github.com/thegrizzlylabs/sardine-android'
-    implementation("com.github.guardianproject:sardine-android:89f7eae512")
-
-
-    implementation("com.github.derlio:audio-waveform:v1.0.1")
-
-
-    implementation("org.cleaninsights.sdk:clean-insights-sdk:2.8.0")
-    implementation("info.guardianproject.netcipher:netcipher:2.2.0-alpha")
-
-
-    // Tests
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("org.robolectric:robolectric:4.10.3")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test:runner:1.6.2")
-    testImplementation("androidx.work:work-testing:2.9.1")
+    // Detekt Plugins
+    detektPlugins(libs.detekt.formatting)
+    detektPlugins(libs.detekt.rules.libraries)
+    detektPlugins(libs.detekt.rules.authors)
+    detektPlugins(libs.detekt.compose)
+    detektPlugins(libs.detekt.rules.compose)
 }
 
 configurations.all {
     exclude(group = "com.google.guava", module = "listenablefuture")
 }
 
-/**
-testdroid {username '$bbusername'
-password '$bbpassword'
-deviceGroup 'gpdevices'
-mode "FULL_RUN"
-projectName "OASave"}**/
-
+detekt {
+    config.setFrom(file("$rootDir/config/detekt-config.yml"))
+    baseline = file("$rootDir/config/baseline.xml")
+    source.setFrom(
+        files("$rootDir/app/src")
+    )
+    buildUponDefaultConfig = true
+    allRules = false
+    autoCorrect = false
+    ignoreFailures = true
+}

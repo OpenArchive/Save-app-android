@@ -3,7 +3,6 @@ package net.opendasharchive.openarchive.services
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
-import android.net.Uri
 import android.webkit.MimeTypeMap
 import com.google.common.net.UrlEscapers
 import com.google.gson.GsonBuilder
@@ -11,14 +10,12 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Space
-import net.opendasharchive.openarchive.services.gdrive.GDriveConduit
 import net.opendasharchive.openarchive.services.internetarchive.IaConduit
 import net.opendasharchive.openarchive.services.webdav.WebDavConduit
 import net.opendasharchive.openarchive.upload.BroadcastManager
 import net.opendasharchive.openarchive.util.Prefs
 import okhttp3.HttpUrl
-import org.witness.proofmode.ProofMode
-import org.witness.proofmode.crypto.HashUtils
+import org.witness.proofmode.storage.DefaultStorageProvider
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -51,34 +48,17 @@ abstract class Conduit(
 
     fun getProof(): Array<out File> {
         if (!Prefs.useProofMode) return emptyArray()
-
-        // Don't use geolocation and network information.
-        Prefs.proofModeLocation = false
-        Prefs.proofModeNetwork = false
-
         try {
-            var hash = ProofMode.generateProof(
-                mContext,
-                Uri.parse(mMedia.originalFilePath),
-                mMedia.mediaHashString
-            )
-
-            if (hash == null) {
-                val proofHash = HashUtils.getSHA256FromFileContent(
-                    mContext.contentResolver.openInputStream(mMedia.fileUri)
-                )
-
-                hash = ProofMode.generateProof(mContext, mMedia.fileUri, proofHash)
-            }
-
-            return ProofMode.getProofDir(mContext, hash).listFiles() ?: emptyArray()
+        // Here we are simply fetching the files. Don't generate proof here. This is only called during upload.
+        // Generating Proof here won't make sense because the file can be created well before it could be uploaded.
+          //var files = ProofMode.getProofDir(mContext, mMedia.mediaHashString).listFiles() ?: emptyArray()
+          var files = DefaultStorageProvider(mContext).getHashStorageDir(mMedia.mediaHashString)?.listFiles() ?: emptyArray()
+          return files
         } catch (exception: FileNotFoundException) {
             AppLogger.e(exception)
-
             return emptyArray()
         } catch (exception: SecurityException) {
             AppLogger.e(exception)
-
             return emptyArray()
         }
     }
@@ -255,8 +235,6 @@ abstract class Conduit(
                 Space.Type.INTERNET_ARCHIVE -> IaConduit(media, context)
 
                 Space.Type.WEBDAV -> WebDavConduit(media, context)
-
-                Space.Type.GDRIVE -> GDriveConduit(media, context)
 
                 else -> null
             }

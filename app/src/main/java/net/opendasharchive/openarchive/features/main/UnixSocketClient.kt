@@ -5,7 +5,6 @@ import android.net.LocalSocket
 import android.net.LocalSocketAddress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.opendasharchive.openarchive.db.SerializableMarker
 import net.opendasharchive.openarchive.services.snowbird.service.HttpLikeException
@@ -34,8 +33,7 @@ enum class HttpMethod(val value: String) {
 //}
 
 class UnixSocketClient(context: Context) {
-    val socketPath: String = "/data/user/0/net.opendasharchive.openarchive.debug/files/rust_server.sock"
-//    val socketPath: String = File(context.filesDir, "rust_server.sock").absolutePath
+    val socketPath: String = File(context.filesDir, "rust_server.sock").absolutePath
     val json = Json { ignoreUnknownKeys = true }
 
     suspend inline fun <reified REQUEST : SerializableMarker, reified RESPONSE : SerializableMarker> sendRequest(

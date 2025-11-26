@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto">
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -19,8 +23,12 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RUN_USER_INITIATED_JOBS" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
     <queries>
         <package android:name="org.torproject.android" />
@@ -30,6 +38,10 @@
             <action android:name="android.intent.action.OPEN_DOCUMENT" />
             <category android:name="android.intent.category.OPENABLE" />
             <data android:mimeType="application/*" />
+        </intent>
+
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
         </intent>
     </queries>
 
@@ -64,12 +76,16 @@
         <activity
             android:name=".features.main.MainActivity"
             android:exported="true"
-            android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan"
+            android:theme="@style/Theme.SaveApp.Starting"
+            tools:ignore="DiscouragedApi">
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
 
             <!-- filter for sending text or images; accepts SEND action and audio/photo/video data -->
             <intent-filter>
@@ -93,62 +109,73 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:scheme="save+dweb" />
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".features.folders.BrowseFoldersActivity"
-            android:exported="false"
-            android:label="@string/browse_existing"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".upload.UploadManagerActivity"
-            android:exported="false"
-            android:label="@string/title_activity_upload_manager"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-
-        <activity
-            android:name=".services.webdav.WebDavActivity"
-            android:label="@string/title_activity_login"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan" />
-
-        <activity
-            android:name=".features.internetarchive.presentation.InternetArchiveActivity"
-            android:label="@string/title_activity_login"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".services.gdrive.GDriveActivity"
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.spaces.SpacesActivity"
+        <!-- Default alias: same icon & label as your normal launcher -->
+        <activity-alias
+            android:name="${applicationId}.alias.SaveAlias"
+            android:enabled="true"
             android:exported="true"
-            android:label="@string/servers"
-            android:theme="@style/SaveAppTheme.NoActionBar" />
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:targetActivity=".features.main.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
 
-        <activity
-            android:name=".features.settings.FoldersActivity"
-            android:exported="false"
-            android:label="@string/folders"
-            android:theme="@style/SaveAppTheme.NoActionBar" />
+        <!-- Calculator disguise -->
+        <activity-alias
+            android:name="${applicationId}.alias.MaskAlias"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_mask_launcher_calculator"
+            android:label="@string/app_mask_calculator_label"
+            android:roundIcon="@mipmap/ic_mask_launcher_calculator"
+            android:targetActivity=".features.main.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
 
-        <activity
-            android:name=".features.settings.GeneralSettingsActivity"
-            android:exported="false"
-            android:label="@string/general"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
+        <!-- Dictionary disguise -->
+        <activity-alias
+            android:name="${applicationId}.alias.DictionaryAlias"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_mask_launcher_dictionary"
+            android:label="@string/app_mask_dictionary_label"
+            android:roundIcon="@mipmap/ic_mask_launcher_dictionary"
+            android:targetActivity=".features.main.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Calendar disguise -->
+        <activity-alias
+            android:name="${applicationId}.alias.CalendarAlias"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_launcher_calendar"
+            android:label="@string/app_mask_calendar_label"
+            android:roundIcon="@mipmap/ic_launcher_calendar"
+            android:targetActivity=".features.main.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
 
         <activity
             android:name=".features.settings.ProofModeSettingsActivity"
@@ -164,11 +191,11 @@
             android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar" />
 
-        <activity
-            android:name=".features.main.QRScannerActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/zxing_CaptureTheme"
-            android:windowSoftInputMode="stateAlwaysHidden" />
+<!--        <activity-->
+<!--            android:name=".features.main.QRScannerActivity"-->
+<!--            android:screenOrientation="portrait"-->
+<!--            android:theme="@style/zxing_CaptureTheme"-->
+<!--            android:windowSoftInputMode="stateAlwaysHidden" />-->
 
         <activity
             android:name=".features.media.ReviewActivity"
@@ -177,6 +204,13 @@
             android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
+
+        <activity
+            android:name=".features.media.camera.CameraActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:taskAffinity=""
+            android:theme="@style/SaveAppTheme.NoActionBar" />
 
         <activity
             android:name=".features.onboarding.SpaceSetupActivity"
@@ -191,27 +225,11 @@
             android:exported="false"
             android:noHistory="true"
             android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
+            android:theme="@style/SaveAppTheme.NoActionBar.Onboarding" />
 
         <activity
             android:name=".features.onboarding.Onboarding23InstructionsActivity"
             android:exported="false"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.folders.CreateNewFolderActivity"
-            android:label="@string/new_folder"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.folders.AddFolderActivity"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.settings.EditFolderActivity"
             android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar" />
 
@@ -253,6 +271,10 @@
         <meta-data
             android:name="VERSION"
             android:value="37" />
+        <!--        NOTE: Please do not write migrations for added columns, as they are not needed.-->
+        <!--        Only upgrade the version number when you add a new column.-->
+        <!--        migration sql causing duplicate column error:-->
+        <!--            https://github.com/chennaione/sugar/issues/713  -->
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -277,9 +299,8 @@
 
         <service
             android:name=".services.snowbird.service.SnowbirdService"
-            android:foregroundServiceType="dataSync"
-            android:exported="false">
-        </service>
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
     </application>
 

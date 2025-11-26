@@ -29,12 +29,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
+            android:fontFamily="@font/montserrat_medium"
             android:singleLine="true"
+            android:textColor="@color/colorOnBackground"
             android:textFontWeight="500"
-            android:textAppearance="?android:attr/textAppearanceListItem"
             android:textSize="14sp"
             tools:text="Title" />
-
 
 
         <TextView
@@ -43,10 +43,12 @@
             android:layout_height="wrap_content"
             android:layout_below="@android:id/title"
             android:layout_alignStart="@android:id/title"
-            android:maxLines="2"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="?android:attr/textColorSecondary"
+            android:fontFamily="@font/montserrat_medium_italic"
+            android:maxLines="1"
+            android:textColor="@color/colorOnSurfaceVariant"
+            android:textFontWeight="500"
             android:textSize="11sp"
+            android:textStyle="italic"
             tools:text="Summary" />
 
     </RelativeLayout>
