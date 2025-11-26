@@ -58,6 +58,7 @@ class MainMediaFragment : BaseFragment() {
 
     private var selectedMediaIds = mutableSetOf<Long>()
     private var isSelecting = false
+    private var selectionHasActiveItems = false
 
     private lateinit var binding: FragmentMainMediaBinding
 
@@ -204,12 +205,14 @@ class MainMediaFragment : BaseFragment() {
 
     fun enableSelectionMode() {
         isSelecting = true
+        selectionHasActiveItems = false
         mAdapters.values.forEach { it.selecting = true }
         updateSelectionState()
     }
 
     fun cancelSelection() {
         isSelecting = false
+        selectionHasActiveItems = false
         selectedMediaIds.clear()
         mAdapters.values.forEach { it.clearSelections() }
         updateSelectionCount()
@@ -231,6 +234,8 @@ class MainMediaFragment : BaseFragment() {
         }
 
         deleteCollections(toDelete, true)
+        // If all collections are removed or empty, show add media hint.
+        binding.addMediaHint.toggle(mCollections.isEmpty())
     }
 
     private fun createMediaList(collection: Collection, media: List<Media>): View {
@@ -294,9 +299,25 @@ class MainMediaFragment : BaseFragment() {
 
     //update selection UI by summing selected counts from all adapters.
     fun updateSelectionState() {
-        val isSelecting = mAdapters.values.any { it.selecting }
-        (activity as? MainActivity)?.setSelectionMode(isSelecting)
         val totalSelected = mAdapters.values.sumOf { it.getSelectedCount() }
+
+        if (isSelecting && totalSelected > 0) {
+            selectionHasActiveItems = true
+        }
+        // If we were in selection mode, had selections, and now none remain, exit selection.
+        if (isSelecting && selectionHasActiveItems && totalSelected == 0) {
+            isSelecting = false
+            selectionHasActiveItems = false
+        }
+
+        val selectionActive = isSelecting || totalSelected > 0
+
+        // Keep all adapters in sync so a tap in any collection can toggle selection.
+        mAdapters.values.forEach { adapter ->
+            adapter.selecting = selectionActive
+        }
+
+        (activity as? MainActivity)?.setSelectionMode(selectionActive)
         (activity as? MainActivity)?.updateSelectedCount(totalSelected)
     }
 

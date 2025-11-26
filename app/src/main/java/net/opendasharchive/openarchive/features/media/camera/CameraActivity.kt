@@ -136,9 +136,7 @@ class CameraActivity : BaseComposeActivity() {
         window.navigationBarColor = android.graphics.Color.TRANSPARENT
         
         // For Android 15+, also handle the navigation bar appearance
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            window.isNavigationBarContrastEnforced = false
-        }
+        window.isNavigationBarContrastEnforced = false
     }
     
     override fun onCreate(savedInstanceState: Bundle?) {

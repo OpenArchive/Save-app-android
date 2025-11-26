@@ -10,6 +10,7 @@ data class CameraState(
     val isFrontCamera: Boolean = false,
     val showGrid: Boolean = false,
     val isRecording: Boolean = false,
+    val recordingStartTime: Long? = null,
     val capturedItems: List<CapturedItem> = emptyList(),
     val showPreview: Boolean = false,
     val currentPreviewItem: CapturedItem? = null

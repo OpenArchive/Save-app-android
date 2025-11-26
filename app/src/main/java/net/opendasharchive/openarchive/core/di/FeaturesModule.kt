@@ -3,6 +3,10 @@ package net.opendasharchive.openarchive.core.di
 import android.app.Application
 import net.opendasharchive.openarchive.features.internetarchive.internetArchiveModule
 import net.opendasharchive.openarchive.features.spaces.SpaceListViewModel
+import net.opendasharchive.openarchive.services.SaveClientFactory
+import net.opendasharchive.openarchive.services.SaveClientFactoryImpl
+import net.opendasharchive.openarchive.services.webdav.WebDavRepository
+import net.opendasharchive.openarchive.services.webdav.WebDavViewModel
 import net.opendasharchive.openarchive.services.snowbird.ISnowbirdFileRepository
 import net.opendasharchive.openarchive.services.snowbird.ISnowbirdGroupRepository
 import net.opendasharchive.openarchive.services.snowbird.ISnowbirdRepoRepository
@@ -37,4 +41,9 @@ val featuresModule = module {
 
 
     viewModelOf(::SpaceListViewModel)
+
+    // WebDAV
+    single<SaveClientFactory> { SaveClientFactoryImpl(get()) }
+    single { WebDavRepository(get()) }
+    viewModel { WebDavViewModel(get(), get()) }
 }

@@ -31,7 +31,6 @@ fun loadLocalProperties(): Properties = Properties().apply {
 kotlin {
 
     compilerOptions {
-
         jvmTarget.set(JvmTarget.JVM_17)
         languageVersion.set(KotlinVersion.KOTLIN_2_2)
     }
@@ -170,6 +169,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.exifinterface)
 
     // AndroidX UI Components
     implementation(libs.androidx.constraintlayout)
@@ -304,7 +304,6 @@ dependencies {
     implementation(libs.guava.listenablefuture)
     implementation(libs.dotsindicator)
     implementation(libs.permissionx)
-    implementation(libs.audio.waveform)
     implementation(libs.satyan.sugar)
 
     // Analytics & Tracking

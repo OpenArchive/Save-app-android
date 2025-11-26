@@ -115,6 +115,9 @@ class MainActivity :
 
     private var selectModeToggle: Boolean = false
     private var selectedMediaCount = 0
+    private var pendingAddAction: AddMediaType? = null
+    private var pendingAddScroll = false
+    private var pendingAddPicker = false
 
     private enum class FolderBarMode { INFO, SELECTION, EDIT }
 
@@ -359,8 +362,19 @@ class MainActivity :
                     }
                     updateBottomNavbar(position)
                     refreshCurrentProject()
+                    // If we navigated from settings to perform an add action, run it now.
+                    if (pendingAddAction != null && position < mPagerAdapter.settingsIndex) {
+                        val action = pendingAddAction
+                        pendingAddAction = null
+                        pendingAddScroll = false
+                        action?.let { addClicked(it) }
+                    }
+                    if (pendingAddPicker && position < mPagerAdapter.settingsIndex) {
+                        pendingAddPicker = false
+                        openAddPickerSheet()
+                    }
                 }
-            },
+            }
         )
     }
 
@@ -414,7 +428,14 @@ class MainActivity :
             onMyMediaClick = {
                 mCurrentPagerItem = mSelectedMediaPageIndex
             }
-            onAddClick = { addClicked(AddMediaType.GALLERY) }
+            // TODO: Avoid launching multiple pickers on rapid repeated taps.
+            onAddClick = {
+                if (mSelectedPageIndex >= mPagerAdapter.settingsIndex) {
+                    navigateToMediaPageForAdd(AddMediaType.GALLERY)
+                } else {
+                    addClicked(AddMediaType.GALLERY)
+                }
+            }
             onSettingsClick = {
                 mCurrentPagerItem = mPagerAdapter.settingsIndex
             }
@@ -422,15 +443,15 @@ class MainActivity :
             if (Picker.canPickFiles(this@MainActivity)) {
                 setAddButtonLongClickEnabled()
                 onAddLongClick = {
-                    if (Space.current == null) {
+                    if (mSelectedPageIndex >= mPagerAdapter.settingsIndex) {
+                        // Jump back to media page and then open picker.
+                        navigateToMediaPageForPicker()
+                    } else if (Space.current == null) {
                         navigateToAddServer()
                     } else if (getSelectedProject() == null) {
                         navigateToAddFolder()
                     } else {
-                        getCurrentMediaFragment()?.setArrowVisible(false)
-                        val addMediaBottomSheet =
-                            ContentPickerFragment { actionType -> addClicked(actionType) }
-                        addMediaBottomSheet.show(supportFragmentManager, ContentPickerFragment.TAG)
+                        openAddPickerSheet()
                     }
                 }
                 supportFragmentManager.setFragmentResultListener(
@@ -1001,9 +1022,7 @@ class MainActivity :
             }
 
             Space.current == null -> navigateToAddServer()
-            else -> {
-                navigateToAddFolder()
-            }
+            else -> navigateToAddFolder()
         }
     }
 
@@ -1163,6 +1182,34 @@ class MainActivity :
                 )
             }
         }
+    }
+
+    private fun navigateToMediaPageForAdd(action: AddMediaType) {
+        // If already on a media page, perform immediately.
+        if (mSelectedPageIndex < mPagerAdapter.settingsIndex) {
+            addClicked(action)
+            return
+        }
+
+        pendingAddAction = action
+        pendingAddScroll = true
+        binding.contentMain.pager.setCurrentItem(mSelectedMediaPageIndex, true)
+    }
+
+    private fun navigateToMediaPageForPicker() {
+        if (mSelectedPageIndex < mPagerAdapter.settingsIndex) {
+            openAddPickerSheet()
+            return
+        }
+        pendingAddPicker = true
+        binding.contentMain.pager.setCurrentItem(mSelectedMediaPageIndex, true)
+    }
+
+    private fun openAddPickerSheet() {
+        if (Space.current == null || getSelectedProject() == null) return
+        getCurrentMediaFragment()?.setArrowVisible(false)
+        val addMediaBottomSheet = ContentPickerFragment { actionType -> addClicked(actionType) }
+        addMediaBottomSheet.show(supportFragmentManager, ContentPickerFragment.TAG)
     }
 
     override fun onDestroy() {
