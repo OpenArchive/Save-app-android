@@ -13,7 +13,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -27,7 +26,8 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
-import coil3.video.videoFramePercent
+import androidx.compose.ui.res.stringResource
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 
 @Composable
@@ -54,7 +54,7 @@ fun CameraPreviewScreen(
                     model = ImageRequest.Builder(context)
                         .data(item.uri)
                         .build(),
-                    contentDescription = "Captured Photo",
+                    contentDescription = stringResource(R.string.captured_photo),
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Fit
                 )
@@ -94,7 +94,7 @@ fun CameraPreviewScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.back),
                     tint = Color.White
                 )
             }
@@ -120,8 +120,8 @@ fun CameraPreviewScreen(
                 )
                 Text(
                     text = when (item.type) {
-                        CameraCaptureMode.PHOTO -> "PHOTO"
-                        CameraCaptureMode.VIDEO -> "VIDEO"
+                        CameraCaptureMode.PHOTO -> stringResource(R.string.photo_label)
+                        CameraCaptureMode.VIDEO -> stringResource(R.string.video_label)
                     },
                     color = Color.White,
                     fontSize = 12.sp,
@@ -159,11 +159,11 @@ fun CameraPreviewScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
-                        contentDescription = "Retake",
+                        contentDescription = stringResource(R.string.retake),
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
-                        text = "Retake",
+                        text = stringResource(R.string.retake),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -186,11 +186,11 @@ fun CameraPreviewScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = "Use",
+                        contentDescription = if (config.allowMultipleCapture) stringResource(R.string.use) else stringResource(R.string.done),
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
-                        text = if (config.allowMultipleCapture) "Use" else "Done",
+                        text = if (config.allowMultipleCapture) stringResource(R.string.use) else stringResource(R.string.done),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -310,9 +310,10 @@ private fun VideoPreviewPlayer(
                     },
                 contentAlignment = Alignment.Center
             ) {
+                val context = LocalContext.current
                 Icon(
                     imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    contentDescription = if (isPlaying) "Pause" else "Play",
+                    contentDescription = if (isPlaying) stringResource(R.string.pause) else stringResource(R.string.play),
                     tint = Color.White,
                     modifier = Modifier.size(40.dp)
                 )
@@ -328,6 +329,7 @@ private fun VideoPreviewPlayer(
         }
         
         // Video indicator in top-left corner
+        val context = LocalContext.current
         Row(
             modifier = Modifier
                 .align(Alignment.TopStart)
@@ -339,12 +341,12 @@ private fun VideoPreviewPlayer(
         ) {
             Icon(
                 imageVector = Icons.Default.Videocam,
-                contentDescription = "Video",
+                contentDescription = stringResource(R.string.video),
                 tint = Color.White,
                 modifier = Modifier.size(14.dp)
             )
             Text(
-                text = "VIDEO",
+                text = stringResource(R.string.video_label),
                 color = Color.White,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium

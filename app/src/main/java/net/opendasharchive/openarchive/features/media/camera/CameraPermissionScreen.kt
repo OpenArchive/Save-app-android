@@ -14,10 +14,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 
 @Composable
@@ -56,10 +55,10 @@ fun CameraPermissionScreen(
             Spacer(modifier = Modifier.height(24.dp))
             
             Text(
-                text = if (isCameraPermissionPermanentlyDenied) 
-                    "Camera Access Blocked" 
-                else 
-                    "Camera Permission Required",
+                text = if (isCameraPermissionPermanentlyDenied)
+                    stringResource(R.string.camera_access_blocked)
+                else
+                    stringResource(R.string.camera_permission_required),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
@@ -71,15 +70,15 @@ fun CameraPermissionScreen(
             Text(
                 text = when {
                     isCameraPermissionPermanentlyDenied -> {
-                        val audioText = if (needsAudioPermission && isAudioPermissionPermanentlyDenied) 
-                            " and microphone" else ""
-                        "Camera$audioText access has been permanently denied. Please enable it in Settings to use this feature."
+                        val audioText = if (needsAudioPermission && isAudioPermissionPermanentlyDenied)
+                            stringResource(R.string.camera_and_microphone) else ""
+                        stringResource(R.string.camera_access_permanently_denied, audioText)
                     }
                     needsAudioPermission -> {
-                        "This app needs access to your camera and microphone to capture photos and videos."
+                        stringResource(R.string.camera_microphone_permission_description)
                     }
                     else -> {
-                        "This app needs access to your camera to capture photos."
+                        stringResource(R.string.camera_permission_description)
                     }
                 },
                 style = MaterialTheme.typography.bodyLarge,
@@ -104,7 +103,7 @@ fun CameraPermissionScreen(
                             brush = androidx.compose.ui.graphics.SolidColor(Color.White)
                         )
                     ) {
-                        Text("Cancel", color = Color.White)
+                        Text(stringResource(R.string.lbl_Cancel), color = Color.White)
                     }
                     
                     Button(
@@ -123,7 +122,7 @@ fun CameraPermissionScreen(
                                 contentDescription = null,
                                 modifier = Modifier.size(18.dp)
                             )
-                            Text("Open Settings")
+                            Text(stringResource(R.string.open_settings))
                         }
                     }
                 }
@@ -143,9 +142,9 @@ fun CameraPermissionScreen(
                             brush = androidx.compose.ui.graphics.SolidColor(Color.White)
                         )
                     ) {
-                        Text("Cancel", color = Color.White)
+                        Text(stringResource(R.string.lbl_Cancel), color = Color.White)
                     }
-                    
+
                     Button(
                         onClick = onRequestPermissions,
                         modifier = Modifier.weight(1f),
@@ -153,7 +152,7 @@ fun CameraPermissionScreen(
                             containerColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
-                        Text("Grant Permission")
+                        Text(stringResource(R.string.grant_permission), textAlign = TextAlign.Center)
                     }
                 }
             }
@@ -176,7 +175,7 @@ fun CameraPermissionScreen(
                             tint = Color.White.copy(alpha = 0.7f)
                         )
                         Text(
-                            text = "Open App Settings",
+                            text = stringResource(R.string.open_app_settings),
                             color = Color.White.copy(alpha = 0.7f),
                             fontSize = 14.sp
                         )

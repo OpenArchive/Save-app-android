@@ -1,38 +1,38 @@
 package net.opendasharchive.openarchive.db
 
+import android.content.res.ColorStateList
 import android.text.format.Formatter
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import coil3.load
+import coil3.request.Disposable
 import coil3.request.crossfade
+import coil3.request.error
 import coil3.request.placeholder
-import com.github.derlio.waveform.soundfile.SoundFile
+import java.io.InputStream
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.RvMediaRowSmallBinding
+import net.opendasharchive.openarchive.util.PdfThumbnailLoader
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show
 import timber.log.Timber
-import java.io.InputStream
 
 class UploadMediaViewHolder(
     private val binding: RvMediaRowSmallBinding,
     private val onDeleteClick: (Int) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
-
-    companion object {
-        val soundCache = HashMap<String, SoundFile>()
-    }
-
-
     private val mContext = itemView.context
+    private val pdfScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private var pdfThumbnailJob: Job? = null
+    private var imageRequest: Disposable? = null
 
     init {
         binding.btnDelete.setOnClickListener {
@@ -47,89 +47,86 @@ class UploadMediaViewHolder(
         AppLogger.i("Binding media item ${media?.id} with status ${media?.sStatus} and progress ${media?.uploadPercentage}")
         itemView.tag = media?.id
 
+        resetImage()
+        binding.image.tag = media?.id
+        var pdfPreviewSucceeded = false
+        var pdfPreviewPending = false
+        var titleText = ""
+
         binding.image.alpha =
             if (media?.sStatus == Media.Status.Uploaded || !doImageFade) 1f else 0.5f
 
-        if (media?.mimeType?.startsWith("image") == true) {
-            val progress = CircularProgressDrawable(mContext)
-            progress.strokeWidth = 5f
-            progress.centerRadius = 30f
-            progress.start()
-
-            binding.image.apply {
-                scaleType = ImageView.ScaleType.CENTER_CROP
-                show()
-                load(media.fileUri) {
-                    placeholder(progress)
-                    crossfade(true)
+        when {
+            media?.mimeType?.startsWith("image") == true -> {
+                val progress = CircularProgressDrawable(mContext).apply {
+                    strokeWidth = 5f
+                    centerRadius = 30f
+                    start()
                 }
-            }
-            binding.waveform.hide()
-        } else if (media?.mimeType?.startsWith("video") == true) {
-            val progress = CircularProgressDrawable(mContext)
-            progress.strokeWidth = 5f
-            progress.centerRadius = 30f
-            progress.start()
-            binding.image.apply {
-                scaleType = ImageView.ScaleType.CENTER_CROP
-                show()
-                load(media.fileUri) {
-                    placeholder(progress)
-                }
-            }
-            binding.waveform.hide()
-        } else if (media?.mimeType?.startsWith("audio") == true) {
 
-            val soundFile = soundCache[media.originalFilePath]
-
-            if (soundFile != null) {
-                binding.image.hide()
-                binding.waveform.setAudioFile(soundFile)
-                binding.waveform.show()
-            } else {
-                binding.image.setImageDrawable(
-                    ContextCompat.getDrawable(
-                        mContext,
-                        R.drawable.no_thumbnail
-                    )
-                )
-                binding.image.scaleType = ImageView.ScaleType.CENTER_CROP
-                binding.image.show()
-                binding.waveform.hide()
-
-                CoroutineScope(Dispatchers.IO).launch {
-                    @Suppress("NAME_SHADOWING")
-                    val soundFile = try {
-                        SoundFile.create(media.originalFilePath) {
-                            return@create true
-                        }
-                    } catch (e: Throwable) {
-                        Timber.d(e)
-
-                        null
-                    }
-
-                    if (soundFile != null) {
-                        soundCache[media.originalFilePath] = soundFile
-
-                        MainScope().launch {
-                            binding.waveform.setAudioFile(soundFile)
-                            binding.image.hide()
-                            binding.waveform.show()
-                        }
+                binding.image.apply {
+                    scaleType = ImageView.ScaleType.CENTER_CROP
+                    setPadding(0, 0, 0, 0)
+                    show()
+                    imageRequest = load(media.fileUri) {
+                        placeholder(progress)
+                        error(R.drawable.ic_image)
+                        crossfade(true)
+                        listener(onError = { _, result ->
+                            AppLogger.w("Failed to load image: ${result.throwable.message}")
+                            showPlaceholderIcon(R.drawable.ic_image)
+                        })
                     }
                 }
             }
-        } else {
-            binding.image.setImageDrawable(
-                ContextCompat.getDrawable(
-                    mContext,
-                    R.drawable.ic_unknown_file
-                )
-            )
-            binding.image.scaleType = ImageView.ScaleType.CENTER_INSIDE
-            binding.image.show()
-            binding.waveform.hide()
+
+            media?.mimeType?.startsWith("video") == true -> {
+                val progress = CircularProgressDrawable(mContext).apply {
+                    strokeWidth = 5f
+                    centerRadius = 30f
+                    start()
+                }
+
+                binding.image.apply {
+                    scaleType = ImageView.ScaleType.CENTER_CROP
+                    setPadding(0, 0, 0, 0)
+                    show()
+                    imageRequest = load(media.fileUri) {
+                        placeholder(progress)
+                        error(R.drawable.ic_video)
+                        crossfade(true)
+                        listener(onError = { _, result ->
+                            AppLogger.w("Failed to load video thumbnail: ${result.throwable.message}")
+                            showPlaceholderIcon(R.drawable.ic_video)
+                        })
+                    }
+                }
+            }
+
+            media?.mimeType?.startsWith("audio") == true -> {
+                showPlaceholderIcon(R.drawable.ic_music)
+            }
+
+            media?.mimeType == "application/pdf" -> {
+                binding.title.hide()
+                pdfPreviewPending = loadPdfThumbnail(media) { success ->
+                    pdfPreviewSucceeded = success
+                    if (success) {
+                        binding.title.hide()
+                    } else if (titleText.isNotBlank()) {
+                        binding.title.text = titleText
+                        binding.title.show()
+                    }
+                }
+            }
+
+            media?.mimeType?.startsWith("application") == true -> {
+                showPlaceholderIcon(R.drawable.ic_unknown_file)
+            }
+
+            else -> {
+                showPlaceholderIcon(R.drawable.ic_unknown_file)
+            }
         }
 
         if (media != null) {
@@ -194,12 +191,91 @@ class UploadMediaViewHolder(
 
         if (sbTitle.isNotEmpty()) sbTitle.append(": ")
         sbTitle.append(media?.title)
-
         if (sbTitle.isNotBlank()) {
-            binding.title.text = sbTitle.toString()
+            titleText = sbTitle.toString()
+        }
+
+        if (media?.mimeType == "application/pdf" && pdfPreviewPending) {
+            binding.title.hide()
+        } else if (titleText.isNotBlank() && !(media?.mimeType == "application/pdf" && pdfPreviewSucceeded)) {
+            binding.title.text = titleText
             binding.title.show()
         } else {
             binding.title.hide()
         }
+    }
+
+    private fun resetImage() {
+        pdfThumbnailJob?.cancel()
+        pdfThumbnailJob = null
+        imageRequest?.dispose()
+        imageRequest = null
+        binding.image.apply {
+            setImageDrawable(null)
+            setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+            setPadding(0, 0, 0, 0)
+            scaleType = ImageView.ScaleType.CENTER_CROP
+            clearColorFilter()
+            imageTintList = null
+        }
+    }
+
+    private fun showPlaceholderIcon(drawableRes: Int) {
+        val padding = (12 * mContext.resources.displayMetrics.density).toInt()
+        binding.image.apply {
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+            setPadding(padding, padding, padding, padding)
+            imageRequest = load(drawableRes) {
+                crossfade(false)
+            }
+            show()
+        }
+    }
+
+    private fun loadPdfThumbnail(media: Media?, onResult: (Boolean) -> Unit): Boolean {
+        if (media == null) {
+            showPdfPlaceholder()
+            onResult(false)
+            return false
+        }
+
+        val uri = media.fileUri
+        val file = media.file
+        if (uri.scheme == "file" && !file.exists()) {
+            showPdfPlaceholder()
+            onResult(false)
+            return false
+        }
+
+        pdfThumbnailJob = PdfThumbnailLoader.loadThumbnail(
+            imageView = binding.image,
+            uri = uri,
+            placeholderRes = R.drawable.ic_pdf,
+            scope = pdfScope,
+            maxDimensionPx = 400,
+            context = mContext,
+            requestKey = media.id,
+            onPlaceholder = { showPdfPlaceholder() },
+            onResult = onResult
+        )
+        return true
+    }
+
+    private fun showPdfPlaceholder() {
+        val padding = (12 * mContext.resources.displayMetrics.density).toInt()
+        binding.image.apply {
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            setBackgroundColor(ContextCompat.getColor(mContext, android.R.color.transparent))
+            setPadding(padding, padding, padding, padding)
+            setImageResource(R.drawable.ic_pdf)
+            applyPlaceholderTint()
+            show()
+        }
+    }
+
+    private fun applyPlaceholderTint() {
+        val tint = ContextCompat.getColor(mContext, R.color.colorOnSurfaceVariant)
+        binding.image.imageTintList = ColorStateList.valueOf(tint)
     }
 }

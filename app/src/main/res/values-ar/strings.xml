@@ -154,6 +154,7 @@
     <string name="folder_name_already_exists">اسم المجلد موجود بالفعل.</string>
     <string name="metadata">البيانات الوصفية</string>
 
+    <string name="web_dav_host_error">تعذّر العثور على خادم باسم المضيف المحدد.</string>
     <string name="btn_lbl_remove_media">أزِل الوسائط</string>
     <string name="popup_flag_title">أشِّر على المحتوى المميز</string>
     <string name="popup_flag_desc">عندما تضع العلامة على عنصر ما، يتم توجيهها نحو مجلد فرعي داخل مجلد المشروع المختار على الخادم الخاص.</string>
