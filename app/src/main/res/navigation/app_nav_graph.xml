@@ -65,7 +65,7 @@
 
     <fragment
         android:id="@+id/fragment_web_dav"
-        android:name="net.opendasharchive.openarchive.services.webdav.WebDavFragment"
+        android:name="net.opendasharchive.openarchive.services.webdav.WebDavScreenFragment"
         tools:layout="@layout/fragment_web_dav">
         <action
             android:id="@+id/action_fragment_web_dav_to_fragment_setup_license"

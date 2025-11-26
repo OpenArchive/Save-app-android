@@ -37,15 +37,6 @@
 
         </FrameLayout>
 
-        <com.github.derlio.waveform.SimpleWaveformView
-            android:id="@+id/waveform"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginTop="3dp"
-            android:visibility="gone"
-            app:indicatorColor="@color/colorWaveformIndicator"
-            app:waveformColor="@color/colorWaveform" />
-
     </LinearLayout>
 
     <TextView

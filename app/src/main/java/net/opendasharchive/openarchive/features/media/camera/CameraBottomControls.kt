@@ -24,11 +24,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import net.opendasharchive.openarchive.R
 
 @Composable
 fun CameraBottomControls(
     config: CameraConfig,
     cameraState: CameraState,
+    onCameraSwitch: () -> Unit,
     onCaptureModeChange: (CameraCaptureMode) -> Unit,
     onPhotoCapture: () -> Unit,
     onVideoStart: () -> Unit,
@@ -65,7 +68,7 @@ fun CameraBottomControls(
             } else {
                 Spacer(modifier = Modifier.width(80.dp))
             }
-            
+
             // Main capture button (center)
             CameraCaptureButton(
                 captureMode = cameraState.captureMode,
@@ -74,9 +77,20 @@ fun CameraBottomControls(
                 onVideoStart = onVideoStart,
                 onVideoStop = onVideoStop
             )
-            
-            // Right side spacer or gallery thumbnail
-            Spacer(modifier = Modifier.width(80.dp))
+
+            // Camera switch button (right side)
+            IconButton(
+                onClick = onCameraSwitch,
+                modifier = Modifier
+                    .size(48.dp)
+                    .background(Color.Black.copy(alpha = 0.3f), CircleShape)
+            ) {
+                Icon(
+                    imageVector = if (cameraState.isFrontCamera) Icons.Default.CameraFront else Icons.Default.CameraRear,
+                    contentDescription = stringResource(R.string.switch_camera),
+                    tint = Color.White
+                )
+            }
         }
     }
 }
@@ -98,10 +112,11 @@ private fun CameraModeSelector(
     ) {
         CameraCaptureMode.entries.forEach { mode ->
             val isSelected = currentMode == mode
+            val context = androidx.compose.ui.platform.LocalContext.current
             Text(
                 text = when (mode) {
-                    CameraCaptureMode.PHOTO -> "PHOTO"
-                    CameraCaptureMode.VIDEO -> "VIDEO"
+                    CameraCaptureMode.PHOTO -> context.getString(R.string.photo_label)
+                    CameraCaptureMode.VIDEO -> context.getString(R.string.video_label)
                 },
                 modifier = Modifier
                     .clip(RoundedCornerShape(16.dp))
@@ -154,7 +169,7 @@ private fun CameraCaptureButton(
                 ) {
                     Icon(
                         imageVector = Icons.Default.CameraAlt,
-                        contentDescription = "Capture Photo",
+                        contentDescription = stringResource(R.string.capture_photo),
                         tint = Color.Black,
                         modifier = Modifier.size(32.dp)
                     )
@@ -224,7 +239,7 @@ private fun CameraCaptureButton(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Videocam,
-                            contentDescription = "Start Recording",
+                            contentDescription = stringResource(R.string.start_recording),
                             tint = Color.White,
                             modifier = Modifier.size(32.dp)
                         )
@@ -257,11 +272,11 @@ private fun CapturedItemsIndicator(
             ) {
                 Icon(
                     imageVector = Icons.Default.Check,
-                    contentDescription = "Done",
+                    contentDescription = stringResource(R.string.done),
                     modifier = Modifier.size(16.dp)
                 )
                 Text(
-                    text = "Done ($count)",
+                    text = stringResource(R.string.done_with_count, count),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium
                 )

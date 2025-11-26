@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Solid fill with 30% alpha (4D hex = 77 decimal = ~30% of 255) -->
+    <solid android:color="#4D00B4A6" />
+
+    <!-- Teal border at full opacity -->
+    <stroke
+        android:width="2dp"
+        android:color="@color/c23_teal" />
+
+</shape>

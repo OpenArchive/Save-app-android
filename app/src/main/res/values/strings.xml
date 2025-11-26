@@ -173,13 +173,14 @@
     <string name="folder_name_already_exists">Folder name already exists.</string>
     <string name="dropbox" translatable="false">Dropbox</string>
     <string name="metadata">Metadata</string>
+    <string name="web_dav_host_error">A server with the specified hostname could not be found.</string>
 
     <string name="btn_lbl_remove_media">Remove Media</string>
     <string name="popup_flag_title">Flag Significant Content</string>
     <string name="popup_flag_desc">When you flag an item, it is routed into a subfolder within the chosen project folder on the private server.</string>
     <string name="set_creative_commons_license_for_all_folders_on_this_server">Set creative commons licenses for folders on this server.</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Set the same Creative Commons license for ALL folders on this server.</string>
-    <string name="you_already_have_a_server_with_these_credentials">You already have a server with these credentials</string>
+    <string name="you_already_have_a_server_with_these_credentials">You already have a server with these credentials.</string>
 
 
     <!-- Space Setup -->
@@ -287,7 +288,6 @@
     <string name="label_create_login">Create one</string>
     <string name="prompt_no_account">No account?</string>
 
-
     <string name="pref_title_secure">Secure</string>
     <string name="pref_title_archive">Archive</string>
     <string name="pref_title_privacy_policy">Terms and Privacy</string>
@@ -296,20 +296,6 @@
     <string name="pref_summary_media_servers">Manage your servers</string>
     <string name="pref_summary_media_folders">Manage your archived folders</string>
     <string name="pref_summary_privacy_policy">Read our Terms and Privacy Policy</string>
-
-    <string name="pref_app_passcode" translatable="false">passcode_enabled</string>
-    <string name="pref_app_masking" translatable="false">app_masking_enabled</string>
-    <string name="label_app_masking" translatable="false">App Masking</string>
-    <string name="pref_key_proof_mode" translatable="false">pref_proof_mode</string>
-    <string name="pref_key_use_proof_mode" translatable="false">use_proofmode</string>
-    <string name="pref_key_use_tor" translatable="false">pref_use_tor</string>
-    <string name="pref_key_use_dark_mode">pref_is_dark_mode</string>
-    <string name="pref_media_servers" translatable="false">pref_media_servers</string>
-    <string name="pref_media_folders" translatable="false">pref_media_folders</string>
-    <string name="pref_key_about_app" translatable="false">pref_about_app</string>
-    <string name="pref_key_privacy_policy" translatable="false">pref_privacy_policy</string>
-    <string name="pref_key_app_version" translatable="false">pref_app_version</string>
-
 
     <!-- General -->
     <string name="label_success_title">Success!</string>
@@ -326,6 +312,18 @@
     <string name="error_no_internet">Internet not available</string>
     <string name="save_by_open_archive">Save by OpenArchive</string>
     <string name="discover_the_save_app">Learn More</string>
+
+    <string name="pref_media_servers" translatable="false">pref_media_servers</string>
+    <string name="pref_media_folders" translatable="false">pref_media_folders</string>
+    <string name="pref_key_about_app" translatable="false">pref_about_app</string>
+    <string name="pref_key_privacy_policy" translatable="false">pref_privacy_policy</string>
+    <string name="pref_key_app_version" translatable="false">pref_app_version</string>
+    <string name="pref_app_passcode" translatable="false">passcode_enabled</string>
+    <string name="pref_key_proof_mode" translatable="false">pref_proof_mode</string>
+    <string name="pref_key_use_proof_mode" translatable="false">use_proofmode</string>
+    <string name="pref_key_use_tor" translatable="false">pref_use_tor</string>
+    <string name="pref_key_use_dark_mode" translatable="false">pref_is_dark_mode</string>
+    <string name="pref_app_masking" translatable="false">app_masking_enabled</string>
 
     <string name="iv_content_desc" translatable="false">Main Image</string>
     <string name="gdrive_id" translatable="false">Google Drive ID</string>
@@ -391,4 +389,35 @@
     <string name="app_mask_success" translatable="false">Appearance changed successfully</string>
     <string name="app_mask_restarting" translatable="false">Restarting app\u2026</string>
     <string name="app_mask_error" translatable="false">Failed to apply appearance. Please try again.</string>
+
+    <!-- TODO: Camera feature strings - Add translations when ready -->
+    <!-- Camera Permission Screen -->
+    <string name="camera_access_blocked" translatable="false">Camera Access Blocked</string>
+    <string name="camera_permission_required" translatable="false">Camera Permission Required</string>
+    <string name="camera_and_microphone" translatable="false"> and microphone</string>
+    <string name="camera_access_permanently_denied" translatable="false">Camera%1$s access has been permanently denied. Please enable it in Settings to use this feature.</string>
+    <string name="camera_microphone_permission_description" translatable="false">This app needs access to your camera and microphone to capture photos and videos.</string>
+    <string name="camera_permission_description" translatable="false">This app needs access to your camera to capture photos.</string>
+    <string name="open_settings" translatable="false">Open Settings</string>
+    <string name="grant_permission" translatable="false">Grant Permission</string>
+    <string name="open_app_settings" translatable="false">Open App Settings</string>
+
+    <!-- Camera Preview Screen -->
+    <string name="captured_photo" translatable="false">Captured Photo</string>
+    <string name="photo_label" translatable="false">PHOTO</string>
+    <string name="video_label" translatable="false">VIDEO</string>
+    <string name="retake" translatable="false">Retake</string>
+    <string name="use" translatable="false">Use</string>
+    <string name="pause" translatable="false">Pause</string>
+    <string name="play" translatable="false">Play</string>
+    <string name="video" translatable="false">Video</string>
+
+    <!-- Camera Controls -->
+    <string name="switch_camera" translatable="false">Switch Camera</string>
+    <string name="capture_photo" translatable="false">Capture Photo</string>
+    <string name="start_recording" translatable="false">Start Recording</string>
+    <string name="done_with_count" translatable="false">Done (%d)</string>
+    <string name="close" translatable="false">Close</string>
+    <string name="grid" translatable="false">Grid</string>
+    <string name="flash" translatable="false">Flash</string>
 </resources>
