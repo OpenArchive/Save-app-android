@@ -59,17 +59,20 @@ fun CameraBottomControls(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Captured items count (left side)
-            if (config.allowMultipleCapture) {
-                CapturedItemsIndicator(
-                    count = cameraState.capturedItems.size,
-                    onDone = onDone
-                )
-            } else {
-                Spacer(modifier = Modifier.width(80.dp))
+            // Captured items count (left side) - fixed width to match right side
+            Box(
+                modifier = Modifier.width(80.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                if (config.allowMultipleCapture) {
+                    CapturedItemsIndicator(
+                        count = cameraState.capturedItems.size,
+                        onDone = onDone
+                    )
+                }
             }
 
-            // Main capture button (center)
+            // Main capture button (center) - properly centered
             CameraCaptureButton(
                 captureMode = cameraState.captureMode,
                 isRecording = cameraState.isRecording,
@@ -78,18 +81,25 @@ fun CameraBottomControls(
                 onVideoStop = onVideoStop
             )
 
-            // Camera switch button (right side)
-            IconButton(
-                onClick = onCameraSwitch,
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(Color.Black.copy(alpha = 0.3f), CircleShape)
+            // Camera switch button (right side) - fixed width to match left side
+            Box(
+                modifier = Modifier.width(80.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = if (cameraState.isFrontCamera) Icons.Default.CameraFront else Icons.Default.CameraRear,
-                    contentDescription = stringResource(R.string.switch_camera),
-                    tint = Color.White
-                )
+                if (config.showCameraSwitch) {
+                    IconButton(
+                        onClick = onCameraSwitch,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .background(Color.Black.copy(alpha = 0.3f), CircleShape)
+                    ) {
+                        Icon(
+                            imageVector = if (cameraState.isFrontCamera) Icons.Default.CameraFront else Icons.Default.CameraRear,
+                            contentDescription = stringResource(R.string.switch_camera),
+                            tint = Color.White
+                        )
+                    }
+                }
             }
         }
     }
