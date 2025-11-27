@@ -540,17 +540,17 @@ class StorachaMediaFragment :
                 // Show rationale dialog
                 dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                     type = DialogType.Warning
-                    title = UiText.DynamicString("Camera Permission")
+                    title = UiText.DynamicString(getString(R.string.camera_permission))
                     message =
-                        UiText.DynamicString("Camera access is needed to take pictures. Please grant permission.")
+                        UiText.DynamicString(getString(R.string.camera_access_is_needed_to_take_pictures_please_grant_permission))
                     positiveButton {
-                        text = UiText.DynamicString("Accept")
+                        text = UiText.DynamicString(getString(R.string.accept))
                         action = {
                             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                         }
                     }
                     neutralButton {
-                        text = UiText.DynamicString("Cancel")
+                        text = UiText.DynamicString(getString(R.string.cancel))
                     }
                 }
             }

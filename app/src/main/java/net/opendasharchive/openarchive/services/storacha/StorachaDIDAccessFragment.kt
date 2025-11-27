@@ -15,6 +15,7 @@ import com.journeyapps.barcodescanner.CaptureActivity
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaDidAccessBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.services.storacha.util.Ed25519Utils
@@ -55,7 +56,7 @@ class StorachaDIDAccessFragment : BaseFragment() {
                             Toast
                                 .makeText(
                                     requireContext(),
-                                    "Invalid DID format. Please scan a valid DID key (format: did:key:z...)",
+                                    getString(R.string.invalid_did_format_please_scan_a_valid_did_key_format_did_key_z),
                                     Toast.LENGTH_LONG,
                                 ).show()
                         }
@@ -64,7 +65,7 @@ class StorachaDIDAccessFragment : BaseFragment() {
                             Toast
                                 .makeText(
                                     requireContext(),
-                                    "DID already added",
+                                    getString(R.string.did_already_added),
                                     Toast.LENGTH_LONG,
                                 ).show()
                         }
@@ -81,7 +82,7 @@ class StorachaDIDAccessFragment : BaseFragment() {
             when {
                 didText.isEmpty() -> {
                     Toast
-                        .makeText(requireContext(), "Please enter a DID", Toast.LENGTH_SHORT)
+                        .makeText(requireContext(), R.string.did_already_added, Toast.LENGTH_SHORT)
                         .show()
 //                    binding.tvDid.error = "DID is required"
                 }
@@ -90,7 +91,7 @@ class StorachaDIDAccessFragment : BaseFragment() {
                     Toast
                         .makeText(
                             requireContext(),
-                            "Invalid DID format. Please enter a valid DID key (format: did:key:z...)",
+                            getString(R.string.invalid_did_format_please_scan_a_valid_did_key_format_did_key_z),
                             Toast.LENGTH_LONG,
                         ).show()
 //                    binding.tvDid.error = "Invalid DID format"
@@ -100,7 +101,7 @@ class StorachaDIDAccessFragment : BaseFragment() {
                     Toast
                         .makeText(
                             requireContext(),
-                            "DID already added",
+                            getString(R.string.did_already_added),
                             Toast.LENGTH_LONG,
                         ).show()
 //                    binding.tvDid.error = "DID already added"
@@ -120,7 +121,7 @@ class StorachaDIDAccessFragment : BaseFragment() {
         binding.ivQrScanner.setOnClickListener {
             val options = ScanOptions()
             options.setOrientationLocked(true)
-            options.setPrompt("Scan DID Key")
+            options.setPrompt(getString(R.string.scan_did_key))
             options.setBeepEnabled(true)
             options.setCaptureActivity(PortraitCaptureActivity::class.java)
             qrLauncher.launch(options)
@@ -181,7 +182,7 @@ class StorachaDIDAccessFragment : BaseFragment() {
                 Toast
                     .makeText(
                         requireContext(),
-                        "DID access granted successfully",
+                        getString(R.string.did_access_granted_successfully),
                         Toast.LENGTH_SHORT,
                     ).show()
                 findNavController().navigateUp()
@@ -202,7 +203,7 @@ class StorachaDIDAccessFragment : BaseFragment() {
         }
     }
 
-    override fun getToolbarTitle() = "Add DID"
+    override fun getToolbarTitle() = getString(R.string.add_did)
 
     override fun getToolbarSubtitle(): String? = null
 

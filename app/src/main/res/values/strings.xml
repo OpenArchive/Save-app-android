@@ -471,4 +471,13 @@
     <string name="grid" translatable="false">Grid</string>
     <string name="flash" translatable="false">Flash</string>
     <string name="click_on_view_spaces_once_nadmin_has_granted_access">Once the admin approves you,\nthe space will appear under My Spaces.</string>
+    <string name="invalid_did_format_please_scan_a_valid_did_key_format_did_key_z">Invalid DID format. Please scan a valid DID key (format: did:key:z...)</string>
+    <string name="did_already_added">DID already added</string>
+    <string name="scan_did_key">Scan DID Key</string>
+    <string name="did_access_granted_successfully">DID access granted successfully</string>
+    <string name="add_did">Add DID</string>
+    <string name="camera_permission">Camera Permission</string>
+    <string name="camera_access_is_needed_to_take_pictures_please_grant_permission">Camera access is needed to take pictures. Please grant permission.</string>
+    <string name="accept">Accept</string>
+    <string name="cancel">Cancel</string>
 </resources>
