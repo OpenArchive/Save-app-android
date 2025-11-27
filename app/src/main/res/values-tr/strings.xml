@@ -232,6 +232,7 @@
     <string name="press_and_hold_to_select_and_edit_multiple_media">Birkaç ortamı seçmek ve düzenlemek için dokunup basılı tutun.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Yüklendikten sonra ortamı düzenleyemeyeceksiniz.</string>
     <string name="edit_media_info">Ortam bilgilerini düzenle</string>
+    <string name="bulk_edit_media_info">Ortam bilgilerini toplu düzenle</string>
     <string name="add_a_location_optional"><i>Bir konum ekle (isteğe bağlı)</i></string>
     <string name="add_notes_optional"><i>Notlar ekle (isteğe bağlı)</i></string>
     <string name="skip">Atla</string>

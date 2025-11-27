@@ -232,6 +232,7 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="press_and_hold_to_select_and_edit_multiple_media">Maintenez la touche enfoncée pour sélectionner et modifier plusieurs contenus multimédias.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Une fois téléversé, vous ne pourrez plus le modifier.</string>
     <string name="edit_media_info">Modifier les renseignements du média</string>
+    <string name="bulk_edit_media_info">Modifier en masse les infos relatives aux médias</string>
     <string name="add_a_location_optional"><i>Ajouter un emplacement (facultatif)</i></string>
     <string name="add_notes_optional"><i>Ajouter des notes (facultatif)</i></string>
     <string name="skip">Ignorer</string>

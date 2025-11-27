@@ -232,6 +232,7 @@
     <string name="press_and_hold_to_select_and_edit_multiple_media">Mantén presionado para seleccionar y editar múltiples ítems de medios.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Una vez subidos, no podrás editar los medios.</string>
     <string name="edit_media_info">Editar Info de Medios</string>
+    <string name="bulk_edit_media_info">Edición Por Lotes de Info Multimedia</string>
     <string name="add_a_location_optional"><i>Añade una ubicación (opcional)</i></string>
     <string name="add_notes_optional"><i>Añade notas (opcional)</i></string>
     <string name="skip">Omitir</string>

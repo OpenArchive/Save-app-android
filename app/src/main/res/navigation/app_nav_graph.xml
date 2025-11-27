@@ -327,4 +327,21 @@
         android:id="@+id/fragment_proofmode_settings"
         android:name="net.opendasharchive.openarchive.features.settings.SettingsFragment"
         />
+
+    <fragment
+        android:id="@+id/fragment_review_media"
+        android:name="net.opendasharchive.openarchive.features.media.ReviewMediaFragment"
+        tools:layout="null">
+        <argument
+            android:name="media_ids"
+            app:argType="long[]" />
+        <argument
+            android:name="selected_idx"
+            android:defaultValue="0"
+            app:argType="integer" />
+        <argument
+            android:name="batch_mode"
+            android:defaultValue="false"
+            app:argType="boolean" />
+    </fragment>
 </navigation>

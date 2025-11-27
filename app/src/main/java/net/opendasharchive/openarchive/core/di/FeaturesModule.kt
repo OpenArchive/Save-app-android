@@ -2,6 +2,7 @@ package net.opendasharchive.openarchive.core.di
 
 import android.app.Application
 import net.opendasharchive.openarchive.features.internetarchive.internetArchiveModule
+import net.opendasharchive.openarchive.features.media.ReviewMediaViewModel
 import net.opendasharchive.openarchive.features.spaces.SpaceListViewModel
 import net.opendasharchive.openarchive.services.SaveClientFactory
 import net.opendasharchive.openarchive.services.SaveClientFactoryImpl
@@ -41,6 +42,11 @@ val featuresModule = module {
 
 
     viewModelOf(::SpaceListViewModel)
+
+    // Media Review
+    viewModel { (savedStateHandle: androidx.lifecycle.SavedStateHandle) ->
+        ReviewMediaViewModel(savedStateHandle, get<Application>().contentResolver)
+    }
 
     // WebDAV
     single<SaveClientFactory> { SaveClientFactoryImpl(get()) }

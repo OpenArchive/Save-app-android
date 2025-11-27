@@ -232,6 +232,7 @@
     <string name="press_and_hold_to_select_and_edit_multiple_media">Натисніть та тримайте для обрання та редагування декількох медіафайлів.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Після вивантаження медіафайлів втрачається можливість їхнього редагування</string>
     <string name="edit_media_info">Редагувати дані медіафайлу</string>
+    <string name="bulk_edit_media_info">Масове редагування медіаінформації</string>
     <string name="add_a_location_optional"><i>Додати місцеперебування (необов\'язково)</i></string>
     <string name="add_notes_optional"><i>Додати примітки (необов\'язково)</i></string>
     <string name="skip">Пропустити</string>

@@ -49,6 +49,7 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
         private const val EXTRA_SELECTED_IDX = "selected_idx"
         private const val EXTRA_BATCH_MODE = "batch_mode"
 
+        @Deprecated("Use launchReviewScreen instead", ReplaceWith("launchReviewScreen(context, media, selected, batchMode)"))
         fun getIntent(context: Context, media: List<Media>, selected: Media? = null, batchMode: Boolean = false): Intent {
             val i = Intent(context, ReviewActivity::class.java)
             i.putExtra(EXTRA_CURRENT_MEDIA_ID, media.map { it.id }.toLongArray())
@@ -60,6 +61,24 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
             i.putExtra(EXTRA_BATCH_MODE, batchMode)
 
             return i
+        }
+
+        /**
+         * Launch the new Compose-based review screen
+         */
+        fun launchReviewScreen(context: Context, media: List<Media>, selected: Media? = null, batchMode: Boolean = false) {
+            val i = Intent(context, net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity::class.java)
+            i.putExtra(net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity.LABEL_START_DESTINATION,
+                net.opendasharchive.openarchive.features.onboarding.StartDestination.REVIEW_MEDIA.name)
+            i.putExtra("media_ids", media.map { it.id }.toLongArray())
+
+            if (selected != null) {
+                i.putExtra("selected_idx", media.indexOf(selected))
+            }
+
+            i.putExtra("batch_mode", batchMode)
+
+            context.startActivity(i)
         }
     }
 

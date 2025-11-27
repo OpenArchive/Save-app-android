@@ -263,6 +263,8 @@
     <string name="press_and_hold_to_select_and_edit_multiple_media">Press and hold to select and edit multiple media items.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Once uploaded, you will not be able to edit media.</string>
     <string name="edit_media_info">Edit Media Info</string>
+    <string name="bulk_edit_media_info" translatable="false">Bulk Edit Media Info</string>
+    <string name="previous" translatable="false">Previous</string>
     <string name="counter" translatable="false">%1$d/%2$d</string>
     <string name="add_a_location_optional"><i>Add a location (optional)</i></string>
     <string name="add_notes_optional"><i>Add notes (optional)</i></string>

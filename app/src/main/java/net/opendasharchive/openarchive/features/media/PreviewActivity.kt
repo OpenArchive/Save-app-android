@@ -40,11 +40,28 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
     companion object {
         private const val PROJECT_ID_EXTRA = "project_id"
 
+        // Toggle to switch between old XML ReviewActivity and new Compose ReviewMediaScreen
+        // Set to true to use new Compose screen, false to use old XML activity
+        private const val USE_NEW_COMPOSE_REVIEW_SCREEN = true
+
         fun start(context: Context, projectId: Long) {
             val i = Intent(context, PreviewActivity::class.java)
             i.putExtra(PROJECT_ID_EXTRA, projectId)
 
             context.startActivity(i)
+        }
+
+        private fun launchReviewScreen(context: Context, media: List<Media>, selected: Media? = null, batchMode: Boolean = false) {
+            if (USE_NEW_COMPOSE_REVIEW_SCREEN) {
+                // New Compose screen
+                ReviewActivity.launchReviewScreen(context, media, selected, batchMode)
+            } else {
+                // Old XML activity
+                @Suppress("DEPRECATION")
+                (context as? PreviewActivity)?.mLauncher?.launch(
+                    ReviewActivity.getIntent(context, media, selected, batchMode)
+                )
+            }
         }
     }
 
@@ -225,6 +242,7 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
     override fun onResume() {
         super.onResume()
 
+        refresh()
         showFirstTimeBatch()
     }
 
@@ -256,14 +274,12 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
                 val selected = mMedia.filter { it.selected }
 
                 if (selected.size == 1) {
-                    mLauncher.launch(ReviewActivity.getIntent(this, mMedia, selected.first()))
+                    launchReviewScreen(this, mMedia, selected.first())
                 } else if (selected.size > 1) {
-                    mLauncher.launch(
-                        ReviewActivity.getIntent(
-                            this,
-                            mMedia.filter { it.selected },
-                            batchMode = true
-                        )
+                    launchReviewScreen(
+                        this,
+                        mMedia.filter { it.selected },
+                        batchMode = true
                     )
                 }
             }
@@ -295,7 +311,7 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
     }
 
     override fun mediaClicked(media: Media) {
-        mLauncher.launch(ReviewActivity.getIntent(this, mMedia, media))
+        launchReviewScreen(this, mMedia, media)
     }
 
     override fun mediaSelectionChanged() {
