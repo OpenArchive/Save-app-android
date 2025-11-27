@@ -49,7 +49,13 @@ class CameraViewModel : ViewModel() {
     }
 
     fun toggleCamera() {
-        _state.value = _state.value.copy(isFrontCamera = !_state.value.isFrontCamera)
+        // When switching cameras, reset flash support and flash mode
+        // Flash support will be updated to true by onFlashSupportChanged if the new camera has flash
+        _state.value = _state.value.copy(
+            isFrontCamera = !_state.value.isFrontCamera,
+            isFlashSupported = false,
+            flashMode = ImageCapture.FLASH_MODE_OFF
+        )
     }
 
     fun toggleGrid() {

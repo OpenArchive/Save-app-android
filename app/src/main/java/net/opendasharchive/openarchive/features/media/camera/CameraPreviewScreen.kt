@@ -130,13 +130,14 @@ fun CameraPreviewScreen(
             }
         }
         
-        // Bottom controls
+        // Bottom controls - positioned above video player controls
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(32.dp),
+                .padding(bottom = 100.dp) // Extra padding to sit above video player controls
+                .padding(horizontal = 32.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -244,9 +245,7 @@ private fun VideoPreviewPlayer(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var isPlaying by remember { mutableStateOf(false) }
-    var showControls by remember { mutableStateOf(true) }
-    
+
     // Create ExoPlayer
     val exoPlayer = remember {
         ExoPlayer.Builder(context)
@@ -255,18 +254,8 @@ private fun VideoPreviewPlayer(
                 setMediaItem(MediaItem.fromUri(uri))
                 prepare()
                 playWhenReady = false
-                repeatMode = Player.REPEAT_MODE_ONE // Loop the video for preview
+                repeatMode = Player.REPEAT_MODE_OFF // Play once and stop
             }
-    }
-    
-    // Update playing state based on player state
-    LaunchedEffect(exoPlayer) {
-        val listener = object : Player.Listener {
-            override fun onIsPlayingChanged(playing: Boolean) {
-                isPlaying = playing
-            }
-        }
-        exoPlayer.addListener(listener)
     }
     
     // Cleanup player when composable is disposed
@@ -277,80 +266,18 @@ private fun VideoPreviewPlayer(
     }
     
     Box(modifier = modifier) {
-        // Video player view
+        // Video player view with native controls
         AndroidView(
             factory = { ctx ->
                 PlayerView(ctx).apply {
                     player = exoPlayer
                     setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING)
-                    controllerAutoShow = false
-                    hideController()
+                    controllerAutoShow = true // Show native controls
+                    controllerShowTimeoutMs = 5000 // Hide after 5 seconds of inactivity
+                    useController = true // Enable native playback controls
                 }
             },
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable {
-                    showControls = !showControls
-                }
+            modifier = Modifier.fillMaxSize()
         )
-        
-        // Custom play/pause overlay
-        if (showControls) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(80.dp)
-                    .background(Color.Black.copy(alpha = 0.6f), CircleShape)
-                    .clickable {
-                        if (isPlaying) {
-                            exoPlayer.pause()
-                        } else {
-                            exoPlayer.play()
-                        }
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                val context = LocalContext.current
-                Icon(
-                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    contentDescription = if (isPlaying) stringResource(R.string.pause) else stringResource(R.string.play),
-                    tint = Color.White,
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-            
-            // Hide controls after a delay when playing
-            LaunchedEffect(isPlaying, showControls) {
-                if (isPlaying && showControls) {
-                    kotlinx.coroutines.delay(3000) // Hide after 3 seconds
-                    showControls = false
-                }
-            }
-        }
-        
-        // Video indicator in top-left corner
-        val context = LocalContext.current
-        Row(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(16.dp)
-                .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Videocam,
-                contentDescription = stringResource(R.string.video),
-                tint = Color.White,
-                modifier = Modifier.size(14.dp)
-            )
-            Text(
-                text = stringResource(R.string.video_label),
-                color = Color.White,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium
-            )
-        }
     }
 }
