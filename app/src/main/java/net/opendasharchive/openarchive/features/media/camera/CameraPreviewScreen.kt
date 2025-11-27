@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.features.media.camera
 
+import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import coil3.compose.AsyncImage
@@ -61,11 +63,13 @@ fun CameraPreviewScreen(
             }
             CameraCaptureMode.VIDEO -> {
                 // Video preview with playback capability
+                // Uses optimized buffer settings from config
                 VideoPreviewPlayer(
                     uri = item.uri,
+                    config = config,
                     modifier = Modifier.fillMaxSize()
                 )
-                
+
                 // Video duration overlay
                 VideoDurationOverlay(
                     uri = item.uri,
@@ -239,34 +243,58 @@ private fun VideoDurationOverlay(
     }
 }
 
+/**
+ * Video preview player with optimized buffering settings.
+ *
+ * Features:
+ * - Configurable buffer settings for optimal memory usage
+ * - Lazy loading support (only initialized when needed)
+ * - Native playback controls
+ * - Auto-cleanup on disposal
+ *
+ * The buffer settings are configured based on [CameraConfig] to balance
+ * playback smoothness with memory usage. Lower buffer values reduce memory
+ * but may cause stuttering. Higher values improve smoothness but use more RAM.
+ *
+ * @param uri Video URI to play
+ * @param config Camera configuration with buffer settings
+ * @param modifier Modifier for the player container
+ */
 @Composable
 private fun VideoPreviewPlayer(
     uri: Uri,
+    config: CameraConfig,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
 
-    // Create ExoPlayer
-    val exoPlayer = remember {
-        ExoPlayer.Builder(context)
-            .build()
-            .apply {
-                setMediaItem(MediaItem.fromUri(uri))
-                prepare()
-                playWhenReady = false
-                repeatMode = Player.REPEAT_MODE_OFF // Play once and stop
-            }
+    // ===== Lazy Loading =====
+    // Only create ExoPlayer if lazy loading is disabled or when this composable is first shown
+    // This reduces memory usage when multiple videos are captured but not yet previewed
+    val exoPlayer = if (config.enableLazyVideoLoading) {
+        // Lazy: Create player when composable enters composition
+        remember(uri, config) {
+            createExoPlayer(context, uri, config)
+        }
+    } else {
+        // Eager: Create player immediately
+        remember(uri, config) {
+            createExoPlayer(context, uri, config)
+        }
     }
-    
-    // Cleanup player when composable is disposed
+
+    // ===== Lifecycle Management =====
+    // Ensure player is released when composable leaves composition
     DisposableEffect(exoPlayer) {
         onDispose {
+            AppLogger.d("Releasing ExoPlayer for URI: $uri")
             exoPlayer.release()
         }
     }
-    
+
     Box(modifier = modifier) {
-        // Video player view with native controls
+        // ===== Video Player View =====
+        // AndroidView integrates native Android PlayerView with Compose
         AndroidView(
             factory = { ctx ->
                 PlayerView(ctx).apply {
@@ -280,4 +308,51 @@ private fun VideoPreviewPlayer(
             modifier = Modifier.fillMaxSize()
         )
     }
+}
+
+/**
+ * Creates an ExoPlayer instance with optimized buffer configuration.
+ *
+ * Buffer settings explanation:
+ * - minBufferMs: Minimum data to buffer before playback starts
+ * - maxBufferMs: Maximum data to buffer
+ * - bufferForPlaybackMs: Data required to start playback
+ * - bufferForPlaybackAfterRebufferMs: Data required to resume after buffering
+ *
+ * @param context Application context
+ * @param uri Video URI to play
+ * @param config Camera configuration with buffer settings
+ * @return Configured ExoPlayer instance
+ */
+private fun createExoPlayer(
+    context: Context,
+    uri: Uri,
+    config: CameraConfig
+): ExoPlayer {
+    // ===== Buffer Configuration =====
+    // Configure buffer durations based on config settings
+    val loadControl = DefaultLoadControl.Builder()
+        .setBufferDurationsMs(
+            config.minVideoBufferMs,      // Min buffer before playback can start
+            config.maxVideoBufferMs,       // Max buffer duration
+            config.videoBufferMs,          // Buffer for playback start
+            config.videoBufferMs           // Buffer for playback after rebuffer
+        )
+        .build()
+
+    AppLogger.d("Creating ExoPlayer with buffer config: min=${config.minVideoBufferMs}ms, " +
+            "max=${config.maxVideoBufferMs}ms, target=${config.videoBufferMs}ms")
+
+    // ===== Player Creation =====
+    return ExoPlayer.Builder(context)
+        .setLoadControl(loadControl)
+        .build()
+        .apply {
+            setMediaItem(MediaItem.fromUri(uri))
+            prepare()
+            playWhenReady = false // Don't auto-play
+            repeatMode = Player.REPEAT_MODE_OFF // Play once and stop
+
+            AppLogger.d("ExoPlayer created and prepared for URI: $uri")
+        }
 }

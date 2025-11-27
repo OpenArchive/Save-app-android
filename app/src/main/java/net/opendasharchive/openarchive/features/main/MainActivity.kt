@@ -425,7 +425,12 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             // TODO: Avoid launching multiple pickers on rapid repeated taps.
             onAddClick = {
                 if (mSelectedPageIndex >= mPagerAdapter.settingsIndex) {
-                    navigateToMediaPageForAdd(AddMediaType.GALLERY)
+                    val mediaProject = getLastKnownMediaProject()
+                    when {
+                        Space.current == null -> navigateToAddServer()
+                        mediaProject == null -> navigateToAddFolder()
+                        else -> navigateToMediaPageForAdd(AddMediaType.GALLERY)
+                    }
                 } else {
                     addClicked(AddMediaType.GALLERY)
                 }
@@ -438,8 +443,12 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 setAddButtonLongClickEnabled()
                 onAddLongClick = {
                     if (mSelectedPageIndex >= mPagerAdapter.settingsIndex) {
-                        // Jump back to media page and then open picker.
-                        navigateToMediaPageForPicker()
+                        val mediaProject = getLastKnownMediaProject()
+                        when {
+                            Space.current == null -> navigateToAddServer()
+                            mediaProject == null -> navigateToAddFolder()
+                            else -> navigateToMediaPageForPicker() // Jump back to media page and then open picker.
+                        }
                     } else if (Space.current == null) {
                         navigateToAddServer()
                     } else if (getSelectedProject() == null) {
@@ -1163,6 +1172,13 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         getCurrentMediaFragment()?.setArrowVisible(false)
         val addMediaBottomSheet = ContentPickerFragment { actionType -> addClicked(actionType) }
         addMediaBottomSheet.show(supportFragmentManager, ContentPickerFragment.TAG)
+    }
+
+    // Returns the last visited media page's project (used while sitting on Settings).
+    private fun getLastKnownMediaProject(): Project? {
+        if (mPagerAdapter.projects.isEmpty()) return null
+        val safeIndex = mSelectedMediaPageIndex.coerceIn(0, mPagerAdapter.projects.lastIndex)
+        return mPagerAdapter.projects.getOrNull(safeIndex)
     }
 
     override fun onDestroy() {
