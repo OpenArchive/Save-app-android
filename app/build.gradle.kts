@@ -233,14 +233,14 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
     implementation(libs.guardianproject.sardine)
-    implementation("org.jsoup:jsoup:1.17.2")
+    implementation(libs.jsoup)
 
     // Images & Media
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
     implementation(libs.coil.network)
-    implementation("com.squareup.picasso:picasso:2.8")
+    implementation(libs.picasso)
 
     // CameraX
     implementation(libs.androidx.camera.core)
