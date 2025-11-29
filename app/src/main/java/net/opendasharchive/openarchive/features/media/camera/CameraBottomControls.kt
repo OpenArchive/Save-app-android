@@ -56,15 +56,14 @@ fun CameraBottomControls(
         
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Captured items count (left side) - fixed width to match right side
+            // Left column - Done button (takes 1/3 of width)
             Box(
-                modifier = Modifier.width(80.dp),
+                modifier = Modifier.weight(1f),
                 contentAlignment = Alignment.Center
             ) {
-                if (config.allowMultipleCapture) {
+                if (config.allowMultipleCapture && cameraState.capturedItems.size > 0) {
                     CapturedItemsIndicator(
                         count = cameraState.capturedItems.size,
                         onDone = onDone
@@ -72,18 +71,23 @@ fun CameraBottomControls(
                 }
             }
 
-            // Main capture button (center) - properly centered
-            CameraCaptureButton(
-                captureMode = cameraState.captureMode,
-                isRecording = cameraState.isRecording,
-                onPhotoCapture = onPhotoCapture,
-                onVideoStart = onVideoStart,
-                onVideoStop = onVideoStop
-            )
-
-            // Camera switch button (right side) - fixed width to match left side
+            // Center column - Capture button (takes 1/3 of width, always centered)
             Box(
-                modifier = Modifier.width(80.dp),
+                modifier = Modifier.weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                CameraCaptureButton(
+                    captureMode = cameraState.captureMode,
+                    isRecording = cameraState.isRecording,
+                    onPhotoCapture = onPhotoCapture,
+                    onVideoStart = onVideoStart,
+                    onVideoStop = onVideoStop
+                )
+            }
+
+            // Right column - Camera switch button (takes 1/3 of width)
+            Box(
+                modifier = Modifier.weight(1f),
                 contentAlignment = Alignment.Center
             ) {
                 if (config.showCameraSwitch) {
@@ -267,32 +271,54 @@ private fun CapturedItemsIndicator(
     modifier: Modifier = Modifier
 ) {
     if (count > 0) {
-        Button(
-            onClick = onDone,
+        Box(
             modifier = modifier,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Blue,
-                contentColor = Color.White
-            ),
-            shape = RoundedCornerShape(20.dp)
+            contentAlignment = Alignment.Center
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            // Done button
+            Button(
+                onClick = onDone,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Blue,
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(20.dp),
+                contentPadding = PaddingValues(start = 12.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = stringResource(R.string.done),
-                    modifier = Modifier.size(16.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = stringResource(R.string.done),
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.done),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+
+            // Badge with count (positioned at top-right of button)
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(x = 4.dp, y = (-4).dp)
+                    .heightIn(min = 20.dp)
+                    .background(Color.White, CircleShape)
+                    .padding(horizontal = 7.dp, vertical = 2.dp),
+                contentAlignment = Alignment.Center
+            ) {
                 Text(
-                    text = stringResource(R.string.done_with_count, count),
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
+                    text = count.toString(),
+                    color = Color.Black,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
-    } else {
-        Box(modifier = modifier.size(80.dp, 40.dp))
     }
 }
