@@ -116,6 +116,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     private var pendingAddAction: AddMediaType? = null
     private var pendingAddScroll = false
     private var pendingAddPicker = false
+    private var restoredPageIndex: Int? = null  // Only used for configuration changes
+    private var hasRestoredPage = false  // Track if we've already restored the page
 
     private enum class FolderBarMode { INFO, SELECTION, EDIT }
 
@@ -168,6 +170,17 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             return
         }
 
+        // Restore page index if this is a configuration change (e.g., theme change)
+        restoredPageIndex = savedInstanceState?.getInt(KEY_SELECTED_PAGE)
+
+        AppLogger.i("MainActivity onCreate - restoredPageIndex: $restoredPageIndex")
+
+        // If this is a FRESH START (not a configuration change), clear the settings flag
+        // This ensures fresh app starts ALWAYS go to a media page, never settings
+        if (savedInstanceState == null) {
+            AppLogger.i("MainActivity onCreate - Fresh start detected, clearing settings flag")
+            Prefs.putBooleanSync("is_on_settings_page_temp", false)
+        }
 
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 //            window.insetsController?.let {
@@ -274,11 +287,70 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         shouldCheckForUpdate = Prefs.didCompleteOnboarding
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // Save current page for configuration changes (like theme changes)
+        outState.putInt(KEY_SELECTED_PAGE, mSelectedPageIndex)
+    }
+
     override fun onResume() {
         super.onResume()
         AppLogger.i("MainActivity onResume is called.......")
         refreshSpace()
-        mCurrentPagerItem = mSelectedPageIndex
+
+        // Only restore the page on the FIRST onResume after onCreate
+        // This prevents overriding manual navigation (like folder selection from drawer)
+        if (!hasRestoredPage) {
+            // Check if we were on the settings page before activity recreation
+            val wasOnSettings = Prefs.getBoolean("is_on_settings_page_temp", false)
+
+            AppLogger.i("MainActivity onResume - wasOnSettings: $wasOnSettings, restoredPageIndex: $restoredPageIndex")
+
+            // Determine which page to show:
+            if (wasOnSettings) {
+                // We were on settings - go back to settings (index may have changed if projects changed)
+                AppLogger.i("MainActivity onResume - restoring to settings page: ${mPagerAdapter.settingsIndex}")
+                mSelectedPageIndex = mPagerAdapter.settingsIndex
+
+                // Also restore the last media page index for the "My Media" button
+                mSelectedMediaPageIndex = Prefs.currentHomePage.coerceIn(0, mPagerAdapter.settingsIndex - 1)
+                AppLogger.i("MainActivity onResume - also setting mSelectedMediaPageIndex to: $mSelectedMediaPageIndex")
+            } else if (restoredPageIndex != null) {
+                // Configuration change with a specific page - restore it
+                AppLogger.i("MainActivity onResume - restoring to saved page: $restoredPageIndex")
+                // Don't cap at settingsIndex - 1, allow restoring to settings page too
+                mSelectedPageIndex = restoredPageIndex!!.coerceIn(0, mPagerAdapter.itemCount - 1)
+                // Only update mSelectedMediaPageIndex if we're on a media page
+                if (mSelectedPageIndex < mPagerAdapter.settingsIndex) {
+                    mSelectedMediaPageIndex = mSelectedPageIndex
+                }
+            } else {
+                // Fresh start - go to last media page
+                val page = Prefs.currentHomePage.coerceIn(0, mPagerAdapter.settingsIndex - 1)
+                AppLogger.i("MainActivity onResume - fresh start, going to page: $page")
+                mSelectedPageIndex = page
+                mSelectedMediaPageIndex = page
+            }
+
+            AppLogger.i("MainActivity onResume - setting page to: $mSelectedPageIndex")
+
+            // Set page WITHOUT animation to avoid ViewPager2 settling on wrong page
+            binding.contentMain.pager.setCurrentItem(mSelectedPageIndex, false)
+            updateBottomNavbar(mSelectedPageIndex)
+
+            // Clear the restored page index after use
+            restoredPageIndex = null
+
+            // Mark that we've restored the page so we don't do it again
+            hasRestoredPage = true
+
+            // DON'T clear the is_on_settings_page_temp flag here!
+            // It should only be cleared when the user manually navigates to a media page
+            // This allows multiple theme toggles while staying on settings
+        } else {
+            AppLogger.i("MainActivity onResume - page already restored, using current: $mSelectedPageIndex")
+        }
+
         importSharedMedia(intent)
         if (serverListOffset == 0F) {
             val dims = binding.spaces.getMeasurments()
@@ -352,11 +424,22 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 mSelectedPageIndex = position
-                if (position < mPagerAdapter.settingsIndex) {
+
+                val isOnSettings = position == mPagerAdapter.settingsIndex
+
+                if (isOnSettings) {
+                    // On settings page - save this fact with commit() for immediate write
+                    // This is critical for theme changes which recreate the activity immediately
+                    Prefs.putBooleanSync("is_on_settings_page_temp", true)
+                } else {
+                    // On a media page - save the page index and clear the settings flag
+                    Prefs.currentHomePage = position
+                    Prefs.putBooleanSync("is_on_settings_page_temp", false)
                     mSelectedMediaPageIndex = position
                     val selectedProject = getSelectedProject()
                     mFolderAdapter.updateSelectedProject(selectedProject)
                 }
+
                 if (!appConfig.multipleProjectSelectionMode) {
                     getCurrentMediaFragment()?.cancelSelection()
                 }
@@ -874,13 +957,29 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     }
 
     private fun refreshProjects(setProjectId: Long? = null) {
+        // Save current page index before refreshing
+        val currentPageIndex = binding.contentMain.pager.currentItem
+
         val projects = Space.current?.projects ?: emptyList()
         mPagerAdapter.updateData(projects)
+
+        // Must reassign adapter for FragmentStateAdapter to properly refresh fragments
+        // This is necessary for upload progress UI to update
         binding.contentMain.pager.adapter = mPagerAdapter
 
-        setProjectId?.let {
-            mCurrentPagerItem = mPagerAdapter.getProjectIndexById(it, default = 0)
+        // Determine target page index
+        val targetIndex = if (setProjectId != null) {
+            // If a specific project was requested, navigate to it
+            mPagerAdapter.getProjectIndexById(setProjectId, default = 0)
+        } else {
+            // Otherwise, preserve the current page (don't reset to 0)
+            currentPageIndex.coerceIn(0, maxOf(0, projects.size - 1))
         }
+
+        // Set page without animation to avoid flicker
+        binding.contentMain.pager.setCurrentItem(targetIndex, false)
+        updateBottomNavbar(targetIndex)
+
         mFolderAdapter.update(projects)
     }
 
@@ -1198,5 +1297,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         // Define request codes
         const val REQUEST_CAMERA_PERMISSION = 100
         const val REQUEST_FILE_MEDIA = 101
+
+        // Key for saving/restoring page index during configuration changes
+        private const val KEY_SELECTED_PAGE = "selected_page_index"
     }
 }

@@ -214,6 +214,7 @@ class UploadMediaViewHolder(
             imageRequest = load(drawableRes) {
                 crossfade(false)
             }
+            applyPlaceholderTint()  // Apply tint so icons are visible in dark mode
             show()
         }
     }
