@@ -49,9 +49,6 @@ class UploadMediaViewHolder(
 
         resetImage()
         binding.image.tag = media?.id
-        var pdfPreviewSucceeded = false
-        var pdfPreviewPending = false
-        var titleText = ""
 
         binding.image.alpha =
             if (media?.sStatus == Media.Status.Uploaded || !doImageFade) 1f else 0.5f
@@ -108,16 +105,8 @@ class UploadMediaViewHolder(
             }
 
             media?.mimeType == "application/pdf" -> {
-                binding.title.hide()
-                pdfPreviewPending = loadPdfThumbnail(media) { success ->
-                    pdfPreviewSucceeded = success
-                    if (success) {
-                        binding.title.hide()
-                    } else if (titleText.isNotBlank()) {
-                        binding.title.text = titleText
-                        binding.title.show()
-                    }
-                }
+                // Load PDF thumbnail without hiding the title
+                loadPdfThumbnail(media)
             }
 
             media?.mimeType?.startsWith("application") == true -> {
@@ -191,14 +180,10 @@ class UploadMediaViewHolder(
 
         if (sbTitle.isNotEmpty()) sbTitle.append(": ")
         sbTitle.append(media?.title)
-        if (sbTitle.isNotBlank()) {
-            titleText = sbTitle.toString()
-        }
 
-        if (media?.mimeType == "application/pdf" && pdfPreviewPending) {
-            binding.title.hide()
-        } else if (titleText.isNotBlank() && !(media?.mimeType == "application/pdf" && pdfPreviewSucceeded)) {
-            binding.title.text = titleText
+        // Always show title for PDFs, show for other types if not blank
+        if (sbTitle.isNotBlank()) {
+            binding.title.text = sbTitle.toString()
             binding.title.show()
         } else {
             binding.title.hide()
@@ -233,19 +218,17 @@ class UploadMediaViewHolder(
         }
     }
 
-    private fun loadPdfThumbnail(media: Media?, onResult: (Boolean) -> Unit): Boolean {
+    private fun loadPdfThumbnail(media: Media?) {
         if (media == null) {
             showPdfPlaceholder()
-            onResult(false)
-            return false
+            return
         }
 
         val uri = media.fileUri
         val file = media.file
         if (uri.scheme == "file" && !file.exists()) {
             showPdfPlaceholder()
-            onResult(false)
-            return false
+            return
         }
 
         pdfThumbnailJob = PdfThumbnailLoader.loadThumbnail(
@@ -256,10 +239,8 @@ class UploadMediaViewHolder(
             maxDimensionPx = 400,
             context = mContext,
             requestKey = media.id,
-            onPlaceholder = { showPdfPlaceholder() },
-            onResult = onResult
+            onPlaceholder = { showPdfPlaceholder() }
         )
-        return true
     }
 
     private fun showPdfPlaceholder() {

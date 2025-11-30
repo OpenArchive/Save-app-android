@@ -42,13 +42,13 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_weight="1"
-                android:gravity="bottom"
+                android:gravity="center_horizontal"
                 android:orientation="vertical">
 
                 <ImageView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_gravity="center_horizontal"
                     android:layout_marginBottom="8dp"
                     android:minHeight="50dp"
                     android:src="@drawable/ic_photo_camera"
@@ -70,13 +70,13 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_weight="1"
-                android:gravity="bottom"
+                android:gravity="center_horizontal"
                 android:orientation="vertical">
 
                 <ImageView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_gravity="center_horizontal"
                     android:layout_marginBottom="8dp"
                     android:minHeight="50dp"
                     android:src="@drawable/ic_image_gallery_line"
@@ -97,13 +97,13 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_weight="1"
-                android:gravity="bottom"
+                android:gravity="center_horizontal"
                 android:orientation="vertical">
 
                 <ImageView
-                    android:layout_width="fill_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_gravity="center_horizontal"
                     android:layout_marginBottom="8dp"
                     android:minHeight="50dp"
                     android:src="@drawable/ic_description"

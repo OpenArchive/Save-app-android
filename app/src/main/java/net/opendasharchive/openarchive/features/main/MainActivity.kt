@@ -485,6 +485,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         }
         // In the edit (rename) container, cancel button reverts to INFO mode.
         binding.contentMain.btnCancelEdit.setOnClickListener {
+            hideKeyboard()
             setFolderBarMode(FolderBarMode.INFO)
         }
         // Listen for the "done" action to commit a rename.
@@ -493,6 +494,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 val newName = binding.contentMain.etFolderName.text.toString().trim()
                 if (newName.isNotEmpty()) {
                     renameCurrentFolder(newName)
+                    hideKeyboard()
                     setFolderBarMode(FolderBarMode.INFO)
                 } else {
                     Snackbar.make(
@@ -501,14 +503,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                         Snackbar.LENGTH_SHORT
                     ).show()
                 }
-                // Hide the keyboard
-                val imm =
-                    binding.contentMain.etFolderName.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.hideSoftInputFromWindow(binding.contentMain.etFolderName.windowToken, 0)
-
-                // Remove focus from the EditText
-                binding.contentMain.etFolderName.clearFocus()
-
                 true
             } else false
         }
@@ -804,18 +798,29 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 binding.contentMain.folderEditContainer.visibility = View.VISIBLE
                 // Prepopulate the rename field with the current folder name
                 binding.contentMain.etFolderName.setText(getSelectedProject()?.description ?: "")
-                binding.contentMain.etFolderName.requestFocus()
-                binding.contentMain.etFolderName.selectAll()
 
-                // Show the keyboard
-                val imm =
-                    binding.contentMain.etFolderName.context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(
-                    binding.contentMain.etFolderName,
-                    InputMethodManager.SHOW_IMPLICIT
-                )
+                // Use postDelayed to ensure view is fully ready, especially on first load
+                binding.contentMain.etFolderName.postDelayed({
+                    if (binding.contentMain.etFolderName.requestFocus()) {
+                        binding.contentMain.etFolderName.selectAll()
+
+                        // Show the keyboard
+                        val imm =
+                            binding.contentMain.etFolderName.context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                        imm.showSoftInput(
+                            binding.contentMain.etFolderName,
+                            InputMethodManager.SHOW_IMPLICIT
+                        )
+                    }
+                }, 100)
             }
         }
+    }
+
+    private fun hideKeyboard() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.contentMain.etFolderName.windowToken, 0)
+        binding.contentMain.etFolderName.clearFocus()
     }
 
     private fun updateCurrentFolderVisibility() {
