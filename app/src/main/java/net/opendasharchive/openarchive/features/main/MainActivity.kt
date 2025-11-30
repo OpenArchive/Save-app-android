@@ -519,6 +519,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 }
             }
             onSettingsClick = {
+                // Clear settings scroll position when navigating to Settings
+                Prefs.putInt("settings_scroll_position", 0)
                 mCurrentPagerItem = mPagerAdapter.settingsIndex
             }
 
