@@ -52,6 +52,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -545,6 +547,8 @@ private fun MetadataSection(
     onAction: (ReviewMediaAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val descriptionFocusRequester = remember { FocusRequester() }
+
     Column(
         modifier = modifier
             .background(MaterialTheme.colorScheme.background)
@@ -560,6 +564,9 @@ private fun MetadataSection(
             placeholder = stringResource(R.string.add_a_location_optional),
             keyboardType = KeyboardType.Text,
             imeAction = ImeAction.Next,
+            onImeAction = {
+                descriptionFocusRequester.requestFocus()
+            },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -573,6 +580,7 @@ private fun MetadataSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.9f)
+                .focusRequester(descriptionFocusRequester)
         )
     }
 }
