@@ -72,7 +72,7 @@
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
-    <string name="prompt_username"><i>Ім\'я користувача</i></string>
+    <string name="prompt_username"><i>Ім'я користувача</i></string>
     <string name="prompt_email">Ел. пошта</string>
     <string name="prompt_password"><i>Пароль</i></string>
 
@@ -105,8 +105,7 @@
     <string name="uploads_notification_descriptions">Ці сповіщення показуються під час вивантаження медіа застосунком. </string>
 
     <string name="action_upload">Вивантажити</string>
-
-    <!-- Passcode Settings -->
+<!-- Passcode Settings -->
     <string name="multiple_failed_attempts_message">Застосунок заблоковано внаслідок багатьох невдалих спроб входу. Будь ласка, спробуйте пізніше.</string>
     <string name="passcode_not_set">Код доступу не встановлено</string>
     <string name="passcode_remaining_attempts">Хибний код доступу. Залишилось спроб: %1$d.</string>
@@ -153,16 +152,13 @@
     <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">Ви впевнені, що хочете видалити цей сервер із застосунку\?</string>
     <string name="folder_name_already_exists">Тека з такою назвою вже існує.</string>
     <string name="metadata">Метадані</string>
-
     <string name="web_dav_host_error">Не вдалось знайти сервер з визначеною назвою.</string>
+
     <string name="btn_lbl_remove_media">Вилучити медіа</string>
     <string name="popup_flag_title">Позначте важливий вміст</string>
     <string name="popup_flag_desc">Коли ви позначаєте елемент, він поміщається до підтеки у вибраній теці проєкту на приватному сервері.</string>
     <string name="set_creative_commons_license_for_all_folders_on_this_server">Встановити ліцензування Creative Commons для тек на цьому сервері.</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Задайте однакову ліцензію Creative Commons для ВСІХ тек на цьому сервері.</string>
-    <string name="you_already_have_a_server_with_these_credentials">У вас уже є сервер із цими обліковими даними</string>
-
-
     <!-- Space Setup -->
     <string name="space_setup_title">Обрати сервер</string>
     <!-- WebDAV related strings -->
@@ -185,7 +181,7 @@
     <string name="uploading_is_paused">Вивантаження призупинено</string>
 
     <!-- Clean Insights measurement -->
-    <string name="server_name_optional"><i>Назва сервера (необов\'язково)</i></string>
+    <string name="server_name_optional"><i>Назва сервера (необов'язково)</i></string>
     <string name="add_another_account">Додати новий сервер</string>
     <string name="biometrics_title">Розблокувати ключ ProofMode</string>
     <string name="folders">Теки</string>
@@ -232,8 +228,8 @@
     <string name="press_and_hold_to_select_and_edit_multiple_media">Натисніть та тримайте для обрання та редагування декількох медіафайлів.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Після вивантаження медіафайлів втрачається можливість їхнього редагування</string>
     <string name="edit_media_info">Редагувати дані медіафайлу</string>
-    <string name="add_a_location_optional"><i>Додати місцеперебування (необов\'язково)</i></string>
-    <string name="add_notes_optional"><i>Додати примітки (необов\'язково)</i></string>
+    <string name="add_a_location_optional"><i>Додати місцеперебування (необов'язково)</i></string>
+    <string name="add_notes_optional"><i>Додати примітки (необов'язково)</i></string>
     <string name="skip">Пропустити</string>
 
 
