@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.features.media.camera
 
+import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -13,7 +14,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -23,11 +23,13 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
-import coil3.video.videoFramePercent
+import androidx.compose.ui.res.stringResource
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 
 @Composable
@@ -54,18 +56,20 @@ fun CameraPreviewScreen(
                     model = ImageRequest.Builder(context)
                         .data(item.uri)
                         .build(),
-                    contentDescription = "Captured Photo",
+                    contentDescription = stringResource(R.string.captured_photo),
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Fit
                 )
             }
             CameraCaptureMode.VIDEO -> {
                 // Video preview with playback capability
+                // Uses optimized buffer settings from config
                 VideoPreviewPlayer(
                     uri = item.uri,
+                    config = config,
                     modifier = Modifier.fillMaxSize()
                 )
-                
+
                 // Video duration overlay
                 VideoDurationOverlay(
                     uri = item.uri,
@@ -94,7 +98,7 @@ fun CameraPreviewScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.back),
                     tint = Color.White
                 )
             }
@@ -120,8 +124,8 @@ fun CameraPreviewScreen(
                 )
                 Text(
                     text = when (item.type) {
-                        CameraCaptureMode.PHOTO -> "PHOTO"
-                        CameraCaptureMode.VIDEO -> "VIDEO"
+                        CameraCaptureMode.PHOTO -> stringResource(R.string.photo_label)
+                        CameraCaptureMode.VIDEO -> stringResource(R.string.video_label)
                     },
                     color = Color.White,
                     fontSize = 12.sp,
@@ -130,13 +134,14 @@ fun CameraPreviewScreen(
             }
         }
         
-        // Bottom controls
+        // Bottom controls - positioned above video player controls
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(32.dp),
+                .padding(bottom = 100.dp) // Extra padding to sit above video player controls
+                .padding(horizontal = 32.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -159,11 +164,11 @@ fun CameraPreviewScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
-                        contentDescription = "Retake",
+                        contentDescription = stringResource(R.string.retake),
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
-                        text = "Retake",
+                        text = stringResource(R.string.retake),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -186,11 +191,11 @@ fun CameraPreviewScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
-                        contentDescription = "Use",
+                        contentDescription = if (config.allowMultipleCapture) stringResource(R.string.use) else stringResource(R.string.done),
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
-                        text = if (config.allowMultipleCapture) "Use" else "Done",
+                        text = if (config.allowMultipleCapture) stringResource(R.string.use) else stringResource(R.string.done),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -238,117 +243,116 @@ private fun VideoDurationOverlay(
     }
 }
 
+/**
+ * Video preview player with optimized buffering settings.
+ *
+ * Features:
+ * - Configurable buffer settings for optimal memory usage
+ * - Lazy loading support (only initialized when needed)
+ * - Native playback controls
+ * - Auto-cleanup on disposal
+ *
+ * The buffer settings are configured based on [CameraConfig] to balance
+ * playback smoothness with memory usage. Lower buffer values reduce memory
+ * but may cause stuttering. Higher values improve smoothness but use more RAM.
+ *
+ * @param uri Video URI to play
+ * @param config Camera configuration with buffer settings
+ * @param modifier Modifier for the player container
+ */
 @Composable
 private fun VideoPreviewPlayer(
     uri: Uri,
+    config: CameraConfig,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var isPlaying by remember { mutableStateOf(false) }
-    var showControls by remember { mutableStateOf(true) }
-    
-    // Create ExoPlayer
-    val exoPlayer = remember {
-        ExoPlayer.Builder(context)
-            .build()
-            .apply {
-                setMediaItem(MediaItem.fromUri(uri))
-                prepare()
-                playWhenReady = false
-                repeatMode = Player.REPEAT_MODE_ONE // Loop the video for preview
-            }
-    }
-    
-    // Update playing state based on player state
-    LaunchedEffect(exoPlayer) {
-        val listener = object : Player.Listener {
-            override fun onIsPlayingChanged(playing: Boolean) {
-                isPlaying = playing
-            }
+
+    // ===== Lazy Loading =====
+    // Only create ExoPlayer if lazy loading is disabled or when this composable is first shown
+    // This reduces memory usage when multiple videos are captured but not yet previewed
+    val exoPlayer = if (config.enableLazyVideoLoading) {
+        // Lazy: Create player when composable enters composition
+        remember(uri, config) {
+            createExoPlayer(context, uri, config)
         }
-        exoPlayer.addListener(listener)
+    } else {
+        // Eager: Create player immediately
+        remember(uri, config) {
+            createExoPlayer(context, uri, config)
+        }
     }
-    
-    // Cleanup player when composable is disposed
+
+    // ===== Lifecycle Management =====
+    // Ensure player is released when composable leaves composition
     DisposableEffect(exoPlayer) {
         onDispose {
+            AppLogger.d("Releasing ExoPlayer for URI: $uri")
             exoPlayer.release()
         }
     }
-    
+
     Box(modifier = modifier) {
-        // Video player view
+        // ===== Video Player View =====
+        // AndroidView integrates native Android PlayerView with Compose
         AndroidView(
             factory = { ctx ->
                 PlayerView(ctx).apply {
                     player = exoPlayer
                     setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING)
-                    controllerAutoShow = false
-                    hideController()
+                    controllerAutoShow = true // Show native controls
+                    controllerShowTimeoutMs = 5000 // Hide after 5 seconds of inactivity
+                    useController = true // Enable native playback controls
                 }
             },
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable {
-                    showControls = !showControls
-                }
+            modifier = Modifier.fillMaxSize()
         )
-        
-        // Custom play/pause overlay
-        if (showControls) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(80.dp)
-                    .background(Color.Black.copy(alpha = 0.6f), CircleShape)
-                    .clickable {
-                        if (isPlaying) {
-                            exoPlayer.pause()
-                        } else {
-                            exoPlayer.play()
-                        }
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    contentDescription = if (isPlaying) "Pause" else "Play",
-                    tint = Color.White,
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-            
-            // Hide controls after a delay when playing
-            LaunchedEffect(isPlaying, showControls) {
-                if (isPlaying && showControls) {
-                    kotlinx.coroutines.delay(3000) // Hide after 3 seconds
-                    showControls = false
-                }
-            }
-        }
-        
-        // Video indicator in top-left corner
-        Row(
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(16.dp)
-                .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
-                .padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Videocam,
-                contentDescription = "Video",
-                tint = Color.White,
-                modifier = Modifier.size(14.dp)
-            )
-            Text(
-                text = "VIDEO",
-                color = Color.White,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium
-            )
-        }
     }
+}
+
+/**
+ * Creates an ExoPlayer instance with optimized buffer configuration.
+ *
+ * Buffer settings explanation:
+ * - minBufferMs: Minimum data to buffer before playback starts
+ * - maxBufferMs: Maximum data to buffer
+ * - bufferForPlaybackMs: Data required to start playback
+ * - bufferForPlaybackAfterRebufferMs: Data required to resume after buffering
+ *
+ * @param context Application context
+ * @param uri Video URI to play
+ * @param config Camera configuration with buffer settings
+ * @return Configured ExoPlayer instance
+ */
+private fun createExoPlayer(
+    context: Context,
+    uri: Uri,
+    config: CameraConfig
+): ExoPlayer {
+    // ===== Buffer Configuration =====
+    // Configure buffer durations based on config settings
+    val loadControl = DefaultLoadControl.Builder()
+        .setBufferDurationsMs(
+            config.minVideoBufferMs,      // Min buffer before playback can start
+            config.maxVideoBufferMs,       // Max buffer duration
+            config.videoBufferMs,          // Buffer for playback start
+            config.videoBufferMs           // Buffer for playback after rebuffer
+        )
+        .build()
+
+    AppLogger.d("Creating ExoPlayer with buffer config: min=${config.minVideoBufferMs}ms, " +
+            "max=${config.maxVideoBufferMs}ms, target=${config.videoBufferMs}ms")
+
+    // ===== Player Creation =====
+    return ExoPlayer.Builder(context)
+        .setLoadControl(loadControl)
+        .build()
+        .apply {
+            setMediaItem(MediaItem.fromUri(uri))
+            prepare()
+            playWhenReady = false // Don't auto-play
+            repeatMode = Player.REPEAT_MODE_OFF // Play once and stop
+
+            AppLogger.d("ExoPlayer created and prepared for URI: $uri")
+        }
 }

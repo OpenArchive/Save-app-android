@@ -154,6 +154,7 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="folder_name_already_exists">Un dossier portant ce nom existe déjà.</string>
     <string name="metadata">Métadonnées</string>
 
+    <string name="web_dav_host_error">Aucun serveur avec le nom d\'hôte spécifié n\'a pu être trouvé.</string>
     <string name="btn_lbl_remove_media">Supprimer le média</string>
     <string name="popup_flag_title">Marquer un contenu important</string>
     <string name="popup_flag_desc">Quand vous marquez un élément, il est acheminé dans un sous-dossier du dossier du projet choisi sur le serveur privé.</string>

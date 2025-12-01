@@ -154,6 +154,7 @@
     <string name="folder_name_already_exists">Тека з такою назвою вже існує.</string>
     <string name="metadata">Метадані</string>
 
+    <string name="web_dav_host_error">Не вдалось знайти сервер з визначеною назвою.</string>
     <string name="btn_lbl_remove_media">Вилучити медіа</string>
     <string name="popup_flag_title">Позначте важливий вміст</string>
     <string name="popup_flag_desc">Коли ви позначаєте елемент, він поміщається до підтеки у вибраній теці проєкту на приватному сервері.</string>

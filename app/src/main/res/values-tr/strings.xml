@@ -155,6 +155,7 @@
     <string name="metadata">Üst veriler</string>
     <string name="web_dav_host_error">Belirtilen sunucu adıyla bir sunucu bulunamadı.</string>
 
+    <string name="web_dav_host_error">A server with the specified hostname could not be found.</string>
     <string name="btn_lbl_remove_media">Ortamı sil</string>
     <string name="popup_flag_title">Önemli içerik olarak işaretle</string>
     <string name="popup_flag_desc">Bir ögeyi işaretlediğinizde, özel sunucu üzerinde seçilmiş proje klasöründeki bir alt klasöre yönlendirilir.</string>
