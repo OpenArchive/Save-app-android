@@ -31,16 +31,44 @@ class CameraViewModel : ViewModel() {
     private var currentRecording: Recording? = null
 
     fun updateCaptureMode(mode: CameraCaptureMode) {
-        _state.value = _state.value.copy(captureMode = mode)
+        val currentFlashMode = _state.value.flashMode
+
+        // When switching to video mode, convert AUTO flash to ON
+        // (video mode doesn't support AUTO, only ON/OFF)
+        val newFlashMode = if (mode == CameraCaptureMode.VIDEO &&
+            currentFlashMode == ImageCapture.FLASH_MODE_AUTO) {
+            ImageCapture.FLASH_MODE_ON
+        } else {
+            currentFlashMode
+        }
+
+        _state.value = _state.value.copy(
+            captureMode = mode,
+            flashMode = newFlashMode
+        )
     }
 
     fun toggleFlashMode() {
         val currentFlashMode = _state.value.flashMode
-        val newFlashMode = when (currentFlashMode) {
-            ImageCapture.FLASH_MODE_OFF -> ImageCapture.FLASH_MODE_ON
-            ImageCapture.FLASH_MODE_ON -> ImageCapture.FLASH_MODE_AUTO
-            else -> ImageCapture.FLASH_MODE_OFF
+        val currentCaptureMode = _state.value.captureMode
+
+        // Video mode: Toggle between OFF and ON only (no AUTO)
+        // Photo mode: Cycle through OFF, ON, and AUTO
+        val newFlashMode = if (currentCaptureMode == CameraCaptureMode.VIDEO) {
+            // Video mode: OFF <-> ON (skip AUTO)
+            when (currentFlashMode) {
+                ImageCapture.FLASH_MODE_OFF -> ImageCapture.FLASH_MODE_ON
+                else -> ImageCapture.FLASH_MODE_OFF
+            }
+        } else {
+            // Photo mode: OFF -> ON -> AUTO -> OFF
+            when (currentFlashMode) {
+                ImageCapture.FLASH_MODE_OFF -> ImageCapture.FLASH_MODE_ON
+                ImageCapture.FLASH_MODE_ON -> ImageCapture.FLASH_MODE_AUTO
+                else -> ImageCapture.FLASH_MODE_OFF
+            }
         }
+
         _state.value = _state.value.copy(flashMode = newFlashMode)
     }
 
@@ -49,7 +77,13 @@ class CameraViewModel : ViewModel() {
     }
 
     fun toggleCamera() {
-        _state.value = _state.value.copy(isFrontCamera = !_state.value.isFrontCamera)
+        // When switching cameras, reset flash support and flash mode
+        // Flash support will be updated to true by onFlashSupportChanged if the new camera has flash
+        _state.value = _state.value.copy(
+            isFrontCamera = !_state.value.isFrontCamera,
+            isFlashSupported = false,
+            flashMode = ImageCapture.FLASH_MODE_OFF
+        )
     }
 
     fun toggleGrid() {
