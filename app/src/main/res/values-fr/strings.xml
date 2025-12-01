@@ -105,8 +105,7 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="uploads_notification_descriptions">Ces notifications s’affichent lors du téléversement de média par l’appli.</string>
 
     <string name="action_upload">Téléverser</string>
-
-    <!-- Passcode Settings -->
+<!-- Passcode Settings -->
     <string name="multiple_failed_attempts_message">Plusieurs tentatives infructueuses ont verrouillé l’appli. Réessayez plus tard.</string>
     <string name="passcode_not_set">Le code d’accès n’est pas défini</string>
     <string name="passcode_remaining_attempts">Le code d’accès est erroné. Il reste %1$dessais.</string>
@@ -153,16 +152,13 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">Voulez-vous vraiment supprimer ce serveur de l’appli \?</string>
     <string name="folder_name_already_exists">Un dossier portant ce nom existe déjà.</string>
     <string name="metadata">Métadonnées</string>
-
     <string name="web_dav_host_error">Aucun serveur avec le nom d\'hôte spécifié n\'a pu être trouvé.</string>
+
     <string name="btn_lbl_remove_media">Supprimer le média</string>
     <string name="popup_flag_title">Marquer un contenu important</string>
     <string name="popup_flag_desc">Quand vous marquez un élément, il est acheminé dans un sous-dossier du dossier du projet choisi sur le serveur privé.</string>
     <string name="set_creative_commons_license_for_all_folders_on_this_server">Attribuer des licences « Creative Commons » aux dossiers de ce serveur.</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Attribuer la même licence « Creative Commons » à TOUS les dossiers de ce serveur.</string>
-    <string name="you_already_have_a_server_with_these_credentials">Un serveur est déjà défini avec ces identifiants</string>
-
-
     <!-- Space Setup -->
     <string name="space_setup_title">Choisir un serveur</string>
     <!-- WebDAV related strings -->
