@@ -44,12 +44,16 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -240,6 +244,9 @@ private fun WebDavContent(
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    val focusManager = LocalFocusManager.current
+    val usernameFocusRequester = remember { FocusRequester() }
+    val passwordFocusRequester = remember { FocusRequester() }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -283,6 +290,9 @@ private fun WebDavContent(
                 isLoading = state.isLoading,
                 keyboardType = KeyboardType.Uri,
                 imeAction = ImeAction.Next,
+                onImeAction = {
+                    usernameFocusRequester.requestFocus()
+                },
                 onFocusChange = { isFocused ->
                     if (!isFocused && !state.isEditMode) {
                         onAction(WebDavAction.FixServerUrl)
@@ -338,7 +348,11 @@ private fun WebDavContent(
                 isError = state.usernameError != null || state.isCredentialsError,
                 isLoading = state.isLoading,
                 keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next
+                imeAction = ImeAction.Next,
+                onImeAction = {
+                    passwordFocusRequester.requestFocus()
+                },
+                modifier = Modifier.focusRequester(usernameFocusRequester)
             )
 
             Spacer(modifier = Modifier.height(ThemeDimensions.spacing.medium))
@@ -355,7 +369,11 @@ private fun WebDavContent(
                 isError = state.passwordError != null || state.isCredentialsError,
                 isLoading = state.isLoading || state.isEditMode,
                 keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Done
+                imeAction = ImeAction.Done,
+                onImeAction = {
+                    focusManager.clearFocus()
+                },
+                modifier = Modifier.focusRequester(passwordFocusRequester)
             )
 
             // Error hint

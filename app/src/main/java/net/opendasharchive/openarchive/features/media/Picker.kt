@@ -39,6 +39,10 @@ object Picker {
 
     private var currentPhotoUri: Uri? = null
 
+    // Debouncing mechanism to prevent multiple rapid picker launches
+    private var lastPickerLaunchTime = 0L
+    private const val PICKER_LAUNCH_DEBOUNCE_MS = 1000L
+
     fun register(
         activity: ComponentActivity,
         root: View,
@@ -178,8 +182,20 @@ object Picker {
     }
 
     fun pickMedia(launcher: ActivityResultLauncher<PickVisualMediaRequest>) {
+        // Debounce: Prevent multiple launches within PICKER_LAUNCH_DEBOUNCE_MS
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastPickerLaunchTime < PICKER_LAUNCH_DEBOUNCE_MS) {
+            AppLogger.w("Picker launch ignored due to debouncing (too soon after previous launch)")
+            return
+        }
+        lastPickerLaunchTime = currentTime
+
         val request = PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
-        launcher.launch(request)
+        try {
+            launcher.launch(request)
+        } catch (e: IllegalStateException) {
+            AppLogger.e("Error launching media picker", e)
+        }
     }
 
     fun canPickFiles(context: Context): Boolean {
@@ -187,6 +203,14 @@ object Picker {
     }
 
     fun pickFiles(launcher: ActivityResultLauncher<Intent>) {
+        // Debounce: Prevent multiple launches within PICKER_LAUNCH_DEBOUNCE_MS
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastPickerLaunchTime < PICKER_LAUNCH_DEBOUNCE_MS) {
+            AppLogger.w("File picker launch ignored due to debouncing (too soon after previous launch)")
+            return
+        }
+        lastPickerLaunchTime = currentTime
+
         launcher.launch(mFilePickerIntent)
     }
 
@@ -211,6 +235,14 @@ object Picker {
      * Supports both photo and video capture with preview functionality.
      */
     fun launchCustomCamera(activity: Activity, launcher: ActivityResultLauncher<Intent>, config: CameraConfig = CameraConfig()) {
+        // Debounce: Prevent multiple launches within PICKER_LAUNCH_DEBOUNCE_MS
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastPickerLaunchTime < PICKER_LAUNCH_DEBOUNCE_MS) {
+            AppLogger.w("Custom camera launch ignored due to debouncing (too soon after previous launch)")
+            return
+        }
+        lastPickerLaunchTime = currentTime
+
         val intent = CameraActivity.createIntent(activity, config)
         launcher.launch(intent)
     }
@@ -220,6 +252,14 @@ object Picker {
      * This is the recommended approach for new implementations.
      */
     fun takePhotoModern(activity: Activity, launcher: ActivityResultLauncher<Uri>) {
+        // Debounce: Prevent multiple launches within PICKER_LAUNCH_DEBOUNCE_MS
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastPickerLaunchTime < PICKER_LAUNCH_DEBOUNCE_MS) {
+            AppLogger.w("Modern camera launch ignored due to debouncing (too soon after previous launch)")
+            return
+        }
+        lastPickerLaunchTime = currentTime
+
         try {
             val file = Utility.getOutputMediaFileByCache(activity, "IMG_${System.currentTimeMillis()}.jpg")
 

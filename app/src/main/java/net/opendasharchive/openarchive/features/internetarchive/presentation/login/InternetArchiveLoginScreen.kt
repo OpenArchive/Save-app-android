@@ -33,7 +33,11 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.runtime.remember
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -170,6 +174,8 @@ private fun InternetArchiveLoginContent(
 ) {
 
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val passwordFocusRequester = remember { FocusRequester() }
 
     Column(
         modifier = Modifier
@@ -213,6 +219,9 @@ private fun InternetArchiveLoginContent(
             isLoading = state.isBusy,
             keyboardType = KeyboardType.Email,
             imeAction = ImeAction.Next,
+            onImeAction = {
+                passwordFocusRequester.requestFocus()
+            }
         )
 
         Spacer(Modifier.height(ThemeDimensions.spacing.large))
@@ -229,6 +238,10 @@ private fun InternetArchiveLoginContent(
             isLoading = state.isBusy,
             keyboardType = KeyboardType.Password,
             imeAction = ImeAction.Done,
+            onImeAction = {
+                focusManager.clearFocus()
+            },
+            modifier = Modifier.focusRequester(passwordFocusRequester)
         )
 
         Row(
@@ -448,6 +461,7 @@ fun CustomSecureField(
     isLoading: Boolean = false,
     keyboardType: KeyboardType,
     imeAction: ImeAction,
+    onImeAction: (() -> Unit)? = null,
 ) {
 
     var showPassword by rememberSaveable { mutableStateOf(false) }
@@ -477,6 +491,23 @@ fun CustomSecureField(
             platformImeOptions = PlatformImeOptions(),
             showKeyboardOnFocus = true,
             hintLocales = null
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                onImeAction?.invoke()
+            },
+            onNext = {
+                onImeAction?.invoke()
+            },
+            onGo = {
+                onImeAction?.invoke()
+            },
+            onSearch = {
+                onImeAction?.invoke()
+            },
+            onSend = {
+                onImeAction?.invoke()
+            }
         ),
         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
         isError = isError,

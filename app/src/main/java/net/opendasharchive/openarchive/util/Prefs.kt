@@ -22,6 +22,7 @@ object Prefs {
     // private const val USE_NEXTCLOUD_CHUNKING = "upload_nextcloud_chunks"
     const val THEME = "theme"
     private const val CURRENT_SPACE_ID = "current_space"
+    private const val CURRENT_HOME_PAGE = "current_home_page"
     private const val FLAG_HINT_SHOWN = "ft.flag"
     private const val BATCH_HINT_SHOWN = "ft.batch"
     private const val ADD_MEDIA_HINT = "ft.addMedia"
@@ -76,6 +77,11 @@ object Prefs {
         prefs?.edit()?.putBoolean(key, value)?.apply()
     }
 
+    fun putBooleanSync(key: String, value: Boolean) {
+        // Use commit() for synchronous write - critical for values that must persist before activity recreation
+        prefs?.edit()?.putBoolean(key, value)?.commit()
+    }
+
 //    val useNextcloudChunking: Boolean
 //        get() = prefs?.getBoolean(USE_NEXTCLOUD_CHUNKING, false) ?: false
 
@@ -116,6 +122,12 @@ object Prefs {
         get() = prefs?.getLong(CURRENT_SPACE_ID, -1) ?: -1
         set(value) {
             prefs?.edit()?.putLong(CURRENT_SPACE_ID, value)?.apply()
+        }
+
+    var currentHomePage: Int
+        get() = prefs?.getInt(CURRENT_HOME_PAGE, 0) ?: 0
+        set(value) {
+            prefs?.edit()?.putInt(CURRENT_HOME_PAGE, value)?.apply()
         }
 
     var flagHintShown: Boolean
