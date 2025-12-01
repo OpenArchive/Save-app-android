@@ -2,6 +2,8 @@ package net.opendasharchive.openarchive.util
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
@@ -121,6 +123,10 @@ object PdfThumbnailLoader {
 
                     val bitmap =
                         Bitmap.createBitmap(bitmapWidth, bitmapHeight, Bitmap.Config.ARGB_8888)
+
+                    // Fill with white background explicitly to ensure consistent rendering
+                    // PDFs are typically designed for white backgrounds
+                    Canvas(bitmap).drawColor(Color.WHITE)
 
                     val matrix = Matrix().apply {
                         postScale(scale, scale)
