@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -141,13 +142,26 @@ class CameraActivity : BaseComposeActivity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
         // Enhanced edge-to-edge setup for Android 15+ and camera cutouts
         setupEdgeToEdge()
-        
+
         // Get camera config from intent
-        cameraConfig = intent.getSerializableExtra(EXTRA_CAMERA_CONFIG) as? CameraConfig 
+        cameraConfig = intent.getSerializableExtra(EXTRA_CAMERA_CONFIG) as? CameraConfig
             ?: CameraConfig()
+
+        // Keep screen on during camera use
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+        // Optionally override screen brightness based on configuration
+        if (cameraConfig?.overrideScreenBrightness == true) {
+            val layoutParams = window.attributes
+            layoutParams.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL
+            window.attributes = layoutParams
+            AppLogger.d("Screen brightness overridden to maximum")
+        } else {
+            AppLogger.d("Using system screen brightness")
+        }
         
         // Check camera permission and request if needed
         if (checkCameraPermission()) {

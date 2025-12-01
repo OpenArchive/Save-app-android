@@ -57,6 +57,7 @@ import net.opendasharchive.openarchive.features.main.ui.components.MainDrawerCon
 import net.opendasharchive.openarchive.features.main.ui.components.SpaceIcon
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.settings.SettingsScreen
+import net.opendasharchive.openarchive.util.Prefs
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.max
 
@@ -192,14 +193,25 @@ fun HomeScreenContent(
 
     val projects = state.projectsForSelectedSpace
     val totalPages = max(1, projects.size) + 1
-    val pagerState = rememberPagerState(initialPage = 0) { totalPages }
+
+    // Always start at last media page (never settings) for fresh starts
+    // For configuration changes, the activity handles restoration
+    val initialPage = Prefs.currentHomePage.coerceIn(0, (totalPages - 2).coerceAtLeast(0))
+    val pagerState = rememberPagerState(initialPage = initialPage) { totalPages }
 
     val currentProjectIndex = state.selectedProject?.let { selected ->
         projects.indexOfFirst { it.id == selected.id }.takeIf { it >= 0 } ?: 0
     } ?: 0
 
-    // Whenever the pager’s current page changes and it represents a project page,
-    // update the view model’s selected project.
+    // Save current page ONLY if it's a media page (not settings)
+    LaunchedEffect(pagerState.currentPage) {
+        if (pagerState.currentPage < totalPages - 1) {
+            Prefs.currentHomePage = pagerState.currentPage
+        }
+    }
+
+    // Whenever the pager's current page changes and it represents a project page,
+    // update the view model's selected project.
     LaunchedEffect(pagerState.currentPage, projects) {
         if (projects.isNotEmpty() && pagerState.currentPage < projects.size) {
             val newlySelectedProject = projects[pagerState.currentPage]

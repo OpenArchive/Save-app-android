@@ -391,4 +391,5 @@
     <string name="close" translatable="false">Close</string>
     <string name="grid" translatable="false">Grid</string>
     <string name="flash" translatable="false">Flash</string>
+    <string name="camera_paused_message" translatable="false">Tap to wake camera</string>
 </resources>
