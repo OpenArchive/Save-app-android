@@ -18,6 +18,7 @@ import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupActivity
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Theme
 import net.opendasharchive.openarchive.util.extensions.getVersionName
@@ -211,5 +212,32 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val savedScrollY = Prefs.getInt("settings_scroll_position", 0)
+        scrollTo(savedScrollY)
+    }
+
+        override fun onResume() {
+        super.onResume()
+        val savedScrollY = Prefs.getInt("settings_scroll_position", 0)
+        scrollTo(savedScrollY)
+    }
+
+    private fun scrollTo(savedScrollY: Int) {
+        // Post to ensure RecyclerView is fully laid out with items
+        listView.post {
+            val currentScrollY = listView.computeVerticalScrollOffset()
+            val scrollDelta = savedScrollY - currentScrollY
+            AppLogger.i("SettingsFragment - scrolling from $currentScrollY to $savedScrollY (delta: $scrollDelta)")
+            listView.scrollBy(0, scrollDelta)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        // Save current scroll position to Prefs
+        val scrollY = listView.computeVerticalScrollOffset()
+        AppLogger.i("SettingsFragment onPause - saving scroll position: $scrollY")
+        Prefs.putInt("settings_scroll_position", scrollY)
     }
 }
