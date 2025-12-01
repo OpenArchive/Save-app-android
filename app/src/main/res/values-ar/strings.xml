@@ -105,8 +105,7 @@
     <string name="uploads_notification_descriptions">تظهر هذه الإشعارات أثناء قيام هذا التطبيق بتحميل الوسائط.</string>
 
     <string name="action_upload">رفع</string>
-
-    <!-- Passcode Settings -->
+<!-- Passcode Settings -->
     <string name="multiple_failed_attempts_message">إن التطبيق مُقفَل بسبب عدة محاولات فاشلة. يرجى المحاولة مرة أخرى لاحقا.</string>
     <string name="passcode_not_set">لم يتم تعيين رمز للمرور</string>
     <string name="passcode_remaining_attempts">رمز المرور غير صحيح، بقيت لك %1$d محاولات.</string>
@@ -153,16 +152,13 @@
     <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">هل أنت متيقِّن من أنك تريد إزالة هذا الخادم من التطبيق ؟</string>
     <string name="folder_name_already_exists">اسم المجلد موجود بالفعل.</string>
     <string name="metadata">البيانات الوصفية</string>
-
     <string name="web_dav_host_error">تعذّر العثور على خادم باسم المضيف المحدد.</string>
+
     <string name="btn_lbl_remove_media">أزِل الوسائط</string>
     <string name="popup_flag_title">أشِّر على المحتوى المميز</string>
     <string name="popup_flag_desc">عندما تضع العلامة على عنصر ما، يتم توجيهها نحو مجلد فرعي داخل مجلد المشروع المختار على الخادم الخاص.</string>
     <string name="set_creative_commons_license_for_all_folders_on_this_server">تعيين ترخيص المشاع الإبداعي للمجلدات الموجودة على هذا الخادم.</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">‫تعيين نفس ترخيص المشاع الإبداعي لـ** كافة ** المجلدات الموجودة على هذا الخادم.</string>
-    <string name="you_already_have_a_server_with_these_credentials">لديك بالفعل خادم بهذه الاعتمادات</string>
-
-
     <!-- Space Setup -->
     <string name="space_setup_title">تحديد خادم</string>
     <!-- WebDAV related strings -->
