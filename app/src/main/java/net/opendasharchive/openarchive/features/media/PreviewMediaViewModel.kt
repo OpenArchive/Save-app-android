@@ -20,10 +20,11 @@ data class PreviewMediaState(
     val mediaList: List<Media> = emptyList(),
     val isLoading: Boolean = true,
     val selectionCount: Int = 0,
-    val showAddMore: Boolean = false
+    val showAddMore: Boolean = false,
+    val selectedIds: Set<Long> = emptySet()
 ) {
     val isInSelectionMode: Boolean
-        get() = selectionCount > 0
+        get() = selectedIds.isNotEmpty()
 }
 
 sealed class PreviewMediaAction {
@@ -98,7 +99,8 @@ class PreviewMediaViewModel(
                     mediaList = media,
                     isLoading = false,
                     selectionCount = 0,
-                    showAddMore = Project.getById(projectId) != null
+                    showAddMore = Project.getById(projectId) != null,
+                    selectedIds = emptySet()
                 )
             }
 
@@ -113,7 +115,7 @@ class PreviewMediaViewModel(
         val media = currentState.mediaList.firstOrNull { it.id == mediaId } ?: return
 
         if (currentState.isInSelectionMode) {
-            toggleSelection(media)
+            toggleSelection(media.id)
         } else {
             viewModelScope.launch {
                 _events.send(
@@ -128,39 +130,43 @@ class PreviewMediaViewModel(
     }
 
     private fun handleToggleSelection(mediaId: Long) {
-        val media = _uiState.value.mediaList.firstOrNull { it.id == mediaId } ?: return
-        toggleSelection(media)
+        toggleSelection(mediaId)
     }
 
-    private fun toggleSelection(media: Media) {
-        media.selected = !media.selected
-        val updatedList = _uiState.value.mediaList.toList()
-        val selectionCount = updatedList.count { it.selected }
+    private fun toggleSelection(mediaId: Long?) {
+        if (mediaId == null) return
+        val updatedSelected = _uiState.value.selectedIds.toMutableSet().apply {
+            if (contains(mediaId)) remove(mediaId) else add(mediaId)
+        }
+        val selectionCount = updatedSelected.size
 
         _uiState.update {
             it.copy(
-                mediaList = updatedList,
-                selectionCount = selectionCount
+                mediaList = it.mediaList.toList(),
+                selectionCount = selectionCount,
+                selectedIds = updatedSelected
             )
         }
     }
 
     private fun handleToggleSelectAll() {
         val current = _uiState.value
-        val shouldSelectAll = current.mediaList.any { !it.selected }
-        current.mediaList.forEach { it.selected = shouldSelectAll }
+        val allIds = current.mediaList.mapNotNull { it.id }.toSet()
+        val shouldSelectAll = current.selectedIds.size != allIds.size
 
         _uiState.update {
+            val newSelection = if (shouldSelectAll) allIds else emptySet()
             it.copy(
-                mediaList = current.mediaList.toList(),
-                selectionCount = if (shouldSelectAll) current.mediaList.size else 0
+                mediaList = it.mediaList.toList(),
+                selectionCount = newSelection.size,
+                selectedIds = newSelection
             )
         }
     }
 
     private fun handleBatchEdit() {
         val current = _uiState.value
-        val selected = current.mediaList.filter { it.selected }
+        val selected = current.mediaList.filter { current.selectedIds.contains(it.id) }
 
         if (selected.isEmpty()) return
 
@@ -182,7 +188,8 @@ class PreviewMediaViewModel(
     private fun handleRemoveSelected() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                _uiState.value.mediaList.filter { it.selected }.forEach { it.delete() }
+                val selectedIds = _uiState.value.selectedIds
+                _uiState.value.mediaList.filter { selectedIds.contains(it.id) }.forEach { it.delete() }
             }
             loadMedia()
         }

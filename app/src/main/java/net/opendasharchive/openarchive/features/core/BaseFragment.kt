@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.db.SnowbirdError
 import net.opendasharchive.openarchive.extensions.androidViewModel
@@ -15,10 +14,11 @@ import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupViewModel
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdRepoViewModel
 import net.opendasharchive.openarchive.util.FullScreenOverlayManager
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 abstract class BaseFragment : Fragment(), ToolbarConfigurable {
 
-    protected val dialogManager: DialogStateManager by activityViewModels()
+    protected val dialogManager: DialogStateManager by activityViewModel()
 
     val snowbirdGroupViewModel: SnowbirdGroupViewModel by androidViewModel()
     val snowbirdRepoViewModel: SnowbirdRepoViewModel by androidViewModel()

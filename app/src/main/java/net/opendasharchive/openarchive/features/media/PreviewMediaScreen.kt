@@ -1,5 +1,7 @@
 package net.opendasharchive.openarchive.features.media
 
+import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -7,17 +9,15 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.content.res.ColorStateList
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -39,7 +38,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,19 +62,25 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.fragment.app.Fragment
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import coil3.request.ImageRequest
+import coil3.request.error
 import coil3.video.VideoFrameDecoder
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
@@ -89,13 +93,13 @@ import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.asUiImage
 import net.opendasharchive.openarchive.features.core.asUiText
-import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
+import net.opendasharchive.openarchive.util.PdfThumbnailLoader
 import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
-import net.opendasharchive.openarchive.util.PdfThumbnailLoader
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
@@ -109,11 +113,6 @@ class PreviewMediaFragment : BaseFragment(), ToolbarConfigurable {
     private lateinit var permissionManager: PermissionManager
     private lateinit var mediaLaunchers: MediaLaunchers
     private var project: Project? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -133,14 +132,15 @@ class PreviewMediaFragment : BaseFragment(), ToolbarConfigurable {
                             ReviewActivity.launchReviewScreen(requireContext(), media, selected, batchMode)
                         },
                         onRequestAddMore = { launchAddMore() },
-                        onRequestAddMenu = { showAddMenu() },
-                        onRequestUpload = { uploadMedia() },
+                        onPickMedia = { handleMediaPick(it) },
                         onShowBatchHint = { showFirstTimeBatch() },
                         onCloseScreen = { findNavController().popBackStack() }
                     )
                 }
             }
         }
+
+        addMenuProvider()
 
         mediaLaunchers = Picker.register(
             activity = activity,
@@ -163,19 +163,22 @@ class PreviewMediaFragment : BaseFragment(), ToolbarConfigurable {
 
     override fun shouldShowBackButton(): Boolean = true
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_preview, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.menu_upload -> {
-                uploadMedia()
-                true
+    private fun addMenuProvider() {
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_preview, menu)
             }
-            else -> super.onOptionsItemSelected(item)
-        }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.menu_upload -> {
+                        uploadMedia()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     private fun launchAddMore() {
@@ -184,44 +187,37 @@ class PreviewMediaFragment : BaseFragment(), ToolbarConfigurable {
         }
     }
 
-    private fun showAddMenu() {
-        if (!Picker.canPickFiles(requireContext())) {
-            launchAddMore()
-            return
-        }
-        val modalBottomSheet = ContentPickerFragment { action ->
-            when (action) {
-                AddMediaType.CAMERA -> {
-                    if (appConfig.useCustomCamera) {
-                        val cameraConfig = CameraConfig(
-                            allowVideoCapture = true,
-                            allowPhotoCapture = true,
-                            allowMultipleCapture = true,
-                            enablePreview = true,
-                            showFlashToggle = true,
-                            showGridToggle = true,
-                            showCameraSwitch = true
+    private fun handleMediaPick(action: AddMediaType) {
+        when (action) {
+            AddMediaType.CAMERA -> {
+                if (appConfig.useCustomCamera) {
+                    val cameraConfig = CameraConfig(
+                        allowVideoCapture = true,
+                        allowPhotoCapture = true,
+                        allowMultipleCapture = true,
+                        enablePreview = true,
+                        showFlashToggle = true,
+                        showGridToggle = true,
+                        showCameraSwitch = true
+                    )
+                    Picker.launchCustomCamera(
+                        requireActivity(),
+                        mediaLaunchers.customCameraLauncher,
+                        cameraConfig
+                    )
+                } else {
+                    permissionManager.checkCameraPermission {
+                        Picker.takePhotoModern(
+                            activity = requireActivity(),
+                            launcher = mediaLaunchers.modernCameraLauncher
                         )
-                        Picker.launchCustomCamera(
-                            requireActivity(),
-                            mediaLaunchers.customCameraLauncher,
-                            cameraConfig
-                        )
-                    } else {
-                        permissionManager.checkCameraPermission {
-                            Picker.takePhotoModern(
-                                activity = requireActivity(),
-                                launcher = mediaLaunchers.modernCameraLauncher
-                            )
-                        }
                     }
                 }
-
-                AddMediaType.FILES -> Picker.pickFiles(mediaLaunchers.filePickerLauncher)
-                AddMediaType.GALLERY -> launchAddMore()
             }
+
+            AddMediaType.FILES -> Picker.pickFiles(mediaLaunchers.filePickerLauncher)
+            AddMediaType.GALLERY -> launchAddMore()
         }
-        modalBottomSheet.show(parentFragmentManager, ContentPickerFragment.TAG)
     }
 
     private fun showFirstTimeBatch() {
@@ -281,13 +277,14 @@ private fun PreviewMediaScreen(
     viewModel: PreviewMediaViewModel,
     onNavigateToReview: (List<Media>, Media?, Boolean) -> Unit,
     onRequestAddMore: () -> Unit,
-    onRequestAddMenu: () -> Unit,
+    onPickMedia: (AddMediaType) -> Unit,
     onShowBatchHint: () -> Unit,
     onCloseScreen: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    var showPicker by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        viewModel.events.collect { event ->
+        viewModel.events.collectLatest { event ->
             when (event) {
                 is PreviewMediaEvent.NavigateToReview -> onNavigateToReview(
                     event.media,
@@ -297,7 +294,7 @@ private fun PreviewMediaScreen(
 
                 PreviewMediaEvent.ShowBatchHint -> onShowBatchHint()
                 PreviewMediaEvent.RequestAddMore -> onRequestAddMore()
-                PreviewMediaEvent.RequestAddMenu -> onRequestAddMenu()
+                PreviewMediaEvent.RequestAddMenu -> showPicker = true
                 PreviewMediaEvent.CloseScreen -> onCloseScreen()
             }
         }
@@ -305,8 +302,15 @@ private fun PreviewMediaScreen(
 
     PreviewMediaContent(
         state = state,
-        onAction = viewModel::onAction
+        onAction = viewModel::onAction,
     )
+
+    if (showPicker) {
+        ContentPickerSheet(
+            onDismiss = { showPicker = false },
+            onMediaPicked = onPickMedia
+        )
+    }
 }
 
 @Composable
@@ -323,15 +327,14 @@ private fun PreviewMediaContent(
 
         LazyVerticalGrid(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 6.dp),
+                .fillMaxSize(),
             columns = GridCells.Fixed(2),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(0.dp),
+            horizontalArrangement = Arrangement.spacedBy(0.dp),
             contentPadding = PaddingValues(
-                start = 6.dp,
-                end = 6.dp,
-                top = 8.dp,
+                start = 0.dp,
+                end = 0.dp,
+                top = 0.dp,
                 bottom = bottomBarHeight + WindowInsets.navigationBars
                     .only(WindowInsetsSides.Bottom)
                     .asPaddingValues()
@@ -342,6 +345,7 @@ private fun PreviewMediaContent(
                 MediaListItem(
                     media = media,
                     isInSelectionMode = state.isInSelectionMode,
+                    isSelected = state.selectedIds.contains(media.id),
                     onClick = { onAction(PreviewMediaAction.MediaClicked(media.id)) },
                     onLongPress = { onAction(PreviewMediaAction.MediaLongPressed(media.id)) }
                 )
@@ -354,7 +358,9 @@ private fun PreviewMediaContent(
                     .align(Alignment.BottomCenter)
                     .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom)),
                 onAddMore = { onAction(PreviewMediaAction.AddMore) },
-                onAddMenu = { onAction(PreviewMediaAction.ShowAddMenu) }
+                onAddMenu = {
+                    onAction(PreviewMediaAction.ShowAddMenu)
+                }
             )
         }
 
@@ -373,6 +379,52 @@ private fun PreviewMediaContent(
     }
 }
 
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewMediaContentPreview() {
+    val sampleMedia = listOf(
+        Media(originalFilePath = "", mimeType = "image/jpeg", title = "Image 1"),
+        Media(originalFilePath = "", mimeType = "video/mp4", title = "Video 1"),
+        Media(originalFilePath = "", mimeType = "application/pdf", title = "Doc 1"),
+        Media(originalFilePath = "", mimeType = "audio/mp3", title = "Audio 1")
+    )
+    SaveAppTheme {
+        PreviewMediaContent(
+            state = PreviewMediaState(
+                mediaList = sampleMedia,
+                selectionCount = 0,
+                showAddMore = true,
+                selectedIds = emptySet()
+            ),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun PreviewMediaContentSelectionPreview() {
+    val sampleMedia = listOf(
+        Media(originalFilePath = "", mimeType = "image/jpeg", title = "Image 1"),
+        Media(originalFilePath = "", mimeType = "video/mp4", title = "Video 1"),
+        Media(originalFilePath = "", mimeType = "application/pdf", title = "Doc 1"),
+        Media(originalFilePath = "", mimeType = "audio/mp3", title = "Audio 1")
+    )
+    SaveAppTheme {
+        PreviewMediaContent(
+            state = PreviewMediaState(
+                mediaList = sampleMedia,
+                selectionCount = 2,
+                showAddMore = true,
+                selectedIds = setOf(1, 2)
+            ),
+            onAction = {},
+        )
+    }
+}
+
 @Composable
 private fun AddMoreBar(
     modifier: Modifier = Modifier,
@@ -386,20 +438,41 @@ private fun AddMoreBar(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Button(
+
+        AddMoreButton(
             onClick = onAddMore,
-            modifier = Modifier
-                .weight(1f)
-                .heightIn(min = ThemeDimensions.touchable)
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onLongPress = { onAddMenu() }
-                    )
-                },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.tertiary,
-                contentColor = colorResource(R.color.black)
+            onLongClick = onAddMenu
+        )
+    }
+}
+
+@Composable
+private fun AddMoreButton(
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .heightIn(min = ThemeDimensions.touchable)
+            .background(
+                color = MaterialTheme.colorScheme.tertiary,
+                shape = RoundedCornerShape(8.dp) // or a fixed dp
             )
+            .border(
+                width = 0.5.dp,
+                color = MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.2f),
+                shape = RoundedCornerShape(8.dp)
+            )
+            .combinedClickable(
+                role = Role.Button,
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_add_24),
@@ -409,17 +482,8 @@ private fun AddMoreBar(
             )
             Text(
                 text = stringResource(R.string.add_more),
-                style = MaterialTheme.typography.titleLarge
-            )
-        }
-        Spacer(modifier = Modifier.width(12.dp))
-        IconButton(
-            onClick = onAddMenu
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_more_vert),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onBackground
+                style = MaterialTheme.typography.titleLarge,
+                color = colorResource(R.color.black)
             )
         }
     }
@@ -443,7 +507,7 @@ private fun SelectionBar(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 24.dp),
+            .padding(horizontal = 8.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -460,7 +524,7 @@ private fun SelectionBar(
 
         SelectionButton(
             iconRes = R.drawable.ic_delete,
-            contentDescription = stringResource(R.string.delete),
+            contentDescription = stringResource(R.string.menu_delete),
             onClick = onDelete
         )
     }
@@ -476,7 +540,9 @@ private fun SelectionButton(
     val verticalPadding = dimensionResource(R.dimen.selection_button_padding_vertical)
     Button(
         onClick = onClick,
-        modifier = Modifier.heightIn(min = ThemeDimensions.touchable),
+        modifier = Modifier
+            .heightIn(min = ThemeDimensions.touchable)
+            .padding(horizontal = 4.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = colorResource(R.color.selection_button_glass),
             contentColor = colorResource(R.color.colorTertiary)
@@ -492,6 +558,7 @@ private fun SelectionButton(
         )
     ) {
         Icon(
+            modifier = Modifier.size(24.dp),
             painter = painterResource(id = iconRes),
             contentDescription = contentDescription,
             tint = colorResource(R.color.colorTertiary)
@@ -508,7 +575,9 @@ private fun SelectionTextButton(
     val verticalPadding = dimensionResource(R.dimen.selection_button_padding_vertical)
     Button(
         onClick = onClick,
-        modifier = Modifier.heightIn(min = ThemeDimensions.touchable),
+        modifier = Modifier
+            .heightIn(min = ThemeDimensions.touchable)
+            .padding(horizontal = 4.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = colorResource(R.color.selection_button_glass),
             contentColor = colorResource(R.color.colorTertiary)
@@ -538,6 +607,7 @@ private fun SelectionTextButton(
 private fun MediaListItem(
     media: Media,
     isInSelectionMode: Boolean,
+    isSelected: Boolean,
     onClick: () -> Unit,
     onLongPress: () -> Unit
 ) {
@@ -550,25 +620,25 @@ private fun MediaListItem(
             .padding(3.dp)
             .background(MaterialTheme.colorScheme.background)
             .border(
-                width = if (isInSelectionMode && media.selected) 2.dp else 0.dp,
-                color = if (isInSelectionMode && media.selected) colorResource(R.color.c23_teal) else Color.Transparent,
+                width = if (isInSelectionMode && isSelected) 2.dp else 0.dp,
+                color = if (isInSelectionMode && isSelected) colorResource(R.color.c23_teal) else Color.Transparent,
                 shape = RoundedCornerShape(4.dp)
             )
             .background(
-                color = if (isInSelectionMode && media.selected) Color(0x4D00B4A6) else Color.Transparent,
+                color = if (isInSelectionMode && isSelected) Color(0x4D00B4A6) else Color.Transparent,
                 shape = RoundedCornerShape(4.dp)
             )
-            .pointerInput(isInSelectionMode, media.selected) {
+            .pointerInput(isInSelectionMode, isSelected) {
                 detectTapGestures(
-                    onLongPress = { onLongPress() },
-                    onTap = { onClick() }
+                    onTap = { onClick() },
+                    onLongPress = { onLongPress() }
                 )
             },
         contentAlignment = Alignment.Center
     ) {
         MediaThumbnail(
             media = media,
-            isSelected = isInSelectionMode && media.selected,
+            isSelected = isInSelectionMode && isSelected,
             onShowTitle = { showTitle = it }
         )
 
@@ -583,7 +653,7 @@ private fun MediaListItem(
             )
         }
 
-        if (showTitle && !media.title.isNullOrEmpty()) {
+        if (showTitle && media.title.isNotEmpty()) {
             Text(
                 text = media.title,
                 modifier = Modifier
@@ -710,7 +780,7 @@ private fun MediaThumbnail(
                     .alpha(thumbnailAlpha)
             ) {
                 val state = painter.state
-                if (state is coil3.compose.AsyncImagePainter.State.Loading) {
+                if (state is AsyncImagePainter.State.Loading) {
                     CircularProgressIndicator(
                         color = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier.align(Alignment.Center)
@@ -736,7 +806,7 @@ private fun MediaThumbnail(
                     .alpha(thumbnailAlpha)
             ) {
                 val state = painter.state
-                if (state is coil3.compose.AsyncImagePainter.State.Loading) {
+                if (state is AsyncImagePainter.State.Loading) {
                     CircularProgressIndicator(
                         color = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier.align(Alignment.Center)
