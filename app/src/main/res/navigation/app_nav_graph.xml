@@ -344,4 +344,14 @@
             android:defaultValue="false"
             app:argType="boolean" />
     </fragment>
+
+    <fragment
+        android:id="@+id/fragment_preview_media"
+        android:name="net.opendasharchive.openarchive.features.media.PreviewMediaFragment"
+        tools:layout="null">
+        <argument
+            android:name="project_id"
+            android:defaultValue="-1"
+            app:argType="long" />
+    </fragment>
 </navigation>

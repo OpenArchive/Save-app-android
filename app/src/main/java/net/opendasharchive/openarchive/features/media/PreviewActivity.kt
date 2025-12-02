@@ -22,6 +22,8 @@ import net.opendasharchive.openarchive.features.core.asUiImage
 import net.opendasharchive.openarchive.features.core.asUiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
+import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
+import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
@@ -43,8 +45,21 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
         // Toggle to switch between old XML ReviewActivity and new Compose ReviewMediaScreen
         // Set to true to use new Compose screen, false to use old XML activity
         private const val USE_NEW_COMPOSE_REVIEW_SCREEN = true
+        private const val USE_NEW_COMPOSE_PREVIEW_SCREEN = true
 
         fun start(context: Context, projectId: Long) {
+            if (USE_NEW_COMPOSE_PREVIEW_SCREEN) {
+                val intent = Intent(context, SpaceSetupActivity::class.java).apply {
+                    putExtra(
+                        SpaceSetupActivity.LABEL_START_DESTINATION,
+                        StartDestination.PREVIEW_MEDIA.name
+                    )
+                    putExtra("project_id", projectId)
+                }
+                context.startActivity(intent)
+                return
+            }
+
             val i = Intent(context, PreviewActivity::class.java)
             i.putExtra(PROJECT_ID_EXTRA, projectId)
 

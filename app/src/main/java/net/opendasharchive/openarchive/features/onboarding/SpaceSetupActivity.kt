@@ -22,7 +22,8 @@ enum class StartDestination {
     ADD_FOLDER,
     ADD_NEW_FOLDER,
     ARCHIVED_FOLDER_LIST,
-    REVIEW_MEDIA
+    REVIEW_MEDIA,
+    PREVIEW_MEDIA
 }
 
 class SpaceSetupActivity : BaseActivity() {
@@ -120,6 +121,16 @@ class SpaceSetupActivity : BaseActivity() {
 
                 navController.setGraph(navGraph, bundle)
                 return // Early return to avoid setting graph again
+            }
+            StartDestination.PREVIEW_MEDIA -> {
+                navGraph.setStartDestination(R.id.fragment_preview_media)
+
+                val projectId = intent.getLongExtra("project_id", -1L)
+                val bundle = bundleOf(
+                    "project_id" to projectId
+                )
+                navController.setGraph(navGraph, bundle)
+                return
             }
             else -> {
                 navGraph.setStartDestination(R.id.fragment_space_setup)
