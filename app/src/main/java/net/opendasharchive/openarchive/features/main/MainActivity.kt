@@ -118,6 +118,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     private var pendingAddPicker = false
     private var restoredPageIndex: Int? = null  // Only used for configuration changes
     private var hasRestoredPage = false  // Track if we've already restored the page
+    private var isRestoringState = false  // Flag to suppress onPageSelected during restoration
 
     private enum class FolderBarMode { INFO, SELECTION, EDIT }
 
@@ -296,6 +297,10 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     override fun onResume() {
         super.onResume()
         AppLogger.i("MainActivity onResume is called.......")
+
+        // Set flag to suppress onPageSelected from saving preferences during restoration
+        isRestoringState = true
+
         refreshSpace()
 
         // Only restore the page on the FIRST onResume after onCreate
@@ -350,6 +355,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         } else {
             AppLogger.i("MainActivity onResume - page already restored, using current: $mSelectedPageIndex")
         }
+
+        // Clear the restoration flag - from now on, page changes should save preferences normally
+        isRestoringState = false
 
         importSharedMedia(intent)
         if (serverListOffset == 0F) {
@@ -427,17 +435,28 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
                 val isOnSettings = position == mPagerAdapter.settingsIndex
 
-                if (isOnSettings) {
-                    // On settings page - save this fact with commit() for immediate write
-                    // This is critical for theme changes which recreate the activity immediately
-                    Prefs.putBooleanSync("is_on_settings_page_temp", true)
+                // Only save preferences if we're not in the middle of state restoration
+                // This prevents refreshProjects() from overwriting the saved page during theme changes
+                if (!isRestoringState) {
+                    if (isOnSettings) {
+                        // On settings page - save this fact with commit() for immediate write
+                        // This is critical for theme changes which recreate the activity immediately
+                        Prefs.putBooleanSync("is_on_settings_page_temp", true)
+                    } else {
+                        // On a media page - save the page index and clear the settings flag
+                        Prefs.currentHomePage = position
+                        Prefs.putBooleanSync("is_on_settings_page_temp", false)
+                        mSelectedMediaPageIndex = position
+                        val selectedProject = getSelectedProject()
+                        mFolderAdapter.updateSelectedProject(selectedProject)
+                    }
                 } else {
-                    // On a media page - save the page index and clear the settings flag
-                    Prefs.currentHomePage = position
-                    Prefs.putBooleanSync("is_on_settings_page_temp", false)
-                    mSelectedMediaPageIndex = position
-                    val selectedProject = getSelectedProject()
-                    mFolderAdapter.updateSelectedProject(selectedProject)
+                    // During restoration, still update the selected project but don't save preferences
+                    if (!isOnSettings) {
+                        mSelectedMediaPageIndex = position
+                        val selectedProject = getSelectedProject()
+                        mFolderAdapter.updateSelectedProject(selectedProject)
+                    }
                 }
 
                 if (!appConfig.multipleProjectSelectionMode) {
