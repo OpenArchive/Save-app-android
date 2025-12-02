@@ -149,7 +149,7 @@ fun CameraPermissionScreen(
                         onClick = onRequestPermissions,
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
+                            containerColor = MaterialTheme.colorScheme.tertiary
                         )
                     ) {
                         Text(stringResource(R.string.grant_permission), textAlign = TextAlign.Center)
