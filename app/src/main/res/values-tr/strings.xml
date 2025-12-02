@@ -154,8 +154,6 @@
     <string name="folder_name_already_exists">Klasör adı zaten var.</string>
     <string name="metadata">Üst veriler</string>
     <string name="web_dav_host_error">Belirtilen sunucu adıyla bir sunucu bulunamadı.</string>
-
-    <string name="web_dav_host_error">A server with the specified hostname could not be found.</string>
     <string name="btn_lbl_remove_media">Ortamı sil</string>
     <string name="popup_flag_title">Önemli içerik olarak işaretle</string>
     <string name="popup_flag_desc">Bir ögeyi işaretlediğinizde, özel sunucu üzerinde seçilmiş proje klasöründeki bir alt klasöre yönlendirilir.</string>
@@ -207,7 +205,7 @@
     <string name="intro_text_secure">Ortamınızı güvenli bir şekilde özel sunuculara gönderin ve uygulamayı bir PIN kodu ile kilitleyin.</string>
     <string name="intro_text_archive"><![CDATA[Ortamınızı uzun vadede doğrulanabilir, güvenli ve düzenli tutmak için Nextcloud veya İnternet Archive üzerine yükleyin.<br><br><a href=\"%1$s\"><u>Creative Commons Lisansı.</u> kullanın </a>]]></string>
 
-    <string name="intro_text_verify">&lt;![ CDATA[Ortamınız için SHA256 karmaları ve &lt;a href=\"%1$s\"&gt;&lt;u&gt;ProofMode&lt;/u&gt;&lt;/a&gt; ile kimlik ve gerçekliği doğrulayın.]]&gt;</string>
+    <string name="intro_text_verify"><![CDATA[Ortamınız için SHA256 karmaları ve &lt;a href=\"%1$s\"&gt;&lt;u&gt;ProofMode&lt;/u&gt;&lt;/a&gt; ile kimlik ve gerçekliği doğrulayın.]]></string>
     <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> aktarım sırasında ortamınızı korumak için her zaman TLS (Transport Layer Security) ile yükleme yapar.<br>Ek güvenlik sağlamak için,  ortamınızın telefonunuzdan sunucuya gönderilirken ele geçirilmesini önleyen <a href=\"%1$s\"><u>Tor</u></a> özelliğini açın.]]></string>
     <string name="next">İleri</string>
     <string name="done">Bitti</string>
