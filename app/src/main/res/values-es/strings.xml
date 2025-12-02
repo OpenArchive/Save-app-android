@@ -105,8 +105,7 @@
     <string name="uploads_notification_descriptions">Estas notificaciones aparecen mientras la app está realizando una carga de medios.</string>
 
     <string name="action_upload">Subida </string>
-
-    <!-- Passcode Settings -->
+<!-- Passcode Settings -->
     <string name="multiple_failed_attempts_message">La app está bloqueada debido a múltiples intentos fallidos. Por favor intenta nuevamente más tarde.</string>
     <string name="passcode_not_set">Código de acceso no establecido</string>
     <string name="passcode_remaining_attempts">Código de acceso incorrecto.%1$d intentos restantes.</string>
@@ -153,16 +152,13 @@
     <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">¿Estás segura(o) de querer eliminar este servidor de la app\?</string>
     <string name="folder_name_already_exists">Nombre de carpeta ya existe.</string>
     <string name="metadata">Metadatos</string>
-
     <string name="web_dav_host_error">No se pudo encontrar un servidor con el nombre de host especificado.</string>
+
     <string name="btn_lbl_remove_media">Eliminar Medios</string>
     <string name="popup_flag_title">Marcar Contenido Significativo</string>
     <string name="popup_flag_desc">Cuando marcas un elemento, se envía a una subcarpeta dentro de la carpeta del proyecto elegido en el servidor privado.</string>
     <string name="set_creative_commons_license_for_all_folders_on_this_server">Establecer licencias de creative commons para carpetas en este servidor.</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Permitir el uso de licencia Creative Commons para TODAS las carpetas de este servidor.</string>
-    <string name="you_already_have_a_server_with_these_credentials">Ya tienes un servidor con estas credenciales</string>
-
-
     <!-- Space Setup -->
     <string name="space_setup_title">Selecciona un Servidor</string>
     <!-- WebDAV related strings -->
