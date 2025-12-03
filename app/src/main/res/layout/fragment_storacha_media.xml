@@ -86,8 +86,8 @@
         android:paddingHorizontal="16dp"
         android:src="@drawable/baseline_add_24"
         android:tintMode="src_atop"
-        android:tint="@color/black"
-        app:rippleColor="@color/background" />
+        app:rippleColor="@color/background"
+        app:tint="@color/black" />
 
     <!-- Upload overlay to block interactions -->
     <FrameLayout
