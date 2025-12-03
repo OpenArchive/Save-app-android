@@ -13,6 +13,7 @@ plugins {
     alias(libs.plugins.detekt.plugin)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
+    alias(libs.plugins.stability.analyzer)
 }
 
 fun loadLocalProperties(): Properties = Properties().apply {
