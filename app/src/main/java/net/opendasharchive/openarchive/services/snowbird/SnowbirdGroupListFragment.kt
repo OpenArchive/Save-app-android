@@ -28,7 +28,7 @@ import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.util.SpacingItemDecoration
 import timber.log.Timber
 
-class SnowbirdGroupListFragment : BaseFragment() {
+class SnowbirdGroupListFragment : BaseSnowbirdFragment() {
 
     private lateinit var viewBinding: FragmentSnowbirdGroupListBinding
     private lateinit var adapter: SnowbirdGroupsAdapter

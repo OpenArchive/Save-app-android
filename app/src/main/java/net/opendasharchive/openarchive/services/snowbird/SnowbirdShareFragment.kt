@@ -11,7 +11,7 @@ import net.opendasharchive.openarchive.extensions.asQRCode
 import net.opendasharchive.openarchive.extensions.urlEncode
 import net.opendasharchive.openarchive.features.core.BaseFragment
 
-class SnowbirdShareFragment: BaseFragment() {
+class SnowbirdShareFragment: BaseSnowbirdFragment() {
 
     private lateinit var binding: FragmentSnowbirdShareGroupBinding
     private var isSetupOngoing: Boolean = false

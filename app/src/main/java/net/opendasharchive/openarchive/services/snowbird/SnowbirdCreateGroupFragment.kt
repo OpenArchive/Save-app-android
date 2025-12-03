@@ -27,7 +27,7 @@ import net.opendasharchive.openarchive.util.FullScreenOverlayCreateGroupManager
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import java.io.File
 
-class SnowbirdCreateGroupFragment : BaseFragment() {
+class SnowbirdCreateGroupFragment : BaseSnowbirdFragment() {
 
     private lateinit var binding: FragmentSnowbirdCreateGroupBinding
 

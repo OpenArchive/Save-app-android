@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdGroupOverviewBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
 
-class SnowbirdGroupOverviewFragment private constructor(): BaseFragment() {
+class SnowbirdGroupOverviewFragment private constructor(): BaseSnowbirdFragment() {
     private lateinit var viewBinding: FragmentSnowbirdGroupOverviewBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

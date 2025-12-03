@@ -67,7 +67,7 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.main.QRScannerActivity
 
-class SnowbirdFragment : BaseFragment() {
+class SnowbirdFragment : BaseSnowbirdFragment() {
 
     private val qrCodeLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
