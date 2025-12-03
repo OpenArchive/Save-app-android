@@ -72,6 +72,7 @@ import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
+import net.opendasharchive.openarchive.services.storacha.util.StorachaHelper
 import net.opendasharchive.openarchive.upload.UploadManagerFragment
 import net.opendasharchive.openarchive.upload.UploadService
 import net.opendasharchive.openarchive.util.InAppReviewHelper
@@ -88,9 +89,10 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.text.NumberFormat
 
-
-class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAdapterListener {
-
+class MainActivity :
+    BaseActivity(),
+    SpaceDrawerAdapterListener,
+    FolderDrawerAdapterListener {
     private val appConfig by inject<AppConfig>()
     private val viewModel by viewModel<MainViewModel>()
 
@@ -206,7 +208,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 //            decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
 //        }
 
-
         binding = ActivityMainBinding.inflate(layoutInflater)
 
 //        binding.contentMain.imgLogo.applyEdgeToEdgeInsets { insets ->
@@ -225,7 +226,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         binding.drawerContent.applyEdgeToEdgeInsets { insets ->
             bottomMargin = insets.bottom
         }
-
 
         setContentView(binding.root)
 
@@ -258,7 +258,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             handleIntent(intent)
         }
 
-
         if (BuildConfig.DEBUG) {
             binding.contentMain.imgLogo.setOnLongClickListener {
                 startActivity(Intent(this, HomeActivity::class.java))
@@ -275,7 +274,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
         supportFragmentManager.setFragmentResultListener(
             ContentPickerFragment.KEY_DISMISS,
-            this
+            this,
         ) { _, _ ->
             // when the sheet goes away, show your arrow
             getCurrentMediaFragment()?.setArrowVisible(true)
@@ -408,15 +407,16 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     // ----- Initialization Methods -----
     private fun initMediaLaunchers() {
-        mediaLaunchers = Picker.register(
-            activity = this,
-            root = binding.root,
-            project = { getSelectedProject() },
-            completed = { media ->
-                refreshCurrentProject()
-                if (media.isNotEmpty()) navigateToPreview()
-            }
-        )
+        mediaLaunchers =
+            Picker.register(
+                activity = this,
+                root = binding.root,
+                project = { getSelectedProject() },
+                completed = { media ->
+                    refreshCurrentProject()
+                    if (media.isNotEmpty()) navigateToPreview()
+                },
+            )
     }
 
     private fun setupToolbarAndPager() {
@@ -563,13 +563,16 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                     }
                 }
                 supportFragmentManager.setFragmentResultListener(
-                    AddMediaDialogFragment.RESP_TAKE_PHOTO, this@MainActivity
+                    AddMediaDialogFragment.RESP_TAKE_PHOTO,
+                    this@MainActivity,
                 ) { _, _ -> addClicked(AddMediaType.CAMERA) }
                 supportFragmentManager.setFragmentResultListener(
-                    AddMediaDialogFragment.RESP_PHOTO_GALLERY, this@MainActivity
+                    AddMediaDialogFragment.RESP_PHOTO_GALLERY,
+                    this@MainActivity,
                 ) { _, _ -> addClicked(AddMediaType.GALLERY) }
                 supportFragmentManager.setFragmentResultListener(
-                    AddMediaDialogFragment.RESP_FILES, this@MainActivity
+                    AddMediaDialogFragment.RESP_FILES,
+                    this@MainActivity,
                 ) { _, _ -> addClicked(AddMediaType.FILES) }
             }
         }
@@ -596,20 +599,26 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         // Listen for the "done" action to commit a rename.
         binding.contentMain.etFolderName.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                val newName = binding.contentMain.etFolderName.text.toString().trim()
+                val newName =
+                    binding.contentMain.etFolderName.text
+                        .toString()
+                        .trim()
                 if (newName.isNotEmpty()) {
                     renameCurrentFolder(newName)
                     hideKeyboard()
                     setFolderBarMode(FolderBarMode.INFO)
                 } else {
-                    Snackbar.make(
-                        binding.root,
-                        getString(R.string.folder_empty_warning),
-                        Snackbar.LENGTH_SHORT
-                    ).show()
+                    Snackbar
+                        .make(
+                            binding.root,
+                            getString(R.string.folder_empty_warning),
+                            Snackbar.LENGTH_SHORT,
+                        ).show()
                 }
                 true
-            } else false
+            } else {
+                false
+            }
         }
 
         binding.contentMain.btnRemoveSelected.setOnClickListener {
@@ -624,25 +633,27 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             it.description = newName
             it.save()
             refreshCurrentProject()
-            Snackbar.make(
-                binding.root,
-                getString(R.string.folder_rename_success),
-                Snackbar.LENGTH_SHORT
-            ).show()
+            Snackbar
+                .make(
+                    binding.root,
+                    getString(R.string.folder_rename_success),
+                    Snackbar.LENGTH_SHORT,
+                ).show()
         }
     }
 
     private fun showFolderOptionsPopup(p: Point) {
         val layoutInflater = getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupFolderOptionsBinding.inflate(layoutInflater)
-        val popup = PopupWindow(this).apply {
-            contentView = popupBinding.root
-            width = LinearLayout.LayoutParams.WRAP_CONTENT
-            height = LinearLayout.LayoutParams.WRAP_CONTENT
-            isFocusable = true
-            setBackgroundDrawable(ColorDrawable())
-            animationStyle = R.style.popup_window_animation
-        }
+        val popup =
+            PopupWindow(this).apply {
+                contentView = popupBinding.root
+                width = LinearLayout.LayoutParams.WRAP_CONTENT
+                height = LinearLayout.LayoutParams.WRAP_CONTENT
+                isFocusable = true
+                setBackgroundDrawable(ColorDrawable())
+                animationStyle = R.style.popup_window_animation
+            }
 
         // Check if there is at least one media item in the selected project
         val hasMedia = getSelectedProject()?.collections?.any { it.media.isNotEmpty() } == true
@@ -674,17 +685,19 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 refreshProjects()
                 updateCurrentFolderVisibility()
                 refreshCurrentProject()
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.folder_archived),
-                    Snackbar.LENGTH_SHORT
-                ).show()
+                Snackbar
+                    .make(
+                        binding.root,
+                        getString(R.string.folder_archived),
+                        Snackbar.LENGTH_SHORT,
+                    ).show()
             } else {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.folder_not_found),
-                    Snackbar.LENGTH_LONG
-                ).show()
+                Snackbar
+                    .make(
+                        binding.root,
+                        getString(R.string.folder_not_found),
+                        Snackbar.LENGTH_LONG,
+                    ).show()
             }
         }
 
@@ -694,11 +707,12 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             if (getSelectedProject() != null) {
                 showDeleteFolderConfirmDialog()
             } else {
-                Snackbar.make(
-                    binding.root,
-                    getString(R.string.folder_not_found),
-                    Snackbar.LENGTH_LONG
-                ).show()
+                Snackbar
+                    .make(
+                        binding.root,
+                        getString(R.string.folder_not_found),
+                        Snackbar.LENGTH_LONG,
+                    ).show()
             }
         }
 
@@ -768,11 +782,12 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                     refreshProjects()
                     updateCurrentFolderVisibility()
                     refreshCurrentProject()
-                    Snackbar.make(
-                        binding.root,
-                        getString(R.string.folder_removed),
-                        Snackbar.LENGTH_SHORT
-                    ).show()
+                    Snackbar
+                        .make(
+                            binding.root,
+                            getString(R.string.folder_removed),
+                            Snackbar.LENGTH_SHORT,
+                        ).show()
                 }
             }
             neutralButton {
@@ -788,7 +803,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         val currentItem = binding.contentMain.pager.currentItem
         return supportFragmentManager.findFragmentByTag("f$currentItem") as? MainMediaFragment
     }
-
 
     // ----- Drawer Helpers -----
     private fun toggleDrawerState() {
@@ -821,7 +835,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     private fun expandSpacesList() {
         serverListCurOffset = 0f
         binding.spaceListMore.setImageDrawable(
-            ContextCompat.getDrawable(this, R.drawable.ic_expand_less)
+            ContextCompat.getDrawable(this, R.drawable.ic_expand_less),
         )
         binding.rvSpaces.visibility = View.VISIBLE
         binding.dimOverlay.visibility = View.VISIBLE
@@ -834,18 +848,26 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 binding.rvFolders.alpha = 0.3f
                 binding.btnAddFolder.alpha = 0.3f
             }
-        binding.dimOverlay.animate().alpha(1f).setDuration(200)
+        binding.dimOverlay
+            .animate()
+            .alpha(1f)
+            .setDuration(200)
         binding.navigationDrawerHeader.elevation = 8f
     }
 
     private fun collapseSpacesList() {
         serverListCurOffset = serverListOffset
         binding.spaceListMore.setImageDrawable(
-            ContextCompat.getDrawable(this, R.drawable.ic_expand_more)
+            ContextCompat.getDrawable(this, R.drawable.ic_expand_more),
         )
 
         binding.rvSpaces.animate()
             .translationY(serverListOffset).alpha(0f).setDuration(200)
+        binding.rvSpaces
+            .animate()
+            .translationY(serverListOffset)
+            .alpha(0f)
+            .setDuration(200)
             .withEndAction {
                 binding.rvSpaces.visibility = View.GONE
                 binding.dimOverlay.visibility = View.GONE
@@ -864,6 +886,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     }
 
     // ----- Refresh & Update Methods -----
+
     /**
      * Updates the visibility of the current folder container.
      * The container is only visible if:
@@ -978,8 +1001,11 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     }
 
     private fun refreshSpaceListAtDrawer() {
-        val spaces = Space.getAll().asSequence().toList()
+        val spaces = Space.getAll().asSequence().toMutableList()
         val hasDwebGroups = SnowbirdGroup.getAll().isNotEmpty()
+        if (StorachaHelper.shouldEnableStorachaAccess(this)) {
+            spaces.add(Space(type = Space.Type.STORACHA.id, name = "Storacha Service"))
+        }
         mSpaceAdapter.update(spaces, hasDwebGroups)
     }
 
@@ -1034,8 +1060,10 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         val project = getSelectedProject()
 
         if (project != null) {
-            val count = project.collections.map { it.size }
-                .reduceOrNull { acc, count -> acc + count } ?: 0
+            val count =
+                project.collections
+                    .map { it.size }
+                    .reduceOrNull { acc, count -> acc + count } ?: 0
             binding.contentMain.itemCount.text = NumberFormat.getInstance().format(count)
             if (!selectModeToggle) {
                 binding.contentMain.itemCount.show()
@@ -1058,19 +1086,18 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             // as it doesn't make sense to show a one-option menu.
             intent.putExtra(
                 SpaceSetupActivity.LABEL_START_DESTINATION,
-                StartDestination.ADD_NEW_FOLDER.name
+                StartDestination.ADD_NEW_FOLDER.name,
             )
         } else {
             intent.putExtra(
                 SpaceSetupActivity.LABEL_START_DESTINATION,
-                StartDestination.ADD_FOLDER.name
+                StartDestination.ADD_FOLDER.name,
             )
         }
         mNewFolderResultLauncher.launch(intent)
     }
 
     private fun addClicked(mediaType: AddMediaType) {
-
         when {
             getSelectedProject() != null -> {
                 if (Prefs.addMediaHint) {
@@ -1118,7 +1145,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                         onDone = {
                             Prefs.addMediaHint = true
                             addClicked(mediaType)
-                        }
+                        },
                     )
                 }
             }
@@ -1131,13 +1158,16 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     private fun importSharedMedia(imageIntent: Intent?) {
         if (imageIntent?.action != Intent.ACTION_SEND) return
         val uri =
-            imageIntent.data ?: imageIntent.clipData?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.uri
+            imageIntent.data ?: imageIntent.clipData
+                ?.takeIf { it.itemCount > 0 }
+                ?.getItemAt(0)
+                ?.uri
         val path = uri?.path ?: return
         if (path.contains(packageName)) return
 
         mSnackBar?.show()
         lifecycleScope.launch(Dispatchers.IO) {
-            //When we are sharing a file to be uploaded to Save app we don't generate proof.
+            // When we are sharing a file to be uploaded to Save app we don't generate proof.
             val media = Picker.import(this@MainActivity, getSelectedProject(), uri, false)
             lifecycleScope.launch(Dispatchers.Main) {
                 mSnackBar?.dismiss()
@@ -1176,7 +1206,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         val hasDwebGroup = SnowbirdGroup.getAll().isNotEmpty()
         val shouldShowSideMenu =
-            ((Space.current != null || hasDwebGroup) && mCurrentPagerItem != mPagerAdapter.settingsIndex)
+            ((Space.current != null || hasDwebGroup) && (mCurrentPagerItem != mPagerAdapter.settingsIndex) || (StorachaHelper.shouldEnableStorachaAccess(
+                this,
+            )))
 
         menu?.findItem(R.id.menu_folders)?.apply {
             isVisible = shouldShowSideMenu
@@ -1193,8 +1225,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         return super.onPrepareOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+        when (item.itemId) {
             R.id.menu_folders -> {
                 toggleDrawerState()
                 true
@@ -1202,7 +1234,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
             else -> super.onOptionsItemSelected(item)
         }
-    }
 
     // ----- Adapter Listeners -----
     override fun onProjectSelected(project: Project) {
@@ -1210,9 +1241,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         mCurrentPagerItem = mPagerAdapter.projects.indexOf(project)
     }
 
-    override fun getSelectedProject(): Project? {
-        return mPagerAdapter.getProject(mCurrentPagerItem)
-    }
+    override fun getSelectedProject(): Project? = mPagerAdapter.getProject(mCurrentPagerItem)
 
     override fun onSpaceSelected(space: Space) {
         Space.current = space
@@ -1220,6 +1249,11 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         updateCurrentSpaceAtDrawer()
         collapseSpacesList()
         binding.drawerLayout.closeDrawer(binding.drawerContent)
+        if (space.type == Space.Type.STORACHA.id) {
+            val intent = Intent(this, SpaceSetupActivity::class.java)
+            intent.putExtra("start_destination", "STORACHA")
+            startActivity(intent)
+        }
     }
 
     override fun onAddNewSpace() {
@@ -1267,20 +1301,23 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 uploadManagerFragment = fragment
 
                 // Observe when it gets dismissed
-                fragment.lifecycle.addObserver(object : DefaultLifecycleObserver {
-                    override fun onDestroy(owner: LifecycleOwner) {
-                        uploadManagerFragment = null // Clear reference
+                fragment.lifecycle.addObserver(
+                    object : DefaultLifecycleObserver {
+                        override fun onDestroy(owner: LifecycleOwner) {
+                            uploadManagerFragment = null // Clear reference
 
-                        // Check if there are pending uploads
-                        if (Media.getByStatus(
-                                listOf(Media.Status.Queued, Media.Status.Uploading),
-                                Media.ORDER_PRIORITY
-                            ).isNotEmpty()
-                        ) {
-                            UploadService.startUploadService(this@MainActivity)
+                            // Check if there are pending uploads
+                            if (Media
+                                    .getByStatus(
+                                        listOf(Media.Status.Queued, Media.Status.Uploading),
+                                        Media.ORDER_PRIORITY,
+                                    ).isNotEmpty()
+                            ) {
+                                UploadService.startUploadService(this@MainActivity)
+                            }
                         }
-                    }
-                })
+                    },
+                )
             }
         }
     }

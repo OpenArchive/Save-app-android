@@ -55,6 +55,7 @@
     -->
 
     <application
+        android:usesCleartextTraffic="true"
         android:name=".SaveApp"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -194,6 +195,12 @@
             android:screenOrientation="portrait"
             android:theme="@style/SaveAppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
+
+        <activity
+            android:name=".services.storacha.PortraitCaptureActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/zxing_CaptureTheme"
+            android:exported="false" />
 
         <meta-data
             android:name="DOMAIN_PACKAGE_NAME"

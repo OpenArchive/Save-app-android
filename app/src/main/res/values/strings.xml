@@ -87,6 +87,7 @@
     <!-- Strings related to login -->
     <string name="prompt_username"><i>Username</i></string>
     <string name="prompt_email">Email</string>
+    <string name="prompt_email_italics"><i>Email</i></string>
     <string name="prompt_password"><i>Password</i></string>
 
     <string name="label_username">@string/prompt_email</string>
@@ -184,7 +185,7 @@
 
 
     <!-- Space Setup -->
-    <string name="space_setup_title">Select a Server</string>
+    <string name="space_setup_title">Select a server</string>
     <!-- WebDAV related strings -->
     <string name="private_server">Private Server</string>
 
@@ -315,12 +316,12 @@
 
     <string name="pref_title_secure">Secure</string>
     <string name="pref_title_archive">Archive</string>
-    <string name="pref_title_privacy_policy">Terms and Privacy</string>
+    <string name="pref_title_privacy_policy">Terms &amp; Privacy Policy</string>
     <string name="pref_title_media_servers">Media Servers</string>
     <string name="pref_title_media_folders">Archived Folders</string>
     <string name="pref_summary_media_servers">Manage your servers</string>
     <string name="pref_summary_media_folders">Manage your archived folders</string>
-    <string name="pref_summary_privacy_policy">Read our Terms and Privacy Policy</string>
+    <string name="pref_summary_privacy_policy">Read our Terms &amp; Privacy Policy</string>
 
     <!-- General -->
     <string name="label_success_title">Success!</string>
@@ -337,6 +338,68 @@
     <string name="error_no_internet">Internet not available</string>
     <string name="save_by_open_archive">Save by OpenArchive</string>
     <string name="discover_the_save_app">Learn More</string>
+
+    <!-- Storacha -->
+    <string name="storacha">Storacha</string>
+    <string name="manage_accounts">Manage Accounts</string>
+    <string name="my_spaces">My Spaces</string>
+    <string name="join_space">Join Space</string>
+    <string name="create_or_edit_accounts">Create or edit accounts</string>
+    <string name="access_your_saved_spaces">Access your spaces</string>
+    <string name="connect_to_an_existing_space">Join an existing shared space</string>
+    <string name="you_can_add_multiple_private_servers_and_one_ia_account_at_any_time">You can add multiple private servers and one IA account at any time.</string>
+    <string name="storacha_disclaimer"><![CDATA[Files uploaded to the Storacha network are publicly accessible through their CID and may remain permanently available across decentralized nodes. <a href="https://docs.storacha.network/how-to/upload/">Learn more.</a>]]></string>
+    <string name="storacha_is_a_decentralized_media_storage_system_using_ipfs_ucan_and_dids">Storacha lets you store media securely using decentralized technologies (IPFS, UCAN, and DIDs).</string>
+    <string name="sign_up_storacha">Don\'t have an account?</string>
+    <string name="email_has_been_verified_and_the_spaces_have_been_added_to_save">Your email has been verified, and the spaces have been added to Save.</string>
+    <string name="email_address">Email address</string>
+    <string name="users_can_delete_the_content_within_the_space">Users can delete the content within the space</string>
+    <string name="users_can_read_the_content_within_the_space">Users can read the content within the space</string>
+    <string name="users_can_write_content_to_the_space">Users can write content to the space</string>
+    <string name="define_access_to_the_following_did_key">Define access to the following DID key</string>
+    <string name="this_is_your_qr_code_to_request_access_please_ask_the_admin_to_scab_your_code_to_gain_access_to_soace">Here is your identity.\nShare this QR code or ID with an admin so they can add you to their space.</string>
+    <string name="storacha_qr">storacha qr</string>
+    <string name="no_did_has_access_to_this_space">No DIDs currently have access to this space. Tap “Add” to grant access.</string>
+    <string name="no_spaces_available">No Spaces Available</string>
+    <string name="loading_spaces">Loading spaces…</string>
+    <string name="loading_files">Loading files…</string>
+    <string name="loading_more_files">Loading more…</string>
+    <string name="loading_accounts">Loading accounts…</string>
+    <string name="uploading_files">Uploading…</string>
+    <string name="logout">Logout</string>
+    <string name="logout_confirmation">Are you sure you want to logout?</string>
+    <string name="please_check_your_inbox_and_click_the_link_on_the_verification_email">Please check your inbox and click the link on the verification email.</string>
+    <string name="verification_email_sent">Verification Email Sent</string>
+    <string name="change_email_link"><![CDATA[Email is incorrect? <a href="#">Change now.</a>]]></string>
+    <string name="access">Access</string>
+    <string name="email_verification">Email Verification</string>
+    <string name="add_account">Add Account</string>
+    <string name="accounts">Accounts</string>
+    <string name="spaces">Spaces</string>
+    <string name="no_files_available">No files Available</string>
+    <string name="send_directly_to_storacha_server">Connect to the Storacha network</string>
+    <string name="did_access_key"><i>Enter DID Key</i></string>
+    <string name="browse_files">Files</string>
+    <string name="no_media_available">No Media Available.</string>
+    <string name="revoke_access">Revoke Access?\n</string>
+    <string name="revoke_access_prompt">"This will revoke access to this DID for this Space\n "</string>
+    <string name="revoke">Revoke</string>
+    <string name="view_spaces">View Spaces</string>
+    <string name="copy_did">Copy DID</string>
+    <string name="access_your_account_using_your_registered_email_address">Log in using your registered email address</string>
+    <string name="sent_to">Sent to: %1$s</string>
+    <string name="loading_usage">Loading usage…</string>
+    <string name="manage_access">Manage Access</string>
+    <string name="click_on_view_spaces_once_nadmin_has_granted_access">Once the admin approves you,\nthe space will appear under My Spaces.</string>
+    <string name="invalid_did_format_please_scan_a_valid_did_key_format_did_key_z">Invalid DID format. Please scan a valid DID key (format: did:key:z...)</string>
+    <string name="did_already_added">DID already added</string>
+    <string name="scan_did_key">Scan DID Key</string>
+    <string name="did_access_granted_successfully">DID access granted successfully</string>
+    <string name="add_did">Add DID</string>
+    <string name="camera_permission">Camera Permission</string>
+    <string name="camera_access_is_needed_to_take_pictures_please_grant_permission">Camera access is needed to take pictures. Please grant permission.</string>
+    <string name="accept">Accept</string>
+    <string name="cancel">Cancel</string>
 
     <!-- Sync Preferences -->
     <string name="sync_title" translatable="false">Sync email periodically</string>
@@ -389,6 +452,32 @@
     <string name="tor_connection_exception" translatable="false">Unable to connect to Orbot/Tor.</string>
     <string name="tor_connection_timeout" translatable="false">Unable to connect to Orbot/Tor: TIMEOUT</string>
     <string name="tor_connection_invalid" translatable="false">Unable to connect to Orbot/Tor: INVALID</string>
+    <string name="label_login">Login</string>
+    <string name="logging_in">Logging in…</string>
+    <string name="adding_did">Adding DID…</string>
+    <string name="your_session_has_expired_please_log_out_and_log_back_in_then_try_uploading_again">Your session has expired. Please log out and log back in, then try uploading again.</string>
+    <string name="you_don_t_have_permission_to_upload_to_this_space_please_check_with_the_space_owner">You don\'t have permission to upload to this space. Please check with the space owner.</string>
+    <string name="can_t_connect_to_the_server_please_check_your_internet_connection_and_try_again">Can\'t connect to the server. Please check your internet connection and try again.</string>
+    <string name="the_storage_service_is_temporarily_unavailable_please_try_again_in_a_few_minutes">The storage service is temporarily unavailable. Please try again in a few minutes.</string>
+    <string name="the_file_may_be_too_large_or_the_upload_is_taking_too_long_try_with_a_smaller_file_or_check_your_connection">The file may be too large or the upload is taking too long. Try with a smaller file or check your connection.</string>
+    <string name="the_server_is_busy_please_wait_a_moment_and_try_again">The server is busy. Please wait a moment and try again.</string>
+    <string name="something_went_wrong_on_the_server_please_try_again">Something went wrong on the server. Please try again.</string>
+    <string name="there_was_an_authentication_issue_the_app_will_try_again_automatically">There was an authentication issue. The app will try again automatically.</string>
+    <string name="there_was_a_problem_with_the_storage_service_please_try_again">There was a problem with the storage service. Please try again.</string>
+    <string name="there_might_not_be_enough_storage_space_available_please_try_again_or_contact_support">There might not be enough storage space available. Please try again or contact support.</string>
+    <string name="something_went_wrong_with_the_upload_please_try_again">Something went wrong with the upload. Please try again.</string>
+    <string name="enter_a_did_access_key_manually_or_scan_a_qr_code_to_add_one">To add someone, enter the <b>DID key</b> they shared with you or scan their <b>QR code</b>. They can find this information by tapping <b>Join Space</b> in their app.</string>
+
+    <!-- Session Management -->
+    <string name="email_verification_required_title">Email Verification Required</string>
+    <string name="email_verification_required_message">Please verify your email to access spaces. Check your inbox for the verification link.</string>
+    <string name="session_expired_title">Session Expired</string>
+    <string name="session_expired_message">Your session has expired. Please login again to continue.</string>
+    <string name="session_expired_can_continue_message">Your session has expired. You can login to access your spaces, or continue browsing delegated spaces without logging in.</string>
+    <string name="session_expired_check_email_message">Your session has expired. A new verification email has been sent to your inbox. Please check your email and click the verification link to continue.</string>
+    <string name="login">Login</string>
+    <string name="stay_here">Stay Here</string>
+    <string name="manage_accounts_login">Retry Login</string>
 
 
 

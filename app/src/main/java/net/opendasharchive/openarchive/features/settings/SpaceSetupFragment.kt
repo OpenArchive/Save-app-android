@@ -32,7 +32,8 @@ class SpaceSetupFragment : BaseFragment() {
         // Only enable Internet Archive if not already present
         val isInternetArchiveAllowed = !Space.has(Space.Type.INTERNET_ARCHIVE)
         val onInternetArchiveClick = {
-            val action = SpaceSetupFragmentDirections.actionFragmentSpaceSetupToInternetArchiveLogin()
+            val action =
+                SpaceSetupFragmentDirections.actionFragmentSpaceSetupToInternetArchiveLogin()
             findNavController().navigate(action)
         }
 
@@ -40,8 +41,16 @@ class SpaceSetupFragment : BaseFragment() {
         val isDwebEnabled = appConfig.isDwebEnabled
         val onDwebClicked = {
             val action =
-                    SpaceSetupFragmentDirections.actionFragmentSpaceSetupToFragmentSnowbird()
-                findNavController().navigate(action)
+                SpaceSetupFragmentDirections.actionFragmentSpaceSetupToFragmentSnowbird()
+            findNavController().navigate(action)
+        }
+
+        val onStorachaClicked = {
+
+            val action =
+                SpaceSetupFragmentDirections.actionFragmentSpaceSetupToFragmentStoracha()
+            findNavController().navigate(action)
+
         }
 
         SaveAppTheme {
@@ -50,7 +59,8 @@ class SpaceSetupFragment : BaseFragment() {
                 isInternetArchiveAllowed = isInternetArchiveAllowed,
                 onInternetArchiveClick = onInternetArchiveClick,
                 isDwebEnabled = isDwebEnabled,
-                onDwebClicked = onDwebClicked
+                onDwebClicked = onDwebClicked,
+                onStorachaClicked = onStorachaClicked
             )
         }
 

@@ -54,6 +54,17 @@ object Utility {
         return File(dir, "$timeStamp.$fileName")
     }
 
+    fun getOutputMediaFileByCacheNoTimestamp(context: Context, fileName: String): File? {
+        val dir = context.cacheDir
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                return null
+            }
+        }
+
+        return File(dir, fileName)
+    }
+
     fun writeStreamToFile(input: InputStream?, file: File?): Boolean {
         @Suppress("NAME_SHADOWING")
         val input = input ?: return false
