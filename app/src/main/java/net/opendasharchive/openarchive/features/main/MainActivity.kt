@@ -163,9 +163,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         installSplashScreen()
 
         // Check onboarding status early and redirect if needed
-        //TODO: Testing
-        //if (!Prefs.didCompleteOnboarding) {
-        if (Prefs.didCompleteOnboarding) {
+        if (!Prefs.didCompleteOnboarding) {
             val intent = Intent(this, Onboarding23Activity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
