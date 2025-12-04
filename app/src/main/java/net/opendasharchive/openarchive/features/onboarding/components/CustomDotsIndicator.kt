@@ -1,4 +1,4 @@
-package net.opendasharchive.openarchive.features.onboarding
+package net.opendasharchive.openarchive.features.onboarding.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
