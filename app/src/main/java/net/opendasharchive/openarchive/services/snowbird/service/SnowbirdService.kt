@@ -11,7 +11,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -41,14 +43,23 @@ class SnowbirdService : Service() {
 
         var DEFAULT_SOCKET_PATH = ""
             private set
+
+        // Expose service status globally so UI can observe it
+        private val _serviceStatus = MutableStateFlow<ServiceStatus>(ServiceStatus.Stopped)
+        val serviceStatus: StateFlow<ServiceStatus> = _serviceStatus.asStateFlow()
+
+        // Helper to get current status synchronously
+        fun getCurrentStatus(): ServiceStatus = _serviceStatus.value
+
+        // Internal setter for the service to update status
+        internal fun updateStatus(status: ServiceStatus) {
+            _serviceStatus.value = status
+        }
     }
 
     private var serverJob: Job? = null
     private var pollingJob: Job? = null
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
-    private val _serviceStatus = MutableStateFlow<ServiceStatus>(ServiceStatus.Stopped)
-    val serviceStatus = _serviceStatus.asStateFlow()
 
     override fun onCreate() {
         super.onCreate()
@@ -94,7 +105,38 @@ class SnowbirdService : Service() {
     }
 
     override fun onDestroy() {
-        stopServer()
+        Timber.d("SnowbirdService onDestroy called - stopping server")
+
+        // Cancel polling and server jobs
+        pollingJob?.cancel()
+        serverJob?.cancel()
+
+        // Update status to stopping
+        updateStatus(ServiceStatus.Stopped)
+
+        // Actually stop the Rust server
+        serviceScope.launch {
+            try {
+                updateNotification("Stopping server...")
+                Timber.d("Calling SnowbirdBridge.stopServer()")
+
+                // Call the Rust stopServer function via JNI
+                withContext(Dispatchers.IO) {
+                    val result = SnowbirdBridge.getInstance().stopServer()
+                    Timber.d("Server stopped: $result")
+                }
+
+                // Give it a moment to clean up
+                delay(500)
+
+                updateStatus(ServiceStatus.Stopped)
+                Timber.d("Server shutdown complete")
+            } catch (e: Exception) {
+                Timber.e(e, "Error stopping server")
+                updateStatus(ServiceStatus.Failed(e))
+            }
+        }
+
         super.onDestroy()
     }
 
@@ -187,21 +229,21 @@ class SnowbirdService : Service() {
                 val attemptNumber = attempt.attempt
                 when (attempt) {
                     is RetryAttempt.Success -> {
-                        _serviceStatus.value = ServiceStatus.Connected
+                        updateStatus(ServiceStatus.Connected)
                         updateNotification("Service Connected", withSound = true)
                         Timber.d("Service is up after $attemptNumber attempt(s)")
                         stopPolling()
                     }
 
                     is RetryAttempt.Retry -> {
-                        _serviceStatus.value = ServiceStatus.Connecting
+                        updateStatus(ServiceStatus.Connecting)
                         updateNotification("Connecting... (Attempt $attemptNumber) One moment please.")
                         Timber.d("Attempt $attemptNumber failed, retrying...")
                     }
 
                     is RetryAttempt.Failure -> {
                         val errorMessage = attempt.error.message ?: "Unknown error"
-                        _serviceStatus.value = ServiceStatus.Failed(attempt.error)
+                        updateStatus(ServiceStatus.Failed(attempt.error))
                         updateNotification("Connection Failed: $errorMessage")
                         Timber.e(attempt.error)
                         stopPolling()

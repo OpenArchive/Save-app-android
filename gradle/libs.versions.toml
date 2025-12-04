@@ -15,7 +15,7 @@ clean-insights = "2.8.0"
 coil = "3.3.0"
 compose = "1.9.5"
 compose-material-icons = "1.7.8"
-compose-preference = "1.1.1"
+compose-preference = "2.1.0"
 constraintlayout = "2.2.1"
 constraintlayout-compos = "1.1.1"
 coordinatorlayout = "1.3.0"
@@ -155,7 +155,7 @@ androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidx-test-runner" }
 
 # Compose - Third Party
-compose-preferences = { group = "me.zhanghai.compose.preference", name = "library", version.ref = "compose-preference" }
+compose-preferences = { group = "me.zhanghai.compose.preference", name = "preference", version.ref = "compose-preference" }
 
 # Detekt
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
