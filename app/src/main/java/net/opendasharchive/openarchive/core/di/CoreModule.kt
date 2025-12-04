@@ -32,8 +32,9 @@ val coreModule = module {
         )
     }
 
-
-    viewModelOf(::SetupLicenseViewModel)
+    viewModel {
+        SetupLicenseViewModel(get())
+    }
 }
 
 

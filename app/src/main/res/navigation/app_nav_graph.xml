@@ -136,15 +136,6 @@
             app:argType="long" />
     </fragment>
 
-
-
-
-
-
-
-
-
-
     <fragment
         android:id="@+id/fragment_space_setup_success"
         android:name="net.opendasharchive.openarchive.features.settings.SpaceSetupSuccessFragment"
