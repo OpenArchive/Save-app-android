@@ -185,7 +185,7 @@ private fun NumberButton(
                 indication = null,
                 enabled = enabled,
                 onClick = {
-                    hapticManager?.performHapticFeedback(AppHapticFeedbackType.KeyPress)
+                    hapticManager.performHapticFeedback(AppHapticFeedbackType.KeyPress)
                     onClick()
                 }
             )
@@ -209,8 +209,7 @@ private fun NumberButton(
 
             else -> Text(
                 text = label,
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.titleLarge.copy(
                     color = MaterialTheme.colorScheme.onBackground
                 )
             )

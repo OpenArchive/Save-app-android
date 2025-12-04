@@ -1,6 +1,7 @@
 package net.opendasharchive.openarchive.features.onboarding
 
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.view.Window
@@ -13,49 +14,46 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.statusBars
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.times
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.tbuonomo.viewpagerdotsindicator.compose.DotsIndicator
+import com.tbuonomo.viewpagerdotsindicator.compose.model.DotGraphic
+import com.tbuonomo.viewpagerdotsindicator.compose.type.IndicatorType
+import com.tbuonomo.viewpagerdotsindicator.compose.type.ShiftIndicatorType
+import com.tbuonomo.viewpagerdotsindicator.compose.type.WormIndicatorType
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivityOnboarding23InstructionsBinding
@@ -298,25 +296,35 @@ fun OnboardingInstructionsScreen(
                     .windowInsetsPadding(WindowInsets.statusBars)
             )
             
-            // Skip button (top) - positioned well above images to avoid any overlap
+            // Skip button (top) - matches XML: insetTop="32dp" + marginTop="8dp" = 40dp
             if (!isLastPage) {
                 TextButton(
                     onClick = onDone,
                     modifier = Modifier
-                        .padding(top = 80.dp, start = 8.dp, end = 8.dp) // Much higher to avoid image overlap
+                        .padding(top = 40.dp, start = 8.dp, end = 8.dp) // Match XML positioning
                         .align(Alignment.CenterHorizontally)
                 ) {
                     Text(
                         text = stringResource(R.string.skip),
                         color = MaterialTheme.colorScheme.onBackground,
-                        fontSize = 16.sp
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold // Match XML montserrat_semi_bold
                     )
                 }
             }
             
             Spacer(modifier = Modifier.weight(1f))
-            
-            // FAB (bottom) - with navigation bar padding and proper color
+
+            // FAB (bottom) - with navigation bar padding, proper color, and scale animation
+            // Matches XML behavior: scales UP when pressed and stays large until released
+            val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+            val isPressed by interactionSource.collectIsPressedAsState()
+            val scale by animateFloatAsState(
+                targetValue = if (isPressed) 1.15f else 1f, // Scale UP when pressed (like XML)
+                animationSpec = tween(durationMillis = 100),
+                label = "fabScale"
+            )
+
             FloatingActionButton(
                 onClick = {
                     if (isLastPage) {
@@ -330,13 +338,20 @@ fun OnboardingInstructionsScreen(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .padding(24.dp)
-                    .windowInsetsPadding(WindowInsets.navigationBars),
+                    .windowInsetsPadding(WindowInsets.navigationBars)
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                    },
                 containerColor = LocalColors.current.primaryBright, // Use theme color
-                contentColor = MaterialTheme.colorScheme.onBackground
+                contentColor = MaterialTheme.colorScheme.onBackground,
+                shape = RoundedCornerShape(8.dp),
+                interactionSource = interactionSource
             ) {
                 Icon(
-                    imageVector = if (isLastPage) Icons.Default.Done else Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = if (isLastPage) "Done" else stringResource(R.string.next)
+                    painter = painterResource(if (isLastPage) R.drawable.ic_done else R.drawable.ic_arrow_forward_ios),
+                    contentDescription = if (isLastPage) "Done" else stringResource(R.string.next),
+                    tint = Color.Black
                 )
             }
         }
@@ -376,18 +391,41 @@ fun OnboardingInstructionsScreen(
             Spacer(modifier = Modifier.weight(37f))
             
             // Bottom area with dots indicator (weight=15 of 125)
+            // Calculate width: 4 dots * 10dp + 3 spacings * 7dp + buffer for worm animation
+            val indicatorWidth = (slides.size * 10.dp) + ((slides.size - 1) * 7.dp) + 30.dp
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(15f)
-                    .padding(horizontal = 24.dp)
+                    .padding(horizontal = 24.dp),
+                contentAlignment = Alignment.CenterStart
             ) {
-                // Dots indicator (aligned to start|center_vertical)
-                DotsIndicator(
-                    totalDots = slides.size,
-                    selectedIndex = currentPage,
-                    modifier = Modifier.align(Alignment.CenterStart)
-                )
+                // Dots indicator - constrained width to prevent expansion
+                Box(
+                    modifier = Modifier
+                        .width(indicatorWidth)
+                        .wrapContentHeight()
+                ) {
+                    DotsIndicator(
+                        dotCount = slides.size,
+                        modifier = Modifier.fillMaxWidth(), // Fill the constrained Box width
+                        dotSpacing = 10.dp, // Match XML dotsSpacing="7dp"
+                        pagerState = pagerState,
+                        type = WormIndicatorType(
+                            dotsGraphic = DotGraphic(
+                                size = 10.dp, // Match XML dotsSize="10dp"
+                                borderWidth = 5.dp, // Match XML dotsStrokeWidth="5dp"
+                                borderColor = Color(0xFF666666), // Match XML c23_medium_grey
+                                color = Color.Transparent, // Empty center for inactive dots
+                            ),
+                            wormDotGraphic = DotGraphic(
+                                size = 10.dp, // Match XML dotsSize="10dp"
+                                color = MaterialTheme.colorScheme.onBackground, // Match XML dotsColor
+                            )
+                        )
+                    )
+                }
             }
         }
         
@@ -427,11 +465,13 @@ fun OnboardingSlideContent(
                 .weight(42f)
                 .padding(top = 8.dp)
         ) {
-            // Title
+            // Title - matches XML: textFontWeight="800" (ExtraBold), textSize="28sp"
             Text(
                 text = stringResource(slide.titleRes).uppercase(),
-                fontSize = 28.sp,
-                fontWeight = FontWeight.ExtraBold,
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.ExtraBold // Match XML textFontWeight="800"
+                ),
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
@@ -452,39 +492,13 @@ fun OnboardingSlideContent(
 }
 
 @Composable
-fun DotsIndicator(
-    totalDots: Int,
-    selectedIndex: Int,
-    modifier: Modifier = Modifier
-) {
-    LazyRow(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(7.dp)
-    ) {
-        items(totalDots) { index ->
-            Box(
-                modifier = Modifier
-                    .size(10.dp)
-                    .clip(CircleShape)
-                    .background(
-                        if (index == selectedIndex) 
-                            MaterialTheme.colorScheme.onBackground
-                        else 
-                            Color(0xFF666666) // c23_medium_grey equivalent
-                    )
-            )
-        }
-    }
-}
-
-@Composable
 fun HtmlText(
     textRes: Int,
+    modifier: Modifier = Modifier,
     linkRes: Int? = null,
     color: Color = MaterialTheme.colorScheme.onBackground,
     linkColor: Color = MaterialTheme.colorScheme.onBackground,
-    fontSize: androidx.compose.ui.unit.TextUnit = 16.sp,
-    modifier: Modifier = Modifier
+    fontSize: TextUnit = 16.sp,
 ) {
     val uriHandler = LocalUriHandler.current
     
@@ -538,15 +552,16 @@ fun HtmlText(
         
         ClickableText(
             text = annotatedString,
-            style = androidx.compose.ui.text.TextStyle(
+            style = MaterialTheme.typography.bodyLarge.copy(
                 fontSize = fontSize,
-                color = color
+                color = color,
+                fontWeight = FontWeight.Normal
             ),
             modifier = modifier,
             onClick = { offset ->
                 annotatedString.getStringAnnotations(
-                    tag = "URL", 
-                    start = offset, 
+                    tag = "URL",
+                    start = offset,
                     end = offset
                 ).firstOrNull()?.let { annotation ->
                     uriHandler.openUri(annotation.item)
@@ -558,12 +573,14 @@ fun HtmlText(
             text = text,
             color = color,
             fontSize = fontSize,
-            modifier = modifier
+            modifier = modifier,
+            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Normal)
         )
     }
 }
 
 @Preview(name = "Light Mode", showBackground = true)
+@Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun OnboardingInstructionsScreenPreviewLight() {
     SaveAppTheme {
@@ -574,18 +591,9 @@ private fun OnboardingInstructionsScreenPreviewLight() {
     }
 }
 
-@Preview(name = "Dark Mode", showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun OnboardingInstructionsScreenPreviewDark() {
-    SaveAppTheme {
-        OnboardingInstructionsScreen(
-            onDone = {},
-            onBackPressed = {}
-        )
-    }
-}
 
 @Preview(name = "Single Slide Light", showBackground = true)
+@Preview(name = "Single Slide Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun OnboardingSlideContentPreviewLight() {
     val sampleSlide = OnboardingSlide(
@@ -601,30 +609,3 @@ private fun OnboardingSlideContentPreviewLight() {
     }
 }
 
-@Preview(name = "Single Slide Dark", showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun OnboardingSlideContentPreviewDark() {
-    val sampleSlide = OnboardingSlide(
-        titleRes = R.string.intro_header_secure,
-        textRes = R.string.intro_text_secure,
-        imageRes = R.drawable.onboarding_secure_png
-    )
-    SaveAppTheme {
-        OnboardingSlideContent(
-            slide = sampleSlide,
-            modifier = Modifier.fillMaxSize()
-        )
-    }
-}
-
-@Preview(name = "Dots Indicator", showBackground = true)
-@Composable
-private fun DotsIndicatorPreview() {
-    SaveAppTheme {
-        DotsIndicator(
-            totalDots = 4,
-            selectedIndex = 1,
-            modifier = Modifier.padding(16.dp)
-        )
-    }
-}

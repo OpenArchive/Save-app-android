@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseOutBounce
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -296,7 +297,11 @@ fun OnboardingWelcomeScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onGetStartedClick() }
+                    .clickable(
+                        onClick = onGetStartedClick,
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    )
                     .padding(horizontal = 24.dp)
                     .padding(top = 16.dp),
                 verticalAlignment = Alignment.Top
