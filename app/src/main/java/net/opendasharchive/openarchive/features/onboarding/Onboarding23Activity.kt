@@ -34,7 +34,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
@@ -255,7 +254,7 @@ fun OnboardingWelcomeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             // Hand image with negative margins like XML
             Image(
@@ -267,19 +266,19 @@ fun OnboardingWelcomeScreen(
                     .offset(x = (-8).dp, y = (8).dp) // Negative margins like XML
             )
 
-            // Get Started section with proper alignment
+            // Get Started section
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onGetStartedClick() }
-                    .padding(start = 24.dp, end = 24.dp, bottom = 10.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(horizontal = 24.dp)
+                    .padding(top = 16.dp),
+                verticalAlignment = Alignment.Top
             ) {
                 Text(
                     text = stringResource(R.string.get_started),
                     color = MaterialTheme.colorScheme.onBackground,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(end = 16.dp)
                 )
 
