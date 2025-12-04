@@ -19,6 +19,9 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseOutBounce
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -162,18 +165,27 @@ class Onboarding23Activity : BaseActivity() {
 fun OnboardingWelcomeScreen(
     onGetStartedClick: () -> Unit = {}
 ) {
-    var arrowOffset by remember { mutableFloatStateOf(0f) }
+    val arrowOffset = remember { Animatable(0f) }
 
     LaunchedEffect(Unit) {
-        delay(3000)
+        delay(3000) // Initial delay like XML (startDelay = 3000)
         while (true) {
-            repeat(3) {
-                arrowOffset = 25f
-                delay(300)
-                arrowOffset = 0f
-                delay(300)
-            }
-            delay(2000)
+            // Animate from 0 → 25 → 0 with bounce effect, matching XML animation
+            // XML: duration = 2000ms with BounceInterpolator
+            arrowOffset.animateTo(
+                targetValue = 25f,
+                animationSpec = tween(
+                    durationMillis = 1000,
+                    easing = EaseOutBounce // Similar to BounceInterpolator
+                )
+            )
+            arrowOffset.animateTo(
+                targetValue = 0f,
+                animationSpec = tween(
+                    durationMillis = 1000,
+                    easing = EaseOutBounce
+                )
+            )
         }
     }
 
@@ -301,7 +313,7 @@ fun OnboardingWelcomeScreen(
                     contentDescription = null,
                     modifier = Modifier
                         .size(24.dp)
-                        .graphicsLayer { translationX = arrowOffset },
+                        .graphicsLayer { translationX = arrowOffset.value },
                     colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground)
                 )
             }
