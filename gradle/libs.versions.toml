@@ -24,7 +24,7 @@ core-ktx = "1.17.0"
 core-splashscreen = "1.2.0"
 coroutines = "1.10.2"
 detekt = "1.23.8"
-detekt-compose = "0.4.28"
+detekt-compose = "0.5.1"
 detekt-rules-compose = "1.4.0"
 dotsindicator = "5.1.0"
 espresso-core = "3.5.1"
@@ -52,10 +52,12 @@ ksp = "2.3.3"
 lifecycle = "2.10.0"
 material = "1.13.0"
 material3 = "1.4.0"
+material-adaptive = "1.2.0"
 media3 = "1.8.0"
 mixpanel = "8.2.4"
 navigation = "2.9.6"
 navigation3 = "1.0.0"
+navigation-events = "1.0.1"
 netcipher = "2.2.0-alpha"
 okhttp = "4.12.0"
 permissionx = "1.8.1"
@@ -67,7 +69,7 @@ retrofit = "3.0.0"
 robolectric = "4.16"
 satyan-sugar = "1.5"
 serialization = "1.9.0"
-swiperefreshlayout = "1.1.0"
+swiperefreshlayout = "1.2.0"
 timber = "5.0.1"
 tor-android = "0.4.8.19"
 viewpager2 = "1.1.0"
@@ -95,6 +97,7 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "compose" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "compose" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+androidx-compose-material3-adaptive = { group = "androidx.compose.material3.adaptive", name = "adaptive", version.ref = "material-adaptive" }
 androidx-compose-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "compose-material-icons" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "compose" }
 androidx-compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "compose" }
@@ -136,7 +139,7 @@ androidx-navigation-fragment-compose = { group = "androidx.navigation", name = "
 #AndroidX - Navigation 3
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
 androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
-androidx-navigationevent = { module = "androidx.navigationevent:navigationevent", version.ref = "navigation3" }
+androidx-navigationevent = { module = "androidx.navigationevent:navigationevent", version.ref = "navigation-events" }
 
 # AndroidX - Other
 androidx-preferences = { group = "androidx.preference", name = "preference-ktx", version.ref = "preference" }

@@ -9,15 +9,31 @@ import android.view.WindowManager
 import android.view.animation.BounceInterpolator
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.ColorRes
+import androidx.activity.compose.setContent
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.databinding.ActivityOnboarding23Binding
 import net.opendasharchive.openarchive.features.core.BaseActivity
 
 class Onboarding23Activity : BaseActivity() {
 
     private lateinit var mBinding: ActivityOnboarding23Binding
+
+    // Toggle to switch between XML and Compose implementation
+    private val useComposeImplementation = true  // Set to false to use XML implementation
+
+    private fun hideSystemBars() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        val controller = WindowInsetsControllerCompat(window, window.decorView)
+        controller.hide(WindowInsetsCompat.Type.systemBars())
+        controller.systemBarsBehavior =
+            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,9 +44,34 @@ class Onboarding23Activity : BaseActivity() {
         )
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
 
+        if (useComposeImplementation) {
+            // Use Compose implementation
+            setContent {
+                SaveAppTheme {
+                    OnboardingWelcomeScreen(
+                        onGetStartedClick = {
+                            startActivity(
+                                Intent(
+                                    this@Onboarding23Activity,
+                                    Onboarding23InstructionsActivity::class.java
+                                )
+                            )
+                        }
+                    )
+                }
+            }
+        } else {
+            // Use original XML implementation
+            setupXmlImplementation()
+        }
+    }
+
+    private fun setupXmlImplementation() {
+        // Keep the existing XML binding for legacy compatibility
         mBinding = ActivityOnboarding23Binding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
+        // Keep the original XML-based code for reference and fallback
         mBinding.getStarted.setOnClickListener {
             startActivity(
                 Intent(
@@ -60,13 +101,17 @@ class Onboarding23Activity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
+        hideSystemBars()
 
-        val oa = ObjectAnimator.ofFloat(mBinding.arrow, "translationX", 0F, 25F, 0F)
-        oa.interpolator = BounceInterpolator()
-        oa.startDelay = 3000
-        oa.duration = 2000
-        oa.repeatCount = 999999
-        oa.start()
+        if (!useComposeImplementation) {
+            // Animation is handled in Compose version
+            val oa = ObjectAnimator.ofFloat(mBinding.arrow, "translationX", 0F, 25F, 0F)
+            oa.interpolator = BounceInterpolator()
+            oa.startDelay = 3000
+            oa.duration = 2000
+            oa.repeatCount = 999999
+            oa.start()
+        }
     }
 
     private fun colorizeFirstLetter(text: CharSequence, @ColorRes color: Int): Spanned {

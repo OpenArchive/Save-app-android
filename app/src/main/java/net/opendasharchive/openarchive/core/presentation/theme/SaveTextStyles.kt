@@ -8,8 +8,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 
 /**
@@ -142,6 +144,14 @@ object SaveText {
  * Only the 6 text styles from the design system
  */
 object SaveTextStyles {
+
+    val headlineSmall = TextStyle(
+        fontFamily = MontserratFontFamily,
+        fontSize = 24.sp,
+        fontWeight = FontWeight.ExtraBold,
+        lineHeight = TextUnit.Unspecified,
+        letterSpacing = 0.04.sp
+    )
 
     // 18pt - SemiBold - For page titles, primary headers
     val titleBold = TextStyle(

@@ -31,13 +31,12 @@
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="title"
             android:textAllCaps="true"
             android:lineSpacingExtra="0sp"
             android:textFontWeight="800"
             android:textSize="28sp"
             android:textStyle="bold"
-            tools:ignore="HardcodedText" />
+            tools:text="Title" />
 
         <TextView
             android:id="@+id/summary"
