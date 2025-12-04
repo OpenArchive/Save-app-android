@@ -29,7 +29,6 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.findNavController
 import net.opendasharchive.openarchive.R
@@ -125,21 +124,21 @@ private fun InternetArchiveDetailsContent(
             )
 
             CustomTextField(
-                label = stringResource(R.string.label_username),
+                placeholder = stringResource(R.string.label_username),
                 value = state.userName,
                 onValueChange = {},
                 enabled = false,
             )
 
             CustomTextField(
-                label = stringResource(R.string.label_screen_name),
+                placeholder = stringResource(R.string.label_screen_name),
                 value = state.screenName,
                 onValueChange = {},
                 enabled = false,
             )
 
             CustomTextField(
-                label = stringResource(R.string.label_email),
+                placeholder = stringResource(R.string.label_email),
                 value = state.email,
                 onValueChange = {},
                 enabled = false,

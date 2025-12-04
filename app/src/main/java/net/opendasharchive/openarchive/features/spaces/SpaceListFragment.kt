@@ -6,57 +6,46 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.LaunchedEffect
+import androidx.fragment.compose.content
 import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.databinding.FragmentSpaceListBinding
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import org.koin.compose.viewmodel.koinViewModel
 
 class SpaceListFragment : BaseFragment() {
 
-    private lateinit var binding: FragmentSpaceListBinding
-
-    companion object {
-        const val EXTRA_DATA_SPACE = "space_id"
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-
-        binding = FragmentSpaceListBinding.inflate(inflater)
+    ): View = content {
 
 
-        binding.composeViewSpaceList.setContent {
+        val viewModel: SpaceListViewModel = koinViewModel()
 
-            val viewModel: SpaceListViewModel = koinViewModel()
+        SaveAppTheme {
 
-            SaveAppTheme {
-
-                // Calling refresh here will update state & trigger recomposition
-                LaunchedEffect(Unit) {
-                    viewModel.refreshSpaces()
-                }
-
-                SpaceListScreen(
-                    onSpaceClicked = { space ->
-                        startSpaceAuthActivity(space.id)
-                    },
-                    onAddServerClicked = {
-                        val action =
-                            SpaceListFragmentDirections.actionFragmentSpaceListToFragmentSpaceSetup()
-                        findNavController().navigate(action)
-                    }
-                )
+            // Calling refresh here will update state & trigger recomposition
+            LaunchedEffect(Unit) {
+                viewModel.refreshSpaces()
             }
 
+            SpaceListScreen(
+                onSpaceClicked = { space ->
+                    startSpaceAuthActivity(space.id)
+                },
+                onAddServerClicked = {
+                    val action =
+                        SpaceListFragmentDirections.actionFragmentSpaceListToFragmentSpaceSetup()
+                    findNavController().navigate(action)
+                }
+            )
         }
 
-        return binding.root
+
     }
 
     override fun getToolbarTitle() = getString(R.string.pref_title_media_servers)
@@ -66,7 +55,10 @@ class SpaceListFragment : BaseFragment() {
 
         when (space.tType) {
             Space.Type.INTERNET_ARCHIVE -> {
-                val action = SpaceListFragmentDirections.actionFragmentSpaceListToInternetArchiveDetails(space.id)
+                val action =
+                    SpaceListFragmentDirections.actionFragmentSpaceListToInternetArchiveDetails(
+                        space.id
+                    )
                 findNavController().navigate(action)
             }
 

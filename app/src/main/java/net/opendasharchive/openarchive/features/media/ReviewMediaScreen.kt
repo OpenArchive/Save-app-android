@@ -558,7 +558,6 @@ private fun MetadataSection(
         CustomTextField(
             value = state.location,
             onValueChange = { onAction(ReviewMediaAction.UpdateLocation(it)) },
-            label = stringResource(R.string.add_a_location_optional),
             placeholder = stringResource(R.string.add_a_location_optional),
             keyboardType = KeyboardType.Text,
             imeAction = ImeAction.Next,

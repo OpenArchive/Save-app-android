@@ -51,7 +51,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
@@ -64,6 +63,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.compose.content
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -80,7 +80,6 @@ import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.ButtonData
 import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
-import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
@@ -97,25 +96,21 @@ class WebDavScreenFragment : BaseFragment(), ToolbarConfigurable {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setContent {
-                SaveAppTheme {
-                    WebDavScreen(
-                        onNavigateToLicenseSetup = { spaceId ->
-                            val action = WebDavScreenFragmentDirections
-                                .actionFragmentWebDavToFragmentSetupLicense(
-                                    spaceId = spaceId,
-                                    spaceType = Space.Type.WEBDAV
-                                )
-                            findNavController().navigate(action)
-                        },
-                        onNavigateBack = {
-                            findNavController().popBackStack()
-                        }
-                    )
+    ): View = content {
+        SaveAppTheme {
+            WebDavScreen(
+                onNavigateToLicenseSetup = { spaceId ->
+                    val action = WebDavScreenFragmentDirections
+                        .actionFragmentWebDavToFragmentSetupLicense(
+                            spaceId = spaceId,
+                            spaceType = Space.Type.WEBDAV
+                        )
+                    findNavController().navigate(action)
+                },
+                onNavigateBack = {
+                    findNavController().popBackStack()
                 }
-            }
+            )
         }
     }
 
@@ -283,7 +278,6 @@ private fun WebDavContent(
                     onAction(WebDavAction.ClearError)
                     onAction(WebDavAction.UpdateServerUrl(it))
                 },
-                label = stringResource(R.string.enter_url),
                 placeholder = stringResource(R.string.enter_url),
                 enabled = !state.isEditMode,
                 isError = state.serverError != null,
@@ -307,7 +301,6 @@ private fun WebDavContent(
                 CustomTextField(
                     value = state.name,
                     onValueChange = { onAction(WebDavAction.UpdateName(it)) },
-                    label = stringResource(R.string.server_name_optional),
                     placeholder = stringResource(R.string.server_name_optional),
                     enabled = true,
                     isLoading = state.isLoading,
@@ -342,7 +335,6 @@ private fun WebDavContent(
                     onAction(WebDavAction.ClearError)
                     onAction(WebDavAction.UpdateUsername(it))
                 },
-                label = stringResource(R.string.prompt_username),
                 placeholder = stringResource(R.string.prompt_username),
                 enabled = !state.isEditMode,
                 isError = state.usernameError != null || state.isCredentialsError,
@@ -364,7 +356,6 @@ private fun WebDavContent(
                     onAction(WebDavAction.ClearError)
                     onAction(WebDavAction.UpdatePassword(it))
                 },
-                label = stringResource(R.string.prompt_password),
                 placeholder = stringResource(R.string.prompt_password),
                 isError = state.passwordError != null || state.isCredentialsError,
                 isLoading = state.isLoading || state.isEditMode,
@@ -580,7 +571,11 @@ private fun WebDavHeader(modifier: Modifier = Modifier) {
 
 // Previews
 @Preview(showBackground = true, name = "WebDav New Server")
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "WebDav New Server Dark")
+@Preview(
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    name = "WebDav New Server Dark"
+)
 @Composable
 private fun WebDavNewServerPreview() {
     DefaultScaffoldPreview {
@@ -596,7 +591,7 @@ private fun WebDavNewServerPreview() {
     }
 }
 
-//@Preview(showBackground = true, name = "WebDav New Server Filled")
+@Preview(showBackground = true, name = "WebDav New Server Filled")
 @Composable
 private fun WebDavNewServerFilledPreview() {
     DefaultScaffoldPreview {
@@ -612,7 +607,7 @@ private fun WebDavNewServerFilledPreview() {
     }
 }
 
-//@Preview(showBackground = true, name = "WebDav New Server Error")
+@Preview(showBackground = true, name = "WebDav New Server Error")
 @Composable
 private fun WebDavNewServerErrorPreview() {
     DefaultScaffoldPreview {
@@ -631,8 +626,8 @@ private fun WebDavNewServerErrorPreview() {
     }
 }
 
-//@Preview(showBackground = true, name = "WebDav Edit Mode")
-//@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "WebDav Edit Mode Dark")
+@Preview(showBackground = true, name = "WebDav Edit Mode")
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "WebDav Edit Mode Dark")
 @Composable
 private fun WebDavEditModePreview() {
     DefaultScaffoldPreview {
@@ -656,7 +651,7 @@ private fun WebDavEditModePreview() {
     }
 }
 
-//@Preview(showBackground = true, name = "WebDav Loading")
+@Preview(showBackground = true, name = "WebDav Loading")
 @Composable
 private fun WebDavLoadingPreview() {
     DefaultScaffoldPreview {

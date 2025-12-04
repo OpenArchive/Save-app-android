@@ -7,10 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.databinding.FragmentSetupLicenseBinding
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
@@ -19,6 +22,8 @@ import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 
 class SetupLicenseFragment : BaseFragment() {
 
+    // Toggle to switch between XML and Compose implementation
+    private val useComposeImplementation = true  // Set to false to use XML implementation
 
     private val args: SetupLicenseFragmentArgs by navArgs()
 
@@ -33,6 +38,40 @@ class SetupLicenseFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
 
+        if (useComposeImplementation) {
+            // Use Compose implementation
+            return ComposeView(requireContext()).apply {
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    SaveAppTheme {
+                        SetupLicenseScreen(
+                            onNext = {
+                                when (args.spaceType) {
+                                    Space.Type.WEBDAV -> {
+                                        val message = getString(R.string.you_have_successfully_connected_to_a_private_server)
+                                        val action = SetupLicenseFragmentDirections
+                                            .actionFragmentSetupLicenseToFragmentSpaceSetupSuccess(message = message, spaceType = Space.Type.WEBDAV)
+                                        findNavController().navigate(action)
+                                    }
+                                    Space.Type.INTERNET_ARCHIVE -> {
+                                        val message = getString(R.string.you_have_successfully_connected_to_the_internet_archive)
+                                        val action = SetupLicenseFragmentDirections
+                                            .actionFragmentSetupLicenseToFragmentSpaceSetupSuccess(message = message, spaceType = Space.Type.INTERNET_ARCHIVE)
+                                        findNavController().navigate(action)
+                                    }
+                                    else -> Unit
+                                }
+                            },
+                            onCancel = {
+                                findNavController().popBackStack()
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        // Original XML implementation
         binding = FragmentSetupLicenseBinding.inflate(layoutInflater)
 
         binding.buttonBar.applyEdgeToEdgeInsets(
@@ -66,7 +105,8 @@ class SetupLicenseFragment : BaseFragment() {
                         getString(R.string.you_have_successfully_connected_to_a_private_server)
                     val action =
                         SetupLicenseFragmentDirections.actionFragmentSetupLicenseToFragmentSpaceSetupSuccess(
-                            message
+                            message = message,
+                            spaceType = Space.Type.WEBDAV
                         )
                     findNavController().navigate(action)
                 }
@@ -76,7 +116,8 @@ class SetupLicenseFragment : BaseFragment() {
                         getString(R.string.you_have_successfully_connected_to_the_internet_archive)
                     val action =
                         SetupLicenseFragmentDirections.actionFragmentSetupLicenseToFragmentSpaceSetupSuccess(
-                            message
+                            message = message,
+                            spaceType = Space.Type.INTERNET_ARCHIVE
                         )
                     findNavController().navigate(action)
                 }
@@ -97,6 +138,9 @@ class SetupLicenseFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Skip XML-specific setup when using Compose
+        if (useComposeImplementation) return
 
         if (args.isEditing) {
             // Editing means hide subtitle, bottom bar buttons
