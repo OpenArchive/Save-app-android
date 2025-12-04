@@ -184,20 +184,23 @@ fun OnboardingWelcomeScreen(
             .systemBarsPadding()
     ) {
         // Main content area (equivalent to LinearLayout above nav_block in XML)
+        // XML has weightSum="63" with title_block weight="55", leaving 8 units at bottom
         Column(
             modifier = Modifier
                 .weight(1f) // Take remaining space above nav block
                 .fillMaxWidth()
-                .background(Color.Cyan)
                 .padding(start = 16.dp, top = 24.dp, end = 32.dp),
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Center // Match XML android:gravity="center_vertical"
         ) {
+
+            Spacer(modifier = Modifier.weight(4f))
+
             // Logo (weight=8 of 55) - wrap_content width like XML
             Box(
                 modifier = Modifier
                     .weight(8f)
                     .fillMaxWidth(),
-                contentAlignment = Alignment.CenterStart
+                contentAlignment = Alignment.BottomStart // Push logo down to create space above
             ) {
                 Image(
                     painter = painterResource(R.drawable.save_oa),
@@ -209,7 +212,7 @@ fun OnboardingWelcomeScreen(
             }
 
             // Spacer (weight=8 of 55)
-            Spacer(modifier = Modifier.weight(8f))
+            Spacer(modifier = Modifier.weight(4f))
 
             // Four title texts (weight=8 each of 55)
             StyledTitleText(
@@ -254,6 +257,10 @@ fun OnboardingWelcomeScreen(
                 maxFontSize = 500.sp,
                 fontWeight = FontWeight.SemiBold
             )
+
+            // Bottom spacer (weight=8 of 63 total in XML)
+            // XML has weightSum="63" with content using weight="55", leaving 8 units for bottom spacing
+            Spacer(modifier = Modifier.weight(8f))
         }
 
         // Nav block at bottom (equivalent to android:layout_alignParentBottom="true")
@@ -310,6 +317,9 @@ private fun StyledTitleText(
     text: String,
     modifier: Modifier = Modifier
 ) {
+    // Use theme typography to get Montserrat font family
+    val baseStyle = MaterialTheme.typography.displayLarge
+
     // Match the horizontal LinearLayout with weightSum="1000"
     Row(
         modifier = modifier,
@@ -329,7 +339,7 @@ private fun StyledTitleText(
             }
         }
 
-        Text(
+        BasicText(
             text = styledText,
             modifier = Modifier
                 .weight(870f)
@@ -339,8 +349,15 @@ private fun StyledTitleText(
                     scaleX = 1.15f
                     scaleY = 1.15f
                 },
-            fontSize = 60.sp, // Using app:autoSizeTextType="uniform" equivalent
-            fontWeight = FontWeight.Black, // textFontWeight="900"
+            style = baseStyle.copy(
+                fontSize = 60.sp,
+                fontWeight = FontWeight.Black, // textFontWeight="900"
+                lineHeight = 60.sp // Tighter line height to match XML
+            ),
+            autoSize = TextAutoSize.StepBased(
+                minFontSize = 30.sp,
+                maxFontSize = 60.sp
+            ),
             maxLines = 1
         )
     }
@@ -367,8 +384,9 @@ fun AutoSizeText(
     fontWeight: FontWeight = FontWeight.Normal,
     textAlign: TextAlign = TextAlign.Unspecified
 ) {
-    // Simple implementation using standard Text with reasonable font size
-    // In a real implementation, you'd measure text and adjust font size
+    // Use theme typography as base to get correct font family
+    val baseStyle = MaterialTheme.typography.bodyLarge
+
     BasicText(
         text = text,
         modifier = modifier,
@@ -377,10 +395,11 @@ fun AutoSizeText(
             maxFontSize = maxFontSize,
         ),
         maxLines = 1,
-        style = TextStyle(
+        style = baseStyle.copy(
             color = color,
             fontWeight = fontWeight,
-            textAlign = textAlign
+            textAlign = textAlign,
+            lineHeight = minFontSize // Use tighter line height to match XML
         )
     )
 }
