@@ -26,13 +26,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
-import androidx.compose.foundation.text.ClickableText
+import androidx.compose.ui.text.withLink
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextDecoration
@@ -41,11 +43,16 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.times
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.core.text.HtmlCompat
 import androidx.core.view.WindowCompat
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
@@ -491,6 +498,90 @@ fun OnboardingSlideContent(
     }
 }
 
+// Convert Android Spanned (from HtmlCompat.fromHtml) to Compose AnnotatedString
+// This ensures perfect parity with XML version which also uses HtmlCompat.fromHtml
+private fun spannedToAnnotatedString(
+    spanned: android.text.Spanned,
+    color: Color,
+    linkColor: Color
+): AnnotatedString {
+    return buildAnnotatedString {
+        val text = spanned.toString()
+        append(text)
+
+        // Get all spans from the Spanned text
+        val spans = spanned.getSpans(0, spanned.length, Any::class.java)
+
+        for (span in spans) {
+            val start = spanned.getSpanStart(span)
+            val end = spanned.getSpanEnd(span)
+
+            when (span) {
+                // Handle URL spans (links)
+                is android.text.style.URLSpan -> {
+                    addLink(
+                        LinkAnnotation.Url(
+                            url = span.url,
+                            styles = TextLinkStyles(
+                                style = SpanStyle(
+                                    color = linkColor,
+                                    textDecoration = TextDecoration.Underline
+                                )
+                            )
+                        ),
+                        start = start,
+                        end = end
+                    )
+                }
+                // Handle bold text
+                is android.text.style.StyleSpan -> {
+                    when (span.style) {
+                        android.graphics.Typeface.BOLD -> {
+                            addStyle(
+                                SpanStyle(fontWeight = FontWeight.Bold),
+                                start = start,
+                                end = end
+                            )
+                        }
+                        android.graphics.Typeface.ITALIC -> {
+                            addStyle(
+                                SpanStyle(fontStyle = FontStyle.Italic),
+                                start = start,
+                                end = end
+                            )
+                        }
+                        android.graphics.Typeface.BOLD_ITALIC -> {
+                            addStyle(
+                                SpanStyle(
+                                    fontWeight = FontWeight.Bold,
+                                    fontStyle = FontStyle.Italic
+                                ),
+                                start = start,
+                                end = end
+                            )
+                        }
+                    }
+                }
+                // Handle underline
+                is android.text.style.UnderlineSpan -> {
+                    addStyle(
+                        SpanStyle(textDecoration = TextDecoration.Underline),
+                        start = start,
+                        end = end
+                    )
+                }
+            }
+        }
+
+        // Apply default color to all text
+        addStyle(
+            SpanStyle(color = color),
+            start = 0,
+            end = text.length
+        )
+    }
+}
+
 @Composable
 fun HtmlText(
     textRes: Int,
@@ -500,73 +591,31 @@ fun HtmlText(
     linkColor: Color = MaterialTheme.colorScheme.onBackground,
     fontSize: TextUnit = 16.sp,
 ) {
-    val uriHandler = LocalUriHandler.current
-    
+    val context = androidx.compose.ui.platform.LocalContext.current
     val text = stringResource(textRes)
     val linkText = linkRes?.let { stringResource(it) }
-    
+
     if (linkText != null && text.contains("%1\$s")) {
+        // Format text with link, just like XML version does
         val formattedText = text.format(linkText)
-        
-        // Parse HTML-like tags manually for basic support
-        val annotatedString = buildAnnotatedString {
-            var currentIndex = 0
-            val htmlTagRegex = Regex("<[^>]+>")
-            val linkRegex = Regex("<a href=\"([^\"]+)\"><u>([^<]+)</u></a>")
-            
-            // Find all matches
-            val matches = linkRegex.findAll(formattedText)
-            
-            for (match in matches) {
-                val beforeMatch = formattedText.substring(currentIndex, match.range.first)
-                val url = match.groupValues[1]
-                val linkText = match.groupValues[2]
-                
-                // Add text before the link
-                withStyle(SpanStyle(color = color)) {
-                    append(beforeMatch.replace(Regex("<[^>]+>"), ""))
-                }
-                
-                // Add the clickable link
-                pushStringAnnotation(tag = "URL", annotation = url)
-                withStyle(
-                    SpanStyle(
-                        color = linkColor,
-                        textDecoration = TextDecoration.Underline
-                    )
-                ) {
-                    append(linkText)
-                }
-                pop()
-                
-                currentIndex = match.range.last + 1
-            }
-            
-            // Add remaining text
-            if (currentIndex < formattedText.length) {
-                withStyle(SpanStyle(color = color)) {
-                    append(formattedText.substring(currentIndex).replace(Regex("<[^>]+>"), ""))
-                }
-            }
-        }
-        
-        ClickableText(
+
+        // Use HtmlCompat.fromHtml() like XML version for perfect parity
+        val spanned = androidx.core.text.HtmlCompat.fromHtml(
+            formattedText,
+            androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT
+        )
+
+        // Convert Spanned to AnnotatedString
+        val annotatedString = spannedToAnnotatedString(spanned, color, linkColor)
+
+        // Use BasicText instead of deprecated ClickableText
+        BasicText(
             text = annotatedString,
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontSize = fontSize,
-                color = color,
                 fontWeight = FontWeight.Normal
             ),
-            modifier = modifier,
-            onClick = { offset ->
-                annotatedString.getStringAnnotations(
-                    tag = "URL",
-                    start = offset,
-                    end = offset
-                ).firstOrNull()?.let { annotation ->
-                    uriHandler.openUri(annotation.item)
-                }
-            }
+            modifier = modifier
         )
     } else {
         Text(
