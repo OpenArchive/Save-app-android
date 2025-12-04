@@ -1,7 +1,7 @@
 [versions]
-activity = "1.12.0"
+activity = "1.12.1"
 agp = "8.13.1"
-androidx-exifinterface = "1.4.1"
+androidx-exifinterface = "1.4.2"
 androidx-security-crypto = "1.1.0"
 androidx-test-runner = "1.7.0"
 appcompat = "1.7.1"
@@ -13,9 +13,9 @@ bouncycastle-bcprov = "1.72"
 camerax = "1.5.1"
 clean-insights = "2.8.0"
 coil = "3.3.0"
-compose = "1.9.5"
+compose = "1.10.0"
 compose-material-icons = "1.7.8"
-compose-preference = "1.1.1"
+compose-preference = "2.1.0"
 compose-stability = "0.6.0"
 constraintlayout = "2.2.1"
 constraintlayout-compos = "1.1.1"
@@ -148,7 +148,7 @@ androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidx-test-runner" }
 
 # Compose - Third Party
-compose-preferences = { group = "me.zhanghai.compose.preference", name = "library", version.ref = "compose-preference" }
+compose-preferences = { group = "me.zhanghai.compose.preference", name = "preference", version.ref = "compose-preference" }
 
 # Detekt
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
