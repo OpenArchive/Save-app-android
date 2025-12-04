@@ -9,7 +9,6 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.Dispatchers
@@ -29,8 +28,6 @@ import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.main.adapters.MainMediaAdapter
 import net.opendasharchive.openarchive.upload.BroadcastManager
 import net.opendasharchive.openarchive.upload.UploadService
-import net.opendasharchive.openarchive.util.AlertHelper
-import net.opendasharchive.openarchive.util.extensions.Position
 import net.opendasharchive.openarchive.util.extensions.toggle
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import kotlin.collections.set
@@ -61,6 +58,7 @@ class MainMediaFragment : BaseFragment() {
 
     private var selectedMediaIds = mutableSetOf<Long>()
     private var isSelecting = false
+    private var selectionHasActiveItems = false
 
     private lateinit var binding: FragmentMainMediaBinding
 
@@ -205,8 +203,16 @@ class MainMediaFragment : BaseFragment() {
         binding.addMediaHint.toggle(mCollections.isEmpty())
     }
 
+    fun enableSelectionMode() {
+        isSelecting = true
+        selectionHasActiveItems = false
+        mAdapters.values.forEach { it.selecting = true }
+        updateSelectionState()
+    }
+
     fun cancelSelection() {
         isSelecting = false
+        selectionHasActiveItems = false
         selectedMediaIds.clear()
         mAdapters.values.forEach { it.clearSelections() }
         updateSelectionCount()
@@ -228,12 +234,14 @@ class MainMediaFragment : BaseFragment() {
         }
 
         deleteCollections(toDelete, true)
+        // If all collections are removed or empty, show add media hint.
+        binding.addMediaHint.toggle(mCollections.isEmpty())
     }
 
     private fun createMediaList(collection: Collection, media: List<Media>): View {
         val holder = SectionViewHolder(ViewSectionBinding.inflate(layoutInflater))
-        holder.recyclerView.setHasFixedSize(true)
         holder.recyclerView.layoutManager = GridLayoutManager(activity, COLUMN_COUNT)
+        holder.recyclerView.isNestedScrollingEnabled = false
 
         holder.setHeader(collection, media)
 
@@ -264,7 +272,7 @@ class MainMediaFragment : BaseFragment() {
             title = UiText.StringResource(R.string.upload_unsuccessful)
             message = UiText.StringResource(R.string.upload_unsuccessful_description)
             positiveButton {
-                text = UiText.StringResource(R.string.retry)
+                text = UiText.StringResource(R.string.lbl_retry)
                 action = {
                     mediaItem.apply {
                         sStatus = Media.Status.Queued
@@ -291,9 +299,25 @@ class MainMediaFragment : BaseFragment() {
 
     //update selection UI by summing selected counts from all adapters.
     fun updateSelectionState() {
-        val isSelecting = mAdapters.values.any { it.selecting }
-        (activity as? MainActivity)?.setSelectionMode(isSelecting)
         val totalSelected = mAdapters.values.sumOf { it.getSelectedCount() }
+
+        if (isSelecting && totalSelected > 0) {
+            selectionHasActiveItems = true
+        }
+        // If we were in selection mode, had selections, and now none remain, exit selection.
+        if (isSelecting && selectionHasActiveItems && totalSelected == 0) {
+            isSelecting = false
+            selectionHasActiveItems = false
+        }
+
+        val selectionActive = isSelecting || totalSelected > 0
+
+        // Keep all adapters in sync so a tap in any collection can toggle selection.
+        mAdapters.values.forEach { adapter ->
+            adapter.selecting = selectionActive
+        }
+
+        (activity as? MainActivity)?.setSelectionMode(selectionActive)
         (activity as? MainActivity)?.updateSelectedCount(totalSelected)
     }
 

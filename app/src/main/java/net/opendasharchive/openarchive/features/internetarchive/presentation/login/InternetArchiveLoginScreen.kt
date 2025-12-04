@@ -29,13 +29,19 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.runtime.remember
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +50,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,6 +61,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -166,13 +174,8 @@ private fun InternetArchiveLoginContent(
 ) {
 
     val context = LocalContext.current
-
-    LaunchedEffect(state.isLoginError) {
-        while (state.isLoginError) {
-            delay(3000)
-            onAction(InternetArchiveLoginAction.ErrorClear)
-        }
-    }
+    val focusManager = LocalFocusManager.current
+    val passwordFocusRequester = remember { FocusRequester() }
 
     Column(
         modifier = Modifier
@@ -199,34 +202,46 @@ private fun InternetArchiveLoginContent(
                 Text(
                     stringResource(R.string.account),
                     color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp
+                    style = MaterialTheme.typography.titleLarge
                 )
             }
         }
 
         CustomTextField(
             value = state.username,
-            onValueChange = { onAction(InternetArchiveLoginAction.UpdateUsername(it)) },
+            onValueChange = {
+                onAction(InternetArchiveLoginAction.ErrorClear)
+                onAction(InternetArchiveLoginAction.UpdateUsername(it))
+            },
             label = stringResource(R.string.label_username),
             placeholder = stringResource(R.string.prompt_email),
             isError = state.isUsernameError,
             isLoading = state.isBusy,
             keyboardType = KeyboardType.Email,
             imeAction = ImeAction.Next,
+            onImeAction = {
+                passwordFocusRequester.requestFocus()
+            }
         )
 
         Spacer(Modifier.height(ThemeDimensions.spacing.large))
 
         CustomSecureField(
             value = state.password,
-            onValueChange = { onAction(InternetArchiveLoginAction.UpdatePassword(it)) },
+            onValueChange = {
+                onAction(InternetArchiveLoginAction.ErrorClear)
+                onAction(InternetArchiveLoginAction.UpdatePassword(it))
+            },
             label = stringResource(R.string.label_password),
             placeholder = stringResource(R.string.prompt_password),
             isError = state.isPasswordError,
             isLoading = state.isBusy,
             keyboardType = KeyboardType.Password,
             imeAction = ImeAction.Done,
+            onImeAction = {
+                focusManager.clearFocus()
+            },
+            modifier = Modifier.focusRequester(passwordFocusRequester)
         )
 
         Row(
@@ -293,7 +308,7 @@ private fun InternetArchiveLoginContent(
                 enabled = !state.isBusy,
                 shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
                 onClick = { onAction(InternetArchiveLoginAction.Cancel) }) {
-                Text(stringResource(R.string.back))
+                Text(stringResource(R.string.back), style = MaterialTheme.typography.titleLarge)
             }
             Spacer(modifier = Modifier.width(8.dp))
             Button(
@@ -321,7 +336,10 @@ private fun InternetArchiveLoginContent(
                 if (state.isBusy) {
                     CircularProgressIndicator(color = ThemeColors.material.primary)
                 } else {
-                    Text(stringResource(R.string.next), fontWeight = FontWeight.SemiBold, fontFamily = MontserratFontFamily)
+                    Text(
+                        stringResource(R.string.next),
+                        style = MaterialTheme.typography.titleLarge
+                    )
                 }
             }
         }
@@ -337,7 +355,9 @@ private fun InternetArchiveLoginPreview() {
             state = InternetArchiveLoginState(
                 username = "",
                 password = "",
-                isLoginError = true
+                isLoginError = true,
+                isPasswordError = true,
+                isUsernameError = true
             ),
             onAction = {}
         )
@@ -356,45 +376,78 @@ fun CustomTextField(
     isLoading: Boolean = false,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Next,
+    onFocusChange: ((Boolean) -> Unit)? = null,
+    onImeAction: (() -> Unit)? = null,
 ) {
 
-    OutlinedTextField(
-        modifier = modifier.fillMaxWidth(),
-        value = value,
-        enabled = !isLoading && enabled,
-        onValueChange = onValueChange,
-        placeholder = {
-            placeholder?.let {
-                Text(
-                    text = placeholder,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Normal,
-                    fontStyle = FontStyle.Italic
-                )
-            }
-        },
-        singleLine = true,
-        shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
-        keyboardOptions = KeyboardOptions(
-            capitalization = KeyboardCapitalization.None,
-            autoCorrectEnabled = false,
-            keyboardType = keyboardType,
-            imeAction = imeAction,
-            platformImeOptions = PlatformImeOptions(),
-            showKeyboardOnFocus = true,
-            hintLocales = null
-        ),
-        isError = isError,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.background,
-            unfocusedContainerColor = MaterialTheme.colorScheme.background,
-            focusedBorderColor = MaterialTheme.colorScheme.tertiary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-            cursorColor = MaterialTheme.colorScheme.tertiary
-            //focusedIndicatorColor = Color.Transparent,
-            //unfocusedIndicatorColor = Color.Transparent,
-        ),
+    val customTextSelectionColors = TextSelectionColors(
+        handleColor = MaterialTheme.colorScheme.tertiary,
+        backgroundColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.4f)
     )
+    CompositionLocalProvider(LocalTextSelectionColors provides customTextSelectionColors) {
+        OutlinedTextField(
+            modifier = modifier
+                .fillMaxWidth()
+                .let { mod ->
+                    onFocusChange?.let { callback ->
+                        mod.onFocusChanged { callback(it.isFocused) }
+                    } ?: mod
+                },
+            value = value,
+            enabled = !isLoading && enabled,
+            onValueChange = onValueChange,
+            placeholder = {
+                placeholder?.let {
+                    Text(
+                        text = placeholder,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 13.sp,
+                            fontFamily = MontserratFontFamily
+                        )
+                    )
+                }
+            },
+            singleLine = true,
+            shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.None,
+                autoCorrectEnabled = false,
+                keyboardType = keyboardType,
+                imeAction = imeAction,
+                platformImeOptions = PlatformImeOptions(),
+                showKeyboardOnFocus = true,
+                hintLocales = null
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    onImeAction?.invoke()
+                },
+                onNext = {
+                    onImeAction?.invoke()
+                },
+                onGo = {
+                    onImeAction?.invoke()
+                },
+                onSearch = {
+                    onImeAction?.invoke()
+                },
+                onSend = {
+                    onImeAction?.invoke()
+                }
+            ),
+            isError = isError,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.background,
+                unfocusedContainerColor = MaterialTheme.colorScheme.background,
+                focusedBorderColor = MaterialTheme.colorScheme.tertiary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                cursorColor = MaterialTheme.colorScheme.tertiary,
+                //focusedIndicatorColor = Color.Transparent,
+                //unfocusedIndicatorColor = Color.Transparent,
+            ),
+        )
+    }
 }
 
 @Composable
@@ -408,11 +461,10 @@ fun CustomSecureField(
     isLoading: Boolean = false,
     keyboardType: KeyboardType,
     imeAction: ImeAction,
+    onImeAction: (() -> Unit)? = null,
 ) {
 
-    var showPassword by rememberSaveable {
-        mutableStateOf(false)
-    }
+    var showPassword by rememberSaveable { mutableStateOf(false) }
 
     OutlinedTextField(
         modifier = modifier.fillMaxWidth(),
@@ -422,9 +474,11 @@ fun CustomSecureField(
         placeholder = {
             Text(
                 text = placeholder,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Normal,
-                fontStyle = FontStyle.Italic
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontStyle = FontStyle.Italic,
+                    fontSize = 13.sp,
+                    fontFamily = MontserratFontFamily
+                )
             )
         },
         singleLine = true,
@@ -437,6 +491,23 @@ fun CustomSecureField(
             platformImeOptions = PlatformImeOptions(),
             showKeyboardOnFocus = true,
             hintLocales = null
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = {
+                onImeAction?.invoke()
+            },
+            onNext = {
+                onImeAction?.invoke()
+            },
+            onGo = {
+                onImeAction?.invoke()
+            },
+            onSearch = {
+                onImeAction?.invoke()
+            },
+            onSend = {
+                onImeAction?.invoke()
+            }
         ),
         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
         isError = isError,
@@ -453,9 +524,19 @@ fun CustomSecureField(
                 enabled = !isLoading,
                 modifier = Modifier.sizeIn(ThemeDimensions.touchable),
                 onClick = { showPassword = !showPassword }) {
+
+                val (iconRes, cd) =
+                    if (showPassword) {
+                        R.drawable.ic_visibility_off to
+                                "Hide password" // ideally a stringResource(...)
+                    } else {
+                        R.drawable.ic_visibility to
+                                "Show password"
+                    }
+
                 Icon(
-                    imageVector = if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                    contentDescription = "show password"
+                    painter = painterResource(iconRes),
+                    contentDescription = cd
                 )
             }
         },
@@ -513,7 +594,10 @@ fun ButtonBar(
             if (isLoading) {
                 CircularProgressIndicator(color = ThemeColors.material.primary)
             } else {
-                Text(nextButtonText.asString())
+                Text(
+                    nextButtonText.asString(),
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
         }
     }

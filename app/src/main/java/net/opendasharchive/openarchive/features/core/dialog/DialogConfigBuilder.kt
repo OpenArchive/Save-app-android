@@ -118,7 +118,7 @@ class DialogBuilder {
     // Default texts based on type.
     private fun defaultPositiveTextFor(type: DialogType): UiText = when (type) {
         DialogType.Success -> UiText.StringResource(R.string.lbl_ok)
-        DialogType.Error -> UiText.StringResource(R.string.retry)
+        DialogType.Error -> UiText.StringResource(R.string.lbl_retry)
         DialogType.Warning -> UiText.StringResource(R.string.lbl_ok)
         DialogType.Info -> UiText.StringResource(R.string.lbl_got_it)
         DialogType.Custom -> UiText.StringResource(R.string.lbl_ok)
@@ -296,8 +296,7 @@ fun DialogStateManager.showSuccessDialog(
 fun DialogStateManager.showErrorDialog(
     message: String,
     title: String = "",
-    onRetry: () -> Unit = {},
-    onCancel: () -> Unit = {}
+    onDismiss: () -> Unit = {}
 ) {
     val resourceProvider = this.requireResourceProvider()
 
@@ -305,14 +304,10 @@ fun DialogStateManager.showErrorDialog(
         type = DialogType.Error
         this.message = UiText.DynamicString(message)
         if (title.isNotEmpty()) this.title = UiText.DynamicString(title)
-        positiveButton {
-            text = UiText.StringResource(R.string.retry)
-            action = onRetry
-        }
 
-        neutralButton {
-            text = UiText.StringResource(R.string.lbl_Cancel)
-            action = onCancel
+        positiveButton {
+            text = UiText.StringResource(R.string.lbl_ok)
+            action = onDismiss
         }
     }
 }
@@ -333,7 +328,7 @@ fun DialogStateManager.showInfoDialog(
         this.title = title
         this.message = message
         positiveButton {
-            text = UiText.StringResource(R.string.lbl_got_it)
+            text = UiText.StringResource(R.string.lbl_ok)
             action = onDone
         }
     }

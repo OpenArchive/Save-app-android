@@ -4,12 +4,12 @@ import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.plugin.compose")
-    id("org.jetbrains.kotlin.plugin.serialization")
-    id("com.google.devtools.ksp")
-    id("androidx.navigation.safeargs.kotlin")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.navigation.safeargs)
     alias(libs.plugins.detekt.plugin)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
@@ -31,7 +31,6 @@ fun loadLocalProperties(): Properties = Properties().apply {
 kotlin {
 
     compilerOptions {
-
         jvmTarget.set(JvmTarget.JVM_17)
         languageVersion.set(KotlinVersion.KOTLIN_2_2)
     }
@@ -47,6 +46,8 @@ kotlin {
 
 android {
 
+    namespace = "net.opendasharchive.openarchive"
+
     compileSdk = 36
 
     compileOptions {
@@ -58,8 +59,8 @@ android {
         applicationId = "net.opendasharchive.openarchive"
         minSdk = 29
         targetSdk = 36
-        versionCode = 30019
-        versionName = "4.0.2"
+        versionCode = 30021
+        versionName = "4.0.3"
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -83,7 +84,7 @@ android {
             signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
             isShrinkResources = false
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
 
         getByName("debug") {
@@ -145,7 +146,6 @@ android {
         }
     }
 
-    namespace = "net.opendasharchive.openarchive"
 
     configurations.all {
         resolutionStrategy {
@@ -157,69 +157,65 @@ android {
 
 dependencies {
 
-    // Core Kotlin and Coroutines
+    // Kotlin Core
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
 
-
-    // AndroidX Libraries
+    // AndroidX Core
+    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.recyclerview)
-    implementation(libs.androidx.viewpager2)
-    implementation(libs.androidx.recyclerview.selection)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.exifinterface)
+
+    // AndroidX UI Components
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.coordinatorlayout)
-    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.recyclerview.selection)
+    implementation(libs.androidx.viewpager2)
+    implementation(libs.androidx.swiperefresh)
 
+    // AndroidX Activity & Fragment
+    implementation(libs.androidx.activity.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.fragment.ktx)
+    implementation(libs.androidx.fragment.compose)
+
+    // AndroidX Lifecycle
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.livedata)
     implementation(libs.androidx.lifecycle.runtime.compose)
 
-    implementation(libs.androidx.preferences)
-    implementation(libs.androidx.biometric)
-    implementation(libs.androidx.work)
-    implementation(libs.androidx.security.crypto)
+    // AndroidX Navigation
+    implementation(libs.androidx.navigation.fragment)
+    implementation(libs.androidx.navigation.ui)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation.fragment.compose)
 
-    implementation(libs.androidx.fragment.ktx)
-    implementation(libs.androidx.fragment.compose)
-
-    // Compose Preferences
+    // Compose UI
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material3.adaptive)
+    implementation(libs.androidx.compose.icons.extended)
+    implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.compose.preferences)
 
     // Material Design
     implementation(libs.google.material)
 
-    // AndroidX SwipeRefreshLayout
-    implementation(libs.androidx.swiperefresh)
-
-    // Compose Libraries
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.activity.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.material3.adaptive)
-    implementation(libs.androidx.compose.ui)
-    implementation(libs.androidx.compose.foundation)
-    implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.icons.extended)
-    implementation(libs.firebase.crashlytics)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-
-    implementation(libs.androidx.compose.runtime)
-    implementation(libs.androidx.compose.runtime.livedata)
-
-    // Navigation
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.navigation.ui)
-    implementation(libs.androidx.navigation.fragment)
-    implementation(libs.androidx.navigation.fragment.compose)
-
-    // Preference
+    // AndroidX Other
     implementation(libs.androidx.preferences)
+    implementation(libs.androidx.biometric)
+    implementation(libs.androidx.security.crypto)
+    implementation(libs.androidx.work)
 
-    // Dependency Injection
+    // Dependency Injection - Koin
     implementation(libs.koin.core)
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
@@ -228,61 +224,58 @@ dependencies {
     implementation(libs.koin.compose.viewmodel)
     implementation(libs.koin.compose.viewmodel.navigation)
 
-    // Image Libraries
+    // Networking
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.guardianproject.sardine)
+
+    // Images & Media
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
     implementation(libs.coil.network)
 
-    // Networking and Data
-    // Networking
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.gson)
-    implementation(libs.gson)
-    implementation(libs.okhttp)
-    implementation(libs.okhttp.logging)
-    implementation(libs.guardianproject.sardine)
+    // CameraX
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.video)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.camera.extensions)
 
-    // Utility Libraries
-    implementation(libs.timber)
-    //implementation(libs.orhanobut.logger)
-    //implementation(libs.abdularis.circularimageview)
-    implementation(libs.dotsindicator)
-    implementation(libs.permissionx)
-
-    // Barcode Scanning
-    //implementation("com.google.zxing:core:3.5.3")
-    //implementation("com.journeyapps:zxing-android-embedded:4.3.0")
-
-    // Security and Encryption
-    implementation(libs.bouncycastle.bcpkix)
-    implementation(libs.bouncycastle.bcprov)
-    api(libs.bouncycastle.bcpg)
+    // Media3 - ExoPlayer
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
 
     // Google Play Services
-    implementation(libs.google.auth)
-    implementation(libs.google.play.asset.delivery.ktx)
-    implementation(libs.google.play.feature.delivery)
-    implementation(libs.google.play.feature.delivery.ktx)
+    //implementation(libs.google.auth)
+    //implementation(libs.google.play.asset.delivery.ktx)
+    //implementation(libs.google.play.feature.delivery)
+    //implementation(libs.google.play.feature.delivery.ktx)
     implementation(libs.google.play.review)
     implementation(libs.google.play.review.ktx)
     implementation(libs.google.play.app.update.ktx)
 
     // Google Drive API
-    implementation(libs.google.http.client.gson)
-    implementation(libs.google.api.client.android)
-    implementation(libs.google.drive.api)
+    //implementation(libs.google.api.client.android)
+    //implementation(libs.google.http.client.gson)
+    //implementation(libs.google.drive.api)
 
-    // Tor Libraries
+    // Security & Cryptography
+    implementation(libs.bouncycastle.bcprov)
+    implementation(libs.bouncycastle.bcpkix)
+    api(libs.bouncycastle.bcpg)
+    implementation(libs.netcipher)
+
+    // Tor & Bitcoin
     implementation(libs.tor.android)
     implementation(libs.jtorctl)
-
     implementation(libs.bitcoinj.core)
-    //implementation("com.eclipsesource.j2v8:j2v8:6.2.1@aar")
 
-    // ProofMode //from here: https://github.com/guardianproject/proofmode
+    // ProofMode
     implementation(libs.proofmode) {
-        //transitive = false
         exclude(group = "org.bitcoinj")
         exclude(group = "com.google.protobuf")
         exclude(group = "org.slf4j")
@@ -295,38 +288,35 @@ dependencies {
         exclude(group = "com.squareup.okio", module = "okio")
     }
 
-    // Guava Conflicts
+    // Utilities
+    implementation(libs.timber)
+    implementation(libs.gson)
     implementation(libs.guava)
     implementation(libs.guava.listenablefuture)
-
+    implementation(libs.dotsindicator)
+    implementation(libs.permissionx)
     implementation(libs.satyan.sugar)
 
-    // adding web dav support: https://github.com/thegrizzlylabs/sardine-android'
-    implementation("com.github.guardianproject:sardine-android:89f7eae512")
-
-    implementation("com.github.derlio:audio-waveform:v1.0.1")
-
-    implementation(libs.clean.insights)
-    implementation(libs.netcipher)
-
-    // Mixpanel analytics
+    // Analytics & Tracking
     implementation(libs.mixpanel)
+    implementation(libs.clean.insights)
 
-    // Tests
+    // Firebase
+    implementation(libs.firebase.crashlytics)
+
+    // Testing
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
+    testImplementation(libs.work.testing)
     androidTestImplementation(libs.androidx.test.junit)
     androidTestImplementation(libs.androidx.test.runner)
-    testImplementation(libs.work.testing)
 
-    // Detekt
+    // Detekt Plugins
     detektPlugins(libs.detekt.formatting)
-    detektPlugins(libs.detekt.rules.authors)
     detektPlugins(libs.detekt.rules.libraries)
+    detektPlugins(libs.detekt.rules.authors)
     detektPlugins(libs.detekt.compose)
     detektPlugins(libs.detekt.rules.compose)
-
-//    debugImplementation("com.squareup.leakcanary:leakcanary-android:3.0-alpha-8")
 }
 
 configurations.all {

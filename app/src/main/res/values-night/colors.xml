@@ -41,13 +41,14 @@
     <color name="colorSpaceSetupProgressOn">@color/c23_teal</color>
     <color name="colorSpaceSetupProgressOff">@color/c23_medium_grey</color>
     <color name="colorBackgroundSpaceIcon">@color/c23_darker_grey</color>
-    <color name="colorButtonOnBackground">@color/black</color>
+    <color name="boxBackgroundColor">@color/black</color>
     <color name="colorOnBackgroundTonedDown">@color/c23_grey</color>
     <color name="colorOnBackgroundLowContrast">@color/c23_medium_grey</color>
     <color name="colorTextViewHint">@color/white</color>
     <color name="colorSectionHeader">#00B4A6</color>
     <color name="tabBarMenuButton">@color/c24_cream_95</color>
     <color name="colorPill">@color/c23_dark_grey</color>
+    <color name="colorPillTransparent">#80333333</color>
     <color name="dragHandle">@color/c23_grey</color>
     <color name="splashBackground">#151515</color>
     <color name="swipeBackground">@color/black</color>
@@ -57,5 +58,8 @@
     <color name="colorRipple">#33e3e3e4</color>
     <color name="bottomSheetBackground">@color/eigengrau</color>
     <color name="colorSkipButton">@color/c23_teal</color>
+    <color name="selection_button_glass">#292828</color>
+    <color name="selection_button_stroke">#CCFFFFFF</color>
+    <color name="selection_button_ripple">#B3FFFFFF</color>
 
 </resources>

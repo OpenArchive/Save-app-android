@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -103,9 +104,8 @@ private fun PasscodeSetupScreenContent(
         ) {
             Text(
                 text = if (state.isConfirming) stringResource(R.string.confirm_passcode) else stringResource(R.string.set_passcode),
-                style = MaterialTheme.typography.headlineSmall.copy(
+                style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
                 ),
             )
 
@@ -113,11 +113,12 @@ private fun PasscodeSetupScreenContent(
 
             Text(
                 text = stringResource(R.string.set_passcode_warning),
-                style = MaterialTheme.typography.labelMedium.copy(
+                style = MaterialTheme.typography.bodySmall.copy(
                     color = colorResource(R.color.red_bg),
                     fontSize = 15.sp,               // overrides labelMedium’s size
                     fontWeight = FontWeight.Medium, // ensures consistent weight
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    fontStyle = FontStyle.Normal
                 )
             )
         }

@@ -24,17 +24,6 @@
         app:layout_constraintVertical_weight="0.55"
         tools:visibility="gone">
 
-        <com.github.derlio.waveform.SimpleWaveformView
-            android:id="@+id/waveform"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            app:indicatorColor="#aa0000"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:waveformColor="#999999"
-            tools:visibility="visible" />
-
         <ImageView
             android:id="@+id/image"
             android:layout_width="0dp"

@@ -1,8 +1,6 @@
 package net.opendasharchive.openarchive.core.di
 
 import android.content.Context
-import com.google.api.services.drive.Drive
-import com.thegrizzlylabs.sardineandroid.impl.OkHttpSardine
 import net.opendasharchive.openarchive.features.core.dialog.DefaultResourceProvider
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.ResourceProvider
