@@ -20,6 +20,8 @@ import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.CleanInsightsManager
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
+import net.opendasharchive.openarchive.core.analytics.AnalyticsManager
+import net.opendasharchive.openarchive.core.analytics.AnalyticsEvent
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.services.Conduit
@@ -94,16 +96,44 @@ class UploadService : JobService() {
         if (mRunning) return completed()
 
         mRunning = true
+        val batchStartTime = System.currentTimeMillis()
         AppLogger.i("upload started")
 
         if (!shouldUpload()) {
             mRunning = false
             AppLogger.i("no network, upload stopped")
+            // Track network error
+            AnalyticsManager.trackEvent(
+                AnalyticsEvent.UploadNetworkError(
+                    reason = if (Prefs.uploadWifiOnly) "wifi_required" else "no_network"
+                )
+            )
             return completed()
         }
 
         // Get all media items that are set into queued state.
         var results = emptyList<Media>()
+        var successCount = 0
+        var failedCount = 0
+        var totalCount = 0
+
+        // Get initial batch
+        val initialBatch = Media.getByStatus(
+            listOf(Media.Status.Queued, Media.Status.Uploading),
+            Media.ORDER_PRIORITY
+        )
+
+        if (initialBatch.isNotEmpty()) {
+            // Track batch started
+            val batchSize = initialBatch.size
+            val totalSizeMB = initialBatch.sumOf { it.contentLength } / (1024 * 1024)
+            AnalyticsManager.trackEvent(
+                AnalyticsEvent.UploadBatchStarted(
+                    count = batchSize,
+                    totalSizeMB = totalSizeMB
+                )
+            )
+        }
 
         while (mKeepUploading &&
             Media.getByStatus(
@@ -116,6 +146,7 @@ class UploadService : JobService() {
             val datePublish = Date()
 
             for (media in results) {
+                totalCount++
                 if (media.sStatus != Media.Status.Uploading) {
                     media.uploadDate = datePublish
                     media.progress = 0 // Should we reset this?
@@ -134,13 +165,19 @@ class UploadService : JobService() {
 
                 try {
                     AppLogger.i("Started uploading", media)
-                    upload(media)
+                    val uploadSuccess = upload(media)
+                    if (uploadSuccess) {
+                        successCount++
+                    } else {
+                        failedCount++
+                    }
                 } catch (ioe: IOException) {
                     AppLogger.e(ioe)
 
                     media.statusMessage = "error in uploading media: " + ioe.message
                     media.sStatus = Media.Status.Error
                     media.save()
+                    failedCount++
                 }
 
                 if (!mKeepUploading) break // Time to end this.
@@ -148,6 +185,19 @@ class UploadService : JobService() {
         }
 
         AppLogger.i("Uploads completed")
+
+        // Track batch completed (if any uploads were attempted)
+        if (totalCount > 0) {
+            val batchDuration = (System.currentTimeMillis() - batchStartTime) / 1000
+            AnalyticsManager.trackEvent(
+                AnalyticsEvent.UploadBatchCompleted(
+                    count = totalCount,
+                    successCount = successCount,
+                    failedCount = failedCount,
+                    durationSeconds = batchDuration
+                )
+            )
+        }
 
         mRunning = false
         completed()

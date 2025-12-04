@@ -21,12 +21,17 @@ import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeManager
 import net.opendasharchive.openarchive.util.Analytics
 import net.opendasharchive.openarchive.util.Prefs
+import net.opendasharchive.openarchive.util.SessionManager
+import net.opendasharchive.openarchive.core.analytics.AnalyticsManager
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
+import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 
-class SaveApp : SugarApp(), SingletonImageLoader.Factory {
+class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserver {
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
@@ -40,9 +45,17 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory {
     }
 
     override fun onCreate() {
-        super.onCreate()
-        Analytics.init(this)
+        super<SugarApp>.onCreate()
+
+        // Initialize logging first
         AppLogger.init(applicationContext, initDebugger = true)
+
+        // Initialize legacy Analytics (kept for backwards compatibility)
+        Analytics.init(this)
+
+        // Initialize new unified Analytics Manager (CleanInsights + Mixpanel + Firebase)
+        AnalyticsManager.initialize(this)
+
         registerActivityLifecycleCallbacks(PasscodeManager())
         startKoin {
             androidLogger(Level.DEBUG)
@@ -61,9 +74,34 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory {
 
         if (Prefs.useTor) initNetCipher()
 
+        // Legacy CleanInsightsManager (will be replaced by AnalyticsManager)
         CleanInsightsManager.init(this)
 
+        // Register app lifecycle observer for session tracking
+        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
+
+        // Set user properties (GDPR-compliant)
+        AnalyticsManager.setUserProperty("app_version", BuildConfig.VERSION_NAME)
+        AnalyticsManager.setUserProperty("device_type", "android")
+
         createSnowbirdNotificationChannel()
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        super.onStart(owner)
+        // App came to foreground
+        SessionManager.startSession(this)
+        SessionManager.onForeground()
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        super.onStop(owner)
+        // App went to background
+        SessionManager.onBackground()
+        SessionManager.endSession()
+
+        // Persist analytics data
+        AnalyticsManager.persist()
     }
 
     private fun initNetCipher() {

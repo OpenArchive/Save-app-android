@@ -13,10 +13,21 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogHost
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.util.Prefs
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import net.opendasharchive.openarchive.core.analytics.AnalyticsManager
+import net.opendasharchive.openarchive.core.logger.AppLogger
+import net.opendasharchive.openarchive.util.SessionManager
 
 abstract class BaseActivity : AppCompatActivity() {
 
     val dialogManager: DialogStateManager by viewModel()
+
+    // Screen tracking variables
+    private var screenStartTime: Long = 0
+    private var previousScreen: String = ""
+
+    protected open fun getScreenName(): String {
+        return this::class.simpleName ?: "UnknownActivity"
+    }
 
     companion object {
         const val EXTRA_DATA_SPACE = "space"
@@ -72,6 +83,34 @@ abstract class BaseActivity : AppCompatActivity() {
         // updating this in onResume (previously was in onCreate) to make sure setting changes get
         // applied instantly instead after the next app restart
         updateScreenshotPrevention()
+
+        // Track screen view
+        screenStartTime = System.currentTimeMillis()
+        val screenName = getScreenName()
+
+        // Set current screen for error tracking breadcrumbs
+        AppLogger.setCurrentScreen(screenName)
+
+        AnalyticsManager.trackScreenView(screenName, null, previousScreen)
+        SessionManager.setCurrentScreen(screenName)
+
+        // Track navigation if coming from another screen
+        if (previousScreen.isNotEmpty() && previousScreen != screenName) {
+            AnalyticsManager.trackNavigation(previousScreen, screenName)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        // Track time spent on screen
+        val timeSpent = (System.currentTimeMillis() - screenStartTime) / 1000
+        val screenName = getScreenName()
+
+        AnalyticsManager.trackScreenView(screenName, timeSpent, previousScreen)
+
+        // Store as previous screen for navigation tracking
+        previousScreen = screenName
     }
 
     fun updateScreenshotPrevention() {

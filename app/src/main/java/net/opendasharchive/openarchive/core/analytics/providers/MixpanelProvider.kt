@@ -1,38 +1,68 @@
-package net.opendasharchive.openarchive.util
+package net.opendasharchive.openarchive.core.analytics.providers
 
-import android.annotation.SuppressLint
 import android.content.Context
 import com.mixpanel.android.mpmetrics.MixpanelAPI
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.analytics.AnalyticsEvent
+import net.opendasharchive.openarchive.core.analytics.AnalyticsProvider
 import org.json.JSONObject
 
-@SuppressLint("StaticFieldLeak")
-object Analytics {
-
-    const val APP_LOG = "app_log"
-    const val APP_ERROR = "app_error"
+/**
+ * Mixpanel implementation of AnalyticsProvider
+ * With automatic PII sanitization
+ */
+class MixpanelProvider(
+    private val context: Context
+) : AnalyticsProvider {
 
     private var mixpanel: MixpanelAPI? = null
 
-    fun init(context: Context) {
+    override fun initialize() {
         val token = context.getString(R.string.mixpanel_key)
         mixpanel = MixpanelAPI.getInstance(context, token, false)
     }
 
-    fun log(eventName: String, props: Map<String?, Any?>? = null) {
-        val sanitizedProps = props?.mapValues { (_, value) ->
-            when (value) {
+    override fun trackEvent(event: AnalyticsEvent) {
+        val eventName = "${event.category}_${event.action}"
+
+        // Convert properties to JSONObject with PII sanitization
+        val properties = JSONObject()
+
+        event.properties.forEach { (key, value) ->
+            val sanitizedValue = when (value) {
                 is String -> sanitizePII(value)
                 else -> value
             }
+            properties.put(key, sanitizedValue)
         }
 
-        val jsonObject = sanitizedProps?.let { strongProps ->
-            JSONObject(strongProps)
+        // Add event label if present
+        event.label?.let {
+            properties.put("label", sanitizePII(it))
         }
 
-        mixpanel?.track(eventName, jsonObject)
+        // Add event value if present
+        event.value?.let {
+            properties.put("value", it)
+        }
+
+        mixpanel?.track(eventName, properties)
     }
+
+    override fun setUserProperty(key: String, value: Any) {
+        val sanitizedValue = when (value) {
+            is String -> sanitizePII(value)
+            else -> value
+        }
+
+        mixpanel?.people?.set(key, sanitizedValue)
+    }
+
+    override fun persist() {
+        mixpanel?.flush()
+    }
+
+    override fun getProviderName(): String = "Mixpanel"
 
     /**
      * Sanitizes personally identifiable information (PII) from strings
@@ -53,7 +83,7 @@ object Analytics {
         // Remove IP addresses
         sanitized = sanitized.replace(Regex("\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b"), "[IP_ADDRESS]")
 
-        // Remove potential usernames (strings after common patterns like user=, username=, login=)
+        // Remove potential usernames
         sanitized = sanitized.replace(Regex("(?i)(user|username|login|account)\\s*[=:]\\s*\\S+"), "$1=[REDACTED]")
 
         // Remove potential passwords

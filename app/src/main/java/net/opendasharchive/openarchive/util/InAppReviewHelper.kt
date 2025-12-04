@@ -7,6 +7,8 @@ import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
 import net.opendasharchive.openarchive.core.logger.AppLogger
+import net.opendasharchive.openarchive.core.analytics.AnalyticsManager
+import net.opendasharchive.openarchive.core.analytics.AnalyticsEvent
 
 object InAppReviewHelper {
     // Keys for our Prefs helper:
@@ -39,9 +41,13 @@ object InAppReviewHelper {
                 if (task.isSuccessful) {
                     reviewInfo = task.result
                     AppLogger.d("InAppReview", "ReviewInfo obtained successfully.")
+                    // Track review prompt shown
+                    AnalyticsManager.trackEvent(AnalyticsEvent.ReviewPromptShown())
                 } else {
                     (task.exception as? ReviewException)?.let { ex ->
                         AppLogger.e("InAppReview", "Error requesting review flow: ${ex.errorCode}", ex)
+                        // Track review error
+                        AnalyticsManager.trackEvent(AnalyticsEvent.ReviewPromptError(ex.errorCode))
                     }
                     reviewInfo = null
                 }
@@ -78,6 +84,8 @@ object InAppReviewHelper {
             reviewManager.launchReviewFlow(activity, info)
                 .addOnCompleteListener {
                     AppLogger.d("InAppReview", "Review flow finished.")
+                    // Track review flow completed
+                    AnalyticsManager.trackEvent(AnalyticsEvent.ReviewPromptCompleted())
                     reviewInfo = null
                 }
         } ?: run {

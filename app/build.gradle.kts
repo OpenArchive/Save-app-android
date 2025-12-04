@@ -187,6 +187,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.livedata)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.process)
 
     // AndroidX Navigation
     implementation(libs.androidx.navigation.fragment)
@@ -301,6 +302,7 @@ dependencies {
     implementation(libs.clean.insights)
 
     // Firebase
+    implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
 
     // Testing
