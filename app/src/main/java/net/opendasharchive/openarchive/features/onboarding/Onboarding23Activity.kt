@@ -2,6 +2,7 @@ package net.opendasharchive.openarchive.features.onboarding
 
 import android.animation.ObjectAnimator
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.text.Spanned
 import android.view.Window
@@ -14,6 +15,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,6 +41,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.min
 import kotlinx.coroutines.delay
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
@@ -182,6 +188,7 @@ fun OnboardingWelcomeScreen(
             modifier = Modifier
                 .weight(1f) // Take remaining space above nav block
                 .fillMaxWidth()
+                .background(Color.Cyan)
                 .padding(start = 16.dp, top = 24.dp, end = 32.dp),
             verticalArrangement = Arrangement.Top
         ) {
@@ -340,22 +347,9 @@ private fun StyledTitleText(
 }
 
 @Preview(name = "Welcome Screen Light", showBackground = true)
+//@Preview(name = "Welcome Screen Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun OnboardingWelcomeScreenPreviewLight() {
-    SaveAppTheme {
-        OnboardingWelcomeScreen(
-            onGetStartedClick = {}
-        )
-    }
-}
-
-@Preview(
-    name = "Welcome Screen Dark",
-    showBackground = true,
-    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES
-)
-@Composable
-private fun OnboardingWelcomeScreenPreviewDark() {
     SaveAppTheme {
         OnboardingWelcomeScreen(
             onGetStartedClick = {}
@@ -368,19 +362,25 @@ fun AutoSizeText(
     text: String,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
-    minFontSize: androidx.compose.ui.unit.TextUnit = 12.sp,
-    maxFontSize: androidx.compose.ui.unit.TextUnit = 100.sp,
-    fontWeight: FontWeight? = null,
-    textAlign: TextAlign? = null
+    minFontSize: TextUnit = 12.sp,
+    maxFontSize: TextUnit = 100.sp,
+    fontWeight: FontWeight = FontWeight.Normal,
+    textAlign: TextAlign = TextAlign.Unspecified
 ) {
     // Simple implementation using standard Text with reasonable font size
     // In a real implementation, you'd measure text and adjust font size
-    Text(
+    BasicText(
         text = text,
         modifier = modifier,
-        color = color,
-        fontSize = minFontSize, // Use minimum font size for now
-        fontWeight = fontWeight,
-        textAlign = textAlign
+        autoSize = TextAutoSize.StepBased(
+            minFontSize = minFontSize,
+            maxFontSize = maxFontSize,
+        ),
+        maxLines = 1,
+        style = TextStyle(
+            color = color,
+            fontWeight = fontWeight,
+            textAlign = textAlign
+        )
     )
 }
