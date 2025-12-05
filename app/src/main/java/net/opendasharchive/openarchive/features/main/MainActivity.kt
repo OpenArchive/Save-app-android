@@ -282,7 +282,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         }
 
         reviewManager = ReviewManagerFactory.create(this)
-        InAppReviewHelper.requestReviewInfo(this)
+        InAppReviewHelper.requestReviewInfo(this, analyticsManager)
         shouldPromptReview = InAppReviewHelper.onAppLaunched()
 
         // Set flag to check for app updates on first onResume
@@ -373,7 +373,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             lifecycleScope.launch(Dispatchers.Main) {
                 // Wait a small delay so we don't interrupt initial load (e.g. 2 seconds).
                 delay(2_000)
-                InAppReviewHelper.showReviewIfPossible(this@MainActivity, reviewManager)
+                InAppReviewHelper.showReviewIfPossible(this@MainActivity, reviewManager, analyticsManager)
                 InAppReviewHelper.markReviewDone()
                 shouldPromptReview = false
             }

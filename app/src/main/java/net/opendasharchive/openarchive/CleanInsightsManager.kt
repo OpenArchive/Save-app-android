@@ -73,4 +73,140 @@ object CleanInsightsManager  {
     fun persist() {
         mCi?.persist()
     }
+
+    // ========== Enhanced Tracking Methods ==========
+
+    /**
+     * Track screen views with optional time spent
+     * @param screenName Name of the screen (e.g., "MainActivity", "SettingsFragment")
+     * @param timeSpentSeconds Optional time spent on screen in seconds
+     */
+    fun trackScreenView(screenName: String, timeSpentSeconds: Long? = null) {
+        measureView(screenName)
+        timeSpentSeconds?.let {
+            measureEvent("screen_time", "view_duration", screenName, it.toDouble())
+        }
+    }
+
+    /**
+     * Track navigation between screens
+     * @param fromScreen Source screen name
+     * @param toScreen Destination screen name
+     * @param trigger What triggered the navigation (e.g., "button_click", "back_press")
+     */
+    fun trackNavigation(fromScreen: String, toScreen: String, trigger: String? = null) {
+        measureEvent("navigation", "screen_change", "$fromScreen->$toScreen")
+        trigger?.let {
+            measureEvent("navigation", "trigger", it)
+        }
+    }
+
+    /**
+     * Track backend/server usage
+     * @param action Action performed (e.g., "configured", "upload_started", "upload_completed")
+     * @param backendType Type of backend (e.g., "Internet Archive", "Private Server", "DWeb Service", "Storacha")
+     * @param value Optional numeric value (e.g., duration, file size)
+     */
+    fun trackBackendAction(action: String, backendType: String, value: Double? = null) {
+        measureEvent("backend", action, backendType, value)
+    }
+
+    /**
+     * Track upload events
+     * @param backendType Type of backend
+     * @param success Whether upload succeeded
+     * @param durationSeconds Optional duration in seconds
+     * @param fileSizeKB Optional file size in KB
+     */
+    fun trackUpload(
+        backendType: String,
+        success: Boolean,
+        durationSeconds: Long? = null,
+        fileSizeKB: Long? = null
+    ) {
+        val action = if (success) "upload_completed" else "upload_failed"
+        measureEvent("upload", action, backendType, durationSeconds?.toDouble())
+
+        fileSizeKB?.let {
+            measureEvent("upload", "file_size", backendType, it.toDouble())
+        }
+    }
+
+    /**
+     * Track download events
+     * @param backendType Type of backend
+     * @param success Whether download succeeded
+     * @param durationSeconds Optional duration in seconds
+     */
+    fun trackDownload(backendType: String, success: Boolean, durationSeconds: Long? = null) {
+        val action = if (success) "download_completed" else "download_failed"
+        measureEvent("download", action, backendType, durationSeconds?.toDouble())
+    }
+
+    /**
+     * Track media capture/selection
+     * @param action Action performed (e.g., "captured", "selected", "deleted")
+     * @param mediaType Type of media (e.g., "photo", "video", "document")
+     * @param source Source of media (e.g., "camera", "gallery", "files")
+     * @param count Number of items
+     */
+    fun trackMediaAction(action: String, mediaType: String? = null, source: String? = null, count: Int? = null) {
+        measureEvent("media", action, mediaType ?: "unknown", count?.toDouble())
+        source?.let {
+            measureEvent("media", "source", it)
+        }
+    }
+
+    /**
+     * Track app lifecycle events
+     * @param event Event type (e.g., "app_opened", "app_closed", "app_backgrounded")
+     * @param sessionDurationSeconds Optional session duration in seconds
+     * @param isFirstLaunch Whether this is the first app launch
+     */
+    fun trackAppLifecycle(event: String, sessionDurationSeconds: Long? = null, isFirstLaunch: Boolean? = null) {
+        measureEvent("app", event, null, sessionDurationSeconds?.toDouble())
+        isFirstLaunch?.let {
+            if (it) measureEvent("app", "first_launch", null)
+        }
+    }
+
+    /**
+     * Track feature usage
+     * @param feature Feature name (e.g., "proofmode", "tor", "dark_mode")
+     * @param enabled Whether the feature was enabled or disabled
+     */
+    fun trackFeatureToggle(feature: String, enabled: Boolean) {
+        val action = if (enabled) "enabled" else "disabled"
+        measureEvent("feature", action, feature)
+    }
+
+    /**
+     * Track errors (GDPR-compliant - no PII)
+     * @param errorCategory Category of error (e.g., "network", "permission", "upload", "auth")
+     * @param screenName Screen where error occurred
+     * @param backendType Optional backend type if relevant
+     */
+    fun trackError(errorCategory: String, screenName: String, backendType: String? = null) {
+        measureEvent("error", errorCategory, screenName)
+        backendType?.let {
+            measureEvent("error", "backend", it)
+        }
+    }
+
+    /**
+     * Track session start
+     * @param isFirstSession Whether this is the user's first session
+     */
+    fun trackSessionStart(isFirstSession: Boolean = false) {
+        measureEvent("session", "started", if (isFirstSession) "first" else "returning")
+    }
+
+    /**
+     * Track session end
+     * @param lastScreen Last screen user was on
+     * @param durationSeconds Session duration in seconds
+     */
+    fun trackSessionEnd(lastScreen: String, durationSeconds: Long) {
+        measureEvent("session", "ended", lastScreen, durationSeconds.toDouble())
+    }
 }

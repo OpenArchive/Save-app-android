@@ -6,7 +6,14 @@ import android.content.res.Configuration
 import android.webkit.MimeTypeMap
 import com.google.common.net.UrlEscapers
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.analytics.api.AnalyticsEvent
+import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
+import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Space
@@ -15,6 +22,8 @@ import net.opendasharchive.openarchive.services.webdav.WebDavConduit
 import net.opendasharchive.openarchive.upload.BroadcastManager
 import net.opendasharchive.openarchive.util.Prefs
 import okhttp3.HttpUrl
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.witness.proofmode.storage.DefaultStorageProvider
 import java.io.File
 import java.io.FileNotFoundException
@@ -26,12 +35,56 @@ import java.util.Locale
 abstract class Conduit(
     protected val mMedia: Media,
     protected val mContext: Context
-) {
+) : KoinComponent {
+
+    protected val analyticsManager: AnalyticsManager by inject()
+    protected val sessionTracker: SessionTracker by inject()
+    protected val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     @SuppressLint("SimpleDateFormat")
     protected val mDateFormat = SimpleDateFormat(FOLDER_DATETIME_FORMAT)
 
     protected var mCancelled = false
+
+    // Track upload start time for analytics
+    private var uploadStartTime: Long = System.currentTimeMillis()
+
+    init {
+        // Track upload started
+        trackUploadStarted()
+    }
+
+    private fun trackUploadStarted() {
+        uploadStartTime = System.currentTimeMillis()
+
+        val backendType = mMedia.space?.tType?.friendlyName ?: "Unknown"
+        val fileSizeKB = mMedia.contentLength / 1024
+        val fileType = getFileType(mMedia.mimeType)
+
+        // Add breadcrumb for crash analysis
+        AppLogger.breadcrumb("Upload Started", "$fileType to $backendType (${fileSizeKB}KB)")
+
+        scope.launch {
+            analyticsManager.trackUploadStarted(
+                backendType = backendType,
+                fileType = fileType,
+                fileSizeKB = fileSizeKB
+            )
+        }
+    }
+
+    private fun getFileType(mimeType: String?): String {
+        return when {
+            mimeType == null -> "unknown"
+            mimeType.startsWith("image/") -> "image"
+            mimeType.startsWith("video/") -> "video"
+            mimeType.startsWith("audio/") -> "audio"
+            mimeType.startsWith("application/pdf") -> "document"
+            mimeType.startsWith("application/") -> "document"
+            mimeType.startsWith("text/") -> "text"
+            else -> "other"
+        }
+    }
 
     /**
      * Gives a SiteController a chance to add metadata to the intent resulting from the ChooseAccounts process
@@ -72,6 +125,32 @@ abstract class Conduit(
         mMedia.sStatus = Media.Status.Uploaded
         mMedia.save()
         AppLogger.i("media item ${mMedia.id} is uploaded and saved")
+
+        // Track successful upload analytics
+        val uploadDuration = (System.currentTimeMillis() - uploadStartTime) / 1000
+        val fileSizeKB = mMedia.contentLength / 1024
+        val backendType = mMedia.space?.tType?.friendlyName ?: "Unknown"
+        val fileType = getFileType(mMedia.mimeType)
+
+        // Calculate upload speed
+        val uploadSpeedKBps = if (uploadDuration > 0) fileSizeKB / uploadDuration else 0
+
+        // Add breadcrumb for crash analysis
+        AppLogger.breadcrumb("Upload Completed", "$fileType (${uploadDuration}s, ${uploadSpeedKBps}KB/s)")
+
+        scope.launch {
+            analyticsManager.trackUploadCompleted(
+                backendType = backendType,
+                fileType = fileType,
+                fileSizeKB = fileSizeKB,
+                durationSeconds = uploadDuration,
+                uploadSpeedKBps = uploadSpeedKBps
+            )
+        }
+
+        // Track in session
+        sessionTracker.trackUploadCompleted()
+
         BroadcastManager.postSuccess(
             context = mContext,
             collectionId = mMedia.collectionId,
@@ -80,9 +159,26 @@ abstract class Conduit(
     }
 
     fun jobFailed(exception: Throwable) {
-        // If an upload was cancelled, ignore the error.
+        // If an upload was cancelled, track and return.
         if (mCancelled) {
             AppLogger.i("Upload cancelled", exception)
+
+            // Add breadcrumb
+            val backendType = mMedia.space?.tType?.friendlyName ?: "Unknown"
+            val fileType = getFileType(mMedia.mimeType)
+            AppLogger.breadcrumb("Upload Cancelled", "$fileType to $backendType")
+
+            // Track upload cancellation
+            scope.launch {
+                analyticsManager.trackEvent(
+                    AnalyticsEvent.UploadCancelled(
+                        backendType = backendType,
+                        fileType = fileType,
+                        reason = "user_cancelled"
+                    )
+                )
+            }
+
             return
         }
 
@@ -92,6 +188,40 @@ abstract class Conduit(
         mMedia.save()
 
         AppLogger.e(exception)
+
+        // Track failed upload analytics (GDPR-compliant - no PII)
+        val backendType = mMedia.space?.tType?.friendlyName ?: "Unknown"
+        val fileType = getFileType(mMedia.mimeType)
+        val fileSizeKB = mMedia.contentLength / 1024
+
+        // Categorize error
+        val errorCategory = when (exception) {
+            is IOException -> "network"
+            is FileNotFoundException -> "file_not_found"
+            is SecurityException -> "permission"
+            else -> "unknown"
+        }
+
+        scope.launch {
+            analyticsManager.trackUploadFailed(
+                backendType = backendType,
+                fileType = fileType,
+                errorCategory = errorCategory,
+                fileSizeKB = fileSizeKB
+            )
+        }
+
+        // Track in session
+        sessionTracker.trackUploadFailed()
+
+        // Track error for drop-off analysis
+        scope.launch {
+            analyticsManager.trackError(
+                errorCategory = errorCategory,
+                screenName = "Upload",
+                backendType = backendType
+            )
+        }
 
         BroadcastManager.postChange(
             context = mContext,
