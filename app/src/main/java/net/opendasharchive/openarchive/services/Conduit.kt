@@ -6,7 +6,14 @@ import android.content.res.Configuration
 import android.webkit.MimeTypeMap
 import com.google.common.net.UrlEscapers
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.analytics.api.AnalyticsEvent
+import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
+import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Space
@@ -14,10 +21,9 @@ import net.opendasharchive.openarchive.services.internetarchive.IaConduit
 import net.opendasharchive.openarchive.services.webdav.WebDavConduit
 import net.opendasharchive.openarchive.upload.BroadcastManager
 import net.opendasharchive.openarchive.util.Prefs
-import net.opendasharchive.openarchive.util.SessionManager
-import net.opendasharchive.openarchive.core.analytics.AnalyticsManager
-import net.opendasharchive.openarchive.core.analytics.AnalyticsEvent
 import okhttp3.HttpUrl
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.witness.proofmode.storage.DefaultStorageProvider
 import java.io.File
 import java.io.FileNotFoundException
@@ -29,7 +35,11 @@ import java.util.Locale
 abstract class Conduit(
     protected val mMedia: Media,
     protected val mContext: Context
-) {
+) : KoinComponent {
+
+    protected val analyticsManager: AnalyticsManager by inject()
+    protected val sessionTracker: SessionTracker by inject()
+    protected val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     @SuppressLint("SimpleDateFormat")
     protected val mDateFormat = SimpleDateFormat(FOLDER_DATETIME_FORMAT)
@@ -54,11 +64,13 @@ abstract class Conduit(
         // Add breadcrumb for crash analysis
         AppLogger.breadcrumb("Upload Started", "$fileType to $backendType (${fileSizeKB}KB)")
 
-        AnalyticsManager.trackUploadStarted(
-            backendType = backendType,
-            fileType = fileType,
-            fileSizeKB = fileSizeKB
-        )
+        scope.launch {
+            analyticsManager.trackUploadStarted(
+                backendType = backendType,
+                fileType = fileType,
+                fileSizeKB = fileSizeKB
+            )
+        }
     }
 
     private fun getFileType(mimeType: String?): String {
@@ -126,16 +138,18 @@ abstract class Conduit(
         // Add breadcrumb for crash analysis
         AppLogger.breadcrumb("Upload Completed", "$fileType (${uploadDuration}s, ${uploadSpeedKBps}KB/s)")
 
-        AnalyticsManager.trackUploadCompleted(
-            backendType = backendType,
-            fileType = fileType,
-            fileSizeKB = fileSizeKB,
-            durationSeconds = uploadDuration,
-            uploadSpeedKBps = uploadSpeedKBps
-        )
+        scope.launch {
+            analyticsManager.trackUploadCompleted(
+                backendType = backendType,
+                fileType = fileType,
+                fileSizeKB = fileSizeKB,
+                durationSeconds = uploadDuration,
+                uploadSpeedKBps = uploadSpeedKBps
+            )
+        }
 
         // Track in session
-        SessionManager.trackUploadCompleted()
+        sessionTracker.trackUploadCompleted()
 
         BroadcastManager.postSuccess(
             context = mContext,
@@ -155,13 +169,15 @@ abstract class Conduit(
             AppLogger.breadcrumb("Upload Cancelled", "$fileType to $backendType")
 
             // Track upload cancellation
-            AnalyticsManager.trackEvent(
-                AnalyticsEvent.UploadCancelled(
-                    backendType = backendType,
-                    fileType = fileType,
-                    reason = "user_cancelled"
+            scope.launch {
+                analyticsManager.trackEvent(
+                    AnalyticsEvent.UploadCancelled(
+                        backendType = backendType,
+                        fileType = fileType,
+                        reason = "user_cancelled"
+                    )
                 )
-            )
+            }
 
             return
         }
@@ -186,22 +202,26 @@ abstract class Conduit(
             else -> "unknown"
         }
 
-        AnalyticsManager.trackUploadFailed(
-            backendType = backendType,
-            fileType = fileType,
-            errorCategory = errorCategory,
-            fileSizeKB = fileSizeKB
-        )
+        scope.launch {
+            analyticsManager.trackUploadFailed(
+                backendType = backendType,
+                fileType = fileType,
+                errorCategory = errorCategory,
+                fileSizeKB = fileSizeKB
+            )
+        }
 
         // Track in session
-        SessionManager.trackUploadFailed()
+        sessionTracker.trackUploadFailed()
 
         // Track error for drop-off analysis
-        AnalyticsManager.trackError(
-            errorCategory = errorCategory,
-            screenName = "Upload",
-            backendType = backendType
-        )
+        scope.launch {
+            analyticsManager.trackError(
+                errorCategory = errorCategory,
+                screenName = "Upload",
+                backendType = backendType
+            )
+        }
 
         BroadcastManager.postChange(
             context = mContext,

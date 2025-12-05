@@ -2,8 +2,12 @@ package net.opendasharchive.openarchive.core.logger
 
 import android.content.Context
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import net.opendasharchive.openarchive.core.analytics.AnalyticsEvent
-import net.opendasharchive.openarchive.core.analytics.AnalyticsManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.analytics.api.AnalyticsEvent
+import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.core.logger.AppLogger.init
 import timber.log.Timber
 
@@ -22,6 +26,8 @@ object AppLogger {
 
     private var crashlytics: FirebaseCrashlytics? = null
     private var currentScreen: String = "Unknown"
+    private var analyticsManager: AnalyticsManager? = null
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     /**
      * Initializes the logger
@@ -36,6 +42,13 @@ object AppLogger {
         } catch (e: Exception) {
             Timber.e(e, "Failed to initialize Firebase Crashlytics")
         }
+    }
+
+    /**
+     * Set analytics manager for error tracking
+     */
+    fun setAnalyticsManager(manager: AnalyticsManager) {
+        analyticsManager = manager
     }
 
     /**
@@ -102,10 +115,14 @@ object AppLogger {
 
         // Track in Analytics (GDPR-safe - only error category, no PII)
         val errorCategory = categorizeError(throwable)
-        AnalyticsManager.trackError(
-            errorCategory = errorCategory,
-            screenName = currentScreen
-        )
+        analyticsManager?.let { manager ->
+            scope.launch {
+                manager.trackError(
+                    errorCategory = errorCategory,
+                    screenName = currentScreen
+                )
+            }
+        }
     }
 
     /**
@@ -123,10 +140,14 @@ object AppLogger {
 
         // Track in Analytics (GDPR-safe)
         val errorCategory = categorizeError(throwable)
-        AnalyticsManager.trackError(
-            errorCategory = errorCategory,
-            screenName = currentScreen
-        )
+        analyticsManager?.let { manager ->
+            scope.launch {
+                manager.trackError(
+                    errorCategory = errorCategory,
+                    screenName = currentScreen
+                )
+            }
+        }
     }
 
     /**

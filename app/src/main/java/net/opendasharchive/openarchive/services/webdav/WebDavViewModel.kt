@@ -15,12 +15,13 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
-import net.opendasharchive.openarchive.core.analytics.AnalyticsManager
+import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import java.io.IOException
 
 class WebDavViewModel(
     private val repository: WebDavRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val analyticsManager: AnalyticsManager
 ) : ViewModel() {
 
     companion object {
@@ -299,7 +300,7 @@ class WebDavViewModel(
                 Space.current = space
 
                 // Track backend configuration
-                AnalyticsManager.trackBackendConfigured(
+                analyticsManager.trackBackendConfigured(
                     backendType = Space.Type.WEBDAV.friendlyName,
                     isNew = isNewBackend
                 )

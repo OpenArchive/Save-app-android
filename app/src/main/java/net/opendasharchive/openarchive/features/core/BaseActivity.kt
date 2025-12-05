@@ -6,20 +6,27 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.MaterialToolbar
+import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
+import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.core.dialog.DialogHost
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.util.Prefs
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import net.opendasharchive.openarchive.core.analytics.AnalyticsManager
-import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.util.SessionManager
 
 abstract class BaseActivity : AppCompatActivity() {
 
     val dialogManager: DialogStateManager by viewModel()
+
+    // Inject analytics dependencies
+    protected val analyticsManager: AnalyticsManager by inject()
+    protected val sessionTracker: SessionTracker by inject()
 
     // Screen tracking variables
     private var screenStartTime: Long = 0
@@ -91,12 +98,16 @@ abstract class BaseActivity : AppCompatActivity() {
         // Set current screen for error tracking breadcrumbs
         AppLogger.setCurrentScreen(screenName)
 
-        AnalyticsManager.trackScreenView(screenName, null, previousScreen)
-        SessionManager.setCurrentScreen(screenName)
+        lifecycleScope.launch {
+            analyticsManager.trackScreenView(screenName, null, previousScreen)
+        }
+        sessionTracker.setCurrentScreen(screenName)
 
         // Track navigation if coming from another screen
         if (previousScreen.isNotEmpty() && previousScreen != screenName) {
-            AnalyticsManager.trackNavigation(previousScreen, screenName)
+            lifecycleScope.launch {
+                analyticsManager.trackNavigation(previousScreen, screenName)
+            }
         }
     }
 
@@ -107,7 +118,9 @@ abstract class BaseActivity : AppCompatActivity() {
         val timeSpent = (System.currentTimeMillis() - screenStartTime) / 1000
         val screenName = getScreenName()
 
-        AnalyticsManager.trackScreenView(screenName, timeSpent, previousScreen)
+        lifecycleScope.launch {
+            analyticsManager.trackScreenView(screenName, timeSpent, previousScreen)
+        }
 
         // Store as previous screen for navigation tracking
         previousScreen = screenName

@@ -1,28 +1,32 @@
-package net.opendasharchive.openarchive.core.analytics.providers
+package net.opendasharchive.openarchive.analytics.providers.mixpanel
 
 import android.content.Context
 import com.mixpanel.android.mpmetrics.MixpanelAPI
-import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.core.analytics.AnalyticsEvent
-import net.opendasharchive.openarchive.core.analytics.AnalyticsProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import net.opendasharchive.openarchive.analytics.api.AnalyticsEvent
+import net.opendasharchive.openarchive.analytics.core.AnalyticsProvider
 import org.json.JSONObject
 
 /**
  * Mixpanel implementation of AnalyticsProvider
- * With automatic PII sanitization
+ * With automatic PII sanitization and coroutine support
  */
 class MixpanelProvider(
-    private val context: Context
+    private val context: Context,
+    private val token: String
 ) : AnalyticsProvider {
 
     private var mixpanel: MixpanelAPI? = null
 
-    override fun initialize() {
-        val token = context.getString(R.string.mixpanel_key)
-        mixpanel = MixpanelAPI.getInstance(context, token, false)
+    override suspend fun initialize() {
+        withContext(Dispatchers.IO) {
+            mixpanel = MixpanelAPI.getInstance(context, token, false)
+        }
     }
 
-    override fun trackEvent(event: AnalyticsEvent) {
+    override suspend fun trackEvent(event: AnalyticsEvent) {
+        withContext(Dispatchers.IO) {
         val eventName = "${event.category}_${event.action}"
 
         // Convert properties to JSONObject with PII sanitization
@@ -42,24 +46,29 @@ class MixpanelProvider(
         }
 
         // Add event value if present
-        event.value?.let {
-            properties.put("value", it)
-        }
+            event.value?.let {
+                properties.put("value", it)
+            }
 
-        mixpanel?.track(eventName, properties)
+            mixpanel?.track(eventName, properties)
+        }
     }
 
-    override fun setUserProperty(key: String, value: Any) {
-        val sanitizedValue = when (value) {
-            is String -> sanitizePII(value)
-            else -> value
-        }
+    override suspend fun setUserProperty(key: String, value: Any) {
+        withContext(Dispatchers.IO) {
+            val sanitizedValue = when (value) {
+                is String -> sanitizePII(value)
+                else -> value
+            }
 
-        mixpanel?.people?.set(key, sanitizedValue)
+            mixpanel?.people?.set(key, sanitizedValue)
+        }
     }
 
-    override fun persist() {
-        mixpanel?.flush()
+    override suspend fun flush() {
+        withContext(Dispatchers.IO) {
+            mixpanel?.flush()
+        }
     }
 
     override fun getProviderName(): String = "Mixpanel"

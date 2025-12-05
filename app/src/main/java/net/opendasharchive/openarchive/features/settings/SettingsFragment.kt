@@ -5,10 +5,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
@@ -18,8 +22,6 @@ import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupActivity
-import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.core.analytics.AnalyticsManager
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Theme
 import net.opendasharchive.openarchive.util.extensions.getVersionName
@@ -29,9 +31,8 @@ import org.koin.androidx.viewmodel.ext.android.activityViewModel
 class SettingsFragment : PreferenceFragmentCompat() {
 
     private val passcodeRepository by inject<PasscodeRepository>()
-
+    private val analyticsManager: AnalyticsManager by inject()
     private val dialogManager: DialogStateManager by activityViewModel()
-
 
     private var passcodePreference: SwitchPreferenceCompat? = null
 
@@ -113,7 +114,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
             AppLogger.breadcrumb("Feature Toggled", "screenshot_prevention: $enabled")
 
             // Track feature toggle
-            AnalyticsManager.trackFeatureToggled("screenshot_prevention", enabled)
+            lifecycleScope.launch {
+                analyticsManager.trackFeatureToggled("screenshot_prevention", enabled)
+            }
 
             if (activity is BaseActivity) {
                 // make sure this gets settings change gets applied instantly
@@ -152,7 +155,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
             AppLogger.breadcrumb("Feature Toggled", "tor: $enabled")
 
             // Track feature toggle
-            AnalyticsManager.trackFeatureToggled("tor", enabled)
+            lifecycleScope.launch {
+                analyticsManager.trackFeatureToggled("tor", enabled)
+            }
 
             //torViewModel.updateTorServiceState()
             true
@@ -212,7 +217,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
             AppLogger.breadcrumb("Feature Toggled", "dark_mode: $useDarkMode")
 
             // Track feature toggle
-            AnalyticsManager.trackFeatureToggled("dark_mode", useDarkMode)
+            lifecycleScope.launch {
+                analyticsManager.trackFeatureToggled("dark_mode", useDarkMode)
+            }
 
             true
         }
@@ -225,7 +232,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
             AppLogger.breadcrumb("Feature Toggled", "wifi_only_upload: $enabled")
 
             // Track feature toggle
-            AnalyticsManager.trackFeatureToggled("wifi_only_upload", enabled)
+            lifecycleScope.launch {
+                analyticsManager.trackFeatureToggled("wifi_only_upload", enabled)
+            }
 
             val intent =
                 Intent(Prefs.UPLOAD_WIFI_ONLY).apply { putExtra("value", enabled) }

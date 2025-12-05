@@ -297,12 +297,10 @@ dependencies {
     implementation(libs.permissionx)
     implementation(libs.satyan.sugar)
 
-    // Analytics & Tracking
-    implementation(libs.mixpanel)
-    implementation(libs.clean.insights)
+    // Analytics Module
+    implementation(project(":analytics"))
 
-    // Firebase
-    implementation(libs.firebase.analytics)
+    // Firebase (Crashlytics only - Analytics is in :analytics module)
     implementation(libs.firebase.crashlytics)
 
     // Testing

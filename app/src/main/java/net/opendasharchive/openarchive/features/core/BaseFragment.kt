@@ -6,7 +6,12 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
+import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.SnowbirdError
 import net.opendasharchive.openarchive.extensions.androidViewModel
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
@@ -15,9 +20,7 @@ import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupViewModel
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdRepoViewModel
 import net.opendasharchive.openarchive.util.FullScreenOverlayManager
-import net.opendasharchive.openarchive.core.analytics.AnalyticsManager
-import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.util.SessionManager
+import org.koin.android.ext.android.inject
 
 abstract class BaseFragment : Fragment(), ToolbarConfigurable {
 
@@ -25,6 +28,10 @@ abstract class BaseFragment : Fragment(), ToolbarConfigurable {
 
     val snowbirdGroupViewModel: SnowbirdGroupViewModel by androidViewModel()
     val snowbirdRepoViewModel: SnowbirdRepoViewModel by androidViewModel()
+
+    // Inject analytics dependencies
+    protected val analyticsManager: AnalyticsManager by inject()
+    protected val sessionTracker: SessionTracker by inject()
 
     // Screen tracking variables
     private var screenStartTime: Long = 0
@@ -77,12 +84,16 @@ abstract class BaseFragment : Fragment(), ToolbarConfigurable {
         // Set current screen for error tracking breadcrumbs
         AppLogger.setCurrentScreen(screenName)
 
-        AnalyticsManager.trackScreenView(screenName, null, previousScreen)
-        SessionManager.setCurrentScreen(screenName)
+        lifecycleScope.launch {
+            analyticsManager.trackScreenView(screenName, null, previousScreen)
+        }
+        sessionTracker.setCurrentScreen(screenName)
 
         // Track navigation if coming from another screen
         if (previousScreen.isNotEmpty() && previousScreen != screenName) {
-            AnalyticsManager.trackNavigation(previousScreen, screenName)
+            lifecycleScope.launch {
+                analyticsManager.trackNavigation(previousScreen, screenName)
+            }
         }
     }
 
@@ -93,7 +104,9 @@ abstract class BaseFragment : Fragment(), ToolbarConfigurable {
         val timeSpent = (System.currentTimeMillis() - screenStartTime) / 1000
         val screenName = getScreenName()
 
-        AnalyticsManager.trackScreenView(screenName, timeSpent, previousScreen)
+        lifecycleScope.launch {
+            analyticsManager.trackScreenView(screenName, timeSpent, previousScreen)
+        }
 
         // Store as previous screen for navigation tracking
         previousScreen = screenName

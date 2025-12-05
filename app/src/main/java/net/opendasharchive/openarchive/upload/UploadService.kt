@@ -19,17 +19,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.CleanInsightsManager
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.analytics.api.AnalyticsEvent
+import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.core.analytics.AnalyticsManager
-import net.opendasharchive.openarchive.core.analytics.AnalyticsEvent
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.services.Conduit
 import net.opendasharchive.openarchive.util.Prefs
+import org.koin.android.ext.android.inject
 import java.io.IOException
 import java.util.*
 
 class UploadService : JobService() {
+
+    // Inject analytics manager
+    private val analyticsManager: AnalyticsManager by inject()
 
     companion object {
         private const val MY_BACKGROUND_JOB = 0
@@ -103,7 +107,7 @@ class UploadService : JobService() {
             mRunning = false
             AppLogger.i("no network, upload stopped")
             // Track network error
-            AnalyticsManager.trackEvent(
+            analyticsManager.trackEvent(
                 AnalyticsEvent.UploadNetworkError(
                     reason = if (Prefs.uploadWifiOnly) "wifi_required" else "no_network"
                 )
@@ -124,12 +128,12 @@ class UploadService : JobService() {
         )
 
         if (initialBatch.isNotEmpty()) {
-            // Track batch started
-            val batchSize = initialBatch.size
+            // Track upload session started (1+ files)
+            val sessionSize = initialBatch.size
             val totalSizeMB = initialBatch.sumOf { it.contentLength } / (1024 * 1024)
-            AnalyticsManager.trackEvent(
-                AnalyticsEvent.UploadBatchStarted(
-                    count = batchSize,
+            analyticsManager.trackEvent(
+                AnalyticsEvent.UploadSessionStarted(
+                    count = sessionSize,
                     totalSizeMB = totalSizeMB
                 )
             )
@@ -186,15 +190,15 @@ class UploadService : JobService() {
 
         AppLogger.i("Uploads completed")
 
-        // Track batch completed (if any uploads were attempted)
+        // Track upload session completed (if any uploads were attempted)
         if (totalCount > 0) {
-            val batchDuration = (System.currentTimeMillis() - batchStartTime) / 1000
-            AnalyticsManager.trackEvent(
-                AnalyticsEvent.UploadBatchCompleted(
+            val sessionDuration = (System.currentTimeMillis() - batchStartTime) / 1000
+            analyticsManager.trackEvent(
+                AnalyticsEvent.UploadSessionCompleted(
                     count = totalCount,
                     successCount = successCount,
                     failedCount = failedCount,
-                    durationSeconds = batchDuration
+                    durationSeconds = sessionDuration
                 )
             )
         }
