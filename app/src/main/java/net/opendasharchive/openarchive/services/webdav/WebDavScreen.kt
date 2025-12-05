@@ -12,6 +12,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -229,6 +230,9 @@ private fun WebDavScreen(
     WebDavContent(
         state = state,
         onAction = viewModel::onAction,
+        onNavigateToSetupLicense = {
+            onNavigateToLicenseSetup(state.spaceId)
+        }
     )
 }
 
@@ -236,6 +240,7 @@ private fun WebDavScreen(
 private fun WebDavContent(
     state: WebDavState,
     onAction: (WebDavAction) -> Unit,
+    onNavigateToSetupLicense: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
@@ -391,7 +396,11 @@ private fun WebDavContent(
                         fontSize = 18.sp
                     ),
                     color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 8.dp).clickable(
+                        onClick = {
+                            onNavigateToSetupLicense()
+                        }
+                    )
                 )
 
                 CreativeCommonsLicenseContent(

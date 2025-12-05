@@ -5,16 +5,26 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.os.bundleOf
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.setFragmentResult
+import androidx.navigation.fragment.navArgs
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.databinding.FragmentSpaceSetupSuccessBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 
 class SpaceSetupSuccessFragment : BaseFragment() {
+
+    // Toggle to switch between XML and Compose implementation
+    private val useComposeImplementation = true  // Set to false to use XML implementation
+
+    private val args: SpaceSetupSuccessFragmentArgs by navArgs()
+
     private lateinit var binding: FragmentSpaceSetupSuccessBinding
     private var message = ""
 
@@ -29,6 +39,24 @@ class SpaceSetupSuccessFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
+        if (useComposeImplementation) {
+            // Use Compose implementation
+            return ComposeView(requireContext()).apply {
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    SaveAppTheme {
+                        SpaceSetupSuccessScreen(
+                            onNavigateToMain = {
+                                // Navigation already handled in ViewModel
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        // Original XML implementation
         binding = FragmentSpaceSetupSuccessBinding.inflate(inflater)
 
         binding.mainContainer.applyEdgeToEdgeInsets(

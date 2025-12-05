@@ -7,6 +7,7 @@ import net.opendasharchive.openarchive.features.core.dialog.ResourceProvider
 import net.opendasharchive.openarchive.features.folders.BrowseFoldersViewModel
 import net.opendasharchive.openarchive.features.main.MainViewModel
 import net.opendasharchive.openarchive.features.main.ui.HomeViewModel
+import net.opendasharchive.openarchive.features.settings.SpaceSetupSuccessViewModel
 import net.opendasharchive.openarchive.features.settings.license.SetupLicenseViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.viewModel
@@ -34,6 +35,10 @@ val coreModule = module {
 
     viewModel {
         SetupLicenseViewModel(get())
+    }
+
+    viewModel {
+        SpaceSetupSuccessViewModel(get())
     }
 }
 

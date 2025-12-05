@@ -82,8 +82,9 @@ fun ExpandableSpaceList(
                 ) {
                     PrimaryButton(
                         text = stringResource(R.string.add_server),
+                        onClick = { },
                         icon = Icons.Default.Add
-                    ) { }
+                    )
                 }
             }
 
