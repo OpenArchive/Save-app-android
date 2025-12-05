@@ -6,6 +6,12 @@ import com.google.android.play.core.review.ReviewException
 import com.google.android.play.core.review.ReviewInfo
 import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.review.ReviewManagerFactory
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.analytics.api.AnalyticsEvent
+import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.core.logger.AppLogger
 
 object InAppReviewHelper {
@@ -22,6 +28,9 @@ object InAppReviewHelper {
     // Once requestReviewFlow() succeeds, we cache this:
     private var reviewInfo: ReviewInfo? = null
 
+    // Coroutine scope for analytics
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
     /**
      * Call once (e.g. in Application.onCreate or first Activity) so that Prefs.load(...) runs.
      */
@@ -32,16 +41,24 @@ object InAppReviewHelper {
     /**
      * Call early (e.g. in onCreate of MainActivity) to asynchronously fetch ReviewInfo.
      */
-    fun requestReviewInfo(context: Context) {
+    fun requestReviewInfo(context: Context, analyticsManager: AnalyticsManager) {
         val manager: ReviewManager = ReviewManagerFactory.create(context)
         manager.requestReviewFlow()
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     reviewInfo = task.result
                     AppLogger.d("InAppReview", "ReviewInfo obtained successfully.")
+                    // Track review prompt shown
+                    scope.launch {
+                        analyticsManager.trackEvent(AnalyticsEvent.ReviewPromptShown)
+                    }
                 } else {
                     (task.exception as? ReviewException)?.let { ex ->
                         AppLogger.e("InAppReview", "Error requesting review flow: ${ex.errorCode}", ex)
+                        // Track review error
+                        scope.launch {
+                            analyticsManager.trackEvent(AnalyticsEvent.ReviewPromptError(ex.errorCode))
+                        }
                     }
                     reviewInfo = null
                 }
@@ -70,14 +87,18 @@ object InAppReviewHelper {
     }
 
     /**
-     * Once you decide it’s time to actually show the prompt (e.g. in onResume, after UI ready),
-     * call this. If reviewInfo is non-null it will launch; otherwise it just logs “no Info.”
+     * Once you decide it's time to actually show the prompt (e.g. in onResume, after UI ready),
+     * call this. If reviewInfo is non-null it will launch; otherwise it just logs "no Info."
      */
-    fun showReviewIfPossible(activity: Activity, reviewManager: ReviewManager) {
+    fun showReviewIfPossible(activity: Activity, reviewManager: ReviewManager, analyticsManager: AnalyticsManager) {
         reviewInfo?.let { info ->
             reviewManager.launchReviewFlow(activity, info)
                 .addOnCompleteListener {
                     AppLogger.d("InAppReview", "Review flow finished.")
+                    // Track review flow completed
+                    scope.launch {
+                        analyticsManager.trackEvent(AnalyticsEvent.ReviewPromptCompleted)
+                    }
                     reviewInfo = null
                 }
         } ?: run {
