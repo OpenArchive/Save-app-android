@@ -12,6 +12,14 @@ import coil3.SingletonImageLoader
 import coil3.video.VideoFrameDecoder
 import com.orm.SugarApp
 import info.guardianproject.netcipher.proxy.OrbotHelper
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
+import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
+import net.opendasharchive.openarchive.analytics.di.analyticsModule
 import net.opendasharchive.openarchive.core.di.coreModule
 import net.opendasharchive.openarchive.core.di.featuresModule
 import net.opendasharchive.openarchive.core.di.passcodeModule
@@ -19,14 +27,18 @@ import net.opendasharchive.openarchive.core.di.retrofitModule
 import net.opendasharchive.openarchive.core.di.unixSocketModule
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeManager
-import net.opendasharchive.openarchive.util.Analytics
 import net.opendasharchive.openarchive.util.Prefs
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
+import org.koin.android.ext.android.inject
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 
-class SaveApp : SugarApp(), SingletonImageLoader.Factory {
+class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserver {
+
+    // Inject analytics dependencies
+    private val analyticsManager: AnalyticsManager by inject()
+    private val sessionTracker: SessionTracker by inject()
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
@@ -40,10 +52,16 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory {
     }
 
     override fun onCreate() {
-        super.onCreate()
-        Analytics.init(this)
+        super<SugarApp>.onCreate()
+
+        // Initialize logging first
         AppLogger.init(applicationContext, initDebugger = true)
+
         registerActivityLifecycleCallbacks(PasscodeManager())
+
+        Prefs.load(this)
+
+        // Initialize Koin DI
         startKoin {
             androidLogger(Level.DEBUG)
             androidContext(this@SaveApp)
@@ -52,18 +70,61 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory {
                 featuresModule,
                 retrofitModule,
                 unixSocketModule,
-                passcodeModule
+                passcodeModule,
+                analyticsModule(
+                    mixpanelToken = getString(R.string.mixpanel_key),
+                    cleanInsightsConsentChecker = { CleanInsightsManager.hasConsent() }
+                )
             )
         }
 
-        Prefs.load(this)
         applyTheme()
 
         if (Prefs.useTor) initNetCipher()
 
+        // Legacy CleanInsightsManager (kept for backwards compatibility)
         CleanInsightsManager.init(this)
 
+        // Initialize analytics asynchronously BEFORE registering lifecycle observer
+        ProcessLifecycleOwner.get().lifecycleScope.launch {
+            analyticsManager.initialize(this@SaveApp)
+
+            // Set analytics manager for AppLogger
+            AppLogger.setAnalyticsManager(analyticsManager)
+
+            // Set app version for session tracker
+            (sessionTracker as? net.opendasharchive.openarchive.analytics.api.session.SessionTrackerImpl)?.setAppVersion(BuildConfig.VERSION_NAME)
+
+            // Set user properties (GDPR-compliant)
+            analyticsManager.setUserProperty("app_version", BuildConfig.VERSION_NAME)
+            analyticsManager.setUserProperty("device_type", "android")
+
+            // Register app lifecycle observer AFTER analytics is initialized
+            ProcessLifecycleOwner.get().lifecycle.addObserver(this@SaveApp)
+        }
+
         createSnowbirdNotificationChannel()
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        super.onStart(owner)
+        // App came to foreground
+        ProcessLifecycleOwner.get().lifecycleScope.launch {
+            sessionTracker.startSession()
+            sessionTracker.onForeground()
+        }
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        super.onStop(owner)
+        // App went to background
+        ProcessLifecycleOwner.get().lifecycleScope.launch {
+            sessionTracker.onBackground()
+            sessionTracker.endSession()
+
+            // Persist analytics data
+            analyticsManager.flush()
+        }
     }
 
     private fun initNetCipher() {

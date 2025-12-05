@@ -95,3 +95,4 @@ dependencyResolutionManagement {
 rootProject.name = "save-android-old"
 
 include(":app")
+include(":analytics")
