@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.features.media.camera
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -10,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -149,10 +151,14 @@ fun CameraPermissionScreen(
                         onClick = onRequestPermissions,
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
+                            containerColor = MaterialTheme.colorScheme.tertiary
                         )
                     ) {
-                        Text(stringResource(R.string.grant_permission), textAlign = TextAlign.Center)
+                        Text(
+                            text = stringResource(R.string.grant_permission),
+                            textAlign = TextAlign.Center,
+                            color = colorResource(R.color.black)
+                        )
                     }
                 }
             }
@@ -187,6 +193,7 @@ fun CameraPermissionScreen(
 }
 
 @Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun CameraPermissionScreenPreview() {
     SaveAppTheme {

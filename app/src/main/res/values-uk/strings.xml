@@ -72,7 +72,7 @@
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
-    <string name="prompt_username"><i>Ім\я користувача</i></string>
+    <string name="prompt_username"><i>Ім\'я користувача</i></string>
     <string name="prompt_email">Ел. пошта</string>
     <string name="prompt_password"><i>Пароль</i></string>
 

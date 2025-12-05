@@ -331,6 +331,11 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
             }
         }
         mMedia = media
+
+        // Automatically navigate back if all media items have been removed
+        if (media.isEmpty()) {
+            finish()
+        }
     }
 
     private fun showFirstTimeBatch() {

@@ -60,7 +60,7 @@ android {
         minSdk = 29
         targetSdk = 36
         versionCode = 30027
-        versionName = "4.0.9"
+        versionName = "4.0.4"
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -191,6 +191,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.livedata)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.process)
 
     // AndroidX Navigation
     implementation(libs.androidx.navigation.fragment)
@@ -306,11 +307,10 @@ dependencies {
     implementation(libs.permissionx)
     implementation(libs.satyan.sugar)
 
-    // Analytics & Tracking
-    implementation(libs.mixpanel)
-    implementation(libs.clean.insights)
+    // Analytics Module
+    implementation(project(":analytics"))
 
-    // Firebase
+    // Firebase (Crashlytics only - Analytics is in :analytics module)
     implementation(libs.firebase.crashlytics)
 
     // Testing
