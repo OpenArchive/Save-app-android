@@ -1,6 +1,7 @@
 package net.opendasharchive.openarchive.core.di
 
 import android.content.Context
+import androidx.lifecycle.SavedStateHandle
 import net.opendasharchive.openarchive.features.core.dialog.DefaultResourceProvider
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.ResourceProvider
@@ -8,6 +9,8 @@ import net.opendasharchive.openarchive.features.folders.BrowseFoldersViewModel
 import net.opendasharchive.openarchive.features.folders.CreateNewFolderViewModel
 import net.opendasharchive.openarchive.features.main.MainViewModel
 import net.opendasharchive.openarchive.features.main.ui.HomeViewModel
+import net.opendasharchive.openarchive.features.settings.FolderDetailViewModel
+import net.opendasharchive.openarchive.features.settings.FoldersViewModel
 import net.opendasharchive.openarchive.features.settings.SpaceSetupSuccessViewModel
 import net.opendasharchive.openarchive.features.settings.license.SetupLicenseViewModel
 import org.koin.android.ext.koin.androidApplication
@@ -45,6 +48,10 @@ val coreModule = module {
     viewModel {
         SpaceSetupSuccessViewModel(get())
     }
+
+    viewModelOf(::FoldersViewModel)
+
+    viewModelOf(::FolderDetailViewModel)
 }
 
 

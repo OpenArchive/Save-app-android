@@ -8,6 +8,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
@@ -15,11 +16,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import net.opendasharchive.openarchive.FolderAdapter
 import net.opendasharchive.openarchive.FolderAdapterListener
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.databinding.FragmentFoldersBinding
 import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.util.extensions.toggle
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class FoldersFragment : BaseFragment(), FolderAdapterListener, MenuProvider {
 
@@ -29,6 +32,8 @@ class FoldersFragment : BaseFragment(), FolderAdapterListener, MenuProvider {
         const val EXTRA_SELECTED_PROJECT_ID = "SELECTED_PROJECT_ID"
     }
 
+    private val useComposeImplementation = true
+
     private lateinit var mBinding: FragmentFoldersBinding
     private lateinit var mAdapter: FolderAdapter
 
@@ -36,17 +41,51 @@ class FoldersFragment : BaseFragment(), FolderAdapterListener, MenuProvider {
     private var mSelectedSpaceId = -1L
     private var mSelectedProjectId: Long = -1L
 
+    private val viewModel: FoldersViewModel by viewModel()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        // Get arguments from Navigation component
+        mArchived = arguments?.getBoolean("show_archived", false) ?: false
+        mSelectedSpaceId = arguments?.getLong("selected_space_id", -1L) ?: -1L
+        mSelectedProjectId = arguments?.getLong("selected_project_id", -1L) ?: -1L
+
+        if (useComposeImplementation) {
+            // Initialize ViewModel with data if needed
+            viewModel.setArchived(mArchived)
+
+            return ComposeView(requireContext()).apply {
+                setContent {
+                    SaveAppTheme {
+                        FoldersScreen(
+                            viewModel = viewModel,
+                            onNavigateToFolderDetail = { projectId ->
+                                val action = FoldersFragmentDirections.actionFragmentFoldersToFragmentFolderDetail(currentProjectId = projectId)
+                                findNavController().navigate(action)
+                            },
+                            onNavigateToArchivedFolders = { _ ->
+                                navigateToArchivedFolders()
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
         mBinding = FragmentFoldersBinding.inflate(inflater, container, false)
         return mBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (useComposeImplementation) {
+            // Compose implementation doesn't need setup
+            return
+        }
 
         // Get arguments from Navigation component
         mArchived = arguments?.getBoolean("show_archived", false) ?: false
@@ -80,8 +119,10 @@ class FoldersFragment : BaseFragment(), FolderAdapterListener, MenuProvider {
 
     override fun onResume() {
         super.onResume()
-        refreshProjects()
-        activity?.invalidateOptionsMenu()
+        if (!useComposeImplementation) {
+            refreshProjects()
+            activity?.invalidateOptionsMenu()
+        }
     }
 
     private fun refreshProjects() {

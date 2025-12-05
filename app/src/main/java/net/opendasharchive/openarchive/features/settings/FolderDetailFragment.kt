@@ -5,9 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import androidx.compose.ui.platform.ComposeView
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.databinding.FragmentFolderDetailBinding
 import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.features.core.BaseFragment
@@ -15,25 +17,51 @@ import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class FolderDetailFragment : BaseFragment() {
+
+    private val useComposeImplementation = true
 
     private val args: FolderDetailFragmentArgs by navArgs()
 
     private lateinit var mProject: Project
     private lateinit var mBinding: FragmentFolderDetailBinding
 
+    private val viewModel: FolderDetailViewModel by viewModel()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        if (useComposeImplementation) {
+            return ComposeView(requireContext()).apply {
+                setContent {
+                    SaveAppTheme {
+                        FolderDetailScreen(
+                            viewModel = viewModel,
+                            onNavigateBack = {
+                                findNavController().popBackStack()
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
         mBinding = FragmentFolderDetailBinding.inflate(inflater, container, false)
         return mBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        if (useComposeImplementation) {
+            // Pass projectId to ViewModel
+            viewModel.setProjectId(args.currentProjectId)
+            return
+        }
 
         // Get arguments from Navigation Component
         mProject = Project.getById(args.currentProjectId)!!

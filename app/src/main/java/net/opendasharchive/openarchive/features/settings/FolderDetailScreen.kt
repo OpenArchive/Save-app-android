@@ -1,0 +1,184 @@
+package net.opendasharchive.openarchive.features.settings
+
+import android.content.res.Configuration
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
+import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.features.core.UiImage
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.ButtonData
+import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.internetarchive.presentation.login.CustomTextField
+import org.koin.androidx.compose.koinViewModel
+
+@Composable
+fun FolderDetailScreen(
+    viewModel: FolderDetailViewModel = koinViewModel(),
+    onNavigateBack: () -> Unit = {}
+) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val activity = context as? FragmentActivity
+    val dialogManager = (activity as? BaseActivity)?.dialogManager
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is FolderDetailEvent.NavigateBack -> {
+                    onNavigateBack()
+                }
+                is FolderDetailEvent.ShowRemoveConfirmDialog -> {
+                    dialogManager?.showDialog(
+                        DialogConfig(
+                            type = DialogType.Error,
+                            title = UiText.StringResource(R.string.remove_from_app),
+                            message = UiText.StringResource(R.string.action_remove_project),
+                            icon = UiImage.DrawableResource(R.drawable.ic_trash),
+                            destructiveButton = ButtonData(
+                                text = UiText.StringResource(R.string.lbl_remove),
+                                action = { viewModel.onAction(FolderDetailAction.RemoveProject) }
+                            ),
+                            neutralButton = ButtonData(
+                                text = UiText.StringResource(R.string.lbl_Cancel),
+                                action = {}
+                            )
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    FolderDetailScreenContent(
+        state = state,
+        onAction = viewModel::onAction
+    )
+}
+
+@Composable
+fun FolderDetailScreenContent(
+    state: FolderDetailState,
+    onAction: (FolderDetailAction) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.Top
+    ) {
+        Spacer(modifier = Modifier.height(48.dp))
+
+        // Label
+        Text(
+            text = stringResource(R.string.folder_name),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = colorResource(R.color.colorOnBackground),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Folder name text field
+        CustomTextField(
+            value = state.folderName,
+            onValueChange = { onAction(FolderDetailAction.UpdateFolderName(it)) },
+            placeholder = stringResource(R.string.folder_name),
+            modifier = Modifier.fillMaxWidth(),
+            keyboardType = KeyboardType.Text,
+            imeAction = ImeAction.Done,
+            enabled = !state.isArchived
+        )
+
+        Spacer(modifier = Modifier.height(48.dp))
+
+        // Buttons container centered
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            // Archive/Unarchive button
+            TextButton(
+                onClick = {
+                    if (state.isArchived) {
+                        onAction(FolderDetailAction.UnarchiveProject)
+                    } else {
+                        onAction(FolderDetailAction.ArchiveProject)
+                    }
+                },
+                modifier = Modifier.wrapContentWidth()
+            ) {
+                Text(
+                    text = if (state.isArchived) {
+                        stringResource(R.string.action_unarchive_project)
+                    } else {
+                        stringResource(R.string.action_archive_project)
+                    },
+                    fontSize = 18.sp,
+                    color = colorResource(R.color.colorOnPrimaryContainer)
+                )
+            }
+
+            // Remove from app button
+            Text(
+                text = stringResource(R.string.remove_from_app),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = colorResource(R.color.red_bg),
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .clickable { onAction(FolderDetailAction.ShowRemoveDialog) }
+                    .padding(16.dp)
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun FolderDetailScreenPreview() {
+    SaveAppTheme {
+        FolderDetailScreenContent(
+            state = FolderDetailState(
+                projectId = 1L,
+                folderName = "My Folder",
+                isArchived = true,
+            ),
+            onAction = {}
+        )
+    }
+}
