@@ -36,7 +36,7 @@ class SnowbirdFileListAdapter(
         with (holder.binding) {
             val context = button.context
 
-            button.setLeftIcon(ContextCompat.getDrawable(context, R.drawable.snowbird)?.scaled(40, context))
+            button.setLeftIcon(ContextCompat.getDrawable(context, R.drawable.ic_dweb)?.scaled(40, context))
             //button.setBackgroundResource(R.drawable.button_outlined_ripple)
             button.setTitle(item.name ?: "No name provided")
 
@@ -53,6 +53,17 @@ class SnowbirdFileListAdapter(
             button.setOnLongClickListener {
                 onLongPressCallback.get()?.invoke(item)
                 true
+            }
+
+            if (item.size > 0) {
+                // convert bytes to human-readable format
+                val sizeText = when {
+                    item.size >= 1_000_000_000 -> "${item.size / 1_000_000_000.0} GB"
+                    item.size >= 1_000_000 -> "${item.size / 1_000_000.0} MB"
+                    item.size >= 1_000 -> "${item.size / 1_000.0} KB"
+                    else -> "${item.size} bytes"
+                }
+                button.setSubTitle(sizeText)
             }
         }
     }

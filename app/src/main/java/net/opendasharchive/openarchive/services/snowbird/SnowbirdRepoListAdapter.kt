@@ -27,7 +27,7 @@ class SnowbirdRepoListAdapter(listener: ((String) -> Unit)? = null)
 
             val context = binding.button.context
 
-            binding.button.setLeftIcon(ContextCompat.getDrawable(context, R.drawable.snowbird)?.scaled(40, context))
+            binding.button.setLeftIcon(ContextCompat.getDrawable(context, R.drawable.ic_dweb)?.scaled(40, context))
             //binding.button.setBackgroundResource(R.drawable.button_outlined_ripple)
             binding.button.setTitle(repo.name)
             binding.button.setSubTitle(repo.shortHash())

@@ -128,7 +128,7 @@
 
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/folders"
+                    android:id="@+id/rv_folders"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_marginTop="8dp"
@@ -167,18 +167,18 @@
                     app:layout_constraintTop_toBottomOf="@id/navigation_drawer_header" />
 
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/spaces"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:alpha="0"
-                    android:background="@color/c23_light_grey"
-                    android:elevation="8dp"
-                    android:visibility="gone"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/navigation_drawer_header"
-                    tools:listitem="@layout/rv_drawer_row" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_spaces"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:alpha="0"
+                android:background="@color/c23_light_grey"
+                android:elevation="8dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/navigation_drawer_header"
+                tools:listitem="@layout/rv_drawer_row" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

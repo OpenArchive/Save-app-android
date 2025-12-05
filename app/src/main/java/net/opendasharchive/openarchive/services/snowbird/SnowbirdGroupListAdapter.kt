@@ -37,7 +37,7 @@ class SnowbirdGroupsAdapter(
             val context = binding.button.context
 
             binding.button.setLeftIcon(
-                ContextCompat.getDrawable(context, R.drawable.snowbird)?.scaled(40, context)
+                ContextCompat.getDrawable(context, R.drawable.ic_dweb)?.scaled(40, context)
             )
             //binding.button.setBackgroundResource(R.drawable.button_outlined_ripple)
             binding.button.setTitle(group.name ?: "No name provided")

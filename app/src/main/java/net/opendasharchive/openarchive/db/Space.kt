@@ -61,7 +61,7 @@ data class Space(
     enum class Type(val id: Int, val friendlyName: String) {
         WEBDAV(0, "Private Server"),
         INTERNET_ARCHIVE(1, IaConduit.NAME),
-        RAVEN(5, "DWeb Service"),
+        RAVEN(5, "DWeb Storage"),
     }
 
     enum class IconStyle {
@@ -198,7 +198,7 @@ data class Space(
 
             Type.INTERNET_ARCHIVE -> ContextCompat.getDrawable(context, R.drawable.ic_internet_archive)
 
-            Type.RAVEN -> ContextCompat.getDrawable(context, R.drawable.snowbird)
+            Type.RAVEN -> ContextCompat.getDrawable(context, R.drawable.ic_dweb)
 
         }
     }

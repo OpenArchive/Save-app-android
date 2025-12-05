@@ -42,6 +42,7 @@ import net.opendasharchive.openarchive.databinding.ActivityMainBinding
 import net.opendasharchive.openarchive.databinding.PopupFolderOptionsBinding
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Project
+import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.extensions.getMeasurments
 import net.opendasharchive.openarchive.features.core.BaseActivity
@@ -361,7 +362,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
         importSharedMedia(intent)
         if (serverListOffset == 0F) {
-            val dims = binding.spaces.getMeasurments()
+            val dims = binding.rvSpaces.getMeasurments()
             serverListOffset = -dims.second.toFloat()
             serverListCurOffset = serverListOffset
         }
@@ -503,12 +504,12 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         binding.dimOverlay.setOnClickListener { collapseSpacesList() }
 
         mSpaceAdapter = SpaceDrawerAdapter(this)
-        binding.spaces.layoutManager = LinearLayoutManager(this)
-        binding.spaces.adapter = mSpaceAdapter
+        binding.rvSpaces.layoutManager = LinearLayoutManager(this)
+        binding.rvSpaces.adapter = mSpaceAdapter
 
         mFolderAdapter = FolderDrawerAdapter(this)
-        binding.folders.layoutManager = LinearLayoutManager(this)
-        binding.folders.adapter = mFolderAdapter
+        binding.rvFolders.layoutManager = LinearLayoutManager(this)
+        binding.rvFolders.adapter = mFolderAdapter
 
         binding.btnAddFolder.scaleAndTintDrawable(Position.Start, 0.75)
         binding.btnAddFolder.setOnClickListener {
@@ -822,15 +823,15 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         binding.spaceListMore.setImageDrawable(
             ContextCompat.getDrawable(this, R.drawable.ic_expand_less)
         )
-        binding.spaces.visibility = View.VISIBLE
+        binding.rvSpaces.visibility = View.VISIBLE
         binding.dimOverlay.visibility = View.VISIBLE
-        binding.spaces.bringToFront()
+        binding.rvSpaces.bringToFront()
         binding.dimOverlay.bringToFront()
-        binding.spaces.animate()
+        binding.rvSpaces.animate()
             .translationY(0f).alpha(1f).setDuration(200)
             .withStartAction {
                 binding.spacesHeaderSeparator.alpha = 0.3f
-                binding.folders.alpha = 0.3f
+                binding.rvFolders.alpha = 0.3f
                 binding.btnAddFolder.alpha = 0.3f
             }
         binding.dimOverlay.animate().alpha(1f).setDuration(200)
@@ -843,13 +844,13 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             ContextCompat.getDrawable(this, R.drawable.ic_expand_more)
         )
 
-        binding.spaces.animate()
+        binding.rvSpaces.animate()
             .translationY(serverListOffset).alpha(0f).setDuration(200)
             .withEndAction {
-                binding.spaces.visibility = View.GONE
+                binding.rvSpaces.visibility = View.GONE
                 binding.dimOverlay.visibility = View.GONE
                 binding.spacesHeaderSeparator.alpha = 1f
-                binding.folders.alpha = 1f
+                binding.rvFolders.alpha = 1f
                 binding.btnAddFolder.alpha = 1f
             }
         binding.dimOverlay.animate().alpha(0f).duration = 200L
@@ -968,13 +969,18 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             binding.btnAddFolder.visibility = View.INVISIBLE
             closeDrawer()
         }
-
-        mSpaceAdapter.update(Space.getAll().asSequence().toList())
+        refreshSpaceListAtDrawer()
         updateCurrentSpaceAtDrawer()
         refreshProjects()
         refreshCurrentProject()
         updateCurrentFolderVisibility()
         invalidateOptionsMenu()
+    }
+
+    private fun refreshSpaceListAtDrawer() {
+        val spaces = Space.getAll().asSequence().toList()
+        val hasDwebGroups = SnowbirdGroup.getAll().isNotEmpty()
+        mSpaceAdapter.update(spaces, hasDwebGroups)
     }
 
     private fun refreshProjects(setProjectId: Long? = null) {
@@ -1003,7 +1009,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
         mFolderAdapter.update(projects)
     }
-
 
     private fun refreshCurrentProject() {
         val project = getSelectedProject()
@@ -1169,8 +1174,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        val hasDwebGroup = SnowbirdGroup.getAll().isNotEmpty()
         val shouldShowSideMenu =
-            Space.current != null && mCurrentPagerItem != mPagerAdapter.settingsIndex
+            ((Space.current != null || hasDwebGroup) && mCurrentPagerItem != mPagerAdapter.settingsIndex)
 
         menu?.findItem(R.id.menu_folders)?.apply {
             isVisible = shouldShowSideMenu
@@ -1227,6 +1233,14 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         val currentSpace = Space.current
         AppLogger.i("current space requested by adapter... = $currentSpace")
         return Space.current
+    }
+
+    override fun onNavigateToDwebGroups() {
+        collapseSpacesList()
+        closeDrawer()
+        val intent = Intent(this, SpaceSetupActivity::class.java)
+        intent.putExtra("start_destination", StartDestination.DWEB_DASHBOARD.name)
+        startActivity(intent)
     }
 
     /**

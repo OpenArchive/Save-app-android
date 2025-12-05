@@ -88,20 +88,23 @@ class SpaceSetupActivity : BaseActivity() {
             }
             StartDestination.ARCHIVED_FOLDER_LIST -> {
                 navGraph.setStartDestination(R.id.fragment_folders)
-                
+
                 // Pass arguments from intent to navigation graph
                 val showArchived = intent.getBooleanExtra(FoldersFragment.EXTRA_SHOW_ARCHIVED, false)
                 val selectedSpaceId = intent.getLongExtra(FoldersFragment.EXTRA_SELECTED_SPACE_ID, -1L)
                 val selectedProjectId = intent.getLongExtra(FoldersFragment.EXTRA_SELECTED_PROJECT_ID, -1L)
-                
+
                 val bundle = bundleOf(
                     "show_archived" to showArchived,
                     "selected_space_id" to selectedSpaceId,
                     "selected_project_id" to selectedProjectId
                 )
-                
+
                 navController.setGraph(navGraph, bundle)
                 return // Early return to avoid setting graph again
+            }
+            StartDestination.DWEB_DASHBOARD -> {
+                navGraph.setStartDestination(R.id.snowbird_nav_graph)
             }
             else -> {
                 navGraph.setStartDestination(R.id.fragment_space_setup)
