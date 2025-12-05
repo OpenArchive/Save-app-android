@@ -21,8 +21,6 @@ import net.opendasharchive.openarchive.databinding.FragmentSnowbirdCreateGroupBi
 import net.opendasharchive.openarchive.db.SnowbirdError
 import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.db.SnowbirdRepo
-import net.opendasharchive.openarchive.db.Space
-import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.util.FullScreenOverlayCreateGroupManager
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import java.io.File
@@ -158,9 +156,8 @@ class SnowbirdCreateGroupFragment : BaseSnowbirdFragment() {
         }
 
         val action = SnowbirdCreateGroupFragmentDirections
-            .actionFragmentSnowbirdCreateGroupToFragmentSpaceSetupSuccess(
+            .actionFragmentSnowbirdCreateGroupToFragmentSnowbirdSetupSuccess(
                 message = getString(R.string.you_have_successfully_created_dweb),
-                spaceType = Space.Type.RAVEN,
                 dwebGroupKey = group.key,
             )
         findNavController().navigate(action)

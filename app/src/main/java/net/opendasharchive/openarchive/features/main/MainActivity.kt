@@ -17,7 +17,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.PopupWindow
-import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -70,6 +69,7 @@ import net.opendasharchive.openarchive.features.onboarding.Onboarding23Activity
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
+import net.opendasharchive.openarchive.services.snowbird.SnowbirdActivity
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import net.opendasharchive.openarchive.upload.UploadManagerFragment
@@ -1238,8 +1238,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     override fun onNavigateToDwebGroups() {
         collapseSpacesList()
         closeDrawer()
-        val intent = Intent(this, SpaceSetupActivity::class.java)
-        intent.putExtra("start_destination", StartDestination.DWEB_DASHBOARD.name)
+        val intent = Intent(this, SnowbirdActivity::class.java)
         startActivity(intent)
     }
 
