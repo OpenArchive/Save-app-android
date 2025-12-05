@@ -52,25 +52,17 @@ class SpaceSetupSuccessFragment : BaseFragment() {
         binding.btAuthenticate.setOnClickListener { _ ->
             if (args.spaceType == Space.Type.RAVEN) {
                 val navController = findNavController()
-                // Let's clear and navigate to snowbird fragment
-                val popped = navController.popBackStack(R.id.fragment_snowbird, false)
-                if (!popped) {
-                    navController.navigate(
-                        R.id.fragment_snowbird,
-                        null,
-                        navOptions {
-                            popUpTo(R.id.fragment_snowbird) { inclusive = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    )
-                } else {
-                    val intent = Intent(requireActivity(), MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                }
-                //val action = SpaceSetupSuccessFragmentDirections.actionFragmentSpaceSetupSuccessToFragmentSnowbird()
-                //navController.navigate(action)
+                // Navigate to Snowbird as the new root of this nav graph so Back exits to MainActivity
+                navController.navigate(
+                    R.id.action_fragment_space_setup_success_to_fragment_snowbird,
+                    null,
+                    navOptions {
+                        // Clear the entire Space Setup nav graph back stack
+                        popUpTo(R.id.space_setup_navigation) { inclusive = true }
+                        launchSingleTop = true
+                        restoreState = false
+                    }
+                )
             } else {
                 val intent = Intent(requireActivity(), MainActivity::class.java)
                 intent.flags =

@@ -1,20 +1,22 @@
 package net.opendasharchive.openarchive.services.snowbird
 
+import android.content.res.ColorStateList
 import android.os.Build
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.annotation.RequiresExtension
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.databinding.OneLineRowBinding
+import net.opendasharchive.openarchive.databinding.SnowbirdMediaGridItemBinding
 import net.opendasharchive.openarchive.db.SnowbirdFileItem
-import net.opendasharchive.openarchive.extensions.scaled
 import java.lang.ref.WeakReference
 
-class SnowbirdFileViewHolder(val binding: OneLineRowBinding) : RecyclerView.ViewHolder(binding.root)
+class SnowbirdFileViewHolder(val binding: SnowbirdMediaGridItemBinding) : RecyclerView.ViewHolder(binding.root)
 
 class SnowbirdFileListAdapter(
     onClickListener: ((SnowbirdFileItem) -> Unit)? = null,
@@ -25,7 +27,7 @@ class SnowbirdFileListAdapter(
     private val onLongPressCallback = WeakReference(onLongPressListener)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SnowbirdFileViewHolder {
-        val binding = OneLineRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = SnowbirdMediaGridItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return SnowbirdFileViewHolder(binding)
     }
 
@@ -34,38 +36,53 @@ class SnowbirdFileListAdapter(
         val item = getItem(position)
 
         with (holder.binding) {
-            val context = button.context
+            val context = root.context
 
-            button.setLeftIcon(ContextCompat.getDrawable(context, R.drawable.ic_dweb)?.scaled(40, context))
-            //button.setBackgroundResource(R.drawable.button_outlined_ripple)
-            button.setTitle(item.name ?: "No name provided")
+            // Set filename
+            name.text = item.name ?: "No name provided"
 
-            if (item.isDownloaded) {
-                button.setRightIcon(ContextCompat.getDrawable(context, R.drawable.outline_cloud_done_24)?.scaled(40, context))
-            } else {
-                button.setRightIcon(ContextCompat.getDrawable(context, R.drawable.outline_cloud_download_24)?.scaled(40, context))
+            // Determine file type and show appropriate icon
+            val fileExtension = item.name?.substringAfterLast(".", "")?.lowercase() ?: ""
+
+            when {
+                isImageFile(fileExtension) -> setDefaultIcon(R.drawable.ic_image)
+                isVideoFile(fileExtension) -> setDefaultIcon(R.drawable.ic_video)
+                isAudioFile(fileExtension) -> setDefaultIcon(R.drawable.ic_music)
+                else -> setDefaultIcon(R.drawable.ic_folder_new)
             }
 
-            button.setOnClickListener {
+            // Show download badge if not downloaded
+            downloadBadge.visibility = if (item.isDownloaded) View.GONE else View.VISIBLE
+
+            root.setOnClickListener {
                 onClickCallback.get()?.invoke(item)
             }
 
-            button.setOnLongClickListener {
+            root.setOnLongClickListener {
                 onLongPressCallback.get()?.invoke(item)
                 true
             }
-
-            if (item.size > 0) {
-                // convert bytes to human-readable format
-                val sizeText = when {
-                    item.size >= 1_000_000_000 -> "${item.size / 1_000_000_000.0} GB"
-                    item.size >= 1_000_000 -> "${item.size / 1_000_000.0} MB"
-                    item.size >= 1_000 -> "${item.size / 1_000.0} KB"
-                    else -> "${item.size} bytes"
-                }
-                button.setSubTitle(sizeText)
-            }
         }
+    }
+
+    private fun SnowbirdMediaGridItemBinding.setDefaultIcon(iconRes: Int) {
+        icon.scaleType = ImageView.ScaleType.CENTER_INSIDE
+        icon.setImageDrawable(ContextCompat.getDrawable(root.context, iconRes)?.mutate())
+        icon.imageTintList = ColorStateList.valueOf(
+            ContextCompat.getColor(root.context, R.color.colorOnBackground)
+        )
+    }
+
+    private fun isImageFile(extension: String): Boolean {
+        return extension in listOf("jpg", "jpeg", "png", "gif", "bmp", "webp", "heic", "heif")
+    }
+
+    private fun isVideoFile(extension: String): Boolean {
+        return extension in listOf("mp4", "avi", "mkv", "mov", "wmv", "flv", "webm", "3gp")
+    }
+
+    private fun isAudioFile(extension: String): Boolean {
+        return extension in listOf("mp3", "wav", "ogg", "m4a", "flac", "aac", "wma")
     }
 }
 
