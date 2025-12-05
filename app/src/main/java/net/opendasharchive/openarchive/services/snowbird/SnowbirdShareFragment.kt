@@ -4,50 +4,47 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.navArgs
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdShareGroupBinding
 import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.extensions.asQRCode
 import net.opendasharchive.openarchive.extensions.urlEncode
 import net.opendasharchive.openarchive.features.core.BaseFragment
 
-class SnowbirdShareFragment: BaseFragment() {
-    private lateinit var viewBinding: FragmentSnowbirdShareGroupBinding
-    private lateinit var groupKey: String
+class SnowbirdShareFragment: BaseSnowbirdFragment() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    private lateinit var binding: FragmentSnowbirdShareGroupBinding
+    private var isSetupOngoing: Boolean = false
 
-        arguments?.let {
-            groupKey = it.getString(RESULT_VAL_RAVEN_GROUP_KEY, "")
-        }
-    }
+    private val args: SnowbirdShareFragmentArgs by navArgs()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        viewBinding = FragmentSnowbirdShareGroupBinding.inflate(inflater)
+        binding = FragmentSnowbirdShareGroupBinding.inflate(inflater)
 
-        return viewBinding.root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val group = SnowbirdGroup.get(groupKey)
+        if (isSetupOngoing) {
+            binding.buttonBar.visibility = View.VISIBLE
+        } else {
+            binding.buttonBar.visibility = View.GONE
+        }
+
+        val group = SnowbirdGroup.get(args.dwebGroupKey)
         val groupName = group?.name ?: "Unknown group"
 
-        viewBinding.groupName.text = groupName
+        binding.groupName.text = groupName
 
-        SnowbirdGroup.get(groupKey)?.uri?.let { uriString ->
+        SnowbirdGroup.get(args.dwebGroupKey)?.uri?.let { uriString ->
             val qrCode = "$uriString&name=${groupName.urlEncode()}".asQRCode(size = 1024)
-            viewBinding.qrCode.setImageBitmap(qrCode)
+            binding.qrCode.setImageBitmap(qrCode)
         }
     }
 
     override fun getToolbarTitle(): String {
-        return "Share Raven Group"
-    }
-
-    companion object {
-
-        const val RESULT_VAL_RAVEN_GROUP_KEY = "dweb_group_key"
+        return "Share DWeb Storage Group"
     }
 }

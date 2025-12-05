@@ -1,15 +1,17 @@
 package net.opendasharchive.openarchive.core.di
 
 import android.content.Context
+import kotlinx.serialization.json.Json
 import net.opendasharchive.openarchive.services.snowbird.service.ISnowbirdAPI
 import net.opendasharchive.openarchive.services.snowbird.service.RetrofitAPI
 import net.opendasharchive.openarchive.services.snowbird.service.RetrofitClient
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.util.concurrent.TimeUnit
 
 val retrofitModule = module {
@@ -33,7 +35,7 @@ val retrofitModule = module {
         Retrofit.Builder()
             .baseUrl("http://localhost:8080/api/")
             .client(get<OkHttpClient>())
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(Json.asConverterFactory("application/json; charset=UTF8".toMediaType()))
             .build()
     }
 

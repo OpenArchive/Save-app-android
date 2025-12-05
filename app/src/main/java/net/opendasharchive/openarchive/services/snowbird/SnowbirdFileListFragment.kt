@@ -28,7 +28,7 @@ import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.util.SpacingItemDecoration
 import timber.log.Timber
 
-class SnowbirdFileListFragment : BaseFragment() {
+class SnowbirdFileListFragment : BaseSnowbirdFragment() {
 
     private val snowbirdFileViewModel: SnowbirdFileViewModel by androidViewModel()
     private lateinit var viewBinding: FragmentSnowbirdListMediaBinding

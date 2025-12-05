@@ -132,6 +132,9 @@ class SpaceSetupActivity : BaseActivity() {
                 navController.setGraph(navGraph, bundle)
                 return
             }
+            StartDestination.DWEB_DASHBOARD -> {
+                navGraph.setStartDestination(R.id.snowbird_nav_graph)
+            }
             else -> {
                 navGraph.setStartDestination(R.id.fragment_space_setup)
             }

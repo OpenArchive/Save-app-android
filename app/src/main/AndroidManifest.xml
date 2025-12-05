@@ -11,8 +11,8 @@
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
-    <!--    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />-->
-    <!--    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />-->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -130,11 +130,11 @@
             android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar" />
 
-<!--        <activity-->
-<!--            android:name=".features.main.QRScannerActivity"-->
-<!--            android:screenOrientation="portrait"-->
-<!--            android:theme="@style/zxing_CaptureTheme"-->
-<!--            android:windowSoftInputMode="stateAlwaysHidden" />-->
+        <activity
+            android:name=".features.main.QRScannerActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/zxing_CaptureTheme"
+            android:windowSoftInputMode="stateAlwaysHidden" />
 
         <activity
             android:name=".features.media.ReviewActivity"
@@ -209,9 +209,10 @@
 
         <meta-data
             android:name="VERSION"
-            android:value="37" />
+            android:value="38" />
         <!--        NOTE: Please do not write migrations for added columns, as they are not needed.-->
         <!--        Only upgrade the version number when you add a new column.-->
+        <!--        Version 38: Added 'hash' column to SNOWBIRD_REPO table-->
         <!--        migration sql causing duplicate column error:-->
         <!--            https://github.com/chennaione/sugar/issues/713  -->
 

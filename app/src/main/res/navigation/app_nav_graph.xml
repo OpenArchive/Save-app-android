@@ -24,14 +24,6 @@
             app:popExitAnim="@anim/slide_out_right" />
 
         <action
-            android:id="@+id/action_fragment_space_list_to_internet_archive_details"
-            app:destination="@id/fragment_internet_archive_details"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-
-        <action
             android:id="@+id/action_fragment_space_list_to_fragment_snowbird"
             app:destination="@id/snowbird_nav_graph"
             app:enterAnim="@anim/slide_in_right"
@@ -40,10 +32,16 @@
             app:popExitAnim="@anim/slide_out_right" />
 
         <action
+            android:id="@+id/action_fragment_space_list_to_internet_archive_details"
+            app:destination="@id/fragment_internet_archive_details"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
             android:id="@+id/action_fragment_space_list_to_fragment_space_setup"
             app:destination="@id/fragment_space_setup" />
     </fragment>
-
 
     <fragment
         android:id="@+id/fragment_space_setup"
@@ -112,7 +110,6 @@
             app:argType="boolean" />
         <argument
             android:name="space_type"
-            android:defaultValue="WEBDAV"
             app:argType="net.opendasharchive.openarchive.db.Space$Type" />
     </fragment>
 
@@ -165,6 +162,7 @@
         <action
             android:id="@+id/action_fragment_space_setup_success_to_fragment_snowbird"
             app:destination="@id/snowbird_nav_graph" />
+
     </fragment>
 
     <composable
@@ -193,7 +191,7 @@
     <fragment
         android:id="@+id/fragment_browse_folders"
         android:name="net.opendasharchive.openarchive.features.folders.BrowseFoldersFragment"
-        tools:layout="@layout/fragment_browse_folders"/>
+        tools:layout="@layout/fragment_browse_folders" />
 
     <fragment
         android:id="@+id/fragment_create_new_folder"
@@ -266,4 +264,5 @@
     </fragment>
 
     <include app:graph="@navigation/snowbird_nav_graph" />
+
 </navigation>

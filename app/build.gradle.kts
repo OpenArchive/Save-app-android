@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.navigation.safeargs)
+    alias(libs.plugins.androidx.room)
     alias(libs.plugins.detekt.plugin)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
@@ -154,6 +155,10 @@ android {
             exclude(group = "org.bouncycastle", module = "bcprov-jdk15on")
         }
     }
+
+    room {
+        schemaDirectory("$projectDir/schemas")
+    }
 }
 
 dependencies {
@@ -224,6 +229,11 @@ dependencies {
     implementation(libs.androidx.security.crypto)
     implementation(libs.androidx.work)
 
+    // Room Database
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
     // Dependency Injection - Koin
     implementation(libs.koin.core)
     implementation(libs.koin.android)
@@ -238,6 +248,7 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
+    implementation(libs.retrofit.kotlinx.serialization)
     implementation(libs.guardianproject.sardine)
 
     // Images & Media
@@ -296,6 +307,10 @@ dependencies {
         exclude(group = "com.google.code.findbugs", module = "annotations")
         exclude(group = "com.squareup.okio", module = "okio")
     }
+
+    // Barcode Scanning
+    implementation(libs.zxing.core)
+    implementation(libs.zxing.android.embedded)
 
     // Utilities
     implementation(libs.timber)

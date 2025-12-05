@@ -1,14 +1,17 @@
 package net.opendasharchive.openarchive.services.snowbird.service
 
+import net.opendasharchive.openarchive.db.CreateRepoResponse
 import net.opendasharchive.openarchive.db.FileUploadResult
 import net.opendasharchive.openarchive.db.JoinGroupResponse
 import net.opendasharchive.openarchive.db.MembershipRequest
+import net.opendasharchive.openarchive.db.RefreshGroupResponse
 import net.opendasharchive.openarchive.db.RequestName
 import net.opendasharchive.openarchive.db.SnowbirdFileList
 import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.db.SnowbirdGroupList
-import net.opendasharchive.openarchive.db.SnowbirdRepo
 import net.opendasharchive.openarchive.db.SnowbirdRepoList
+import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
@@ -30,15 +33,15 @@ interface RetrofitClient {
         @Path("groupKey") groupKey: String,
         @Path("repoKey") repoKey: String,
         @Path("filename") filename: String
-    ): ByteArray
+    ): ResponseBody
 
     @POST("groups/{groupKey}/repos/{repoKey}/media/{filename}")
     @Headers("Content-Type: application/octet-stream")
     suspend fun uploadFile(
         @Path("groupKey") groupKey: String,
         @Path("repoKey") repoKey: String,
-        @Path("filename") filename: String,
-        // @Body imageData: RequestBody
+        @Path(value = "filename", encoded = true) filename: String,
+        @Body imageData: RequestBody
     ): FileUploadResult
 
     // Groups
@@ -61,13 +64,18 @@ interface RetrofitClient {
         @Body request: MembershipRequest
     ): JoinGroupResponse
 
+    @POST("groups/{group_id}/refresh")
+    suspend fun refreshGroup(
+        @Path("group_id") groupKey: String
+    ): RefreshGroupResponse
+
     // Repos
 
     @POST("groups/{groupKey}/repos")
     suspend fun createRepo(
         @Path("groupKey") groupKey: String,
         @Body repoName: RequestName
-    ): SnowbirdRepo
+    ): CreateRepoResponse
 
     @GET("groups/{groupKey}/repos")
     suspend fun fetchRepos(

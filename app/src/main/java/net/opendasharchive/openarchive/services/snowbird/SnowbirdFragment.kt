@@ -1,44 +1,104 @@
 package net.opendasharchive.openarchive.services.snowbird
 
+import android.content.Intent
+import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.os.bundleOf
-import androidx.fragment.app.setFragmentResult
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ColorFilter.Companion.tint
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.fragment.findNavController
-//import com.google.zxing.integration.android.IntentIntegrator
-import kotlinx.coroutines.launch
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.BinaryBitmap
+import com.google.zxing.DecodeHintType
+import com.google.zxing.MultiFormatReader
+import com.google.zxing.RGBLuminanceSource
+import com.google.zxing.common.HybridBinarizer
+import com.google.zxing.integration.android.IntentIntegrator
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.databinding.FragmentSnowbirdBinding
+import net.opendasharchive.openarchive.core.logger.AppLogger
+import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
+import net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles
+import net.opendasharchive.openarchive.core.presentation.theme.ThemeColors
+import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.extensions.getQueryParameter
-import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
-//import net.opendasharchive.openarchive.features.main.QRScannerActivity
-import timber.log.Timber
+import net.opendasharchive.openarchive.features.main.QRScannerActivity
+import net.opendasharchive.openarchive.services.snowbird.service.ServiceStatus
+import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 
-class SnowbirdFragment : BaseFragment() {
-    private val CANNED_URI =
-        "save+dweb::?dht=82fd345d484393a96b6e0c5d5e17a85a61c9184cc5a3311ab069d6efa0bf1410&enc=6fa27396fe298f92c91013ac54d8f316c2d45dc3bed0edec73078040aa10feed&pk=f4b404d294817cf11ea7f8ef7231626e03b74f6fafe3271b53918608afa82d12&sk=5482a8f490081be684fbadb8bde7f0a99bab8acdcf1ec094826f0f18e327e399"
-    private lateinit var viewBinding: FragmentSnowbirdBinding
-    private var canNavigate = false
+class SnowbirdFragment : BaseSnowbirdFragment() {
 
     private val qrCodeLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-//        val scanResult = IntentIntegrator.parseActivityResult(result.resultCode, result.data)
-//        if (scanResult != null) {
-//            if (scanResult.contents != null) {
-//                processScannedData(scanResult.contents)
-//            }
-//        }
+        val scanResult = IntentIntegrator.parseActivityResult(result.resultCode, result.data)
+        if (scanResult != null) {
+            if (scanResult.contents != null) {
+                processScannedData(scanResult.contents)
+            }
+        }
+    }
+
+    private val imagePickerLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let { processImageForQR(it) }
     }
 
     override fun onCreateView(
@@ -46,44 +106,50 @@ class SnowbirdFragment : BaseFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewBinding = FragmentSnowbirdBinding.inflate(inflater)
 
-        return viewBinding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        viewBinding.joinGroupButton.setOnClickListener {
-            startQRScanner()
+        val onJoinGroup: () -> Unit = {
+            showQRScanOptions()
         }
 
-        viewBinding.myGroupsButton.setOnClickListener {
-
+        val onCreateGroup = {
             val action =
-                    SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdGroupList()
-                findNavController().navigate(action)
+                SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdCreateGroup()
+            findNavController().navigate(action)
         }
 
-        viewBinding.createGroupButton.setOnClickListener {
-                val action =
-                    SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdCreateGroup()
-                findNavController().navigate(action)
-
+        val onMyGroups = {
+            val action =
+                SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdGroupList()
+            findNavController().navigate(action)
         }
 
-        initializeViewModelObservers()
-    }
+        return ComposeView(requireContext()).apply {
+            // Dispose of the Composition when the view's LifecycleOwner
+            // is destroyed
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                SaveAppTheme {
 
-    private fun initializeViewModelObservers() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.RESUMED) {
-                launch {
-                    snowbirdGroupViewModel.groupState.collect { state ->
-                        handleGroupStateUpdate(
-                            state
-                        )
+                    LaunchedEffect(Unit) {
+                        snowbirdGroupViewModel.groupState.collect { state ->
+                            handleGroupStateUpdate(
+                                state
+                            )
+                        }
                     }
+
+                    SnowbirdScreen(
+                        onJoinGroup = onJoinGroup,
+                        onCreateGroup = onCreateGroup,
+                        onMyGroups = onMyGroups,
+                        onServerToggle = { enabled ->
+                            if (enabled) {
+                                requireContext().startForegroundService(Intent(requireContext(), SnowbirdService::class.java))
+                            } else {
+                                requireContext().stopService(Intent(requireContext(), SnowbirdService::class.java))
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -91,7 +157,7 @@ class SnowbirdFragment : BaseFragment() {
 
     private fun handleGroupStateUpdate(state: SnowbirdGroupViewModel.GroupState) {
         handleLoadingStatus(false)
-        Timber.d("group state = $state")
+        AppLogger.d("group state = $state")
         when (state) {
             is SnowbirdGroupViewModel.GroupState.Loading -> handleLoadingStatus(true)
             is SnowbirdGroupViewModel.GroupState.Error -> handleError(state.error)
@@ -99,18 +165,90 @@ class SnowbirdFragment : BaseFragment() {
         }
     }
 
-    private fun startQRScanner() {
-//        val integrator = IntentIntegrator(requireActivity())
-//        integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-//        integrator.setPrompt("Scan QR Code")
-//        integrator.setCameraId(0)  // Use the rear camera
-//        integrator.setBeepEnabled(false)
-//        integrator.setBarcodeImageEnabled(true)
-//        integrator.setCaptureActivity(QRScannerActivity::class.java)
-//
-//        val scanningIntent = integrator.createScanIntent()
+    private fun showQRScanOptions() {
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Info
+            title = UiText.DynamicString("Scan QR Code")
+            message = UiText.DynamicString("Choose how you want to scan the QR code")
+            positiveButton {
+                text = UiText.DynamicString("Camera")
+                action = { startQRScanner() }
+            }
+            neutralButton {
+                text = UiText.DynamicString("Gallery")
+                action = { startImagePicker() }
+            }
+        }
+    }
 
-//        qrCodeLauncher.launch(scanningIntent)
+    private fun startImagePicker() {
+        imagePickerLauncher.launch("image/*")
+    }
+
+    private fun startQRScanner() {
+        val integrator = IntentIntegrator(requireActivity())
+        integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
+        integrator.setPrompt("Scan QR Code")
+        integrator.setCameraId(0)  // Use the rear camera
+        integrator.setBeepEnabled(false)
+        integrator.setBarcodeImageEnabled(true)
+        integrator.setCaptureActivity(QRScannerActivity::class.java)
+
+        val scanningIntent = integrator.createScanIntent()
+
+        qrCodeLauncher.launch(scanningIntent)
+    }
+
+    private fun processImageForQR(imageUri: Uri) {
+        try {
+            val inputStream = requireContext().contentResolver.openInputStream(imageUri)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            inputStream?.close()
+
+            if (bitmap != null) {
+                val qrContent = decodeQRFromBitmap(bitmap)
+                if (qrContent != null) {
+                    processScannedData(qrContent)
+                } else {
+                    showQRNotFoundDialog()
+                }
+            } else {
+                showQRNotFoundDialog()
+            }
+        } catch (e: Exception) {
+            AppLogger.e("Error processing image for QR: ${e.message}")
+            showQRNotFoundDialog()
+        }
+    }
+
+    private fun decodeQRFromBitmap(bitmap: Bitmap): String? {
+        val intArray = IntArray(bitmap.width * bitmap.height)
+        bitmap.getPixels(intArray, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+        
+        val source = RGBLuminanceSource(bitmap.width, bitmap.height, intArray)
+        val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
+        
+        val reader = MultiFormatReader()
+        val hints = mapOf(DecodeHintType.POSSIBLE_FORMATS to listOf(BarcodeFormat.QR_CODE))
+        reader.setHints(hints)
+        
+        return try {
+            val result = reader.decode(binaryBitmap)
+            result.text
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun showQRNotFoundDialog() {
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Warning
+            title = UiText.DynamicString("No QR Code Found")
+            message = UiText.DynamicString("Could not find a valid QR code in the selected image. Please try another image.")
+            positiveButton {
+                text = UiText.StringResource(R.string.lbl_ok)
+            }
+        }
     }
 
     private fun processScannedData(uriString: String) {
@@ -140,16 +278,318 @@ class SnowbirdFragment : BaseFragment() {
             return
         }
 
-
-            val action =
-                SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdJoinGroup(
-                    uriString
-                )
-            findNavController().navigate(action)
+        val action = SnowbirdFragmentDirections
+            .actionFragmentSnowbirdToFragmentSnowbirdJoinGroup(dwebGroupKey = uriString)
+        findNavController().navigate(action)
 
     }
 
     override fun getToolbarTitle(): String {
-        return "Raven"
+        return "DWeb Storage"
+    }
+}
+
+@Composable
+fun SnowbirdScreen(
+    onJoinGroup: () -> Unit = {},
+    onCreateGroup: () -> Unit = {},
+    onMyGroups: () -> Unit = {},
+    onServerToggle: (Boolean) -> Unit = {}
+) {
+    // Observe server status
+    val serverStatus by SnowbirdService.serviceStatus.collectAsState()
+
+    // Get navigation bar insets for edge-to-edge support
+    val navigationBarPadding = WindowInsets.navigationBars.asPaddingValues()
+
+    // Use a scrollable Column to mimic ScrollView + LinearLayout
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 32.dp)
+            .padding(horizontal = 24.dp)
+            .padding(bottom = navigationBarPadding.calculateBottomPadding() + 16.dp),
+    ) {
+
+        // Header texts
+        SpaceAuthHeader(
+            description = "Preserve your media on the decentralized web (DWeb) Storage.",
+            imagePainter = painterResource(R.drawable.ic_dweb),
+            modifier = Modifier
+                .padding(vertical = 48.dp)
+                .padding(end = 24.dp)
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // WebDav option
+        DwebOptionItem(
+            title = "Join group",
+            subtitle = "Connect to existing group",
+            onClick = onJoinGroup
+        )
+
+        DwebOptionItem(
+            title = "Create group",
+            subtitle = "Create a new group via Dweb",
+            onClick = onCreateGroup
+        )
+
+        DwebOptionItem(
+            title = "My groups",
+            subtitle = "View and manage your groups",
+            onClick = onMyGroups
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        HorizontalDivider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+        )
+
+        // Server Control Section at the bottom using custom preference style
+        DwebServerPreference(
+            serverStatus = serverStatus,
+            onToggle = onServerToggle
+        )
+
+    }
+}
+
+@Composable
+fun DwebServerPreference(
+    serverStatus: ServiceStatus,
+    onToggle: (Boolean) -> Unit
+) {
+    val isServerEnabled = serverStatus !is ServiceStatus.Stopped
+    val isConnecting = serverStatus is ServiceStatus.Connecting
+
+    // Summary text based on status
+    val summaryText = when (serverStatus) {
+        is ServiceStatus.Stopped -> "Enable to share and sync media"
+        is ServiceStatus.Connecting -> "Connecting..."
+        is ServiceStatus.Connected -> "Running on localhost:8080"
+        is ServiceStatus.Failed -> "Failed to start. Try again."
+    }
+
+    // Custom preference-style UI
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .toggleable(
+                value = isServerEnabled,
+                enabled = !isConnecting,
+                role = Role.Switch,
+                onValueChange = onToggle
+            )
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Title and Summary
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = "DWeb Server",
+                style = SaveTextStyles.bodyLarge,
+                color = if (!isConnecting) {
+                    MaterialTheme.colorScheme.onSurface
+                } else {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                }
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = summaryText,
+                style = SaveTextStyles.bodySmallEmphasis,
+                color = if (!isConnecting) {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
+                }
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        // Switch with custom colors
+        Switch(
+            checked = isServerEnabled,
+            onCheckedChange = null, // Handled by toggleable modifier
+            enabled = !isConnecting,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = MaterialTheme.colorScheme.surface,
+                checkedTrackColor = MaterialTheme.colorScheme.tertiary,
+                uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun SnowbirdScreenPreview() {
+    DefaultScaffoldPreview {
+        SnowbirdScreen()
+    }
+}
+
+@Composable
+fun DwebOptionItem(
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+    // You can customize this look to match your original design
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.background
+        ),
+        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.onBackground),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(
+                modifier = Modifier
+                    .align(Alignment.Top)
+                    .weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = title,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 18.sp
+                )
+
+                Text(
+                    text = subtitle,
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 14.sp
+                )
+            }
+
+            Icon(
+                modifier = Modifier
+                    .size(24.dp)
+                    .align(Alignment.CenterVertically),
+                painter = painterResource(R.drawable.ic_arrow_forward_ios),
+                contentDescription = null,
+            )
+        }
+
+
+    }
+}
+
+
+@Composable
+fun SpaceAuthHeader(
+    modifier: Modifier = Modifier,
+    description: String = stringResource(id = R.string.internet_archive_description),
+    imagePainter: Painter = painterResource(id = R.drawable.ic_internet_archive)
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(50.dp)
+                .clip(CircleShape)
+                .background(ThemeColors.material.surfaceDim,)
+                .padding(8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                modifier = Modifier.size(30.dp),
+                painter = imagePainter,
+                contentDescription = "Space Image",
+                colorFilter = tint(colorResource(id = R.color.colorTertiary))
+            )
+        }
+
+        Column(
+            modifier = Modifier.padding(start = ThemeDimensions.spacing.medium, end = ThemeDimensions.spacing.xlarge)
+        ) {
+            Text(
+                text = description,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = ThemeColors.material.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+private fun SpaceAuthHeaderPreview() {
+    SaveAppTheme {
+        SpaceAuthHeader()
+    }
+}
+
+@Preview
+@Composable
+private fun DwebServerPreferencePreview() {
+    SaveAppTheme {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Text("Stopped:", modifier = Modifier.padding(8.dp))
+            DwebServerPreference(
+                serverStatus = ServiceStatus.Stopped,
+                onToggle = {}
+            )
+
+            HorizontalDivider()
+
+            Text("Connecting:", modifier = Modifier.padding(8.dp))
+            DwebServerPreference(
+                serverStatus = ServiceStatus.Connecting,
+                onToggle = {}
+            )
+
+            HorizontalDivider()
+
+            Text("Connected:", modifier = Modifier.padding(8.dp))
+            DwebServerPreference(
+                serverStatus = ServiceStatus.Connected,
+                onToggle = {}
+            )
+
+            HorizontalDivider()
+
+            Text("Failed:", modifier = Modifier.padding(8.dp))
+            DwebServerPreference(
+                serverStatus = ServiceStatus.Failed(Throwable("Failed to start")),
+                onToggle = {}
+            )
+        }
     }
 }

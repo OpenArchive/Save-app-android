@@ -28,7 +28,7 @@ import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.util.SpacingItemDecoration
 import timber.log.Timber
 
-class SnowbirdGroupListFragment : BaseFragment() {
+class SnowbirdGroupListFragment : BaseSnowbirdFragment() {
 
     private lateinit var viewBinding: FragmentSnowbirdGroupListBinding
     private lateinit var adapter: SnowbirdGroupsAdapter
@@ -107,9 +107,8 @@ class SnowbirdGroupListFragment : BaseFragment() {
     }
 
     private fun onClick(groupKey: String) {
-
-            val action = SnowbirdGroupListFragmentDirections.actionFragmentSnowbirdGroupListToFragmentSnowbirdListRepos(groupKey)
-            findNavController().navigate(action)
+        val action = SnowbirdGroupListFragmentDirections.actionFragmentSnowbirdGroupListToFragmentSnowbirdListRepos(groupKey)
+        findNavController().navigate(action)
     }
 
     private fun onLongPress(groupKey: String) {
@@ -158,6 +157,10 @@ class SnowbirdGroupListFragment : BaseFragment() {
             )
 
             is SnowbirdGroupViewModel.GroupState.Error -> handleError(state.error)
+            is SnowbirdGroupViewModel.GroupState.SingleGroupSuccess -> {
+                AppLogger.d("Group fetched: ${state.group}")
+                // store it
+            }
             else -> Unit
         }
     }
