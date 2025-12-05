@@ -13,7 +13,6 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import org.koin.android.ext.android.inject
 import kotlin.getValue
-import org.koin.android.ext.android.inject
 
 abstract class BaseFragment : Fragment(), ToolbarConfigurable {
 
