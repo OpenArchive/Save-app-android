@@ -29,7 +29,7 @@ val coreModule = module {
 
     viewModel {
         BrowseFoldersViewModel(
-            context = get<Context>()
+            webDavRepository = get()
         )
     }
 

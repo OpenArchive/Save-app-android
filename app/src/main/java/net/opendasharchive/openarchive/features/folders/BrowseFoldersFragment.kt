@@ -3,12 +3,16 @@ package net.opendasharchive.openarchive.features.folders
 import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.MenuProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -16,6 +20,7 @@ import androidx.core.view.updatePadding
 import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.databinding.FragmentBrowseFoldersBinding
 import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.db.Space
@@ -28,6 +33,9 @@ import java.util.Date
 
 class BrowseFoldersFragment : BaseFragment(), MenuProvider {
 
+    // Toggle to switch between XML and Compose implementation
+    private val useComposeImplementation = false  // Set to false to use XML implementation
+
     private lateinit var binding: FragmentBrowseFoldersBinding
     private val mViewModel: BrowseFoldersViewModel by viewModel()
 
@@ -38,6 +46,31 @@ class BrowseFoldersFragment : BaseFragment(), MenuProvider {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        if (useComposeImplementation) {
+            // Use Compose implementation
+            return ComposeView(requireContext()).apply {
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    SaveAppTheme {
+                        BrowseFolderScreen(
+                            viewModel = mViewModel,
+                            onNavigateBackWithResult = { projectId ->
+                                requireActivity().setResult(RESULT_OK, Intent().apply {
+                                    putExtra(SpaceSetupActivity.EXTRA_FOLDER_ID, projectId)
+                                })
+                                requireActivity().finish()
+                            },
+                            onFolderSelected = { folder ->
+                                mSelected = folder
+                                activity?.invalidateOptionsMenu()
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        // Original XML implementation
         binding = FragmentBrowseFoldersBinding.inflate(layoutInflater)
 
         binding.rvFolderList.layoutManager = LinearLayoutManager(requireContext())
@@ -49,6 +82,9 @@ class BrowseFoldersFragment : BaseFragment(), MenuProvider {
         super.onViewCreated(view, savedInstanceState)
 
         activity?.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
+        // Skip XML-specific setup when using Compose
+        if (useComposeImplementation) return
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.rvFolderList) { view, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars())
@@ -132,7 +168,13 @@ class BrowseFoldersFragment : BaseFragment(), MenuProvider {
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when (menuItem.itemId) {
             R.id.action_add -> {
-                addFolder(mSelected)
+                if (useComposeImplementation) {
+                    // Trigger the action through ViewModel
+                    mViewModel.onAction(BrowseFoldersAction.AddFolder)
+                } else {
+                    // Use legacy method
+                    addFolder(mSelected)
+                }
                 true
             }
 

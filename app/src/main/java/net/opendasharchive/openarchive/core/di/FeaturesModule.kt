@@ -54,6 +54,6 @@ val featuresModule = module {
 
     // WebDAV
     single<SaveClientFactory> { SaveClientFactoryImpl(get()) }
-    single { WebDavRepository(get()) }
+    single { WebDavRepository(get(), get()) }
     viewModel { WebDavViewModel(get(), get(), get()) }
 }
