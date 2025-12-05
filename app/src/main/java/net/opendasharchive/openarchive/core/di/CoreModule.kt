@@ -5,6 +5,7 @@ import net.opendasharchive.openarchive.features.core.dialog.DefaultResourceProvi
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.ResourceProvider
 import net.opendasharchive.openarchive.features.folders.BrowseFoldersViewModel
+import net.opendasharchive.openarchive.features.folders.CreateNewFolderViewModel
 import net.opendasharchive.openarchive.features.main.MainViewModel
 import net.opendasharchive.openarchive.features.main.ui.HomeViewModel
 import net.opendasharchive.openarchive.features.settings.SpaceSetupSuccessViewModel
@@ -31,6 +32,10 @@ val coreModule = module {
         BrowseFoldersViewModel(
             webDavRepository = get()
         )
+    }
+
+    viewModel {
+        CreateNewFolderViewModel()
     }
 
     viewModel {

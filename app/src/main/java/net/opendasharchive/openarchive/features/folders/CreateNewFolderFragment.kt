@@ -5,16 +5,15 @@ import android.app.Activity.RESULT_OK
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
-import androidx.core.view.MenuProvider
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.WindowInsetsCompat
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.databinding.FragmentCreateNewFolderBinding
 import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.db.Space
@@ -23,22 +22,51 @@ import net.opendasharchive.openarchive.features.core.dialog.showSuccessDialog
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
-import net.opendasharchive.openarchive.util.extensions.hide
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.Date
 
 class CreateNewFolderFragment : BaseFragment() {
+
+    // Toggle to switch between XML and Compose implementation
+    private val useComposeImplementation = true  // Set to false to use XML implementation
 
     companion object {
         private const val SPECIAL_CHARS = ".*[\\\\/*\\s]"
     }
 
     private lateinit var binding: FragmentCreateNewFolderBinding
+    private val mViewModel: CreateNewFolderViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        if (useComposeImplementation) {
+            // Use Compose implementation
+            return ComposeView(requireContext()).apply {
+                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+                setContent {
+                    SaveAppTheme {
+                        CreateNewFolderScreen(
+                            viewModel = mViewModel,
+                            onNavigateBackWithResult = { projectId ->
+                                val intent = Intent()
+                                intent.putExtra(SpaceSetupActivity.EXTRA_FOLDER_ID, projectId)
+                                requireActivity().setResult(RESULT_OK, intent)
+                                requireActivity().finish()
+                            },
+                            onNavigateBackCanceled = {
+                                requireActivity().setResult(RESULT_CANCELED)
+                                requireActivity().finish()
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        // Original XML implementation
         binding = FragmentCreateNewFolderBinding.inflate(layoutInflater)
 
         binding.buttonBar.applyEdgeToEdgeInsets(
@@ -52,6 +80,10 @@ class CreateNewFolderFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Skip XML-specific setup when using Compose
+        if (useComposeImplementation) return
+
         val intent = requireActivity().intent
 
         binding.newFolder.setText(intent.getStringExtra(SpaceSetupActivity.EXTRA_FOLDER_NAME))

@@ -100,7 +100,11 @@ class BrowseFoldersViewModel(
                     it.copy(
                         folders = emptyList(),
                         isLoading = false,
-                        error = UiText.DynamicString(e.message ?: "Unknown error")
+                        error = if (e.message != null) {
+                            UiText.DynamicString(e.message!!)
+                        } else {
+                            UiText.StringResource(net.opendasharchive.openarchive.R.string.error)
+                        }
                     )
                 }
                 mFolders.value = emptyList()
