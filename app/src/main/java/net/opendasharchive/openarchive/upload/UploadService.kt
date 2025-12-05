@@ -19,15 +19,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.CleanInsightsManager
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.analytics.api.AnalyticsEvent
+import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.services.Conduit
 import net.opendasharchive.openarchive.util.Prefs
+import org.koin.android.ext.android.inject
 import java.io.IOException
 import java.util.*
 
 class UploadService : JobService() {
+
+    // Inject analytics manager
+    private val analyticsManager: AnalyticsManager by inject()
 
     companion object {
         private const val MY_BACKGROUND_JOB = 0
@@ -94,16 +100,44 @@ class UploadService : JobService() {
         if (mRunning) return completed()
 
         mRunning = true
+        val batchStartTime = System.currentTimeMillis()
         AppLogger.i("upload started")
 
         if (!shouldUpload()) {
             mRunning = false
             AppLogger.i("no network, upload stopped")
+            // Track network error
+            analyticsManager.trackEvent(
+                AnalyticsEvent.UploadNetworkError(
+                    reason = if (Prefs.uploadWifiOnly) "wifi_required" else "no_network"
+                )
+            )
             return completed()
         }
 
         // Get all media items that are set into queued state.
         var results = emptyList<Media>()
+        var successCount = 0
+        var failedCount = 0
+        var totalCount = 0
+
+        // Get initial batch
+        val initialBatch = Media.getByStatus(
+            listOf(Media.Status.Queued, Media.Status.Uploading),
+            Media.ORDER_PRIORITY
+        )
+
+        if (initialBatch.isNotEmpty()) {
+            // Track upload session started (1+ files)
+            val sessionSize = initialBatch.size
+            val totalSizeMB = initialBatch.sumOf { it.contentLength } / (1024 * 1024)
+            analyticsManager.trackEvent(
+                AnalyticsEvent.UploadSessionStarted(
+                    count = sessionSize,
+                    totalSizeMB = totalSizeMB
+                )
+            )
+        }
 
         while (mKeepUploading &&
             Media.getByStatus(
@@ -116,6 +150,7 @@ class UploadService : JobService() {
             val datePublish = Date()
 
             for (media in results) {
+                totalCount++
                 if (media.sStatus != Media.Status.Uploading) {
                     media.uploadDate = datePublish
                     media.progress = 0 // Should we reset this?
@@ -134,13 +169,19 @@ class UploadService : JobService() {
 
                 try {
                     AppLogger.i("Started uploading", media)
-                    upload(media)
+                    val uploadSuccess = upload(media)
+                    if (uploadSuccess) {
+                        successCount++
+                    } else {
+                        failedCount++
+                    }
                 } catch (ioe: IOException) {
                     AppLogger.e(ioe)
 
                     media.statusMessage = "error in uploading media: " + ioe.message
                     media.sStatus = Media.Status.Error
                     media.save()
+                    failedCount++
                 }
 
                 if (!mKeepUploading) break // Time to end this.
@@ -148,6 +189,19 @@ class UploadService : JobService() {
         }
 
         AppLogger.i("Uploads completed")
+
+        // Track upload session completed (if any uploads were attempted)
+        if (totalCount > 0) {
+            val sessionDuration = (System.currentTimeMillis() - batchStartTime) / 1000
+            analyticsManager.trackEvent(
+                AnalyticsEvent.UploadSessionCompleted(
+                    count = totalCount,
+                    successCount = successCount,
+                    failedCount = failedCount,
+                    durationSeconds = sessionDuration
+                )
+            )
+        }
 
         mRunning = false
         completed()
