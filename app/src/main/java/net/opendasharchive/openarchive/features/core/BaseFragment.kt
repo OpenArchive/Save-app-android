@@ -4,12 +4,23 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
+import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
+import org.koin.android.ext.android.inject
+import kotlin.getValue
 
 abstract class BaseFragment : Fragment(), ToolbarConfigurable {
 
     protected val dialogManager: DialogStateManager by activityViewModels()
+
+    // Inject analytics dependencies
+    protected val analyticsManager: AnalyticsManager by inject()
+    protected val sessionTracker: SessionTracker by inject()
 
     // Screen tracking variables
     private var screenStartTime: Long = 0
