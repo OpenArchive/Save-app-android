@@ -5,6 +5,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import net.opendasharchive.openarchive.db.Project
+import net.opendasharchive.openarchive.features.settings.SettingsComposeFragment
 import net.opendasharchive.openarchive.features.settings.SettingsFragment
 import kotlin.math.max
 
@@ -51,7 +52,8 @@ class ProjectAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            settingsIndex -> SettingsFragment()
+            settingsIndex -> SettingsComposeFragment()
+//            settingsIndex -> SettingsFragment()
             else -> {
                 val project = getProject(position)
                 return MainMediaFragment.newInstance(project?.id ?: -1)
