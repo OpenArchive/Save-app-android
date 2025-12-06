@@ -11,6 +11,7 @@ import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import kotlin.getValue
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 

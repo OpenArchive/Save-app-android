@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.content.Intent
 import androidx.fragment.compose.content
 import androidx.navigation.fragment.findNavController
 import net.opendasharchive.openarchive.R
@@ -13,6 +14,7 @@ import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.features.spaces.SpaceSetupScreen
 import org.koin.android.ext.android.inject
+import net.opendasharchive.openarchive.services.snowbird.SnowbirdActivity
 
 class SpaceSetupFragment : BaseFragment() {
 
@@ -39,9 +41,8 @@ class SpaceSetupFragment : BaseFragment() {
         // Show/hide Snowbird based on config
         val isDwebEnabled = appConfig.isDwebEnabled
         val onDwebClicked = {
-            val action =
-                    SpaceSetupFragmentDirections.actionFragmentSpaceSetupToFragmentSnowbird()
-                findNavController().navigate(action)
+            val intent = Intent(requireContext(), SnowbirdActivity::class.java)
+            startActivity(intent)
         }
 
         SaveAppTheme {

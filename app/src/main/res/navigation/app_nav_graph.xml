@@ -24,14 +24,6 @@
             app:popExitAnim="@anim/slide_out_right" />
 
         <action
-            android:id="@+id/action_fragment_space_list_to_fragment_snowbird"
-            app:destination="@id/snowbird_nav_graph"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-
-        <action
             android:id="@+id/action_fragment_space_list_to_internet_archive_details"
             app:destination="@id/fragment_internet_archive_details"
             app:enterAnim="@anim/slide_in_right"
@@ -56,14 +48,6 @@
         <action
             android:id="@+id/action_fragment_space_setup_to_internet_archive_login"
             app:destination="@id/fragment_internet_archive_login"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-
-        <action
-            android:id="@+id/action_fragment_space_setup_to_fragment_snowbird"
-            app:destination="@id/snowbird_nav_graph"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
@@ -143,25 +127,7 @@
         <argument
             android:name="space_type"
             app:argType="net.opendasharchive.openarchive.db.Space$Type" />
-        <argument
-            android:name="dweb_group_key"
-            app:argType="string"
-            android:defaultValue="null"
-            app:nullable="true"/>
-        <action
-            android:id="@+id/action_fragment_space_setup_success_to_fragment_snowbird_share_group"
-            app:destination="@id/fragment_snowbird_share_group">
-            <argument
-                android:name="dweb_group_key"
-                app:argType="string" />
-            <argument
-                android:name="is_setup_ongoing"
-                app:argType="boolean"
-                android:defaultValue="false" />
-        </action>
-        <action
-            android:id="@+id/action_fragment_space_setup_success_to_fragment_snowbird"
-            app:destination="@id/snowbird_nav_graph" />
+
 
     </fragment>
 
@@ -263,6 +229,5 @@
             app:argType="long" />
     </fragment>
 
-    <include app:graph="@navigation/snowbird_nav_graph" />
 
 </navigation>
