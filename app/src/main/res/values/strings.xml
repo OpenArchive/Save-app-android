@@ -324,6 +324,7 @@
     <string name="pref_summary_media_folders">Manage your archived folders</string>
     <string name="pref_summary_privacy_policy">Read our Terms and Privacy Policy</string>
     <string name="pref_title_version" translatable="false">Version</string>
+    <string name="pref_title_dark_mode" translatable="false">Switch to dark mode</string>
 
     <!-- General -->
     <string name="label_success_title">Success!</string>

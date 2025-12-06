@@ -22,7 +22,8 @@ enum class StartDestination {
     ADD_NEW_FOLDER,
     ARCHIVED_FOLDER_LIST,
     REVIEW_MEDIA,
-    PREVIEW_MEDIA
+    PREVIEW_MEDIA,
+    PROOF_MODE
 }
 
 class SpaceSetupActivity : BaseActivity() {
@@ -130,6 +131,9 @@ class SpaceSetupActivity : BaseActivity() {
                 )
                 navController.setGraph(navGraph, bundle)
                 return
+            }
+            StartDestination.PROOF_MODE -> {
+                navGraph.setStartDestination(R.id.fragment_proofmode_settings)
             }
             else -> {
                 navGraph.setStartDestination(R.id.fragment_space_setup)

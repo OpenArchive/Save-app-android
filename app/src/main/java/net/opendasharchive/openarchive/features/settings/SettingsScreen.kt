@@ -63,6 +63,9 @@ import net.opendasharchive.openarchive.util.extensions.getVersionName
 import org.koin.compose.koinInject
 import org.koin.androidx.compose.koinViewModel
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun SettingsScreen(onNavigateToCache: () -> Unit = {}) {
@@ -80,9 +83,8 @@ fun SettingsScreen(onNavigateToCache: () -> Unit = {}) {
     val coroutineScope = rememberCoroutineScope()
     val appVersion = remember { context.packageManager.getVersionName(context.packageName) }
 
-    ProvidePreferenceLocals(flow = preferenceFlow, theme = settingsPreferenceTheme()) {
-        val strings =
-            SettingsStrings(
+    ProvidePreferenceLocals(flow = preferenceFlow, theme = savePreferenceTheme()) {
+        val settingStrings = SettingsStrings(
                 titleSecure = stringResource(R.string.pref_title_secure),
                 titleArchive = stringResource(R.string.pref_title_archive),
                 titleVerify = stringResource(R.string.intro_header_verify),
@@ -97,14 +99,13 @@ fun SettingsScreen(onNavigateToCache: () -> Unit = {}) {
                 titleProofMode = stringResource(R.string.proofmode),
                 titleTor = stringResource(R.string.prefs_use_tor_title),
                 summaryTor = stringResource(R.string.prefs_use_tor_summary),
-                titleDarkMode = stringResource(R.string.passcode_lock_app), // will override below
+                titleDarkMode = stringResource(R.string.pref_title_dark_mode),
                 titleAbout = stringResource(R.string.save_by_open_archive),
                 summaryAbout = stringResource(R.string.discover_the_save_app),
                 titlePrivacy = stringResource(R.string.pref_title_privacy_policy),
                 summaryPrivacy = stringResource(R.string.pref_summary_privacy_policy),
                 titleVersion = stringResource(R.string.pref_title_version),
             )
-            val stringsFixed = strings.copy(titleDarkMode = "Switch to dark mode")
 
         val passcodeState = rememberPreferenceState(key = Prefs.PASSCODE_ENABLED, defaultValue = Prefs.passcodeEnabled)
         val wifiOnlyState = rememberPreferenceState(key = Prefs.UPLOAD_WIFI_ONLY, defaultValue = Prefs.uploadWifiOnly)
@@ -122,7 +123,7 @@ fun SettingsScreen(onNavigateToCache: () -> Unit = {}) {
             }
 
         SettingsScreenContent(
-            strings = stringsFixed,
+            strings = settingStrings,
             appVersion = appVersion,
             passcodeState = passcodeState,
             wifiOnlyState = wifiOnlyState,
@@ -188,7 +189,13 @@ fun SettingsScreen(onNavigateToCache: () -> Unit = {}) {
                 intent.putExtra(FoldersFragment.EXTRA_SHOW_ARCHIVED, true)
                 context.startActivity(intent)
             },
-            onProofModeClick = { context.startActivity(Intent(context, ProofModeSettingsActivity::class.java)) },
+            onProofModeClick = {
+                context.startActivity(
+                    Intent(context, SpaceSetupActivity::class.java).apply {
+                        putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.PROOF_MODE.name)
+                    }
+                )
+            },
             onAboutClick = { openUrl(context, "https://open-archive.org/save") },
             onPrivacyClick = { openUrl(context, "https://open-archive.org/privacy") },
             onNavigateToCache = onNavigateToCache,
@@ -221,21 +228,21 @@ private fun SettingsScreenContent(
         // Secure
         preferenceCategory(key = "category_secure", title = { PreferenceCategoryTitle(text = strings.titleSecure) })
         item(key = "passcode") {
-            whiteThumbSwitchPreference(
-                key = "passcode",
+            SwitchPreference(
                 state = passcodeState,
                 title = { PreferenceTitle(text = strings.titlePasscode, maxLines = 2) },
                 modifier = rowModifier,
                 onToggle = onPasscodeToggle,
             )
         }
+
         sectionDivider("divider_secure")
 
         // Archive
         preferenceCategory(key = "category_archive", title = { PreferenceCategoryTitle(text = strings.titleArchive) })
+
         item(key = "wifi_only") {
-            whiteThumbSwitchPreference(
-                key = "wifi_only",
+            SwitchPreference(
                 state = wifiOnlyState,
                 title = { PreferenceTitle(text = strings.titleWifiOnly, maxLines = 2) },
                 modifier = rowModifier,
@@ -271,8 +278,7 @@ private fun SettingsScreenContent(
         // Encrypt
         preferenceCategory(key = "category_encrypt", title = { PreferenceCategoryTitle(text = strings.titleEncrypt) })
         item(key = "tor") {
-            whiteThumbSwitchPreference(
-                key = "tor",
+            SwitchPreference(
                 state = torState,
                 title = { PreferenceTitle(text = strings.titleTor, maxLines = 2) },
                 summary = { PreferenceSummary(text = strings.summaryTor) },
@@ -288,8 +294,7 @@ private fun SettingsScreenContent(
         // General
         preferenceCategory(key = "category_general", title = { PreferenceCategoryTitle(text = strings.titleGeneral) })
         item(key = "dark_mode") {
-            whiteThumbSwitchPreference(
-                key = "dark_mode",
+            SwitchPreference(
                 state = darkModeState,
                 title = { PreferenceTitle(text = strings.titleDarkMode) },
                 modifier = rowModifier,
@@ -355,7 +360,7 @@ private fun PreferenceCategoryTitle(text: String) {
 }
 
 @Composable
-private fun PreferenceTitle(text: String, maxLines: Int = 1) {
+fun PreferenceTitle(text: String, maxLines: Int = 1) {
     Text(
         text = text,
         maxLines = maxLines,
@@ -371,20 +376,19 @@ private fun PreferenceSummary(text: String) {
 
 @Composable
 private fun SettingsDivider() {
-    androidx.compose.material3.HorizontalDivider(
+    HorizontalDivider(
         modifier = Modifier.fillMaxWidth(),
         thickness = 0.5.dp,
         color = colorResource(id = R.color.colorDivider).copy(alpha = 0.5f)
     )
 }
 
-private fun androidx.compose.foundation.lazy.LazyListScope.sectionDivider(key: String) {
+private fun LazyListScope.sectionDivider(key: String) {
     item(key = key) { SettingsDivider() }
 }
 
 @Composable
-private fun whiteThumbSwitchPreference(
-    key: String,
+fun SwitchPreference(
     state: MutableState<Boolean>,
     title: @Composable () -> Unit,
     summary: @Composable (() -> Unit)? = null,
@@ -401,30 +405,22 @@ private fun whiteThumbSwitchPreference(
         modifier = modifier,
         widgetContainer = {
             val theme = me.zhanghai.compose.preference.LocalPreferenceTheme.current
-            val onTrack = colorResource(id = R.color.colorTertiary)
-            val offTrack = colorResource(id = R.color.c23_grey_30)
-            val offThumb = colorResource(id = R.color.c23_medium_grey)
             Switch(
                 checked = value,
                 onCheckedChange = { onToggle(it) },
                 enabled = enabled,
                 modifier = Modifier.padding(start = theme.horizontalSpacing, end = 24.dp),
-                colors =
-                    SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        uncheckedThumbColor = offThumb,
-                        checkedTrackColor = onTrack,
-                        uncheckedTrackColor = offTrack.copy(alpha = 0.7f),
-                        checkedBorderColor = onTrack,
-                        uncheckedBorderColor = offTrack.copy(alpha = 0.9f),
-                    )
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color.White,
+                    checkedTrackColor = MaterialTheme.colorScheme.tertiary
+                )
             )
         }
     )
 }
 
 @Composable
-private fun settingsPreferenceTheme(): PreferenceTheme {
+fun savePreferenceTheme(): PreferenceTheme {
     val categoryColor = colorResource(id = R.color.colorTertiary)
     val titleColor = colorResource(id = R.color.colorOnBackground)
     val summaryColor = colorResource(id = R.color.colorOnSurfaceVariant)
@@ -503,7 +499,6 @@ private fun SettingsScreenPreview() {
 
 @Composable
 private fun PreviewSettingsScreen() {
-    val context = LocalContext.current
     val previewFlow = remember {
         MutableStateFlow<me.zhanghai.compose.preference.Preferences>(
             MapPreferences(
@@ -516,7 +511,7 @@ private fun PreviewSettingsScreen() {
             )
         )
     }
-    ProvidePreferenceLocals(flow = previewFlow, theme = settingsPreferenceTheme()) {
+    ProvidePreferenceLocals(flow = previewFlow, theme = savePreferenceTheme()) {
         SettingsScreenContent(
             strings =
                 SettingsStrings(

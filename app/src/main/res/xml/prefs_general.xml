@@ -133,7 +133,7 @@
             android:key="@string/pref_key_use_dark_mode"
             android:layout="@layout/custom_preference_switch"
             android:singleLineTitle="true"
-            android:title="Switch to dark mode"
+            android:title="@string/pref_title_dark_mode"
             android:widgetLayout="@layout/custom_preference_widget_switch"
             app:icon="@null"
             app:iconSpaceReserved="false" />
