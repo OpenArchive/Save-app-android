@@ -47,23 +47,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
-//    override fun onCreateView(
-//        inflater: LayoutInflater,
-//        container: ViewGroup?,
-//        savedInstanceState: Bundle?
-//    ): View? {
-//        return ComposeView(requireContext()).apply {
-//            // Dispose of the Composition when the view's LifecycleOwner
-//            // is destroyed
-//            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-//            setContent {
-//                Theme {
-//                    SettingsScreen()
-//                }
-//            }
-//        }
-//    }
-
     override fun onCreatePreferences(
         savedInstanceState: Bundle?,
         rootKey: String?
