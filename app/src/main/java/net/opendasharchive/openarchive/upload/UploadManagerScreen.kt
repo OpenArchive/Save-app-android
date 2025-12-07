@@ -191,27 +191,42 @@ private fun UploadManagerContent(
         // Reorderable List
         LazyColumn(
             state = lazyListState,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
         ) {
             itemsIndexed(
                 items = state.mediaList,
                 key = { _, media -> media.id }
             ) { index, media ->
                 ReorderableItem(reorderableState, key = media.id) { isDragging ->
-                    UploadMediaItem(
-                        media = media,
-                        isDragging = isDragging,
-                        onDelete = {
-                            if (media.sStatus == Media.Status.Error) {
-                                onShowRetryDialog(media, index)
-                            } else {
-                                onAction(UploadManagerAction.DeleteItem(index))
-                            }
-                        },
-                        modifier = Modifier
-                            .draggableHandle()
-                            .longPressDraggableHandle()
-                    )
+                    Column {
+                        UploadMediaItem(
+                            media = media,
+                            isDragging = isDragging,
+                            onDelete = {
+                                if (media.sStatus == Media.Status.Error) {
+                                    onShowRetryDialog(media, index)
+                                } else {
+                                    onAction(UploadManagerAction.DeleteItem(index))
+                                }
+                            },
+                            modifier = Modifier
+                                .draggableHandle()
+                                .longPressDraggableHandle()
+                        )
+
+                        // Divider between items
+                        if (index < state.mediaList.size - 1) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp)
+                                    .height(0.5.dp)
+                                    .background(colorResource(R.color.light_grey))
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -230,7 +245,8 @@ private fun UploadMediaItem(
     val alpha = if (!isDragging) 1f else 0.7f
 
     Surface(
-        shadowElevation = elevation
+        shadowElevation = elevation,
+        color = MaterialTheme.colorScheme.background
     ) {
         Row(
             modifier = modifier
@@ -246,11 +262,12 @@ private fun UploadMediaItem(
             // Delete Button
             Box(
                 modifier = Modifier
-                    .aspectRatio(1f),
+                    .size(50.dp),
                 contentAlignment = Alignment.Center
             ) {
                 IconButton(
                     onClick = onDelete,
+                    modifier = Modifier.size(24.dp)
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_trash),
@@ -261,19 +278,24 @@ private fun UploadMediaItem(
                 }
             }
 
-            // Thumbnail Container
+            // Thumbnail Container - 80dp square with 8dp padding = 64dp actual image
             Box(
                 modifier = Modifier
-                    .aspectRatio(1f)
-                    .padding(horizontal = 8.dp)
+                    .size(80.dp)
             ) {
-                MediaThumbnail(
-                    media = media,
-                    alpha = alpha
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp)
+                ) {
+                    MediaThumbnail(
+                        media = media,
+                        alpha = alpha
+                    )
 
-                // Overlay for status
-                MediaStatusOverlay(media = media)
+                    // Overlay for status
+                    MediaStatusOverlay(media = media)
+                }
             }
 
             // Title and File Info
@@ -354,6 +376,7 @@ private fun MediaThumbnail(
                 },
                 modifier = Modifier
                     .fillMaxSize()
+                    .aspectRatio(1f)
                     .alpha(alpha)
             )
         }
@@ -375,6 +398,7 @@ private fun MediaThumbnail(
                 },
                 modifier = Modifier
                     .fillMaxSize()
+                    .aspectRatio(1f)
                     .alpha(alpha)
             )
         }

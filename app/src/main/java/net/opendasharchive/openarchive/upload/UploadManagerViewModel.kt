@@ -111,11 +111,12 @@ class UploadManagerViewModel(
         val item = currentList[position]
         val collection = item.collection
 
-        // Delete collection along with the item, if the collection would become empty.
-        if ((collection?.size ?: 0) < 2) {
-            collection?.delete()
-        } else {
-            item.delete()
+        // Delete the media item first
+        item.delete()
+
+        // Delete collection if it's now empty (no cascade delete support in db)
+        if (collection != null && collection.media.isEmpty()) {
+            collection.delete()
         }
 
         removeItem(item.id)
