@@ -1,6 +1,5 @@
 package net.opendasharchive.openarchive.features.media
 
-import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -41,23 +40,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -67,21 +61,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import coil3.compose.AsyncImagePainter
-import coil3.compose.SubcomposeAsyncImage
-import coil3.compose.SubcomposeAsyncImageContent
-import coil3.request.ImageRequest
-import coil3.request.error
-import coil3.video.VideoFrameDecoder
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.presentation.media.MediaStatusOverlay
+import net.opendasharchive.openarchive.core.presentation.media.MediaThumbnail
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
@@ -97,12 +85,10 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
-import net.opendasharchive.openarchive.util.PdfThumbnailLoader
 import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.io.File
 
 class PreviewMediaFragment : BaseFragment(), ToolbarConfigurable {
 
@@ -637,7 +623,11 @@ private fun MediaListItem(
         MediaThumbnail(
             media = media,
             isSelected = isInSelectionMode && isSelected,
-            onShowTitle = { showTitle = it }
+            alpha = if (isInSelectionMode && isSelected) 0.5f else 1f,
+            placeholderPadding = 24.dp,
+            pdfMaxDimensionPx = 512,
+            showStatusOverlay = false,
+            onTitleVisibilityChanged = { showTitle = it }
         )
 
         if (media.mimeType.startsWith("video")) {
@@ -666,290 +656,14 @@ private fun MediaListItem(
             )
         }
 
-        MediaStatusOverlay(media = media)
+        MediaStatusOverlay(
+            media = media,
+            showProgressText = true,
+            backgroundColor = colorResource(R.color.transparent_loading_overlay),
+            progressIndicatorSize = 42,
+            showQueuedState = true,
+            showUploadingState = true
+        )
     }
 }
 
-@Composable
-private fun MediaStatusOverlay(media: Media) {
-    when (media.sStatus) {
-        Media.Status.Error -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(colorResource(R.color.transparent_loading_overlay)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_error),
-                    contentDescription = stringResource(R.string.error),
-                    tint = colorResource(R.color.colorDanger),
-                    modifier = Modifier.size(32.dp)
-                )
-            }
-        }
-
-        Media.Status.Queued -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(colorResource(R.color.transparent_loading_overlay)),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier.size(42.dp),
-                    strokeWidth = 4.dp
-                )
-            }
-        }
-
-        Media.Status.Uploading -> {
-            val progressValue = media.uploadPercentage ?: 0
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(colorResource(R.color.transparent_loading_overlay)),
-                contentAlignment = Alignment.Center
-            ) {
-                if (progressValue > 2) {
-                    CircularProgressIndicator(
-                        progress = { progressValue / 100f },
-                        color = MaterialTheme.colorScheme.tertiary,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                        modifier = Modifier.size(42.dp),
-                        strokeWidth = 4.dp
-                    )
-                } else {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.tertiary,
-                        modifier = Modifier.size(42.dp),
-                        strokeWidth = 4.dp
-                    )
-                }
-                Text(
-                    text = "$progressValue%",
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 12.dp),
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontFamily = MontserratFontFamily,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.tertiary
-                    )
-                )
-            }
-        }
-
-        else -> Unit
-    }
-}
-
-@Composable
-private fun MediaThumbnail(
-    media: Media,
-    isSelected: Boolean,
-    onShowTitle: (Boolean) -> Unit
-) {
-    val context = LocalContext.current
-    val thumbnailAlpha = if (isSelected) 0.5f else 1f
-    val imageExists = remember(media.originalFilePath) {
-        runCatching { media.file.exists() }.getOrDefault(false)
-    }
-    val videoExists = remember(media.originalFilePath) {
-        runCatching {
-            val primary = media.originalFilePath.takeIf { it.isNotBlank() }?.let { File(it).exists() } ?: false
-            val secondary = media.fileUri.path?.let { File(it).exists() } ?: false
-            primary || secondary
-        }.getOrDefault(false)
-    }
-
-    when {
-        media.mimeType.startsWith("image") && imageExists -> {
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(media.fileUri)
-                    .error(R.drawable.ic_image)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .alpha(thumbnailAlpha)
-            ) {
-                val state = painter.state
-                if (state is AsyncImagePainter.State.Loading) {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.tertiary,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                } else {
-                    SubcomposeAsyncImageContent()
-                }
-            }
-            onShowTitle(false)
-        }
-
-        media.mimeType.startsWith("video") && videoExists -> {
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(media.originalFilePath.ifEmpty { media.fileUri })
-                    .decoderFactory(VideoFrameDecoder.Factory())
-                    .error(R.drawable.ic_video)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .alpha(thumbnailAlpha)
-            ) {
-                val state = painter.state
-                if (state is AsyncImagePainter.State.Loading) {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.tertiary,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                } else {
-                    SubcomposeAsyncImageContent()
-                }
-            }
-            onShowTitle(false)
-        }
-        media.mimeType.startsWith("video") -> {
-            PlaceholderIcon(
-                drawableRes = R.drawable.ic_video,
-                isSelected = isSelected,
-                alpha = thumbnailAlpha
-            )
-            onShowTitle(true)
-        }
-
-        media.mimeType.startsWith("image") -> {
-            PlaceholderIcon(
-                drawableRes = R.drawable.ic_image,
-                isSelected = isSelected,
-                alpha = thumbnailAlpha
-            )
-            onShowTitle(true)
-        }
-
-        media.mimeType == "application/pdf" -> {
-            PdfThumbnail(
-                media = media,
-                isSelected = isSelected,
-                modifier = Modifier.alpha(thumbnailAlpha),
-                onPlaceholder = { onShowTitle(true) },
-                onResult = { success -> onShowTitle(!success) }
-            )
-        }
-
-        media.mimeType.startsWith("audio") -> {
-            PlaceholderIcon(
-                drawableRes = R.drawable.ic_music,
-                isSelected = isSelected,
-                alpha = thumbnailAlpha
-            )
-            onShowTitle(true)
-        }
-
-        media.mimeType.startsWith("application") -> {
-            PlaceholderIcon(
-                drawableRes = R.drawable.ic_unknown_file,
-                isSelected = isSelected,
-                alpha = thumbnailAlpha
-            )
-            onShowTitle(true)
-        }
-
-        else -> {
-            PlaceholderIcon(
-                drawableRes = R.drawable.no_thumbnail,
-                isSelected = isSelected,
-                alpha = thumbnailAlpha
-            )
-            onShowTitle(true)
-        }
-    }
-}
-
-@Composable
-private fun PlaceholderIcon(
-    drawableRes: Int,
-    isSelected: Boolean,
-    alpha: Float
-) {
-    Icon(
-        painter = painterResource(id = drawableRes),
-        contentDescription = null,
-        tint = if (isSelected) {
-            colorResource(R.color.colorOnPrimaryContainer)
-        } else {
-            colorResource(R.color.colorOnSurfaceVariant)
-        },
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp)
-            //.size(64.dp)
-            .alpha(alpha)
-    )
-}
-
-@Composable
-private fun PdfThumbnail(
-    media: Media,
-    isSelected: Boolean,
-    modifier: Modifier = Modifier,
-    onPlaceholder: () -> Unit,
-    onResult: (Boolean) -> Unit
-) {
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val density = LocalDensity.current
-    val tintColor = if (isSelected) {
-        colorResource(R.color.colorOnPrimaryContainer)
-    } else {
-        colorResource(R.color.colorOnSurfaceVariant)
-    }
-    var job by remember { mutableStateOf<Job?>(null) }
-    val paddingPx = remember(density) { with(density) { 24.dp.roundToPx() } }
-
-    AndroidView(
-        factory = { ctx ->
-            android.widget.ImageView(ctx).apply {
-                tag = media.id
-                scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
-                setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
-            }
-        },
-        modifier = modifier.fillMaxSize(),
-        update = { imageView ->
-            imageView.tag = media.id
-            imageView.setImageDrawable(null)
-            job?.cancel()
-            job = PdfThumbnailLoader.loadThumbnail(
-                imageView = imageView,
-                uri = media.fileUri,
-                placeholderRes = R.drawable.ic_pdf,
-                scope = scope,
-                maxDimensionPx = 512,
-                context = context,
-                requestKey = media.id,
-                onPlaceholder = {
-                    onPlaceholder()
-                    imageView.imageTintList = ColorStateList.valueOf(tintColor.toArgb())
-                }
-            ) { success ->
-                if (!success) {
-                    imageView.imageTintList = ColorStateList.valueOf(tintColor.toArgb())
-                }
-                onResult(success)
-            }
-        }
-    )
-
-    DisposableEffect(media.id) {
-        onDispose {
-            job?.cancel()
-        }
-    }
-}

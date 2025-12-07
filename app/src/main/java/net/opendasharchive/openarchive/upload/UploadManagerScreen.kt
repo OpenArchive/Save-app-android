@@ -1,9 +1,7 @@
 package net.opendasharchive.openarchive.upload
 
-import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.text.format.Formatter
-import android.widget.ImageView
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,21 +28,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -54,19 +42,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.SubcomposeAsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
-import coil3.request.error
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.presentation.media.MediaStatusOverlay
+import net.opendasharchive.openarchive.core.presentation.media.MediaThumbnail
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.util.PdfThumbnailLoader
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -290,11 +273,21 @@ private fun UploadMediaItem(
                 ) {
                     MediaThumbnail(
                         media = media,
-                        alpha = alpha
+                        alpha = alpha,
+                        placeholderPadding = 12.dp,
+                        pdfMaxDimensionPx = 400,
+                        showStatusOverlay = false
                     )
 
-                    // Overlay for status
-                    MediaStatusOverlay(media = media)
+                    // Overlay for status - show only Error, not Queued/Uploading (queue is paused)
+                    MediaStatusOverlay(
+                        media = media,
+                        showProgressText = false,
+                        backgroundColor = colorResource(R.color.transparent_black),
+                        progressIndicatorSize = 32,
+                        showQueuedState = false,
+                        showUploadingState = false
+                    )
                 }
             }
 
@@ -351,190 +344,8 @@ private fun UploadMediaItem(
     }
 }
 
-@Composable
-private fun MediaThumbnail(
-    media: Media,
-    alpha: Float
-) {
-    val context = LocalContext.current
-
-    when {
-        media.mimeType.startsWith("image") -> {
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(media.fileUri)
-                    .error(R.drawable.ic_image)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                error = {
-                    PlaceholderIcon(
-                        drawableRes = R.drawable.ic_image,
-                        alpha = alpha
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .aspectRatio(1f)
-                    .alpha(alpha)
-            )
-        }
-
-        media.mimeType.startsWith("video") -> {
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(media.fileUri)
-                    .error(R.drawable.ic_video)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                error = {
-                    PlaceholderIcon(
-                        drawableRes = R.drawable.ic_video,
-                        alpha = alpha
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .aspectRatio(1f)
-                    .alpha(alpha)
-            )
-        }
-
-        media.mimeType.startsWith("audio") -> {
-            PlaceholderIcon(
-                drawableRes = R.drawable.ic_music,
-                alpha = alpha
-            )
-        }
-
-        media.mimeType == "application/pdf" -> {
-            PdfThumbnail(
-                media = media,
-                alpha = alpha
-            )
-        }
-
-        media.mimeType.startsWith("application") -> {
-            PlaceholderIcon(
-                drawableRes = R.drawable.ic_unknown_file,
-                alpha = alpha
-            )
-        }
-
-        else -> {
-            PlaceholderIcon(
-                drawableRes = R.drawable.ic_unknown_file,
-                alpha = alpha
-            )
-        }
-    }
-}
-
-@Composable
-private fun PlaceholderIcon(
-    drawableRes: Int,
-    alpha: Float
-) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(4.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            painter = painterResource(id = drawableRes),
-            contentDescription = null,
-            tint = colorResource(R.color.colorOnSurfaceVariant),
-            modifier = Modifier
-                .size(48.dp)
-                .alpha(alpha)
-        )
-    }
-}
-
-@Composable
-private fun PdfThumbnail(
-    media: Media,
-    alpha: Float
-) {
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val density = LocalDensity.current
-    val tintColor = colorResource(R.color.colorOnSurfaceVariant)
-    var job by remember { mutableStateOf<Job?>(null) }
-    val paddingPx = remember(density) { with(density) { 12.dp.roundToPx() } }
-
-    AndroidView(
-        factory = { ctx ->
-            ImageView(ctx).apply {
-                tag = media.id
-                scaleType = ImageView.ScaleType.FIT_CENTER
-                setPadding(paddingPx, paddingPx, paddingPx, paddingPx)
-            }
-        },
-        modifier = Modifier
-            .fillMaxSize()
-            .alpha(alpha),
-        update = { imageView ->
-            imageView.tag = media.id
-            imageView.setImageDrawable(null)
-            job?.cancel()
-            job = PdfThumbnailLoader.loadThumbnail(
-                imageView = imageView,
-                uri = media.fileUri,
-                placeholderRes = R.drawable.ic_pdf,
-                scope = scope,
-                maxDimensionPx = 400,
-                context = context,
-                requestKey = media.id,
-                onPlaceholder = {
-                    imageView.imageTintList = ColorStateList.valueOf(tintColor.toArgb())
-                }
-            ) { success ->
-                if (!success) {
-                    imageView.imageTintList = ColorStateList.valueOf(tintColor.toArgb())
-                }
-            }
-        }
-    )
-
-    DisposableEffect(media.id) {
-        onDispose {
-            job?.cancel()
-        }
-    }
-}
-
-@Composable
-private fun MediaStatusOverlay(media: Media) {
-    when (media.sStatus) {
-        Media.Status.Error -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(colorResource(R.color.transparent_black)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_error),
-                    contentDescription = stringResource(R.string.error),
-                    tint = colorResource(R.color.colorDanger),
-                    modifier = Modifier.size(32.dp)
-                )
-            }
-        }
-
-        Media.Status.Queued,
-        Media.Status.Uploading -> {
-            // No overlay shown - queue is paused when screen is open
-        }
-
-        else -> Unit
-    }
-}
+// MediaThumbnail, PlaceholderIcon, PdfThumbnail, and MediaStatusOverlay
+// have been moved to shared components in core.presentation.media package
 
 @Composable
 private fun getFileInfoText(media: Media): String {
