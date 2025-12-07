@@ -219,6 +219,7 @@ dependencies {
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.compose.preferences)
+    implementation(libs.reorderable)
 
     // Material Design
     implementation(libs.google.material)

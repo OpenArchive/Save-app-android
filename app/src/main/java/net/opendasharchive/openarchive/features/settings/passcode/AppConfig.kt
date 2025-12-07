@@ -9,4 +9,5 @@ data class AppConfig(
     val isDwebEnabled: Boolean = false,
     val multipleProjectSelectionMode: Boolean = false,
     val useCustomCamera: Boolean = false,
+    val useComposeUploadManager: Boolean = true,
 )

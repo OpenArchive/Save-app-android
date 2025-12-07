@@ -14,12 +14,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PlatformImeOptions
 import androidx.compose.ui.unit.sp
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 
@@ -58,10 +60,8 @@ fun CustomTextField(
                 placeholder?.let {
                     Text(
                         text = placeholder,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontStyle = FontStyle.Italic,
-                            fontSize = 13.sp,
-                            fontFamily = MontserratFontFamily
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            color = colorResource(R.color.colorOnSurfaceVariant)
                         )
                     )
                 }

@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -53,10 +54,8 @@ fun CustomSecureField(
         placeholder = {
             Text(
                 text = placeholder,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontStyle = FontStyle.Italic,
-                    fontSize = 13.sp,
-                    fontFamily = MontserratFontFamily
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = colorResource(R.color.colorOnSurfaceVariant)
                 )
             )
         },

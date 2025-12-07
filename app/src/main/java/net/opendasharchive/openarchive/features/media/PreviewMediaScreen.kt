@@ -540,25 +540,23 @@ private fun SelectionButton(
     val verticalPadding = dimensionResource(R.dimen.selection_button_padding_vertical)
     Button(
         onClick = onClick,
-        modifier = Modifier
-            .heightIn(min = ThemeDimensions.touchable)
-            .padding(horizontal = 4.dp),
+        modifier = Modifier,
         colors = ButtonDefaults.buttonColors(
             containerColor = colorResource(R.color.selection_button_glass),
             contentColor = colorResource(R.color.colorTertiary)
         ),
-        shape = RoundedCornerShape(dimensionResource(R.dimen.selection_button_corner_radius)),
+        shape = RoundedCornerShape(50),
         border = androidx.compose.foundation.BorderStroke(
             width = dimensionResource(R.dimen.selection_button_stroke_width),
             color = colorResource(R.color.selection_button_stroke)
         ),
         contentPadding = PaddingValues(
-            horizontal = horizontalPadding,
+            horizontal = verticalPadding,
             vertical = verticalPadding
         )
     ) {
         Icon(
-            modifier = Modifier.size(24.dp),
+            modifier = Modifier.size(20.dp),
             painter = painterResource(id = iconRes),
             contentDescription = contentDescription,
             tint = colorResource(R.color.colorTertiary)
@@ -754,7 +752,7 @@ private fun MediaThumbnail(
     onShowTitle: (Boolean) -> Unit
 ) {
     val context = LocalContext.current
-    val thumbnailAlpha = if (media.sStatus == Media.Status.Uploaded) 1f else 0.5f
+    val thumbnailAlpha = if (isSelected) 0.5f else 1f
     val imageExists = remember(media.originalFilePath) {
         runCatching { media.file.exists() }.getOrDefault(false)
     }
@@ -889,7 +887,9 @@ private fun PlaceholderIcon(
             colorResource(R.color.colorOnSurfaceVariant)
         },
         modifier = Modifier
-            .size(64.dp)
+            .fillMaxSize()
+            .padding(24.dp)
+            //.size(64.dp)
             .alpha(alpha)
     )
 }

@@ -34,8 +34,10 @@ open class SKBottomSheetDialogFragment : BottomSheetDialogFragment() {
                     val behavior = BottomSheetBehavior.from(frameLayout)
 
                     // Set behavior attributes to allow collapsing and dismissing
-                    behavior.peekHeight = Resources.getSystem().displayMetrics.heightPixels
-//                    behavior.peekHeight = 0 // Start from full-screen
+                    // Set peekHeight to 90% of screen to show MainActivity content at top
+                    val screenHeight = Resources.getSystem().displayMetrics.heightPixels
+                    behavior.peekHeight = (screenHeight * 0.95f).toInt()
+                    behavior.maxHeight = (screenHeight * 0.95f).toInt()
                     behavior.state = BottomSheetBehavior.STATE_EXPANDED // Initially expanded
                     behavior.isDraggable = false // Allow dragging
                     behavior.skipCollapsed = false // Enable collapse

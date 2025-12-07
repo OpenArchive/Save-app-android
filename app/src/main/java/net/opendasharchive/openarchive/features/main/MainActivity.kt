@@ -72,6 +72,8 @@ import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdActivity
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
+import net.opendasharchive.openarchive.upload.ComposeUploadManagerFragment
+import net.opendasharchive.openarchive.upload.SKBottomSheetDialogFragment
 import net.opendasharchive.openarchive.upload.UploadManagerFragment
 import net.opendasharchive.openarchive.upload.UploadService
 import net.opendasharchive.openarchive.util.InAppReviewHelper
@@ -98,7 +100,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     private var mSnackBar: Snackbar? = null
 
-    var uploadManagerFragment: UploadManagerFragment? = null
+    var uploadManagerFragment: SKBottomSheetDialogFragment? = null
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var mPagerAdapter: ProjectAdapter
@@ -1248,8 +1250,15 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
      */
     fun showUploadManagerFragment() {
         if (uploadManagerFragment == null) {
-            uploadManagerFragment = UploadManagerFragment()
-            uploadManagerFragment?.show(supportFragmentManager, UploadManagerFragment.TAG)
+            if (appConfig.useComposeUploadManager) {
+                // Use Compose version
+                uploadManagerFragment = ComposeUploadManagerFragment()
+                uploadManagerFragment?.show(supportFragmentManager, ComposeUploadManagerFragment.TAG)
+            } else {
+                // Use XML version
+                uploadManagerFragment = UploadManagerFragment()
+                uploadManagerFragment?.show(supportFragmentManager, UploadManagerFragment.TAG)
+            }
 
             // Stop the upload service when the bottom sheet is shown
             UploadService.stopUploadService(this)
@@ -1262,8 +1271,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
      */
     private fun setupBottomSheetObserver() {
         supportFragmentManager.addFragmentOnAttachListener { _, fragment ->
-            if (fragment is UploadManagerFragment) {
-                uploadManagerFragment = fragment
+            if (fragment is UploadManagerFragment || fragment is ComposeUploadManagerFragment) {
+                uploadManagerFragment = fragment as SKBottomSheetDialogFragment
 
                 // Observe when it gets dismissed
                 fragment.lifecycle.addObserver(object : DefaultLifecycleObserver {

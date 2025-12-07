@@ -18,6 +18,7 @@ import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupRepository
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupViewModel
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdRepoRepository
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdRepoViewModel
+import net.opendasharchive.openarchive.upload.UploadManagerViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
@@ -71,4 +72,7 @@ val featuresModule = module {
     single<SaveClientFactory> { SaveClientFactoryImpl(get()) }
     single { WebDavRepository(get(), get()) }
     viewModel { WebDavViewModel(get(), get(), get()) }
+
+    // Upload Manager
+    viewModelOf(::UploadManagerViewModel)
 }

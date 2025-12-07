@@ -10,6 +10,8 @@ import android.os.ParcelFileDescriptor
 import android.util.LruCache
 import android.widget.ImageView
 import android.net.Uri
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.net.toFile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +29,56 @@ object PdfThumbnailLoader {
     private val cache = object : LruCache<String, Bitmap>(CACHE_SIZE_KB) {
         override fun sizeOf(key: String, value: Bitmap): Int {
             return value.byteCount / 1024
+        }
+    }
+
+    // You can keep your LruCache here if you want (key -> ImageBitmap)
+    suspend fun loadPdfThumbnailBitmap(
+        context: Context,
+        uri: Uri,
+        maxDimensionPx: Int = 400
+    ): ImageBitmap? = withContext(Dispatchers.IO) {
+        val descriptor = openDescriptor(context, uri) ?: return@withContext null
+
+        try {
+            PdfRenderer(descriptor).use { renderer ->
+                if (renderer.pageCount == 0) return@withContext null
+
+                renderer.openPage(0).use { page ->
+                    val scale = minOf(
+                        maxDimensionPx.toFloat() / page.width,
+                        maxDimensionPx.toFloat() / page.height
+                    ).coerceAtLeast(0.1f)
+
+                    val bitmapWidth = (page.width * scale).toInt().coerceAtLeast(1)
+                    val bitmapHeight = (page.height * scale).toInt().coerceAtLeast(1)
+
+                    val bitmap = Bitmap.createBitmap(
+                        bitmapWidth,
+                        bitmapHeight,
+                        Bitmap.Config.ARGB_8888
+                    )
+
+                    Canvas(bitmap).apply {
+                        drawColor(Color.WHITE)
+                    }
+
+                    val matrix = Matrix().apply { postScale(scale, scale) }
+
+                    page.render(
+                        bitmap,
+                        null,
+                        matrix,
+                        PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
+                    )
+
+                    bitmap.asImageBitmap()
+                }
+            }
+        } catch (e: Exception) {
+            null
+        } finally {
+            descriptor.close()
         }
     }
 

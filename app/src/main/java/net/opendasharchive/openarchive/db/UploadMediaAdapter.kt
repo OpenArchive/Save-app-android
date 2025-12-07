@@ -24,8 +24,6 @@ class UploadMediaAdapter(
 
     var doImageFade = true
 
-    private var mActivity = WeakReference(activity)
-
     init {
         setHasStableIds(true)
     }

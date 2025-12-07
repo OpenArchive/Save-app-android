@@ -66,6 +66,7 @@ preference = "1.2.1"
 proofmode = "1.0.30"
 recyclerview = "1.4.0"
 recyclerview-selection = "1.2.0"
+reorderable = "3.0.0"
 retrofit = "3.0.0"
 robolectric = "4.16"
 room = "2.8.4"
@@ -162,6 +163,7 @@ androidx-test-runner = { group = "androidx.test", name = "runner", version.ref =
 
 # Compose - Third Party
 compose-preferences = { group = "me.zhanghai.compose.preference", name = "preference", version.ref = "compose-preference" }
+reorderable = { group = "sh.calvin.reorderable", name = "reorderable", version.ref = "reorderable" }
 
 # Detekt
 detekt-formatting = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
