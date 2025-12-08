@@ -5,25 +5,36 @@ import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
+import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.SnowbirdError
 import net.opendasharchive.openarchive.extensions.androidViewModel
 import net.opendasharchive.openarchive.features.core.BaseActivity
-import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
-import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupViewModel
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdRepoViewModel
 import net.opendasharchive.openarchive.util.FullScreenOverlayManager
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
-abstract class BaseSnowbirdFragment : BaseFragment() {
+abstract class BaseSnowbirdFragment : Fragment(), ToolbarConfigurable {
+
+    protected val dialogManager: DialogStateManager by activityViewModel()
+    protected val analyticsManager: AnalyticsManager by inject()
+    protected val sessionTracker: SessionTracker by inject()
+
+    private var screenStartTime: Long = 0
+    private var previousScreen: String = ""
 
     val snowbirdGroupViewModel: SnowbirdGroupViewModel by androidViewModel()
     val snowbirdRepoViewModel: SnowbirdRepoViewModel by androidViewModel()
+
+    protected open fun getScreenName(): String = this::class.simpleName ?: "UnknownSnowbirdFragment"
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -59,6 +70,33 @@ abstract class BaseSnowbirdFragment : BaseFragment() {
 
     override fun onResume() {
         super.onResume()
-        (activity as? SpaceSetupActivity)?.updateToolbarFromFragment(this)
+        (activity as? SnowbirdActivity)?.updateToolbarFromFragment(this)
+
+        screenStartTime = System.currentTimeMillis()
+        val screenName = getScreenName()
+        AppLogger.setCurrentScreen(screenName)
+
+        lifecycleScope.launch {
+            analyticsManager.trackScreenView(screenName, null, previousScreen)
+        }
+        sessionTracker.setCurrentScreen(screenName)
+
+        if (previousScreen.isNotEmpty() && previousScreen != screenName) {
+            lifecycleScope.launch {
+                analyticsManager.trackNavigation(previousScreen, screenName)
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        val timeSpent = (System.currentTimeMillis() - screenStartTime) / 1000
+        val screenName = getScreenName()
+
+        lifecycleScope.launch {
+            analyticsManager.trackScreenView(screenName, timeSpent, previousScreen)
+        }
+
+        previousScreen = screenName
     }
 }
