@@ -12,8 +12,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.db.Project
-import net.opendasharchive.openarchive.features.main.ui.HomeScreen
 import net.opendasharchive.openarchive.features.main.ui.HomeViewModel
 import net.opendasharchive.openarchive.features.main.ui.SaveNavGraph
 import net.opendasharchive.openarchive.features.media.AddMediaType
@@ -66,6 +66,15 @@ class HomeActivity: FragmentActivity() {
 
         installSplashScreen()
 
+        // Set system bars to be edge-to-edge
+        window.decorView.systemUiVisibility = (
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+        )
+
+        // Set navigation bar color to match bottom bar color
+        window.navigationBarColor = ContextCompat.getColor(this, R.color.colorTertiary)
+
         // Perform any intent processing (e.g. deep-links or shared media)
         handleIntent(intent)
 
@@ -96,7 +105,6 @@ class HomeActivity: FragmentActivity() {
         // Set up your Compose UI and pass callbacks.
         setContent {
             SaveNavGraph(
-                context = this@HomeActivity,
                 onExit = {
                     finish()
                 },

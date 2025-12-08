@@ -32,7 +32,7 @@ class PasscodeSetupActivity : BaseActivity() {
                     topAppBar = {
                         ComposeAppBar(
                             title = stringResource(R.string.passcode_lock_app),
-                            onNavigationAction = {
+                            onNavigateBack = {
                                 setResult(RESULT_CANCELED)
                                 finish()
                             }

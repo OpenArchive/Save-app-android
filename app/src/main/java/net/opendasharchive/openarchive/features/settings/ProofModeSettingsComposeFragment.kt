@@ -10,7 +10,7 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.core.BaseFragment
 
-class ProofModeComposeFragment : BaseFragment() {
+class ProofModeSettingsComposeFragment : BaseFragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -21,7 +21,7 @@ class ProofModeComposeFragment : BaseFragment() {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 SaveAppTheme {
-                    ProofModeScreen(onNavigateBack = { requireActivity().onBackPressedDispatcher.onBackPressed() })
+                    ProofModeSettingsScreen(onNavigateBack = { requireActivity().onBackPressedDispatcher.onBackPressed() })
                 }
             }
         }

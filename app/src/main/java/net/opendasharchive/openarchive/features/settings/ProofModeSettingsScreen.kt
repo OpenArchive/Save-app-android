@@ -24,6 +24,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -60,7 +61,8 @@ import me.zhanghai.compose.preference.rememberPreferenceState
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles
+import net.opendasharchive.openarchive.features.core.ComposeAppBar
+import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
 import net.opendasharchive.openarchive.util.Hbks
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.ProofModeHelper
@@ -68,7 +70,7 @@ import java.util.UUID
 import javax.crypto.SecretKey
 
 @Composable
-fun ProofModeScreen(
+fun ProofModeSettingsScreen(
     onNavigateBack: () -> Unit
 ) {
 
@@ -137,7 +139,7 @@ fun ProofModeScreen(
 
 
 
-            ProofModeScreenContent(
+            ProofModeSettingsScreenContent(
                 useProofModeState = useProofModeState,
                 onToggleProofMode = { isEnabled ->
                     if (isEnabled) {
@@ -154,17 +156,19 @@ fun ProofModeScreen(
                 },
                 onOpenUrl = {
 
-                }
+                },
+                onNavigateBack = onNavigateBack
             )
         }
     }
 }
 
 @Composable
-fun ProofModeScreenContent(
+fun ProofModeSettingsScreenContent(
     useProofModeState: MutableState<Boolean>,
     onToggleProofMode: (Boolean) -> Unit,
-    onOpenUrl: () -> Unit
+    onOpenUrl: () -> Unit = {},
+    onNavigateBack: () -> Unit = {}
 ) {
 
     val spannedText: Spanned = HtmlCompat.fromHtml(
@@ -197,65 +201,74 @@ fun ProofModeScreenContent(
             }
     }
 
-    LazyColumn(modifier = Modifier
-        .fillMaxSize()
-        .padding(top = 4.dp)) {
+    DefaultScaffold(
+        title = stringResource(R.string.proofmode),
+        onNavigateBack = onNavigateBack
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 4.dp)
+        ) {
 
-        item(key = "use_proofmode_switch") {
-            SwitchPreference(
-                title = { PreferenceTitle(stringResource(R.string.prefs_use_proofmode_title)) },
-                state = useProofModeState,
-                onToggle = onToggleProofMode,
-            )
-        }
-
-        item {
-            Box(modifier = Modifier
-                .padding(vertical = 8.dp)
-                .padding(start = 16.dp, end = 32.dp)) {
-                Text(
-                    text = annotatedString,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onBackground
+            item(key = "use_proofmode_switch") {
+                SwitchPreference(
+                    title = { PreferenceTitle(stringResource(R.string.prefs_use_proofmode_title)) },
+                    state = useProofModeState,
+                    onToggle = onToggleProofMode,
                 )
             }
-        }
 
-        item {
-            Column(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)
-            ) {
-
-                Card(
-                    shape = RoundedCornerShape(8.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = colorResource(R.color.splashBackground)
+            item {
+                Box(
+                    modifier = Modifier
+                        .padding(vertical = 8.dp)
+                        .padding(start = 16.dp, end = 32.dp)
+                ) {
+                    Text(
+                        text = annotatedString,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
+                }
+            }
+
+            item {
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)
                 ) {
 
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.Top,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    Card(
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = colorResource(R.color.splashBackground)
+                        )
                     ) {
-                        Icon(
-                            Icons.Outlined.Info,
-                            tint = MaterialTheme.colorScheme.error,
-                            contentDescription = null
-                        )
-                        Text(
-                            text = AnnotatedString.fromHtml(
-                                stringResource(R.string.proof_mode_warning_text),
-                                linkStyles = TextLinkStyles(
-                                    style = SpanStyle(
-                                        textDecoration = TextDecoration.Underline,
-                                        fontStyle = FontStyle.Italic,
-                                        color = Color.Blue
+
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.Top,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                Icons.Outlined.Info,
+                                tint = MaterialTheme.colorScheme.error,
+                                contentDescription = null
+                            )
+                            Text(
+                                text = AnnotatedString.fromHtml(
+                                    stringResource(R.string.proof_mode_warning_text),
+                                    linkStyles = TextLinkStyles(
+                                        style = SpanStyle(
+                                            textDecoration = TextDecoration.Underline,
+                                            fontStyle = FontStyle.Italic,
+                                            color = Color.Blue
+                                        )
                                     )
-                                )
-                            ),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                                ),
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
                     }
                 }
             }
@@ -294,7 +307,7 @@ private fun PreviewProofModeScreen() {
         flow = previewFlow,
         theme = savePreferenceTheme()
     ) {
-        ProofModeScreenContent(
+        ProofModeSettingsScreenContent(
             useProofModeState = useProofModeState,
             onToggleProofMode = {},
             onOpenUrl = {}

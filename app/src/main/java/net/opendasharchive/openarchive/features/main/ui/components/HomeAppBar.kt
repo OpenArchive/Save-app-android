@@ -25,7 +25,8 @@ import net.opendasharchive.openarchive.R
 @Composable
 fun HomeAppBar(
     openDrawer: () -> Unit,
-    onExit: () -> Unit
+    onExit: () -> Unit,
+    isSettings: Boolean = false
 ) {
 
     TopAppBar(
@@ -57,23 +58,27 @@ fun HomeAppBar(
 
             }
 
-            IconButton(
-                colors = IconButtonDefaults.iconButtonColors(
-                    contentColor = colorResource(R.color.colorOnSecondary)
-                ),
-                onClick = {
-                    openDrawer()
+            // Only show drawer icon when not on settings page
+            if (!isSettings) {
+                IconButton(
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = colorResource(R.color.colorOnPrimary)
+                    ),
+                    onClick = {
+                        openDrawer()
+                    }
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_menu),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = null
-                )
             }
 
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = colorResource(R.color.colorPrimary)
+            containerColor = colorResource(R.color.colorTertiary)
         )
     )
 }

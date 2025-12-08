@@ -1,6 +1,7 @@
 package net.opendasharchive.openarchive.features.settings.passcode.components
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -13,6 +14,7 @@ import androidx.compose.ui.Modifier
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
+import net.opendasharchive.openarchive.features.core.ComposeAppBar
 
 object MessageManager {
     private val _messageChannel = Channel<String>(Channel.BUFFERED)
@@ -25,7 +27,26 @@ object MessageManager {
 
 @Composable
 fun DefaultScaffold(
-    modifier: Modifier = Modifier,
+    title: String,
+    onNavigateBack: () -> Unit = {},
+    actions: @Composable (RowScope.() -> Unit) = {},
+    content: @Composable () -> Unit,
+) {
+
+    DefaultScaffold(
+        topAppBar = {
+            ComposeAppBar(
+                title = title,
+                actions = actions,
+                onNavigateBack = onNavigateBack
+            )
+        },
+        content = content
+    )
+}
+
+@Composable
+fun DefaultScaffold(
     topAppBar: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
@@ -39,7 +60,7 @@ fun DefaultScaffold(
     }
 
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         topBar = {
             topAppBar?.invoke()
         },

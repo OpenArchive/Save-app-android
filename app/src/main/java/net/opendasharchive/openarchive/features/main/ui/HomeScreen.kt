@@ -1,26 +1,15 @@
 package net.opendasharchive.openarchive.features.main.ui
 
-import android.content.Context
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -30,84 +19,31 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
-import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.main.ui.components.HomeAppBar
 import net.opendasharchive.openarchive.features.main.ui.components.MainBottomBar
 import net.opendasharchive.openarchive.features.main.ui.components.MainDrawerContent
-import net.opendasharchive.openarchive.features.main.ui.components.SpaceIcon
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.settings.SettingsScreen
 import net.opendasharchive.openarchive.util.Prefs
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.max
-
-
-@Serializable
-data object HomeRoute
-
-@Serializable
-data object MediaCacheRoute
-
-@Composable
-fun SaveNavGraph(
-    context: Context,
-    viewModel: HomeViewModel = koinViewModel(),
-    onExit: () -> Unit,
-    onNewFolder: () -> Unit,
-    onFolderSelected: (Long) -> Unit,
-    onAddMedia: (AddMediaType) -> Unit
-) {
-    val navController = rememberNavController()
-
-    SaveAppTheme {
-
-        NavHost(
-            navController = navController,
-            startDestination = HomeRoute
-        ) {
-
-            composable<HomeRoute> {
-                HomeScreen(
-                    viewModel = viewModel,
-                    onExit = onExit,
-                    onNewFolder = onNewFolder,
-                    onFolderSelected = onFolderSelected,
-                    onAddMedia = onAddMedia,
-                    onNavigateToCache = {
-                        navController.navigate(MediaCacheRoute)
-                    }
-                )
-            }
-
-            composable<MediaCacheRoute> {
-                MediaCacheScreen(context) {
-                    navController.popBackStack()
-                }
-            }
-
-        }
-    }
-}
 
 @Composable
 fun HomeScreen(
@@ -116,24 +52,41 @@ fun HomeScreen(
     onNewFolder: () -> Unit,
     onFolderSelected: (Long) -> Unit,
     onAddMedia: (AddMediaType) -> Unit,
-    onNavigateToCache: () -> Unit
+    onNavigateToCache: () -> Unit,
+    onNavigateToProofModeSettings: () -> Unit
 ) {
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEvents.collectLatest { event ->
+            when(event) {
+                is HomeScreenEvent.NavigateToProofModeSettings -> {
+                    onNavigateToProofModeSettings()
+                }
+            }
+        }
+    }
 
     HomeScreenContent(
         onExit = onExit,
         state = state,
         onAction = viewModel::onAction,
-        onNavigateToCache = onNavigateToCache
+        onNavigateToCache = onNavigateToCache,
+        onNewFolder = onNewFolder,
+        onAddMedia = onAddMedia
     )
 
 
 }
 
 class HomeViewModel : ViewModel() {
+
     private val _uiState = MutableStateFlow(HomeScreenState())
     val uiState: StateFlow<HomeScreenState> = _uiState.asStateFlow()
+
+    private val _uiEvents = Channel<HomeScreenEvent>()
+    val uiEvents: Flow<HomeScreenEvent> = _uiEvents.receiveAsFlow()
 
     init {
         loadSpacesAndFolders()
@@ -146,6 +99,10 @@ class HomeViewModel : ViewModel() {
             }
 
             is HomeScreenAction.AddMediaClicked -> TODO()
+
+            is HomeScreenAction.NavigateToProofModeSettings -> viewModelScope.launch{
+                _uiEvents.send(HomeScreenEvent.NavigateToProofModeSettings)
+            }
         }
     }
 
@@ -171,6 +128,11 @@ class HomeViewModel : ViewModel() {
 sealed class HomeScreenAction {
     data class UpdateSelectedProject(val project: Project? = null) : HomeScreenAction()
     data class AddMediaClicked(val mediaType: AddMediaType) : HomeScreenAction()
+    data object NavigateToProofModeSettings : HomeScreenAction()
+}
+
+sealed class HomeScreenEvent {
+    data object NavigateToProofModeSettings: HomeScreenEvent()
 }
 
 data class HomeScreenState(
@@ -185,7 +147,9 @@ fun HomeScreenContent(
     onExit: () -> Unit,
     state: HomeScreenState,
     onAction: (HomeScreenAction) -> Unit,
-    onNavigateToCache: () -> Unit = {}
+    onNavigateToCache: () -> Unit = {},
+    onNewFolder: () -> Unit,
+    onAddMedia: (AddMediaType) -> Unit
 ) {
 
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -228,7 +192,26 @@ fun HomeScreenContent(
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                     MainDrawerContent(
                         selectedSpace = state.selectedSpace,
-                        spaceList = state.allSpaces
+                        spaceList = state.allSpaces,
+                        projects = state.projectsForSelectedSpace,
+                        selectedProject = state.selectedProject,
+                        onProjectSelected = { project ->
+                            // Update selected project and close drawer
+                            onAction(HomeScreenAction.UpdateSelectedProject(project))
+                            scope.launch {
+                                drawerState.close()
+                                // Navigate to the project's page
+                                val projectIndex = state.projectsForSelectedSpace.indexOf(project)
+                                if (projectIndex >= 0) {
+                                    pagerState.scrollToPage(projectIndex)
+                                }
+                            }
+                        },
+                        onNewFolderClick = {
+                            // TODO: Wire up to onNewFolder callback from parent
+                            // onNewFolder()
+                            scope.launch { drawerState.close() }
+                        }
                     )
                 }
             }
@@ -239,6 +222,7 @@ fun HomeScreenContent(
                     topBar = {
                         HomeAppBar(
                             onExit = onExit,
+                            isSettings = pagerState.currentPage == (totalPages - 1),
                             openDrawer = {
                                 scope.launch {
                                     drawerState.open()
@@ -250,7 +234,10 @@ fun HomeScreenContent(
                     bottomBar = {
                         MainBottomBar(
                             isSettings = pagerState.currentPage == (totalPages - 1),
-                            onAddMediaClick = {},
+                            onAddMediaClick = { mediaType ->
+                                // TODO: Wire up to onAddMedia callback from parent
+                                // onAddMedia(mediaType)
+                            },
                             onMyMediaClick = {
                                 // When "My Media" is tapped, scroll to the page of the currently selected project.
                                 // If no project is selected, default to the first page.
@@ -266,85 +253,82 @@ fun HomeScreenContent(
                                 }
                             }
                         )
-                    }
+                    },
+                    contentWindowInsets = androidx.compose.foundation.layout.WindowInsets(0, 0, 0, 0)
 
                 ) { paddingValues ->
 
-                    Column(
-                        modifier = Modifier.padding(paddingValues)
-                    ) {
-                        AnimatedVisibility(
-                            visible = pagerState.currentPage < totalPages - 1,
-                            enter = slideInHorizontally(
-                                animationSpec = tween()
-                            ),
-                            exit = slideOutHorizontally(
-                                animationSpec = tween()
-                            )
-                        ) {
-                            val selectedProject = state.selectedProject
-                            val selectedSpace = state.selectedSpace
-
-                            val folderName = selectedProject?.description
-                                ?: selectedProject?.created.toString()
-
-                            selectedSpace?.let { space ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = dimensionResource(R.dimen.activity_horizontal_margin)),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Row {
-                                        SpaceIcon(
-                                            type = space.tType,
-                                            modifier = Modifier.size(24.dp)
-                                        )
-                                        Icon(
-                                            painter = painterResource(R.drawable.keyboard_arrow_right),
-                                            contentDescription = null
-                                        )
-                                        Text(folderName)
-                                    }
-
-
-                                    TextButton(
-                                        onClick = {}
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.ic_edit_folder),
-                                            contentDescription = null
-                                        )
-                                        Text("Edit")
-                                    }
-                                }
-                            }
-
-                        }
-
-
-
                         HorizontalPager(
                             state = pagerState,
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier.fillMaxSize().padding(paddingValues),
                         ) { page ->
 
                             when (page) {
                                 0 -> {
                                     // First page: If no projects, show -1, else show first project's ID
-                                    MainMediaScreen(projectId = if (projects.isEmpty()) -1 else projects[0].id)
+                                    val firstProject = projects.firstOrNull()
+                                    MainMediaScreen(
+                                        projectId = firstProject?.id ?: -1,
+                                        project = firstProject,
+                                        space = state.selectedSpace,
+                                        onNavigateToPreview = { projectId ->
+                                            // TODO: Navigate to PreviewActivity - needs to be passed from parent
+                                        },
+                                        onShowUploadManager = {
+                                            // TODO: Show upload manager - needs to be passed from parent
+                                        },
+                                        onShowErrorDialog = { media, position ->
+                                            // TODO: Show error dialog - needs to be implemented
+                                        },
+                                        onSelectionModeChanged = { isSelecting, count ->
+                                            // TODO: Update selection mode - needs to be implemented
+                                        },
+                                        onAddServerClick = {
+                                            // TODO: Navigate to add server screen
+                                        },
+                                        onAddFolderClick = onNewFolder,
+                                        onAddMediaClick = {
+                                            onAddMedia(AddMediaType.GALLERY)
+                                        }
+                                    )
                                 }
 
                                 in 1 until projects.size -> {
                                     // Next project IDs (page - 1)
-                                    MainMediaScreen(projects[page].id)
+                                    val currentProject = projects[page]
+                                    MainMediaScreen(
+                                        projectId = currentProject.id,
+                                        project = currentProject,
+                                        space = state.selectedSpace,
+                                        onNavigateToPreview = { projectId ->
+                                            // TODO: Navigate to PreviewActivity - needs to be passed from parent
+                                        },
+                                        onShowUploadManager = {
+                                            // TODO: Show upload manager - needs to be passed from parent
+                                        },
+                                        onShowErrorDialog = { media, position ->
+                                            // TODO: Show error dialog - needs to be implemented
+                                        },
+                                        onSelectionModeChanged = { isSelecting, count ->
+                                            // TODO: Update selection mode - needs to be implemented
+                                        },
+                                        onAddServerClick = {
+                                            // TODO: Navigate to add server screen
+                                        },
+                                        onAddFolderClick = onNewFolder,
+                                        onAddMediaClick = {
+                                            onAddMedia(AddMediaType.GALLERY)
+                                        }
+                                    )
                                 }
 
                                 totalPages - 1 -> {
                                     // Always settings screen as the last page
                                     SettingsScreen(
-                                        onNavigateToCache = onNavigateToCache
+                                        onNavigateToCache = onNavigateToCache,
+                                        onNavigateToProofMode = {
+                                            onAction(HomeScreenAction.NavigateToProofModeSettings)
+                                        }
                                     )
                                 }
 
@@ -357,7 +341,6 @@ fun HomeScreenContent(
                                     }
                                 } // This should never be reached
                             }
-                        }
 
                     }
                 }
@@ -374,7 +357,9 @@ private fun MainContentPreview() {
         HomeScreenContent(
             onExit = {},
             state = HomeScreenState(),
-            onAction = {}
+            onAction = {},
+            onNewFolder = {},
+            onAddMedia = {}
         )
     }
 }

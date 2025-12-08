@@ -68,7 +68,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 
 @Composable
-fun SettingsScreen(onNavigateToCache: () -> Unit = {}) {
+fun SettingsScreen(
+    onNavigateToCache: () -> Unit = {},
+    onNavigateToProofMode: () -> Unit = {}
+) {
     val context = LocalContext.current
     if (LocalInspectionMode.current) {
         PreviewSettingsScreen()
@@ -190,11 +193,12 @@ fun SettingsScreen(onNavigateToCache: () -> Unit = {}) {
                 context.startActivity(intent)
             },
             onProofModeClick = {
-                context.startActivity(
-                    Intent(context, SpaceSetupActivity::class.java).apply {
-                        putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.PROOF_MODE.name)
-                    }
-                )
+                onNavigateToProofMode()
+//                context.startActivity(
+//                    Intent(context, SpaceSetupActivity::class.java).apply {
+//                        putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.PROOF_MODE.name)
+//                    }
+//                )
             },
             onAboutClick = { openUrl(context, "https://open-archive.org/save") },
             onPrivacyClick = { openUrl(context, "https://open-archive.org/privacy") },

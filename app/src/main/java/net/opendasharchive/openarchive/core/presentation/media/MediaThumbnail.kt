@@ -216,13 +216,19 @@ fun MediaPlaceholderIcon(
         colorResource(R.color.colorOnSurfaceVariant)
     }
 
-    Icon(
-        painter = painterResource(id = drawableRes),
-        contentDescription = null,
-        tint = tint,
+    Box(
         modifier = modifier
-            .fillMaxSize()
-            .padding(padding)
-            .alpha(alpha)
-    )
+            .fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            painter = painterResource(id = drawableRes),
+            contentDescription = null,
+            tint = tint,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .alpha(alpha)
+        )
+    }
 }

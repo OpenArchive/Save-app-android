@@ -2,6 +2,7 @@ package net.opendasharchive.openarchive.core.di
 
 import android.app.Application
 import net.opendasharchive.openarchive.features.internetarchive.internetArchiveModule
+import net.opendasharchive.openarchive.features.main.ui.MainMediaViewModel
 import net.opendasharchive.openarchive.features.media.PreviewMediaViewModel
 import net.opendasharchive.openarchive.features.media.ReviewMediaViewModel
 import net.opendasharchive.openarchive.features.spaces.SpaceListViewModel
@@ -59,6 +60,9 @@ val featuresModule = module {
     }
 
     viewModelOf(::SpaceListViewModel)
+
+    // Main Media (Home Screen)
+    viewModelOf(::MainMediaViewModel)
 
     // Media Review
     viewModel { (savedStateHandle: androidx.lifecycle.SavedStateHandle) ->

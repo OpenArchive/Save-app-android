@@ -56,7 +56,9 @@ enum class FileType {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MediaCacheScreen(context: Context, onNavigateBack: () -> Unit) {
+fun MediaCacheScreen(onNavigateBack: () -> Unit) {
+
+    val context = LocalContext.current
     val cacheDir = context.cacheDir
     val files = remember { cacheDir.listFiles()?.map { it.toMediaFile() } ?: emptyList() }
 

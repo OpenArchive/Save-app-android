@@ -200,7 +200,7 @@
 
     <fragment
         android:id="@+id/fragment_proofmode_settings"
-        android:name="net.opendasharchive.openarchive.features.settings.ProofModeComposeFragment"
+        android:name="net.opendasharchive.openarchive.features.settings.ProofModeSettingsComposeFragment"
         android:label="@string/proofmode" />
 
     <fragment
