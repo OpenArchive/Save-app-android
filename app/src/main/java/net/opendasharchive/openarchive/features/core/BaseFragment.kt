@@ -1,20 +1,15 @@
 package net.opendasharchive.openarchive.features.core
 
-import android.content.Context
 import android.os.Bundle
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
-import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.db.SnowbirdError
-import net.opendasharchive.openarchive.extensions.androidViewModel
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
@@ -25,13 +20,12 @@ import net.opendasharchive.openarchive.services.storacha.util.SessionManager
 import net.opendasharchive.openarchive.services.storacha.util.StorachaAccountManager
 import net.opendasharchive.openarchive.util.FullScreenOverlayManager
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.activityViewModel
+import kotlin.getValue
 
 abstract class BaseFragment : Fragment(), ToolbarConfigurable {
 
-    protected val dialogManager: DialogStateManager by activityViewModels()
-
-    val snowbirdGroupViewModel: SnowbirdGroupViewModel by androidViewModel()
-    val snowbirdRepoViewModel: SnowbirdRepoViewModel by androidViewModel()
+    protected val dialogManager: DialogStateManager by activityViewModel()
 
     // Inject analytics dependencies
     protected val analyticsManager: AnalyticsManager by inject()
@@ -54,28 +48,7 @@ abstract class BaseFragment : Fragment(), ToolbarConfigurable {
         (requireActivity() as? BaseActivity)?.ensureComposeDialogHost()
     }
 
-    open fun dismissKeyboard(view: View) {
-        val imm = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(view.windowToken, 0)
-    }
 
-    open fun handleError(error: SnowbirdError) {
-        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-            title = UiText.DynamicString("Oops")
-            message = UiText.DynamicString(error.friendlyMessage)
-            positiveButton {
-                text = UiText.StringResource(R.string.lbl_ok)
-            }
-        }
-    }
-
-    open fun handleLoadingStatus(isLoading: Boolean) {
-        if (isLoading) {
-            FullScreenOverlayManager.show(this@BaseFragment)
-        } else {
-            FullScreenOverlayManager.hide()
-        }
-    }
 
     override fun onResume() {
         super.onResume()

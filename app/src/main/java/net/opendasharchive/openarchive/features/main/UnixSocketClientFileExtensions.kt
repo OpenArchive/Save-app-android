@@ -7,11 +7,52 @@ import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.db.SerializableMarker
 import net.opendasharchive.openarchive.services.snowbird.service.HttpLikeException
 import timber.log.Timber
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.net.SocketTimeoutException
 
+
 suspend fun UnixSocketClient.downloadFile(endpoint: String): ByteArray = withContext(Dispatchers.IO) {
+    LocalSocket().use { socket ->
+        socket.connect(LocalSocketAddress(socketPath, LocalSocketAddress.Namespace.FILESYSTEM))
+
+        // 1) build & send a perfectly raw HTTP/1.1 GET
+        val req = buildString {
+            append("GET $endpoint HTTP/1.1\r\n")
+            append("Accept: image/*\r\n")
+            append("Connection: close\r\n")
+            append("\r\n")
+        }.toByteArray()
+        socket.outputStream.write(req)
+        socket.outputStream.flush()
+
+        // 2) now read response entirely over the InputStream
+        val input = socket.inputStream
+        val (statusCode, headers) = input.readHttpResponseHeaders()
+        if (statusCode !in 200..299) throw HttpLikeException(statusCode, "Failed to download file: $statusCode")
+
+        // 3) decide how to read the body
+        return@withContext when {
+            headers["Transfer-Encoding"]?.equals("chunked", true) == true ->
+                input.readChunkedBody()
+            headers["Content-Length"] != null ->
+                input.readFixedLengthBody(headers["Content-Length"]!!.toInt())
+            else ->
+                input.readAllCompat()   // maybe not ideal for huge files, but safe
+        }
+    }
+}
+
+private fun InputStream.readAllCompat(): ByteArray {
+    val buffer = ByteArrayOutputStream()
+    this.use { input ->
+        input.copyTo(buffer)
+    }
+    return buffer.toByteArray()
+}
+
+suspend fun UnixSocketClient.downloadFileOld(endpoint: String): ByteArray = withContext(Dispatchers.IO) {
     LocalSocket().use { socket ->
         socket.connect(LocalSocketAddress(socketPath, LocalSocketAddress.Namespace.FILESYSTEM))
 
@@ -33,7 +74,7 @@ suspend fun UnixSocketClient.downloadFile(endpoint: String): ByteArray = withCon
 
             when (responseCode) {
                 in 200..299 -> bytes
-                else -> throw HttpLikeException(responseCode)
+                else -> throw HttpLikeException(responseCode, "Failed to download file: $responseCode")
             }
         } catch (e: SocketTimeoutException) {
             throw e
@@ -72,7 +113,7 @@ suspend inline fun <reified RESPONSE : SerializableMarker> UnixSocketClient.uplo
 
             when (responseCode) {
                 in 200..299 -> parseSuccessResponse(responseBody) { json.decodeFromString<RESPONSE>(it) }
-                else -> throw HttpLikeException(responseCode)
+                else -> throw HttpLikeException(responseCode, "Failed to upload file: $responseCode")
             }
         }
     } catch (e: SocketTimeoutException) {

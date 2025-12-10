@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
-import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -17,7 +16,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdListReposBinding
 import net.opendasharchive.openarchive.db.SnowbirdError
 import net.opendasharchive.openarchive.db.SnowbirdRepo
@@ -28,7 +26,7 @@ import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.util.SpacingItemDecoration
 import timber.log.Timber
 
-class SnowbirdRepoListFragment: BaseFragment() {
+class SnowbirdRepoListFragment : BaseSnowbirdFragment() {
 
     private lateinit var viewBinding: FragmentSnowbirdListReposBinding
     private lateinit var adapter: SnowbirdRepoListAdapter
@@ -68,8 +66,8 @@ class SnowbirdRepoListFragment: BaseFragment() {
                 state.repos,
                 state.isRefresh
             )
-
             is SnowbirdRepoViewModel.RepoState.Error -> handleError(state.error)
+            is SnowbirdRepoViewModel.RepoState.RefreshGroupContentSuccess -> handleLoadingStatus(false)
             else -> Unit
         }
     }
@@ -118,14 +116,12 @@ class SnowbirdRepoListFragment: BaseFragment() {
     private fun setupViewModel() {
 
         adapter = SnowbirdRepoListAdapter { repoKey ->
-            AppLogger.d("Click!!")
-
-                val action =
-                    SnowbirdRepoListFragmentDirections.actionFragmentSnowbirdListReposToFragmentSnowbirdListMedia(
-                        dwebGroupKey = groupKey,
-                        dwebRepoKey = repoKey
-                    )
-                findNavController().navigate(action)
+            val action =
+                SnowbirdRepoListFragmentDirections.actionFragmentSnowbirdListReposToFragmentSnowbirdListMedia(
+                    dwebGroupKey = groupKey,
+                    dwebRepoKey = repoKey
+                )
+            findNavController().navigate(action)
         }
 
         val spacingInPixels = resources.getDimensionPixelSize(R.dimen.list_item_spacing)
@@ -184,7 +180,8 @@ class SnowbirdRepoListFragment: BaseFragment() {
     private fun setupSwipeRefresh() {
         viewBinding.swipeRefreshLayout.setOnRefreshListener {
             lifecycleScope.launch {
-                snowbirdRepoViewModel.fetchRepos(groupKey, forceRefresh = true)
+                //snowbirdRepoViewModel.fetchRepos(groupKey, forceRefresh = true)
+                snowbirdRepoViewModel.refreshGroups(groupKey)
             }
         }
 
@@ -199,9 +196,6 @@ class SnowbirdRepoListFragment: BaseFragment() {
 
 
     companion object {
-
         const val RESULT_VAL_RAVEN_GROUP_KEY = "dweb_group_key"
-
-
     }
 }

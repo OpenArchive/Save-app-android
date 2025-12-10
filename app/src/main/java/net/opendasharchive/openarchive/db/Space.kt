@@ -64,7 +64,7 @@ data class Space(
     ) {
         WEBDAV(0, "Private Server"),
         INTERNET_ARCHIVE(1, IaConduit.NAME),
-        RAVEN(5, "DWeb Service"),
+        RAVEN(5, "DWeb Storage"),
         STORACHA(7, "Storacha Service"),
     }
 
@@ -213,13 +213,13 @@ data class Space(
                     R.drawable.ic_internet_archive,
                 )
 
-            Type.RAVEN -> ContextCompat.getDrawable(context, R.drawable.snowbird) // ?.tint(color)
+            Type.RAVEN -> ContextCompat.getDrawable(context, R.drawable.ic_dweb)
 
             Type.STORACHA ->
                 ContextCompat.getDrawable(
                     context,
                     R.drawable.storacha,
-                ) // ?.tint(color)
+                )
         }
 
     @Composable

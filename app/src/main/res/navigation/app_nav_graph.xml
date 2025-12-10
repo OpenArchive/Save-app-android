@@ -14,6 +14,7 @@
         android:name="net.opendasharchive.openarchive.features.spaces.SpaceListFragment"
         android:label="Media Servers"
         tools:layout="null">
+
         <action
             android:id="@+id/action_fragment_space_list_to_fragment_web_dav"
             app:destination="@id/fragment_web_dav"
@@ -21,6 +22,7 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+
         <action
             android:id="@+id/action_fragment_space_list_to_internet_archive_details"
             app:destination="@id/fragment_internet_archive_details"
@@ -32,7 +34,6 @@
             android:id="@+id/action_fragment_space_list_to_fragment_space_setup"
             app:destination="@id/fragment_space_setup" />
     </fragment>
-
 
     <fragment
         android:id="@+id/fragment_space_setup"
@@ -47,14 +48,6 @@
         <action
             android:id="@+id/action_fragment_space_setup_to_internet_archive_login"
             app:destination="@id/fragment_internet_archive_login"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-
-        <action
-            android:id="@+id/action_fragment_space_setup_to_fragment_snowbird"
-            app:destination="@id/fragment_snowbird"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
@@ -129,34 +122,6 @@
         <argument
             android:name="space_id"
             app:argType="long" />
-    </fragment>
-
-
-    <fragment
-        android:id="@+id/fragment_snowbird"
-        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdFragment"
-        tools:layout="@layout/fragment_snowbird">
-        <action
-            android:id="@+id/action_fragment_snowbird_to_fragment_snowbird_group_list"
-            app:destination="@id/fragment_snowbird_group_list"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_fragment_snowbird_to_fragment_snowbird_join_group"
-            app:destination="@id/fragment_snowbird_join_group"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_fragment_snowbird_to_fragment_snowbird_create_group"
-            app:destination="@id/fragment_snowbird_create_group"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -365,7 +330,6 @@
             app:nullable="true" />
     </fragment>
 
-
     <fragment
         android:id="@+id/fragment_storacha_media"
         android:name="net.opendasharchive.openarchive.services.storacha.StorachaMediaFragment"
@@ -388,111 +352,17 @@
     </fragment>
 
     <fragment
-        android:id="@+id/fragment_snowbird_group_list"
-        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupListFragment"
-        tools:layout="@layout/fragment_snowbird_group_list">
-        <action
-            android:id="@+id/action_fragment_snowbird_group_list_to_fragment_snowbird_create_group"
-            app:destination="@id/fragment_snowbird_create_group"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_fragment_snowbird_group_list_to_fragment_snowbird_list_repos"
-            app:destination="@id/fragment_snowbird_list_repos"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <action
-            android:id="@+id/action_fragment_snowbird_group_list_to_fragment_snowbird_share_group"
-            app:destination="@id/fragment_snowbird_share_group"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/fragment_snowbird_create_group"
-        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdCreateGroupFragment"
-        tools:layout="@layout/fragment_snowbird_create_group">
-
-        <action
-            android:id="@+id/action_fragment_snowbird_create_group_to_fragment_snowbird_share_group"
-            app:destination="@id/fragment_snowbird_share_group"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/fragment_snowbird_join_group"
-        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdJoinGroupFragment"
-        tools:layout="@layout/fragment_snowbird_join_group">
-        <argument
-            android:name="raven_join_group_argument_uri"
-            app:argType="string" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/fragment_snowbird_list_repos"
-        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdRepoListFragment"
-        tools:layout="@layout/fragment_snowbird_list_repos">
-        <action
-            android:id="@+id/action_fragment_snowbird_list_repos_to_fragment_snowbird_list_media"
-            app:destination="@id/fragment_snowbird_list_media"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <argument
-            android:name="dweb_group_key"
-            app:argType="string" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/fragment_snowbird_share_group"
-        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdShareFragment"
-        tools:layout="@layout/fragment_snowbird_share_group">
-        <argument
-            android:name="dweb_group_key"
-            app:argType="string" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/fragment_snowbird_list_media"
-        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdFileListFragment"
-        tools:layout="@layout/fragment_snowbird_list_media">
-        <argument
-            android:name="dweb_group_key"
-            app:argType="string" />
-        <argument
-            android:name="dweb_repo_key"
-            app:argType="string" />
-    </fragment>
-
-    <fragment
-        android:id="@+id/fragment_snowbird_group_overview"
-        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupOverviewFragment"
-        tools:layout="@layout/fragment_snowbird_group_overview">
-        <argument
-            android:name="dweb_group_key"
-            app:argType="string" />
-        <argument
-            android:name="dweb_repo_key"
-            app:argType="string" />
-    </fragment>
-
-    <fragment
         android:id="@+id/fragment_space_setup_success"
         android:name="net.opendasharchive.openarchive.features.settings.SpaceSetupSuccessFragment"
         tools:layout="@layout/fragment_space_setup_success">
         <argument
             android:name="message"
             app:argType="string" />
+        <argument
+            android:name="space_type"
+            app:argType="net.opendasharchive.openarchive.db.Space$Type" />
+
+
     </fragment>
 
     <composable
@@ -521,12 +391,13 @@
     <fragment
         android:id="@+id/fragment_browse_folders"
         android:name="net.opendasharchive.openarchive.features.folders.BrowseFoldersFragment"
-        tools:layout="@layout/fragment_browse_folders"/>
+        tools:layout="@layout/fragment_browse_folders" />
 
     <fragment
         android:id="@+id/fragment_create_new_folder"
         android:name="net.opendasharchive.openarchive.features.folders.CreateNewFolderFragment"
         tools:layout="@layout/fragment_create_new_folder" />
+
 
     <fragment
         android:id="@+id/fragment_folders"
@@ -534,7 +405,11 @@
         tools:layout="@layout/fragment_folders">
         <action
             android:id="@+id/action_fragment_folders_to_fragment_folder_detail"
-            app:destination="@id/fragment_folder_detail" />
+            app:destination="@id/fragment_folder_detail"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
         <argument
             android:name="show_archived"
             android:defaultValue="false"
@@ -562,4 +437,5 @@
         android:id="@+id/fragment_proofmode_settings"
         android:name="net.opendasharchive.openarchive.features.settings.SettingsFragment"
         />
+
 </navigation>

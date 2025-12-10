@@ -41,7 +41,7 @@ class SnowbirdGroupViewModel(
         viewModelScope.launch {
             _groupState.value = GroupState.Loading
             try {
-                val result = processingTracker.trackProcessingWithTimeout(30_000, "fetch_group") {
+                val result = processingTracker.trackProcessingWithTimeout(60_000, "fetch_group") {
                     repository.fetchGroup(groupKey)
                 }
 
@@ -59,7 +59,7 @@ class SnowbirdGroupViewModel(
         viewModelScope.launch {
             _groupState.value = GroupState.Loading
             try {
-                val result = processingTracker.trackProcessingWithTimeout(30_000, "fetch_groups") {
+                val result = processingTracker.trackProcessingWithTimeout(60_000, "fetch_groups") {
                     repository.fetchGroups(forceRefresh)
                 }
 
@@ -77,7 +77,7 @@ class SnowbirdGroupViewModel(
         viewModelScope.launch {
             _groupState.value = GroupState.Loading
             try {
-                val result = processingTracker.trackProcessingWithTimeout(30_000, "create_group") {
+                val result = processingTracker.trackProcessingWithTimeout(60_000, "create_group") {
                     repository.createGroup(groupName)
                 }
 

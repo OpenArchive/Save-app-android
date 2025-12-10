@@ -6,10 +6,86 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.ByteArrayOutputStream
+import java.io.DataInputStream
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
 import kotlin.coroutines.cancellation.CancellationException
+
+/**
+ * Reads status line + headers from raw InputStream.
+ * Returns pair(statusCode, headersMap).
+ */
+@Throws(IOException::class)
+internal fun InputStream.readHttpResponseHeaders(): Pair<Int, Map<String,String>> {
+    fun readLine(): String {
+        val sb = StringBuilder()
+        while (true) {
+            val b = read().takeIf { it >= 0 } ?: throw IOException("Unexpected EOF")
+            when (b.toChar()) {
+                '\r' -> if (read().toChar() == '\n') break
+                '\n'    -> break
+                else    -> sb.append(b.toChar())
+            }
+        }
+        return sb.toString()
+    }
+
+    // Status line, e.g. "HTTP/1.1 200 OK"
+    val statusLine = readLine()
+    val parts = statusLine.split(' ', limit = 3)
+    val code = parts.getOrNull(1)?.toIntOrNull()
+        ?: throw IOException("Invalid status line: $statusLine")
+
+    // Headers until blank line
+    val headers = mutableMapOf<String, String>()
+    while (true) {
+        val line = readLine()
+        if (line.isEmpty()) break
+        val (k, v) = line.split(":", limit = 2)
+        headers[k.trim()] = v.trim()
+    }
+    return code to headers
+}
+
+/** Read exactly `length` bytes (uses DataInputStream.readFully). */
+@Throws(IOException::class)
+internal fun InputStream.readFixedLengthBody(length: Int): ByteArray {
+    val data = ByteArray(length)
+    DataInputStream(this).readFully(data)
+    return data
+}
+
+/** Read a chunked‐encoded body. */
+@Throws(IOException::class)
+internal fun InputStream.readChunkedBody(): ByteArray {
+    val out = ByteArrayOutputStream()
+    while (true) {
+        // read next chunk-size line
+        val sizeLine = buildString {
+            while (true) {
+                val b = read().takeIf { it >= 0 } ?: throw IOException("EOF in chunked size")
+                if (b.toChar() == '\r') {
+                    if (read().toChar() == '\n') break
+                } else if (b.toChar() == '\n') break
+                else append(b.toChar())
+            }
+        }
+        val chunkSize = sizeLine.trim().toInt(16)
+        if (chunkSize == 0) {
+            // consume the final CRLF after the 0‐length chunk
+            if (read() != '\r'.code || read() != '\n'.code) { /*ignore*/ }
+            break
+        }
+        // read exactly chunkSize bytes
+        val buf = ByteArray(chunkSize)
+        DataInputStream(this).readFully(buf)
+        out.write(buf)
+        // consume trailing CRLF
+        if (read() != '\r'.code || read() != '\n'.code) { /*ignore*/ }
+    }
+    return out.toByteArray()
+}
 
 suspend fun UnixSocketClient.readBinaryResponseWithCancellation(
     inputStream: InputStream,

@@ -18,7 +18,6 @@ import net.opendasharchive.openarchive.features.settings.FoldersFragment
 enum class StartDestination {
     SPACE_TYPE,
     SPACE_LIST,
-    DWEB_DASHBOARD,
     ADD_FOLDER,
     ADD_NEW_FOLDER,
     STORACHA,

@@ -11,7 +11,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -41,34 +43,45 @@ class SnowbirdService : Service() {
 
         var DEFAULT_SOCKET_PATH = ""
             private set
+
+        // Expose service status globally so UI can observe it
+        private val _serviceStatus = MutableStateFlow<ServiceStatus>(ServiceStatus.Stopped)
+        val serviceStatus: StateFlow<ServiceStatus> = _serviceStatus.asStateFlow()
+
+        // Helper to get current status synchronously
+        fun getCurrentStatus(): ServiceStatus = _serviceStatus.value
+
+        // Internal setter for the service to update status
+        internal fun updateStatus(status: ServiceStatus) {
+            _serviceStatus.value = status
+        }
     }
 
     private var serverJob: Job? = null
     private var pollingJob: Job? = null
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
-    private val _serviceStatus = MutableStateFlow<ServiceStatus>(ServiceStatus.Stopped)
-    val serviceStatus = _serviceStatus.asStateFlow()
-
     override fun onCreate() {
         super.onCreate()
 
-        val backendBaseDirectory = filesDir
-        DEFAULT_BACKEND_DIRECTORY = backendBaseDirectory.absolutePath
+        DEFAULT_BACKEND_DIRECTORY = filesDir.absolutePath
 
-        val serverSocketFile = File(filesDir, "rust_server.sock")
-        DEFAULT_SOCKET_PATH = serverSocketFile.absolutePath
+        val socketFile = File(filesDir, "rust_server.sock")
+        DEFAULT_SOCKET_PATH = socketFile.absolutePath
 
-        val path = Path(serverSocketFile.absolutePath)
-
-        try {
-            Files.delete(path)
-        } catch (e: Exception) {
-            // ignore
-            e.printStackTrace()
-        } finally {
-            Files.createFile(path)
+        if (socketFile.exists()) {
+            socketFile.delete()
         }
+
+//        val path = Path(socketFile.absolutePath)
+//        try {
+//            Files.delete(path)
+//        } catch (e: Exception) {
+//            // ignore
+//            e.printStackTrace()
+//        } finally {
+//            Files.createFile(path)
+//        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -76,13 +89,54 @@ class SnowbirdService : Service() {
             SaveApp.SNOWBIRD_SERVICE_ID,
             createNotification("Snowbird Server is starting up.")
         )
-        startServer(DEFAULT_BACKEND_DIRECTORY, DEFAULT_SOCKET_PATH)
-        startPolling()
+
+        // Launch a coroutine to check & start
+        serviceScope.launch {
+            val alreadyUp = isServerRunning()
+            if (alreadyUp) {
+                Timber.d("Snowbird server already running; skipping start()")
+            } else {
+                Timber.d("Snowbird server not running; invoking startServer()")
+                startServer(DEFAULT_BACKEND_DIRECTORY, DEFAULT_SOCKET_PATH)
+            }
+            startPolling()
+        }
         return START_STICKY
     }
 
     override fun onDestroy() {
-        stopServer()
+        Timber.d("SnowbirdService onDestroy called - stopping server")
+
+        // Cancel polling and server jobs
+        pollingJob?.cancel()
+        serverJob?.cancel()
+
+        // Update status to stopping
+        updateStatus(ServiceStatus.Stopped)
+
+        // Actually stop the Rust server
+        serviceScope.launch {
+            try {
+                updateNotification("Stopping server...")
+                Timber.d("Calling SnowbirdBridge.stopServer()")
+
+                // Call the Rust stopServer function via JNI
+                withContext(Dispatchers.IO) {
+                    val result = SnowbirdBridge.getInstance().stopServer()
+                    Timber.d("Server stopped: $result")
+                }
+
+                // Give it a moment to clean up
+                delay(500)
+
+                updateStatus(ServiceStatus.Stopped)
+                Timber.d("Server shutdown complete")
+            } catch (e: Exception) {
+                Timber.e(e, "Error stopping server")
+                updateStatus(ServiceStatus.Failed(e))
+            }
+        }
+
         super.onDestroy()
     }
 
@@ -139,7 +193,7 @@ class SnowbirdService : Service() {
         }
 
         return NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Raven Service")
+            .setContentTitle("DWeb Storage")
             .setContentText(text)
             .setSmallIcon(R.drawable.ic_app_notify)
             .setContentIntent(pendingIntent)
@@ -175,21 +229,21 @@ class SnowbirdService : Service() {
                 val attemptNumber = attempt.attempt
                 when (attempt) {
                     is RetryAttempt.Success -> {
-                        _serviceStatus.value = ServiceStatus.Connected
+                        updateStatus(ServiceStatus.Connected)
                         updateNotification("Service Connected", withSound = true)
                         Timber.d("Service is up after $attemptNumber attempt(s)")
                         stopPolling()
                     }
 
                     is RetryAttempt.Retry -> {
-                        _serviceStatus.value = ServiceStatus.Connecting
-                        updateNotification("Connecting... One moment please.")
+                        updateStatus(ServiceStatus.Connecting)
+                        updateNotification("Connecting... (Attempt $attemptNumber) One moment please.")
                         Timber.d("Attempt $attemptNumber failed, retrying...")
                     }
 
                     is RetryAttempt.Failure -> {
                         val errorMessage = attempt.error.message ?: "Unknown error"
-                        _serviceStatus.value = ServiceStatus.Failed(attempt.error)
+                        updateStatus(ServiceStatus.Failed(attempt.error))
                         updateNotification("Connection Failed: $errorMessage")
                         Timber.e(attempt.error)
                         stopPolling()
@@ -200,7 +254,7 @@ class SnowbirdService : Service() {
 
     private fun startServer(baseDirectory: String, socketPath: String) {
         serverJob = serviceScope.launch {
-            Timber.d("Starting Raven Service")
+            Timber.d("Starting Raven Service @$socketPath")
             val result = SnowbirdBridge.getInstance()
                 .startServer(applicationContext, baseDirectory, socketPath)
             Timber.d("Raven Service: $result")
@@ -224,6 +278,24 @@ class SnowbirdService : Service() {
             createNotification(status, withSound)
         )
     }
+
+    private suspend fun isServerRunning(): Boolean = withContext(Dispatchers.IO) {
+        try {
+            (URL("http://localhost:8080/status")
+                .openConnection() as HttpURLConnection).run {
+                connectTimeout = 500
+                readTimeout = 500
+                requestMethod = "GET"
+                val ok = responseCode == HttpURLConnection.HTTP_OK
+                disconnect()
+                ok
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
 }
 
 /**
