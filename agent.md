@@ -1,20 +1,17 @@
-## Task Context
-- Migrate `PreviewActivity` (XML) to a Compose-based `PreviewMediaScreen`, similar pattern as `ReviewMediaScreen`.
-- Add navigation entry via `SpaceSetupActivity` (new `StartDestination` and nav graph node) so we can launch Compose Preview and navigate to Compose Review.
-- Build reusable `MediaListItem` composable that mirrors `rv_media_box.xml`/`PreviewViewHolder` logic (image/video thumbnails via Coil, PDF thumbnail via `PdfThumbnailLoader`, placeholders with titles, video icon, selection overlay/border, status overlays for queued/uploading/error with progress and error icon).
-- Preserve multi-select behavior (long-press to enter selection mode). Normal bottom bar shows “Add more”; selection bar shows edit, select/deselect all, delete. App bar needs upload button. Add more long-press should surface existing picker menu/bottom sheet.
-- Keep ability to switch between XML and Compose implementations during navigation (similar toggle as Review path).
-- Existing entry points: `PreviewActivity.start`, `MainActivity.navigateToPreview`, `MainMediaScreen` comments. Compose flows are hosted in `SpaceSetupActivity` nav graph (`app_nav_graph.xml`) using fragments/Compose destinations.
+# Migration Task Board
 
-## Pending Design Notes
-- Create `PreviewMediaFragment` (Compose host, `ToolbarConfigurable`) with menu `menu_preview` upload action.
-- Add `PreviewMediaViewModel` (state/action/event) registered in Koin module.
-- Add nav graph destination `fragment_preview_media` with args (project_id); add `StartDestination.PREVIEW_MEDIA` handling in `SpaceSetupActivity`.
-- Update `PreviewActivity.start` and `MainActivity.navigateToPreview` to launch Compose via `SpaceSetupActivity` by default (keep toggle for old XML).
-- Compose UI: `PreviewMediaScreen` → `PreviewMediaContent` using `LazyVerticalGrid` (2 cols) + bottom overlays; `MediaListItem` composable replicating `rv_media_box`.
-- Bridge actions needing platform features (Picker, PermissionManager, content picker sheet, upload confirmation) through fragment events.
+## Immediate (per user)
+- Pass `projectId` into `MainMediaViewModel` via Koin parameters/keys; ensure `MainMediaScreen` receives the current selected project from `HomeViewModel` (pager/drawer/tab changes flow HomeViewModel → composable → media VM).
+- Make `HomeViewModel` the single source of truth for spaces/projects/pager; connect both HomeViewModel and MainMediaViewModel to Sugar-backed repositories (remove direct `.save()`/`.delete()` in UI/VM).
 
-## Progress Notes (current)
-- Implemented `PreviewMediaViewModel` (state/action/event, refresh/delete/select/upload logic, add-more/menu events, review navigation).
-- Added Compose `PreviewMediaFragment`/`PreviewMediaScreen` with `MediaListItem` composable mirroring `rv_media_box` (thumbnails with Coil/video frame, PDF via `PdfThumbnailLoader` in `AndroidView`, selection overlay/border, status overlays, video badge, placeholder icons/titles). Bottom bars for add-more (long-press menu) and selection actions implemented.
-- Added `StartDestination.PREVIEW_MEDIA`, nav graph destination `fragment_preview_media`, and Compose default routing via `PreviewActivity.start`; upload warning dialog preserved.
+## Short-Term (Main screen migration)
+- Re-establish upload progress plumbing with a Flow/UploadEvent bridge (replacing BroadcastManager listeners in Compose).
+- Move selection state to UI-only (no persisted `Media.selected`); handle folder bar events (focus/options) via events.
+- Ensure drawer/empty-states behavior matches legacy (disable drawer when no space; space switch reloads projects and selects first project).
+- Coordinate FAB actions from HomeViewModel (pending add when on Settings, lastMediaIndex tracking).
+
+## From migration plan (remaining)
+- Define repository interfaces (Space/Project/Collection/Media/Upload) and Sugar implementations; later swap to Room.
+- Compose-only main shell: single Scaffold with top bar, right drawer, bottom bar+FAB, pager (projects + Settings), per-project MediaListScreen, Upload Manager sheet.
+- Integrate UploadEvent bus and upload manager sheet pause/resume logic.
+- Plan Room-ready data layer (mappers, domain models) and remove Sugar usages after cutover.***

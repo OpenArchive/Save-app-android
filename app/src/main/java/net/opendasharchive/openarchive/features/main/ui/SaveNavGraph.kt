@@ -28,6 +28,7 @@ import net.opendasharchive.openarchive.features.internetarchive.presentation.log
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.PreviewMediaScreen
 import net.opendasharchive.openarchive.features.media.ReviewMediaScreen
+import net.opendasharchive.openarchive.features.main.ui.HomeViewModel
 import net.opendasharchive.openarchive.features.onboarding.OnboardingInstructionsScreen
 import net.opendasharchive.openarchive.features.onboarding.OnboardingWelcomeScreen
 import net.opendasharchive.openarchive.features.settings.FolderDetailScreen
@@ -52,7 +53,6 @@ import org.koin.core.parameter.parametersOf
 
 @Composable
 fun SaveNavGraph(
-    viewModel: MainMediaViewModel,
     onExit: () -> Unit,
     onNewFolder: () -> Unit,
     onFolderSelected: (Long) -> Unit,
@@ -90,8 +90,9 @@ fun SaveNavGraph(
             entryProvider = entryProvider {
 
                 entry<AppRoute.HomeRoute> {
+                    val homeViewModel = koinViewModel<HomeViewModel>()
                     HomeScreen(
-                        viewModel = viewModel,
+                        homeViewModel = homeViewModel,
                         onExit = onExit,
                         onFolderSelected = onFolderSelected,
                         onAddMedia = onAddMedia,

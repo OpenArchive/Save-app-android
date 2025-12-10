@@ -1,10 +1,5 @@
 package net.opendasharchive.openarchive.features.main.ui
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.os.Handler
-import android.os.Looper
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,9 +26,10 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
+import net.opendasharchive.openarchive.features.main.ui.HomeAction
+import net.opendasharchive.openarchive.features.main.ui.HomeState
 import net.opendasharchive.openarchive.features.main.ui.components.HomeAppBar
 import net.opendasharchive.openarchive.features.main.ui.components.HomeBottomTab
 import net.opendasharchive.openarchive.features.main.ui.components.MainBottomBar
@@ -46,11 +41,12 @@ import net.opendasharchive.openarchive.features.settings.SettingsScreen
 import net.opendasharchive.openarchive.upload.BroadcastManager
 import net.opendasharchive.openarchive.util.Prefs
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 import kotlin.math.max
 
 @Composable
 fun HomeScreen(
-    viewModel: MainMediaViewModel = koinViewModel(),
+    homeViewModel: HomeViewModel = koinViewModel(),
     onExit: () -> Unit,
     onFolderSelected: (Long) -> Unit,
     onAddMedia: (AddMediaType) -> Unit,
@@ -64,73 +60,16 @@ fun HomeScreen(
 ) {
 
     val context = LocalContext.current
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(Unit) {
-        viewModel.uiEvent.collectLatest { event ->
-            when (event) {
-                is MainMediaEvent.NavigateToProofModeSettings -> {
-                    onNavigateToProofModeSettings()
-                }
-
-                is MainMediaEvent.NavigateToSpaceList -> {
-                    onNavigateToSpaceList()
-                }
-
-                is MainMediaEvent.NavigateToArchivedFolders -> {
-                    onNavigateToArchivedFolders(state.space?.id)
-                }
-
-                is MainMediaEvent.ShowUploadManager -> TODO()
-                is MainMediaEvent.ShowErrorDialog -> TODO()
-                is MainMediaEvent.SelectionModeChanged -> TODO()
-                MainMediaEvent.FocusFolderNameInput -> TODO()
-                is MainMediaEvent.NavigateToPreview -> onNavigateToPreview(event.projectId)
-                MainMediaEvent.ShowDeleteConfirmation -> TODO()
-                is MainMediaEvent.ShowFolderOptionsPopup -> TODO()
-                MainMediaEvent.ShowUploadManager -> TODO()
-            }
-        }
-    }
-
-    // BroadcastReceiver setup for upload progress
-    DisposableEffect(Unit) {
-        val handler = Handler(Looper.getMainLooper())
-        val receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                val action = BroadcastManager.getAction(intent) ?: return
-                when (action) {
-                    BroadcastManager.Action.Change -> {
-                        handler.post {
-                            viewModel.onAction(
-                                MainMediaAction.UpdateMediaItem(
-                                    collectionId = action.collectionId,
-                                    mediaId = action.mediaId,
-                                    progress = action.progress,
-                                    isUploaded = action.isUploaded
-                                )
-                            )
-                        }
-                    }
-
-                    BroadcastManager.Action.Delete -> {
-                        val projectId = state.project?.id ?: return
-                        handler.post { viewModel.onAction(MainMediaAction.Refresh(projectId)) }
-                    }
-                }
-            }
-        }
-        BroadcastManager.register(context, receiver)
-        onDispose { BroadcastManager.unregister(context, receiver) }
-    }
+    val homeState by homeViewModel.state.collectAsStateWithLifecycle()
 
     HomeScreenContent(
         onExit = onExit,
-        state = state,
-        onAction = viewModel::onAction,
+        homeState = homeState,
+        onHomeAction = homeViewModel::onAction,
         onNavigateToCache = onNavigateToCache,
         onAddMedia = onAddMedia,
         onNavigateToPreview = onNavigateToPreview,
+        onNavigateToProofModeSettings = onNavigateToProofModeSettings,
         onNavigateToSpaceSetup = onNavigateToSpaceSetup,
         onNavigateToAddNewFolder = onNavigateToAddNewFolder,
         onNavigateToSpaceList = onNavigateToSpaceList,
@@ -144,11 +83,12 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     onExit: () -> Unit,
-    state: MainMediaState,
-    onAction: (MainMediaAction) -> Unit,
+    homeState: HomeState,
+    onHomeAction: (HomeAction) -> Unit,
     onNavigateToCache: () -> Unit = {},
     onAddMedia: (AddMediaType) -> Unit,
     onNavigateToPreview: (Long) -> Unit,
+    onNavigateToProofModeSettings: () -> Unit,
     onNavigateToSpaceSetup: () -> Unit,
     onNavigateToAddNewFolder: (Long) -> Unit,
     onNavigateToSpaceList: () -> Unit = {},
@@ -156,13 +96,16 @@ fun HomeScreenContent(
 ) {
     val contentPicker = rememberContentPickerLaunchers(
         projectProvider = {
-            state.project
+            val selectedId = homeState.selectedProjectId
+            homeState.projects.firstOrNull { it.id == selectedId }
         },
         onMediaImported = { mediaList ->
             // refresh project collection here
             // The main media content should be refreshed
             // and then navigate to preview screen
-            val project = state.project ?: return@rememberContentPickerLaunchers
+            val project =
+                homeState.projects.firstOrNull { it.id == homeState.selectedProjectId }
+                    ?: return@rememberContentPickerLaunchers
             onNavigateToPreview(project.id)
         }
     )
@@ -172,15 +115,15 @@ fun HomeScreenContent(
     val scope = rememberCoroutineScope()
 
 
-    val totalPages = max(1, state.projects.size) + 1
+    val totalPages = max(1, homeState.projects.size) + 1
 
     // Always start at last media page (never settings) for fresh starts
     // For configuration changes, the activity handles restoration
     val initialPage = Prefs.currentHomePage.coerceIn(0, (totalPages - 2).coerceAtLeast(0))
     val pagerState = rememberPagerState(initialPage = initialPage) { totalPages }
 
-    val currentProjectIndex = state.project?.let { selected ->
-        state.projects.indexOfFirst { it.id == selected.id }.takeIf { it >= 0 } ?: 0
+    val currentProjectIndex = homeState.selectedProjectId?.let { selectedId ->
+        homeState.projects.indexOfFirst { it.id == selectedId }.takeIf { it >= 0 } ?: 0
     } ?: 0
 
     var selectedTab: HomeBottomTab by remember {
@@ -191,21 +134,22 @@ fun HomeScreenContent(
 
     val isSettings = pagerState.currentPage == (totalPages - 1)
 
-    val showDrawer = isSettings.not() && state.spaces.isNotEmpty()
+    val showDrawer = isSettings.not() && homeState.spaces.isNotEmpty()
 
     // Save current page ONLY if it's a media page (not settings)
     LaunchedEffect(pagerState.currentPage) {
         if (pagerState.currentPage < totalPages - 1) {
             Prefs.currentHomePage = pagerState.currentPage
         }
+        onHomeAction(HomeAction.UpdatePager(pagerState.currentPage))
     }
 
     // Whenever the pager's current page changes and it represents a project page,
     // update the view model's selected project.
-    LaunchedEffect(pagerState.currentPage, state.projects) {
-        if (state.projects.isNotEmpty() && pagerState.currentPage < state.projects.size) {
-            val newlySelectedProject = state.projects[pagerState.currentPage]
-            onAction(MainMediaAction.UpdateSelectedProject(newlySelectedProject))
+    LaunchedEffect(pagerState.currentPage, homeState.projects) {
+        if (homeState.projects.isNotEmpty() && pagerState.currentPage < homeState.projects.size) {
+            val newlySelectedProject = homeState.projects[pagerState.currentPage]
+            onHomeAction(HomeAction.SelectProject(newlySelectedProject.id))
         }
     }
 
@@ -227,29 +171,29 @@ fun HomeScreenContent(
                 CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
 
                     MainDrawerContent(
-                        selectedSpace = state.space,
-                        spaceList = state.spaces,
-                        projects = state.projects,
-                        selectedProject = state.project,
+                        selectedSpace = homeState.currentSpace,
+                        spaceList = homeState.spaces,
+                        projects = homeState.projects,
+                        selectedProject = homeState.projects.firstOrNull { it.id == homeState.selectedProjectId },
                         onProjectSelected = { project ->
                             // Update selected project and close drawer
-                            onAction(MainMediaAction.UpdateSelectedProject(project))
+                            onHomeAction(HomeAction.SelectProject(project.id))
                             scope.launch {
                                 drawerState.close()
                                 // Navigate to the project's page
-                                val projectIndex = state.projects.indexOf(project)
+                                val projectIndex = homeState.projects.indexOf(project)
                                 if (projectIndex >= 0) {
                                     pagerState.scrollToPage(projectIndex)
                                 }
                             }
                         },
                         onNewFolderClick = onNewFolderClick@{
-                            val spaceId = state.space?.id ?: return@onNewFolderClick
+                            val spaceId = homeState.currentSpace?.id ?: return@onNewFolderClick
                             onNavigateToAddNewFolder(spaceId)
                         },
                         onSpaceSelected = { space ->
                             scope.launch { drawerState.close() }
-                            onAction(MainMediaAction.UpdateSelectedSpace(space))
+                            onHomeAction(HomeAction.SelectSpace(space.id))
                         },
                         onAddAnotherAccountClicked = {
                             scope.launch { drawerState.close() }
@@ -281,7 +225,7 @@ fun HomeScreenContent(
                                 when (tab) {
                                     HomeBottomTab.MEDIA -> {
                                         val targetPage =
-                                            if (state.projects.isEmpty()) 0 else currentProjectIndex
+                                            if (homeState.projects.isEmpty()) 0 else currentProjectIndex
                                         if (pagerState.currentPage != targetPage) {
                                             scope.launch { pagerState.animateScrollToPage(targetPage) }
                                         }
@@ -295,20 +239,20 @@ fun HomeScreenContent(
                                     }
                                 }
 
-                                selectedTab = tab
-                            },
-                            onAddClick = onAddClick@{
-                                when {
-                                    state.space == null -> {
-                                        scope.launch {
-                                            onNavigateToSpaceSetup()
-                                        }
+                            selectedTab = tab
+                        },
+                        onAddClick = onAddClick@{
+                            when {
+                                homeState.currentSpace == null -> {
+                                    scope.launch {
+                                        onNavigateToSpaceSetup()
                                     }
+                                }
 
-                                    state.projects.isEmpty() || state.project == null -> {
-                                        val space = state.space
-                                        onNavigateToAddNewFolder(space.id)
-                                    }
+                                homeState.projects.isEmpty() || homeState.selectedProjectId == null -> {
+                                    val space = homeState.currentSpace
+                                    onNavigateToAddNewFolder(space.id)
+                                }
 
                                     else -> {
                                         // If we are in SettingsScreen, pager scroll back to previous MainMediaScreen
@@ -324,16 +268,16 @@ fun HomeScreenContent(
                                 }
                             },
 
-                            onAddLongClick = {
-                                when {
-                                    state.space == null -> {
-                                        scope.launch { onNavigateToSpaceSetup() }
-                                    }
+                        onAddLongClick = {
+                            when {
+                                homeState.currentSpace == null -> {
+                                    scope.launch { onNavigateToSpaceSetup() }
+                                }
 
-                                    state.projects.isEmpty() || state.project == null -> {
-                                        val space = state.space
-                                        onNavigateToAddNewFolder(space.id)
-                                    }
+                                homeState.projects.isEmpty() || homeState.selectedProjectId == null -> {
+                                    val space = homeState.currentSpace
+                                    onNavigateToAddNewFolder(space.id)
+                                }
 
                                     pagerState.currentPage == totalPages - 1 -> {
                                         scope.launch {
@@ -368,21 +312,35 @@ fun HomeScreenContent(
                         when (page) {
                             0 -> {
                                 // First page: If no projects, show -1, else show first project's ID
-                                val firstProject = state.projects.firstOrNull()
+                                val firstProject = homeState.projects.firstOrNull()
+                                val projectId = firstProject?.id ?: -1
+                                val viewModel = koinViewModel<MainMediaViewModel>(
+                                    key = "media_$projectId",
+                                    parameters = { parametersOf(projectId) }
+                                )
+
                                 MainMediaScreen(
+                                    viewModel = viewModel,
+                                    homeState = homeState.copy(selectedProjectId = firstProject?.id),
                                     projectId = firstProject?.id ?: -1,
-                                    state = state,
-                                    onAction = onAction
+                                    onNavigateToPreview = onNavigateToPreview,
                                 )
                             }
 
-                            in 1 until state.projects.size -> {
+                            in 1 until homeState.projects.size -> {
                                 // Next project IDs (page - 1)
-                                val currentProject = state.projects[page]
+                                val currentProject = homeState.projects[page]
+                                val projectId = currentProject.id
+                                val viewModel = koinViewModel<MainMediaViewModel>(
+                                    key = "media_$projectId",
+                                    parameters = { parametersOf(projectId) }
+                                )
+
                                 MainMediaScreen(
+                                    viewModel = viewModel,
+                                    homeState = homeState.copy(selectedProjectId = currentProject.id),
                                     projectId = currentProject.id,
-                                    state = state,
-                                    onAction = onAction,
+                                    onNavigateToPreview = onNavigateToPreview,
                                 )
                             }
 
@@ -391,12 +349,10 @@ fun HomeScreenContent(
                                 SettingsScreen(
                                     onNavigateToSpaceList = onNavigateToSpaceList,
                                     onNavigateToArchivedFolders = {
-                                        onNavigateToArchivedFolders(state.space?.id)
+                                        onNavigateToArchivedFolders(homeState.currentSpace?.id)
                                     },
                                     onNavigateToCache = onNavigateToCache,
-                                    onNavigateToProofMode = {
-                                        onAction(MainMediaAction.NavigateToProofModeSettings)
-                                    }
+                                    onNavigateToProofMode = onNavigateToProofModeSettings
                                 )
                             }
 
@@ -434,13 +390,14 @@ private fun MainContentPreview() {
 
         HomeScreenContent(
             onExit = {},
-            state = MainMediaState(),
-            onAction = {},
+            homeState = HomeState(),
+            onHomeAction = {},
             onNavigateToAddNewFolder = {},
             onNavigateToCache = {},
             onAddMedia = {},
             onNavigateToPreview = {},
             onNavigateToSpaceSetup = {},
+            onNavigateToProofModeSettings = {},
         )
     }
 }

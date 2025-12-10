@@ -70,36 +70,63 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import android.widget.Toast
-import net.opendasharchive.openarchive.db.dummyCollectionList
-import net.opendasharchive.openarchive.db.dummyMediaList
-import net.opendasharchive.openarchive.db.dummyProjectList
-import net.opendasharchive.openarchive.db.dummySpaceList
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.collectLatest
+import net.opendasharchive.openarchive.db.Project
+import net.opendasharchive.openarchive.db.Space
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun MainMediaScreen(
-    state: MainMediaState,
+    viewModel: MainMediaViewModel,
+    homeState: HomeState,
     projectId: Long,
-    onAction: (MainMediaAction) -> Unit,
+    onNavigateToPreview: (Long) -> Unit,
 ) {
 
+    val mediaState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(projectId) {
+        viewModel.onAction(MainMediaAction.LoadProject(projectId))
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collectLatest { event ->
+            when (event) {
+                is MainMediaEvent.NavigateToPreview -> onNavigateToPreview(event.projectId)
+                is MainMediaEvent.ShowUploadManager -> Unit
+                is MainMediaEvent.ShowErrorDialog -> Unit
+                is MainMediaEvent.SelectionModeChanged -> Unit
+                is MainMediaEvent.ShowFolderOptionsPopup -> Unit
+                MainMediaEvent.ShowDeleteConfirmation -> Unit
+                MainMediaEvent.FocusFolderNameInput -> Unit
+            }
+        }
+    }
 
     MainMediaContent(
-        state = state,
-        onAction = onAction,
+        state = mediaState,
+        homeState = homeState,
+        onAction = viewModel::onAction,
     )
 }
 
 @Composable
 private fun MainMediaContent(
     state: MainMediaState,
+    homeState: HomeState,
     onAction: (MainMediaAction) -> Unit,
 ) {
     val context = LocalContext.current
     var showFolderOptions by remember { mutableStateOf(false) }
     var showRemoveConfirm by remember { mutableStateOf(false) }
 
+    val space: Space? = homeState.currentSpace
+    val project: Project? = homeState.projects.firstOrNull { it.id == state.projectId }
+
     val toggleArchive: () -> Unit = {
-        state.project?.let {
+        project?.let {
             it.isArchived = !it.isArchived
             it.save()
             Toast.makeText(
@@ -111,7 +138,7 @@ private fun MainMediaContent(
     }
 
     val removeFolder: () -> Unit = {
-        state.project?.let {
+        project?.let {
             it.delete()
             Toast.makeText(context, R.string.folder_removed, Toast.LENGTH_SHORT).show()
         }
@@ -126,7 +153,10 @@ private fun MainMediaContent(
     Column(modifier = Modifier.fillMaxSize()) {
         // Folder Bar
         FolderBar(
-            state = state,
+            space = space,
+            project = project,
+            totalMediaCount = state.totalMediaCount,
+            folderBarMode = state.folderBarMode,
             onAction = onAction,
             onSelectMedia = { onAction(MainMediaAction.EnterSelectionMode) },
             onRename = { onAction(MainMediaAction.EditFolderClicked) },
@@ -134,7 +164,8 @@ private fun MainMediaContent(
             onRemove = { showFolderOptions = false; showRemoveConfirm = true },
             onOpenOptions = { showFolderOptions = true },
             onDismissOptions = { showFolderOptions = false },
-            showMenu = showFolderOptions
+            showMenu = showFolderOptions,
+            selectedMediaCount = state.selectedMediaIds.size
         )
 
         if (showRemoveConfirm) {
@@ -170,10 +201,10 @@ private fun MainMediaContent(
             if (state.sections.isEmpty()) {
                 EmptyStateView(
                     title = stringResource(R.string.title_welcome),
-                    showWelcome = state.space == null,
+                    showWelcome = space == null,
                     message = when {
-                        state.space == null -> stringResource(R.string.tap_to_add_server)
-                        state.project == null -> stringResource(R.string.tap_to_add_folder)
+                        space == null -> stringResource(R.string.tap_to_add_server)
+                        project == null -> stringResource(R.string.tap_to_add_folder)
                         else -> stringResource(R.string.tap_to_add)
                     },
                 )
@@ -403,7 +434,11 @@ private fun EmptyStateView(
 // Folder Bar Composables
 @Composable
 private fun FolderBar(
-    state: MainMediaState,
+    space: Space?,
+    project: Project?,
+    totalMediaCount: Int,
+    selectedMediaCount: Int,
+    folderBarMode: FolderBarMode,
     onAction: (MainMediaAction) -> Unit,
     onSelectMedia: () -> Unit,
     onRename: () -> Unit,
@@ -421,9 +456,11 @@ private fun FolderBar(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        when (state.folderBarMode) {
+        when (folderBarMode) {
             FolderBarMode.INFO -> FolderBarInfoMode(
-                state = state,
+                space = space,
+                project = project,
+                totalMediaCount = totalMediaCount,
                 onSelectMedia = onSelectMedia,
                 onRename = onRename,
                 onToggleArchive = onToggleArchive,
@@ -433,11 +470,11 @@ private fun FolderBar(
                 showMenu = showMenu
             )
             FolderBarMode.SELECTION -> FolderBarSelectionMode(
-                selectedCount = state.selectedMediaIds.size,
+                selectedCount = selectedMediaCount,
                 onAction = onAction
             )
             FolderBarMode.EDIT -> FolderBarEditMode(
-                initialName = state.folderName,
+                initialName = project?.description ?: "",
                 onAction = onAction
             )
         }
@@ -446,7 +483,9 @@ private fun FolderBar(
 
 @Composable
 private fun RowScope.FolderBarInfoMode(
-    state: MainMediaState,
+    space: Space?,
+    project: Project?,
+    totalMediaCount: Int,
     onSelectMedia: () -> Unit,
     onRename: () -> Unit,
     onToggleArchive: () -> Unit,
@@ -455,13 +494,13 @@ private fun RowScope.FolderBarInfoMode(
     onDismissOptions: () -> Unit,
     showMenu: Boolean
 ) {
-    val hasProject = state.project != null
+    val hasProject = project != null
     Row(
         modifier = Modifier.weight(1f),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Space Icon
-        state.space?.let {
+        space?.let {
 
             SpaceIcon(
                 type = it.tType,
@@ -478,7 +517,7 @@ private fun RowScope.FolderBarInfoMode(
 
             // Folder Name
             Text(
-                text = state.project?.description ?: "",
+                text = project?.description ?: "",
                 style = MaterialTheme.typography.titleMedium.copy(fontFamily = MontserratFontFamily),
                 modifier = Modifier.weight(1f, fill = false)
             )
@@ -549,7 +588,7 @@ private fun RowScope.FolderBarInfoMode(
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 Text(
-                    text = NumberFormat.getInstance().format(state.totalMediaCount),
+                    text = NumberFormat.getInstance().format(totalMediaCount),
                     style = MaterialTheme.typography.bodySmall
                 )
             }
@@ -687,18 +726,8 @@ private fun formatUploadDate(date: Date): String {
 private fun MainMediaScreenPreview() {
     SaveAppTheme {
         MainMediaContent(
-            state = MainMediaState(
-                spaces = dummySpaceList,
-                space = dummySpaceList.first(),
-                projects = dummyProjectList,
-                project = dummyProjectList.first(),
-                sections = dummyCollectionList.map { CollectionSection(
-                    collection = dummyCollectionList.first(),
-                    media = dummyMediaList,
-                ) },
-                isInSelectionMode = false,
-                selectedMediaIds = emptySet()
-            ),
+            state = MainMediaState(),
+            homeState = HomeState(),
             onAction = {},
         )
     }

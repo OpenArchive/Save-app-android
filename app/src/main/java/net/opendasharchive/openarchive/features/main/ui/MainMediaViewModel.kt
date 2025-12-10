@@ -14,11 +14,9 @@ import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Collection
 import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.db.Project
-import net.opendasharchive.openarchive.db.Space
-import net.opendasharchive.openarchive.db.dummyProjectList
-import net.opendasharchive.openarchive.db.dummySpaceList
-import net.opendasharchive.openarchive.features.media.AddMediaType
+import net.opendasharchive.openarchive.features.main.data.CollectionRepository
+import net.opendasharchive.openarchive.features.main.data.MediaRepository
+import net.opendasharchive.openarchive.features.main.data.ProjectRepository
 
 /**
  * Represents one collection section with its media items.
@@ -29,22 +27,19 @@ data class CollectionSection(
 )
 
 /**
- * Folder bar modes matching MainActivity
+ * Folder bar modes matching MainActivity.
  */
 enum class FolderBarMode {
-    INFO,       // Normal mode: shows space icon, folder name, edit button, count
-    SELECTION,  // Selection mode: shows close button, "Select Media" text, remove button
-    EDIT        // Rename mode: shows close button, text input field
+    INFO,
+    SELECTION,
+    EDIT
 }
 
 /**
- * UI State for MainMediaScreen
+ * UI State for a single project's media screen.
  */
 data class MainMediaState(
-    val spaces: List<Space> = emptyList(),
-    val space: Space? = null,
-    val projects: List<Project> = emptyList(),
-    val project: Project? = null,
+    val projectId: Long? = null,
     val sections: List<CollectionSection> = emptyList(),
     val isInSelectionMode: Boolean = false,
     val selectedMediaIds: Set<Long> = emptySet(),
@@ -55,20 +50,20 @@ data class MainMediaState(
 )
 
 /**
- * User actions in MainMediaScreen
+ * User actions scoped to MainMediaScreen.
  */
 sealed class MainMediaAction {
-    data class UpdateSelectedSpace(val space: Space) : MainMediaAction()
-    data class UpdateSelectedProject(val project: Project? = null) : MainMediaAction()
-    data class AddMediaClicked(val mediaType: AddMediaType) : MainMediaAction()
-    data object NavigateToProofModeSettings : MainMediaAction()
-    data object NavigateToSpaceList : MainMediaAction()
-    data object NavigateToArchivedFolders : MainMediaAction()
-
+    data class LoadProject(val projectId: Long) : MainMediaAction()
     data class Refresh(val projectId: Long) : MainMediaAction()
     data class MediaClicked(val media: Media) : MainMediaAction()
     data class MediaLongPressed(val media: Media) : MainMediaAction()
-    data class UpdateMediaItem(val collectionId: Long, val mediaId: Long, val progress: Int, val isUploaded: Boolean) : MainMediaAction()
+    data class UpdateMediaItem(
+        val collectionId: Long,
+        val mediaId: Long,
+        val progress: Int,
+        val isUploaded: Boolean
+    ) : MainMediaAction()
+
     data object ToggleSelectAll : MainMediaAction()
     data object DeleteSelected : MainMediaAction()
     data object CancelSelection : MainMediaAction()
@@ -80,7 +75,7 @@ sealed class MainMediaAction {
 }
 
 /**
- * Events emitted from ViewModel to UI
+ * Events emitted from ViewModel to UI.
  */
 sealed class MainMediaEvent {
     data class NavigateToPreview(val projectId: Long) : MainMediaEvent()
@@ -90,34 +85,34 @@ sealed class MainMediaEvent {
     data class ShowFolderOptionsPopup(val x: Int, val y: Int) : MainMediaEvent()
     data object ShowDeleteConfirmation : MainMediaEvent()
     data object FocusFolderNameInput : MainMediaEvent()
-
-    data object NavigateToProofModeSettings : MainMediaEvent()
-    data object NavigateToSpaceList : MainMediaEvent()
-    data object NavigateToArchivedFolders : MainMediaEvent()
 }
 
 /**
- * ViewModel for MainMediaScreen
+ * Per-project ViewModel; use a unique key per project in Compose to scope instances.
  */
-class MainMediaViewModel : ViewModel() {
+class MainMediaViewModel(
+    private val projectId: Long,
+    private val collectionRepository: CollectionRepository,
+    private val mediaRepository: MediaRepository,
+    private val projectRepository: ProjectRepository
+) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(MainMediaState(
-        spaces = dummySpaceList,
-        space = dummySpaceList.first(),
-        projects = dummyProjectList,
-        project = dummyProjectList.firstOrNull()
-    ))
+    private val _uiState = MutableStateFlow(MainMediaState())
     val uiState: StateFlow<MainMediaState> = _uiState.asStateFlow()
 
     private val _uiEvent = MutableSharedFlow<MainMediaEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
     init {
-        loadSpacesAndFolders()
+        AppLogger.i("MainMediaViewModel initialized for project $projectId")
+        if (projectId >= 0) {
+            setProject(projectId)
+        }
     }
 
     fun onAction(action: MainMediaAction) {
         when (action) {
+            is MainMediaAction.LoadProject -> setProject(action.projectId)
             is MainMediaAction.Refresh -> refreshSections()
             is MainMediaAction.MediaClicked -> handleMediaClick(action.media)
             is MainMediaAction.MediaLongPressed -> handleMediaLongPress(action.media)
@@ -127,81 +122,54 @@ class MainMediaViewModel : ViewModel() {
                 action.progress,
                 action.isUploaded
             )
-            is MainMediaAction.ToggleSelectAll -> toggleSelectAll()
-            is MainMediaAction.DeleteSelected -> deleteSelected()
-            is MainMediaAction.CancelSelection -> cancelSelection()
-            is MainMediaAction.EnterSelectionMode -> enableSelectionMode()
-            is MainMediaAction.EditFolderClicked -> enterEditMode()
-            is MainMediaAction.CancelEditMode -> exitEditMode()
+
+            MainMediaAction.ToggleSelectAll -> toggleSelectAll()
+            MainMediaAction.DeleteSelected -> deleteSelected()
+            MainMediaAction.CancelSelection -> cancelSelection()
+            MainMediaAction.EnterSelectionMode -> enableSelectionMode()
+            MainMediaAction.EditFolderClicked -> enterEditMode()
+            MainMediaAction.CancelEditMode -> exitEditMode()
             is MainMediaAction.SaveFolderName -> saveFolderName(action.newName)
             is MainMediaAction.ShowFolderOptions -> showFolderOptions(action.x, action.y)
-
-            is MainMediaAction.AddMediaClicked -> {
-
-            }
-
-            MainMediaAction.NavigateToProofModeSettings -> viewModelScope.launch {
-                _uiEvent.emit(MainMediaEvent.NavigateToProofModeSettings)
-            }
-            MainMediaAction.NavigateToSpaceList -> viewModelScope.launch {
-                _uiEvent.emit(MainMediaEvent.NavigateToSpaceList)
-            }
-            MainMediaAction.NavigateToArchivedFolders -> viewModelScope.launch {
-                _uiEvent.emit(MainMediaEvent.NavigateToArchivedFolders)
-            }
-
-            is MainMediaAction.UpdateSelectedProject -> {
-                _uiState.update { it.copy(project = action.project) }
-                refreshSections()
-            }
-
-            is MainMediaAction.UpdateSelectedSpace -> {
-                val newSpace = action.space
-                Space.current = newSpace
-                _uiState.update {
-                    it.copy(
-                        space = newSpace,
-                        projects = newSpace.projects,
-                        project = newSpace.projects.firstOrNull()
-                    )
-                }
-            }
         }
     }
 
-    private fun loadSpacesAndFolders() = viewModelScope.launch{
-        val allSpaces = Space.getAll().asSequence().toList()
-        val selectedSpace = Space.current
-        val projects = selectedSpace?.projects ?: emptyList()
-        val project = projects.firstOrNull()
-
+    private fun setProject(projectId: Long) {
         _uiState.update {
             it.copy(
-                spaces = allSpaces,
-                space = selectedSpace,
-                projects = projects,
-                project = project
+                projectId = projectId,
+                folderName = "",
+                isInSelectionMode = false,
+                selectedMediaIds = emptySet()
             )
         }
+        refreshSections()
     }
 
     private fun refreshSections() {
         viewModelScope.launch(Dispatchers.IO) {
-            val project = uiState.value.project
+            val projectId = uiState.value.projectId ?: return@launch
+            val project = projectRepository.getProject(projectId)
 
-            val collections = if (project != null) {
-                Collection.getByProject(project.id)
-            } else {
-                emptyList()
-            }
+            val collections = collectionRepository.getCollections(projectId)
             val newSections = collections
-                .filter { it.media.isNotEmpty() }
-                .map { CollectionSection(it, it.media) }
+                .map { collection ->
+                    val media = mediaRepository.getMediaForCollection(collection.id)
+                    collection to media
+                }
+                .filter { (_, media) -> media.isNotEmpty() }
+                .map { (collection, media) -> CollectionSection(collection, media) }
 
             val totalCount = newSections.sumOf { it.media.size }
 
             withContext(Dispatchers.Main) {
-                _uiState.update { it.copy(sections = newSections, totalMediaCount = totalCount) }
+                _uiState.update {
+                    it.copy(
+                        sections = newSections,
+                        totalMediaCount = totalCount,
+                        folderName = project?.description ?: it.folderName
+                    )
+                }
             }
         }
     }
@@ -212,22 +180,13 @@ class MainMediaViewModel : ViewModel() {
                 toggleMediaSelection(media)
             } else {
                 when (media.sStatus) {
-                    Media.Status.Local -> {
-                        // Navigate to preview
-                        _uiEvent.emit(MainMediaEvent.NavigateToPreview(media.projectId))
-                    }
-                    Media.Status.Queued, Media.Status.Uploading -> {
-                        // Show upload manager
-                        _uiEvent.emit(MainMediaEvent.ShowUploadManager)
-                    }
+                    Media.Status.Local -> _uiEvent.emit(MainMediaEvent.NavigateToPreview(media.projectId))
+                    Media.Status.Queued, Media.Status.Uploading -> _uiEvent.emit(MainMediaEvent.ShowUploadManager)
                     Media.Status.Error -> {
-                        // Show error dialog
                         val position = findMediaPosition(media)
                         _uiEvent.emit(MainMediaEvent.ShowErrorDialog(media, position))
                     }
-                    else -> {
-                        // No action for other statuses
-                    }
+                    else -> Unit
                 }
             }
         }
@@ -236,7 +195,6 @@ class MainMediaViewModel : ViewModel() {
     private fun handleMediaLongPress(media: Media) {
         viewModelScope.launch {
             if (!_uiState.value.isInSelectionMode) {
-                // Enter selection mode and change folder bar mode
                 _uiState.update { it.copy(isInSelectionMode = true, folderBarMode = FolderBarMode.SELECTION) }
             }
             toggleMediaSelection(media)
@@ -251,20 +209,16 @@ class MainMediaViewModel : ViewModel() {
             currentSelected + media.id
         }
 
-        // Update media.selected in database
         viewModelScope.launch(Dispatchers.IO) {
-            media.selected = newSelected.contains(media.id)
-            media.save()
+            mediaRepository.setSelected(media.id, newSelected.contains(media.id))
 
             withContext(Dispatchers.Main) {
                 _uiState.update { it.copy(selectedMediaIds = newSelected) }
 
-                // If no items selected, exit selection mode and revert folder bar to INFO
                 if (newSelected.isEmpty() && _uiState.value.isInSelectionMode) {
                     _uiState.update { it.copy(isInSelectionMode = false, folderBarMode = FolderBarMode.INFO) }
                 }
 
-                // Emit selection mode change event
                 _uiEvent.emit(
                     MainMediaEvent.SelectionModeChanged(
                         _uiState.value.isInSelectionMode,
@@ -280,18 +234,10 @@ class MainMediaViewModel : ViewModel() {
             val allMediaIds = _uiState.value.sections.flatMap { it.media }.map { it.id }.toSet()
             val currentSelected = _uiState.value.selectedMediaIds
 
-            val newSelected = if (currentSelected.size == allMediaIds.size) {
-                // Deselect all
-                emptySet()
-            } else {
-                // Select all
-                allMediaIds
-            }
+            val newSelected = if (currentSelected.size == allMediaIds.size) emptySet() else allMediaIds
 
-            // Update all media items
             _uiState.value.sections.flatMap { it.media }.forEach { media ->
-                media.selected = newSelected.contains(media.id)
-                media.save()
+                mediaRepository.setSelected(media.id, newSelected.contains(media.id))
             }
 
             withContext(Dispatchers.Main) {
@@ -309,44 +255,25 @@ class MainMediaViewModel : ViewModel() {
     private fun deleteSelected() {
         viewModelScope.launch(Dispatchers.IO) {
             val selectedIds = _uiState.value.selectedMediaIds
-            val updatedSections = _uiState.value.sections.map { section ->
-                val remainingMedia = section.media.filter { media ->
-                    if (selectedIds.contains(media.id)) {
-                        // Delete media
-                        val collection = media.collection
-                        if (collection?.size ?: 0 < 2) {
-                            collection?.delete()
-                        } else {
-                            media.delete()
-                        }
-                        false
-                    } else {
-                        true
-                    }
-                }
-                section.copy(media = remainingMedia)
-            }.filter { it.media.isNotEmpty() }
-
+            selectedIds.forEach { mediaId -> mediaRepository.deleteMedia(mediaId) }
             withContext(Dispatchers.Main) {
                 _uiState.update {
                     it.copy(
-                        sections = updatedSections,
                         selectedMediaIds = emptySet(),
                         isInSelectionMode = false
                     )
                 }
-                _uiEvent.emit(MainMediaEvent.SelectionModeChanged(false, 0))
             }
+            refreshSections()
+            _uiEvent.emit(MainMediaEvent.SelectionModeChanged(false, 0))
         }
     }
 
     fun cancelSelection() {
         viewModelScope.launch(Dispatchers.IO) {
-            // Clear selections in database
             _uiState.value.sections.flatMap { it.media }.forEach { media ->
                 if (media.selected) {
-                    media.selected = false
-                    media.save()
+                    mediaRepository.setSelected(media.id, false)
                 }
             }
 
@@ -355,7 +282,7 @@ class MainMediaViewModel : ViewModel() {
                     it.copy(
                         selectedMediaIds = emptySet(),
                         isInSelectionMode = false,
-                        folderBarMode = FolderBarMode.INFO  // Revert to INFO mode
+                        folderBarMode = FolderBarMode.INFO
                     )
                 }
                 _uiEvent.emit(MainMediaEvent.SelectionModeChanged(false, 0))
@@ -382,11 +309,13 @@ class MainMediaViewModel : ViewModel() {
                                         media.status = Media.Status.Uploaded.id
                                         media
                                     }
+
                                     progress >= 0 -> {
                                         media.uploadPercentage = progress
                                         media.status = Media.Status.Uploading.id
                                         media
                                     }
+
                                     else -> {
                                         media.status = Media.Status.Queued.id
                                         media
@@ -427,7 +356,6 @@ class MainMediaViewModel : ViewModel() {
 
     fun getSelectedCount(): Int = _uiState.value.selectedMediaIds.size
 
-    // Folder bar actions
     private fun enterEditMode() {
         viewModelScope.launch {
             _uiState.update { it.copy(folderBarMode = FolderBarMode.EDIT) }
@@ -443,16 +371,8 @@ class MainMediaViewModel : ViewModel() {
 
     private fun saveFolderName(newName: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            // Get current project from the first collection's projectId
-            val currentSections = _uiState.value.sections
-            if (currentSections.isNotEmpty()) {
-                val projectId = currentSections.first().collection.projectId
-                val project = Project.getById(projectId)
-                project?.let {
-                    it.description = newName
-                    it.save()
-                }
-            }
+            val projectId = _uiState.value.projectId ?: return@launch
+            projectRepository.renameProject(projectId, newName)
 
             withContext(Dispatchers.Main) {
                 _uiState.update { it.copy(folderName = newName, folderBarMode = FolderBarMode.INFO) }
@@ -464,9 +384,5 @@ class MainMediaViewModel : ViewModel() {
         viewModelScope.launch {
             _uiEvent.emit(MainMediaEvent.ShowFolderOptionsPopup(x, y))
         }
-    }
-
-    fun setFolderName(name: String) {
-        _uiState.update { it.copy(folderName = name) }
     }
 }

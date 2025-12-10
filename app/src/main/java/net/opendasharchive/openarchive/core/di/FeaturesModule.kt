@@ -2,6 +2,15 @@ package net.opendasharchive.openarchive.core.di
 
 import android.app.Application
 import net.opendasharchive.openarchive.features.internetarchive.internetArchiveModule
+import net.opendasharchive.openarchive.features.main.data.CollectionRepository
+import net.opendasharchive.openarchive.features.main.data.MediaRepository
+import net.opendasharchive.openarchive.features.main.data.ProjectRepository
+import net.opendasharchive.openarchive.features.main.data.SpaceRepository
+import net.opendasharchive.openarchive.features.main.data.SugarCollectionRepository
+import net.opendasharchive.openarchive.features.main.data.SugarMediaRepository
+import net.opendasharchive.openarchive.features.main.data.SugarProjectRepository
+import net.opendasharchive.openarchive.features.main.data.SugarSpaceRepository
+import net.opendasharchive.openarchive.features.main.ui.HomeViewModel
 import net.opendasharchive.openarchive.features.main.ui.MainMediaViewModel
 import net.opendasharchive.openarchive.features.media.PreviewMediaViewModel
 import net.opendasharchive.openarchive.features.media.ReviewMediaViewModel
@@ -38,6 +47,12 @@ val featuresModule = module {
 //    single<ISnowbirdGroupRepository> { SnowbirdGroupRepository(get(named("unixSocket"))) }
 //    single<ISnowbirdRepoRepository> { SnowbirdRepoRepository(get(named("unixSocket"))) }
 
+    // Home/Main repositories (Sugar-backed)
+    single<SpaceRepository> { SugarSpaceRepository() }
+    single<ProjectRepository> { SugarProjectRepository() }
+    single<CollectionRepository> { SugarCollectionRepository() }
+    single<MediaRepository> { SugarMediaRepository() }
+
     viewModel { (application: Application) ->
         SnowbirdGroupViewModel(
             application = application,
@@ -59,10 +74,19 @@ val featuresModule = module {
         )
     }
 
+    viewModel { HomeViewModel(get(), get()) }
+
     viewModelOf(::SpaceListViewModel)
 
     // Main Media (Home Screen)
-    viewModelOf(::MainMediaViewModel)
+    viewModel { (projectId: Long) ->
+        MainMediaViewModel(
+            projectId = projectId,
+            collectionRepository = get(),
+            mediaRepository = get(),
+            projectRepository = get()
+        )
+    }
 
     // Media Review
     viewModel { (savedStateHandle: androidx.lifecycle.SavedStateHandle) ->

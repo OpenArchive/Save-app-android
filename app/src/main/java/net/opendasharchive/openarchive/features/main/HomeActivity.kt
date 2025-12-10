@@ -14,7 +14,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.features.core.BaseActivity
-import net.opendasharchive.openarchive.features.main.ui.MainMediaViewModel
 import net.opendasharchive.openarchive.features.main.ui.SaveNavGraph
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.MediaLaunchers
@@ -22,14 +21,12 @@ import net.opendasharchive.openarchive.features.media.Picker
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 import kotlin.getValue
 
 class HomeActivity: BaseActivity() {
 
     private val appConfig by inject<AppConfig>()
-    private val viewModel by viewModel<MainMediaViewModel>()
 
     // We'll hold a reference to the media launchers registered with Picker.
     private lateinit var mediaLaunchers: MediaLaunchers
@@ -109,7 +106,6 @@ class HomeActivity: BaseActivity() {
                 onExit = {
                     finish()
                 },
-                viewModel = viewModel,
                 onNewFolder = { launchNewFolder() },
                 onFolderSelected = { folderId -> navigateToFolder(folderId) },
                 onAddMedia = { mediaType -> addMediaClicked(mediaType) }
