@@ -8,7 +8,6 @@ import net.opendasharchive.openarchive.features.core.dialog.ResourceProvider
 import net.opendasharchive.openarchive.features.folders.BrowseFoldersViewModel
 import net.opendasharchive.openarchive.features.folders.CreateNewFolderViewModel
 import net.opendasharchive.openarchive.features.main.MainViewModel
-import net.opendasharchive.openarchive.features.main.ui.HomeViewModel
 import net.opendasharchive.openarchive.features.settings.FolderDetailViewModel
 import net.opendasharchive.openarchive.features.settings.FoldersViewModel
 import net.opendasharchive.openarchive.features.settings.SpaceSetupSuccessViewModel
@@ -24,8 +23,6 @@ val coreModule = module {
 
     // Provide DialogStateManager and let Koin inject the ResourceProvider.
     viewModel { DialogStateManager(get()) }
-
-    viewModel { HomeViewModel() }
 
     viewModel {
         MainViewModel()

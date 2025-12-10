@@ -55,6 +55,11 @@ fun SpaceSetupSuccessScreen(
                     val intent = Intent(context, MainActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     context.startActivity(intent)
+
+                    // Finish the current activity (SpaceSetupActivity) to prevent black screen
+                    // This ensures clean transition from setup flow to main app
+                    (context as? FragmentActivity)?.finish()
+
                     onNavigateToMain()
                 }
             }
@@ -88,7 +93,7 @@ fun SpaceSetupSuccessContent(
                 text = state.message,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(48.dp),
+                    .padding(horizontal = 36.dp, vertical = 48.dp),
                 fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,

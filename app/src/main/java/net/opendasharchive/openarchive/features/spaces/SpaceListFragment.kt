@@ -34,8 +34,9 @@ class SpaceListFragment : BaseFragment() {
             }
 
             SpaceListScreen(
-                onSpaceClicked = { space ->
-                    startSpaceAuthActivity(space.id)
+                viewModel = viewModel,
+                onSpaceClicked = { id, type ->
+                    startSpaceAuthActivity(id)
                 },
                 onAddServerClicked = {
                     val action =

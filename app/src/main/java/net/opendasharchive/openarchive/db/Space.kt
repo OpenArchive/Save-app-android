@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.core.content.ContextCompat
 import com.orm.SugarRecord
+import kotlinx.serialization.Serializable
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
@@ -58,6 +59,7 @@ data class Space(
         }
     }
 
+    @Serializable
     enum class Type(val id: Int, val friendlyName: String) {
         WEBDAV(0, "Private Server"),
         INTERNET_ARCHIVE(1, IaConduit.NAME),

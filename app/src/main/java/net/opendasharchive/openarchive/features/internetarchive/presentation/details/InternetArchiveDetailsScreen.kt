@@ -74,7 +74,7 @@ class InternetArchiveDetailFragment : BaseFragment(), ToolbarConfigurable {
 }
 
 @Composable
-private fun InternetArchiveDetailsScreen(
+fun InternetArchiveDetailsScreen(
     viewModel: InternetArchiveDetailsViewModel = koinViewModel(),
     onNavigateBack: () -> Unit,
 ) {

@@ -2,9 +2,11 @@ package net.opendasharchive.openarchive.features.main.ui
 
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
+import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.services.webdav.WebDavViewModel
 
 @Serializable
-sealed class AppRoute(val route: String): NavKey {
+sealed class AppRoute(open val deeplink: String) : NavKey {
 
     @Serializable
     data object WelcomeRoute : AppRoute("welcome")
@@ -19,28 +21,36 @@ sealed class AppRoute(val route: String): NavKey {
     data object SpaceSetupRoute : AppRoute("space_setup")
 
     @Serializable
-    data object WebDavLoginRoute: AppRoute("webdav_login")
+    data object WebDavLoginRoute : AppRoute("webdav_login")
+
+    data class WebDavDetailRoute(val spaceId: Long) : AppRoute("webdav_detail")
 
     @Serializable
-    data object IALoginRoute: AppRoute("ia_login")
+    data object IALoginRoute : AppRoute("ia_login")
 
     @Serializable
-    data object SetupLicenseRoute : AppRoute("setup_license")
+    data class SetupLicenseRoute(
+        val spaceId: Long,
+        val isEditing: Boolean = false,
+        val spaceType: Space.Type,
+    ) : AppRoute("setup_license")
 
     @Serializable
-    data object SpaceSetupSuccessRoute : AppRoute("space_setup_success")
+    data class SpaceSetupSuccessRoute(
+        val message: String = "",
+        val spaceType: Space.Type = Space.Type.WEBDAV
+    ) : AppRoute("space_setup_success")
 
     @Serializable
-    data object SpaceListRoute : AppRoute("space_list")
+    data class SpaceListRoute(val message: String) : AppRoute("space_list")
 
     @Serializable
-    data object WebDavDetailRoute : AppRoute("webdav_detail")
+    data class IADetailRoute(val spaceId: Long) : AppRoute("ia_detail")
 
     @Serializable
-    data object IADetailRoute : AppRoute("ia_detail")
-
-    @Serializable
-    data object AddFolderRoute : AppRoute("add_folder")
+    data class AddFolderRoute(
+        val spaceId: Long,
+    ) : AppRoute("add_folder")
 
     @Serializable
     data object CreateNewFolderRoute : AppRoute("create_new_folder")
@@ -49,19 +59,26 @@ sealed class AppRoute(val route: String): NavKey {
     data object BrowseExistingFoldersRoute : AppRoute("browse_existing_folders")
 
     @Serializable
-    data object FolderListRoute : AppRoute("folder_list")
+    data class FolderListRoute(
+        val showArchived: Boolean,
+        val spaceId: Long?,
+    ) : AppRoute("folder_list")
 
     @Serializable
-    data object FolderDetailRoute : AppRoute("folder_detail")
+    data class FolderDetailRoute(val currentProjectId: Long) : AppRoute("folder_detail")
 
     @Serializable
-    data object ProofModeSettings: AppRoute("proof_mode_settings")
+    data object ProofModeSettings : AppRoute("proof_mode_settings")
 
     @Serializable
-    data object PreviewMediaRoute : AppRoute("preview_media")
+    data class PreviewMediaRoute(val projectId: Long) : AppRoute("preview_media")
 
     @Serializable
-    data object ReviewMediaRoute : AppRoute("review_media")
+    data class ReviewMediaRoute(
+        val mediaIds: LongArray,
+        val selectedIdx: Int = 0,
+        val batchMode: Boolean = false
+    ) : AppRoute("review_media")
 
     @Serializable
     data object PasscodeSetupRoute : AppRoute("passcode_setup")

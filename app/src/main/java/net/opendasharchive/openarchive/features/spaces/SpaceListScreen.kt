@@ -1,7 +1,6 @@
 package net.opendasharchive.openarchive.features.spaces
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,19 +32,19 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
-import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
-import net.opendasharchive.openarchive.core.presentation.theme.ThemeColors
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.db.Space
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginAction
+import net.opendasharchive.openarchive.db.dummySpaceList
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.components.SpaceIcon
-import net.opendasharchive.openarchive.features.main.ui.components.dummySpaceList
-import net.opendasharchive.openarchive.util.NetworkUtils
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 
-class SpaceListViewModel() : ViewModel() {
+class SpaceListViewModel(
+
+) : ViewModel() {
 
     private val _spaceList = MutableStateFlow<List<Space>>(emptyList())
     val spaceList: StateFlow<List<Space>> = _spaceList
@@ -58,9 +56,9 @@ class SpaceListViewModel() : ViewModel() {
 
 @Composable
 fun SpaceListScreen(
-    onSpaceClicked: (Space) -> Unit,
+    viewModel: SpaceListViewModel = koinViewModel(),
+    onSpaceClicked: (Long, Space.Type) -> Unit,
     onAddServerClicked: () -> Unit = {},
-    viewModel: SpaceListViewModel = koinViewModel()
 ) {
 
     val spaceList by viewModel.spaceList.collectAsStateWithLifecycle()
@@ -70,18 +68,18 @@ fun SpaceListScreen(
         viewModel.refreshSpaces()
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        SpaceListScreenContent(
-            spaceList = spaceList,
-            onSpaceClicked = onSpaceClicked,
-            onAddServerClicked = onAddServerClicked
-        )
-    }
+
+    SpaceListScreenContent(
+        spaceList = spaceList,
+        onSpaceClicked = onSpaceClicked,
+        onAddServerClicked = onAddServerClicked
+    )
+
 }
 
 @Composable
 fun SpaceListScreenContent(
-    onSpaceClicked: (Space) -> Unit,
+    onSpaceClicked: (Long, Space.Type) -> Unit,
     onAddServerClicked: () -> Unit,
     spaceList: List<Space> = emptyList()
 ) {
@@ -114,7 +112,7 @@ fun SpaceListScreenContent(
                     SpaceListItem(
                         space = space,
                         onClick = {
-                            onSpaceClicked(space)
+                            onSpaceClicked(space.id, space.tType)
                         }
                     )
                 }
@@ -148,38 +146,38 @@ fun SpaceListScreenContent(
         }
 
 
-/**
+        /**
         Button(
-            modifier = Modifier
-                .padding(8.dp)
-                .heightIn(ThemeDimensions.touchable)
-                .weight(1f),
-            enabled = !state.isBusy && state.isValid,
-            shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.tertiary,
-                disabledContainerColor = colorResource(R.color.grey_50),
-                disabledContentColor = colorResource(R.color.black),
-            ),
-            onClick = {
-                if (NetworkUtils.isNetworkAvailable(context)) {
-                    onAction(InternetArchiveLoginAction.Login)
-                } else {
-                    Toast.makeText(context, R.string.error_no_internet, Toast.LENGTH_LONG)
-                        .show()
-                }
-            },
-        ) {
-            if (state.isBusy) {
-                CircularProgressIndicator(color = ThemeColors.material.primary)
-            } else {
-                Text(
-                    stringResource(R.string.next),
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
-                )
-            }
+        modifier = Modifier
+        .padding(8.dp)
+        .heightIn(ThemeDimensions.touchable)
+        .weight(1f),
+        enabled = !state.isBusy && state.isValid,
+        shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
+        colors = ButtonDefaults.buttonColors(
+        containerColor = MaterialTheme.colorScheme.tertiary,
+        disabledContainerColor = colorResource(R.color.grey_50),
+        disabledContentColor = colorResource(R.color.black),
+        ),
+        onClick = {
+        if (NetworkUtils.isNetworkAvailable(context)) {
+        onAction(InternetArchiveLoginAction.Login)
+        } else {
+        Toast.makeText(context, R.string.error_no_internet, Toast.LENGTH_LONG)
+        .show()
         }
-        **/
+        },
+        ) {
+        if (state.isBusy) {
+        CircularProgressIndicator(color = ThemeColors.material.primary)
+        } else {
+        Text(
+        stringResource(R.string.next),
+        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold)
+        )
+        }
+        }
+         **/
     }
 }
 
@@ -234,7 +232,7 @@ private fun SpaceListScreenPreview() {
 
         SpaceListScreenContent(
             spaceList = dummySpaceList,
-            onSpaceClicked = {},
+            onSpaceClicked = { _, _ -> },
             onAddServerClicked = {}
         )
     }
@@ -248,7 +246,7 @@ private fun SpaceListEmptyScreenPreview() {
 
         SpaceListScreenContent(
             spaceList = emptyList(),
-            onSpaceClicked = {},
+            onSpaceClicked = { _, _ -> },
             onAddServerClicked = {}
         )
     }

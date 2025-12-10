@@ -55,7 +55,7 @@ class PasscodeEntryViewModel(
             else state.copy(passcode = state.passcode + number)
         }
 
-        if (uiState.value.passcode.length == config.passcodeLength) {
+        if (config.autoVerifyPasscode && uiState.value.passcode.length == config.passcodeLength) {
 //            _isCheckingPasscode.value = true
             _uiState.update { it.copy(isProcessing = true) }
             checkPasscode()
@@ -73,7 +73,10 @@ class PasscodeEntryViewModel(
     }
 
     private fun onSubmit() {
-
+        if (uiState.value.passcode.length == config.passcodeLength && !uiState.value.isProcessing) {
+            _uiState.update { it.copy(isProcessing = true) }
+            checkPasscode()
+        }
     }
 
     private fun checkPasscode() = viewModelScope.launch {

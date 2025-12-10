@@ -133,7 +133,7 @@
 
     <composable
         android:id="@+id/fragment_add_folder"
-        android:name="net.opendasharchive.openarchive.features.folders.AddFolderScreenKt\$AddFolderScreen"
+        android:name="net.opendasharchive.openarchive.features.folders.AddFolderScreenKt\$AddFolderScreenLegacy"
         android:label="@string/add_a_folder">
 
         <action

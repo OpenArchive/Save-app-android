@@ -1,10 +1,6 @@
 package net.opendasharchive.openarchive.features.main.ui
 
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.os.Handler
-import android.os.Looper
 import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -25,6 +21,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -36,7 +35,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,137 +58,124 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.media.MediaStatusOverlay
 import net.opendasharchive.openarchive.core.presentation.media.MediaThumbnail
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.db.Project
-import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.main.ui.components.SpaceIcon
-import net.opendasharchive.openarchive.upload.BroadcastManager
-import org.koin.compose.viewmodel.koinViewModel
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import android.widget.Toast
+import net.opendasharchive.openarchive.db.dummyCollectionList
+import net.opendasharchive.openarchive.db.dummyMediaList
+import net.opendasharchive.openarchive.db.dummyProjectList
+import net.opendasharchive.openarchive.db.dummySpaceList
 
 @Composable
 fun MainMediaScreen(
+    state: MainMediaState,
     projectId: Long,
-    project: Project? = null,
-    space: Space? = null,
-    viewModel: MainMediaViewModel = koinViewModel(),
-    onNavigateToPreview: (Long) -> Unit,
-    onShowUploadManager: () -> Unit,
-    onShowErrorDialog: (Media, Int) -> Unit,
-    onSelectionModeChanged: (Boolean, Int) -> Unit,
-    onAddServerClick: () -> Unit = {},
-    onAddFolderClick: () -> Unit = {},
-    onAddMediaClick: () -> Unit = {}
+    onAction: (MainMediaAction) -> Unit,
 ) {
-    val context = LocalContext.current
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // BroadcastReceiver setup for upload progress
-    DisposableEffect(Unit) {
-        val handler = Handler(Looper.getMainLooper())
-        val receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                val action = BroadcastManager.getAction(intent) ?: return
-                when (action) {
-                    BroadcastManager.Action.Change -> {
-                        handler.post {
-                            viewModel.onAction(
-                                MainMediaAction.UpdateMediaItem(
-                                    collectionId = action.collectionId,
-                                    mediaId = action.mediaId,
-                                    progress = action.progress,
-                                    isUploaded = action.isUploaded
-                                )
-                            )
-                        }
-                    }
-                    BroadcastManager.Action.Delete -> {
-                        handler.post { viewModel.onAction(MainMediaAction.Refresh(projectId)) }
-                    }
-                }
-            }
-        }
-        BroadcastManager.register(context, receiver)
-        onDispose { BroadcastManager.unregister(context, receiver) }
-    }
-
-    // Event handling
-    LaunchedEffect(Unit) {
-        viewModel.events.collectLatest { event ->
-            when (event) {
-                is MainMediaEvent.NavigateToPreview -> onNavigateToPreview(event.projectId)
-                is MainMediaEvent.ShowUploadManager -> onShowUploadManager()
-                is MainMediaEvent.ShowErrorDialog -> onShowErrorDialog(event.media, event.position)
-                is MainMediaEvent.SelectionModeChanged -> onSelectionModeChanged(event.isSelecting, event.count)
-                is MainMediaEvent.ShowFolderOptionsPopup -> {
-                    // TODO: Show folder options popup
-                }
-                is MainMediaEvent.ShowDeleteConfirmation -> {
-                    // TODO: Show delete confirmation dialog
-                }
-                is MainMediaEvent.FocusFolderNameInput -> {
-                    // Handled in FolderBarEditMode composable
-                }
-            }
-        }
-    }
-
-    // Initial load and folder name setup
-    LaunchedEffect(projectId, project) {
-        viewModel.onAction(MainMediaAction.Refresh(projectId))
-        project?.let {
-            viewModel.setFolderName(it.description ?: it.created.toString())
-        }
-    }
 
     MainMediaContent(
         state = state,
-        space = space,
-        project = project,
-        onAction = viewModel::onAction,
-        onAddServerClick = onAddServerClick,
-        onAddFolderClick = onAddFolderClick,
-        onAddMediaClick = onAddMediaClick
+        onAction = onAction,
     )
 }
 
 @Composable
 private fun MainMediaContent(
     state: MainMediaState,
-    space: Space?,
-    project: Project?,
     onAction: (MainMediaAction) -> Unit,
-    onAddServerClick: () -> Unit,
-    onAddFolderClick: () -> Unit,
-    onAddMediaClick: () -> Unit
 ) {
+    val context = LocalContext.current
+    var showFolderOptions by remember { mutableStateOf(false) }
+    var showRemoveConfirm by remember { mutableStateOf(false) }
+
+    val toggleArchive: () -> Unit = {
+        state.project?.let {
+            it.isArchived = !it.isArchived
+            it.save()
+            Toast.makeText(
+                context,
+                R.string.folder_archived,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    val removeFolder: () -> Unit = {
+        state.project?.let {
+            it.delete()
+            Toast.makeText(context, R.string.folder_removed, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    LaunchedEffect(state.folderBarMode) {
+        if (state.folderBarMode != FolderBarMode.INFO) {
+            showFolderOptions = false
+        }
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         // Folder Bar
         FolderBar(
             state = state,
-            space = space,
-            onAction = onAction
+            onAction = onAction,
+            onSelectMedia = { onAction(MainMediaAction.EnterSelectionMode) },
+            onRename = { onAction(MainMediaAction.EditFolderClicked) },
+            onToggleArchive = toggleArchive,
+            onRemove = { showFolderOptions = false; showRemoveConfirm = true },
+            onOpenOptions = { showFolderOptions = true },
+            onDismissOptions = { showFolderOptions = false },
+            showMenu = showFolderOptions
         )
+
+        if (showRemoveConfirm) {
+            AlertDialog(
+                onDismissRequest = { showRemoveConfirm = false },
+                title = { Text(text = stringResource(id = R.string.remove_from_app)) },
+                text = { Text(text = stringResource(id = R.string.action_remove_project)) },
+                confirmButton = {
+                    Text(
+                        text = stringResource(id = R.string.lbl_remove),
+                        color = colorResource(R.color.colorError),
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .clickable {
+                                showRemoveConfirm = false
+                                removeFolder()
+                            }
+                    )
+                },
+                dismissButton = {
+                    Text(
+                        text = stringResource(id = R.string.lbl_Cancel),
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .clickable { showRemoveConfirm = false }
+                    )
+                }
+            )
+        }
 
         // Main Content
         Box(modifier = Modifier.fillMaxSize()) {
             if (state.sections.isEmpty()) {
                 EmptyStateView(
-                    space = space,
-                    project = project,
-                    onAddServerClick = onAddServerClick,
-                    onAddFolderClick = onAddFolderClick,
-                    onAddMediaClick = onAddMediaClick
+                    title = stringResource(R.string.title_welcome),
+                    showWelcome = state.space == null,
+                    message = when {
+                        state.space == null -> stringResource(R.string.tap_to_add_server)
+                        state.project == null -> stringResource(R.string.tap_to_add_folder)
+                        else -> stringResource(R.string.tap_to_add)
+                    },
                 )
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -353,46 +338,14 @@ private fun MediaGridItem(
 
 @Composable
 private fun EmptyStateView(
-    space: Space?,
-    project: Project?,
-    onAddServerClick: () -> Unit,
-    onAddFolderClick: () -> Unit,
-    onAddMediaClick: () -> Unit
+    showWelcome: Boolean,
+    title: String,
+    message: String,
 ) {
-    val (titleText, descriptionText, showWelcome, onClick) = when {
-        space == null -> {
-            // No space added yet
-            Tuple4(
-                stringResource(R.string.title_welcome),
-                stringResource(R.string.tap_to_add_server),
-                true,
-                onAddServerClick
-            )
-        }
-        project == null || space.projects.isEmpty() -> {
-            // Space added but no folders
-            Tuple4(
-                "",
-                stringResource(R.string.tap_to_add_folder),
-                false,
-                onAddFolderClick
-            )
-        }
-        else -> {
-            // Folder exists but no media
-            Tuple4(
-                "",
-                stringResource(R.string.tap_to_add),
-                false,
-                onAddMediaClick
-            )
-        }
-    }
 
     Box(
         modifier = Modifier
-            .fillMaxSize()
-            .clickable { onClick() },
+            .fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -406,7 +359,7 @@ private fun EmptyStateView(
             if (showWelcome) {
                 Spacer(modifier = Modifier.height(120.dp))
                 Text(
-                    text = titleText,
+                    text = title,
                     style = MaterialTheme.typography.displayLarge,
                     fontSize = 48.sp,
                     fontWeight = FontWeight.Bold,
@@ -420,7 +373,7 @@ private fun EmptyStateView(
 
             // Description text
             Text(
-                text = descriptionText,
+                text = message,
                 style = MaterialTheme.typography.headlineSmall,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
@@ -430,28 +383,35 @@ private fun EmptyStateView(
             )
 
             // Arrow pointing to add button
-            Spacer(modifier = Modifier.weight(1f))
-            Image(
-                painter = painterResource(R.drawable.welcome_arrow),
-                contentDescription = stringResource(R.string.title_welcome),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 48.dp, vertical = 8.dp),
-                contentScale = ContentScale.Fit,
-                colorFilter = ColorFilter.tint(colorResource(R.color.c23_medium_grey))
-            )
+            Row(modifier = Modifier.fillMaxWidth().weight(1f)) {
+                Spacer(modifier = Modifier.weight(1f))
+                Image(
+                    painter = painterResource(R.drawable.welcome_arrow),
+                    contentDescription = stringResource(R.string.title_welcome),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(2f)
+                        .padding(horizontal = 48.dp, vertical = 8.dp),
+                    contentScale = ContentScale.Fit,
+                    colorFilter = ColorFilter.tint(colorResource(R.color.c23_medium_grey))
+                )
+            }
         }
     }
 }
-
-private data class Tuple4<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
 
 // Folder Bar Composables
 @Composable
 private fun FolderBar(
     state: MainMediaState,
-    space: Space?,
-    onAction: (MainMediaAction) -> Unit
+    onAction: (MainMediaAction) -> Unit,
+    onSelectMedia: () -> Unit,
+    onRename: () -> Unit,
+    onToggleArchive: () -> Unit,
+    onRemove: () -> Unit,
+    onOpenOptions: () -> Unit,
+    onDismissOptions: () -> Unit,
+    showMenu: Boolean
 ) {
     Row(
         modifier = Modifier
@@ -464,8 +424,13 @@ private fun FolderBar(
         when (state.folderBarMode) {
             FolderBarMode.INFO -> FolderBarInfoMode(
                 state = state,
-                space = space,
-                onAction = onAction
+                onSelectMedia = onSelectMedia,
+                onRename = onRename,
+                onToggleArchive = onToggleArchive,
+                onRemove = onRemove,
+                onOpenOptions = onOpenOptions,
+                onDismissOptions = onDismissOptions,
+                showMenu = showMenu
             )
             FolderBarMode.SELECTION -> FolderBarSelectionMode(
                 selectedCount = state.selectedMediaIds.size,
@@ -482,67 +447,112 @@ private fun FolderBar(
 @Composable
 private fun RowScope.FolderBarInfoMode(
     state: MainMediaState,
-    space: Space?,
-    onAction: (MainMediaAction) -> Unit
+    onSelectMedia: () -> Unit,
+    onRename: () -> Unit,
+    onToggleArchive: () -> Unit,
+    onRemove: () -> Unit,
+    onOpenOptions: () -> Unit,
+    onDismissOptions: () -> Unit,
+    showMenu: Boolean
 ) {
+    val hasProject = state.project != null
     Row(
         modifier = Modifier.weight(1f),
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Space Icon
-        space?.let {
+        state.space?.let {
+
             SpaceIcon(
                 type = it.tType,
                 modifier = Modifier.size(28.dp)
             )
+
+            // Arrow
+            Icon(
+                painter = painterResource(R.drawable.keyboard_arrow_right),
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = colorResource(R.color.colorOnBackground)
+            )
+
+            // Folder Name
+            Text(
+                text = state.project?.description ?: "",
+                style = MaterialTheme.typography.titleMedium.copy(fontFamily = MontserratFontFamily),
+                modifier = Modifier.weight(1f, fill = false)
+            )
         }
 
-        // Arrow
-        Icon(
-            painter = painterResource(R.drawable.keyboard_arrow_right),
-            contentDescription = null,
-            modifier = Modifier.size(24.dp),
-            tint = colorResource(R.color.colorOnBackground)
-        )
 
-        // Folder Name
-        Text(
-            text = state.folderName,
-            style = MaterialTheme.typography.titleMedium.copy(fontFamily = MontserratFontFamily),
-            modifier = Modifier.weight(1f, fill = false)
-        )
     }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Edit Button
-        IconButton(
-            onClick = { onAction(MainMediaAction.EditFolderClicked) },
-            modifier = Modifier.size(32.dp)
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_edit_folder),
-                contentDescription = stringResource(R.string.edit),
-                tint = colorResource(R.color.colorTertiary),
-                modifier = Modifier.size(24.dp)
-            )
-        }
-
-        // Count Pill
-        Box(
-            modifier = Modifier
-                .background(
-                    colorResource(R.color.colorPillTransparent),
-                    RoundedCornerShape(12.dp)
+        if (hasProject) {
+            // Edit Button
+            IconButton(
+                onClick = { onOpenOptions() },
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_edit_folder),
+                    contentDescription = stringResource(R.string.edit),
+                    tint = colorResource(R.color.colorTertiary),
+                    modifier = Modifier.size(24.dp)
                 )
-                .padding(horizontal = 8.dp, vertical = 4.dp)
-        ) {
-            Text(
-                text = NumberFormat.getInstance().format(state.totalMediaCount),
-                style = MaterialTheme.typography.bodySmall
-            )
+            }
+
+            DropdownMenu(
+                expanded = showMenu,
+                onDismissRequest = onDismissOptions
+            ) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(id = R.string.lbl_select_media)) },
+                    onClick = {
+                        onDismissOptions()
+                        onSelectMedia()
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text(stringResource(id = R.string.lbl_rename_folder)) },
+                    onClick = {
+                        onDismissOptions()
+                        onRename()
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text(stringResource(id = R.string.popup_archive_folder)) },
+                    onClick = {
+                        onDismissOptions()
+                        onToggleArchive()
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text(stringResource(id = R.string.popup_remove_folder)) },
+                    onClick = {
+                        onDismissOptions()
+                        onRemove()
+                    }
+                )
+            }
+
+            // Count Pill
+            Box(
+                modifier = Modifier
+                    .background(
+                        colorResource(R.color.colorPillTransparent),
+                        RoundedCornerShape(12.dp)
+                    )
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    text = NumberFormat.getInstance().format(state.totalMediaCount),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
     }
 }
@@ -678,16 +688,18 @@ private fun MainMediaScreenPreview() {
     SaveAppTheme {
         MainMediaContent(
             state = MainMediaState(
-                sections = emptyList(),
+                spaces = dummySpaceList,
+                space = dummySpaceList.first(),
+                projects = dummyProjectList,
+                project = dummyProjectList.first(),
+                sections = dummyCollectionList.map { CollectionSection(
+                    collection = dummyCollectionList.first(),
+                    media = dummyMediaList,
+                ) },
                 isInSelectionMode = false,
                 selectedMediaIds = emptySet()
             ),
-            space = null,
-            project = null,
             onAction = {},
-            onAddServerClick = {},
-            onAddFolderClick = {},
-            onAddMediaClick = {}
         )
     }
 }

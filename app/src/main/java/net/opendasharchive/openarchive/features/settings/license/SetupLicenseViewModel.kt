@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
 
@@ -20,9 +21,14 @@ class SetupLicenseViewModel(
 
     private val spaceId: Long = savedStateHandle.get<Long>("spaceId") ?: -1L
     private val isEditing: Boolean = savedStateHandle.get<Boolean>("isEditing") ?: false
+    private val spaceType: Space.Type = savedStateHandle.get<Space.Type>("space_type") ?: Space.Type.WEBDAV
 
     private val _uiState =
-        MutableStateFlow(SetupLicenseState(spaceId = spaceId, isEditing = isEditing))
+        MutableStateFlow(SetupLicenseState(
+            spaceId = spaceId,
+            isEditing = isEditing,
+            spaceType = spaceType
+        ))
     val uiState: StateFlow<SetupLicenseState> = _uiState.asStateFlow()
 
     private val _events = Channel<SetupLicenseEvent>()
@@ -38,13 +44,31 @@ class SetupLicenseViewModel(
         when (action) {
             is SetupLicenseAction.UpdateServerName -> {
                 _uiState.update { it.copy(serverName = action.serverName) }
+                // Update space object but don't save yet - wait for Next button
                 updateSpace { space ->
                     space.name = action.serverName
-                    space.save()
                 }
             }
 
             is SetupLicenseAction.Next -> {
+                // Save all changes (name + license) when user taps Next
+                space?.let { currentSpace ->
+                    val currentState = _uiState.value
+
+                    // Only save nickname for WebDAV/private servers, not for Internet Archive
+                    if (currentState.spaceType != Space.Type.INTERNET_ARCHIVE) {
+                        currentSpace.name = currentState.serverName
+                    }
+
+                    currentSpace.license = currentState.licenseUrl
+
+                    AppLogger.d("SetupLicenseViewModel", "Updating space - ID: ${currentSpace.id}, type: ${currentState.spaceType}, name: '${currentSpace.name}', license: '${currentSpace.license}'")
+
+                    // Save updates to existing space
+                    currentSpace.save()
+
+                    AppLogger.d("SetupLicenseViewModel", "Space saved successfully - ID: ${currentSpace.id}")
+                }
                 viewModelScope.launch {
                     _events.send(SetupLicenseEvent.NavigateNext)
                 }
@@ -134,11 +158,10 @@ class SetupLicenseViewModel(
     }
 
     private fun loadSpace() {
-        space = if (spaceId == -1L) {
-            Space(Space.Type.WEBDAV)
-        } else {
-            Space.Companion.get(spaceId) ?: Space(Space.Type.WEBDAV)
-        }
+        // Since we come directly from WebDavScreen/InternetArchiveLoginScreen where
+        // Space.current is set, we can use it directly. This ensures we're updating
+        // the SAME space that was just authenticated, not creating a new one.
+        space = Space.current
 
         space?.let { currentSpace ->
             val licenseState = initializeLicenseState(currentSpace.license)
@@ -208,9 +231,10 @@ class SetupLicenseViewModel(
         )
 
         _uiState.update { it.copy(licenseUrl = newLicense) }
+        // Update space object but don't save yet - wait for Next button
+        // This prevents duplicate space records
         updateSpace { space ->
             space.license = newLicense
-            space.save()
         }
     }
 }
@@ -220,6 +244,7 @@ data class SetupLicenseState(
     val serverName: String = "",
     val spaceId: Long = -1L,
     val isEditing: Boolean = false,
+    val spaceType: Space.Type = Space.Type.WEBDAV,
     // Creative Commons License state
     val ccEnabled: Boolean = false,
     val allowRemix: Boolean = false,

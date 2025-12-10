@@ -69,6 +69,8 @@ import androidx.compose.material3.MaterialTheme
 
 @Composable
 fun SettingsScreen(
+    onNavigateToSpaceList: () -> Unit = {},
+    onNavigateToArchivedFolders: () -> Unit = {},
     onNavigateToCache: () -> Unit = {},
     onNavigateToProofMode: () -> Unit = {}
 ) {
@@ -182,23 +184,13 @@ fun SettingsScreen(
                 coroutineScope.launch { analyticsManager.trackFeatureToggled("dark_mode", enabled) }
             },
             onMediaServersClick = {
-                val intent = Intent(context, SpaceSetupActivity::class.java)
-                intent.putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.SPACE_LIST.name)
-                context.startActivity(intent)
+                onNavigateToSpaceList()
             },
             onMediaFoldersClick = {
-                val intent = Intent(context, SpaceSetupActivity::class.java)
-                intent.putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.ARCHIVED_FOLDER_LIST.name)
-                intent.putExtra(FoldersFragment.EXTRA_SHOW_ARCHIVED, true)
-                context.startActivity(intent)
+                onNavigateToArchivedFolders()
             },
             onProofModeClick = {
                 onNavigateToProofMode()
-//                context.startActivity(
-//                    Intent(context, SpaceSetupActivity::class.java).apply {
-//                        putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.PROOF_MODE.name)
-//                    }
-//                )
             },
             onAboutClick = { openUrl(context, "https://open-archive.org/save") },
             onPrivacyClick = { openUrl(context, "https://open-archive.org/privacy") },

@@ -146,7 +146,7 @@ class ReviewMediaFragment : BaseFragment(), ToolbarConfigurable {
 }
 
 @Composable
-private fun ReviewMediaScreen(
+fun ReviewMediaScreen(
     viewModel: ReviewMediaViewModel = koinViewModel(),
     onNavigateBack: () -> Unit
 ) {

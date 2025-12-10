@@ -17,8 +17,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,9 +40,29 @@ import androidx.navigation.findNavController
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
+import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
+
+
 
 @Composable
-fun AddFolderScreen() {
+fun AddFolderScreen(
+    onCreateFolder: () -> Unit,
+    onBrowseFolders: () -> Unit,
+    onNavigateBack: () -> Unit
+) {
+    DefaultScaffold(
+        title = stringResource(id = R.string.add_a_folder),
+        onNavigateBack = onNavigateBack
+    ) {
+        AddFolderScreenContent(
+            onCreateFolder = onCreateFolder,
+            onBrowseFolders = onBrowseFolders
+        )
+    }
+}
+
+@Composable
+fun AddFolderScreenLegacy() {
 
     val navController = LocalView.current.findNavController()
 
@@ -158,7 +176,7 @@ private fun AddFolderScreenPreview() {
     DefaultScaffoldPreview {
         AddFolderScreenContent(
             onCreateFolder = {},
-            onBrowseFolders = {}
+            onBrowseFolders = {},
         )
     }
 }

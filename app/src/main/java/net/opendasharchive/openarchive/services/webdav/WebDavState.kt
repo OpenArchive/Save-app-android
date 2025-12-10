@@ -6,9 +6,9 @@ import net.opendasharchive.openarchive.features.core.UiText
 @Immutable
 data class WebDavState(
     // Form fields
-    val serverUrl: String = "",
-    val username: String = "",
-    val password: String = "",
+    val serverUrl: String = "https://nx27277.your-storageshare.de/",
+    val username: String = "Prathieshna",
+    val password: String = "J7wc(ka_4#9!13h&",
     val name: String = "",
 
     // Mode flags
@@ -34,13 +34,16 @@ data class WebDavState(
     val requireShareAlike: Boolean = false,
     val allowCommercial: Boolean = false,
     val cc0Enabled: Boolean = false,
-    val licenseUrl: String? = null
+    val licenseUrl: String? = null,
+
+    // Original license values (for tracking changes)
+    val originalLicenseUrl: String? = null
 ) {
     val isFormValid: Boolean
         get() = serverUrl.isNotBlank() && username.isNotBlank() && password.isNotBlank()
 
     val hasUnsavedChanges: Boolean
-        get() = isEditMode && isNameChanged
+        get() = isEditMode && (isNameChanged || licenseUrl != originalLicenseUrl)
 }
 
 sealed interface WebDavAction {

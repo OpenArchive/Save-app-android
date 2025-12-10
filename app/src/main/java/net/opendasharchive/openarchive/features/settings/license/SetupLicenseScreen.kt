@@ -1,5 +1,7 @@
 package net.opendasharchive.openarchive.features.settings.license
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -21,6 +23,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.viewmodel.compose.viewModel
 import net.opendasharchive.openarchive.core.presentation.components.PrimaryButton
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
+import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.CustomTextField
 import net.opendasharchive.openarchive.services.webdav.CreativeCommonsLicenseContent
 import net.opendasharchive.openarchive.services.webdav.LicenseCallbacks
@@ -65,14 +68,25 @@ fun SetupLicenseScreenContent(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    focusManager.clearFocus()
+                }
                 .padding(horizontal = 16.dp)
                 .padding(top = 48.dp, bottom = 80.dp), // Add bottom padding for button
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Description text (hidden in edit mode)
             if (!state.isEditing) {
+                val descriptionText = when (state.spaceType) {
+                    Space.Type.INTERNET_ARCHIVE -> stringResource(R.string.choose_license)
+                    else -> stringResource(R.string.name_your_server)
+                }
+
                 Text(
-                    text = stringResource(R.string.name_your_server),
+                    text = descriptionText,
                     modifier = Modifier.padding(24.dp),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -81,18 +95,20 @@ fun SetupLicenseScreenContent(
                 )
             }
 
-            // Server name input
-            CustomTextField(
-                value = state.serverName,
-                onValueChange = { onAction(SetupLicenseAction.UpdateServerName(it)) },
-                placeholder = stringResource(R.string.server_name_optional),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 24.dp),
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Done,
-                onImeAction = { focusManager.clearFocus() }
-            )
+            // Server name input (hidden for Internet Archive)
+            if (state.spaceType != Space.Type.INTERNET_ARCHIVE) {
+                CustomTextField(
+                    value = state.serverName,
+                    onValueChange = { onAction(SetupLicenseAction.UpdateServerName(it)) },
+                    placeholder = stringResource(R.string.server_name_optional),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 24.dp),
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Done,
+                    onImeAction = { focusManager.clearFocus() }
+                )
+            }
 
             // Creative Commons License Section
             CreativeCommonsLicenseContent(
@@ -106,22 +122,27 @@ fun SetupLicenseScreenContent(
                 ),
                 licenseCallbacks = object : LicenseCallbacks {
                     override fun onCcEnabledChange(enabled: Boolean) {
+                        focusManager.clearFocus()
                         onAction(SetupLicenseAction.UpdateCcEnabled(enabled))
                     }
 
                     override fun onAllowRemixChange(allowed: Boolean) {
+                        focusManager.clearFocus()
                         onAction(SetupLicenseAction.UpdateAllowRemix(allowed))
                     }
 
                     override fun onRequireShareAlikeChange(required: Boolean) {
+                        focusManager.clearFocus()
                         onAction(SetupLicenseAction.UpdateRequireShareAlike(required))
                     }
 
                     override fun onAllowCommercialChange(allowed: Boolean) {
+                        focusManager.clearFocus()
                         onAction(SetupLicenseAction.UpdateAllowCommercial(allowed))
                     }
 
                     override fun onCc0EnabledChange(enabled: Boolean) {
+                        focusManager.clearFocus()
                         onAction(SetupLicenseAction.UpdateCc0Enabled(enabled))
                     }
                 },

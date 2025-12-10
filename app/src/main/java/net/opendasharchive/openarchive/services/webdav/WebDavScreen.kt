@@ -144,7 +144,7 @@ class WebDavScreenFragment : BaseFragment(), ToolbarConfigurable {
 }
 
 @Composable
-private fun WebDavScreen(
+fun WebDavScreen(
     viewModel: WebDavViewModel = koinViewModel(),
     onNavigateToLicenseSetup: (Long) -> Unit,
     onNavigateBack: () -> Unit
@@ -312,8 +312,9 @@ private fun WebDavContent(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Done,
                     onImeAction = {
-                        // Trigger save when user presses Done on keyboard
-                        if (state.isNameChanged) {
+                        focusManager.clearFocus()
+                        // Trigger save when user presses Done on keyboard if there are any unsaved changes
+                        if (state.hasUnsavedChanges) {
                             onAction(WebDavAction.SaveChanges)
                         }
                     }
@@ -414,22 +415,27 @@ private fun WebDavContent(
                     ),
                     licenseCallbacks = object : LicenseCallbacks {
                         override fun onCcEnabledChange(enabled: Boolean) {
+                            focusManager.clearFocus()
                             onAction(WebDavAction.UpdateCcEnabled(enabled))
                         }
 
                         override fun onAllowRemixChange(allowed: Boolean) {
+                            focusManager.clearFocus()
                             onAction(WebDavAction.UpdateAllowRemix(allowed))
                         }
 
                         override fun onRequireShareAlikeChange(required: Boolean) {
+                            focusManager.clearFocus()
                             onAction(WebDavAction.UpdateRequireShareAlike(required))
                         }
 
                         override fun onAllowCommercialChange(allowed: Boolean) {
+                            focusManager.clearFocus()
                             onAction(WebDavAction.UpdateAllowCommercial(allowed))
                         }
 
                         override fun onCc0EnabledChange(enabled: Boolean) {
+                            focusManager.clearFocus()
                             onAction(WebDavAction.UpdateCc0Enabled(enabled))
                         }
                     },

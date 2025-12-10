@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.features.main.ui.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -35,21 +36,28 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.presentation.theme.DefaultEmptyScaffoldPreview
+import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.ContentPickerSheet
+
+enum class HomeBottomTab {
+    MEDIA,
+    SETTINGS
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainBottomBar(
-    isSettings: Boolean,
-    onMyMediaClick: () -> Unit,
-    onSettingsClick: () -> Unit,
-    onAddMediaClick: (AddMediaType) -> Unit
+    selectedTab: HomeBottomTab,
+    onTabSelected: (HomeBottomTab) -> Unit,
+    onAddClick: () -> Unit,
+    onAddLongClick: () -> Unit,
 ) {
-    var showContentPicker by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -67,10 +75,10 @@ fun MainBottomBar(
         ) {
             // My Media section
             BottomNavItem(
-                iconRes = if (!isSettings) R.drawable.perm_media_24px else R.drawable.outline_perm_media_24,
+                iconRes = if (selectedTab == HomeBottomTab.MEDIA) R.drawable.perm_media_24px else R.drawable.outline_perm_media_24,
                 label = stringResource(R.string.my_media),
-                isSelected = !isSettings,
-                onClick = onMyMediaClick,
+                isSelected = selectedTab == HomeBottomTab.MEDIA,
+                onClick = { onTabSelected(HomeBottomTab.MEDIA) },
                 modifier = Modifier.weight(1f)
             )
 
@@ -87,14 +95,8 @@ fun MainBottomBar(
                         .clip(RoundedCornerShape(percent = 50))
                         .background(colorResource(R.color.colorAddButton))
                         .combinedClickable(
-                            onClick = {
-                                // onClick: Import from gallery
-                                onAddMediaClick(AddMediaType.GALLERY)
-                            },
-                            onLongClick = {
-                                // onLongClick: Show content picker sheet
-                                showContentPicker = true
-                            }
+                            onClick = onAddClick,
+                            onLongClick = onAddLongClick
                         ),
                     contentAlignment = Alignment.Center
                 ) {
@@ -109,35 +111,40 @@ fun MainBottomBar(
 
             // Settings section
             BottomNavItem(
-                iconRes = if (isSettings) R.drawable.ic_settings_filled else R.drawable.ic_settings,
+                iconRes = if (selectedTab == HomeBottomTab.SETTINGS) R.drawable.ic_settings_filled else R.drawable.ic_settings,
                 label = stringResource(R.string.action_settings),
-                isSelected = isSettings,
-                onClick = onSettingsClick,
+                isSelected = selectedTab == HomeBottomTab.SETTINGS,
+                onClick = { onTabSelected(HomeBottomTab.SETTINGS) },
                 modifier = Modifier.weight(1f)
             )
         }
     }
+}
 
-    // Content Picker Sheet
-    if (showContentPicker) {
-        ContentPickerSheet(
-            onDismiss = { showContentPicker = false },
-            onMediaPicked = { mediaType ->
-                showContentPicker = false
-                onAddMediaClick(mediaType)
-            }
+
+@Preview
+@Composable
+private fun MainBottomBarPreview() {
+    DefaultEmptyScaffoldPreview {
+
+        MainBottomBar(
+            selectedTab = HomeBottomTab.SETTINGS,
+            onTabSelected = {},
+            onAddClick = {},
+            onAddLongClick = {}
         )
     }
 }
 
 @Composable
 private fun BottomNavItem(
-    iconRes: Int,
+    @DrawableRes iconRes: Int,
     label: String,
     isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,

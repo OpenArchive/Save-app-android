@@ -59,7 +59,8 @@ class WebDavViewModel(
                     username = space.username,
                     password = space.password,
                     name = space.name,
-                    originalName = space.name
+                    originalName = space.name,
+                    originalLicenseUrl = space.license
                 )
                 initializeLicenseState(newState, space.license)
             }
@@ -361,14 +362,19 @@ class WebDavViewModel(
     }
 
     private fun saveChanges() {
-        val enteredName = _uiState.value.name.trim()
+        val currentState = _uiState.value
+        val enteredName = currentState.name.trim()
+
+        // Update both name and license (license is already set in generateAndUpdateLicense)
         space.name = enteredName
+        // space.license is already updated in generateAndUpdateLicense()
         space.save()
 
         _uiState.update {
             it.copy(
                 originalName = enteredName,
-                isNameChanged = false
+                isNameChanged = false,
+                originalLicenseUrl = currentState.licenseUrl
             )
         }
 
@@ -430,9 +436,10 @@ class WebDavViewModel(
 
         _uiState.update { it.copy(licenseUrl = newLicense) }
 
+        // Don't save immediately - let saveChanges() handle persistence
+        // This prevents duplicate space records when both name and license are changed
         if (_uiState.value.isEditMode) {
             space.license = newLicense
-            space.save()
         }
     }
 

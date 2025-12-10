@@ -52,8 +52,8 @@ class ProjectAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            settingsIndex -> SettingsComposeFragment()
-//            settingsIndex -> SettingsFragment()
+//            settingsIndex -> SettingsComposeFragment()
+            settingsIndex -> SettingsFragment()
             else -> {
                 val project = getProject(position)
                 return MainMediaFragment.newInstance(project?.id ?: -1)

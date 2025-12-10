@@ -29,6 +29,7 @@ object MessageManager {
 fun DefaultScaffold(
     title: String,
     onNavigateBack: () -> Unit = {},
+    showNavigationIcon: Boolean = true,
     actions: @Composable (RowScope.() -> Unit) = {},
     content: @Composable () -> Unit,
 ) {
@@ -38,7 +39,8 @@ fun DefaultScaffold(
             ComposeAppBar(
                 title = title,
                 actions = actions,
-                onNavigateBack = onNavigateBack
+                onNavigateBack = onNavigateBack,
+                showNavigationIcon = showNavigationIcon
             )
         },
         content = content

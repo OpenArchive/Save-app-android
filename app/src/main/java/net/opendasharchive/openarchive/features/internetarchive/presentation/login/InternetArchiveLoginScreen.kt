@@ -102,7 +102,7 @@ class InternetArchiveLoginFragment : BaseFragment(), ToolbarConfigurable {
 }
 
 @Composable
-private fun InternetArchiveLoginScreen(
+fun InternetArchiveLoginScreen(
     onLoginSuccess: (Long) -> Unit,
     onCancel: () -> Unit
 ) {

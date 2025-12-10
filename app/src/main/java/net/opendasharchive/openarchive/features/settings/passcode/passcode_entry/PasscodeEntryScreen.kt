@@ -172,7 +172,7 @@ fun PasscodeEntryScreenContent(
                     onAction(PasscodeEntryScreenAction.OnBackspaceClick)
                 },
                 onSubmitClick = {
-
+                    onAction(PasscodeEntryScreenAction.OnSubmit)
                 }
             )
 

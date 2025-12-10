@@ -19,7 +19,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="48dp"
-            android:text="@string/you_have_successfully_connected_to_a_private_server"
+            tools:text="@string/you_have_successfully_connected_to_the_internet_archive"
             android:textAlignment="center"
             android:textFontWeight="600"
             android:textSize="18sp"

@@ -89,6 +89,7 @@ import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.compose.koinViewModel
 
 class PreviewMediaFragment : BaseFragment(), ToolbarConfigurable {
 
@@ -120,7 +121,11 @@ class PreviewMediaFragment : BaseFragment(), ToolbarConfigurable {
                         onRequestAddMore = { launchAddMore() },
                         onPickMedia = { handleMediaPick(it) },
                         onShowBatchHint = { showFirstTimeBatch() },
-                        onCloseScreen = { findNavController().popBackStack() }
+                        onCloseScreen = {
+                            // Finish the activity to return to MainActivity
+                            // This is the correct way to navigate between activities
+                            requireActivity().finish()
+                        }
                     )
                 }
             }
@@ -259,8 +264,8 @@ class PreviewMediaFragment : BaseFragment(), ToolbarConfigurable {
 }
 
 @Composable
-private fun PreviewMediaScreen(
-    viewModel: PreviewMediaViewModel,
+fun PreviewMediaScreen(
+    viewModel: PreviewMediaViewModel = koinViewModel(),
     onNavigateToReview: (List<Media>, Media?, Boolean) -> Unit,
     onRequestAddMore: () -> Unit,
     onPickMedia: (AddMediaType) -> Unit,
@@ -666,4 +671,3 @@ private fun MediaListItem(
         )
     }
 }
-

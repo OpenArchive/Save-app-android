@@ -131,7 +131,7 @@ fun OnboardingInstructionsScreen(
                 TextButton(
                     onClick = onDone,
                     modifier = Modifier
-                        .padding(top = 40.dp, start = 8.dp, end = 8.dp) // Match XML positioning
+                        .padding(top = 20.dp, start = 8.dp, end = 8.dp) // Match XML positioning
                         .align(Alignment.CenterHorizontally)
                 ) {
                     Text(

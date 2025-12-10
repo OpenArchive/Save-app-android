@@ -11,10 +11,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.fragment.app.FragmentActivity
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.db.Project
-import net.opendasharchive.openarchive.features.main.ui.HomeViewModel
+import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.features.main.ui.MainMediaViewModel
 import net.opendasharchive.openarchive.features.main.ui.SaveNavGraph
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.MediaLaunchers
@@ -26,10 +26,10 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 import timber.log.Timber
 import kotlin.getValue
 
-class HomeActivity: FragmentActivity() {
+class HomeActivity: BaseActivity() {
 
     private val appConfig by inject<AppConfig>()
-    private val viewModel by viewModel<HomeViewModel>()
+    private val viewModel by viewModel<MainMediaViewModel>()
 
     // We'll hold a reference to the media launchers registered with Picker.
     private lateinit var mediaLaunchers: MediaLaunchers
@@ -104,6 +104,7 @@ class HomeActivity: FragmentActivity() {
 
         // Set up your Compose UI and pass callbacks.
         setContent {
+
             SaveNavGraph(
                 onExit = {
                     finish()

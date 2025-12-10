@@ -21,7 +21,8 @@ import net.opendasharchive.openarchive.R
 fun ComposeAppBar(
     title: String = "",
     actions: @Composable (RowScope.() -> Unit) = {},
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    showNavigationIcon: Boolean = true
 ) {
     TopAppBar(
         modifier = Modifier.fillMaxWidth(),
@@ -34,11 +35,13 @@ fun ComposeAppBar(
             )
         },
         navigationIcon = {
-            IconButton(onClick = onNavigateBack) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_arrow_back_ios),
-                    contentDescription = null
-                )
+            if (showNavigationIcon) {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_arrow_back_ios),
+                        contentDescription = null
+                    )
+                }
             }
         },
         actions = actions,

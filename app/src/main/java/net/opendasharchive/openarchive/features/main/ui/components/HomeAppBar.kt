@@ -26,7 +26,7 @@ import net.opendasharchive.openarchive.R
 fun HomeAppBar(
     openDrawer: () -> Unit,
     onExit: () -> Unit,
-    isSettings: Boolean = false
+    showDrawer: Boolean = false
 ) {
 
     TopAppBar(
@@ -44,22 +44,8 @@ fun HomeAppBar(
         },
         actions = {
 
-            AnimatedVisibility(
-                visible = false
-            ) {
-                IconButton(
-                    onClick = {}
-                ) {
-                    Icon(
-                        Icons.Outlined.Delete,
-                        contentDescription = null
-                    )
-                }
-
-            }
-
             // Only show drawer icon when not on settings page
-            if (!isSettings) {
+            AnimatedVisibility(showDrawer) {
                 IconButton(
                     colors = IconButtonDefaults.iconButtonColors(
                         contentColor = colorResource(R.color.colorOnPrimary)

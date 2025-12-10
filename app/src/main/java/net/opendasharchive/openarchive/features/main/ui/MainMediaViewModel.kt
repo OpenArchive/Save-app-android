@@ -15,6 +15,10 @@ import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Collection
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Project
+import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.db.dummyProjectList
+import net.opendasharchive.openarchive.db.dummySpaceList
+import net.opendasharchive.openarchive.features.media.AddMediaType
 
 /**
  * Represents one collection section with its media items.
@@ -37,6 +41,10 @@ enum class FolderBarMode {
  * UI State for MainMediaScreen
  */
 data class MainMediaState(
+    val spaces: List<Space> = emptyList(),
+    val space: Space? = null,
+    val projects: List<Project> = emptyList(),
+    val project: Project? = null,
     val sections: List<CollectionSection> = emptyList(),
     val isInSelectionMode: Boolean = false,
     val selectedMediaIds: Set<Long> = emptySet(),
@@ -50,15 +58,17 @@ data class MainMediaState(
  * User actions in MainMediaScreen
  */
 sealed class MainMediaAction {
+    data class UpdateSelectedSpace(val space: Space) : MainMediaAction()
+    data class UpdateSelectedProject(val project: Project? = null) : MainMediaAction()
+    data class AddMediaClicked(val mediaType: AddMediaType) : MainMediaAction()
+    data object NavigateToProofModeSettings : MainMediaAction()
+    data object NavigateToSpaceList : MainMediaAction()
+    data object NavigateToArchivedFolders : MainMediaAction()
+
     data class Refresh(val projectId: Long) : MainMediaAction()
     data class MediaClicked(val media: Media) : MainMediaAction()
     data class MediaLongPressed(val media: Media) : MainMediaAction()
-    data class UpdateMediaItem(
-        val collectionId: Long,
-        val mediaId: Long,
-        val progress: Int,
-        val isUploaded: Boolean
-    ) : MainMediaAction()
+    data class UpdateMediaItem(val collectionId: Long, val mediaId: Long, val progress: Int, val isUploaded: Boolean) : MainMediaAction()
     data object ToggleSelectAll : MainMediaAction()
     data object DeleteSelected : MainMediaAction()
     data object CancelSelection : MainMediaAction()
@@ -66,6 +76,7 @@ sealed class MainMediaAction {
     data object CancelEditMode : MainMediaAction()
     data class SaveFolderName(val newName: String) : MainMediaAction()
     data class ShowFolderOptions(val x: Int, val y: Int) : MainMediaAction()
+    data object EnterSelectionMode : MainMediaAction()
 }
 
 /**
@@ -79,6 +90,10 @@ sealed class MainMediaEvent {
     data class ShowFolderOptionsPopup(val x: Int, val y: Int) : MainMediaEvent()
     data object ShowDeleteConfirmation : MainMediaEvent()
     data object FocusFolderNameInput : MainMediaEvent()
+
+    data object NavigateToProofModeSettings : MainMediaEvent()
+    data object NavigateToSpaceList : MainMediaEvent()
+    data object NavigateToArchivedFolders : MainMediaEvent()
 }
 
 /**
@@ -86,15 +101,24 @@ sealed class MainMediaEvent {
  */
 class MainMediaViewModel : ViewModel() {
 
-    private val _uiState = MutableStateFlow(MainMediaState())
+    private val _uiState = MutableStateFlow(MainMediaState(
+        spaces = dummySpaceList,
+        space = dummySpaceList.first(),
+        projects = dummyProjectList,
+        project = dummyProjectList.firstOrNull()
+    ))
     val uiState: StateFlow<MainMediaState> = _uiState.asStateFlow()
 
-    private val _events = MutableSharedFlow<MainMediaEvent>()
-    val events = _events.asSharedFlow()
+    private val _uiEvent = MutableSharedFlow<MainMediaEvent>()
+    val uiEvent = _uiEvent.asSharedFlow()
+
+    init {
+        loadSpacesAndFolders()
+    }
 
     fun onAction(action: MainMediaAction) {
         when (action) {
-            is MainMediaAction.Refresh -> refreshSections(action.projectId)
+            is MainMediaAction.Refresh -> refreshSections()
             is MainMediaAction.MediaClicked -> handleMediaClick(action.media)
             is MainMediaAction.MediaLongPressed -> handleMediaLongPress(action.media)
             is MainMediaAction.UpdateMediaItem -> updateMediaItem(
@@ -106,16 +130,70 @@ class MainMediaViewModel : ViewModel() {
             is MainMediaAction.ToggleSelectAll -> toggleSelectAll()
             is MainMediaAction.DeleteSelected -> deleteSelected()
             is MainMediaAction.CancelSelection -> cancelSelection()
+            is MainMediaAction.EnterSelectionMode -> enableSelectionMode()
             is MainMediaAction.EditFolderClicked -> enterEditMode()
             is MainMediaAction.CancelEditMode -> exitEditMode()
             is MainMediaAction.SaveFolderName -> saveFolderName(action.newName)
             is MainMediaAction.ShowFolderOptions -> showFolderOptions(action.x, action.y)
+
+            is MainMediaAction.AddMediaClicked -> {
+
+            }
+
+            MainMediaAction.NavigateToProofModeSettings -> viewModelScope.launch {
+                _uiEvent.emit(MainMediaEvent.NavigateToProofModeSettings)
+            }
+            MainMediaAction.NavigateToSpaceList -> viewModelScope.launch {
+                _uiEvent.emit(MainMediaEvent.NavigateToSpaceList)
+            }
+            MainMediaAction.NavigateToArchivedFolders -> viewModelScope.launch {
+                _uiEvent.emit(MainMediaEvent.NavigateToArchivedFolders)
+            }
+
+            is MainMediaAction.UpdateSelectedProject -> {
+                _uiState.update { it.copy(project = action.project) }
+                refreshSections()
+            }
+
+            is MainMediaAction.UpdateSelectedSpace -> {
+                val newSpace = action.space
+                Space.current = newSpace
+                _uiState.update {
+                    it.copy(
+                        space = newSpace,
+                        projects = newSpace.projects,
+                        project = newSpace.projects.firstOrNull()
+                    )
+                }
+            }
         }
     }
 
-    private fun refreshSections(projectId: Long) {
+    private fun loadSpacesAndFolders() = viewModelScope.launch{
+        val allSpaces = Space.getAll().asSequence().toList()
+        val selectedSpace = Space.current
+        val projects = selectedSpace?.projects ?: emptyList()
+        val project = projects.firstOrNull()
+
+        _uiState.update {
+            it.copy(
+                spaces = allSpaces,
+                space = selectedSpace,
+                projects = projects,
+                project = project
+            )
+        }
+    }
+
+    private fun refreshSections() {
         viewModelScope.launch(Dispatchers.IO) {
-            val collections = Collection.getByProject(projectId)
+            val project = uiState.value.project
+
+            val collections = if (project != null) {
+                Collection.getByProject(project.id)
+            } else {
+                emptyList()
+            }
             val newSections = collections
                 .filter { it.media.isNotEmpty() }
                 .map { CollectionSection(it, it.media) }
@@ -136,16 +214,16 @@ class MainMediaViewModel : ViewModel() {
                 when (media.sStatus) {
                     Media.Status.Local -> {
                         // Navigate to preview
-                        _events.emit(MainMediaEvent.NavigateToPreview(media.projectId))
+                        _uiEvent.emit(MainMediaEvent.NavigateToPreview(media.projectId))
                     }
                     Media.Status.Queued, Media.Status.Uploading -> {
                         // Show upload manager
-                        _events.emit(MainMediaEvent.ShowUploadManager)
+                        _uiEvent.emit(MainMediaEvent.ShowUploadManager)
                     }
                     Media.Status.Error -> {
                         // Show error dialog
                         val position = findMediaPosition(media)
-                        _events.emit(MainMediaEvent.ShowErrorDialog(media, position))
+                        _uiEvent.emit(MainMediaEvent.ShowErrorDialog(media, position))
                     }
                     else -> {
                         // No action for other statuses
@@ -187,7 +265,7 @@ class MainMediaViewModel : ViewModel() {
                 }
 
                 // Emit selection mode change event
-                _events.emit(
+                _uiEvent.emit(
                     MainMediaEvent.SelectionModeChanged(
                         _uiState.value.isInSelectionMode,
                         newSelected.size
@@ -218,7 +296,7 @@ class MainMediaViewModel : ViewModel() {
 
             withContext(Dispatchers.Main) {
                 _uiState.update { it.copy(selectedMediaIds = newSelected) }
-                _events.emit(
+                _uiEvent.emit(
                     MainMediaEvent.SelectionModeChanged(
                         _uiState.value.isInSelectionMode,
                         newSelected.size
@@ -257,7 +335,7 @@ class MainMediaViewModel : ViewModel() {
                         isInSelectionMode = false
                     )
                 }
-                _events.emit(MainMediaEvent.SelectionModeChanged(false, 0))
+                _uiEvent.emit(MainMediaEvent.SelectionModeChanged(false, 0))
             }
         }
     }
@@ -280,7 +358,7 @@ class MainMediaViewModel : ViewModel() {
                         folderBarMode = FolderBarMode.INFO  // Revert to INFO mode
                     )
                 }
-                _events.emit(MainMediaEvent.SelectionModeChanged(false, 0))
+                _uiEvent.emit(MainMediaEvent.SelectionModeChanged(false, 0))
             }
         }
     }
@@ -343,7 +421,7 @@ class MainMediaViewModel : ViewModel() {
     fun enableSelectionMode() {
         viewModelScope.launch {
             _uiState.update { it.copy(isInSelectionMode = true, folderBarMode = FolderBarMode.SELECTION) }
-            _events.emit(MainMediaEvent.SelectionModeChanged(true, _uiState.value.selectedMediaIds.size))
+            _uiEvent.emit(MainMediaEvent.SelectionModeChanged(true, _uiState.value.selectedMediaIds.size))
         }
     }
 
@@ -353,7 +431,7 @@ class MainMediaViewModel : ViewModel() {
     private fun enterEditMode() {
         viewModelScope.launch {
             _uiState.update { it.copy(folderBarMode = FolderBarMode.EDIT) }
-            _events.emit(MainMediaEvent.FocusFolderNameInput)
+            _uiEvent.emit(MainMediaEvent.FocusFolderNameInput)
         }
     }
 
@@ -384,7 +462,7 @@ class MainMediaViewModel : ViewModel() {
 
     private fun showFolderOptions(x: Int, y: Int) {
         viewModelScope.launch {
-            _events.emit(MainMediaEvent.ShowFolderOptionsPopup(x, y))
+            _uiEvent.emit(MainMediaEvent.ShowFolderOptionsPopup(x, y))
         }
     }
 
@@ -392,4 +470,3 @@ class MainMediaViewModel : ViewModel() {
         _uiState.update { it.copy(folderName = name) }
     }
 }
-

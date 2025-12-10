@@ -165,6 +165,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 //        WindowCompat.setDecorFitsSystemWindows(window, false)
         installSplashScreen()
 
+        // Set navigation bar color to match bottom bar color
+        window.navigationBarColor = ContextCompat.getColor(this, R.color.colorTertiary)
+
         // Check onboarding status early and redirect if needed
         if (!Prefs.didCompleteOnboarding) {
             val intent = Intent(this, Onboarding23Activity::class.java)

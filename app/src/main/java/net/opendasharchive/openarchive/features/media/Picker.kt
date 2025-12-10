@@ -312,7 +312,12 @@ object Picker {
         }
     }
 
-    private fun import(context: Context, project: Project?, uris: List<Uri>, generateProof: Boolean): ArrayList<Media> {
+    fun import(
+        context: Context,
+        project: Project?,
+        uris: List<Uri>,
+        generateProof: Boolean
+    ): ArrayList<Media> {
         val result = ArrayList<Media>()
 
         for (uri in uris) {
@@ -328,7 +333,11 @@ object Picker {
         return result
     }
 
-    fun import(context: Context, project: Project?, uri: Uri, generateProof: Boolean): Media? {
+    fun import(context: Context,
+               project: Project?,
+               uri: Uri,
+               generateProof: Boolean
+    ): Media? {
 
         val project = project ?: return null
 

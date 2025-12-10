@@ -10,4 +10,5 @@ data class AppConfig(
     val multipleProjectSelectionMode: Boolean = false,
     val useCustomCamera: Boolean = false,
     val useComposeUploadManager: Boolean = true,
+    val autoVerifyPasscode: Boolean = false,
 )
