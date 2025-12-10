@@ -250,8 +250,6 @@ proofmode = { group = "org.proofmode", name = "android-libproofmode", version.re
 satyan-sugar = { group = "com.github.satyan", name = "sugar", version.ref = "satyan-sugar" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 tor-android = { group = "info.guardianproject", name = "tor-android", version.ref = "tor-android" }
-zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing-core" }
-zxing-android-embedded = { group = "com.journeyapps", name = "zxing-android-embedded", version.ref = "zxing-android-embedded" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

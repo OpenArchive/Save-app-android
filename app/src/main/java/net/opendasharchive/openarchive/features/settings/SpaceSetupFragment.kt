@@ -42,9 +42,8 @@ class SpaceSetupFragment : BaseFragment() {
         // Show/hide Snowbird based on config
         val isDwebEnabled = appConfig.isDwebEnabled
         val onDwebClicked = {
-            val action =
-                SpaceSetupFragmentDirections.actionFragmentSpaceSetupToFragmentSnowbird()
-            findNavController().navigate(action)
+            val intent = Intent(requireContext(), SnowbirdActivity::class.java)
+            startActivity(intent)
         }
 
         val onStorachaClicked = {

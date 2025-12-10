@@ -3,10 +3,10 @@ package net.opendasharchive.openarchive.features.core
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
 import net.opendasharchive.openarchive.core.logger.AppLogger
@@ -14,14 +14,9 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupViewModel
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdRepoViewModel
 import net.opendasharchive.openarchive.services.storacha.util.SessionManager
-import net.opendasharchive.openarchive.services.storacha.util.StorachaAccountManager
-import net.opendasharchive.openarchive.util.FullScreenOverlayManager
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
-import kotlin.getValue
 
 abstract class BaseFragment : Fragment(), ToolbarConfigurable {
 
