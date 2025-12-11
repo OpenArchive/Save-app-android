@@ -53,10 +53,7 @@ import org.koin.core.parameter.parametersOf
 
 @Composable
 fun SaveNavGraph(
-    onExit: () -> Unit,
-    onNewFolder: () -> Unit,
-    onFolderSelected: (Long) -> Unit,
-    onAddMedia: (AddMediaType) -> Unit
+
 ) {
 
     val context = LocalContext.current
@@ -89,34 +86,33 @@ fun SaveNavGraph(
             },
             entryProvider = entryProvider {
 
-                entry<AppRoute.HomeRoute> {
-                    val homeViewModel = koinViewModel<HomeViewModel>()
+                entry<AppRoute.HomeRoute> { key ->
+                    val viewModel = koinViewModel<HomeViewModel>() {
+                        parametersOf(navigator)
+                        parametersOf(key)
+                    }
                     HomeScreen(
-                        homeViewModel = homeViewModel,
-                        onExit = onExit,
-                        onFolderSelected = onFolderSelected,
-                        onAddMedia = onAddMedia,
-                        onNavigateToCache = {
-                            navigator.navigateTo(AppRoute.MediaCacheRoute)
+                        viewModel = viewModel,
+                        invokeNavEvent = { event ->
+                            when(event) {
+                                is HomeNavigation.AddNewFolder -> {
+                                    navigator.navigateTo(AppRoute.AddFolderRoute(event.spaceId))
+                                }
+                                is HomeNavigation.ArchivedFolders -> {
+                                    navigator.navigateTo(
+                                        AppRoute.FolderListRoute(
+                                            spaceId = event.spaceId,
+                                            showArchived = true
+                                        )
+                                    )
+                                }
+                                HomeNavigation.Cache -> navigator.navigateTo(AppRoute.MediaCacheRoute)
+                                HomeNavigation.ProofMode -> navigator.navigateTo(AppRoute.ProofModeSettings)
+                                HomeNavigation.SpaceList -> navigator.navigateTo(AppRoute.SpaceListRoute("Hello World"))
+                                HomeNavigation.SpaceSetup ->  navigator.navigateTo(AppRoute.SpaceSetupRoute)
+                                is HomeNavigation.PreviewMedia -> navigator.navigateTo(AppRoute.PreviewMediaRoute(event.projectId))
+                            }
                         },
-                        onNavigateToProofModeSettings = {
-                            navigator.navigateTo(AppRoute.ProofModeSettings)
-                        },
-                        onNavigateToPreview = { projectId ->
-                            navigator.navigateTo(AppRoute.PreviewMediaRoute(projectId))
-                        },
-                        onNavigateToSpaceSetup = {
-                            navigator.navigateTo(AppRoute.SpaceSetupRoute)
-                        },
-                        onNavigateToAddNewFolder = { spaceId ->
-                            navigator.navigateTo(AppRoute.AddFolderRoute(spaceId))
-                        },
-                        onNavigateToSpaceList = {
-                            navigator.navigateTo(AppRoute.SpaceListRoute("Hello World"))
-                        },
-                        onNavigateToArchivedFolders = { spaceId ->
-                            navigator.navigateTo(AppRoute.FolderListRoute(spaceId = spaceId, showArchived = true))
-                        }
                     )
                 }
 
@@ -345,7 +341,7 @@ fun SaveNavGraph(
                     ) {
                         BrowseFolderScreen(
                             onNavigateBackWithResult = { projectId ->
-                                onFolderSelected(projectId)
+                                //onFolderSelected(projectId)
                                 navigator.navigateBack()
                             }
                         )
@@ -359,7 +355,7 @@ fun SaveNavGraph(
                     ) {
                         CreateNewFolderScreen(
                             onNavigateBackWithResult = { projectId ->
-                                onFolderSelected(projectId)
+                                //onFolderSelected(projectId)
                                 navigator.navigateBack()
                             },
                             onNavigateBackCanceled = { navigator.navigateBack() }
@@ -419,8 +415,12 @@ fun SaveNavGraph(
                                     )
                                 )
                             },
-                            onRequestAddMore = { onAddMedia(AddMediaType.GALLERY) },
-                            onPickMedia = { type -> onAddMedia(type) },
+                            onRequestAddMore = {
+                                //onAddMedia(AddMediaType.GALLERY)
+                                               },
+                            onPickMedia = { type ->
+                                //onAddMedia(type)
+                                          },
                             onShowBatchHint = { Prefs.batchHintShown = true },
                             onCloseScreen = { navigator.navigateBack() }
                         )

@@ -16,18 +16,22 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.features.main.HomeActivity
+import net.opendasharchive.openarchive.features.main.MainActivity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeAppBar(
     openDrawer: () -> Unit,
-    onExit: () -> Unit,
     showDrawer: Boolean = false
 ) {
+
+    val context = LocalContext.current
 
     TopAppBar(
         title = {
@@ -35,7 +39,8 @@ fun HomeAppBar(
                 modifier = Modifier
                     .size(64.dp)
                     .clickable {
-                        onExit()
+                        val activity = context as HomeActivity
+                        activity.finish()
                     },
                 painter = painterResource(R.drawable.savelogo),
                 contentDescription = "Save Logo",

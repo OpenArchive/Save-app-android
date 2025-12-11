@@ -84,7 +84,7 @@ val featuresModule = module {
             projectId = projectId,
             collectionRepository = get(),
             mediaRepository = get(),
-            projectRepository = get()
+            //projectRepository = get()
         )
     }
 

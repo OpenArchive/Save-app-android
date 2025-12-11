@@ -16,7 +16,6 @@ import net.opendasharchive.openarchive.db.Collection
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.features.main.data.CollectionRepository
 import net.opendasharchive.openarchive.features.main.data.MediaRepository
-import net.opendasharchive.openarchive.features.main.data.ProjectRepository
 
 /**
  * Represents one collection section with its media items.
@@ -37,6 +36,8 @@ enum class FolderBarMode {
 
 /**
  * UI State for a single project's media screen.
+ * This ONLY contains media-specific state.
+ * Project info comes from HomeViewModel.
  */
 data class MainMediaState(
     val projectId: Long? = null,
@@ -45,7 +46,6 @@ data class MainMediaState(
     val selectedMediaIds: Set<Long> = emptySet(),
     val isLoading: Boolean = false,
     val folderBarMode: FolderBarMode = FolderBarMode.INFO,
-    val folderName: String = "",
     val totalMediaCount: Int = 0
 )
 
@@ -70,31 +70,38 @@ sealed class MainMediaAction {
     data object EditFolderClicked : MainMediaAction()
     data object CancelEditMode : MainMediaAction()
     data class SaveFolderName(val newName: String) : MainMediaAction()
-    data class ShowFolderOptions(val x: Int, val y: Int) : MainMediaAction()
     data object EnterSelectionMode : MainMediaAction()
 }
 
 /**
  * Events emitted from ViewModel to UI.
+ * IMPROVED: Project-level mutations are emitted as events,
+ * not handled directly. HomeViewModel will handle them.
  */
 sealed class MainMediaEvent {
     data class NavigateToPreview(val projectId: Long) : MainMediaEvent()
     data object ShowUploadManager : MainMediaEvent()
     data class ShowErrorDialog(val media: Media, val position: Int) : MainMediaEvent()
     data class SelectionModeChanged(val isSelecting: Boolean, val count: Int) : MainMediaEvent()
-    data class ShowFolderOptionsPopup(val x: Int, val y: Int) : MainMediaEvent()
-    data object ShowDeleteConfirmation : MainMediaEvent()
     data object FocusFolderNameInput : MainMediaEvent()
+
+    // NEW: Project-level mutation requests (handled by HomeViewModel)
+    data class RequestProjectRename(val projectId: Long, val newName: String) : MainMediaEvent()
+    data class RequestProjectArchive(val projectId: Long) : MainMediaEvent()
+    data class RequestProjectDelete(val projectId: Long) : MainMediaEvent()
 }
 
 /**
- * Per-project ViewModel; use a unique key per project in Compose to scope instances.
+ * IMPROVED MainMediaViewModel:
+ * - Only manages media/collection state for its project
+ * - Does NOT load project info (gets it from HomeViewModel)
+ * - Emits events for project-level mutations instead of handling them directly
+ * - Smaller, more focused responsibility
  */
 class MainMediaViewModel(
     private val projectId: Long,
     private val collectionRepository: CollectionRepository,
-    private val mediaRepository: MediaRepository,
-    private val projectRepository: ProjectRepository
+    private val mediaRepository: MediaRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainMediaState())
@@ -129,8 +136,7 @@ class MainMediaViewModel(
             MainMediaAction.EnterSelectionMode -> enableSelectionMode()
             MainMediaAction.EditFolderClicked -> enterEditMode()
             MainMediaAction.CancelEditMode -> exitEditMode()
-            is MainMediaAction.SaveFolderName -> saveFolderName(action.newName)
-            is MainMediaAction.ShowFolderOptions -> showFolderOptions(action.x, action.y)
+            is MainMediaAction.SaveFolderName -> requestSaveFolderName(action.newName)
         }
     }
 
@@ -138,7 +144,6 @@ class MainMediaViewModel(
         _uiState.update {
             it.copy(
                 projectId = projectId,
-                folderName = "",
                 isInSelectionMode = false,
                 selectedMediaIds = emptySet()
             )
@@ -146,10 +151,9 @@ class MainMediaViewModel(
         refreshSections()
     }
 
-    private fun refreshSections() {
+    fun refreshSections() {
         viewModelScope.launch(Dispatchers.IO) {
             val projectId = uiState.value.projectId ?: return@launch
-            val project = projectRepository.getProject(projectId)
 
             val collections = collectionRepository.getCollections(projectId)
             val newSections = collections
@@ -166,8 +170,7 @@ class MainMediaViewModel(
                 _uiState.update {
                     it.copy(
                         sections = newSections,
-                        totalMediaCount = totalCount,
-                        folderName = project?.description ?: it.folderName
+                        totalMediaCount = totalCount
                     )
                 }
             }
@@ -180,8 +183,10 @@ class MainMediaViewModel(
                 toggleMediaSelection(media)
             } else {
                 when (media.sStatus) {
+                    Media.Status.New,
                     Media.Status.Local -> _uiEvent.emit(MainMediaEvent.NavigateToPreview(media.projectId))
-                    Media.Status.Queued, Media.Status.Uploading -> _uiEvent.emit(MainMediaEvent.ShowUploadManager)
+                    Media.Status.Queued,
+                    Media.Status.Uploading -> _uiEvent.emit(MainMediaEvent.ShowUploadManager)
                     Media.Status.Error -> {
                         val position = findMediaPosition(media)
                         _uiEvent.emit(MainMediaEvent.ShowErrorDialog(media, position))
@@ -369,20 +374,41 @@ class MainMediaViewModel(
         }
     }
 
-    private fun saveFolderName(newName: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+    /**
+     * IMPROVED: Instead of calling repository directly,
+     * emit an event for HomeViewModel to handle.
+     */
+    private fun requestSaveFolderName(newName: String) {
+        viewModelScope.launch {
             val projectId = _uiState.value.projectId ?: return@launch
-            projectRepository.renameProject(projectId, newName)
 
-            withContext(Dispatchers.Main) {
-                _uiState.update { it.copy(folderName = newName, folderBarMode = FolderBarMode.INFO) }
-            }
+            // Exit edit mode immediately for responsive UI
+            _uiState.update { it.copy(folderBarMode = FolderBarMode.INFO) }
+
+            // Emit event to HomeViewModel to handle the actual rename
+            _uiEvent.emit(MainMediaEvent.RequestProjectRename(projectId, newName))
         }
     }
 
-    private fun showFolderOptions(x: Int, y: Int) {
+    /**
+     * Request project archive.
+     * Called from MainMediaScreen when user selects "Archive" from menu.
+     */
+    fun requestArchiveProject() {
         viewModelScope.launch {
-            _uiEvent.emit(MainMediaEvent.ShowFolderOptionsPopup(x, y))
+            val projectId = _uiState.value.projectId ?: return@launch
+            _uiEvent.emit(MainMediaEvent.RequestProjectArchive(projectId))
+        }
+    }
+
+    /**
+     * Request project deletion.
+     * Called from MainMediaScreen when user confirms "Remove" from menu.
+     */
+    fun requestDeleteProject() {
+        viewModelScope.launch {
+            val projectId = _uiState.value.projectId ?: return@launch
+            _uiEvent.emit(MainMediaEvent.RequestProjectDelete(projectId))
         }
     }
 }

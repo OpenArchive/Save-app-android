@@ -15,11 +15,34 @@ import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.main.data.ProjectRepository
 import net.opendasharchive.openarchive.features.main.data.SpaceRepository
+import net.opendasharchive.openarchive.features.main.ui.HomeEvent.LaunchPicker
+import net.opendasharchive.openarchive.features.main.ui.HomeEvent.Navigate
+import net.opendasharchive.openarchive.features.main.ui.HomeNavigation.AddNewFolder
+import net.opendasharchive.openarchive.features.main.ui.HomeNavigation.ArchivedFolders
+import net.opendasharchive.openarchive.features.main.ui.components.HomeBottomTab
+import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.util.Prefs
 
+sealed class HomeNavigation {
+    data class PreviewMedia(val spaceId: Long, val projectId: Long) : HomeNavigation()
+    data object ProofMode : HomeNavigation()
+    data object SpaceList : HomeNavigation()
+    data class ArchivedFolders(val spaceId: Long) : HomeNavigation()
+    data object Cache : HomeNavigation()
+    data object SpaceSetup : HomeNavigation()
+    data class AddNewFolder(val spaceId: Long) : HomeNavigation()
+}
+
 /**
- * Activity-scoped state for the Home shell (spaces, projects, pager indices).
- * Media grid/selection state lives in [MainMediaViewModel].
+ * Activity-scoped state for the Home shell.
+ * This is the SINGLE SOURCE OF TRUTH for:
+ * - All spaces
+ * - Current selected space
+ * - All projects in the current space
+ * - Currently selected project ID
+ * - Pager state
+ *
+ * MainMediaViewModel should NOT duplicate this data.
  */
 data class HomeState(
     val spaces: List<Space> = emptyList(),
@@ -27,30 +50,59 @@ data class HomeState(
     val projects: List<Project> = emptyList(),
     val selectedProjectId: Long? = null,
     val pagerIndex: Int = 0,
-    val lastMediaIndex: Int = 0
+    val lastMediaIndex: Int = 0,
+    val pendingAddAction: AddMediaType? = null,
+    val pendingShowPicker: Boolean = false,
+    val showContentPicker: Boolean = false
 )
 
 sealed class HomeAction {
     data object Load : HomeAction()
+    data object Reload : HomeAction() // Force reload projects
     data class SelectSpace(val spaceId: Long) : HomeAction()
     data class SelectProject(val projectId: Long?) : HomeAction()
     data class UpdatePager(val page: Int) : HomeAction()
+    data object AddClick : HomeAction()
+    data object AddLongClick : HomeAction()
+    data class TabSelected(val tab: HomeBottomTab) : HomeAction()
+    data object ContentPickerDismissed : HomeAction()
+    data class ContentPickerPicked(val type: AddMediaType) : HomeAction()
+    data class Navigate(val destination: HomeNavigation) : HomeAction()
+    data object NavigateToAddNewFolder : HomeAction()
+    data object NavigateToArchivedFolders : HomeAction()
+    data object NavigateToPreviewMedia : HomeAction()
+
+    // NEW: Project-level actions that modify the projects list
+    data class RenameProject(val projectId: Long, val newName: String) : HomeAction()
+    data class ArchiveProject(val projectId: Long) : HomeAction()
+    data class DeleteProject(val projectId: Long) : HomeAction()
 }
 
 sealed class HomeEvent {
     data class NavigateToProject(val projectId: Long) : HomeEvent()
+    data class LaunchPicker(val type: AddMediaType) : HomeEvent()
+    data object ShowContentPickerSheet : HomeEvent()
+    data class Navigate(val destination: HomeNavigation) : HomeEvent()
+    data class ShowMessage(val message: String) : HomeEvent() // NEW: For toast/snackbar messages
 }
 
+/**
+ * IMPROVED HomeViewModel:
+ * - Single source of truth for spaces, projects, selected project
+ * - Handles ALL project-level mutations (rename, archive, delete)
+ * - Exposes helpers to get current project details
+ * - Reloads projects list after mutations
+ */
 class HomeViewModel(
     private val spaceRepository: SpaceRepository,
     private val projectRepository: ProjectRepository
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(HomeState())
-    val state: StateFlow<HomeState> = _state.asStateFlow()
+    private val _uiState = MutableStateFlow(HomeState())
+    val uiState: StateFlow<HomeState> = _uiState.asStateFlow()
 
-    private val _events = MutableSharedFlow<HomeEvent>()
-    val events = _events.asSharedFlow()
+    private val _uiEvent = MutableSharedFlow<HomeEvent>()
+    val uiEvent = _uiEvent.asSharedFlow()
 
     init {
         onAction(HomeAction.Load)
@@ -59,10 +111,66 @@ class HomeViewModel(
     fun onAction(action: HomeAction) {
         when (action) {
             HomeAction.Load -> loadSpacesAndProjects()
+            HomeAction.Reload -> reloadProjects()
             is HomeAction.SelectSpace -> selectSpace(action.spaceId)
             is HomeAction.SelectProject -> selectProject(action.projectId)
             is HomeAction.UpdatePager -> updatePager(action.page)
+            HomeAction.AddClick -> handleAddClick()
+            HomeAction.AddLongClick -> handleAddLongClick()
+            is HomeAction.TabSelected -> handleTabSelected(action.tab)
+            HomeAction.ContentPickerDismissed -> _uiState.update {
+                it.copy(
+                    pendingShowPicker = false,
+                    showContentPicker = false
+                )
+            }
+
+            is HomeAction.ContentPickerPicked -> {
+                _uiState.update { it.copy(pendingShowPicker = false, showContentPicker = false) }
+                emitEvent(LaunchPicker(action.type))
+            }
+
+            is HomeAction.Navigate -> {
+                emitEvent(Navigate(action.destination))
+            }
+
+            HomeAction.NavigateToAddNewFolder -> {
+                val spaceId = uiState.value.currentSpace?.id ?: return
+                emitEvent(Navigate(AddNewFolder(spaceId)))
+            }
+
+            HomeAction.NavigateToArchivedFolders -> {
+                val spaceId = uiState.value.currentSpace?.id ?: return
+                emitEvent(Navigate(ArchivedFolders(spaceId)))
+            }
+
+            HomeAction.NavigateToPreviewMedia -> {
+                val spaceId = uiState.value.currentSpace?.id ?: return
+                val projectId = uiState.value.selectedProjectId ?: return
+                emitEvent(Navigate(HomeNavigation.PreviewMedia(spaceId, projectId)))
+            }
+
+            // NEW: Handle project mutations
+            is HomeAction.RenameProject -> renameProject(action.projectId, action.newName)
+            is HomeAction.ArchiveProject -> archiveProject(action.projectId)
+            is HomeAction.DeleteProject -> deleteProject(action.projectId)
         }
+    }
+
+    /**
+     * Get the currently selected project.
+     * Used by UI to display project details without duplicating state.
+     */
+    fun getSelectedProject(): Project? {
+        val selectedId = _uiState.value.selectedProjectId ?: return null
+        return _uiState.value.projects.find { it.id == selectedId }
+    }
+
+    /**
+     * Get project by ID from the current projects list.
+     */
+    fun getProject(projectId: Long): Project? {
+        return _uiState.value.projects.find { it.id == projectId }
     }
 
     private fun loadSpacesAndProjects() {
@@ -73,7 +181,7 @@ class HomeViewModel(
             val selectedProjectId = projects.firstOrNull()?.id
 
             withContext(Dispatchers.Main) {
-                _state.update {
+                _uiState.update {
                     it.copy(
                         spaces = spaces,
                         currentSpace = currentSpace,
@@ -82,26 +190,71 @@ class HomeViewModel(
                         pagerIndex = it.pagerIndex.coerceIn(0, maxOf(projects.size, 1))
                     )
                 }
-                selectedProjectId?.let { _events.emit(HomeEvent.NavigateToProject(it)) }
+                selectedProjectId?.let { _uiEvent.emit(HomeEvent.NavigateToProject(it)) }
+            }
+        }
+    }
+
+    /**
+     * NEW: Reload projects list without changing space.
+     * Called after project mutations (rename/archive/delete).
+     */
+    private fun reloadProjects() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val currentSpace = _uiState.value.currentSpace ?: return@launch
+            val projects = projectRepository.getProjects(currentSpace.id)
+
+            withContext(Dispatchers.Main) {
+                val currentSelectedId = _uiState.value.selectedProjectId
+                val currentPagerIndex = _uiState.value.pagerIndex
+
+                // If currently selected project was deleted, select first project
+                val newSelectedId = if (projects.any { it.id == currentSelectedId }) {
+                    currentSelectedId
+                } else {
+                    projects.firstOrNull()?.id
+                }
+
+                // Adjust pager index if needed
+                val settingsIndex = maxOf(1, projects.size)
+                val newPagerIndex = if (currentPagerIndex >= settingsIndex) {
+                    // Was on settings, stay on settings
+                    settingsIndex
+                } else {
+                    // Was on a project page, stay on same index if valid
+                    currentPagerIndex.coerceIn(0, maxOf(0, projects.size - 1))
+                }
+
+                _uiState.update {
+                    it.copy(
+                        projects = projects,
+                        selectedProjectId = newSelectedId,
+                        pagerIndex = newPagerIndex,
+                        lastMediaIndex = if (newPagerIndex < settingsIndex) newPagerIndex else it.lastMediaIndex
+                    )
+                }
             }
         }
     }
 
     private fun selectSpace(spaceId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            val space = spaceRepository.getSpaces().firstOrNull { it.id == spaceId } ?: return@launch
+            val space =
+                spaceRepository.getSpaces().firstOrNull { it.id == spaceId } ?: return@launch
             spaceRepository.setCurrentSpace(space.id)
             val projects = projectRepository.getProjects(space.id)
             val selectedProjectId = projects.firstOrNull()?.id
 
             withContext(Dispatchers.Main) {
-                _state.update {
+                _uiState.update {
                     it.copy(
                         currentSpace = space,
                         projects = projects,
                         selectedProjectId = selectedProjectId,
                         pagerIndex = 0,
-                        lastMediaIndex = 0
+                        lastMediaIndex = 0,
+                        pendingAddAction = null,
+                        pendingShowPicker = false
                     )
                 }
             }
@@ -109,7 +262,7 @@ class HomeViewModel(
     }
 
     private fun selectProject(projectId: Long?) {
-        _state.update {
+        _uiState.update {
             it.copy(
                 selectedProjectId = projectId,
                 pagerIndex = resolvePagerIndexForProject(projectId, it.projects),
@@ -124,12 +277,184 @@ class HomeViewModel(
     }
 
     private fun updatePager(page: Int) {
-        _state.update {
-            val lastMediaIndex = if (page < (it.projects.size)) page else it.lastMediaIndex
-            if (page < it.projects.size) {
-                Prefs.currentHomePage = page
+        _uiState.update { state ->
+            val settingsIndex = settingsIndex(state.projects.size)
+            val isMediaPage = page < settingsIndex
+            val newSelectedProjectId =
+                if (isMediaPage) state.projects.getOrNull(page)?.id else state.selectedProjectId
+            val lastMediaIndex = if (isMediaPage) page else state.lastMediaIndex
+            if (isMediaPage) Prefs.currentHomePage = page
+
+            val updated = state.copy(
+                pagerIndex = page,
+                selectedProjectId = newSelectedProjectId,
+                lastMediaIndex = lastMediaIndex
+            )
+            updated
+        }
+
+        // If we had pending add/picker and are back on media, trigger the appropriate event.
+        val currentState = _uiState.value
+        val settingsIndex = settingsIndex(currentState.projects.size)
+        val isMediaPage = page < settingsIndex
+        if (isMediaPage) {
+            currentState.pendingAddAction?.let {
+                emitEvent(HomeEvent.LaunchPicker(it))
             }
-            it.copy(pagerIndex = page, lastMediaIndex = lastMediaIndex)
+            if (currentState.pendingShowPicker) {
+                emitEvent(HomeEvent.ShowContentPickerSheet)
+            }
+            _uiState.update { it.copy(pendingAddAction = null, pendingShowPicker = false) }
         }
     }
+
+    private fun handleAddClick() {
+        val state = _uiState.value
+        val settingsIndex = settingsIndex(state.projects.size)
+        val isSettings = state.pagerIndex == settingsIndex
+
+        when {
+            state.currentSpace == null -> emitEvent(HomeEvent.Navigate(HomeNavigation.SpaceSetup))
+            state.projects.isEmpty() || state.selectedProjectId == null -> {
+                state.currentSpace.id?.let {
+                    emitEvent(
+                        HomeEvent.Navigate(
+                            HomeNavigation.AddNewFolder(
+                                it
+                            )
+                        )
+                    )
+                }
+            }
+
+            isSettings -> {
+                _uiState.update { it.copy(pendingAddAction = AddMediaType.GALLERY) }
+                _uiState.update {
+                    it.copy(
+                        pagerIndex = state.lastMediaIndex.coerceAtMost(
+                            settingsIndex - 1
+                        )
+                    )
+                }
+            }
+
+            else -> emitEvent(HomeEvent.LaunchPicker(AddMediaType.GALLERY))
+        }
+    }
+
+    private fun handleAddLongClick() {
+        val state = _uiState.value
+        val settingsIndex = settingsIndex(state.projects.size)
+        val isSettings = state.pagerIndex == settingsIndex
+
+        when {
+            state.currentSpace == null -> emitEvent(HomeEvent.Navigate(HomeNavigation.SpaceSetup))
+            state.projects.isEmpty() || state.selectedProjectId == null -> {
+                state.currentSpace.id?.let {
+                    emitEvent(
+                        HomeEvent.Navigate(
+                            HomeNavigation.AddNewFolder(
+                                it
+                            )
+                        )
+                    )
+                }
+            }
+
+            isSettings -> {
+                _uiState.update { it.copy(pendingShowPicker = true, showContentPicker = true) }
+                _uiState.update {
+                    it.copy(
+                        pagerIndex = state.lastMediaIndex.coerceAtMost(
+                            settingsIndex - 1
+                        )
+                    )
+                }
+            }
+
+            else -> emitEvent(HomeEvent.ShowContentPickerSheet)
+        }
+    }
+
+    private fun handleTabSelected(tab: HomeBottomTab) {
+        val state = _uiState.value
+        val settingsIndex = settingsIndex(state.projects.size)
+        when (tab) {
+            HomeBottomTab.MEDIA -> _uiState.update {
+                it.copy(
+                    pagerIndex = state.lastMediaIndex.coerceAtMost(
+                        settingsIndex - 1
+                    )
+                )
+            }
+
+            HomeBottomTab.SETTINGS -> _uiState.update { it.copy(pagerIndex = settingsIndex) }
+        }
+    }
+
+    // NEW: Project mutation methods
+
+    private fun renameProject(projectId: Long, newName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            projectRepository.renameProject(projectId, newName)
+
+            withContext(Dispatchers.Main) {
+                // Update the project in our local list immediately for instant feedback
+                _uiState.update { state ->
+                    val updatedProjects = state.projects.map { project ->
+                        if (project.id == projectId) {
+                            project.apply { description = newName }
+                        } else {
+                            project
+                        }
+                    }
+                    state.copy(projects = updatedProjects)
+                }
+            }
+
+            // Then reload to ensure consistency
+            reloadProjects()
+        }
+    }
+
+    private fun archiveProject(projectId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            // TODO: Add archiveProject to ProjectRepository interface
+            // For now, use direct Sugar ORM call but this should be in repository
+            val project = projectRepository.getProject(projectId)
+            project?.let {
+                it.isArchived = true
+                it.save()
+            }
+
+            withContext(Dispatchers.Main) {
+                emitEvent(HomeEvent.ShowMessage("Folder archived"))
+            }
+
+            // Reload projects list (archived projects should be filtered out)
+            reloadProjects()
+        }
+    }
+
+    private fun deleteProject(projectId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            // TODO: Add deleteProject to ProjectRepository interface
+            // For now, use direct Sugar ORM call but this should be in repository
+            val project = projectRepository.getProject(projectId)
+            project?.delete()
+
+            withContext(Dispatchers.Main) {
+                emitEvent(HomeEvent.ShowMessage("Folder removed"))
+            }
+
+            // Reload projects list
+            reloadProjects()
+        }
+    }
+
+    private fun emitEvent(event: HomeEvent) {
+        viewModelScope.launch { _uiEvent.emit(event) }
+    }
+
+    private fun settingsIndex(projectCount: Int): Int = maxOf(1, projectCount)
 }
