@@ -8,6 +8,7 @@ import java.io.Serializable
  * This class allows fine-grained control over camera behavior, performance, and
  * resource usage. All settings have sensible defaults for typical use cases.
  */
+@kotlinx.serialization.Serializable
 data class CameraConfig(
     // ===== Capture Modes =====
     /** Enable photo capture functionality */

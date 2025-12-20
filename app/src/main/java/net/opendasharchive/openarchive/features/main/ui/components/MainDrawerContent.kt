@@ -53,9 +53,9 @@ fun MainDrawerContent(
     projects: List<Project> = emptyList(),
     selectedProject: Project? = null,
     onProjectSelected: (Project) -> Unit = {},
-    onNewFolderClick: () -> Unit = {},
+    onAddNewFolderClicked: () -> Unit = {},
     onSpaceSelected: (Space) -> Unit,
-    onAddAnotherAccountClicked: () -> Unit,
+    onAddNewSpaceClicked: () -> Unit,
 ) {
 
     val serverAccordionState = rememberAccordionState()
@@ -66,7 +66,7 @@ fun MainDrawerContent(
         drawerContainerColor = colorResource(R.color.colorNavigationDrawerBackground)
     ) {
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().background(Color.Cyan)
         ) {
             // Main drawer content (always visible)
             Column(
@@ -83,7 +83,7 @@ fun MainDrawerContent(
                         serverAccordionState.collapse()
                         onSpaceSelected(selectedSpace)
                     },
-                    onAddAnotherAccountClicked = onAddAnotherAccountClicked
+                    onAddAnotherAccountClicked = onAddNewSpaceClicked
                 )
 
                 AnimatedVisibility(
@@ -151,7 +151,7 @@ fun MainDrawerContent(
                                 .align(Alignment.CenterHorizontally)
                                 .alpha(if (serverAccordionState.expanded) 0.3f else 1f),
                             shape = RoundedCornerShape(8.dp),
-                            onClick = onNewFolderClick,
+                            onClick = onAddNewFolderClicked,
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = colorResource(R.color.colorTertiary)
                             )
@@ -251,9 +251,9 @@ private fun MainDrawerContentPreview() {
             projects = dummyProjectList,
             selectedProject = dummyProjectList.first(),
             onProjectSelected = {},
-            onNewFolderClick = {},
+            onAddNewFolderClicked = {},
             onSpaceSelected = {},
-            onAddAnotherAccountClicked = {}
+            onAddNewSpaceClicked = {}
         )
     }
 }

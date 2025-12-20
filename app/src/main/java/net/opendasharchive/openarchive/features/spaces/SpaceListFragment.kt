@@ -1,6 +1,5 @@
 package net.opendasharchive.openarchive.features.spaces
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -30,19 +29,11 @@ class SpaceListFragment : BaseFragment() {
 
             // Calling refresh here will update state & trigger recomposition
             LaunchedEffect(Unit) {
-                viewModel.refreshSpaces()
+                viewModel.onAction(SpaceListAction.RefreshSpaces)
             }
 
             SpaceListScreen(
                 viewModel = viewModel,
-                onSpaceClicked = { id, type ->
-                    startSpaceAuthActivity(id)
-                },
-                onAddServerClicked = {
-                    val action =
-                        SpaceListFragmentDirections.actionFragmentSpaceListToFragmentSpaceSetup()
-                    findNavController().navigate(action)
-                }
             )
         }
 

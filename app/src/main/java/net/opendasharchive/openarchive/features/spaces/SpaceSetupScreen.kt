@@ -1,5 +1,7 @@
 package net.opendasharchive.openarchive.features.spaces
 
+import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,24 +12,53 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
+import net.opendasharchive.openarchive.services.snowbird.SnowbirdActivity
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SpaceSetupScreen(
-    onWebDavClick: () -> Unit,
-    isInternetArchiveAllowed: Boolean,
-    onInternetArchiveClick: () -> Unit,
-    isDwebEnabled: Boolean,
-    onDwebClicked: () -> Unit
+    viewModel: SpaceSetupViewModel,
+) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                SpaceSetupEvent.NavigateToDweb -> {
+                    context.startActivity(
+                        Intent(context, SnowbirdActivity::class.java)
+                    )
+                }
+
+            }
+        }
+    }
+
+    SpaceSetupContent(
+        state = state,
+        onAction = viewModel::onAction
+    )
+}
+
+@Composable
+private fun SpaceSetupContent(
+    state: SpaceSetupState,
+    onAction: (SpaceSetupAction) -> Unit
 ) {
     // Use a scrollable Column to mimic ScrollView + LinearLayout
     Column(
@@ -50,9 +81,14 @@ fun SpaceSetupScreen(
                     color = MaterialTheme.colorScheme.onBackground
                 )
             )
+
             Spacer(modifier = Modifier.height(12.dp))
 
-            val description = if (isDwebEnabled) stringResource(R.string.to_get_started_more_hint_dweb) else stringResource(R.string.to_get_started_more_hint)
+            val description = if (state.isDwebEnabled) {
+                stringResource(R.string.to_get_started_more_hint_dweb)
+            } else {
+                stringResource(R.string.to_get_started_more_hint)
+            }
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium.copy(
@@ -71,27 +107,27 @@ fun SpaceSetupScreen(
             iconRes = R.drawable.ic_private_server,
             title = stringResource(R.string.private_server),
             subtitle = stringResource(R.string.send_directly_to_a_private_server),
-            onClick = onWebDavClick
+            onClick = { onAction(SpaceSetupAction.WebDavClicked) }
         )
 
 
         // Internet Archive option (conditionally visible)
-        if (isInternetArchiveAllowed) {
+        if (state.isInternetArchiveAllowed) {
             ServerOptionItem(
                 iconRes = R.drawable.ic_internet_archive,
                 title = stringResource(R.string.internet_archive),
                 subtitle = stringResource(R.string.upload_to_the_internet_archive),
-                onClick = onInternetArchiveClick
+                onClick = { onAction(SpaceSetupAction.InternetArchiveClicked) }
             )
         }
 
         // Snowbird (Raven) option (conditionally visible)
-        if (isDwebEnabled) {
+        if (state.isDwebEnabled) {
             ServerOptionItem(
                 iconRes = R.drawable.ic_dweb,
                 title = stringResource(R.string.dweb_title),
                 subtitle = stringResource(R.string.dweb_description),
-                onClick = onDwebClicked
+                onClick = { onAction(SpaceSetupAction.DwebClicked) }
             )
         }
     }
@@ -102,12 +138,12 @@ fun SpaceSetupScreen(
 @Composable
 private fun SpaceSetupScreenPreview() {
     DefaultScaffoldPreview {
-        SpaceSetupScreen(
-            onWebDavClick = {},
-            isInternetArchiveAllowed = true,
-            onInternetArchiveClick = {},
-            isDwebEnabled = true,
-            onDwebClicked = {},
+        SpaceSetupContent(
+            state = SpaceSetupState(
+                isInternetArchiveAllowed = true,
+                isDwebEnabled = true
+            ),
+            onAction = {}
         )
     }
 }

@@ -265,7 +265,8 @@ class MainMediaViewModel(
                 _uiState.update {
                     it.copy(
                         selectedMediaIds = emptySet(),
-                        isInSelectionMode = false
+                        isInSelectionMode = false,
+                        folderBarMode = FolderBarMode.INFO
                     )
                 }
             }

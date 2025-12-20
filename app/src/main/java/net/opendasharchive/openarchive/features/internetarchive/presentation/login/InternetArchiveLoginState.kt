@@ -19,13 +19,9 @@ sealed interface InternetArchiveLoginAction {
     data class UpdatePassword(val password: String) : InternetArchiveLoginAction
     data object Login : InternetArchiveLoginAction
     data object Cancel : InternetArchiveLoginAction
-    data object CreateLogin : InternetArchiveLoginAction
     data object ErrorClear : InternetArchiveLoginAction
 }
 
 sealed interface InternetArchiveLoginEvent {
-    data class LoginSuccess(val spaceId: Long) : InternetArchiveLoginEvent
     data class LoginError(val error: Throwable) : InternetArchiveLoginEvent
-    data object NavigateToSignup : InternetArchiveLoginEvent
-    data object NavigateBack : InternetArchiveLoginEvent
 }

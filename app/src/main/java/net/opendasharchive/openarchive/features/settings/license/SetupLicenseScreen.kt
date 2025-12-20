@@ -28,26 +28,14 @@ import net.opendasharchive.openarchive.features.internetarchive.presentation.log
 import net.opendasharchive.openarchive.services.webdav.CreativeCommonsLicenseContent
 import net.opendasharchive.openarchive.services.webdav.LicenseCallbacks
 import net.opendasharchive.openarchive.services.webdav.LicenseState
-import net.opendasharchive.openarchive.services.webdav.WebDavAction
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SetupLicenseScreen(
-    onNext: () -> Unit = {},
-    onCancel: () -> Unit = {},
-    viewModel: SetupLicenseViewModel = koinViewModel()
+    viewModel: SetupLicenseViewModel,
 ) {
 
     val state by viewModel.uiState.collectAsState()
-
-    LaunchedEffect(Unit) {
-        viewModel.events.collect { event ->
-            when (event) {
-                is SetupLicenseEvent.NavigateNext -> onNext()
-                is SetupLicenseEvent.NavigateBack -> onCancel()
-            }
-        }
-    }
 
     SetupLicenseScreenContent(
         state  = state,
@@ -79,7 +67,7 @@ fun SetupLicenseScreenContent(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Description text (hidden in edit mode)
-            if (!state.isEditing) {
+
                 val descriptionText = when (state.spaceType) {
                     Space.Type.INTERNET_ARCHIVE -> stringResource(R.string.choose_license)
                     else -> stringResource(R.string.name_your_server)
@@ -93,7 +81,7 @@ fun SetupLicenseScreenContent(
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-            }
+
 
             // Server name input (hidden for Internet Archive)
             if (state.spaceType != Space.Type.INTERNET_ARCHIVE) {
@@ -176,7 +164,9 @@ fun WebDavSetupLicenseScreenPreview() {
     SaveAppTheme {
         SetupLicenseScreenContent(
             state = SetupLicenseState(
-                ccEnabled = true
+                ccEnabled = true,
+                spaceId = 1,
+                spaceType = Space.Type.WEBDAV
             ),
             onAction = {}
         )

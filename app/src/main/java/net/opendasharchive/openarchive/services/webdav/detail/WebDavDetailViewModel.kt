@@ -1,8 +1,7 @@
-package net.opendasharchive.openarchive.features.internetarchive.presentation.details
+package net.opendasharchive.openarchive.services.webdav.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,52 +9,101 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.db.Space
-import net.opendasharchive.openarchive.features.internetarchive.domain.model.InternetArchive
+import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.main.data.SpaceRepository
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
-import org.koin.core.component.KoinComponent
 
-class InternetArchiveDetailsViewModel(
-    private val route: AppRoute.IADetailRoute,
+class WebDavDetailViewModel(
+    private val route: AppRoute.WebDavDetailRoute,
     private val navigator: Navigator,
-    private val gson: Gson,
     private val spaceRepository: SpaceRepository,
-) : ViewModel(), KoinComponent {
+) : ViewModel() {
 
     private lateinit var space: Space
 
     private val _uiState = MutableStateFlow(
-        InternetArchiveDetailsState(
-            spaceId = route.spaceId
+        WebDavDetailState(
+            spaceId = route.spaceId,
         )
     )
-    val uiState: StateFlow<InternetArchiveDetailsState> = _uiState.asStateFlow()
+    val uiState: StateFlow<WebDavDetailState> = _uiState.asStateFlow()
 
-    private val _uiEvent = Channel<InternetArchiveDetailsEvent>()
+    private val _uiEvent = Channel<WebDavDetailEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     init {
         loadSpaceData()
     }
 
-    fun onAction(action: InternetArchiveDetailsAction) {
+    private fun loadSpaceData() = viewModelScope.launch {
+
+        space = spaceRepository.getSpaceById(route.spaceId) ?: run {
+            navigator.navigateBack()
+            return@launch
+        }
+
+        _uiState.update { currentState ->
+            val newState = currentState.copy(
+                serverUrl = space.host,
+                username = space.username,
+                password = space.password,
+                name = space.name,
+                originalName = space.name,
+                originalLicenseUrl = space.license
+            )
+
+            initializeLicenseState(newState, space.license)
+        }
+
+    }
+
+    fun onAction(action: WebDavDetailAction) {
+
         when (action) {
-            is InternetArchiveDetailsAction.RemoveSpace -> {
+
+            is WebDavDetailAction.UpdateName -> {
+                val isChanged = action.name.trim() != _uiState.value.originalName
+                _uiState.update { it.copy(name = action.name, isNameChanged = isChanged) }
+            }
+
+            is WebDavDetailAction.Cancel -> {
+                viewModelScope.launch {
+                    if (_uiState.value.hasUnsavedChanges) {
+                        _uiEvent.send(WebDavDetailEvent.ShowUnsavedChangesDialog)
+                    } else {
+                        navigator.navigateBack()
+                    }
+                }
+            }
+
+            is WebDavDetailAction.SaveChanges -> {
+                saveChanges()
+            }
+
+            is WebDavDetailAction.RemoveSpace -> {
+                viewModelScope.launch {
+                    _uiEvent.send(WebDavDetailEvent.ShowRemoveConfirmationDialog)
+                }
+            }
+
+            is WebDavDetailAction.ConfirmRemoveSpace -> {
                 removeSpace()
             }
 
-            is InternetArchiveDetailsAction.UpdateLicense -> {
-                _uiState.update { it.copy(license = action.license) }
-                updateLicense(action.license)
+            is WebDavDetailAction.NavigateBack -> {
+                viewModelScope.launch {
+                    navigator.navigateBack()
+                }
             }
 
-            is InternetArchiveDetailsAction.UpdateCcEnabled -> {
+            // Creative Commons License actions
+            is WebDavDetailAction.UpdateCcEnabled -> {
                 _uiState.update { currentState ->
                     if (action.enabled) {
-                        // When CC is enabled, start fresh with no options selected
                         currentState.copy(
                             ccEnabled = true,
                             cc0Enabled = false,
@@ -65,7 +113,6 @@ class InternetArchiveDetailsViewModel(
                             licenseUrl = null
                         )
                     } else {
-                        // When CC is disabled, reset all other CC options
                         currentState.copy(
                             ccEnabled = false,
                             allowRemix = false,
@@ -79,41 +126,40 @@ class InternetArchiveDetailsViewModel(
                 generateAndUpdateLicense()
             }
 
-            is InternetArchiveDetailsAction.UpdateAllowRemix -> {
+            is WebDavDetailAction.UpdateAllowRemix -> {
                 _uiState.update { currentState ->
                     currentState.copy(
                         allowRemix = action.allowed,
-                        cc0Enabled = if (action.allowed) false else currentState.cc0Enabled,  // Disable CC0 if remix is enabled
-                        requireShareAlike = if (!action.allowed) false else currentState.requireShareAlike  // Auto-disable ShareAlike when Remix is disabled
+                        cc0Enabled = if (action.allowed) false else currentState.cc0Enabled,
+                        requireShareAlike = if (!action.allowed) false else currentState.requireShareAlike
                     )
                 }
                 generateAndUpdateLicense()
             }
 
-            is InternetArchiveDetailsAction.UpdateRequireShareAlike -> {
+            is WebDavDetailAction.UpdateRequireShareAlike -> {
                 _uiState.update { currentState ->
                     currentState.copy(
                         requireShareAlike = action.required,
-                        cc0Enabled = if (action.required) false else currentState.cc0Enabled  // Disable CC0 if share alike is enabled
+                        cc0Enabled = if (action.required) false else currentState.cc0Enabled
                     )
                 }
                 generateAndUpdateLicense()
             }
 
-            is InternetArchiveDetailsAction.UpdateAllowCommercial -> {
+            is WebDavDetailAction.UpdateAllowCommercial -> {
                 _uiState.update { currentState ->
                     currentState.copy(
                         allowCommercial = action.allowed,
-                        cc0Enabled = if (action.allowed) false else currentState.cc0Enabled  // Disable CC0 if commercial is enabled
+                        cc0Enabled = if (action.allowed) false else currentState.cc0Enabled
                     )
                 }
                 generateAndUpdateLicense()
             }
 
-            is InternetArchiveDetailsAction.UpdateCc0Enabled -> {
+            is WebDavDetailAction.UpdateCc0Enabled -> {
                 _uiState.update { currentState ->
                     if (action.enabled) {
-                        // When CC0 is enabled, disable all other options
                         currentState.copy(
                             cc0Enabled = true,
                             allowRemix = false,
@@ -126,87 +172,48 @@ class InternetArchiveDetailsViewModel(
                 }
                 generateAndUpdateLicense()
             }
-
-            InternetArchiveDetailsAction.ShowRemoveSpaceDialog -> viewModelScope.launch {
-                _uiEvent.send(InternetArchiveDetailsEvent.ShowRemoveSpaceDialog)
-            }
         }
     }
 
-    private fun loadSpaceData() = viewModelScope.launch {
+    private fun saveChanges() = viewModelScope.launch {
+        val currentState = _uiState.value
+        val enteredName = currentState.name.trim()
 
-        space = spaceRepository.getSpaceById(route.spaceId) ?: run {
-            navigator.navigateBack()
-            return@launch
+        // Update both name and license (license is already set in generateAndUpdateLicense)
+        space.name = enteredName
+        // space.license is already updated in generateAndUpdateLicense()
+        space.save()
+
+        _uiState.update {
+            it.copy(
+                originalName = enteredName,
+                isNameChanged = false,
+                originalLicenseUrl = currentState.licenseUrl
+            )
         }
 
-        try {
-            val metaData = if (space.metaData.isNotEmpty()) {
-                gson.fromJson(space.metaData, InternetArchive.MetaData::class.java)
-            } else {
-                // Fallback to space properties if no metaData
-                InternetArchive.MetaData(
-                    userName = space.username,
-                    screenName = space.displayname.ifEmpty { space.username },
-                    email = space.username
-                )
-            }
-
-            _uiState.update { currentState ->
-                val newState = currentState.copy(
-                    userName = metaData.userName,
-                    email = metaData.email,
-                    screenName = metaData.screenName,
-                    license = space.license
-                )
-
-                initializeLicenseState(newState, space.license)
-            }
-
-        } catch (e: Exception) {
-            // If JSON parsing fails, use space properties as fallback
-            val fallbackMetaData = InternetArchive.MetaData(
-                userName = space.username,
-                screenName = space.displayname.ifEmpty { space.username },
-                email = space.username
-            )
-            _uiState.update { currentState ->
-                val newState = currentState.copy(
-                    userName = fallbackMetaData.userName,
-                    email = fallbackMetaData.email,
-                    screenName = fallbackMetaData.screenName,
-                    license = space.license
-                )
-
-                initializeLicenseState(newState, space.license)
-            }
+        viewModelScope.launch {
+            _uiEvent.send(WebDavDetailEvent.ShowSuccessDialog)
         }
     }
 
     private fun removeSpace() {
         viewModelScope.launch {
             val isSuccess = spaceRepository.deleteSpace(route.spaceId)
-            if (!isSuccess) {
-                return@launch
+            if (isSuccess) {
+                navigator.navigateBack()
             }
-            navigator.navigateBack()
         }
     }
 
-    private fun updateLicense(license: String?) = viewModelScope.launch{
-        space.license = license
-        spaceRepository.updateSpace(route.spaceId, space)
-    }
-
     private fun initializeLicenseState(
-        currentState: InternetArchiveDetailsState,
+        currentState: WebDavDetailState,
         currentLicense: String?
-    ): InternetArchiveDetailsState {
+    ): WebDavDetailState {
         val isCc0 = currentLicense?.contains("publicdomain/zero", true) ?: false
         val isCC = currentLicense?.contains("creativecommons.org/licenses", true) ?: false
 
         return if (isCc0) {
-            // CC0 license detected
             currentState.copy(
                 ccEnabled = true,
                 cc0Enabled = true,
@@ -216,7 +223,6 @@ class InternetArchiveDetailsViewModel(
                 licenseUrl = currentLicense
             )
         } else if (isCC) {
-            // Regular CC license detected
             currentState.copy(
                 ccEnabled = true,
                 cc0Enabled = false,
@@ -229,11 +235,10 @@ class InternetArchiveDetailsViewModel(
                 licenseUrl = currentLicense
             )
         } else {
-            // No license
             currentState.copy(
                 ccEnabled = false,
                 cc0Enabled = false,
-                allowRemix = false,  // Changed from true to fix auto-enable bug
+                allowRemix = false,
                 allowCommercial = false,
                 requireShareAlike = false,
                 licenseUrl = null
@@ -252,6 +257,15 @@ class InternetArchiveDetailsViewModel(
         )
 
         _uiState.update { it.copy(licenseUrl = newLicense) }
-        updateLicense(newLicense)
+
+        // Don't save immediately - let saveChanges() handle persistence
+        // This prevents duplicate space records when both name and license are changed
+
+        space.license = newLicense
+
+        viewModelScope.launch {
+
+            spaceRepository.updateSpace(route.spaceId, space)
+        }
     }
 }

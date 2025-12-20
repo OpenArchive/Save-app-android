@@ -21,6 +21,7 @@ import net.opendasharchive.openarchive.features.main.ui.HomeNavigation.AddNewFol
 import net.opendasharchive.openarchive.features.main.ui.HomeNavigation.ArchivedFolders
 import net.opendasharchive.openarchive.features.main.ui.components.HomeBottomTab
 import net.opendasharchive.openarchive.features.media.AddMediaType
+import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.util.Prefs
 
 sealed class HomeNavigation {
@@ -31,6 +32,18 @@ sealed class HomeNavigation {
     data object Cache : HomeNavigation()
     data object SpaceSetup : HomeNavigation()
     data class AddNewFolder(val spaceId: Long) : HomeNavigation()
+    data class Camera(
+        val projectId: Long,
+        val config: CameraConfig = CameraConfig(
+            allowVideoCapture = true,
+            allowPhotoCapture = true,
+            allowMultipleCapture = true,
+            enablePreview = true,
+            showFlashToggle = true,
+            showGridToggle = true,
+            showCameraSwitch = true
+        )
+    ) : HomeNavigation()
 }
 
 /**
@@ -51,9 +64,9 @@ data class HomeState(
     val selectedProjectId: Long? = null,
     val pagerIndex: Int = 0,
     val lastMediaIndex: Int = 0,
-    val pendingAddAction: AddMediaType? = null,
-    val pendingShowPicker: Boolean = false,
-    val showContentPicker: Boolean = false
+    val showContentPicker: Boolean = false,
+    val mediaRefreshProjectId: Long? = null,
+    val mediaRefreshToken: Long = 0L
 )
 
 sealed class HomeAction {
@@ -71,6 +84,7 @@ sealed class HomeAction {
     data object NavigateToAddNewFolder : HomeAction()
     data object NavigateToArchivedFolders : HomeAction()
     data object NavigateToPreviewMedia : HomeAction()
+    data class MediaImported(val projectId: Long) : HomeAction()
 
     // NEW: Project-level actions that modify the projects list
     data class RenameProject(val projectId: Long, val newName: String) : HomeAction()
@@ -80,10 +94,9 @@ sealed class HomeAction {
 
 sealed class HomeEvent {
     data class NavigateToProject(val projectId: Long) : HomeEvent()
-    data class LaunchPicker(val type: AddMediaType) : HomeEvent()
-    data object ShowContentPickerSheet : HomeEvent()
+    data class LaunchPicker(val type: AddMediaType) : HomeEvent() // Launch native picker
     data class Navigate(val destination: HomeNavigation) : HomeEvent()
-    data class ShowMessage(val message: String) : HomeEvent() // NEW: For toast/snackbar messages
+    data class ShowMessage(val message: String) : HomeEvent()
 }
 
 /**
@@ -94,6 +107,7 @@ sealed class HomeEvent {
  * - Reloads projects list after mutations
  */
 class HomeViewModel(
+    private val navArgs: AppRoute.HomeRoute,
     private val spaceRepository: SpaceRepository,
     private val projectRepository: ProjectRepository
 ) : ViewModel() {
@@ -118,15 +132,12 @@ class HomeViewModel(
             HomeAction.AddClick -> handleAddClick()
             HomeAction.AddLongClick -> handleAddLongClick()
             is HomeAction.TabSelected -> handleTabSelected(action.tab)
-            HomeAction.ContentPickerDismissed -> _uiState.update {
-                it.copy(
-                    pendingShowPicker = false,
-                    showContentPicker = false
-                )
+            HomeAction.ContentPickerDismissed -> {
+                _uiState.update { it.copy(showContentPicker = false) }
             }
 
             is HomeAction.ContentPickerPicked -> {
-                _uiState.update { it.copy(pendingShowPicker = false, showContentPicker = false) }
+                _uiState.update { it.copy(showContentPicker = false) }
                 emitEvent(LaunchPicker(action.type))
             }
 
@@ -148,6 +159,19 @@ class HomeViewModel(
                 val spaceId = uiState.value.currentSpace?.id ?: return
                 val projectId = uiState.value.selectedProjectId ?: return
                 emitEvent(Navigate(HomeNavigation.PreviewMedia(spaceId, projectId)))
+            }
+            is HomeAction.MediaImported -> viewModelScope.launch{
+                val spaceId = uiState.value.currentSpace?.id ?: return@launch
+                val projectId = uiState.value.selectedProjectId ?: return@launch
+
+                _uiState.update { state ->
+                    state.copy(
+                        mediaRefreshProjectId = action.projectId,
+                        mediaRefreshToken = state.mediaRefreshToken + 1L
+                    )
+                }
+
+                _uiEvent.emit(HomeEvent.Navigate(destination = HomeNavigation.PreviewMedia(spaceId = spaceId, projectId = projectId)))
             }
 
             // NEW: Handle project mutations
@@ -239,8 +263,7 @@ class HomeViewModel(
 
     private fun selectSpace(spaceId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            val space =
-                spaceRepository.getSpaces().firstOrNull { it.id == spaceId } ?: return@launch
+            val space = spaceRepository.getSpaces().firstOrNull { it.id == spaceId } ?: return@launch
             spaceRepository.setCurrentSpace(space.id)
             val projects = projectRepository.getProjects(space.id)
             val selectedProjectId = projects.firstOrNull()?.id
@@ -252,9 +275,7 @@ class HomeViewModel(
                         projects = projects,
                         selectedProjectId = selectedProjectId,
                         pagerIndex = 0,
-                        lastMediaIndex = 0,
-                        pendingAddAction = null,
-                        pendingShowPicker = false
+                        lastMediaIndex = 0
                     )
                 }
             }
@@ -293,19 +314,6 @@ class HomeViewModel(
             updated
         }
 
-        // If we had pending add/picker and are back on media, trigger the appropriate event.
-        val currentState = _uiState.value
-        val settingsIndex = settingsIndex(currentState.projects.size)
-        val isMediaPage = page < settingsIndex
-        if (isMediaPage) {
-            currentState.pendingAddAction?.let {
-                emitEvent(HomeEvent.LaunchPicker(it))
-            }
-            if (currentState.pendingShowPicker) {
-                emitEvent(HomeEvent.ShowContentPickerSheet)
-            }
-            _uiState.update { it.copy(pendingAddAction = null, pendingShowPicker = false) }
-        }
     }
 
     private fun handleAddClick() {
@@ -317,28 +325,26 @@ class HomeViewModel(
             state.currentSpace == null -> emitEvent(HomeEvent.Navigate(HomeNavigation.SpaceSetup))
             state.projects.isEmpty() || state.selectedProjectId == null -> {
                 state.currentSpace.id?.let {
-                    emitEvent(
-                        HomeEvent.Navigate(
-                            HomeNavigation.AddNewFolder(
-                                it
-                            )
-                        )
-                    )
+                    emitEvent(HomeEvent.Navigate(HomeNavigation.AddNewFolder(it)))
                 }
             }
 
             isSettings -> {
-                _uiState.update { it.copy(pendingAddAction = AddMediaType.GALLERY) }
+                // When on settings, navigate back to media page and show picker
                 _uiState.update {
                     it.copy(
-                        pagerIndex = state.lastMediaIndex.coerceAtMost(
-                            settingsIndex - 1
-                        )
+                        showContentPicker = true,
+                        pagerIndex = state.lastMediaIndex.coerceAtMost(settingsIndex - 1)
                     )
                 }
             }
 
-            else -> emitEvent(HomeEvent.LaunchPicker(AddMediaType.GALLERY))
+            else -> {
+                // launch gallery
+                viewModelScope.launch {
+                    _uiEvent.emit(HomeEvent.LaunchPicker(AddMediaType.GALLERY))
+                }
+            }
         }
     }
 
@@ -351,28 +357,24 @@ class HomeViewModel(
             state.currentSpace == null -> emitEvent(HomeEvent.Navigate(HomeNavigation.SpaceSetup))
             state.projects.isEmpty() || state.selectedProjectId == null -> {
                 state.currentSpace.id?.let {
-                    emitEvent(
-                        HomeEvent.Navigate(
-                            HomeNavigation.AddNewFolder(
-                                it
-                            )
-                        )
-                    )
+                    emitEvent(HomeEvent.Navigate(HomeNavigation.AddNewFolder(it)))
                 }
             }
 
             isSettings -> {
-                _uiState.update { it.copy(pendingShowPicker = true, showContentPicker = true) }
+                // When on settings, navigate back to media page and show picker
                 _uiState.update {
                     it.copy(
-                        pagerIndex = state.lastMediaIndex.coerceAtMost(
-                            settingsIndex - 1
-                        )
+                        showContentPicker = true,
+                        pagerIndex = state.lastMediaIndex.coerceAtMost(settingsIndex - 1)
                     )
                 }
             }
 
-            else -> emitEvent(HomeEvent.ShowContentPickerSheet)
+            else -> {
+                // Show content picker sheet
+                _uiState.update { it.copy(showContentPicker = true) }
+            }
         }
     }
 

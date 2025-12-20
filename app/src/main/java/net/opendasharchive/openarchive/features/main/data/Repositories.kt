@@ -11,6 +11,10 @@ interface SpaceRepository {
     suspend fun getSpaces(): List<Space>
     suspend fun getCurrentSpace(): Space?
     suspend fun setCurrentSpace(id: Long)
+
+    suspend fun getSpaceById(id: Long): Space?
+    suspend fun updateSpace(spaceId: Long, space: Space): Boolean
+    suspend fun deleteSpace(id: Long): Boolean
 }
 
 interface ProjectRepository {
@@ -49,6 +53,20 @@ class SugarSpaceRepository : SpaceRepository {
                 Space.current = space
             }
         }
+    }
+
+    override suspend fun updateSpace(spaceId: Long,space: Space): Boolean = withContext(Dispatchers.IO) {
+        space.id = spaceId
+        val savedId = space.save()
+        return@withContext savedId > 0
+    }
+
+    override suspend fun getSpaceById(id: Long): Space? = withContext(Dispatchers.IO){
+        Space.get(id)
+    }
+
+    override suspend fun deleteSpace(id: Long): Boolean {
+        return Space.get(id)?.delete() ?: false
     }
 }
 

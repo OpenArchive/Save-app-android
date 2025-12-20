@@ -61,8 +61,6 @@ import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Theme
 import net.opendasharchive.openarchive.util.extensions.getVersionName
 import org.koin.compose.koinInject
-import org.koin.androidx.compose.koinViewModel
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -74,6 +72,7 @@ fun SettingsScreen(
     onNavigateToCache: () -> Unit = {},
     onNavigateToProofMode: () -> Unit = {}
 ) {
+    val dialogManager: DialogStateManager = koinInject<DialogStateManager>()
     val context = LocalContext.current
     if (LocalInspectionMode.current) {
         PreviewSettingsScreen()
@@ -84,7 +83,7 @@ fun SettingsScreen(
     val preferenceFlow = remember(sharedPreferences) { createFilteredPreferenceFlow(sharedPreferences) }
     val analyticsManager: AnalyticsManager = koinInject()
     val passcodeRepository: PasscodeRepository = koinInject()
-    val dialogManager: DialogStateManager = koinViewModel(viewModelStoreOwner = LocalContext.current as ComponentActivity)
+
     val coroutineScope = rememberCoroutineScope()
     val appVersion = remember { context.packageManager.getVersionName(context.packageName) }
 

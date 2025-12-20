@@ -36,13 +36,15 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.components.PrimaryButton
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.main.MainActivity
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SpaceSetupSuccessScreen(
     onNavigateToMain: () -> Unit = {},
-    viewModel: SpaceSetupSuccessViewModel = koinViewModel()
+    viewModel: SpaceSetupSuccessViewModel ,
 ) {
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -51,15 +53,6 @@ fun SpaceSetupSuccessScreen(
         viewModel.events.collect { event ->
             when (event) {
                 is SpaceSetupSuccessEvent.NavigateToMain -> {
-                    // Navigate to MainActivity with clear backstack
-                    val intent = Intent(context, MainActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    context.startActivity(intent)
-
-                    // Finish the current activity (SpaceSetupActivity) to prevent black screen
-                    // This ensures clean transition from setup flow to main app
-                    (context as? FragmentActivity)?.finish()
-
                     onNavigateToMain()
                 }
             }
@@ -90,7 +83,7 @@ fun SpaceSetupSuccessContent(
         ) {
             // Success message at top
             Text(
-                text = state.message,
+                text = state.message.asString(),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 36.dp, vertical = 48.dp),
@@ -151,7 +144,7 @@ fun SpaceSetupSuccessWebDavPreview() {
     SaveAppTheme {
         SpaceSetupSuccessContent(
             state = SpaceSetupSuccessState(
-                message = "You have successfully connected to a private server",
+                message = UiText.StringResource(R.string.you_have_successfully_connected_to_a_private_server),
                 spaceType = Space.Type.WEBDAV
             ),
             onAction = {}
@@ -160,17 +153,19 @@ fun SpaceSetupSuccessWebDavPreview() {
 }
 
 class SpaceSetupSuccessViewModel(
-    savedStateHandle: SavedStateHandle
+    navArgs: AppRoute.SpaceSetupSuccessRoute
 ) : ViewModel() {
 
-    private val message: String = savedStateHandle.get<String>("message") ?: ""
-    private val spaceType: Space.Type =
-        savedStateHandle.get<Space.Type>("space_type") ?: Space.Type.WEBDAV
+
 
     private val _uiState = MutableStateFlow(
         SpaceSetupSuccessState(
-            message = message,
-            spaceType = spaceType
+            spaceType = navArgs.spaceType,
+            message = when(navArgs.spaceType) {
+                Space.Type.WEBDAV -> UiText.StringResource(R.string.you_have_successfully_connected_to_a_private_server)
+                Space.Type.INTERNET_ARCHIVE -> UiText.StringResource(R.string.you_have_successfully_connected_to_a_private_server)
+                Space.Type.RAVEN -> UiText.StringResource(R.string.you_have_successfully_connected_to_a_private_server)
+            },
         )
     )
     val uiState: StateFlow<SpaceSetupSuccessState> = _uiState.asStateFlow()
@@ -190,8 +185,8 @@ class SpaceSetupSuccessViewModel(
 }
 
 data class SpaceSetupSuccessState(
-    val message: String = "",
-    val spaceType: Space.Type = Space.Type.WEBDAV
+    val message: UiText,
+    val spaceType: Space.Type,
 )
 
 sealed interface SpaceSetupSuccessAction {

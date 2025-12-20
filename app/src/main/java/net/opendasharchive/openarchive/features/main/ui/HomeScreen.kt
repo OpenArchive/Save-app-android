@@ -17,17 +17,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import net.opendasharchive.openarchive.core.navigation.ResultEffect
+import net.opendasharchive.openarchive.features.media.Picker
+import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.main.ui.components.HomeAppBar
 import net.opendasharchive.openarchive.features.main.ui.components.HomeBottomTab
 import net.opendasharchive.openarchive.features.main.ui.components.MainBottomBar
 import net.opendasharchive.openarchive.features.main.ui.components.MainDrawerContent
+import net.opendasharchive.openarchive.features.media.AddMediaType
+import net.opendasharchive.openarchive.features.media.ContentPickerSheet
+import net.opendasharchive.openarchive.features.media.rememberContentPickerLaunchers
 import net.opendasharchive.openarchive.features.settings.SettingsScreen
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -46,22 +55,79 @@ fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel(),
 ) {
 
-    val homeState by viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    // Content Picker Launchers for Gallery/Files
+    // Camera is handled via navigation
+    val pickerLaunchers = rememberContentPickerLaunchers(
+        projectProvider = { viewModel.getSelectedProject() },
+        onError = { message ->
+            scope.launch {
+                snackbarHostState.showSnackbar(message)
+            }
+        },
+        onMediaImported = { mediaList ->
+            // TODO: Handle imported media (refresh, show toast, etc.)
+            // For now, we'll just reload the projects to refresh media counts
+            viewModel.onAction(HomeAction.Reload)
+            viewModel.getSelectedProject()?.id?.let { projectId ->
+                viewModel.onAction(HomeAction.MediaImported(projectId))
+            }
+        }
+    )
+
+    // Receive camera capture results from CameraScreen via ResultEventBus
+    ResultEffect<CameraCaptureResult>(resultKey = "camera_capture_result") { result ->
+        scope.launch(Dispatchers.IO) {
+            try {
+                val project = viewModel.getProject(result.projectId)
+                if (project != null && result.capturedUris.isNotEmpty()) {
+                    val mediaList = Picker.import(
+                        context,
+                        project,
+                        result.capturedUris,
+                        generateProof = Prefs.useProofMode
+                    )
+                    withContext(Dispatchers.Main) {
+                        snackbarHostState.showSnackbar("${mediaList.size} item(s) imported")
+                        viewModel.onAction(HomeAction.Reload)
+                        viewModel.onAction(HomeAction.MediaImported(result.projectId))
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    snackbarHostState.showSnackbar("Failed to import: ${e.localizedMessage}")
+                }
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collectLatest { event ->
             when (event) {
                 is HomeEvent.LaunchPicker -> {
-                    // TODO: Launch picker
+                    when (event.type) {
+                        AddMediaType.CAMERA -> {
+                            // Navigate to camera screen
+                            val projectId = uiState.selectedProjectId
+                            if (projectId != null) {
+                                invokeNavEvent(HomeNavigation.Camera(projectId))
+                            }
+                        }
+                        AddMediaType.GALLERY -> {
+                            pickerLaunchers.launch(AddMediaType.GALLERY)
+                        }
+                        AddMediaType.FILES -> {
+                            pickerLaunchers.launch(AddMediaType.FILES)
+                        }
+                    }
                 }
                 is HomeEvent.Navigate -> invokeNavEvent(event.destination)
                 is HomeEvent.NavigateToProject -> Unit
-                HomeEvent.ShowContentPickerSheet -> {
-                    // TODO: Show content picker
-                }
                 is HomeEvent.ShowMessage -> {
-                    // Show message via snackbar instead of Toast
                     snackbarHostState.showSnackbar(event.message)
                 }
             }
@@ -69,7 +135,7 @@ fun HomeScreen(
     }
 
     HomeScreenContent(
-        state = homeState,
+        state = uiState,
         onAction = viewModel::onAction,
         snackbarHostState = snackbarHostState
     )
@@ -151,15 +217,16 @@ fun HomeScreenContent(
                                 }
                             }
                         },
-                        onNewFolderClick = {
-                            onAction(HomeAction.NavigateToAddNewFolder)
-                        },
                         onSpaceSelected = { space ->
                             scope.launch { drawerState.close() }
                             onAction(HomeAction.SelectSpace(space.id))
                         },
-                        onAddAnotherAccountClicked = {
+                        onAddNewSpaceClicked = {
                             scope.launch { drawerState.close() }
+                            onAction(HomeAction.Navigate(destination = HomeNavigation.SpaceSetup))
+                        },
+                        onAddNewFolderClicked = {
+                            onAction(HomeAction.NavigateToAddNewFolder)
                         },
                     )
 
@@ -271,6 +338,8 @@ fun HomeScreenContent(
                                     viewModel = viewModel,
                                     currentSpace = state.currentSpace,
                                     currentProject = projectForPage,
+                                    refreshProjectId = state.mediaRefreshProjectId,
+                                    refreshToken = state.mediaRefreshToken,
                                     onNavigateToPreview = {}
                                 )
                             }
@@ -291,6 +360,18 @@ fun HomeScreenContent(
 
             }
         }
+    }
+
+    // Content Picker Bottom Sheet
+    if (state.showContentPicker) {
+        ContentPickerSheet(
+            onDismiss = {
+                onAction(HomeAction.ContentPickerDismissed)
+            },
+            onMediaPicked = { type ->
+                onAction(HomeAction.ContentPickerPicked(type))
+            }
+        )
     }
 }
 

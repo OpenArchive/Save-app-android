@@ -11,6 +11,7 @@ import net.opendasharchive.openarchive.features.internetarchive.infrastructure.r
 import net.opendasharchive.openarchive.features.internetarchive.presentation.details.InternetArchiveDetailsViewModel
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginViewModel
 import org.koin.core.module.dsl.viewModel
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 typealias InternetArchiveGson = Gson
@@ -27,6 +28,7 @@ val internetArchiveModule = module {
     factory { InternetArchiveMapper() }
     factory { InternetArchiveRepository(get(), get(), get()) }
     factory { args -> InternetArchiveLoginUseCase(get(), get(), args.get(), get()) }
-    viewModel { InternetArchiveDetailsViewModel(get(), get()) }
-    viewModel { InternetArchiveLoginViewModel(get()) }
+
+    viewModelOf(::InternetArchiveDetailsViewModel)
+    viewModelOf(::InternetArchiveLoginViewModel)
 }

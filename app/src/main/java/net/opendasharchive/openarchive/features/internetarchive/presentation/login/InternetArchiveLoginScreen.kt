@@ -53,6 +53,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.fragment.compose.content
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.findNavController
 import net.opendasharchive.openarchive.R
@@ -73,28 +74,8 @@ class InternetArchiveLoginFragment : BaseFragment(), ToolbarConfigurable {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
+    ): View  = content{
 
-        return ComposeView(requireContext()).apply {
-            setContent {
-                SaveAppTheme {
-                    InternetArchiveLoginScreen(
-                        onLoginSuccess = { spaceId ->
-                            val action =
-                                InternetArchiveLoginFragmentDirections.actionFragmentInternetArchiveLoginToFragmentSetupLicense(
-                                    spaceId = spaceId,
-                                    isEditing = false,
-                                    spaceType = Space.Type.INTERNET_ARCHIVE
-                                )
-                            findNavController().navigate(action)
-                        },
-                        onCancel = {
-                            findNavController().popBackStack()
-                        }
-                    )
-                }
-            }
-        }
     }
 
     override fun getToolbarTitle() = getString(R.string.internet_archive)
@@ -103,34 +84,14 @@ class InternetArchiveLoginFragment : BaseFragment(), ToolbarConfigurable {
 
 @Composable
 fun InternetArchiveLoginScreen(
-    onLoginSuccess: (Long) -> Unit,
-    onCancel: () -> Unit
+    viewModel: InternetArchiveLoginViewModel,
 ) {
-    val viewModel: InternetArchiveLoginViewModel = koinViewModel()
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult(),
-        onResult = {}
-    )
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
-                is InternetArchiveLoginEvent.NavigateToSignup -> {
-                    launcher.launch(
-                        Intent(
-                            Intent.ACTION_VIEW, "https://archive.org/account/signup".toUri()
-                        )
-                    )
-                }
-
-                is InternetArchiveLoginEvent.NavigateBack -> onCancel()
-
-                is InternetArchiveLoginEvent.LoginSuccess -> {
-                    onLoginSuccess(event.spaceId)
-                }
 
                 is InternetArchiveLoginEvent.LoginError -> {
                     // Error handling can be done here if needed
@@ -147,6 +108,11 @@ private fun InternetArchiveLoginContent(
     state: InternetArchiveLoginState,
     onAction: (InternetArchiveLoginAction) -> Unit
 ) {
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+        onResult = {}
+    )
 
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
@@ -239,6 +205,7 @@ private fun InternetArchiveLoginContent(
                 .padding(top = ThemeDimensions.spacing.small),
             verticalAlignment = Alignment.CenterVertically
         ) {
+
             Text(
                 text = stringResource(R.string.prompt_no_account),
                 style = MaterialTheme.typography.bodyLarge.copy( // reuse your themed style
@@ -246,12 +213,19 @@ private fun InternetArchiveLoginContent(
                     fontWeight = FontWeight.SemiBold
                 )
             )
+
             TextButton(
                 modifier = Modifier.heightIn(ThemeDimensions.touchable),
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.tertiary
                 ),
-                onClick = { onAction(InternetArchiveLoginAction.CreateLogin) }
+                onClick = {
+                    launcher.launch(
+                        Intent(
+                            Intent.ACTION_VIEW, "https://archive.org/account/signup".toUri()
+                        )
+                    )
+                }
             ) {
                 Text(
                     text = stringResource(R.string.label_create_login),

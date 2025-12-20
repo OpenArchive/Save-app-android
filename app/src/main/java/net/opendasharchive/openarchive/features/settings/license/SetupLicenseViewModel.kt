@@ -1,84 +1,48 @@
 package net.opendasharchive.openarchive.features.settings.license
 
 import androidx.compose.runtime.Immutable
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.features.main.data.SpaceRepository
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
 
 class SetupLicenseViewModel(
-    savedStateHandle: SavedStateHandle
+    private val route: AppRoute.SetupLicenseRoute,
+    private val navigator: Navigator,
+    private val spaceRepository: SpaceRepository,
 ) : ViewModel() {
 
-    private val spaceId: Long = savedStateHandle.get<Long>("spaceId") ?: -1L
-    private val isEditing: Boolean = savedStateHandle.get<Boolean>("isEditing") ?: false
-    private val spaceType: Space.Type = savedStateHandle.get<Space.Type>("space_type") ?: Space.Type.WEBDAV
 
-    private val _uiState =
-        MutableStateFlow(SetupLicenseState(
-            spaceId = spaceId,
-            isEditing = isEditing,
-            spaceType = spaceType
-        ))
+    private val _uiState = MutableStateFlow(
+        SetupLicenseState(
+            spaceId = route.spaceId,
+            spaceType = route.spaceType
+        )
+    )
     val uiState: StateFlow<SetupLicenseState> = _uiState.asStateFlow()
-
-    private val _events = Channel<SetupLicenseEvent>()
-    val events = _events.receiveAsFlow()
-
-    private var space: Space? = null
 
     init {
         loadSpace()
     }
 
     fun onAction(action: SetupLicenseAction) {
+
         when (action) {
+
             is SetupLicenseAction.UpdateServerName -> {
                 _uiState.update { it.copy(serverName = action.serverName) }
-                // Update space object but don't save yet - wait for Next button
-                updateSpace { space ->
-                    space.name = action.serverName
-                }
             }
 
-            is SetupLicenseAction.Next -> {
-                // Save all changes (name + license) when user taps Next
-                space?.let { currentSpace ->
-                    val currentState = _uiState.value
-
-                    // Only save nickname for WebDAV/private servers, not for Internet Archive
-                    if (currentState.spaceType != Space.Type.INTERNET_ARCHIVE) {
-                        currentSpace.name = currentState.serverName
-                    }
-
-                    currentSpace.license = currentState.licenseUrl
-
-                    AppLogger.d("SetupLicenseViewModel", "Updating space - ID: ${currentSpace.id}, type: ${currentState.spaceType}, name: '${currentSpace.name}', license: '${currentSpace.license}'")
-
-                    // Save updates to existing space
-                    currentSpace.save()
-
-                    AppLogger.d("SetupLicenseViewModel", "Space saved successfully - ID: ${currentSpace.id}")
-                }
-                viewModelScope.launch {
-                    _events.send(SetupLicenseEvent.NavigateNext)
-                }
-            }
-
-            is SetupLicenseAction.Cancel -> {
-                viewModelScope.launch {
-                    _events.send(SetupLicenseEvent.NavigateBack)
-                }
-            }
+            is SetupLicenseAction.Next -> onNext()
 
             is SetupLicenseAction.UpdateCcEnabled -> {
                 _uiState.update { currentState ->
@@ -157,39 +121,64 @@ class SetupLicenseViewModel(
         }
     }
 
-    private fun loadSpace() {
+    private fun loadSpace() = viewModelScope.launch {
         // Since we come directly from WebDavScreen/InternetArchiveLoginScreen where
         // Space.current is set, we can use it directly. This ensures we're updating
         // the SAME space that was just authenticated, not creating a new one.
-        space = Space.current
+        val currentState = uiState.value
 
-        space?.let { currentSpace ->
-            val licenseState = initializeLicenseState(currentSpace.license)
-            _uiState.update { currentState ->
-                currentState.copy(
-                    serverName = currentSpace.name.orEmpty(),
-                    ccEnabled = licenseState.ccEnabled,
-                    allowRemix = licenseState.allowRemix,
-                    requireShareAlike = licenseState.requireShareAlike,
-                    allowCommercial = licenseState.allowCommercial,
-                    cc0Enabled = licenseState.cc0Enabled,
-                    licenseUrl = licenseState.licenseUrl
-                )
-            }
+        val space = spaceRepository.getSpaceById(route.spaceId) ?: error("Space not found")
+
+        val licenseState =
+            initializeLicenseState(state = currentState, currentLicense = space.license)
+        _uiState.update { currentState ->
+            currentState.copy(
+                space = space,
+                serverName = space.name,
+                ccEnabled = licenseState.ccEnabled,
+                allowRemix = licenseState.allowRemix,
+                requireShareAlike = licenseState.requireShareAlike,
+                allowCommercial = licenseState.allowCommercial,
+                cc0Enabled = licenseState.cc0Enabled,
+                licenseUrl = licenseState.licenseUrl
+            )
         }
+
     }
 
-    private fun updateSpace(action: (Space) -> Unit) {
-        space?.let(action)
+    private fun onNext() = viewModelScope.launch {
+        val currentState = uiState.value
+        val space = currentState.space ?: return@launch
+        // Save all changes (name + license) when user taps Next
+
+
+        // Only save nickname for WebDAV/private servers, not for Internet Archive
+        if (currentState.spaceType != Space.Type.INTERNET_ARCHIVE) {
+            space.name = currentState.serverName
+        }
+
+        space.license = currentState.licenseUrl
+
+        AppLogger.d("Updating space - ID: ${space.id}, type: ${currentState.spaceType}, name: '${space.name}', license: '${space.license}'")
+
+        // Save updates to existing space
+        spaceRepository.updateSpace(route.spaceId, space)
+
+        AppLogger.d("Space saved successfully - ID: ${space.id}")
+
+        navigator.navigateTo(AppRoute.SpaceSetupSuccessRoute(currentState.spaceType))
     }
 
-    private fun initializeLicenseState(currentLicense: String?): SetupLicenseState {
+    private fun initializeLicenseState(
+        state: SetupLicenseState,
+        currentLicense: String?
+    ): SetupLicenseState {
         val isCc0 = currentLicense?.contains("publicdomain/zero", true) ?: false
         val isCC = currentLicense?.contains("creativecommons.org/licenses", true) ?: false
 
         return if (isCc0) {
             // CC0 license detected
-            SetupLicenseState(
+            state.copy(
                 ccEnabled = true,
                 cc0Enabled = true,
                 allowRemix = false,
@@ -197,19 +186,22 @@ class SetupLicenseViewModel(
                 requireShareAlike = false,
                 licenseUrl = currentLicense
             )
-        } else if (isCC && currentLicense != null) {
+        } else if (isCC) {
             // Regular CC license detected
-            SetupLicenseState(
+            state.copy(
                 ccEnabled = true,
                 cc0Enabled = false,
                 allowRemix = !(currentLicense.contains("-nd", true)),
                 allowCommercial = !(currentLicense.contains("-nc", true)),
-                requireShareAlike = !(currentLicense.contains("-nd", true)) && currentLicense.contains("-sa", true),
+                requireShareAlike = !(currentLicense.contains(
+                    "-nd",
+                    true
+                )) && currentLicense.contains("-sa", true),
                 licenseUrl = currentLicense
             )
         } else {
             // No license
-            SetupLicenseState(
+            state.copy(
                 ccEnabled = false,
                 cc0Enabled = false,
                 allowRemix = false,  // Changed from true to fix auto-enable bug
@@ -231,20 +223,15 @@ class SetupLicenseViewModel(
         )
 
         _uiState.update { it.copy(licenseUrl = newLicense) }
-        // Update space object but don't save yet - wait for Next button
-        // This prevents duplicate space records
-        updateSpace { space ->
-            space.license = newLicense
-        }
     }
 }
 
 @Immutable
 data class SetupLicenseState(
+    val spaceId: Long,
+    val space: Space? = null,
     val serverName: String = "",
-    val spaceId: Long = -1L,
-    val isEditing: Boolean = false,
-    val spaceType: Space.Type = Space.Type.WEBDAV,
+    val spaceType: Space.Type,
     // Creative Commons License state
     val ccEnabled: Boolean = false,
     val allowRemix: Boolean = false,
@@ -258,16 +245,11 @@ data class SetupLicenseState(
 sealed interface SetupLicenseAction {
     data class UpdateServerName(val serverName: String) : SetupLicenseAction
     data object Next : SetupLicenseAction
-    data object Cancel : SetupLicenseAction
+
     // Creative Commons License actions
     data class UpdateCcEnabled(val enabled: Boolean) : SetupLicenseAction
     data class UpdateAllowRemix(val allowed: Boolean) : SetupLicenseAction
     data class UpdateRequireShareAlike(val required: Boolean) : SetupLicenseAction
     data class UpdateAllowCommercial(val allowed: Boolean) : SetupLicenseAction
     data class UpdateCc0Enabled(val enabled: Boolean) : SetupLicenseAction
-}
-
-sealed interface SetupLicenseEvent {
-    data object NavigateNext : SetupLicenseEvent
-    data object NavigateBack : SetupLicenseEvent
 }

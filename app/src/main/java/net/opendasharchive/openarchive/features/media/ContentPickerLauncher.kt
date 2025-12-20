@@ -36,6 +36,7 @@ data class ContentPickerLaunchers(
 fun rememberContentPickerLaunchers(
     useCustomCamera: Boolean = true,
     projectProvider: () -> Project?,
+    onError: (String) -> Unit,
     onMediaImported: (List<Media>) -> Unit,
 ): ContentPickerLaunchers {
 
@@ -59,7 +60,10 @@ fun rememberContentPickerLaunchers(
             isProcessing = true
             errorMessage = null
             try {
-                val project = projectProvider() ?: return@launch
+                val project = projectProvider() ?: run {
+                    onError("Project provider returned null")
+                    return@launch
+                }
                 val mediaList = withContext(Dispatchers.IO) {
                     Picker.import(context, project, uris, generateProof = Prefs.useProofMode)
                 }
@@ -85,7 +89,10 @@ fun rememberContentPickerLaunchers(
             isProcessing = true
             errorMessage = null
             try {
-                val project = projectProvider() ?: return@launch
+                val project = projectProvider()  ?: run {
+                    onError("Project provider returned null")
+                    return@launch
+                }
                 val media = withContext(Dispatchers.IO) {
                     // single-URI import
                     Picker.import(context, project, uri, generateProof = false)
@@ -112,7 +119,10 @@ fun rememberContentPickerLaunchers(
             isProcessing = true
             errorMessage = null
             try {
-                val project = projectProvider() ?: return@launch
+                val project = projectProvider()  ?: run {
+                    onError("Project provider returned null")
+                    return@launch
+                }
                 val media = withContext(Dispatchers.IO) {
                     // For in-app capture we pass generateProof = true (same semantics as Picker.register)
                     Picker.import(context, project, finalUri, generateProof = true)
@@ -143,7 +153,10 @@ fun rememberContentPickerLaunchers(
             isProcessing = true
             errorMessage = null
             try {
-                val project = projectProvider() ?: return@launch
+                val project = projectProvider()  ?: run {
+                    onError("Project provider returned null")
+                    return@launch
+                }
                 val media = withContext(Dispatchers.IO) {
                     // Camera capture → generateProof = true (same as Picker.register custom camera)
                     Picker.import(context, project, uris, generateProof = true)

@@ -17,7 +17,7 @@
 
         <action
             android:id="@+id/action_fragment_space_list_to_fragment_web_dav"
-            app:destination="@id/fragment_web_dav"
+            app:destination="@id/fragment_web_dav_login"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
@@ -40,7 +40,7 @@
         android:name="net.opendasharchive.openarchive.features.settings.SpaceSetupFragment">
         <action
             android:id="@+id/action_fragment_space_setup_to_fragment_web_dav"
-            app:destination="@id/fragment_web_dav"
+            app:destination="@id/fragment_web_dav_login"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
@@ -58,7 +58,42 @@
 
     <fragment
         android:id="@+id/fragment_web_dav"
-        android:name="net.opendasharchive.openarchive.services.webdav.WebDavScreenFragment"
+        android:name="net.opendasharchive.openarchive.services.webdav.WebDavFragment"
+        tools:layout="@layout/fragment_web_dav">
+        <action
+            android:id="@+id/action_fragment_web_dav_to_fragment_setup_license"
+            app:destination="@id/fragment_setup_license"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <argument
+            android:name="space_id"
+            android:defaultValue="-1L"
+            app:argType="long" />
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/fragment_web_dav_login"
+        android:name="net.opendasharchive.openarchive.services.webdav.login.WebDavLoginScreenFragment"
+        tools:layout="@layout/fragment_web_dav">
+        <action
+            android:id="@+id/action_fragment_web_dav_to_fragment_setup_license"
+            app:destination="@id/fragment_setup_license"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <argument
+            android:name="space_id"
+            android:defaultValue="-1L"
+            app:argType="long" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_web_dav_detail"
+        android:name="net.opendasharchive.openarchive.services.webdav.detail.WebDavDetailScreenFragment"
         tools:layout="@layout/fragment_web_dav">
         <action
             android:id="@+id/action_fragment_web_dav_to_fragment_setup_license"

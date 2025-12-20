@@ -4,11 +4,15 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 data class InternetArchiveDetailsState(
+    val spaceId: Long,
+
     val userName: String = "",
     val screenName: String = "",
     val email: String = "",
     val license: String? = null,
+
     val isLoading: Boolean = false,
+
     // Creative Commons License state
     val ccEnabled: Boolean = false,
     val allowRemix: Boolean = false,
@@ -19,8 +23,8 @@ data class InternetArchiveDetailsState(
 )
 
 sealed interface InternetArchiveDetailsAction {
-    data object Remove : InternetArchiveDetailsAction
-    data object Cancel : InternetArchiveDetailsAction
+    data object RemoveSpace : InternetArchiveDetailsAction
+
     data class UpdateLicense(val license: String?) : InternetArchiveDetailsAction
     // Creative Commons License actions
     data class UpdateCcEnabled(val enabled: Boolean) : InternetArchiveDetailsAction
@@ -28,8 +32,10 @@ sealed interface InternetArchiveDetailsAction {
     data class UpdateRequireShareAlike(val required: Boolean) : InternetArchiveDetailsAction
     data class UpdateAllowCommercial(val allowed: Boolean) : InternetArchiveDetailsAction
     data class UpdateCc0Enabled(val enabled: Boolean) : InternetArchiveDetailsAction
+
+    data object ShowRemoveSpaceDialog : InternetArchiveDetailsAction
 }
 
 sealed interface InternetArchiveDetailsEvent {
-    data object NavigateBack : InternetArchiveDetailsEvent
+    data object ShowRemoveSpaceDialog : InternetArchiveDetailsEvent
 }

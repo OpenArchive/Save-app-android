@@ -140,4 +140,11 @@ data class Media(
 
     @Transient
     var uploadPercentage: Int? = null
+
+
+    fun copyWithId(): Media {
+        val copiedMedia = this.copy()
+        copiedMedia.id = this.id
+        return copiedMedia
+    }
 }

@@ -32,20 +32,19 @@ fun ContentPickerSheet(
     onDismiss: () -> Unit,
     onMediaPicked: (AddMediaType) -> Unit
 ) {
+
+    val shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-        containerColor = MaterialTheme.colorScheme.surface
+        shape = shape,
+        containerColor = colorResource(R.color.colorPill)
     ) {
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.surface,
-            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
-        ) {
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp, horizontal = 8.dp)
+                    .padding(horizontal = 8.dp)
             ) {
                 Text(
                     text = stringResource(R.string.content_picker_label),
@@ -91,7 +90,7 @@ fun ContentPickerSheet(
                     }
                 }
             }
-        }
+
     }
 }
 

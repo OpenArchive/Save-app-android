@@ -1,11 +1,11 @@
 package net.opendasharchive.openarchive.features.main.ui
 
-import android.content.Intent
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -16,36 +16,44 @@ import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import net.opendasharchive.openarchive.core.navigation.LocalResultEventBus
+import net.opendasharchive.openarchive.core.navigation.ResultEventBus
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.features.core.dialog.DialogHost
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.folders.AddFolderScreen
 import net.opendasharchive.openarchive.features.folders.BrowseFolderScreen
 import net.opendasharchive.openarchive.features.folders.CreateNewFolderScreen
 import net.opendasharchive.openarchive.features.internetarchive.presentation.details.InternetArchiveDetailsScreen
+import net.opendasharchive.openarchive.features.internetarchive.presentation.details.InternetArchiveDetailsViewModel
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginScreen
-import net.opendasharchive.openarchive.features.media.AddMediaType
+import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginViewModel
 import net.opendasharchive.openarchive.features.media.PreviewMediaScreen
 import net.opendasharchive.openarchive.features.media.ReviewMediaScreen
-import net.opendasharchive.openarchive.features.main.ui.HomeViewModel
 import net.opendasharchive.openarchive.features.onboarding.OnboardingInstructionsScreen
 import net.opendasharchive.openarchive.features.onboarding.OnboardingWelcomeScreen
 import net.opendasharchive.openarchive.features.settings.FolderDetailScreen
 import net.opendasharchive.openarchive.features.settings.FoldersScreen
 import net.opendasharchive.openarchive.features.settings.ProofModeSettingsScreen
 import net.opendasharchive.openarchive.features.settings.SpaceSetupSuccessScreen
+import net.opendasharchive.openarchive.features.media.camera.CameraScreenWrapper
+import net.opendasharchive.openarchive.features.settings.SpaceSetupSuccessViewModel
 import net.opendasharchive.openarchive.features.settings.license.SetupLicenseScreen
-import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
+import net.opendasharchive.openarchive.features.settings.license.SetupLicenseViewModel
 import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_entry.PasscodeEntryScreen
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupScreen
 import net.opendasharchive.openarchive.features.spaces.SpaceListScreen
 import net.opendasharchive.openarchive.features.spaces.SpaceListViewModel
 import net.opendasharchive.openarchive.features.spaces.SpaceSetupScreen
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdActivity
-import net.opendasharchive.openarchive.services.webdav.WebDavScreen
-import net.opendasharchive.openarchive.services.webdav.WebDavViewModel
+import net.opendasharchive.openarchive.features.spaces.SpaceSetupViewModel
+import net.opendasharchive.openarchive.services.webdav.detail.WebDavDetailScreen
+import net.opendasharchive.openarchive.services.webdav.detail.WebDavDetailViewModel
+import net.opendasharchive.openarchive.services.webdav.login.WebDavLoginScreen
+import net.opendasharchive.openarchive.services.webdav.login.WebDavLoginViewModel
 import net.opendasharchive.openarchive.util.Prefs
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -53,15 +61,19 @@ import org.koin.core.parameter.parametersOf
 
 @Composable
 fun SaveNavGraph(
-
+    dialogManager: DialogStateManager = koinInject()
 ) {
 
     val context = LocalContext.current
     val navigator = rememberNavigator()
+    val resultBus = remember { ResultEventBus() }
 
     SaveAppTheme {
 
-        NavDisplay(
+        DialogHost(dialogManager)
+
+        CompositionLocalProvider(LocalResultEventBus provides resultBus) {
+            NavDisplay(
             modifier = Modifier.fillMaxSize(),
             backStack = navigator.backstack,
             entryDecorators = listOf(
@@ -87,10 +99,11 @@ fun SaveNavGraph(
             entryProvider = entryProvider {
 
                 entry<AppRoute.HomeRoute> { key ->
-                    val viewModel = koinViewModel<HomeViewModel>() {
-                        parametersOf(navigator)
-                        parametersOf(key)
+
+                    val viewModel = koinViewModel<HomeViewModel> {
+                        parametersOf(navigator, key)
                     }
+
                     HomeScreen(
                         viewModel = viewModel,
                         invokeNavEvent = { event ->
@@ -108,15 +121,17 @@ fun SaveNavGraph(
                                 }
                                 HomeNavigation.Cache -> navigator.navigateTo(AppRoute.MediaCacheRoute)
                                 HomeNavigation.ProofMode -> navigator.navigateTo(AppRoute.ProofModeSettings)
-                                HomeNavigation.SpaceList -> navigator.navigateTo(AppRoute.SpaceListRoute("Hello World"))
+                                HomeNavigation.SpaceList -> navigator.navigateTo(AppRoute.SpaceListRoute)
                                 HomeNavigation.SpaceSetup ->  navigator.navigateTo(AppRoute.SpaceSetupRoute)
                                 is HomeNavigation.PreviewMedia -> navigator.navigateTo(AppRoute.PreviewMediaRoute(event.projectId))
+                                is HomeNavigation.Camera -> navigator.navigateTo(AppRoute.CameraRoute(event.projectId, event.config))
                             }
                         },
                     )
                 }
 
-                entry<AppRoute.WelcomeRoute> {
+                entry<AppRoute.WelcomeRoute> { key ->
+
                     OnboardingWelcomeScreen(
                         onGetStartedClick = {
                             navigator.navigateTo(AppRoute.InstructionsRoute)
@@ -124,7 +139,8 @@ fun SaveNavGraph(
                     )
                 }
 
-                entry<AppRoute.InstructionsRoute> {
+                entry<AppRoute.InstructionsRoute> { key ->
+
                     OnboardingInstructionsScreen(
                         onDone = {
                             Prefs.didCompleteOnboarding = true
@@ -136,88 +152,63 @@ fun SaveNavGraph(
                     )
                 }
 
-                entry<AppRoute.SpaceSetupRoute> {
-                    val context = LocalContext.current
-                    val appConfig: AppConfig = koinInject()
-                    val isInternetArchiveAllowed = !Space.has(Space.Type.INTERNET_ARCHIVE)
+                entry<AppRoute.SpaceSetupRoute> { key ->
+
+                    val viewModel = koinViewModel<SpaceSetupViewModel> {
+                        parametersOf(navigator, key)
+                    }
 
                     DefaultScaffold(
                         title = stringResource(id = R.string.space_setup_title),
                         onNavigateBack = { navigator.navigateBack() }
                     ) {
                         SpaceSetupScreen(
-                            onWebDavClick = {
-                                navigator.navigateTo(AppRoute.WebDavLoginRoute)
-                            },
-                            isInternetArchiveAllowed = isInternetArchiveAllowed,
-                            onInternetArchiveClick = {
-                                navigator.navigateTo(AppRoute.IALoginRoute)
-                            },
-                            isDwebEnabled = appConfig.isDwebEnabled,
-                            onDwebClicked = {
-                                context.startActivity(
-                                    Intent(context, SnowbirdActivity::class.java)
-                                )
-                            }
+                            viewModel = viewModel,
                         )
                     }
                 }
 
                 entry<AppRoute.SpaceListRoute> { key ->
+
+                    val viewModel: SpaceListViewModel = koinViewModel {
+                        parametersOf(navigator, key)
+                    }
+
                     DefaultScaffold(
                         title = stringResource(id = R.string.pref_title_media_servers),
                         onNavigateBack = { navigator.navigateBack() }
                     ) {
 
                         SpaceListScreen(
-                            onSpaceClicked = { id, type ->
-                                when (type) {
-                                    Space.Type.INTERNET_ARCHIVE -> {
-                                        navigator.navigateTo(
-                                            AppRoute.IADetailRoute(id)
-                                        )
-                                    }
-
-                                    Space.Type.WEBDAV -> {
-                                        navigator.navigateTo(
-                                            AppRoute.WebDavDetailRoute(id)
-                                        )
-                                    }
-
-                                    else -> Unit
-                                }
-                            },
-                            onAddServerClicked = {
-                                navigator.navigateTo(AppRoute.SpaceSetupRoute)
-                            }
+                            viewModel = viewModel,
                         )
                     }
                 }
 
-                entry<AppRoute.WebDavLoginRoute> {
+                entry<AppRoute.WebDavLoginRoute> { key ->
+
+                    val viewModel = koinViewModel<WebDavLoginViewModel> {
+                        parametersOf(navigator, key)
+                    }
 
                     DefaultScaffold(
                         title = stringResource(id = R.string.private_server),
                         onNavigateBack = { navigator.navigateBack() }
                     ) {
-                        val vm = koinViewModel<WebDavViewModel>()
-                        WebDavScreen(
-                            viewModel = vm,
-                            onNavigateToLicenseSetup = { spaceId ->
-                                navigator.navigateTo(
-                                    AppRoute.SetupLicenseRoute(
-                                        spaceId = spaceId,
-                                        isEditing = false,
-                                        spaceType = Space.Type.WEBDAV
-                                    )
-                                )
-                            },
-                            onNavigateBack = { navigator.navigateBack() }
+
+                        WebDavLoginScreen(
+                            viewModel = viewModel,
+                            dialogManager = dialogManager,
                         )
                     }
                 }
 
                 entry<AppRoute.WebDavDetailRoute> { route ->
+
+                    val viewModel = koinViewModel<WebDavDetailViewModel> {
+                        parametersOf(navigator, route)
+                    }
+
                     val existingName = remember(route.spaceId) {
                         Space.get(route.spaceId)?.let { space ->
                             when {
@@ -232,77 +223,65 @@ fun SaveNavGraph(
                         title = existingName ?: stringResource(id = R.string.private_server),
                         onNavigateBack = { navigator.navigateBack() }
                     ) {
-                        WebDavScreen(
-                            onNavigateToLicenseSetup = { spaceId ->
-                                navigator.navigateTo(
-                                    AppRoute.SetupLicenseRoute(
-                                        spaceId = spaceId,
-                                        isEditing = route.spaceId != WebDavViewModel.ARG_VAL_NEW_SPACE,
-                                        spaceType = Space.Type.WEBDAV
-                                    )
-                                )
-                            },
-                            onNavigateBack = { navigator.navigateBack() }
+                        WebDavDetailScreen(
+                            viewModel = viewModel,
+                            dialogManager = dialogManager,
                         )
                     }
                 }
 
-                entry<AppRoute.IALoginRoute> {
+                entry<AppRoute.IALoginRoute> { key ->
+
+                    val viewModel = koinViewModel<InternetArchiveLoginViewModel> {
+                        parametersOf(navigator, key)
+                    }
+
                     DefaultScaffold(
                         title = stringResource(id = R.string.internet_archive),
                         onNavigateBack = { navigator.navigateBack() }
                     ) {
                         InternetArchiveLoginScreen(
-                            onLoginSuccess = { spaceId ->
-                                navigator.navigateTo(
-                                    AppRoute.SetupLicenseRoute(
-                                        spaceId = spaceId,
-                                        isEditing = false,
-                                        spaceType = Space.Type.INTERNET_ARCHIVE
-                                    )
-                                )
-                            },
-                            onCancel = { navigator.navigateBack() }
+                            viewModel = viewModel,
                         )
                     }
                 }
 
-                entry<AppRoute.SetupLicenseRoute> { route ->
-                    val titleRes =
-                        if (route.spaceType == Space.Type.INTERNET_ARCHIVE) R.string.internet_archive else R.string.private_server
-                    val context = LocalContext.current
+                entry<AppRoute.SetupLicenseRoute> { key ->
+
+                    val viewModel = koinViewModel<SetupLicenseViewModel> {
+                        parametersOf(navigator, key)
+                    }
+
+                    val titleRes = when (key.spaceType) {
+                        Space.Type.INTERNET_ARCHIVE -> R.string.internet_archive
+                        Space.Type.WEBDAV -> R.string.private_server
+                        Space.Type.RAVEN -> R.string.dweb_title
+                    }
+
                     DefaultScaffold(
                         title = stringResource(id = titleRes),
                         onNavigateBack = { navigator.navigateBack() },
                         showNavigationIcon = false
                     ) {
                         SetupLicenseScreen(
-                            onNext = {
-                                val message =
-                                    if (route.spaceType == Space.Type.WEBDAV) {
-                                        context.getString(R.string.you_have_successfully_connected_to_a_private_server)
-                                    } else {
-                                        context.getString(R.string.you_have_successfully_connected_to_the_internet_archive)
-                                    }
-                                navigator.navigateTo(
-                                    AppRoute.SpaceSetupSuccessRoute(
-                                        message = message,
-                                        spaceType = route.spaceType
-                                    )
-                                )
-                            },
-                            onCancel = { navigator.navigateBack() }
+                            viewModel = viewModel,
                         )
                     }
                 }
 
-                entry<AppRoute.SpaceSetupSuccessRoute> {
+                entry<AppRoute.SpaceSetupSuccessRoute> { key ->
+
+                    val viewModel = koinViewModel<SpaceSetupSuccessViewModel> {
+                        parametersOf(navigator, key)
+                    }
+
                     DefaultScaffold(
                         title = stringResource(id = R.string.space_setup_success_title),
                         onNavigateBack = { navigator.navigateBack() },
                         showNavigationIcon = false
                     ) {
                         SpaceSetupSuccessScreen(
+                            viewModel = viewModel,
                             onNavigateToMain = {
                                 Prefs.didCompleteOnboarding = true
                                 navigator.navigateAndClear(AppRoute.HomeRoute)
@@ -311,13 +290,19 @@ fun SaveNavGraph(
                     }
                 }
 
-                entry<AppRoute.IADetailRoute> {
+                entry<AppRoute.IADetailRoute> { key ->
+
+                    val viewModel = koinViewModel<InternetArchiveDetailsViewModel> {
+                        parametersOf(navigator, key)
+                    }
+
                     DefaultScaffold(
                         title = stringResource(id = R.string.internet_archive),
                         onNavigateBack = { navigator.navigateBack() }
                     ) {
                         InternetArchiveDetailsScreen(
-                            onNavigateBack = { navigator.navigateBack() }
+                            viewModel = viewModel,
+                            dialogManager = dialogManager,
                         )
                     }
                 }
@@ -481,8 +466,29 @@ fun SaveNavGraph(
                         )
                     }
                 }
+
+                entry<AppRoute.CameraRoute> { route ->
+                    CameraScreenWrapper(
+                        config = route.config,
+                        onCaptureComplete = { uris ->
+                            // Send captured URIs via ResultEventBus
+                            resultBus.sendResult(
+                                resultKey = "camera_capture_result",
+                                result = CameraCaptureResult(
+                                    projectId = route.projectId,
+                                    capturedUris = uris
+                                )
+                            )
+                            navigator.navigateBack()
+                        },
+                        onCancel = {
+                            navigator.navigateBack()
+                        }
+                    )
+                }
             }
         )
+        }
     }
 }
 

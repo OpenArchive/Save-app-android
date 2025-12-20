@@ -41,4 +41,10 @@ data class Collection(
 
         return super.delete()
     }
+
+    fun copyWithId(): Collection {
+        val copiedCollection = this.copy()
+        copiedCollection.id = null
+        return copiedCollection
+    }
 }

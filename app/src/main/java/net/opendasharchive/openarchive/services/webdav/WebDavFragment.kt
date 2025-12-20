@@ -66,7 +66,7 @@ class WebDavFragment : BaseFragment() {
     private var originalName: String? = null
     private var isNameChanged = false
 
-    private val args: WebDavScreenFragmentArgs by navArgs()
+    private val args: WebDavFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -461,7 +461,7 @@ class WebDavFragment : BaseFragment() {
 
     private fun navigate(spaceId: Long) = CoroutineScope(Dispatchers.Main).launch {
             val action =
-                WebDavScreenFragmentDirections.actionFragmentWebDavToFragmentSetupLicense(
+                WebDavFragmentDirections.actionFragmentWebDavToFragmentSetupLicense(
                     spaceId = spaceId,
                     spaceType = Space.Type.WEBDAV
                 )
@@ -590,14 +590,5 @@ class WebDavFragment : BaseFragment() {
         const val REMOTE_PHP_ADDRESS = "/remote.php/webdav/"
     }
 
-    override fun getToolbarTitle(): String = if (args.spaceId == ARG_VAL_NEW_SPACE) {
-        "Private Server"
-    } else {
-        val space = Space.get(args.spaceId)
-        when {
-            space?.name?.isNotBlank() == true -> space.name
-            space?.friendlyName?.isNotBlank() == true -> space.friendlyName
-            else -> "Private Server"
-        }
-    }
+    override fun getToolbarTitle(): String = "Private Server"
 }

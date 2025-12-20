@@ -1,9 +1,10 @@
 package net.opendasharchive.openarchive.features.main.ui
 
+import android.net.Uri
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 import net.opendasharchive.openarchive.db.Space
-import net.opendasharchive.openarchive.services.webdav.WebDavViewModel
+import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 
 @Serializable
 sealed class AppRoute(open val deeplink: String) : NavKey {
@@ -23,7 +24,9 @@ sealed class AppRoute(open val deeplink: String) : NavKey {
     @Serializable
     data object WebDavLoginRoute : AppRoute("webdav_login")
 
-    data class WebDavDetailRoute(val spaceId: Long) : AppRoute("webdav_detail")
+    data class WebDavDetailRoute(
+        val spaceId: Long,
+    ) : AppRoute("webdav_detail")
 
     @Serializable
     data object IALoginRoute : AppRoute("ia_login")
@@ -31,18 +34,16 @@ sealed class AppRoute(open val deeplink: String) : NavKey {
     @Serializable
     data class SetupLicenseRoute(
         val spaceId: Long,
-        val isEditing: Boolean = false,
         val spaceType: Space.Type,
     ) : AppRoute("setup_license")
 
     @Serializable
     data class SpaceSetupSuccessRoute(
-        val message: String = "",
-        val spaceType: Space.Type = Space.Type.WEBDAV
+        val spaceType: Space.Type
     ) : AppRoute("space_setup_success")
 
     @Serializable
-    data class SpaceListRoute(val message: String) : AppRoute("space_list")
+    data object SpaceListRoute : AppRoute("space_list")
 
     @Serializable
     data class IADetailRoute(val spaceId: Long) : AppRoute("ia_detail")
@@ -88,4 +89,15 @@ sealed class AppRoute(open val deeplink: String) : NavKey {
 
     @Serializable
     data object MediaCacheRoute : AppRoute("media_cache")
+
+    @Serializable
+    data class CameraRoute(val projectId: Long, val config: CameraConfig) : AppRoute("camera")
 }
+
+/**
+ * Result data class for camera capture results passed via ResultEventBus.
+ */
+data class CameraCaptureResult(
+    val projectId: Long,
+    val capturedUris: List<Uri>
+)

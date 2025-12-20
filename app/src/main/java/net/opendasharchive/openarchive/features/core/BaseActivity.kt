@@ -22,7 +22,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 abstract class BaseActivity : AppCompatActivity() {
 
-    val dialogManager: DialogStateManager by viewModel()
+    val dialogManager: DialogStateManager by inject<DialogStateManager>()
 
     // Inject analytics dependencies
     protected val analyticsManager: AnalyticsManager by inject()

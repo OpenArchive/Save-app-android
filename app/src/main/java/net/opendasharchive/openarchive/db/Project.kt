@@ -77,6 +77,12 @@ data class Project(
         return super.delete()
     }
 
+    fun copyWithId(): Project {
+        val copiedProject = this.copy()
+        copiedProject.id = this.id
+        return copiedProject
+    }
+
     val space: Space?
         get() = findById(Space::class.java, spaceId)
 

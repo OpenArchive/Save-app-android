@@ -15,10 +15,12 @@ import net.opendasharchive.openarchive.features.main.ui.MainMediaViewModel
 import net.opendasharchive.openarchive.features.media.PreviewMediaViewModel
 import net.opendasharchive.openarchive.features.media.ReviewMediaViewModel
 import net.opendasharchive.openarchive.features.spaces.SpaceListViewModel
+import net.opendasharchive.openarchive.features.spaces.SpaceSetupViewModel
 import net.opendasharchive.openarchive.services.SaveClientFactory
 import net.opendasharchive.openarchive.services.SaveClientFactoryImpl
 import net.opendasharchive.openarchive.services.webdav.WebDavRepository
-import net.opendasharchive.openarchive.services.webdav.WebDavViewModel
+import net.opendasharchive.openarchive.services.webdav.login.WebDavLoginViewModel
+import net.opendasharchive.openarchive.services.webdav.detail.WebDavDetailViewModel
 import net.opendasharchive.openarchive.services.snowbird.ISnowbirdFileRepository
 import net.opendasharchive.openarchive.services.snowbird.ISnowbirdGroupRepository
 import net.opendasharchive.openarchive.services.snowbird.ISnowbirdRepoRepository
@@ -74,9 +76,10 @@ val featuresModule = module {
         )
     }
 
-    viewModel { HomeViewModel(get(), get()) }
+    viewModel { HomeViewModel(get(), get(), get()) }
 
     viewModelOf(::SpaceListViewModel)
+    viewModelOf(::SpaceSetupViewModel)
 
     // Main Media (Home Screen)
     viewModel { (projectId: Long) ->
@@ -99,7 +102,9 @@ val featuresModule = module {
     // WebDAV
     single<SaveClientFactory> { SaveClientFactoryImpl(get()) }
     single { WebDavRepository(get(), get()) }
-    viewModel { WebDavViewModel(get(), get(), get()) }
+
+    viewModelOf(::WebDavLoginViewModel)
+    viewModelOf(::WebDavDetailViewModel)
 
     // Upload Manager
     viewModelOf(::UploadManagerViewModel)

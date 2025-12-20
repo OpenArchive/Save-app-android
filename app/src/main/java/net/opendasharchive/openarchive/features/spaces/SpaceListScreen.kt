@@ -27,65 +27,43 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.db.dummySpaceList
-import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.components.SpaceIcon
-import org.koin.compose.viewmodel.koinViewModel
 
-
-class SpaceListViewModel(
-
-) : ViewModel() {
-
-    private val _spaceList = MutableStateFlow<List<Space>>(emptyList())
-    val spaceList: StateFlow<List<Space>> = _spaceList
-
-    fun refreshSpaces() {
-        _spaceList.value = Space.getAll().asSequence().toList()
-    }
-}
 
 @Composable
 fun SpaceListScreen(
-    viewModel: SpaceListViewModel = koinViewModel(),
-    onSpaceClicked: (Long, Space.Type) -> Unit,
-    onAddServerClicked: () -> Unit = {},
+    viewModel: SpaceListViewModel,
 ) {
 
-    val spaceList by viewModel.spaceList.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // This will get called again when the screen resumes (see Fragment below)
     LaunchedEffect(Unit) {
-        viewModel.refreshSpaces()
+        viewModel.onAction(SpaceListAction.RefreshSpaces)
     }
 
 
     SpaceListScreenContent(
-        spaceList = spaceList,
-        onSpaceClicked = onSpaceClicked,
-        onAddServerClicked = onAddServerClicked
+        state = uiState,
+        onAction = viewModel::onAction,
     )
 
 }
 
 @Composable
 fun SpaceListScreenContent(
-    onSpaceClicked: (Long, Space.Type) -> Unit,
-    onAddServerClicked: () -> Unit,
-    spaceList: List<Space> = emptyList()
+    state: SpaceListState,
+    onAction: (SpaceListAction) -> Unit,
 ) {
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (spaceList.isEmpty()) {
+        if (state.spaceList.isEmpty()) {
             // Empty state with centered message
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -108,11 +86,11 @@ fun SpaceListScreenContent(
                     .padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                spaceList.forEach { space ->
+                state.spaceList.forEach { space ->
                     SpaceListItem(
                         space = space,
                         onClick = {
-                            onSpaceClicked(space.id, space.tType)
+                            onAction(SpaceListAction.NavigateToSpace(space.id, space.tType))
                         }
                     )
                 }
@@ -121,7 +99,9 @@ fun SpaceListScreenContent(
 
         // Add Server button at bottom center (visible in both states)
         Button(
-            onClick = onAddServerClicked,
+            onClick = {
+                onAction(SpaceListAction.AddNewSpace)
+            },
             modifier = Modifier
                 .heightIn(ThemeDimensions.touchable)
                 .align(Alignment.BottomCenter)
@@ -231,9 +211,10 @@ private fun SpaceListScreenPreview() {
     DefaultScaffoldPreview {
 
         SpaceListScreenContent(
-            spaceList = dummySpaceList,
-            onSpaceClicked = { _, _ -> },
-            onAddServerClicked = {}
+            state = SpaceListState(
+                spaceList = dummySpaceList,
+            ),
+            onAction = {}
         )
     }
 }
@@ -245,9 +226,10 @@ private fun SpaceListEmptyScreenPreview() {
     DefaultScaffoldPreview {
 
         SpaceListScreenContent(
-            spaceList = emptyList(),
-            onSpaceClicked = { _, _ -> },
-            onAddServerClicked = {}
+            state = SpaceListState(
+                spaceList = emptyList(),
+            ),
+            onAction = {}
         )
     }
 }

@@ -19,6 +19,7 @@ import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SetupLicenseFragment : BaseFragment() {
 
@@ -28,6 +29,8 @@ class SetupLicenseFragment : BaseFragment() {
     private val args: SetupLicenseFragmentArgs by navArgs()
 
     private lateinit var binding: FragmentSetupLicenseBinding
+
+    private val viewModel: SetupLicenseViewModel by viewModel()
 
 
     private lateinit var mSpace: Space
@@ -45,26 +48,7 @@ class SetupLicenseFragment : BaseFragment() {
                 setContent {
                     SaveAppTheme {
                         SetupLicenseScreen(
-                            onNext = {
-                                when (args.spaceType) {
-                                    Space.Type.WEBDAV -> {
-                                        val message = getString(R.string.you_have_successfully_connected_to_a_private_server)
-                                        val action = SetupLicenseFragmentDirections
-                                            .actionFragmentSetupLicenseToFragmentSpaceSetupSuccess(message = message, spaceType = Space.Type.WEBDAV)
-                                        findNavController().navigate(action)
-                                    }
-                                    Space.Type.INTERNET_ARCHIVE -> {
-                                        val message = getString(R.string.you_have_successfully_connected_to_the_internet_archive)
-                                        val action = SetupLicenseFragmentDirections
-                                            .actionFragmentSetupLicenseToFragmentSpaceSetupSuccess(message = message, spaceType = Space.Type.INTERNET_ARCHIVE)
-                                        findNavController().navigate(action)
-                                    }
-                                    else -> Unit
-                                }
-                            },
-                            onCancel = {
-                                findNavController().popBackStack()
-                            }
+                            viewModel = viewModel
                         )
                     }
                 }

@@ -25,7 +25,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -61,6 +60,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.features.core.UiImage
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.core.presentation.media.MediaStatusOverlay
 import net.opendasharchive.openarchive.core.presentation.media.MediaThumbnail
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
@@ -68,7 +72,9 @@ import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.main.ui.components.SpaceIcon
+import org.koin.compose.koinInject
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -83,16 +89,68 @@ import java.util.Locale
 @Composable
 fun MainMediaScreen(
     viewModel: MainMediaViewModel,
+    dialogManager: DialogStateManager = koinInject(),
     currentSpace: Space?,
     currentProject: Project?,
+    refreshProjectId: Long?,
+    refreshToken: Long,
     onNavigateToPreview: (Long) -> Unit,
 ) {
 
     val mediaState by viewModel.uiState.collectAsStateWithLifecycle()
+    var showRemoveProjectDialog by remember { mutableStateOf(false) }
+    var showDeleteSelectedMediaDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(currentProject?.id) {
         currentProject?.id?.let { projectId ->
             viewModel.onAction(MainMediaAction.LoadProject(projectId))
+        }
+    }
+
+    LaunchedEffect(refreshToken, currentProject?.id, refreshProjectId) {
+        val projectId = currentProject?.id ?: return@LaunchedEffect
+        if (refreshProjectId == projectId) {
+            viewModel.onAction(MainMediaAction.Refresh(projectId))
+        }
+    }
+
+    LaunchedEffect(showRemoveProjectDialog) {
+        if (!showRemoveProjectDialog) return@LaunchedEffect
+        showRemoveProjectDialog = false
+
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Error
+            icon = UiImage.DrawableResource(R.drawable.ic_trash)
+            title = UiText.StringResource(R.string.remove_from_app)
+            message = UiText.StringResource(R.string.action_remove_project)
+            destructiveButton {
+                text = UiText.StringResource(R.string.lbl_remove)
+                action = { viewModel.requestDeleteProject() }
+            }
+            neutralButton {
+                text = UiText.StringResource(R.string.lbl_Cancel)
+                action = { dialogManager.dismissDialog() }
+            }
+        }
+    }
+
+    LaunchedEffect(showDeleteSelectedMediaDialog) {
+        if (!showDeleteSelectedMediaDialog) return@LaunchedEffect
+        showDeleteSelectedMediaDialog = false
+
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Error
+            icon = UiImage.DrawableResource(R.drawable.ic_trash)
+            title = UiText.StringResource(R.string.menu_delete)
+            message = UiText.StringResource(R.string.menu_delete_desc)
+            destructiveButton {
+                text = UiText.StringResource(R.string.btn_lbl_remove_media)
+                action = { viewModel.onAction(MainMediaAction.DeleteSelected) }
+            }
+            neutralButton {
+                text = UiText.StringResource(R.string.lbl_Cancel)
+                action = { dialogManager.dismissDialog() }
+            }
         }
     }
 
@@ -118,7 +176,8 @@ fun MainMediaScreen(
         currentProject = currentProject,
         onAction = viewModel::onAction,
         onArchiveProject = { viewModel.requestArchiveProject() },
-        onDeleteProject = { viewModel.requestDeleteProject() }
+        onRemoveProjectRequest = { showRemoveProjectDialog = true },
+        onDeleteSelectedRequest = { showDeleteSelectedMediaDialog = true }
     )
 }
 
@@ -135,10 +194,10 @@ fun MainMediaContent(
     currentProject: Project?,
     onAction: (MainMediaAction) -> Unit,
     onArchiveProject: () -> Unit = {},
-    onDeleteProject: () -> Unit = {}
+    onRemoveProjectRequest: () -> Unit = {},
+    onDeleteSelectedRequest: () -> Unit = {}
 ) {
     var showFolderOptions by remember { mutableStateOf(false) }
-    var showRemoveConfirm by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.folderBarMode) {
         if (state.folderBarMode != FolderBarMode.INFO) {
@@ -162,41 +221,14 @@ fun MainMediaContent(
             },
             onRemove = {
                 showFolderOptions = false
-                showRemoveConfirm = true
+                onRemoveProjectRequest()
             },
+            onDeleteSelectedRequest = onDeleteSelectedRequest,
             onOpenOptions = { showFolderOptions = true },
             onDismissOptions = { showFolderOptions = false },
             showMenu = showFolderOptions,
             selectedMediaCount = state.selectedMediaIds.size
         )
-
-        if (showRemoveConfirm) {
-            AlertDialog(
-                onDismissRequest = { showRemoveConfirm = false },
-                title = { Text(text = stringResource(id = R.string.remove_from_app)) },
-                text = { Text(text = stringResource(id = R.string.action_remove_project)) },
-                confirmButton = {
-                    Text(
-                        text = stringResource(id = R.string.lbl_remove),
-                        color = colorResource(R.color.colorError),
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .clickable {
-                                showRemoveConfirm = false
-                                onDeleteProject()
-                            }
-                    )
-                },
-                dismissButton = {
-                    Text(
-                        text = stringResource(id = R.string.lbl_Cancel),
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .clickable { showRemoveConfirm = false }
-                    )
-                }
-            )
-        }
 
         // Main Content
         Box(modifier = Modifier.fillMaxSize()) {
@@ -454,6 +486,7 @@ private fun FolderBar(
     onRename: () -> Unit,
     onToggleArchive: () -> Unit,
     onRemove: () -> Unit,
+    onDeleteSelectedRequest: () -> Unit,
     onOpenOptions: () -> Unit,
     onDismissOptions: () -> Unit,
     showMenu: Boolean
@@ -482,7 +515,8 @@ private fun FolderBar(
 
             FolderBarMode.SELECTION -> FolderBarSelectionMode(
                 selectedCount = selectedMediaCount,
-                onAction = onAction
+                onAction = onAction,
+                onDeleteSelectedRequest = onDeleteSelectedRequest
             )
 
             FolderBarMode.EDIT -> FolderBarEditMode(
@@ -611,7 +645,8 @@ private fun RowScope.FolderBarInfoMode(
 @Composable
 private fun RowScope.FolderBarSelectionMode(
     selectedCount: Int,
-    onAction: (MainMediaAction) -> Unit
+    onAction: (MainMediaAction) -> Unit,
+    onDeleteSelectedRequest: () -> Unit
 ) {
     Row(
         modifier = Modifier.weight(1f),
@@ -642,7 +677,7 @@ private fun RowScope.FolderBarSelectionMode(
     if (selectedCount > 0) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { onAction(MainMediaAction.DeleteSelected) }
+            modifier = Modifier.clickable { onDeleteSelectedRequest() }
         ) {
             Icon(
                 painter = painterResource(R.drawable.ic_trash),

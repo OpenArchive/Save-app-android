@@ -8,6 +8,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,7 +36,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -47,11 +47,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -64,7 +62,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
@@ -537,7 +534,7 @@ private fun SelectionButton(
             contentColor = colorResource(R.color.colorTertiary)
         ),
         shape = RoundedCornerShape(50),
-        border = androidx.compose.foundation.BorderStroke(
+        border = BorderStroke(
             width = dimensionResource(R.dimen.selection_button_stroke_width),
             color = colorResource(R.color.selection_button_stroke)
         ),
@@ -572,7 +569,7 @@ private fun SelectionTextButton(
             contentColor = colorResource(R.color.colorTertiary)
         ),
         shape = RoundedCornerShape(dimensionResource(R.dimen.selection_button_corner_radius)),
-        border = androidx.compose.foundation.BorderStroke(
+        border = BorderStroke(
             width = dimensionResource(R.dimen.selection_button_stroke_width),
             color = colorResource(R.color.selection_button_stroke)
         ),

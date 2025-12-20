@@ -13,11 +13,15 @@ import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.internetarchive.domain.usecase.InternetArchiveLoginUseCase
 import net.opendasharchive.openarchive.features.internetarchive.domain.usecase.ValidateLoginCredentialsUseCase
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.parameter.parametersOf
 
 class InternetArchiveLoginViewModel(
+    private val route: AppRoute.IALoginRoute,
+    private val navigator: Navigator,
     private val validateLoginCredentials: ValidateLoginCredentialsUseCase,
 ) : ViewModel(), KoinComponent {
 
@@ -59,13 +63,7 @@ class InternetArchiveLoginViewModel(
 
             is InternetArchiveLoginAction.Cancel -> {
                 viewModelScope.launch {
-                    _events.send(InternetArchiveLoginEvent.NavigateBack)
-                }
-            }
-
-            is InternetArchiveLoginAction.CreateLogin -> {
-                viewModelScope.launch {
-                    _events.send(InternetArchiveLoginEvent.NavigateToSignup)
+                    navigator.navigateBack()
                 }
             }
 
@@ -82,7 +80,8 @@ class InternetArchiveLoginViewModel(
             loginUseCase.invoke(currentState.username, currentState.password)
                 .onSuccess { ia ->
                     _uiState.update { it.copy(isBusy = false) }
-                    _events.send(InternetArchiveLoginEvent.LoginSuccess(space.id))
+
+                    navigator.navigateTo(AppRoute.SetupLicenseRoute(spaceId = space.id, spaceType = Space.Type.INTERNET_ARCHIVE))
                 }
                 .onFailure { error ->
                     _uiState.update { it.copy(isLoginError = true, isUsernameError = true, isPasswordError = true, isBusy = false) }

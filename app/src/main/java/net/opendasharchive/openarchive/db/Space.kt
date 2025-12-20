@@ -237,4 +237,10 @@ data class Space(
 
         return super.delete()
     }
+
+    fun copyWithId(): Space {
+        val copiedSpace = this.copy()
+        copiedSpace.id = this.id
+        return copiedSpace
+    }
 }

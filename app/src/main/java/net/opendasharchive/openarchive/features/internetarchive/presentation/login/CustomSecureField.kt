@@ -36,6 +36,7 @@ fun CustomSecureField(
     modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
+    enabled: Boolean = true,
     placeholder: String,
     isError: Boolean = false,
     isLoading: Boolean = false,
@@ -49,7 +50,7 @@ fun CustomSecureField(
     OutlinedTextField(
         modifier = modifier.fillMaxWidth(),
         value = value,
-        enabled = !isLoading,
+        enabled = !isLoading && enabled,
         onValueChange = onValueChange,
         placeholder = {
             Text(

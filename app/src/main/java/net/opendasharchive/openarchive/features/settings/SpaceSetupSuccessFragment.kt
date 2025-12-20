@@ -15,6 +15,7 @@ import net.opendasharchive.openarchive.databinding.FragmentSpaceSetupSuccessBind
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SpaceSetupSuccessFragment : BaseFragment() {
 
@@ -23,6 +24,8 @@ class SpaceSetupSuccessFragment : BaseFragment() {
 
     private lateinit var binding: FragmentSpaceSetupSuccessBinding
     private val args: SpaceSetupSuccessFragmentArgs by navArgs()
+
+    private val viewModel: SpaceSetupSuccessViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -36,9 +39,10 @@ class SpaceSetupSuccessFragment : BaseFragment() {
                 setContent {
                     SaveAppTheme {
                         SpaceSetupSuccessScreen(
+                            viewModel = viewModel,
                             onNavigateToMain = {
                                 // Navigation already handled in ViewModel
-                            }
+                            },
                         )
                     }
                 }

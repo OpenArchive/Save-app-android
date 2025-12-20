@@ -3,6 +3,7 @@ package net.opendasharchive.openarchive.features.main.ui.components
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -62,8 +63,8 @@ fun MainBottomBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(colorResource(R.color.colorBottomNavbar))
-            .windowInsetsPadding(androidx.compose.foundation.layout.WindowInsets.navigationBars)
+            .background(colorResource(R.color.colorTertiary))
+            .windowInsetsPadding(WindowInsets.navigationBars)
     ) {
         Row(
             modifier = Modifier

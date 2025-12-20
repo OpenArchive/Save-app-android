@@ -13,48 +13,26 @@ import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.features.spaces.SpaceSetupScreen
+import net.opendasharchive.openarchive.features.spaces.SpaceSetupViewModel
 import org.koin.android.ext.android.inject
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdActivity
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SpaceSetupFragment : BaseFragment() {
 
     private val appConfig by inject<AppConfig>()
+    private val viewModel: SpaceSetupViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View = content {
-
-        // Prepare click lambdas that use the fragment’s business logic.
-        val onWebDavClick = {
-            findNavController().navigate(R.id.action_fragment_space_setup_to_fragment_web_dav)
-        }
-
-        // Only enable Internet Archive if not already present
-        val isInternetArchiveAllowed = !Space.has(Space.Type.INTERNET_ARCHIVE)
-        val onInternetArchiveClick = {
-            val action = SpaceSetupFragmentDirections.actionFragmentSpaceSetupToInternetArchiveLogin()
-            findNavController().navigate(action)
-        }
-
-        // Show/hide Snowbird based on config
-        val isDwebEnabled = appConfig.isDwebEnabled
-        val onDwebClicked = {
-            val intent = Intent(requireContext(), SnowbirdActivity::class.java)
-            startActivity(intent)
-        }
-
         SaveAppTheme {
             SpaceSetupScreen(
-                onWebDavClick = onWebDavClick,
-                isInternetArchiveAllowed = isInternetArchiveAllowed,
-                onInternetArchiveClick = onInternetArchiveClick,
-                isDwebEnabled = isDwebEnabled,
-                onDwebClicked = onDwebClicked
+                viewModel = viewModel,
             )
         }
-
     }
 
     override fun getToolbarTitle() = getString(R.string.space_setup_title)

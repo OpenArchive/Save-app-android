@@ -38,6 +38,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.ViewModel
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultBoxPreview
 import net.opendasharchive.openarchive.features.core.BaseButton
 import net.opendasharchive.openarchive.features.core.BaseDestructiveButton
@@ -207,11 +208,17 @@ fun BaseDialogMessage(
     )
 }
 
-
+/**
+ * A Global Manager for Dialogs.
+ * Registered as a 'single' in Koin so every screen shares this state.
+ */
 class DialogStateManager(private val resourceProvider: ResourceProvider) : ViewModel() {
     private val _dialogConfig = mutableStateOf<DialogConfig?>(null)
     val dialogConfig: State<DialogConfig?> = _dialogConfig
 
+    init {
+        AppLogger.i("DialogStateManager initialized....")
+    }
     fun showDialog(config: DialogConfig) {
         _dialogConfig.value = config
     }

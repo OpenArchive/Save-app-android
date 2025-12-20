@@ -1,0 +1,77 @@
+package net.opendasharchive.openarchive.features.spaces
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
+import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
+
+data class SpaceSetupState(
+    val isInternetArchiveAllowed: Boolean = false,
+    val isDwebEnabled: Boolean = false
+)
+
+sealed interface SpaceSetupAction {
+    data object WebDavClicked : SpaceSetupAction
+    data object InternetArchiveClicked : SpaceSetupAction
+    data object DwebClicked : SpaceSetupAction
+}
+
+sealed interface SpaceSetupEvent {
+    data object NavigateToDweb : SpaceSetupEvent
+}
+
+class SpaceSetupViewModel(
+    private val appConfig: AppConfig,
+    private val navigator: Navigator,
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(SpaceSetupState())
+    val uiState: StateFlow<SpaceSetupState> = _uiState.asStateFlow()
+
+    private val _events = Channel<SpaceSetupEvent>(Channel.BUFFERED)
+    val events = _events.receiveAsFlow()
+
+    init {
+        loadInitialState()
+    }
+
+    private fun loadInitialState() {
+        _uiState.update {
+            it.copy(
+                isInternetArchiveAllowed = !Space.has(Space.Type.INTERNET_ARCHIVE),
+                isDwebEnabled = appConfig.isDwebEnabled
+            )
+        }
+    }
+
+    fun onAction(action: SpaceSetupAction) {
+        when (action) {
+            SpaceSetupAction.WebDavClicked -> {
+                viewModelScope.launch {
+                    navigator.navigateTo(AppRoute.WebDavLoginRoute)
+                    //_events.send(SpaceSetupEvent.NavigateToWebDav)
+                }
+            }
+            SpaceSetupAction.InternetArchiveClicked -> {
+                viewModelScope.launch {
+                    navigator.navigateTo(AppRoute.IALoginRoute)
+                    //_events.send(SpaceSetupEvent.NavigateToInternetArchive)
+                }
+            }
+            SpaceSetupAction.DwebClicked -> {
+                viewModelScope.launch {
+                    _events.send(SpaceSetupEvent.NavigateToDweb)
+                }
+            }
+        }
+    }
+}

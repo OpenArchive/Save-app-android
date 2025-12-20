@@ -21,8 +21,8 @@ val coreModule = module {
     // Provide a ResourceProvider using the application context.
     single<ResourceProvider> { DefaultResourceProvider(androidApplication()) }
 
-    // Provide DialogStateManager and let Koin inject the ResourceProvider.
-    viewModel { DialogStateManager(get()) }
+    // Provide the DialogStateManager as a Singleton
+    single { DialogStateManager(resourceProvider = get()) }
 
     viewModel {
         MainViewModel()
@@ -38,13 +38,9 @@ val coreModule = module {
         CreateNewFolderViewModel()
     }
 
-    viewModel {
-        SetupLicenseViewModel(get())
-    }
+    viewModelOf(::SetupLicenseViewModel)
 
-    viewModel {
-        SpaceSetupSuccessViewModel(get())
-    }
+    viewModelOf(::SpaceSetupSuccessViewModel)
 
     viewModelOf(::FoldersViewModel)
 
