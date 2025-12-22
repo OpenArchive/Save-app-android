@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.navigation.ResultEffect
 import net.opendasharchive.openarchive.features.media.Picker
 import net.opendasharchive.openarchive.util.Prefs
@@ -312,24 +313,19 @@ fun HomeScreenContent(
                                     parameters = { parametersOf(projectId) }
                                 )
 
-                                // IMPROVED: Bridge MainMediaViewModel events → HomeViewModel actions
+                                // Bridge MainMediaViewModel events → HomeViewModel actions
                                 LaunchedEffect(projectId) {
-                                    viewModel.uiEvent.collectLatest { event ->
+                                    viewModel.projectEvent.collectLatest { event ->
                                         when (event) {
-                                            is MainMediaEvent.NavigateToPreview -> {
-                                                onAction(HomeAction.NavigateToPreviewMedia)
-                                            }
-                                            is MainMediaEvent.RequestProjectRename -> {
+                                            is MainMediaProjectEvent.RequestProjectRename -> {
                                                 onAction(HomeAction.RenameProject(event.projectId, event.newName))
                                             }
-                                            is MainMediaEvent.RequestProjectArchive -> {
+                                            is MainMediaProjectEvent.RequestProjectArchive -> {
                                                 onAction(HomeAction.ArchiveProject(event.projectId))
                                             }
-                                            is MainMediaEvent.RequestProjectDelete -> {
+                                            is MainMediaProjectEvent.RequestProjectDelete -> {
                                                 onAction(HomeAction.DeleteProject(event.projectId))
                                             }
-                                            // Other events handled internally by MainMediaScreen
-                                            else -> Unit
                                         }
                                     }
                                 }
@@ -340,7 +336,9 @@ fun HomeScreenContent(
                                     currentProject = projectForPage,
                                     refreshProjectId = state.mediaRefreshProjectId,
                                     refreshToken = state.mediaRefreshToken,
-                                    onNavigateToPreview = {}
+                                    onNavigateToPreview = {
+                                        onAction(HomeAction.NavigateToPreviewMedia)
+                                    }
                                 )
                             }
 

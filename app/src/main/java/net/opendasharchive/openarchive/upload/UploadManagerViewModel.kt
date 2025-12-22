@@ -123,6 +123,11 @@ class UploadManagerViewModel(
 
         // Broadcast the delete action to notify MainMediaFragment
         BroadcastManager.postDelete(getApplication(), item.id)
+        UploadEventBus.emitDeleted(
+            projectId = item.projectId,
+            collectionId = item.collectionId,
+            mediaId = item.id
+        )
     }
 
     private fun retryItem(media: Media) {
@@ -137,6 +142,13 @@ class UploadManagerViewModel(
 
         // Broadcast the change to notify MainMediaFragment
         BroadcastManager.postChange(getApplication(), media.collectionId, media.id)
+        UploadEventBus.emitChanged(
+            projectId = media.projectId,
+            collectionId = media.collectionId,
+            mediaId = media.id,
+            progress = -1,
+            isUploaded = false
+        )
     }
 
     private fun moveItem(fromPosition: Int, toPosition: Int) {

@@ -441,8 +441,8 @@ private fun WebDavNewServerErrorPreview() {
                 username = "user@example.com",
                 password = "wrongpassword",
                 isCredentialsError = true,
-                usernameError = UiText.DynamicString(" "),
-                passwordError = UiText.DynamicString(" ")
+                usernameError = UiText.Dynamic(" "),
+                passwordError = UiText.Dynamic(" ")
             ),
             onAction = {}
         )

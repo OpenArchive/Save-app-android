@@ -43,6 +43,8 @@ kotlin {
 
         jvmTarget.set(JvmTarget.JVM_17)
         languageVersion.set(KotlinVersion.KOTLIN_2_2)
+
+        freeCompilerArgs.add("-Xcontext-sensitive-resolution")
     }
 }
 
@@ -166,6 +168,7 @@ dependencies {
     // Kotlin Core
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.collections.immutable)
 
     // AndroidX Core
     implementation(libs.androidx.core.ktx)

@@ -1,7 +1,5 @@
 package net.opendasharchive.openarchive.services.webdav
 
-import android.content.res.ColorStateList
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
@@ -16,9 +14,6 @@ import android.view.inputmethod.EditorInfo
 import androidx.activity.addCallback
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
@@ -54,7 +49,6 @@ import java.io.IOException
 import kotlin.coroutines.suspendCoroutine
 import androidx.core.net.toUri
 import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
-import com.google.android.material.textfield.TextInputLayout
 
 class WebDavFragment : BaseFragment() {
 
@@ -282,7 +276,7 @@ class WebDavFragment : BaseFragment() {
             message = R.string.msg_edit_server_success.asUiText()
             icon = UiImage.DrawableResource(R.drawable.ic_done)
             positiveButton {
-                text = UiText.StringResource(R.string.lbl_got_it)
+                text = UiText.Resource(R.string.lbl_got_it)
                 action = {
                     findNavController().popBackStack()
                 }
@@ -293,15 +287,15 @@ class WebDavFragment : BaseFragment() {
     private fun showUnsavedChangesDialog() {
         dialogManager.showDialog(DialogConfig(
             type = DialogType.Warning,
-            title = UiText.StringResource(R.string.unsaved_changes),
-            message = UiText.StringResource(R.string.do_you_want_to_save),
+            title = UiText.Resource(R.string.unsaved_changes),
+            message = UiText.Resource(R.string.do_you_want_to_save),
             icon = UiImage.DynamicVector(Icons.Default.Warning),
             positiveButton = ButtonData(
-                text = UiText.StringResource(R.string.lbl_save),
+                text = UiText.Resource(R.string.lbl_save),
                 action = { saveChanges() }
             ),
             neutralButton = ButtonData(
-                text = UiText.StringResource(R.string.lbl_discard),
+                text = UiText.Resource(R.string.lbl_discard),
                 action = { findNavController().popBackStack() }
             )
         ))
@@ -537,14 +531,14 @@ class WebDavFragment : BaseFragment() {
             message = R.string.are_you_sure_you_want_to_remove_this_server_from_the_app.asUiText(),
             icon = UiImage.DrawableResource(R.drawable.ic_trash),
             destructiveButton = ButtonData(
-                text = UiText.StringResource(R.string.lbl_remove),
+                text = UiText.Resource(R.string.lbl_remove),
                 action = {
                     mSpace.delete()
                     findNavController().popBackStack()
                 }
             ),
             neutralButton = ButtonData(
-                text = UiText.StringResource(R.string.lbl_Cancel),
+                text = UiText.Resource(R.string.lbl_Cancel),
                 action = {}
             )
         )

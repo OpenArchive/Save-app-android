@@ -264,6 +264,8 @@
     <string name="press_and_hold_options_media_screen_message">Tap + to pick from image gallery or press and hold to add media from other apps.</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">Press and hold to select and edit multiple media items.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Once uploaded, you will not be able to edit media.</string>
+    <string name="proceed_to_upload">Proceed to upload</string>
+    <string name="actually_let_me_edit">Actually, let me edit</string>
     <string name="edit_media_info">Edit Media Info</string>
     <string name="bulk_edit_media_info" translatable="false">Bulk Edit Media Info</string>
     <string name="previous" translatable="false">Previous</string>

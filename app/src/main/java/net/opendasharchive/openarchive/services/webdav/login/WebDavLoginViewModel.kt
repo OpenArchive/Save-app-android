@@ -13,15 +13,15 @@ import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.UiText
-import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
+import net.opendasharchive.openarchive.services.webdav.WebDavRepository
 import java.io.IOException
 
 class WebDavLoginViewModel(
     private val navigator: Navigator,
-    private val repository: net.opendasharchive.openarchive.services.webdav.WebDavRepository,
+    private val repository: WebDavRepository,
     private val analyticsManager: AnalyticsManager
 ) : ViewModel() {
 
@@ -127,17 +127,17 @@ class WebDavLoginViewModel(
 
         val fixedUrl = fixSpaceUrl(currentState.serverUrl)
         if (fixedUrl == null) {
-            updatedState = updatedState.copy(serverError = UiText.StringResource(R.string.error_field_required))
+            updatedState = updatedState.copy(serverError = UiText.Resource(R.string.error_field_required))
             hasError = true
         }
 
         if (currentState.username.isBlank()) {
-            updatedState = updatedState.copy(usernameError = UiText.StringResource(R.string.error_field_required))
+            updatedState = updatedState.copy(usernameError = UiText.Resource(R.string.error_field_required))
             hasError = true
         }
 
         if (currentState.password.isBlank()) {
-            updatedState = updatedState.copy(passwordError = UiText.StringResource(R.string.error_field_required))
+            updatedState = updatedState.copy(passwordError = UiText.Resource(R.string.error_field_required))
             hasError = true
         }
 
@@ -155,7 +155,7 @@ class WebDavLoginViewModel(
         val existing = Space.get(Space.Type.WEBDAV, space.host, space.username)
         if (existing.isNotEmpty() && existing[0].id != space.id) {
             viewModelScope.launch {
-                _events.send(WebDavLoginEvent.ShowError(UiText.StringResource(R.string.you_already_have_a_server_with_these_credentials)))
+                _events.send(WebDavLoginEvent.ShowError(UiText.Resource(R.string.you_already_have_a_server_with_these_credentials)))
             }
             return
         }
@@ -191,8 +191,8 @@ class WebDavLoginViewModel(
                         _uiState.update {
                             it.copy(
                                 isCredentialsError = true,
-                                usernameError = UiText.DynamicString(" "),
-                                passwordError = UiText.DynamicString(" ")
+                                usernameError = UiText.Dynamic(" "),
+                                passwordError = UiText.Dynamic(" ")
                             )
                         }
                     }
@@ -202,14 +202,14 @@ class WebDavLoginViewModel(
                     e.message?.startsWith("404") == true ||
                     e.message?.startsWith("400") == true ||
                     e.message?.startsWith("403") == true -> {
-                        _uiState.update { it.copy(serverError = UiText.DynamicString(" ")) }
-                        _events.send(WebDavLoginEvent.ShowError(UiText.StringResource(R.string.web_dav_host_error)))
+                        _uiState.update { it.copy(serverError = UiText.Dynamic(" ")) }
+                        _events.send(WebDavLoginEvent.ShowError(UiText.Resource(R.string.web_dav_host_error)))
                     }
 
                     else -> {
                         // Other server errors (500, etc.)
-                        _uiState.update { it.copy(serverError = UiText.DynamicString(" ")) }
-                        _events.send(WebDavLoginEvent.ShowError(UiText.DynamicString(e.localizedMessage ?: "An error occurred")))
+                        _uiState.update { it.copy(serverError = UiText.Dynamic(" ")) }
+                        _events.send(WebDavLoginEvent.ShowError(UiText.Dynamic(e.localizedMessage ?: "An error occurred")))
                     }
                 }
             }

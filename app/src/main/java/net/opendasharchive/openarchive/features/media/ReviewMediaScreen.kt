@@ -81,6 +81,7 @@ import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
+import net.opendasharchive.openarchive.features.core.UiColor
 import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
@@ -164,12 +165,12 @@ fun ReviewMediaScreen(
                 is ReviewMediaEvent.ShowFlagHint -> {
                     if (!Prefs.flagHintShown && dialogManager != null) {
                         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-                            title = UiText.StringResource(R.string.popup_flag_title)
-                            message = UiText.StringResource(R.string.popup_flag_desc)
+                            title = UiText.Resource(R.string.popup_flag_title)
+                            message = UiText.Resource(R.string.popup_flag_desc)
                             icon = UiImage.DrawableResource(R.drawable.ic_flag_selected)
-                            iconColor = Color(context.getColor(R.color.orange_light))
+                            iconColor = UiColor.Resource(R.color.orange_light)
                             positiveButton {
-                                text = UiText.StringResource(R.string.lbl_got_it)
+                                text = UiText.Resource(R.string.lbl_got_it)
                                 action = {
                                     dialogManager.dismissDialog()
                                 }

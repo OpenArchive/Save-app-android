@@ -26,6 +26,7 @@ import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.features.main.MainActivity
 import net.opendasharchive.openarchive.services.Conduit
 import net.opendasharchive.openarchive.util.Prefs
+import net.opendasharchive.openarchive.upload.UploadEventBus
 import org.koin.android.ext.android.inject
 import java.io.IOException
 import java.util.*
@@ -45,6 +46,19 @@ class UploadService : JobService() {
             var jobBuilder = JobInfo.Builder(
                 MY_BACKGROUND_JOB,
                 ComponentName(activity, UploadService::class.java)
+            ).setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                jobBuilder = jobBuilder.setUserInitiated(true)
+            }
+            jobScheduler.schedule(jobBuilder.build())
+        }
+
+        fun startUploadService(context: Context) {
+            val jobScheduler =
+                ContextCompat.getSystemService(context, JobScheduler::class.java) ?: return
+            var jobBuilder = JobInfo.Builder(
+                MY_BACKGROUND_JOB,
+                ComponentName(context, UploadService::class.java)
             ).setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 jobBuilder = jobBuilder.setUserInitiated(true)
@@ -181,6 +195,13 @@ class UploadService : JobService() {
                     media.statusMessage = "error in uploading media: " + ioe.message
                     media.sStatus = Media.Status.Error
                     media.save()
+                    UploadEventBus.emitChanged(
+                        projectId = media.projectId,
+                        collectionId = media.collectionId,
+                        mediaId = media.id,
+                        progress = -1,
+                        isUploaded = false
+                    )
                     failedCount++
                 }
 
@@ -213,6 +234,13 @@ class UploadService : JobService() {
         AppLogger.i("${media.id} - media status changed to uploading")
         media.save()
         BroadcastManager.postChange(this, media.collectionId, media.id)
+        UploadEventBus.emitChanged(
+            projectId = media.projectId,
+            collectionId = media.collectionId,
+            mediaId = media.id,
+            progress = -1,
+            isUploaded = false
+        )
 
         val conduit = Conduit.get(media, this)
         if (conduit == null) {

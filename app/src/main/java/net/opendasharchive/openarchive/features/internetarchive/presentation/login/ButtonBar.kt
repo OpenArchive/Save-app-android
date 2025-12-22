@@ -28,12 +28,13 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeColors
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.asString
 
 @Composable
 fun ButtonBar(
     modifier: Modifier = Modifier,
-    backButtonText: UiText = UiText.StringResource(R.string.back),
-    nextButtonText: UiText = UiText.StringResource(R.string.next),
+    backButtonText: UiText = UiText.Resource(R.string.back),
+    nextButtonText: UiText = UiText.Resource(R.string.next),
     isBackEnabled: Boolean = false,
     isNextEnabled: Boolean = false,
     isLoading: Boolean = false,

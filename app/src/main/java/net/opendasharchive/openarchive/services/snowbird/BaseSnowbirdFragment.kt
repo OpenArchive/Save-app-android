@@ -52,10 +52,10 @@ abstract class BaseSnowbirdFragment : Fragment(), ToolbarConfigurable {
 
     open fun handleError(error: SnowbirdError) {
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-            title = UiText.DynamicString("Oops")
-            message = UiText.DynamicString(error.friendlyMessage)
+            title = UiText.Dynamic("Oops")
+            message = UiText.Dynamic(error.friendlyMessage)
             positiveButton {
-                text = UiText.StringResource(R.string.lbl_ok)
+                text = UiText.Resource(R.string.lbl_ok)
             }
         }
     }

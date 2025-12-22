@@ -7,7 +7,6 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -19,7 +18,6 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdListReposBinding
 import net.opendasharchive.openarchive.db.SnowbirdError
 import net.opendasharchive.openarchive.db.SnowbirdRepo
-import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
@@ -98,10 +96,10 @@ class SnowbirdRepoListFragment : BaseSnowbirdFragment() {
                     R.id.action_add -> {
                         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                             type = DialogType.Warning
-                            title = UiText.DynamicString("Oops!")
-                            message = UiText.DynamicString("Feature not implemented yet.")
+                            title = UiText.Dynamic("Oops!")
+                            message = UiText.Dynamic("Feature not implemented yet.")
                             positiveButton {
-                                text = UiText.StringResource(R.string.lbl_ok)
+                                text = UiText.Resource(R.string.lbl_ok)
                             }
                         }
                         true
@@ -147,10 +145,10 @@ class SnowbirdRepoListFragment : BaseSnowbirdFragment() {
         if (isRefresh && repos.isEmpty()) {
             dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                 type = DialogType.Info
-                title = UiText.StringResource(R.string.label_info_title)
-                message = UiText.DynamicString("No new repositories found.")
+                title = UiText.Resource(R.string.label_info_title)
+                message = UiText.Dynamic("No new repositories found.")
                 positiveButton {
-                    text = UiText.StringResource(R.string.label_got_it)
+                    text = UiText.Resource(R.string.label_got_it)
                     action = {
                         parentFragmentManager.popBackStack()
                     }

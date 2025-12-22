@@ -48,7 +48,6 @@ import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.ButtonData
 import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
-import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import org.koin.androidx.compose.koinViewModel
 import java.util.Date
 
@@ -70,11 +69,11 @@ fun BrowseFolderScreen(
                     dialogManager?.showDialog(
                         DialogConfig(
                             type = DialogType.Success,
-                            title = UiText.StringResource(R.string.label_success_title),
-                            message = UiText.StringResource(R.string.create_folder_ok_message),
+                            title = UiText.Resource(R.string.label_success_title),
+                            message = UiText.Resource(R.string.create_folder_ok_message),
                             icon = UiImage.DrawableResource(R.drawable.ic_done),
                             positiveButton = ButtonData(
-                                text = UiText.StringResource(R.string.label_got_it),
+                                text = UiText.Resource(R.string.label_got_it),
                                 action = { viewModel.navigateBackWithResult(event.projectId) }
                             ),
                             onDismissAction = { viewModel.navigateBackWithResult(event.projectId) }

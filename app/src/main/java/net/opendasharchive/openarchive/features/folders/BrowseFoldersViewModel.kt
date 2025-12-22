@@ -101,9 +101,9 @@ class BrowseFoldersViewModel(
                         folders = emptyList(),
                         isLoading = false,
                         error = if (e.message != null) {
-                            UiText.DynamicString(e.message!!)
+                            UiText.Dynamic(e.message!!)
                         } else {
-                            UiText.StringResource(net.opendasharchive.openarchive.R.string.error)
+                            UiText.Resource(net.opendasharchive.openarchive.R.string.error)
                         }
                     )
                 }

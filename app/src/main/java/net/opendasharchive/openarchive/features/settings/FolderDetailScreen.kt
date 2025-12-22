@@ -61,15 +61,15 @@ fun FolderDetailScreen(
                     dialogManager?.showDialog(
                         DialogConfig(
                             type = DialogType.Error,
-                            title = UiText.StringResource(R.string.remove_from_app),
-                            message = UiText.StringResource(R.string.action_remove_project),
+                            title = UiText.Resource(R.string.remove_from_app),
+                            message = UiText.Resource(R.string.action_remove_project),
                             icon = UiImage.DrawableResource(R.drawable.ic_trash),
                             destructiveButton = ButtonData(
-                                text = UiText.StringResource(R.string.lbl_remove),
+                                text = UiText.Resource(R.string.lbl_remove),
                                 action = { viewModel.onAction(FolderDetailAction.RemoveProject) }
                             ),
                             neutralButton = ButtonData(
-                                text = UiText.StringResource(R.string.lbl_Cancel),
+                                text = UiText.Resource(R.string.lbl_Cancel),
                                 action = {}
                             )
                         )

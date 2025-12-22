@@ -7,9 +7,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
-import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -21,7 +19,6 @@ import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdGroupListBinding
 import net.opendasharchive.openarchive.db.SnowbirdError
 import net.opendasharchive.openarchive.db.SnowbirdGroup
-import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
@@ -115,17 +112,17 @@ class SnowbirdGroupListFragment : BaseSnowbirdFragment() {
         AppLogger.d("Long press!")
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Info
-            title = UiText.DynamicString("Share Group")
-            message = UiText.DynamicString("Would you like to share this group?")
+            title = UiText.Dynamic("Share Group")
+            message = UiText.Dynamic("Would you like to share this group?")
             positiveButton {
-                text = UiText.DynamicString("Yes")
+                text = UiText.Dynamic("Yes")
                 action = {
                     val action = SnowbirdGroupListFragmentDirections.actionFragmentSnowbirdGroupListToFragmentSnowbirdShareGroup(groupKey)
                     findNavController().navigate(action)
                 }
             }
             neutralButton {
-                text = UiText.DynamicString("No")
+                text = UiText.Dynamic("No")
             }
         }
     }

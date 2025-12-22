@@ -10,7 +10,6 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
 import coil3.ImageLoader
@@ -32,6 +31,7 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivityReviewBinding
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.features.core.UiColor
 import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
@@ -336,12 +336,12 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
         if (Prefs.flagHintShown) return
 
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-            title = UiText.StringResource(R.string.popup_flag_title)
-            message = UiText.StringResource(R.string.popup_flag_desc)
+            title = UiText.Resource(R.string.popup_flag_title)
+            message = UiText.Resource(R.string.popup_flag_desc)
             icon = UiImage.DrawableResource(R.drawable.ic_flag_selected)
-            iconColor = Color(getColor(R.color.orange_light))
+            iconColor = UiColor.Resource(R.color.orange_light)
             positiveButton {
-                text = UiText.StringResource(R.string.lbl_got_it)
+                text = UiText.Resource(R.string.lbl_got_it)
                 action = {
                     dialogManager.dismissDialog()
                 }

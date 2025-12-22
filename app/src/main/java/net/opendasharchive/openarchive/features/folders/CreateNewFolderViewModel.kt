@@ -168,7 +168,7 @@ class CreateNewFolderViewModel : ViewModel() {
             viewModelScope.launch {
                 _events.send(
                     CreateNewFolderEvent.ShowError(
-                        UiText.StringResource(net.opendasharchive.openarchive.R.string.please_do_not_include_special_characters_in_the_name)
+                        UiText.Resource(net.opendasharchive.openarchive.R.string.please_do_not_include_special_characters_in_the_name)
                     )
                 )
             }
@@ -181,7 +181,7 @@ class CreateNewFolderViewModel : ViewModel() {
             viewModelScope.launch {
                 _events.send(
                     CreateNewFolderEvent.ShowError(
-                        UiText.StringResource(net.opendasharchive.openarchive.R.string.folder_name_already_exists)
+                        UiText.Resource(net.opendasharchive.openarchive.R.string.folder_name_already_exists)
                     )
                 )
             }

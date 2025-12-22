@@ -1,6 +1,8 @@
 package net.opendasharchive.openarchive.core.di
 
 import android.app.Application
+import android.content.ContentResolver
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.internetarchive.internetArchiveModule
 import net.opendasharchive.openarchive.features.main.data.CollectionRepository
 import net.opendasharchive.openarchive.features.main.data.MediaRepository
@@ -55,49 +57,33 @@ val featuresModule = module {
     single<CollectionRepository> { SugarCollectionRepository() }
     single<MediaRepository> { SugarMediaRepository() }
 
-    viewModel { (application: Application) ->
-        SnowbirdGroupViewModel(
-            application = application,
-            repository = get()
-        )
-    }
 
-    viewModel { (application: Application) ->
-        SnowbirdFileViewModel(
-            application = application,
-            repository = get()
-        )
-    }
+    viewModelOf(::SnowbirdGroupViewModel)
+    viewModelOf(::SnowbirdFileViewModel)
+    viewModelOf(::SnowbirdRepoViewModel)
 
-    viewModel { (application: Application) ->
-        SnowbirdRepoViewModel(
-            application = application,
-            repository = get()
-        )
-    }
-
-    viewModel { HomeViewModel(get(), get(), get()) }
-
+    viewModelOf(::HomeViewModel)
     viewModelOf(::SpaceListViewModel)
     viewModelOf(::SpaceSetupViewModel)
 
     // Main Media (Home Screen)
-    viewModel { (projectId: Long) ->
-        MainMediaViewModel(
-            projectId = projectId,
-            collectionRepository = get(),
-            mediaRepository = get(),
-            //projectRepository = get()
-        )
-    }
+    viewModelOf(::MainMediaViewModel)
+//    viewModel { (projectId: Long) ->
+//        MainMediaViewModel(
+//            projectId = projectId,
+//            collectionRepository = get(),
+//            mediaRepository = get(),
+//            dialogManager = get<DialogStateManager>(),
+//            //projectRepository = get()
+//        )
+//    }
 
     // Media Review
-    viewModel { (savedStateHandle: androidx.lifecycle.SavedStateHandle) ->
-        ReviewMediaViewModel(savedStateHandle, get<Application>().contentResolver)
+    single<ContentResolver> {
+        get<Application>().contentResolver
     }
-    viewModel { (savedStateHandle: androidx.lifecycle.SavedStateHandle) ->
-        PreviewMediaViewModel(savedStateHandle)
-    }
+    viewModelOf(::ReviewMediaViewModel)
+    viewModelOf(::PreviewMediaViewModel)
 
     // WebDAV
     single<SaveClientFactory> { SaveClientFactoryImpl(get()) }

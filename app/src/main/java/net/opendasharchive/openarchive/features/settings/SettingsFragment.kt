@@ -14,6 +14,7 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.features.core.UiColor
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
@@ -66,10 +67,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 // Show confirmation dialog
                 dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                     type = DialogType.Warning
-                    title = UiText.StringResource(R.string.disable_passcode_dialog_title)
-                    message = UiText.StringResource(R.string.disable_passcode_dialog_msg)
+                    title = UiText.Resource(R.string.disable_passcode_dialog_title)
+                    message = UiText.Resource(R.string.disable_passcode_dialog_msg)
                     positiveButton {
-                        text = UiText.StringResource(R.string.answer_yes)
+                        text = UiText.Resource(R.string.answer_yes)
                         action = {
                             passcodeRepository.clearPasscode()
                             passcodePreference?.isChecked = false
@@ -152,11 +153,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
             setOnPreferenceClickListener {
                 dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                     type = DialogType.Info
-                    iconColor = dialogManager.requireResourceProvider().getColor(R.color.colorTertiary)
-                    title = UiText.StringResource(R.string.tor_disabled_title)
-                    message = UiText.StringResource(R.string.tor_disabled_message)
+                    iconColor = UiColor.Resource(R.color.colorTertiary)
+                    title = UiText.Resource(R.string.tor_disabled_title)
+                    message = UiText.Resource(R.string.tor_disabled_message)
                     positiveButton {
-                        text = UiText.StringResource(R.string.tor_download_btn_label)
+                        text = UiText.Resource(R.string.tor_download_btn_label)
                         action = {
                             // Launch the Tor download activity
                             val intent = Intent(Intent.ACTION_VIEW, Prefs.TOR_DOWNLOAD_URL)
@@ -164,7 +165,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         }
                     }
                     neutralButton {
-                        text = UiText.StringResource(android.R.string.cancel)
+                        text = UiText.Resource(android.R.string.cancel)
                     }
                 }
                 true

@@ -11,11 +11,21 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Collection
 import net.opendasharchive.openarchive.db.Media
+import net.opendasharchive.openarchive.db.Project
+import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.features.core.UiImage
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.main.data.CollectionRepository
 import net.opendasharchive.openarchive.features.main.data.MediaRepository
+import net.opendasharchive.openarchive.upload.UploadEvent
+import net.opendasharchive.openarchive.upload.UploadEventBus
 
 /**
  * Represents one collection section with its media items.
@@ -45,15 +55,23 @@ data class MainMediaState(
     val isInSelectionMode: Boolean = false,
     val selectedMediaIds: Set<Long> = emptySet(),
     val isLoading: Boolean = false,
+
+    val showDeleteSelectedMediaDialog: Boolean = false,
+
+
+    // Project State - Folder Bar
     val folderBarMode: FolderBarMode = FolderBarMode.INFO,
-    val totalMediaCount: Int = 0
-)
+    val totalMediaCount: Int = 0,
+    val showFolderOptionsPopup: Boolean = false,
+    val showRemoveProjectDialog: Boolean = false,
+
+    )
 
 /**
  * User actions scoped to MainMediaScreen.
  */
 sealed class MainMediaAction {
-    data class LoadProject(val projectId: Long) : MainMediaAction()
+    data class LoadProject(val projectId: Long, val project: Project? = null, val space: Space? = null) : MainMediaAction()
     data class Refresh(val projectId: Long) : MainMediaAction()
     data class MediaClicked(val media: Media) : MainMediaAction()
     data class MediaLongPressed(val media: Media) : MainMediaAction()
@@ -71,6 +89,13 @@ sealed class MainMediaAction {
     data object CancelEditMode : MainMediaAction()
     data class SaveFolderName(val newName: String) : MainMediaAction()
     data object EnterSelectionMode : MainMediaAction()
+
+
+    data  object ShowRemoveProjectDialog : MainMediaAction()
+    data object ShowDeleteSelectedMediaDialog : MainMediaAction()
+
+    data class ShowHideFolderOptionsPopup(val showPopup: Boolean) : MainMediaAction()
+    data object OnArchiveProject: MainMediaAction()
 }
 
 /**
@@ -84,11 +109,13 @@ sealed class MainMediaEvent {
     data class ShowErrorDialog(val media: Media, val position: Int) : MainMediaEvent()
     data class SelectionModeChanged(val isSelecting: Boolean, val count: Int) : MainMediaEvent()
     data object FocusFolderNameInput : MainMediaEvent()
+}
 
-    // NEW: Project-level mutation requests (handled by HomeViewModel)
-    data class RequestProjectRename(val projectId: Long, val newName: String) : MainMediaEvent()
-    data class RequestProjectArchive(val projectId: Long) : MainMediaEvent()
-    data class RequestProjectDelete(val projectId: Long) : MainMediaEvent()
+// NEW: Project-level mutation requests (handled by HomeViewModel)
+sealed class MainMediaProjectEvent {
+    data class RequestProjectRename(val projectId: Long, val newName: String) : MainMediaProjectEvent()
+    data class RequestProjectArchive(val projectId: Long) : MainMediaProjectEvent()
+    data class RequestProjectDelete(val projectId: Long) : MainMediaProjectEvent()
 }
 
 /**
@@ -100,6 +127,7 @@ sealed class MainMediaEvent {
  */
 class MainMediaViewModel(
     private val projectId: Long,
+    private val dialogManager: DialogStateManager,
     private val collectionRepository: CollectionRepository,
     private val mediaRepository: MediaRepository
 ) : ViewModel() {
@@ -110,33 +138,41 @@ class MainMediaViewModel(
     private val _uiEvent = MutableSharedFlow<MainMediaEvent>()
     val uiEvent = _uiEvent.asSharedFlow()
 
+    private val _projectEvent = MutableSharedFlow<MainMediaProjectEvent>()
+    val projectEvent = _projectEvent.asSharedFlow()
+
     init {
         AppLogger.i("MainMediaViewModel initialized for project $projectId")
         if (projectId >= 0) {
             setProject(projectId)
         }
+        observeUploadEvents()
     }
 
     fun onAction(action: MainMediaAction) {
         when (action) {
-            is MainMediaAction.LoadProject -> setProject(action.projectId)
-            is MainMediaAction.Refresh -> refreshSections()
-            is MainMediaAction.MediaClicked -> handleMediaClick(action.media)
-            is MainMediaAction.MediaLongPressed -> handleMediaLongPress(action.media)
-            is MainMediaAction.UpdateMediaItem -> updateMediaItem(
+            is LoadProject -> setProject(action.projectId)
+            is Refresh -> refreshSections()
+            is MediaClicked -> handleMediaClick(action.media)
+            is MediaLongPressed -> handleMediaLongPress(action.media)
+            is UpdateMediaItem -> updateMediaItem(
                 action.collectionId,
                 action.mediaId,
                 action.progress,
                 action.isUploaded
             )
 
-            MainMediaAction.ToggleSelectAll -> toggleSelectAll()
-            MainMediaAction.DeleteSelected -> deleteSelected()
-            MainMediaAction.CancelSelection -> cancelSelection()
-            MainMediaAction.EnterSelectionMode -> enableSelectionMode()
-            MainMediaAction.EditFolderClicked -> enterEditMode()
-            MainMediaAction.CancelEditMode -> exitEditMode()
-            is MainMediaAction.SaveFolderName -> requestSaveFolderName(action.newName)
+            ToggleSelectAll -> toggleSelectAll()
+            DeleteSelected -> deleteSelectedMedia()
+            CancelSelection -> cancelSelection()
+            EnterSelectionMode -> enableSelectionMode()
+            EditFolderClicked -> enterEditMode()
+            CancelEditMode -> exitEditMode()
+            is SaveFolderName -> requestSaveFolderName(action.newName)
+            ShowDeleteSelectedMediaDialog -> showConfirmRemoveProjectDialog()
+            ShowRemoveProjectDialog -> showConfirmDeleteSelectedDialog()
+            OnArchiveProject -> requestArchiveProject()
+            is ShowHideFolderOptionsPopup -> _uiState.update { it.copy(showFolderOptionsPopup = action.showPopup) }
         }
     }
 
@@ -149,6 +185,35 @@ class MainMediaViewModel(
             )
         }
         refreshSections()
+    }
+
+    private fun observeUploadEvents() {
+        viewModelScope.launch {
+            UploadEventBus.events.collect { event ->
+                when (event) {
+                    is UploadEvent.Changed -> {
+                        val currentProjectId = _uiState.value.projectId ?: return@collect
+                        if (event.projectId == currentProjectId) {
+                            updateMediaItem(
+                                collectionId = event.collectionId,
+                                mediaId = event.mediaId,
+                                progress = event.progress,
+                                isUploaded = event.isUploaded
+                            )
+                            if (event.progress < 0 || event.isUploaded) {
+                                refreshSections()
+                            }
+                        }
+                    }
+                    is UploadEvent.Deleted -> {
+                        val currentProjectId = _uiState.value.projectId ?: return@collect
+                        if (event.projectId == currentProjectId) {
+                            refreshSections()
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun refreshSections() {
@@ -184,7 +249,9 @@ class MainMediaViewModel(
             } else {
                 when (media.sStatus) {
                     Media.Status.New,
-                    Media.Status.Local -> _uiEvent.emit(MainMediaEvent.NavigateToPreview(media.projectId))
+                    Media.Status.Local -> {
+                        _uiEvent.emit(MainMediaEvent.NavigateToPreview(media.projectId))
+                    }
                     Media.Status.Queued,
                     Media.Status.Uploading -> _uiEvent.emit(MainMediaEvent.ShowUploadManager)
                     Media.Status.Error -> {
@@ -257,7 +324,7 @@ class MainMediaViewModel(
         }
     }
 
-    private fun deleteSelected() {
+    private fun deleteSelectedMedia() {
         viewModelScope.launch(Dispatchers.IO) {
             val selectedIds = _uiState.value.selectedMediaIds
             selectedIds.forEach { mediaId -> mediaRepository.deleteMedia(mediaId) }
@@ -387,7 +454,7 @@ class MainMediaViewModel(
             _uiState.update { it.copy(folderBarMode = FolderBarMode.INFO) }
 
             // Emit event to HomeViewModel to handle the actual rename
-            _uiEvent.emit(MainMediaEvent.RequestProjectRename(projectId, newName))
+            _projectEvent.emit(MainMediaProjectEvent.RequestProjectRename(projectId, newName))
         }
     }
 
@@ -395,10 +462,11 @@ class MainMediaViewModel(
      * Request project archive.
      * Called from MainMediaScreen when user selects "Archive" from menu.
      */
-    fun requestArchiveProject() {
+    private fun requestArchiveProject() {
+        _uiState.update { it.copy(showRemoveProjectDialog = false) }
         viewModelScope.launch {
             val projectId = _uiState.value.projectId ?: return@launch
-            _uiEvent.emit(MainMediaEvent.RequestProjectArchive(projectId))
+            _projectEvent.emit(MainMediaProjectEvent.RequestProjectArchive(projectId))
         }
     }
 
@@ -409,7 +477,43 @@ class MainMediaViewModel(
     fun requestDeleteProject() {
         viewModelScope.launch {
             val projectId = _uiState.value.projectId ?: return@launch
-            _uiEvent.emit(MainMediaEvent.RequestProjectDelete(projectId))
+            _projectEvent.emit(MainMediaProjectEvent.RequestProjectDelete(projectId))
+        }
+    }
+
+
+    private fun showConfirmRemoveProjectDialog() {
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Error
+            icon = UiImage.DrawableResource(R.drawable.ic_trash)
+            title = UiText.Resource(R.string.remove_from_app)
+            message = UiText.Resource(R.string.action_remove_project)
+            destructiveButton {
+                text = UiText.Resource(R.string.lbl_remove)
+                action = { requestDeleteProject() }
+            }
+            neutralButton {
+                text = UiText.Resource(R.string.lbl_Cancel)
+                action = { dialogManager.dismissDialog() }
+            }
+        }
+    }
+
+    private fun showConfirmDeleteSelectedDialog() {
+        _uiState.update { it.copy(showDeleteSelectedMediaDialog = false) }
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Error
+            icon = UiImage.DrawableResource(R.drawable.ic_trash)
+            title = UiText.Resource(R.string.menu_delete)
+            message = UiText.Resource(R.string.menu_delete_desc)
+            destructiveButton {
+                text = UiText.Resource(R.string.btn_lbl_remove_media)
+                action = { deleteSelectedMedia() }
+            }
+            neutralButton {
+                text = UiText.Resource(R.string.lbl_Cancel)
+                action = { dialogManager.dismissDialog() }
+            }
         }
     }
 }

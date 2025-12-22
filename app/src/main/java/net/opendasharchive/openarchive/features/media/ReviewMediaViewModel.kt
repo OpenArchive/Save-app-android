@@ -17,6 +17,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import java.io.File
 
 data class ReviewMediaState(
@@ -54,7 +56,8 @@ sealed class ReviewMediaEvent {
 }
 
 class ReviewMediaViewModel(
-    private val savedStateHandle: SavedStateHandle,
+    private val route: AppRoute.ReviewMediaRoute,
+    private val navigator: Navigator,
     private val contentResolver: ContentResolver
 ) : ViewModel() {
 
@@ -70,24 +73,21 @@ class ReviewMediaViewModel(
 
     private fun loadMediaList() {
         viewModelScope.launch {
-            val mediaIds = savedStateHandle.get<LongArray>("media_ids") ?: longArrayOf()
-            val selectedIdx = savedStateHandle.get<Int>("selected_idx") ?: 0
-            val batchMode = savedStateHandle.get<Boolean>("batch_mode") ?: false
 
             val mediaList = withContext(Dispatchers.IO) {
-                mediaIds.toList().mapNotNull { id -> Media.get(id) }
+                route.mediaIds.toList().mapNotNull { id -> Media.get(id) }
             }
 
             if (mediaList.isEmpty()) {
-                _events.send(ReviewMediaEvent.NavigateBack)
+                navigator.navigateBack()
                 return@launch
             }
 
             _uiState.update { state ->
                 state.copy(
                     mediaList = mediaList,
-                    currentIndex = selectedIdx.coerceIn(0, mediaList.size - 1),
-                    isBatchMode = batchMode,
+                    currentIndex = route.selectedIdx.coerceIn(0, mediaList.size - 1),
+                    isBatchMode = route.batchMode,
                     isLoading = false
                 )
             }

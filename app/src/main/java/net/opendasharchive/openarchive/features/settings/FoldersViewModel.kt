@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 
 data class FoldersState(
     val folders: List<Project> = emptyList(),
@@ -32,13 +34,11 @@ sealed interface FoldersEvent {
 }
 
 class FoldersViewModel(
-    private val savedStateHandle: SavedStateHandle
+    private val route: AppRoute.FolderListRoute,
+    private val navigator: Navigator,
 ) : ViewModel() {
 
-    private var showArchived: Boolean = savedStateHandle.get<Boolean>("show_archived") ?: false
-    private val selectedSpaceId: Long = savedStateHandle.get<Long>("selected_space_id") ?: -1L
-
-    private val _uiState = MutableStateFlow(FoldersState(isArchived = showArchived))
+    private val _uiState = MutableStateFlow(FoldersState(isArchived = route.showArchived))
     val uiState: StateFlow<FoldersState> = _uiState.asStateFlow()
 
     private val _events = Channel<FoldersEvent>()
@@ -49,24 +49,16 @@ class FoldersViewModel(
     }
 
     fun setArchived(archived: Boolean) {
-        showArchived = archived
+
         _uiState.update { it.copy(isArchived = archived) }
         refreshFolders()
     }
 
     fun onAction(action: FoldersAction) {
         when (action) {
-            is FoldersAction.FolderClicked -> {
-                viewModelScope.launch {
-                    _events.send(FoldersEvent.NavigateToFolderDetail(action.project.id))
-                }
-            }
+            is FoldersAction.FolderClicked -> navigator.navigateTo(AppRoute.FolderDetailRoute(action.project.id))
 
-            is FoldersAction.ViewArchivedClicked -> {
-                viewModelScope.launch {
-                    _events.send(FoldersEvent.NavigateToArchivedFolders(selectedSpaceId))
-                }
-            }
+            is FoldersAction.ViewArchivedClicked -> navigator.navigateTo(AppRoute.FolderListRoute(showArchived = true, spaceId = route.spaceId))
 
             is FoldersAction.RefreshFolders -> {
                 refreshFolders()

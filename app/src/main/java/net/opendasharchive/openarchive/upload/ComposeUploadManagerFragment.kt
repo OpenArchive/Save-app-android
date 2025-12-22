@@ -69,10 +69,10 @@ class ComposeUploadManagerFragment : SKBottomSheetDialogFragment() {
     private fun showRetryDialog(mediaItem: Media, position: Int) {
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Error
-            title = UiText.StringResource(R.string.upload_unsuccessful)
-            message = UiText.StringResource(R.string.upload_unsuccessful_description)
+            title = UiText.Resource(R.string.upload_unsuccessful)
+            message = UiText.Resource(R.string.upload_unsuccessful_description)
             positiveButton {
-                text = UiText.StringResource(R.string.lbl_retry)
+                text = UiText.Resource(R.string.lbl_retry)
                 action = {
                     uploadViewModel.onAction(UploadManagerAction.RetryItem(mediaItem))
 
@@ -86,7 +86,7 @@ class ComposeUploadManagerFragment : SKBottomSheetDialogFragment() {
             }
 
             destructiveButton {
-                text = UiText.StringResource(R.string.btn_lbl_remove_media)
+                text = UiText.Resource(R.string.btn_lbl_remove_media)
                 action = {
                     uploadViewModel.onAction(UploadManagerAction.DeleteItem(position))
                 }

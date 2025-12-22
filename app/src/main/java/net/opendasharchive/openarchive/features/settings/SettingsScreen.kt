@@ -53,8 +53,6 @@ import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
-import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
-import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupActivity
 import net.opendasharchive.openarchive.util.Prefs
@@ -64,6 +62,7 @@ import org.koin.compose.koinInject
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import net.opendasharchive.openarchive.features.core.UiColor
 
 @Composable
 fun SettingsScreen(
@@ -142,10 +141,10 @@ fun SettingsScreen(
                     passcodeState.value = true
                     dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                         type = DialogType.Warning
-                        title = UiText.StringResource(R.string.disable_passcode_dialog_title)
-                        message = UiText.StringResource(R.string.disable_passcode_dialog_msg)
+                        title = UiText.Resource(R.string.disable_passcode_dialog_title)
+                        message = UiText.Resource(R.string.disable_passcode_dialog_msg)
                         positiveButton {
-                            text = UiText.StringResource(R.string.answer_yes)
+                            text = UiText.Resource(R.string.answer_yes)
                             action = {
                                 passcodeRepository.clearPasscode()
                                 (context as? BaseActivity)?.updateScreenshotPrevention()
@@ -165,14 +164,14 @@ fun SettingsScreen(
             onTorToggle = {
                 dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                     type = DialogType.Info
-                    iconColor = dialogManager.requireResourceProvider().getColor(R.color.colorTertiary)
-                    title = UiText.StringResource(R.string.tor_disabled_title)
-                    message = UiText.StringResource(R.string.tor_disabled_message)
+                    iconColor = UiColor.Resource(R.color.colorTertiary)
+                    title = UiText.Resource(R.string.tor_disabled_title)
+                    message = UiText.Resource(R.string.tor_disabled_message)
                     positiveButton {
-                        text = UiText.StringResource(R.string.tor_download_btn_label)
+                        text = UiText.Resource(R.string.tor_download_btn_label)
                         action = { context.startActivity(Intent(Intent.ACTION_VIEW, Prefs.TOR_DOWNLOAD_URL)) }
                     }
-                    neutralButton { text = UiText.StringResource(android.R.string.cancel) }
+                    neutralButton { text = UiText.Resource(android.R.string.cancel) }
                 }
             },
             onDarkModeToggle = { enabled ->

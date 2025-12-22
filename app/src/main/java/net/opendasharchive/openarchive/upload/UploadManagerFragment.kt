@@ -127,10 +127,10 @@ open class UploadManagerFragment : SKBottomSheetDialogFragment() {
 
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Error
-            title = UiText.StringResource(R.string.upload_unsuccessful)
-            message = UiText.StringResource(R.string.upload_unsuccessful_description)
+            title = UiText.Resource(R.string.upload_unsuccessful)
+            message = UiText.Resource(R.string.upload_unsuccessful_description)
             positiveButton {
-                text = UiText.StringResource(R.string.lbl_retry)
+                text = UiText.Resource(R.string.lbl_retry)
                 action = {
                     mediaItem.apply {
                         sStatus = Media.Status.Queued
@@ -157,7 +157,7 @@ open class UploadManagerFragment : SKBottomSheetDialogFragment() {
             }
 
             destructiveButton {
-                text = UiText.StringResource(R.string.btn_lbl_remove_media)
+                text = UiText.Resource(R.string.btn_lbl_remove_media)
                 action = {
                     onDeleteItem.invoke()
                 }

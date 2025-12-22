@@ -100,10 +100,10 @@ class SnowbirdFileListFragment : BaseSnowbirdFragment() {
                 if (filteredUris.isEmpty()) {
                     dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                         type = DialogType.Warning
-                        title = UiText.DynamicString("Invalid File Type")
-                        message = UiText.DynamicString("Please select only image, video, or audio files. Other file types are not supported.")
+                        title = UiText.Dynamic("Invalid File Type")
+                        message = UiText.Dynamic("Please select only image, video, or audio files. Other file types are not supported.")
                         positiveButton {
-                            text = UiText.StringResource(R.string.lbl_ok)
+                            text = UiText.Resource(R.string.lbl_ok)
                         }
                     }
                 } else {
@@ -268,16 +268,16 @@ class SnowbirdFileListFragment : BaseSnowbirdFragment() {
                 // Show rationale dialog
                 dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                     type = DialogType.Warning
-                    title = UiText.DynamicString("Camera Permission")
-                    message = UiText.DynamicString("Camera access is needed to take pictures. Please grant permission.")
+                    title = UiText.Dynamic("Camera Permission")
+                    message = UiText.Dynamic("Camera access is needed to take pictures. Please grant permission.")
                     positiveButton {
-                        text = UiText.DynamicString("Accept")
+                        text = UiText.Dynamic("Accept")
                         action = {
                             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                         }
                     }
                     neutralButton {
-                        text = UiText.DynamicString("Cancel")
+                        text = UiText.Dynamic("Cancel")
                     }
                 }
             }
@@ -351,16 +351,16 @@ class SnowbirdFileListFragment : BaseSnowbirdFragment() {
 //        if (!item.isDownloaded) {
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Warning
-            title = UiText.DynamicString("Download Media?")
-            message = UiText.DynamicString("Are you sure you want to download this media?")
+            title = UiText.Dynamic("Download Media?")
+            message = UiText.Dynamic("Are you sure you want to download this media?")
             positiveButton {
-                text = UiText.DynamicString("Yes")
+                text = UiText.Dynamic("Yes")
                 action = {
                     snowbirdFileViewModel.downloadFile(groupKey, repoKey, item.name)
                 }
             }
             neutralButton {
-                text = UiText.DynamicString("No")
+                text = UiText.Dynamic("No")
             }
         }
 //        }
@@ -408,16 +408,16 @@ class SnowbirdFileListFragment : BaseSnowbirdFragment() {
 
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Success
-            title = UiText.StringResource(R.string.label_success_title)
-            message = UiText.DynamicString("File successfully downloaded")
+            title = UiText.Resource(R.string.label_success_title)
+            message = UiText.Dynamic("File successfully downloaded")
             positiveButton {
-                text = UiText.DynamicString("Open")
+                text = UiText.Dynamic("Open")
                 action = {
                     openDownloadedFile(uri)
                 }
             }
             neutralButton {
-                text = UiText.StringResource(R.string.lbl_ok)
+                text = UiText.Resource(R.string.lbl_ok)
             }
         }
     }
@@ -455,10 +455,10 @@ class SnowbirdFileListFragment : BaseSnowbirdFragment() {
                     // No app can handle this
                     dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                         type = DialogType.Warning
-                        title = UiText.DynamicString("No App Found")
-                        message = UiText.DynamicString("No app is available to open this type of file.")
+                        title = UiText.Dynamic("No App Found")
+                        message = UiText.Dynamic("No app is available to open this type of file.")
                         positiveButton {
-                            text = UiText.StringResource(R.string.lbl_ok)
+                            text = UiText.Resource(R.string.lbl_ok)
                         }
                     }
                 }
@@ -467,10 +467,10 @@ class SnowbirdFileListFragment : BaseSnowbirdFragment() {
             Timber.e(e, "Failed to open downloaded file")
             dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                 type = DialogType.Error
-                title = UiText.DynamicString("Error")
-                message = UiText.DynamicString("Could not open file: ${e.message}")
+                title = UiText.Dynamic("Error")
+                message = UiText.Dynamic("Could not open file: ${e.message}")
                 positiveButton {
-                    text = UiText.StringResource(R.string.lbl_ok)
+                    text = UiText.Resource(R.string.lbl_ok)
                 }
             }
         }

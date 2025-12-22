@@ -37,7 +37,7 @@ sealed class HomeNavigation {
         val config: CameraConfig = CameraConfig(
             allowVideoCapture = true,
             allowPhotoCapture = true,
-            allowMultipleCapture = true,
+            allowMultipleCapture = false,
             enablePreview = true,
             showFlashToggle = true,
             showGridToggle = true,
@@ -107,7 +107,8 @@ sealed class HomeEvent {
  * - Reloads projects list after mutations
  */
 class HomeViewModel(
-    private val navArgs: AppRoute.HomeRoute,
+    private val route: AppRoute.HomeRoute,
+    private val navigator: Navigator,
     private val spaceRepository: SpaceRepository,
     private val projectRepository: ProjectRepository
 ) : ViewModel() {
@@ -156,9 +157,11 @@ class HomeViewModel(
             }
 
             HomeAction.NavigateToPreviewMedia -> {
-                val spaceId = uiState.value.currentSpace?.id ?: return
                 val projectId = uiState.value.selectedProjectId ?: return
-                emitEvent(Navigate(HomeNavigation.PreviewMedia(spaceId, projectId)))
+                navigator.navigateTo(AppRoute.PreviewMediaRoute(projectId = projectId))
+                //emitEvent(Navigate(HomeNavigation.PreviewMedia(spaceId, projectId)))
+
+                navigator
             }
             is HomeAction.MediaImported -> viewModelScope.launch{
                 val spaceId = uiState.value.currentSpace?.id ?: return@launch

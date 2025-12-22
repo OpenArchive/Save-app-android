@@ -1,19 +1,14 @@
 package net.opendasharchive.openarchive.features.settings
 
-import android.content.Intent
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -21,11 +16,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,9 +29,8 @@ import net.opendasharchive.openarchive.core.presentation.components.PrimaryButto
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.UiText
-import net.opendasharchive.openarchive.features.main.MainActivity
+import net.opendasharchive.openarchive.features.core.asString
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SpaceSetupSuccessScreen(
@@ -144,7 +135,7 @@ fun SpaceSetupSuccessWebDavPreview() {
     SaveAppTheme {
         SpaceSetupSuccessContent(
             state = SpaceSetupSuccessState(
-                message = UiText.StringResource(R.string.you_have_successfully_connected_to_a_private_server),
+                message = UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server),
                 spaceType = Space.Type.WEBDAV
             ),
             onAction = {}
@@ -162,9 +153,9 @@ class SpaceSetupSuccessViewModel(
         SpaceSetupSuccessState(
             spaceType = navArgs.spaceType,
             message = when(navArgs.spaceType) {
-                Space.Type.WEBDAV -> UiText.StringResource(R.string.you_have_successfully_connected_to_a_private_server)
-                Space.Type.INTERNET_ARCHIVE -> UiText.StringResource(R.string.you_have_successfully_connected_to_a_private_server)
-                Space.Type.RAVEN -> UiText.StringResource(R.string.you_have_successfully_connected_to_a_private_server)
+                Space.Type.WEBDAV -> UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server)
+                Space.Type.INTERNET_ARCHIVE -> UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server)
+                Space.Type.RAVEN -> UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server)
             },
         )
     )

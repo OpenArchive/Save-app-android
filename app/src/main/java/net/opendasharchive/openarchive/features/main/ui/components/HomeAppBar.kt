@@ -31,17 +31,11 @@ fun HomeAppBar(
     showDrawer: Boolean = false
 ) {
 
-    val context = LocalContext.current
-
     TopAppBar(
         title = {
             Image(
                 modifier = Modifier
-                    .size(64.dp)
-                    .clickable {
-                        val activity = context as HomeActivity
-                        activity.finish()
-                    },
+                    .size(64.dp),
                 painter = painterResource(R.drawable.savelogo),
                 contentDescription = "Save Logo",
                 colorFilter = ColorFilter.tint(colorResource(R.color.colorOnPrimary))

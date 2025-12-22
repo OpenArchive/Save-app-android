@@ -17,6 +17,7 @@ import net.opendasharchive.openarchive.databinding.ActivityPreviewBinding
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.features.core.UiColor
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.asUiImage
 import net.opendasharchive.openarchive.features.core.asUiText
@@ -374,11 +375,11 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
 
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             icon = R.drawable.ic_media_new.asUiImage()
-            iconColor = dialogManager.requireResourceProvider().getColor(R.color.colorTertiary)
+            iconColor = UiColor.Resource(R.color.colorTertiary)
             title = R.string.edit_multiple.asUiText()
             message = R.string.press_and_hold_to_select_and_edit_multiple_media.asUiText()
             positiveButton {
-                text = UiText.StringResource(R.string.lbl_got_it)
+                text = UiText.Resource(R.string.lbl_got_it)
                 action = {
                     dialogManager.dismissDialog()
                 }
@@ -411,22 +412,22 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
 
             dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                 type = DialogType.Warning
-                iconColor = dialogManager.requireResourceProvider().getColor(R.color.colorTertiary)
+                iconColor = UiColor.Resource(R.color.colorTertiary)
                 message = R.string.once_uploaded_you_will_not_be_able_to_edit_media.asUiText()
                 showCheckbox = true
-                checkboxText = UiText.StringResource(R.string.do_not_show_me_this_again)
+                checkboxText = UiText.Resource(R.string.do_not_show_me_this_again)
                 onCheckboxChanged = { isChecked ->
                     doNotShowAgain = isChecked
                 }
                 positiveButton {
-                    text = UiText.DynamicString("Proceed to upload")
+                    text = UiText.Resource(R.string.proceed_to_upload)
                     action = {
                         Prefs.dontShowUploadHint = doNotShowAgain
                         queue()
                     }
                 }
                 neutralButton {
-                    text = UiText.DynamicString("Actually, let me edit")
+                    text = UiText.Resource(R.string.actually_let_me_edit)
                 }
             }
         }

@@ -20,6 +20,7 @@ import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.services.internetarchive.IaConduit
 import net.opendasharchive.openarchive.services.webdav.WebDavConduit
 import net.opendasharchive.openarchive.upload.BroadcastManager
+import net.opendasharchive.openarchive.upload.UploadEventBus
 import net.opendasharchive.openarchive.util.Prefs
 import okhttp3.HttpUrl
 import org.koin.core.component.KoinComponent
@@ -156,6 +157,13 @@ abstract class Conduit(
             collectionId = mMedia.collectionId,
             mediaId = mMedia.id
         )
+        UploadEventBus.emitChanged(
+            projectId = mMedia.projectId,
+            collectionId = mMedia.collectionId,
+            mediaId = mMedia.id,
+            progress = 100,
+            isUploaded = true
+        )
     }
 
     fun jobFailed(exception: Throwable) {
@@ -228,6 +236,13 @@ abstract class Conduit(
             collectionId = mMedia.collectionId,
             mediaId = mMedia.id
         )
+        UploadEventBus.emitChanged(
+            projectId = mMedia.projectId,
+            collectionId = mMedia.collectionId,
+            mediaId = mMedia.id,
+            progress = -1,
+            isUploaded = false
+        )
     }
 
     private var lastReportedProgress: Int? = null
@@ -243,6 +258,13 @@ abstract class Conduit(
                 collectionId = mMedia.collectionId,
                 mediaId = mMedia.id,
                 progress = progress,
+            )
+            UploadEventBus.emitChanged(
+                projectId = mMedia.projectId,
+                collectionId = mMedia.collectionId,
+                mediaId = mMedia.id,
+                progress = progress,
+                isUploaded = false
             )
         }
     }

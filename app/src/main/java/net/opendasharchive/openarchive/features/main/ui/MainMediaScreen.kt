@@ -1,58 +1,37 @@
 package net.opendasharchive.openarchive.features.main.ui
 
-import android.content.Context
-import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -60,11 +39,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.features.core.BaseActivity
-import net.opendasharchive.openarchive.features.core.UiImage
-import net.opendasharchive.openarchive.features.core.UiText
-import net.opendasharchive.openarchive.features.core.dialog.DialogType
-import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.core.presentation.media.MediaStatusOverlay
 import net.opendasharchive.openarchive.core.presentation.media.MediaThumbnail
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
@@ -73,7 +47,6 @@ import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Project
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
-import net.opendasharchive.openarchive.features.main.ui.components.SpaceIcon
 import org.koin.compose.koinInject
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -89,21 +62,18 @@ import java.util.Locale
 @Composable
 fun MainMediaScreen(
     viewModel: MainMediaViewModel,
-    dialogManager: DialogStateManager = koinInject(),
     currentSpace: Space?,
     currentProject: Project?,
     refreshProjectId: Long?,
     refreshToken: Long,
-    onNavigateToPreview: (Long) -> Unit,
+    onNavigateToPreview: () -> Unit,
 ) {
 
-    val mediaState by viewModel.uiState.collectAsStateWithLifecycle()
-    var showRemoveProjectDialog by remember { mutableStateOf(false) }
-    var showDeleteSelectedMediaDialog by remember { mutableStateOf(false) }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(currentProject?.id) {
         currentProject?.id?.let { projectId ->
-            viewModel.onAction(MainMediaAction.LoadProject(projectId))
+            viewModel.onAction(MainMediaAction.LoadProject(projectId, currentProject, currentSpace))
         }
     }
 
@@ -114,70 +84,28 @@ fun MainMediaScreen(
         }
     }
 
-    LaunchedEffect(showRemoveProjectDialog) {
-        if (!showRemoveProjectDialog) return@LaunchedEffect
-        showRemoveProjectDialog = false
 
-        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-            type = DialogType.Error
-            icon = UiImage.DrawableResource(R.drawable.ic_trash)
-            title = UiText.StringResource(R.string.remove_from_app)
-            message = UiText.StringResource(R.string.action_remove_project)
-            destructiveButton {
-                text = UiText.StringResource(R.string.lbl_remove)
-                action = { viewModel.requestDeleteProject() }
-            }
-            neutralButton {
-                text = UiText.StringResource(R.string.lbl_Cancel)
-                action = { dialogManager.dismissDialog() }
-            }
-        }
-    }
-
-    LaunchedEffect(showDeleteSelectedMediaDialog) {
-        if (!showDeleteSelectedMediaDialog) return@LaunchedEffect
-        showDeleteSelectedMediaDialog = false
-
-        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-            type = DialogType.Error
-            icon = UiImage.DrawableResource(R.drawable.ic_trash)
-            title = UiText.StringResource(R.string.menu_delete)
-            message = UiText.StringResource(R.string.menu_delete_desc)
-            destructiveButton {
-                text = UiText.StringResource(R.string.btn_lbl_remove_media)
-                action = { viewModel.onAction(MainMediaAction.DeleteSelected) }
-            }
-            neutralButton {
-                text = UiText.StringResource(R.string.lbl_Cancel)
-                action = { dialogManager.dismissDialog() }
-            }
-        }
-    }
 
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collectLatest { event ->
             when (event) {
-                is MainMediaEvent.NavigateToPreview -> onNavigateToPreview(event.projectId)
+                is MainMediaEvent.NavigateToPreview -> {
+                    onNavigateToPreview()
+                }
+
                 is MainMediaEvent.ShowUploadManager -> Unit
                 is MainMediaEvent.ShowErrorDialog -> Unit
                 is MainMediaEvent.SelectionModeChanged -> Unit
                 MainMediaEvent.FocusFolderNameInput -> Unit
-                // Project mutation events are handled by HomeScreen bridge
-                is MainMediaEvent.RequestProjectRename,
-                is MainMediaEvent.RequestProjectArchive,
-                is MainMediaEvent.RequestProjectDelete -> Unit
             }
         }
     }
 
     MainMediaContent(
-        state = mediaState,
+        state = uiState,
         currentSpace = currentSpace,
         currentProject = currentProject,
         onAction = viewModel::onAction,
-        onArchiveProject = { viewModel.requestArchiveProject() },
-        onRemoveProjectRequest = { showRemoveProjectDialog = true },
-        onDeleteSelectedRequest = { showDeleteSelectedMediaDialog = true }
     )
 }
 
@@ -193,41 +121,52 @@ fun MainMediaContent(
     currentSpace: Space?,
     currentProject: Project?,
     onAction: (MainMediaAction) -> Unit,
-    onArchiveProject: () -> Unit = {},
-    onRemoveProjectRequest: () -> Unit = {},
-    onDeleteSelectedRequest: () -> Unit = {}
 ) {
-    var showFolderOptions by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(state.folderBarMode) {
         if (state.folderBarMode != FolderBarMode.INFO) {
-            showFolderOptions = false
+            onAction(MainMediaAction.ShowHideFolderOptionsPopup(false))
+        }
+    }
+
+
+    val folderBarState = remember(state.folderBarMode, state.totalMediaCount, state.selectedMediaIds, state.showFolderOptionsPopup, currentProject) {
+        FolderBarState(
+            mode = state.folderBarMode,
+            spaceType = currentSpace?.tType,
+            projectName = currentProject?.description,
+            totalMediaCount = state.totalMediaCount,
+            selectedCount = state.selectedMediaIds.size,
+            showOptionsPopup = state.showFolderOptionsPopup,
+            canShowOptions = currentProject != null
+        )
+    }
+
+    fun handleFolderIntent(intent: FolderBarIntent) {
+        when(intent) {
+            OptionsOpened -> onAction(MainMediaAction.ShowHideFolderOptionsPopup(true))
+            OptionsDismissed -> onAction(MainMediaAction.ShowHideFolderOptionsPopup(false))
+
+            SelectMedia -> onAction(MainMediaAction.EnterSelectionMode)
+            RenameFolder -> onAction(MainMediaAction.EditFolderClicked)
+            ToggleArchive -> onAction(MainMediaAction.OnArchiveProject)
+
+            RemoveFolder -> onAction(MainMediaAction.ShowRemoveProjectDialog)
+
+            CancelSelection -> onAction(MainMediaAction.CancelSelection)
+            DeleteSelectedRequest -> onAction(MainMediaAction.ShowDeleteSelectedMediaDialog)
+
+            CancelEdit -> onAction(MainMediaAction.CancelEditMode)
+            is SaveName -> onAction(MainMediaAction.SaveFolderName(intent.name))
         }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
         // Folder Bar
         FolderBar(
-            space = currentSpace,
-            project = currentProject,
-            totalMediaCount = state.totalMediaCount,
-            folderBarMode = state.folderBarMode,
-            onAction = onAction,
-            onSelectMedia = { onAction(MainMediaAction.EnterSelectionMode) },
-            onRename = { onAction(MainMediaAction.EditFolderClicked) },
-            onToggleArchive = {
-                showFolderOptions = false
-                onArchiveProject()
-            },
-            onRemove = {
-                showFolderOptions = false
-                onRemoveProjectRequest()
-            },
-            onDeleteSelectedRequest = onDeleteSelectedRequest,
-            onOpenOptions = { showFolderOptions = true },
-            onDismissOptions = { showFolderOptions = false },
-            showMenu = showFolderOptions,
-            selectedMediaCount = state.selectedMediaIds.size
+            state = folderBarState,
+            onIntent = ::handleFolderIntent,
         )
 
         // Main Content
@@ -315,9 +254,11 @@ private fun CollectionSectionView(
     onMediaClick: (Media) -> Unit,
     onMediaLongPress: (Media) -> Unit
 ) {
-    Column(modifier = Modifier
-        .fillMaxWidth()
-        .padding(vertical = 4.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
         // 3-column grid (not 4!)
         val rows = section.media.chunked(3)
         rows.forEach { rowItems ->
@@ -454,9 +395,11 @@ private fun EmptyStateView(
             )
 
             // Arrow pointing to add button
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
                 Spacer(modifier = Modifier.weight(1f))
                 Image(
                     painter = painterResource(R.drawable.welcome_arrow),
@@ -470,295 +413,6 @@ private fun EmptyStateView(
                 )
             }
         }
-    }
-}
-
-// Folder Bar Composables
-@Composable
-private fun FolderBar(
-    space: Space?,
-    project: Project?,
-    totalMediaCount: Int,
-    selectedMediaCount: Int,
-    folderBarMode: FolderBarMode,
-    onAction: (MainMediaAction) -> Unit,
-    onSelectMedia: () -> Unit,
-    onRename: () -> Unit,
-    onToggleArchive: () -> Unit,
-    onRemove: () -> Unit,
-    onDeleteSelectedRequest: () -> Unit,
-    onOpenOptions: () -> Unit,
-    onDismissOptions: () -> Unit,
-    showMenu: Boolean
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .padding(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        when (folderBarMode) {
-            FolderBarMode.INFO -> FolderBarInfoMode(
-                space = space,
-                project = project,
-                totalMediaCount = totalMediaCount,
-                onSelectMedia = onSelectMedia,
-                onRename = onRename,
-                onToggleArchive = onToggleArchive,
-                onRemove = onRemove,
-                onOpenOptions = onOpenOptions,
-                onDismissOptions = onDismissOptions,
-                showMenu = showMenu
-            )
-
-            FolderBarMode.SELECTION -> FolderBarSelectionMode(
-                selectedCount = selectedMediaCount,
-                onAction = onAction,
-                onDeleteSelectedRequest = onDeleteSelectedRequest
-            )
-
-            FolderBarMode.EDIT -> FolderBarEditMode(
-                initialName = project?.description ?: "",
-                onAction = onAction
-            )
-        }
-    }
-}
-
-@Composable
-private fun RowScope.FolderBarInfoMode(
-    space: Space?,
-    project: Project?,
-    totalMediaCount: Int,
-    onSelectMedia: () -> Unit,
-    onRename: () -> Unit,
-    onToggleArchive: () -> Unit,
-    onRemove: () -> Unit,
-    onOpenOptions: () -> Unit,
-    onDismissOptions: () -> Unit,
-    showMenu: Boolean
-) {
-    val hasProject = project != null
-    Row(
-        modifier = Modifier.weight(1f),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Space Icon
-        space?.let {
-
-            SpaceIcon(
-                type = it.tType,
-                modifier = Modifier.size(28.dp)
-            )
-
-            // Arrow
-            Icon(
-                painter = painterResource(R.drawable.keyboard_arrow_right),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp),
-                tint = colorResource(R.color.colorOnBackground)
-            )
-
-            // Folder Name
-            Text(
-                text = project?.description ?: "",
-                style = MaterialTheme.typography.titleMedium.copy(fontFamily = MontserratFontFamily),
-                modifier = Modifier.weight(1f, fill = false)
-            )
-        }
-
-
-    }
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        if (hasProject) {
-            // Edit Button
-            IconButton(
-                onClick = { onOpenOptions() },
-                modifier = Modifier.size(32.dp)
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_edit_folder),
-                    contentDescription = stringResource(R.string.edit),
-                    tint = colorResource(R.color.colorTertiary),
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-
-            DropdownMenu(
-                expanded = showMenu,
-                onDismissRequest = onDismissOptions
-            ) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(id = R.string.lbl_select_media)) },
-                    onClick = {
-                        onDismissOptions()
-                        onSelectMedia()
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text(stringResource(id = R.string.lbl_rename_folder)) },
-                    onClick = {
-                        onDismissOptions()
-                        onRename()
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text(stringResource(id = R.string.popup_archive_folder)) },
-                    onClick = {
-                        onDismissOptions()
-                        onToggleArchive()
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text(stringResource(id = R.string.popup_remove_folder)) },
-                    onClick = {
-                        onDismissOptions()
-                        onRemove()
-                    }
-                )
-            }
-
-            // Count Pill
-            Box(
-                modifier = Modifier
-                    .background(
-                        colorResource(R.color.colorPillTransparent),
-                        RoundedCornerShape(12.dp)
-                    )
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-            ) {
-                Text(
-                    text = NumberFormat.getInstance().format(totalMediaCount),
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun RowScope.FolderBarSelectionMode(
-    selectedCount: Int,
-    onAction: (MainMediaAction) -> Unit,
-    onDeleteSelectedRequest: () -> Unit
-) {
-    Row(
-        modifier = Modifier.weight(1f),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Close Button
-        IconButton(
-            onClick = { onAction(MainMediaAction.CancelSelection) },
-            modifier = Modifier.size(28.dp)
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_close),
-                contentDescription = stringResource(R.string.action_cancel),
-                tint = colorResource(R.color.colorOnBackground)
-            )
-        }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        // "Select Media" Text
-        Text(
-            text = stringResource(R.string.lbl_select_media),
-            style = MaterialTheme.typography.titleMedium.copy(fontFamily = MontserratFontFamily)
-        )
-    }
-
-    // Remove Button (only show if items selected)
-    if (selectedCount > 0) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { onDeleteSelectedRequest() }
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_trash),
-                contentDescription = null,
-                tint = colorResource(R.color.colorError),
-                modifier = Modifier.size(24.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = stringResource(R.string.lbl_remove),
-                color = colorResource(R.color.colorError),
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-    }
-}
-
-@Composable
-private fun FolderBarEditMode(
-    initialName: String,
-    onAction: (MainMediaAction) -> Unit
-) {
-    val focusRequester = remember { FocusRequester() }
-    val focusManager = LocalFocusManager.current
-    val context = LocalContext.current
-    var folderName by remember { mutableStateOf(initialName) }
-
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-        // Show keyboard
-        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
-    }
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // Close Button
-        IconButton(
-            onClick = {
-                focusManager.clearFocus()
-                val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.hideSoftInputFromWindow(null, 0)
-                onAction(MainMediaAction.CancelEditMode)
-            },
-            modifier = Modifier.size(28.dp)
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.ic_close),
-                contentDescription = stringResource(R.string.action_cancel),
-                tint = colorResource(R.color.colorOnBackground)
-            )
-        }
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        // Text Input
-        OutlinedTextField(
-            value = folderName,
-            onValueChange = { folderName = it },
-            modifier = Modifier
-                .weight(1f)
-                .focusRequester(focusRequester),
-            textStyle = MaterialTheme.typography.titleMedium.copy(fontFamily = MontserratFontFamily),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    focusManager.clearFocus()
-                    val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    imm.hideSoftInputFromWindow(null, 0)
-                    onAction(MainMediaAction.SaveFolderName(folderName))
-                }
-            ),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.Transparent,
-                unfocusedContainerColor = Color.Transparent,
-                disabledContainerColor = Color.Transparent
-            )
-        )
     }
 }
 

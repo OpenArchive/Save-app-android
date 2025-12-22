@@ -16,8 +16,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.features.core.UiColor
 import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.asUiColor
 
 // --------------------------------------------------------------------
 // 1. Dialog Types
@@ -34,14 +36,14 @@ data class DialogConfig(
     val title: UiText,
     val message: UiText,
     val icon: UiImage? = null,
-    val iconColor: Color? = null,
+    val iconColor: UiColor? = null,
     val positiveButton: ButtonData? = null,
     val neutralButton: ButtonData? = null,
     val destructiveButton: ButtonData? = null,
     val showCheckbox: Boolean = false,
     val checkboxText: UiText? = null,
     val onCheckboxChanged: (Boolean) -> Unit = {},
-    val backgroundColor: Color? = null,
+    val backgroundColor: UiColor? = null,
     val cornerRadius: Dp? = null,
     val onDismissAction: (() -> Unit)? = null,
 )
@@ -79,8 +81,8 @@ class DialogBuilder {
     var icon: UiImage? = null
     var title: UiText? = null
     var message: UiText? = null
-    var iconColor: Color? = null
-    var backgroundColor: Color? = null
+    var iconColor: UiColor? = null
+    var backgroundColor: UiColor? = null
     var cornerRadius: Dp? = null
 
     // Buttons (initially null)
@@ -117,14 +119,14 @@ class DialogBuilder {
 
     // Default texts based on type.
     private fun defaultPositiveTextFor(type: DialogType): UiText = when (type) {
-        DialogType.Success -> UiText.StringResource(R.string.lbl_ok)
-        DialogType.Error -> UiText.StringResource(R.string.lbl_retry)
-        DialogType.Warning -> UiText.StringResource(R.string.lbl_ok)
-        DialogType.Info -> UiText.StringResource(R.string.lbl_got_it)
-        DialogType.Custom -> UiText.StringResource(R.string.lbl_ok)
+        DialogType.Success -> UiText.Resource(R.string.lbl_ok)
+        DialogType.Error -> UiText.Resource(R.string.lbl_retry)
+        DialogType.Warning -> UiText.Resource(R.string.lbl_ok)
+        DialogType.Info -> UiText.Resource(R.string.lbl_got_it)
+        DialogType.Custom -> UiText.Resource(R.string.lbl_ok)
     }
-    private fun defaultNeutralText(): UiText = UiText.StringResource(R.string.lbl_Cancel)
-    private fun defaultDestructiveText(): UiText = UiText.StringResource(R.string.lbl_Cancel)
+    private fun defaultNeutralText(): UiText = UiText.Resource(R.string.lbl_Cancel)
+    private fun defaultDestructiveText(): UiText = UiText.Resource(R.string.lbl_Cancel)
 
     // -------------------------------
     // 5a. Compose build() – use MaterialTheme defaults.
@@ -143,24 +145,24 @@ class DialogBuilder {
         }
 
         val finalIconColor = iconColor ?: when (type) {
-            DialogType.Error -> MaterialTheme.colorScheme.error
-            DialogType.Warning -> MaterialTheme.colorScheme.tertiary
-            else -> MaterialTheme.colorScheme.onBackground
+            DialogType.Error -> MaterialTheme.colorScheme.error.asUiColor()
+            DialogType.Warning -> MaterialTheme.colorScheme.tertiary.asUiColor()
+            else -> MaterialTheme.colorScheme.onBackground.asUiColor()
         }
-        val finalBackgroundColor = backgroundColor ?: MaterialTheme.colorScheme.surfaceVariant
+        val finalBackgroundColor = backgroundColor ?: MaterialTheme.colorScheme.surfaceVariant.asUiColor()
         val finalCornerRadius = cornerRadius ?: 12.dp
         val finalTitle = title ?: when (type) {
-            DialogType.Success -> UiText.StringResource(R.string.label_success_title)
-            DialogType.Error -> UiText.StringResource(R.string.error)
-            DialogType.Warning -> UiText.StringResource(R.string.label_warning_title)
-            DialogType.Info -> UiText.StringResource(R.string.label_info_title)
-            DialogType.Custom -> UiText.DynamicString("")
+            DialogType.Success -> UiText.Resource(R.string.label_success_title)
+            DialogType.Error -> UiText.Resource(R.string.error)
+            DialogType.Warning -> UiText.Resource(R.string.label_warning_title)
+            DialogType.Info -> UiText.Resource(R.string.label_info_title)
+            DialogType.Custom -> UiText.Dynamic("")
         }
 
         return DialogConfig(
             type = type,
             title = finalTitle,
-            message = message ?: UiText.DynamicString(""),
+            message = message ?: UiText.Dynamic(""),
             icon = icon,
             iconColor = finalIconColor,
             positiveButton = _positiveButton, //?: ButtonData(defaultPositiveTextFor(type)),
@@ -193,23 +195,23 @@ class DialogBuilder {
 
         // Convert resource colors (ints) to Compose Colors.
         val finalIconColor = iconColor ?: when (type) {
-            DialogType.Error -> resourceProvider.getColor(R.color.colorError)
-            else -> resourceProvider.getColor(R.color.colorTertiary)
+            DialogType.Error -> resourceProvider.getColor(R.color.colorError).asUiColor()
+            else -> resourceProvider.getColor(R.color.colorTertiary).asUiColor()
         }
-        val finalBackgroundColor = backgroundColor ?: resourceProvider.getColor(R.color.colorSurface)
+        val finalBackgroundColor = backgroundColor ?: resourceProvider.getColor(R.color.colorSurface).asUiColor()
         val finalCornerRadius = cornerRadius ?: 12.dp
         val finalTitle = title ?: when (type) {
-            DialogType.Success -> UiText.StringResource(R.string.label_success_title)
-            DialogType.Error -> UiText.StringResource(R.string.error)
-            DialogType.Warning -> UiText.StringResource(R.string.label_warning_title)
-            DialogType.Info -> UiText.StringResource(R.string.label_info_title)
-            DialogType.Custom -> UiText.DynamicString("")
+            DialogType.Success -> UiText.Resource(R.string.label_success_title)
+            DialogType.Error -> UiText.Resource(R.string.error)
+            DialogType.Warning -> UiText.Resource(R.string.label_warning_title)
+            DialogType.Info -> UiText.Resource(R.string.label_info_title)
+            DialogType.Custom -> UiText.Dynamic("")
         }
 
         return DialogConfig(
             type = type,
             title = finalTitle,
-            message = message ?: UiText.DynamicString(""),
+            message = message ?: UiText.Dynamic(""),
             icon = icon,
             iconColor = finalIconColor,
             positiveButton = _positiveButton, //?: ButtonData(defaultPositiveTextFor(type)),
@@ -231,7 +233,7 @@ class DialogBuilder {
 
 // --- Compose extension: allows calling showDialog { ... } in a @Composable block.
 @Composable
-fun DialogStateManager.showDialog(block: DialogBuilder.() -> Unit) {
+fun DialogStateManager.showDialogCompose(block: DialogBuilder.() -> Unit) {
     val config = DialogBuilder().apply(block).build()
     showDialog(config)
 }
@@ -256,10 +258,10 @@ fun DialogStateManager.showSuccessDialog(
 ) {
     showDialog {
         type = DialogType.Success
-        this.message = UiText.DynamicString(message)
-        if (title.isNotEmpty()) this.title = UiText.DynamicString(title)
+        this.message = UiText.Dynamic(message)
+        if (title.isNotEmpty()) this.title = UiText.Dynamic(title)
         positiveButton {
-            text = UiText.StringResource(R.string.lbl_ok)
+            text = UiText.Resource(R.string.lbl_ok)
             action = onPositive
         }
     }
@@ -279,11 +281,11 @@ fun DialogStateManager.showSuccessDialog(
     showDialog(resourceProvider) {
         type = DialogType.Success
         if (icon != null) this.icon = icon
-        this.iconColor = resourceProvider.getColor(R.color.colorTertiary)
-        if (title != null) this.title = UiText.StringResource(title)
-        this.message = UiText.StringResource(message)
+        this.iconColor = resourceProvider.getColor(R.color.colorTertiary).asUiColor()
+        if (title != null) this.title = UiText.Resource(title)
+        this.message = UiText.Resource(message)
         positiveButton {
-            text = UiText.StringResource(positiveButtonText ?: R.string.lbl_got_it)
+            text = UiText.Resource(positiveButtonText ?: R.string.lbl_got_it)
             action = onDone
         }
         onDismissAction {
@@ -302,11 +304,11 @@ fun DialogStateManager.showErrorDialog(
 
     showDialog(resourceProvider) {
         type = DialogType.Error
-        this.message = UiText.DynamicString(message)
-        if (title.isNotEmpty()) this.title = UiText.DynamicString(title)
+        this.message = UiText.Dynamic(message)
+        if (title.isNotEmpty()) this.title = UiText.Dynamic(title)
 
         positiveButton {
-            text = UiText.StringResource(R.string.lbl_ok)
+            text = UiText.Resource(R.string.lbl_ok)
             action = onDismiss
         }
     }
@@ -324,11 +326,11 @@ fun DialogStateManager.showInfoDialog(
     showDialog(resourceProvider) {
         type = DialogType.Info
         this.icon = icon
-        this.iconColor = resourceProvider.getColor(R.color.colorTertiary)
+        this.iconColor = resourceProvider.getColor(R.color.colorTertiary).asUiColor()
         this.title = title
         this.message = message
         positiveButton {
-            text = UiText.StringResource(R.string.lbl_ok)
+            text = UiText.Resource(R.string.lbl_ok)
             action = onDone
         }
     }
@@ -349,14 +351,14 @@ fun DialogStateManager.showWarningDialog(
         type = DialogType.Warning
         this.title = title
         this.icon = icon
-        iconColor = resourceProvider.getColor(R.color.colorTertiary)
+        iconColor = resourceProvider.getColor(R.color.colorTertiary).asUiColor()
         this.message = message
         positiveButton {
-            text = positiveButtonText ?: UiText.StringResource(R.string.lbl_got_it)
+            text = positiveButtonText ?: UiText.Resource(R.string.lbl_got_it)
             action = onDone
         }
         destructiveButton {
-            text = UiText.StringResource(R.string.lbl_Cancel)
+            text = UiText.Resource(R.string.lbl_Cancel)
             action = onCancel
         }
     }
@@ -379,11 +381,11 @@ fun DialogStateManager.showDestructiveDialog(
         this.icon = icon
         this.message = message
         positiveButton {
-            text = positiveButtonText ?: UiText.StringResource(R.string.lbl_got_it)
+            text = positiveButtonText ?: UiText.Resource(R.string.lbl_got_it)
             action = onDone
         }
         destructiveButton {
-            text = UiText.StringResource(R.string.lbl_Cancel)
+            text = UiText.Resource(R.string.lbl_Cancel)
             action = onCancel
         }
     }

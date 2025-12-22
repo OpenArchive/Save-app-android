@@ -1,10 +1,10 @@
 package net.opendasharchive.openarchive.features.media
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,8 +12,20 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Project
+import net.opendasharchive.openarchive.features.core.UiColor
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.asUiImage
+import net.opendasharchive.openarchive.features.core.asUiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
+import net.opendasharchive.openarchive.features.main.data.MediaRepository
+import net.opendasharchive.openarchive.features.main.data.ProjectRepository
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.util.Prefs
 
 data class PreviewMediaState(
@@ -21,7 +33,10 @@ data class PreviewMediaState(
     val isLoading: Boolean = true,
     val selectionCount: Int = 0,
     val showAddMore: Boolean = false,
-    val selectedIds: Set<Long> = emptySet()
+    val selectedIds: Set<Long> = emptySet(),
+    val showContentPicker: Boolean = false,
+    val selectedProjectId: Long? = null,
+    val selectedProject: Project? = null
 ) {
     val isInSelectionMode: Boolean
         get() = selectedIds.isNotEmpty()
@@ -37,77 +52,78 @@ sealed class PreviewMediaAction {
     data object AddMore : PreviewMediaAction()
     data object ShowAddMenu : PreviewMediaAction()
     data object Refresh : PreviewMediaAction()
+    data object ContentPickerDismissed : PreviewMediaAction()
+    data class ContentPickerPicked(val type: AddMediaType) : PreviewMediaAction()
 }
 
 sealed class PreviewMediaEvent {
-    data class NavigateToReview(
-        val media: List<Media>,
-        val selected: Media?,
-        val batchMode: Boolean
-    ) : PreviewMediaEvent()
-
-    data object ShowBatchHint : PreviewMediaEvent()
-    data object RequestAddMore : PreviewMediaEvent()
-    data object RequestAddMenu : PreviewMediaEvent()
-    data object CloseScreen : PreviewMediaEvent()
+    data class LaunchPicker(val type: AddMediaType) : PreviewMediaEvent()
+    data object StartUploadService : PreviewMediaEvent()
 }
 
 class PreviewMediaViewModel(
-    private val savedStateHandle: SavedStateHandle
+    private val route: AppRoute.PreviewMediaRoute,
+    private val navigator: Navigator,
+    private val dialogManager: DialogStateManager,
+    private val projectRepository: ProjectRepository,
+    private val mediaRepository: MediaRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PreviewMediaState())
     val uiState: StateFlow<PreviewMediaState> = _uiState.asStateFlow()
 
-    private val _events = Channel<PreviewMediaEvent>(Channel.BUFFERED)
-    val events = _events.receiveAsFlow()
-
-    init {
-        loadMedia()
-    }
+    private val _uiEvent = Channel<PreviewMediaEvent>(Channel.BUFFERED)
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     fun onAction(action: PreviewMediaAction) {
         when (action) {
             is PreviewMediaAction.MediaClicked -> handleMediaClicked(action.mediaId)
-            is PreviewMediaAction.MediaLongPressed -> handleToggleSelection(action.mediaId)
+            is PreviewMediaAction.MediaLongPressed -> toggleSelection(action.mediaId)
             PreviewMediaAction.ToggleSelectAll -> handleToggleSelectAll()
             PreviewMediaAction.RemoveSelected -> handleRemoveSelected()
-            PreviewMediaAction.UploadAll -> handleUploadAll()
+            PreviewMediaAction.UploadAll -> invokeUpload()
             PreviewMediaAction.BatchEdit -> handleBatchEdit()
-            PreviewMediaAction.AddMore -> viewModelScope.launch { _events.send(PreviewMediaEvent.RequestAddMore) }
-            PreviewMediaAction.ShowAddMenu -> viewModelScope.launch { _events.send(PreviewMediaEvent.RequestAddMenu) }
-            PreviewMediaAction.Refresh -> loadMedia()
+            PreviewMediaAction.AddMore -> emitEvent(PreviewMediaEvent.LaunchPicker(AddMediaType.GALLERY))
+            PreviewMediaAction.ShowAddMenu -> _uiState.update { it.copy(showContentPicker = true) }
+            PreviewMediaAction.Refresh -> loadProjectMedia()
+            PreviewMediaAction.ContentPickerDismissed -> _uiState.update { it.copy(showContentPicker = false) }
+            is PreviewMediaAction.ContentPickerPicked -> {
+                _uiState.update { it.copy(showContentPicker = false) }
+                emitEvent(PreviewMediaEvent.LaunchPicker(action.type))
+            }
         }
     }
 
-    private fun loadMedia() {
-        viewModelScope.launch {
-            val projectId = savedStateHandle.get<Long>("project_id") ?: -1L
-            val media = withContext(Dispatchers.IO) {
-                val items = Media.getByStatus(listOf(Media.Status.Local), Media.ORDER_CREATED)
-                items.forEach {
-                    if (it.selected) {
-                        it.selected = false
-                        it.save()
-                    }
+    private fun loadProjectMedia() = viewModelScope.launch {
+
+
+        val media = withContext(Dispatchers.IO) {
+            val items = Media.getByStatus(listOf(Media.Status.Local), Media.ORDER_CREATED)
+            items.forEach { // Are we storing selected state in media table?
+                if (it.selected) {
+                    it.selected = false
+                    it.save()
                 }
-                items
             }
-
-            _uiState.update {
-                it.copy(
-                    mediaList = media,
-                    isLoading = false,
-                    selectionCount = 0,
-                    showAddMore = Project.getById(projectId) != null,
-                    selectedIds = emptySet()
-                )
-            }
-
-            if (!Prefs.batchHintShown) {
-                _events.send(PreviewMediaEvent.ShowBatchHint)
-            }
+            items
         }
+
+        val project = projectRepository.getProject(route.projectId)
+
+        _uiState.update {
+            it.copy(
+                mediaList = media,
+                isLoading = false,
+                selectionCount = 0,
+                showAddMore = Project.getById(route.projectId) != null,
+                selectedIds = emptySet(),
+                selectedProjectId = route.projectId,
+                selectedProject = project
+            )
+        }
+
+        showFirstTimeBatch()
+
     }
 
     private fun handleMediaClicked(mediaId: Long) {
@@ -117,20 +133,15 @@ class PreviewMediaViewModel(
         if (currentState.isInSelectionMode) {
             toggleSelection(media.id)
         } else {
+
             viewModelScope.launch {
-                _events.send(
-                    PreviewMediaEvent.NavigateToReview(
-                        media = currentState.mediaList,
-                        selected = media,
-                        batchMode = false
-                    )
-                )
+                navigator.navigateTo(AppRoute.ReviewMediaRoute(
+                    mediaIds = currentState.mediaList.mapNotNull { it.id }.toLongArray(),
+                    selectedIdx = currentState.mediaList.indexOf(media),
+                    batchMode = false
+                ))
             }
         }
-    }
-
-    private fun handleToggleSelection(mediaId: Long) {
-        toggleSelection(mediaId)
     }
 
     private fun toggleSelection(mediaId: Long?) {
@@ -175,13 +186,11 @@ class PreviewMediaViewModel(
             val mediaForReview = if (batchMode) selected else current.mediaList
             val selectedMedia = if (batchMode) null else selected.firstOrNull()
 
-            _events.send(
-                PreviewMediaEvent.NavigateToReview(
-                    media = mediaForReview,
-                    selected = selectedMedia,
-                    batchMode = batchMode
-                )
-            )
+            navigator.navigateTo(AppRoute.ReviewMediaRoute(
+                mediaIds = mediaForReview.mapNotNull { it.id }.toLongArray(),
+                selectedIdx = mediaForReview.indexOf(selectedMedia),
+                batchMode = batchMode
+            ))
         }
     }
 
@@ -189,9 +198,40 @@ class PreviewMediaViewModel(
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val selectedIds = _uiState.value.selectedIds
-                _uiState.value.mediaList.filter { selectedIds.contains(it.id) }.forEach { it.delete() }
+                _uiState.value.mediaList.filter { selectedIds.contains(it.id) }
+                    .forEach { it.delete() }
             }
-            loadMedia()
+            loadProjectMedia()
+        }
+    }
+
+    private fun invokeUpload() {
+
+        //if (Prefs.dontShowUploadHint) {
+        if (true) {
+            handleUploadAll()
+        } else {
+            var doNotShowAgain = false
+            dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+                type = DialogType.Warning
+                iconColor = UiColor.Resource(R.color.colorTertiary)
+                message = R.string.once_uploaded_you_will_not_be_able_to_edit_media.asUiText()
+                showCheckbox = true
+                checkboxText = UiText.Resource(R.string.do_not_show_me_this_again)
+                onCheckboxChanged = { isChecked ->
+                    doNotShowAgain = isChecked
+                }
+                positiveButton {
+                    text = UiText.Resource(R.string.proceed_to_upload)
+                    action = {
+                        Prefs.dontShowUploadHint = doNotShowAgain
+                        handleUploadAll()
+                    }
+                }
+                neutralButton {
+                    text = UiText.Resource(R.string.actually_let_me_edit)
+                }
+            }
         }
     }
 
@@ -204,7 +244,35 @@ class PreviewMediaViewModel(
                     it.save()
                 }
             }
-            _events.send(PreviewMediaEvent.CloseScreen)
+            // invoke UploadManager
+            emitEvent(PreviewMediaEvent.StartUploadService)
+            navigator.navigateAndClear(AppRoute.HomeRoute)
         }
+    }
+
+    private fun emitEvent(event: PreviewMediaEvent) {
+        viewModelScope.launch { _uiEvent.send(event) }
+    }
+
+    private fun showFirstTimeBatch() {
+        //if (Prefs.batchHintShown) return
+
+        dialogManager.showDialog {
+            icon = R.drawable.ic_media_new.asUiImage()
+            iconColor = UiColor.Resource(R.color.colorTertiary)
+            title = R.string.edit_multiple.asUiText()
+            message = R.string.press_and_hold_to_select_and_edit_multiple_media.asUiText()
+            onDismissAction {
+                Prefs.batchHintShown = true
+            }
+            positiveButton {
+                text = UiText.Resource(R.string.lbl_got_it)
+                action = {
+                    Prefs.batchHintShown = true
+                }
+            }
+
+        }
+
     }
 }

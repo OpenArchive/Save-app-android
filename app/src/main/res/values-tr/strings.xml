@@ -227,6 +227,8 @@
     <string name="press_and_hold_options_media_screen_message">Resim galerisinden seçim yapmak için + üzerine dokunun ya da diğer uygulamalardan ortam eklemek için basılı tutun.</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">Birkaç ortamı seçmek ve düzenlemek için dokunup basılı tutun.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Yüklendikten sonra ortamı düzenleyemeyeceksiniz.</string>
+    <string name="proceed_to_upload">Yüklemeye geç</string>
+    <string name="actually_let_me_edit">Aslında, düzenlememe izin ver</string>
     <string name="edit_media_info">Ortam bilgilerini düzenle</string>
     <string name="bulk_edit_media_info">Ortam bilgilerini toplu düzenle</string>
     <string name="add_a_location_optional"><i>Bir konum ekle (isteğe bağlı)</i></string>

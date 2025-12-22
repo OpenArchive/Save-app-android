@@ -51,7 +51,7 @@ import java.util.Date
 
 @Composable
 fun FoldersScreen(
-    viewModel: FoldersViewModel = koinViewModel(),
+    viewModel: FoldersViewModel,
     onNavigateToFolderDetail: (Long) -> Unit = {},
     onNavigateToArchivedFolders: (Long) -> Unit = {}
 ) {

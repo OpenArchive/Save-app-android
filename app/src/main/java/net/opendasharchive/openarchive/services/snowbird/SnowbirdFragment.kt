@@ -168,14 +168,14 @@ class SnowbirdFragment : BaseSnowbirdFragment() {
     private fun showQRScanOptions() {
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Info
-            title = UiText.DynamicString("Scan QR Code")
-            message = UiText.DynamicString("Choose how you want to scan the QR code")
+            title = UiText.Dynamic("Scan QR Code")
+            message = UiText.Dynamic("Choose how you want to scan the QR code")
             positiveButton {
-                text = UiText.DynamicString("Camera")
+                text = UiText.Dynamic("Camera")
                 action = { startQRScanner() }
             }
             neutralButton {
-                text = UiText.DynamicString("Gallery")
+                text = UiText.Dynamic("Gallery")
                 action = { startImagePicker() }
             }
         }
@@ -243,10 +243,10 @@ class SnowbirdFragment : BaseSnowbirdFragment() {
     private fun showQRNotFoundDialog() {
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Warning
-            title = UiText.DynamicString("No QR Code Found")
-            message = UiText.DynamicString("Could not find a valid QR code in the selected image. Please try another image.")
+            title = UiText.Dynamic("No QR Code Found")
+            message = UiText.Dynamic("Could not find a valid QR code in the selected image. Please try another image.")
             positiveButton {
-                text = UiText.StringResource(R.string.lbl_ok)
+                text = UiText.Resource(R.string.lbl_ok)
             }
         }
     }
@@ -257,10 +257,10 @@ class SnowbirdFragment : BaseSnowbirdFragment() {
         if (name == null) {
             dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                 type = DialogType.Warning
-                title = UiText.DynamicString("Oops!")
-                message = UiText.DynamicString("Unable to determine group name from QR code.")
+                title = UiText.Dynamic("Oops!")
+                message = UiText.Dynamic("Unable to determine group name from QR code.")
                 positiveButton {
-                    text = UiText.StringResource(R.string.lbl_ok)
+                    text = UiText.Resource(R.string.lbl_ok)
                 }
             }
             return
@@ -269,10 +269,10 @@ class SnowbirdFragment : BaseSnowbirdFragment() {
         if (SnowbirdGroup.exists(name)) {
             dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                 type = DialogType.Warning
-                title = UiText.DynamicString("Oops!")
-                message = UiText.DynamicString("You have already joined this group.")
+                title = UiText.Dynamic("Oops!")
+                message = UiText.Dynamic("You have already joined this group.")
                 positiveButton {
-                    text = UiText.StringResource(R.string.lbl_ok)
+                    text = UiText.Resource(R.string.lbl_ok)
                 }
             }
             return

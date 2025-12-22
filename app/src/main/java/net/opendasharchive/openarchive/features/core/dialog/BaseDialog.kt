@@ -45,6 +45,7 @@ import net.opendasharchive.openarchive.features.core.BaseDestructiveButton
 import net.opendasharchive.openarchive.features.core.BaseNeutralButton
 import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.asString
 import net.opendasharchive.openarchive.features.core.asUiImage
 
 @Composable
@@ -250,7 +251,7 @@ fun DialogHost(dialogStateManager: DialogStateManager) {
                 config.onDismissAction?.invoke()
             },
             icon = config.icon,
-            iconColor = config.iconColor,
+            iconColor = config.iconColor?.asColor(),
             title = config.title.asString(),
             message = config.message.asString(),
             positiveButton = config.positiveButton,
@@ -275,7 +276,7 @@ private fun BaseDialogPreview() {
             iconColor = MaterialTheme.colorScheme.tertiary,
             title = stringResource(R.string.label_success_title),
             message = stringResource(R.string.create_folder_ok_message),
-            positiveButton = ButtonData(UiText.StringResource(R.string.lbl_ok)),
+            positiveButton = ButtonData(UiText.Resource(R.string.lbl_ok)),
         )
 
     }
@@ -293,8 +294,8 @@ private fun WarningDialogPreview() {
             iconColor = MaterialTheme.colorScheme.tertiary,
             title = "Warning",
             message = stringResource(R.string.once_uploaded_you_will_not_be_able_to_edit_media),
-            positiveButton = ButtonData(UiText.DynamicString("OK")),
-            neutralButton = ButtonData(UiText.DynamicString("Cancel")),
+            positiveButton = ButtonData(UiText.Dynamic("OK")),
+            neutralButton = ButtonData(UiText.Dynamic("Cancel")),
             hasCheckbox = true,
             checkBoxHint = "Do not show me this again",
             onCheckBoxStateChanged = { },
@@ -314,8 +315,8 @@ private fun ErrorDialogPreview() {
             iconColor = MaterialTheme.colorScheme.error,
             title = "Image upload unsuccessful",
             message = "Give a reason here? Lorem Ipsum text can go here if needed",
-            positiveButton = ButtonData(UiText.DynamicString("Retry")),
-            destructiveButton = ButtonData(UiText.DynamicString("Remove Image")),
+            positiveButton = ButtonData(UiText.Dynamic("Retry")),
+            destructiveButton = ButtonData(UiText.Dynamic("Remove Image")),
         )
     }
 }
@@ -332,7 +333,7 @@ private fun TorWarningDialogPreview() {
             iconColor = MaterialTheme.colorScheme.tertiary,
             title = stringResource(R.string.tor_disabled_title),
             message = stringResource(R.string.tor_disabled_message),
-            positiveButton = ButtonData(UiText.DynamicString(stringResource(R.string.lbl_ok))),
+            positiveButton = ButtonData(UiText.Dynamic(stringResource(R.string.lbl_ok))),
         )
     }
 }

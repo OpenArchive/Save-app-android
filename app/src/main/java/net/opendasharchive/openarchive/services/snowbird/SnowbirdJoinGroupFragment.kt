@@ -130,10 +130,10 @@ class SnowbirdJoinGroupFragment: BaseSnowbirdFragment() {
         snowbirdRepoViewModel.fetchRepos(groupKey, false)
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Success
-            title = UiText.StringResource(R.string.label_success_title)
-            message = UiText.DynamicString("Successfully joined")
+            title = UiText.Resource(R.string.label_success_title)
+            message = UiText.Dynamic("Successfully joined")
             positiveButton {
-                text = UiText.StringResource(R.string.label_got_it)
+                text = UiText.Resource(R.string.label_got_it)
                 action = {
 
                     val action = SnowbirdJoinGroupFragmentDirections.actionFragmentSnowbirdJoinGroupToFragmentSnowbirdSetupSuccess(

@@ -23,16 +23,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.compose.content
-import androidx.navigation.findNavController
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
-import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
 import net.opendasharchive.openarchive.features.core.UiImage
@@ -83,19 +80,19 @@ fun InternetArchiveDetailsScreen(
             when (event) {
                 is InternetArchiveDetailsEvent.ShowRemoveSpaceDialog -> {
                     dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-                        title = UiText.StringResource(R.string.remove_from_app)
+                        title = UiText.Resource(R.string.remove_from_app)
                         message =
-                            UiText.StringResource(R.string.are_you_sure_you_want_to_remove_this_server_from_the_app)
+                            UiText.Resource(R.string.are_you_sure_you_want_to_remove_this_server_from_the_app)
                         icon = UiImage.DrawableResource(R.drawable.ic_trash)
                         destructiveButton {
-                            text = UiText.StringResource(R.string.lbl_remove)
+                            text = UiText.Resource(R.string.lbl_remove)
                             action = {
                                 viewModel.onAction(InternetArchiveDetailsAction.RemoveSpace)
                             }
                         }
 
                         neutralButton {
-                            text = UiText.StringResource(R.string.action_cancel)
+                            text = UiText.Resource(R.string.action_cancel)
                         }
                     }
                 }

@@ -41,10 +41,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.fragment.compose.content
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.fragment.navArgs
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
-import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
@@ -61,7 +59,6 @@ import net.opendasharchive.openarchive.features.internetarchive.presentation.log
 import net.opendasharchive.openarchive.services.webdav.CreativeCommonsLicenseContent
 import net.opendasharchive.openarchive.services.webdav.LicenseCallbacks
 import net.opendasharchive.openarchive.services.webdav.LicenseState
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class WebDavDetailScreenFragment : BaseFragment(), ToolbarConfigurable {
 
@@ -103,15 +100,15 @@ fun WebDavDetailScreen(
                     dialogManager.showDialog(
                         DialogConfig(
                             type = DialogType.Warning,
-                            title = UiText.StringResource(R.string.unsaved_changes),
-                            message = UiText.StringResource(R.string.do_you_want_to_save),
+                            title = UiText.Resource(R.string.unsaved_changes),
+                            message = UiText.Resource(R.string.do_you_want_to_save),
                             icon = UiImage.DynamicVector(Icons.Default.Warning),
                             positiveButton = ButtonData(
-                                text = UiText.StringResource(R.string.lbl_save),
+                                text = UiText.Resource(R.string.lbl_save),
                                 action = { viewModel.onAction(WebDavDetailAction.SaveChanges) }
                             ),
                             neutralButton = ButtonData(
-                                text = UiText.StringResource(R.string.lbl_discard),
+                                text = UiText.Resource(R.string.lbl_discard),
                                 action = { viewModel.onAction(WebDavDetailAction.NavigateBack) }
                             )
                         )
@@ -122,15 +119,15 @@ fun WebDavDetailScreen(
                     dialogManager.showDialog(
                         DialogConfig(
                             type = DialogType.Warning,
-                            title = UiText.StringResource(R.string.remove_from_app),
-                            message = UiText.StringResource(R.string.are_you_sure_you_want_to_remove_this_server_from_the_app),
+                            title = UiText.Resource(R.string.remove_from_app),
+                            message = UiText.Resource(R.string.are_you_sure_you_want_to_remove_this_server_from_the_app),
                             icon = UiImage.DrawableResource(R.drawable.ic_trash),
                             destructiveButton = ButtonData(
-                                text = UiText.StringResource(R.string.lbl_remove),
+                                text = UiText.Resource(R.string.lbl_remove),
                                 action = { viewModel.onAction(WebDavDetailAction.ConfirmRemoveSpace) }
                             ),
                             neutralButton = ButtonData(
-                                text = UiText.StringResource(R.string.lbl_Cancel),
+                                text = UiText.Resource(R.string.lbl_Cancel),
                                 action = {}
                             )
                         )
@@ -140,11 +137,11 @@ fun WebDavDetailScreen(
                 is WebDavDetailEvent.ShowSuccessDialog -> {
                     dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                         type = DialogType.Success
-                        title = UiText.StringResource(R.string.label_success_title)
-                        message = UiText.StringResource(R.string.msg_edit_server_success)
+                        title = UiText.Resource(R.string.label_success_title)
+                        message = UiText.Resource(R.string.msg_edit_server_success)
                         icon = UiImage.DrawableResource(R.drawable.ic_done)
                         positiveButton {
-                            text = UiText.StringResource(R.string.lbl_got_it)
+                            text = UiText.Resource(R.string.lbl_got_it)
                             action = {
                                 viewModel.onAction(WebDavDetailAction.NavigateBack)
                             }

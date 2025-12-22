@@ -3,14 +3,16 @@ package net.opendasharchive.openarchive.features.core
 import androidx.annotation.DrawableRes
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 
-sealed class UiImage {
-    data class DynamicVector(val vector: ImageVector) : UiImage()
-    data class DrawableResource(@DrawableRes val resId: Int) : UiImage()
+@Immutable
+sealed interface UiImage {
+    data class DynamicVector(val imageVector: ImageVector) : UiImage
+    data class DrawableResource(@param:DrawableRes val resId: Int) : UiImage
 
 
     /**
@@ -20,23 +22,23 @@ sealed class UiImage {
     @Composable
     fun asIcon(
         contentDescription: String? = null,
-        tint: Color? = null,
+        tint: Color = Color.Unspecified,
         modifier: Modifier = Modifier
     ): @Composable () -> Unit {
         return {
             when (this) {
                 is DynamicVector -> Icon(
-                    imageVector = vector,
+                    imageVector = imageVector,
                     contentDescription = contentDescription,
                     modifier = modifier,
-                    tint = tint ?: Color.Unspecified
+                    tint = tint
                 )
 
                 is DrawableResource -> Icon(
                     painter = painterResource(id = resId),
                     contentDescription = contentDescription,
                     modifier = modifier,
-                    tint = tint ?: Color.Unspecified
+                    tint = tint
                 )
             }
         }

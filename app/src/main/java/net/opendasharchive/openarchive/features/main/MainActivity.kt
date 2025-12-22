@@ -751,7 +751,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 ),
                 neutralButton =
                     ButtonData(
-                        text = UiText.StringResource(R.string.lbl_Cancel),
+                        text = UiText.Resource(R.string.lbl_Cancel),
                         action = {
 
                         }
@@ -764,10 +764,10 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Error
             icon = UiImage.DrawableResource(R.drawable.ic_trash)
-            title = UiText.StringResource(R.string.remove_from_app)
-            message = UiText.StringResource(R.string.action_remove_project)
+            title = UiText.Resource(R.string.remove_from_app)
+            message = UiText.Resource(R.string.action_remove_project)
             destructiveButton {
-                text = UiText.StringResource(R.string.lbl_remove)
+                text = UiText.Resource(R.string.lbl_remove)
                 action = {
                     getSelectedProject()?.delete()
                     refreshProjects()
@@ -781,7 +781,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 }
             }
             neutralButton {
-                text = UiText.StringResource(R.string.lbl_Cancel)
+                text = UiText.Resource(R.string.lbl_Cancel)
                 action = {
                     dialogManager.dismissDialog()
                 }

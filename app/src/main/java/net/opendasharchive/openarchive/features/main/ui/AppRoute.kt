@@ -4,6 +4,8 @@ import android.net.Uri
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 
 @Serializable
