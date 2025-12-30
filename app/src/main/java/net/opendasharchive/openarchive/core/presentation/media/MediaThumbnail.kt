@@ -3,9 +3,7 @@ package net.opendasharchive.openarchive.core.presentation.media
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -17,7 +15,6 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import coil3.request.ImageRequest
@@ -75,19 +72,7 @@ fun MediaThumbnail(
                     .fillMaxSize()
                     .alpha(alpha)
             ) {
-                val state = painter.state
-                if (state is AsyncImagePainter.State.Loading) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.tertiary
-                        )
-                    }
-                } else {
-                    SubcomposeAsyncImageContent()
-                }
+                SubcomposeAsyncImageContent()
             }
             onTitleVisibilityChanged?.invoke(false)
         }
@@ -105,19 +90,7 @@ fun MediaThumbnail(
                     .fillMaxSize()
                     .alpha(alpha)
             ) {
-                val state = painter.state
-                if (state is AsyncImagePainter.State.Loading) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.tertiary
-                        )
-                    }
-                } else {
-                    SubcomposeAsyncImageContent()
-                }
+                SubcomposeAsyncImageContent()
             }
             onTitleVisibilityChanged?.invoke(false)
         }

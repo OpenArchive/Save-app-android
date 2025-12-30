@@ -71,10 +71,6 @@ internal class InAppUpdateCoordinator(
 
     private fun handleUpdateAvailability(appUpdateInfo: AppUpdateInfo) {
         val availableVersionCode = appUpdateInfo.availableVersionCode()
-        if (availableVersionCode == null) {
-            AppLogger.w("In-app update available but availableVersionCode is null")
-            return
-        }
 
         val versionGap = availableVersionCode - BuildConfig.VERSION_CODE
         if (versionGap <= 0) {

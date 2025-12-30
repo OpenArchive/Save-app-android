@@ -13,8 +13,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntryDecorator
@@ -25,15 +23,11 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.navigation.LocalResultEventBus
 import net.opendasharchive.openarchive.core.navigation.ResultEventBus
+import net.opendasharchive.openarchive.core.navigation.rememberResultStore
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.db.Space
-import net.opendasharchive.openarchive.features.core.UiColor
-import net.opendasharchive.openarchive.features.core.UiText
-import net.opendasharchive.openarchive.features.core.asUiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogHost
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
-import net.opendasharchive.openarchive.features.core.dialog.DialogType
-import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.folders.AddFolderScreen
 import net.opendasharchive.openarchive.features.folders.BrowseFolderScreen
 import net.opendasharchive.openarchive.features.folders.CreateNewFolderScreen
@@ -57,9 +51,12 @@ import net.opendasharchive.openarchive.features.settings.SpaceSetupSuccessScreen
 import net.opendasharchive.openarchive.features.settings.SpaceSetupSuccessViewModel
 import net.opendasharchive.openarchive.features.settings.license.SetupLicenseScreen
 import net.opendasharchive.openarchive.features.settings.license.SetupLicenseViewModel
+import net.opendasharchive.openarchive.features.settings.passcode.HapticManager
 import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_entry.PasscodeEntryScreen
+import net.opendasharchive.openarchive.features.settings.passcode.passcode_entry.PasscodeEntryViewModel
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupScreen
+import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupViewModel
 import net.opendasharchive.openarchive.features.spaces.SpaceListScreen
 import net.opendasharchive.openarchive.features.spaces.SpaceListViewModel
 import net.opendasharchive.openarchive.features.spaces.SpaceSetupScreen
@@ -68,7 +65,6 @@ import net.opendasharchive.openarchive.services.webdav.detail.WebDavDetailScreen
 import net.opendasharchive.openarchive.services.webdav.detail.WebDavDetailViewModel
 import net.opendasharchive.openarchive.services.webdav.login.WebDavLoginScreen
 import net.opendasharchive.openarchive.services.webdav.login.WebDavLoginViewModel
-import net.opendasharchive.openarchive.upload.UploadService
 import net.opendasharchive.openarchive.util.Prefs
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -76,11 +72,12 @@ import org.koin.core.parameter.parametersOf
 
 @Composable
 fun SaveNavGraph(
-    dialogManager: DialogStateManager = koinInject()
+    dialogManager: DialogStateManager
 ) {
 
     val navigator = rememberNavigator()
     val resultBus = remember { ResultEventBus() }
+    val resultStore = rememberResultStore()
 
     val currentRoute = navigator.backstack.lastOrNull()
     AppLogger.d("Navigation", "Current route: $currentRoute")
@@ -101,6 +98,7 @@ fun SaveNavGraph(
         DialogHost(dialogManager)
 
         CompositionLocalProvider(LocalResultEventBus provides resultBus) {
+
             NavDisplay(
                 modifier = Modifier.fillMaxSize(),
                 backStack = navigator.backstack,
@@ -132,40 +130,7 @@ fun SaveNavGraph(
                             parametersOf(navigator, route)
                         }
 
-                        HomeScreen(
-                            viewModel = viewModel,
-                            invokeNavEvent = { event ->
-                                when (event) {
-                                    is HomeNavigation.AddNewFolder -> {
-                                        navigator.navigateTo(AppRoute.AddFolderRoute(event.spaceId))
-                                    }
-
-                                    is HomeNavigation.ArchivedFolders -> {
-                                        navigator.navigateTo(
-                                            AppRoute.FolderListRoute(
-                                                spaceId = event.spaceId,
-                                                showArchived = true
-                                            )
-                                        )
-                                    }
-
-                                    HomeNavigation.Cache -> navigator.navigateTo(AppRoute.MediaCacheRoute)
-                                    HomeNavigation.ProofMode -> navigator.navigateTo(AppRoute.ProofModeSettings)
-                                    HomeNavigation.SpaceList -> navigator.navigateTo(AppRoute.SpaceListRoute)
-                                    HomeNavigation.SpaceSetup -> navigator.navigateTo(AppRoute.SpaceSetupRoute)
-                                    is HomeNavigation.PreviewMedia -> {
-                                        navigator.navigateTo(AppRoute.PreviewMediaRoute(event.projectId))
-                                    }
-
-                                    is HomeNavigation.Camera -> navigator.navigateTo(
-                                        AppRoute.CameraRoute(
-                                            event.projectId,
-                                            event.config
-                                        )
-                                    )
-                                }
-                            },
-                        )
+                        HomeScreen(viewModel)
                     }
 
                     entry<AppRoute.WelcomeRoute> { route ->
@@ -184,9 +149,6 @@ fun SaveNavGraph(
                                 Prefs.didCompleteOnboarding = true
                                 navigator.navigateAndClear(AppRoute.HomeRoute)
                             },
-                            onBackPressed = {
-                                navigator.navigateBack()
-                            }
                         )
                     }
 
@@ -235,8 +197,7 @@ fun SaveNavGraph(
                         ) {
 
                             WebDavLoginScreen(
-                                viewModel = viewModel,
-                                dialogManager = dialogManager,
+                                viewModel = viewModel
                             )
                         }
                     }
@@ -263,7 +224,6 @@ fun SaveNavGraph(
                         ) {
                             WebDavDetailScreen(
                                 viewModel = viewModel,
-                                dialogManager = dialogManager,
                             )
                         }
                     }
@@ -320,9 +280,11 @@ fun SaveNavGraph(
                         ) {
                             SpaceSetupSuccessScreen(
                                 viewModel = viewModel,
-                                onNavigateToMain = {
-                                    Prefs.didCompleteOnboarding = true
-                                    navigator.navigateAndClear(AppRoute.HomeRoute)
+                                onNavigateBack = {
+                                    resultBus.sendResult(
+                                        resultKey = "refresh_spaces",
+                                        result = true
+                                    )
                                 }
                             )
                         }
@@ -417,7 +379,7 @@ fun SaveNavGraph(
 
                     entry<AppRoute.FolderDetailRoute> {
                         DefaultScaffold(
-                            title = "Edit Folder",
+                            title = "Edit Folder", //TODO: Add string resource
                             onNavigateBack = { navigator.navigateBack() }
                         ) {
                             FolderDetailScreen(
@@ -436,7 +398,6 @@ fun SaveNavGraph(
                             title = stringResource(id = R.string.preview_media),
                             onNavigateBack = { navigator.navigateBack() },
                             actions = {
-                                Text("Upload", color = Color.White)
                                 TextButton(
                                     onClick = {
                                         viewModel.onAction(PreviewMediaAction.UploadAll)
@@ -472,8 +433,7 @@ fun SaveNavGraph(
                             onNavigateBack = { navigator.navigateBack() }
                         ) {
                             ReviewMediaScreen(
-                                viewModel = viewModel,
-                                onNavigateBack = { navigator.navigateBack() }
+                                viewModel = viewModel
                             )
                         }
                     }
@@ -492,26 +452,33 @@ fun SaveNavGraph(
                         }
                     }
 
-                    entry<AppRoute.PasscodeSetupRoute> {
+                    entry<AppRoute.PasscodeSetupRoute> { route ->
+
+                        val viewModel = koinViewModel<PasscodeSetupViewModel> {
+                            parametersOf(navigator, route)
+                        }
+
                         DefaultScaffold(
                             title = stringResource(id = R.string.set_passcode),
                             onNavigateBack = { navigator.navigateBack() }
                         ) {
                             PasscodeSetupScreen(
-                                onPasscodeSet = { navigator.navigateBack() },
-                                onCancel = { navigator.navigateBack() }
+                                viewModel = viewModel
                             )
                         }
                     }
 
-                    entry<AppRoute.PasscodeEntryRoute> {
+                    entry<AppRoute.PasscodeEntryRoute> { route ->
+                        val viewModel = koinViewModel<PasscodeEntryViewModel> {
+                            parametersOf(navigator, route)
+                        }
+
                         DefaultScaffold(
                             title = stringResource(id = R.string.enter_passcode),
                             onNavigateBack = { navigator.navigateBack() }
                         ) {
                             PasscodeEntryScreen(
-                                onPasscodeSuccess = { navigator.navigateBack() },
-                                onExit = { navigator.navigateBack() }
+                                viewModel = viewModel,
                             )
                         }
                     }

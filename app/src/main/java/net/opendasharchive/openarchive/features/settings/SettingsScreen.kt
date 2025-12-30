@@ -63,13 +63,14 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import net.opendasharchive.openarchive.features.core.UiColor
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
 
 @Composable
 fun SettingsScreen(
     onNavigateToSpaceList: () -> Unit = {},
     onNavigateToArchivedFolders: () -> Unit = {},
     onNavigateToCache: () -> Unit = {},
-    onNavigateToProofMode: () -> Unit = {}
+    onNavigateToProofMode: () -> Unit = {},
 ) {
     val dialogManager: DialogStateManager = koinInject<DialogStateManager>()
     val context = LocalContext.current

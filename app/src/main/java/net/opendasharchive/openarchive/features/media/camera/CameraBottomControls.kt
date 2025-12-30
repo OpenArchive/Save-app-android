@@ -8,8 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -98,7 +97,7 @@ fun CameraBottomControls(
                             .background(Color.Black.copy(alpha = 0.3f), CircleShape)
                     ) {
                         Icon(
-                            imageVector = if (cameraState.isFrontCamera) Icons.Default.CameraFront else Icons.Default.CameraRear,
+                            painter = if (cameraState.isFrontCamera) painterResource( R.drawable.ic_camera_front) else painterResource(R.drawable.ic_camera_rear),
                             contentDescription = stringResource(R.string.switch_camera),
                             tint = Color.White
                         )
@@ -182,7 +181,7 @@ private fun CameraCaptureButton(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.CameraAlt,
+                        painter = painterResource(R.drawable.ic_camera_alt),
                         contentDescription = stringResource(R.string.capture_photo),
                         tint = Color.Black,
                         modifier = Modifier.size(32.dp)
@@ -252,7 +251,7 @@ private fun CameraCaptureButton(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Videocam,
+                            painter = painterResource(R.drawable.ic_videocam),
                             contentDescription = stringResource(R.string.start_recording),
                             tint = Color.White,
                             modifier = Modifier.size(32.dp)
@@ -290,9 +289,10 @@ private fun CapturedItemsIndicator(
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Check,
+                        painter = painterResource(R.drawable.ic_done),
                         contentDescription = stringResource(R.string.done),
-                        modifier = Modifier.size(16.dp)
+                        modifier = Modifier.size(16.dp),
+                        tint = Color.White
                     )
                     Text(
                         text = stringResource(R.string.done),

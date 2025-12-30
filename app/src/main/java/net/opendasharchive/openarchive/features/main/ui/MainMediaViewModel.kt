@@ -384,7 +384,7 @@ class MainMediaViewModel(
                                     }
 
                                     progress >= 0 -> {
-                                        media.uploadPercentage = progress
+                                        media.uploadPercentage = progress.coerceIn(0, 100)
                                         media.status = Media.Status.Uploading.id
                                         media
                                     }

@@ -42,14 +42,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FlashAuto
-import androidx.compose.material.icons.filled.FlashOff
-import androidx.compose.material.icons.filled.FlashOn
-import androidx.compose.material.icons.filled.GridOff
-import androidx.compose.material.icons.filled.GridOn
-import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -69,6 +61,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -257,7 +250,7 @@ fun CameraScreen(
             // This provides continuous light during video recording or video mode preview
             LaunchedEffect(cameraState.flashMode, cameraState.captureMode, camera) {
                 // Wait a bit for camera to be fully ready
-                kotlinx.coroutines.delay(100)
+                delay(100)
 
                 camera?.let { cam ->
                     try {
@@ -401,7 +394,7 @@ fun CameraScreen(
                     ) {
                         // Pause icon
                         Icon(
-                            imageVector = Icons.Default.Pause,
+                            painter = painterResource(R.drawable.ic_pause),
                             contentDescription = null,
                             tint = Color.White,
                             modifier = Modifier.size(64.dp)
@@ -445,7 +438,7 @@ private fun CameraTopControls(
                 .background(Color.Black.copy(alpha = 0.3f), CircleShape)
         ) {
             Icon(
-                imageVector = Icons.Default.Close,
+                painter = painterResource(R.drawable.ic_close),
                 contentDescription = stringResource(R.string.close),
                 tint = Color.White
             )
@@ -477,7 +470,7 @@ private fun CameraTopControls(
                             .background(Color.Black.copy(alpha = 0.3f), CircleShape)
                     ) {
                         Icon(
-                            imageVector = if (cameraState.showGrid) Icons.Default.GridOn else Icons.Default.GridOff,
+                            painter = if (cameraState.showGrid) painterResource(R.drawable.ic_grid_on) else painterResource(R.drawable.ic_grid_off),
                             contentDescription = stringResource(R.string.grid),
                             tint = if (cameraState.showGrid) Color.Yellow else Color.White
                         )
@@ -498,12 +491,12 @@ private fun CameraTopControls(
                     .background(Color.Black.copy(alpha = 0.3f), CircleShape)
             ) {
                 val flashIcon = when (cameraState.flashMode) {
-                    ImageCapture.FLASH_MODE_ON -> Icons.Default.FlashOn
-                    ImageCapture.FLASH_MODE_AUTO -> Icons.Default.FlashAuto
-                    else -> Icons.Default.FlashOff
+                    ImageCapture.FLASH_MODE_ON -> painterResource(R.drawable.ic_flash_on)
+                    ImageCapture.FLASH_MODE_AUTO -> painterResource(R.drawable.ic_flash_auto)
+                    else -> painterResource(R.drawable.ic_flash_off)
                 }
                 Icon(
-                    imageVector = flashIcon,
+                    painter = flashIcon,
                     contentDescription = stringResource(R.string.flash),
                     tint = Color.White
                 )

@@ -5,10 +5,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -65,33 +65,30 @@ fun MainDrawerContent(
         drawerShape = DrawerDefaults.shape,
         drawerContainerColor = colorResource(R.color.colorNavigationDrawerBackground)
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize().background(Color.Cyan)
+        // Main drawer content
+        Column(
+            modifier = Modifier.fillMaxHeight()
         ) {
-            // Main drawer content (always visible)
-            Column(
-                modifier = Modifier.fillMaxSize()
+            // AppBar height spacer
+            Spacer(modifier = Modifier.height(56.dp))
+
+            ExpandableSpaceList(
+                serverAccordionState = serverAccordionState,
+                selectedSpace = selectedSpace,
+                spaceList = spaceList,
+                onSpaceSelected = { selectedSpace ->
+                    serverAccordionState.collapse()
+                    onSpaceSelected(selectedSpace)
+                },
+                onAddAnotherAccountClicked = onAddNewSpaceClicked
+            )
+
+            AnimatedVisibility(
+                visible = serverAccordionState.expanded.not()
             ) {
-                // AppBar height spacer
-                Spacer(modifier = Modifier.height(56.dp))
-
-                ExpandableSpaceList(
-                    serverAccordionState = serverAccordionState,
-                    selectedSpace = selectedSpace,
-                    spaceList = spaceList,
-                    onSpaceSelected = { selectedSpace ->
-                        serverAccordionState.collapse()
-                        onSpaceSelected(selectedSpace)
-                    },
-                    onAddAnotherAccountClicked = onAddNewSpaceClicked
-                )
-
-                AnimatedVisibility(
-                    visible = serverAccordionState.expanded.not()
+                Column(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
 
                     // Divider
                     HorizontalDivider(
@@ -102,77 +99,76 @@ fun MainDrawerContent(
                             .alpha(if (serverAccordionState.expanded) 0.3f else 0.5f)
                     )
 
-                        // Current Space name and icon (always visible, dimmed when expanded)
-                        selectedSpace?.let { space ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                                    .alpha(if (serverAccordionState.expanded) 0.3f else 1f),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                SpaceIcon(
-                                    type = space.tType,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                                Text(
-                                    text = space.friendlyName,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    fontSize = 16.sp
-                                )
-                            }
-                        }
-
-
-
-                        // Folder list (dimmed when space list is expanded)
-                        Column(
+                    // Current Space name and icon (always visible, dimmed when expanded)
+                    selectedSpace?.let { space ->
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .weight(1f)
-                                .padding(top = 8.dp)
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
                                 .alpha(if (serverAccordionState.expanded) 0.3f else 1f),
-                            verticalArrangement = Arrangement.spacedBy(0.dp)
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            projects.forEach { project ->
-                                FolderItem(
-                                    project = project,
-                                    isSelected = project.id == selectedProject?.id,
-                                    onProjectSelected = onProjectSelected
-                                )
-                            }
-                        }
-
-                        // Add Folder button at bottom (dimmed when space list is expanded)
-                        Button(
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp, vertical = 24.dp)
-                                .align(Alignment.CenterHorizontally)
-                                .alpha(if (serverAccordionState.expanded) 0.3f else 1f),
-                            shape = RoundedCornerShape(8.dp),
-                            onClick = onAddNewFolderClicked,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = colorResource(R.color.colorTertiary)
+                            SpaceIcon(
+                                type = space.tType,
+                                modifier = Modifier.size(24.dp)
                             )
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_add),
-                                contentDescription = null,
-                                tint = colorResource(R.color.colorOnBackground),
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = stringResource(R.string.new_folder),
-                                fontSize = 16.sp,
-                                color = colorResource(R.color.colorOnBackground)
+                                text = space.friendlyName,
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontSize = 16.sp
                             )
                         }
+                    }
+
+
+                    // Folder list (dimmed when space list is expanded)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .padding(top = 8.dp)
+                            .alpha(if (serverAccordionState.expanded) 0.3f else 1f),
+                        verticalArrangement = Arrangement.spacedBy(0.dp)
+                    ) {
+                        projects.forEach { project ->
+                            FolderItem(
+                                project = project,
+                                isSelected = project.id == selectedProject?.id,
+                                onProjectSelected = onProjectSelected
+                            )
+                        }
+                    }
+
+                    // Add Folder button at bottom (dimmed when space list is expanded)
+                    Button(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 24.dp)
+                            .align(Alignment.CenterHorizontally)
+                            .alpha(if (serverAccordionState.expanded) 0.3f else 1f),
+                        shape = RoundedCornerShape(8.dp),
+                        onClick = onAddNewFolderClicked,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = colorResource(R.color.colorTertiary)
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_add),
+                            contentDescription = null,
+                            tint = colorResource(R.color.colorOnBackground),
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(R.string.new_folder),
+                            fontSize = 16.sp,
+                            color = colorResource(R.color.colorOnBackground)
+                        )
                     }
                 }
             }
         }
+
     }
 }
 
@@ -182,8 +178,10 @@ private fun SpaceListItem(
     isSelected: Boolean,
     onSpaceSelected: (Space) -> Unit
 ) {
-    val backgroundColor = if (isSelected) colorResource(R.color.colorTertiary) else colorResource(R.color.colorDrawerSpaceListBackground)
-    val textColor = if (isSelected) colorResource(R.color.colorOnBackground) else colorResource(R.color.colorText)
+    val backgroundColor =
+        if (isSelected) colorResource(R.color.colorTertiary) else colorResource(R.color.colorDrawerSpaceListBackground)
+    val textColor =
+        if (isSelected) colorResource(R.color.colorOnBackground) else colorResource(R.color.colorText)
 
     Row(
         modifier = Modifier
@@ -208,16 +206,18 @@ private fun SpaceListItem(
 }
 
 
-
 @Composable
 private fun FolderItem(
     project: Project,
     isSelected: Boolean,
     onProjectSelected: (Project) -> Unit
 ) {
-    val iconRes = if (isSelected) R.drawable.baseline_folder_white_24 else R.drawable.outline_folder_white_24
-    val iconColor = if (isSelected) colorResource(R.color.colorTertiary) else colorResource(R.color.colorOnBackground)
-    val textColor = if (isSelected) colorResource(R.color.colorOnBackground) else colorResource(R.color.colorText)
+    val iconRes =
+        if (isSelected) R.drawable.baseline_folder_white_24 else R.drawable.outline_folder_white_24
+    val iconColor =
+        if (isSelected) colorResource(R.color.colorTertiary) else colorResource(R.color.colorOnBackground)
+    val textColor =
+        if (isSelected) colorResource(R.color.colorOnBackground) else colorResource(R.color.colorText)
 
     Row(
         modifier = Modifier
@@ -326,8 +326,10 @@ private fun DrawerSpaceListItem(
     isSelected: Boolean,
     onSpaceSelected: (Space) -> Unit
 ) {
-    val backgroundColor = if (isSelected) colorResource(R.color.colorTertiary) else colorResource(R.color.colorDrawerSpaceListBackground)
-    val textColor = if (isSelected) colorResource(R.color.colorOnBackground) else colorResource(R.color.colorText)
+    val backgroundColor =
+        if (isSelected) colorResource(R.color.colorTertiary) else colorResource(R.color.colorDrawerSpaceListBackground)
+    val textColor =
+        if (isSelected) colorResource(R.color.colorOnBackground) else colorResource(R.color.colorText)
 
     Row(
         modifier = Modifier

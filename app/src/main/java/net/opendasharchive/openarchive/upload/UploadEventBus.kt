@@ -21,7 +21,10 @@ sealed class UploadEvent {
 }
 
 object UploadEventBus {
-    private val _events = MutableSharedFlow<UploadEvent>(extraBufferCapacity = 64)
+    private val _events = MutableSharedFlow<UploadEvent>(
+        replay = 1,
+        extraBufferCapacity = 64
+    )
     val events: SharedFlow<UploadEvent> = _events.asSharedFlow()
 
     fun tryEmit(event: UploadEvent): Boolean = _events.tryEmit(event)

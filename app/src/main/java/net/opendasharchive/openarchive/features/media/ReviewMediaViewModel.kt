@@ -1,9 +1,7 @@
 package net.opendasharchive.openarchive.features.media
 
 import android.content.ContentResolver
-import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -15,10 +13,16 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.db.Media
+import net.opendasharchive.openarchive.features.core.UiColor
+import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
+import net.opendasharchive.openarchive.util.Prefs
 import java.io.File
 
 data class ReviewMediaState(
@@ -51,14 +55,14 @@ sealed class ReviewMediaAction {
 }
 
 sealed class ReviewMediaEvent {
-    data object NavigateBack : ReviewMediaEvent()
-    data class ShowFlagHint(val isFlagged: Boolean) : ReviewMediaEvent()
+
 }
 
 class ReviewMediaViewModel(
     private val route: AppRoute.ReviewMediaRoute,
     private val navigator: Navigator,
-    private val contentResolver: ContentResolver
+    private val contentResolver: ContentResolver,
+    private val dialogManager: DialogStateManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ReviewMediaState())
@@ -111,7 +115,7 @@ class ReviewMediaViewModel(
     private fun handleNavigateBack() {
         viewModelScope.launch {
             saveAllMedia()
-            _events.send(ReviewMediaEvent.NavigateBack)
+            navigator.navigateBack()
         }
     }
 
@@ -139,7 +143,7 @@ class ReviewMediaViewModel(
 
             // Show hint only once
             if (newFlagState) {
-                _events.send(ReviewMediaEvent.ShowFlagHint(newFlagState))
+                showFlagHint(newFlagState)
             }
 
             if (state.isBatchMode) {
@@ -157,6 +161,24 @@ class ReviewMediaViewModel(
             saveAllMedia()
             updateFlagState()
         }
+    }
+
+    private fun showFlagHint(flagged: Boolean) {
+        if (Prefs.flagHintShown) {
+            return
+        }
+
+        dialogManager.showDialog {
+            title = UiText.Resource(R.string.popup_flag_title)
+            message = UiText.Resource(R.string.popup_flag_desc)
+            icon = UiImage.DrawableResource(R.drawable.ic_flag_selected)
+            iconColor = UiColor.Resource(R.color.orange_light)
+            positiveButton {
+                text = UiText.Resource(R.string.lbl_got_it)
+            }
+        }
+        Prefs.flagHintShown = true
+
     }
 
     private fun handleUpdateDescription(value: String) {
@@ -202,7 +224,7 @@ class ReviewMediaViewModel(
     private fun handleSaveAndFinish() {
         viewModelScope.launch {
             saveAllMedia()
-            _events.send(ReviewMediaEvent.NavigateBack)
+            navigator.navigateBack()
         }
     }
 
@@ -352,6 +374,7 @@ class ReviewMediaViewModel(
                             null
                         }
                     }
+
                     !media.originalFilePath.isNullOrEmpty() -> {
                         val file = File(media.originalFilePath)
                         if (file.exists()) {
@@ -360,6 +383,7 @@ class ReviewMediaViewModel(
                             null
                         }
                     }
+
                     else -> null
                 }
 

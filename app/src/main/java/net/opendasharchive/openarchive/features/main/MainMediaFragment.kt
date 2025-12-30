@@ -27,8 +27,9 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.main.adapters.MainMediaAdapter
 import net.opendasharchive.openarchive.upload.BroadcastManager
-import net.opendasharchive.openarchive.upload.UploadService
+import net.opendasharchive.openarchive.upload.UploadJobScheduler
 import net.opendasharchive.openarchive.util.extensions.toggle
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import kotlin.collections.set
 
@@ -50,6 +51,7 @@ class MainMediaFragment : BaseFragment() {
     }
 
     private val viewModel by activityViewModel<MainViewModel>()
+    private val uploadJobScheduler: UploadJobScheduler by inject()
 
     private var mAdapters = HashMap<Long, MainMediaAdapter>()
     private var mSection = HashMap<Long, SectionViewHolder>()
@@ -165,7 +167,7 @@ class MainMediaFragment : BaseFragment() {
             }
         }
     }
-
+    //codex resume 019b3b3f-4cab-7393-b441-28cfe89f47f6
     fun refresh() {
         mCollections = Collection.getByProject(mProjectId).associateBy { it.id }.toMutableMap()
 
@@ -284,7 +286,7 @@ class MainMediaFragment : BaseFragment() {
                             mediaItem.id
                         )
                     }
-                    UploadService.startUploadService(requireActivity())
+                    uploadJobScheduler.schedule()
                 }
             }
             destructiveButton {

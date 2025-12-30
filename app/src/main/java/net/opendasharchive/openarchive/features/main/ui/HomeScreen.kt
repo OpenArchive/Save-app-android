@@ -26,7 +26,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.navigation.ResultEffect
 import net.opendasharchive.openarchive.features.media.Picker
 import net.opendasharchive.openarchive.util.Prefs
@@ -52,7 +51,6 @@ import kotlin.math.max
  */
 @Composable
 fun HomeScreen(
-    invokeNavEvent: (HomeNavigation) -> Unit,
     viewModel: HomeViewModel = koinViewModel(),
 ) {
 
@@ -106,6 +104,13 @@ fun HomeScreen(
         }
     }
 
+    // Receive space added result to refresh space list after coming from space setup complete screen
+    ResultEffect<Boolean>(resultKey = "refresh_spaces") { success ->
+        if (success) {
+            viewModel.onAction(HomeAction.Reload)
+        }
+    }
+
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collectLatest { event ->
             when (event) {
@@ -113,10 +118,7 @@ fun HomeScreen(
                     when (event.type) {
                         AddMediaType.CAMERA -> {
                             // Navigate to camera screen
-                            val projectId = uiState.selectedProjectId
-                            if (projectId != null) {
-                                invokeNavEvent(HomeNavigation.Camera(projectId))
-                            }
+                            viewModel.onAction(HomeAction.NavigateToCamera)
                         }
                         AddMediaType.GALLERY -> {
                             pickerLaunchers.launch(AddMediaType.GALLERY)
@@ -126,7 +128,6 @@ fun HomeScreen(
                         }
                     }
                 }
-                is HomeEvent.Navigate -> invokeNavEvent(event.destination)
                 is HomeEvent.NavigateToProject -> Unit
                 is HomeEvent.ShowMessage -> {
                     snackbarHostState.showSnackbar(event.message)
@@ -224,7 +225,7 @@ fun HomeScreenContent(
                         },
                         onAddNewSpaceClicked = {
                             scope.launch { drawerState.close() }
-                            onAction(HomeAction.Navigate(destination = HomeNavigation.SpaceSetup))
+                            onAction(HomeAction.Navigate(route = AppRoute.SpaceSetupRoute))
                         },
                         onAddNewFolderClicked = {
                             onAction(HomeAction.NavigateToAddNewFolder)
@@ -292,16 +293,16 @@ fun HomeScreenContent(
                             isSettingsPage -> {
                                 SettingsScreen(
                                     onNavigateToSpaceList = {
-                                        onAction(HomeAction.Navigate(HomeNavigation.SpaceList))
+                                        onAction(HomeAction.Navigate(AppRoute.SpaceListRoute))
                                     },
                                     onNavigateToArchivedFolders = {
                                         onAction(HomeAction.NavigateToArchivedFolders)
                                     },
                                     onNavigateToCache = {
-                                        onAction(HomeAction.Navigate(HomeNavigation.Cache))
+                                        onAction(HomeAction.Navigate(AppRoute.MediaCacheRoute))
                                     },
                                     onNavigateToProofMode = {
-                                        onAction(HomeAction.Navigate(HomeNavigation.ProofMode))
+                                        onAction(HomeAction.Navigate(AppRoute.ProofModeSettings))
                                     }
                                 )
                             }

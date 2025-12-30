@@ -53,5 +53,5 @@ sealed interface WebDavLoginAction {
 }
 
 sealed interface WebDavLoginEvent {
-    data class ShowError(val message: UiText) : WebDavLoginEvent
+
 }

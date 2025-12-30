@@ -14,6 +14,10 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
+import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.services.webdav.WebDavRepository
@@ -22,6 +26,7 @@ import java.io.IOException
 class WebDavLoginViewModel(
     private val navigator: Navigator,
     private val repository: WebDavRepository,
+    private val dialogManager: DialogStateManager,
     private val analyticsManager: AnalyticsManager
 ) : ViewModel() {
 
@@ -154,9 +159,7 @@ class WebDavLoginViewModel(
         // Check for duplicate credentials
         val existing = Space.get(Space.Type.WEBDAV, space.host, space.username)
         if (existing.isNotEmpty() && existing[0].id != space.id) {
-            viewModelScope.launch {
-                _events.send(WebDavLoginEvent.ShowError(UiText.Resource(R.string.you_already_have_a_server_with_these_credentials)))
-            }
+            showError(UiText.Resource(R.string.you_already_have_a_server_with_these_credentials))
             return
         }
 
@@ -203,13 +206,13 @@ class WebDavLoginViewModel(
                     e.message?.startsWith("400") == true ||
                     e.message?.startsWith("403") == true -> {
                         _uiState.update { it.copy(serverError = UiText.Dynamic(" ")) }
-                        _events.send(WebDavLoginEvent.ShowError(UiText.Resource(R.string.web_dav_host_error)))
+                        showError(UiText.Resource(R.string.web_dav_host_error))
                     }
 
                     else -> {
                         // Other server errors (500, etc.)
                         _uiState.update { it.copy(serverError = UiText.Dynamic(" ")) }
-                        _events.send(WebDavLoginEvent.ShowError(UiText.Dynamic(e.localizedMessage ?: "An error occurred")))
+                        showError(UiText.Dynamic(e.localizedMessage ?: "An error occurred"))
                     }
                 }
             }
@@ -234,6 +237,12 @@ class WebDavLoginViewModel(
         }
 
         return builder.build()
+    }
+
+    private fun showError(error: UiText) {
+        dialogManager.showErrorDialog(
+            message = error
+        )
     }
 
 }

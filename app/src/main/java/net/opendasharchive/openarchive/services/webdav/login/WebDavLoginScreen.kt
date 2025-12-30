@@ -93,7 +93,6 @@ class WebDavLoginScreenFragment : BaseFragment(), ToolbarConfigurable {
         SaveAppTheme {
             WebDavLoginScreen(
                 viewModel = viewModel,
-                dialogManager = dialogManager,
             )
         }
     }
@@ -129,22 +128,12 @@ class WebDavLoginScreenFragment : BaseFragment(), ToolbarConfigurable {
 @Composable
 fun WebDavLoginScreen(
     viewModel: WebDavLoginViewModel,
-    dialogManager: DialogStateManager,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val context = LocalContext.current
-
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
-            when (event) {
-                is WebDavLoginEvent.ShowError -> {
-                    dialogManager.showErrorDialog(
-                        message = event.message.asString(context),
-                        title = context.getString(R.string.error)
-                    )
-                }
-            }
+
         }
     }
 

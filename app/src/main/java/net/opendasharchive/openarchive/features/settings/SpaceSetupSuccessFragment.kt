@@ -19,9 +19,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SpaceSetupSuccessFragment : BaseFragment() {
 
-    // Toggle to switch between XML and Compose implementation
-    private val useComposeImplementation = true  // Set to false to use XML implementation
-
     private lateinit var binding: FragmentSpaceSetupSuccessBinding
     private val args: SpaceSetupSuccessFragmentArgs by navArgs()
 
@@ -32,22 +29,7 @@ class SpaceSetupSuccessFragment : BaseFragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        if (useComposeImplementation) {
-            // Use Compose implementation
-            return ComposeView(requireContext()).apply {
-                setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-                setContent {
-                    SaveAppTheme {
-                        SpaceSetupSuccessScreen(
-                            viewModel = viewModel,
-                            onNavigateToMain = {
-                                // Navigation already handled in ViewModel
-                            },
-                        )
-                    }
-                }
-            }
-        }
+
 
         // Original XML implementation
         binding = FragmentSpaceSetupSuccessBinding.inflate(inflater)

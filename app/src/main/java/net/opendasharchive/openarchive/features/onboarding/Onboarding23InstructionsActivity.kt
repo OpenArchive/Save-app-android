@@ -51,7 +51,7 @@ class Onboarding23InstructionsActivity : BaseActivity() {
                 SaveAppTheme {
                     OnboardingInstructionsScreen(
                         onDone = { done() },
-                        onBackPressed = { finish() }
+                        //onBackPressed = { finish() }
                     )
                 }
             }

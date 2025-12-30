@@ -10,11 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ErrorOutline
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -272,7 +267,7 @@ private fun BaseDialogPreview() {
 
         BaseDialog(
             onDismiss = {},
-            icon = Icons.Filled.Check.asUiImage(),
+            icon = UiImage.DrawableResource(R.drawable.ic_warning),
             iconColor = MaterialTheme.colorScheme.tertiary,
             title = stringResource(R.string.label_success_title),
             message = stringResource(R.string.create_folder_ok_message),
@@ -290,7 +285,7 @@ private fun WarningDialogPreview() {
 
         BaseDialog(
             onDismiss = {},
-            icon = Icons.Default.Warning.asUiImage(),
+            icon = UiImage.DrawableResource(R.drawable.ic_warning),
             iconColor = MaterialTheme.colorScheme.tertiary,
             title = "Warning",
             message = stringResource(R.string.once_uploaded_you_will_not_be_able_to_edit_media),
@@ -311,7 +306,7 @@ private fun ErrorDialogPreview() {
 
         BaseDialog(
             onDismiss = {},
-            icon = Icons.Default.ErrorOutline.asUiImage(),
+            icon = UiImage.DrawableResource(R.drawable.ic_error),
             iconColor = MaterialTheme.colorScheme.error,
             title = "Image upload unsuccessful",
             message = "Give a reason here? Lorem Ipsum text can go here if needed",
@@ -329,7 +324,7 @@ private fun TorWarningDialogPreview() {
 
         BaseDialog(
             onDismiss = {},
-            icon = Icons.Default.Info.asUiImage(),
+            icon = UiImage.DrawableResource(R.drawable.ic_info_outline),
             iconColor = MaterialTheme.colorScheme.tertiary,
             title = stringResource(R.string.tor_disabled_title),
             message = stringResource(R.string.tor_disabled_message),

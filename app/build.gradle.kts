@@ -218,7 +218,7 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material3.adaptive)
-    implementation(libs.androidx.compose.icons.extended)
+    //implementation(libs.androidx.compose.icons.extended)
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.compose.preferences)
@@ -288,6 +288,7 @@ dependencies {
     //implementation(libs.google.drive.api)
 
     // Security & Cryptography
+    implementation("com.google.crypto.tink:tink-android:1.20.0")
     implementation(libs.bouncycastle.bcprov)
     implementation(libs.bouncycastle.bcpkix)
     api(libs.bouncycastle.bcpg)

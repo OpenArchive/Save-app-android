@@ -12,8 +12,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.activity.addCallback
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
 import androidx.core.view.MenuProvider
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
@@ -289,7 +287,7 @@ class WebDavFragment : BaseFragment() {
             type = DialogType.Warning,
             title = UiText.Resource(R.string.unsaved_changes),
             message = UiText.Resource(R.string.do_you_want_to_save),
-            icon = UiImage.DynamicVector(Icons.Default.Warning),
+            icon = UiImage.DrawableResource(R.drawable.ic_warning),
             positiveButton = ButtonData(
                 text = UiText.Resource(R.string.lbl_save),
                 action = { saveChanges() }
@@ -504,8 +502,7 @@ class WebDavFragment : BaseFragment() {
             } else {
                 // Show error dialog for server errors
                 dialogManager.showErrorDialog(
-                    message = text.toString(),
-                    title = getString(R.string.error),
+                    message = UiText.Dynamic(text.toString()),
                     onDismiss = { binding.server.requestFocus() }
                 )
             }

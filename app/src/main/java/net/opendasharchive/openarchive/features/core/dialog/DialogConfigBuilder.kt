@@ -4,10 +4,6 @@ import android.content.Context
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.outlined.Error
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -137,9 +133,9 @@ class DialogBuilder {
         if (icon == null) {
             icon = when (type) {
                 DialogType.Success -> UiImage.DrawableResource(R.drawable.ic_done)
-                DialogType.Error -> UiImage.DynamicVector(Icons.Outlined.Error)
-                DialogType.Warning -> UiImage.DynamicVector(Icons.Default.Warning)
-                DialogType.Info -> UiImage.DynamicVector(Icons.Filled.Info)
+                DialogType.Error -> UiImage.DrawableResource(R.drawable.ic_error)
+                DialogType.Warning -> UiImage.DrawableResource(R.drawable.ic_warning)
+                DialogType.Info -> UiImage.DrawableResource(R.drawable.ic_info_outline)
                 DialogType.Custom -> null
             }
         }
@@ -186,9 +182,9 @@ class DialogBuilder {
 
             icon = when (type) {
                 DialogType.Success -> UiImage.DrawableResource(R.drawable.ic_done)
-                DialogType.Error -> UiImage.DynamicVector(Icons.Outlined.Error)
-                DialogType.Warning -> UiImage.DynamicVector(Icons.Default.Warning)
-                DialogType.Info -> UiImage.DynamicVector(Icons.Filled.Info)
+                DialogType.Error -> UiImage.DrawableResource(R.drawable.ic_error)
+                DialogType.Warning -> UiImage.DrawableResource(R.drawable.ic_warning)
+                DialogType.Info -> UiImage.DrawableResource(R.drawable.ic_info_outline)
                 DialogType.Custom -> null
             }
         }
@@ -296,16 +292,16 @@ fun DialogStateManager.showSuccessDialog(
 
 // View helper for an error dialog.
 fun DialogStateManager.showErrorDialog(
-    message: String,
-    title: String = "",
+    title: UiText? = null,
+    message: UiText,
     onDismiss: () -> Unit = {}
 ) {
     val resourceProvider = this.requireResourceProvider()
 
     showDialog(resourceProvider) {
         type = DialogType.Error
-        this.message = UiText.Dynamic(message)
-        if (title.isNotEmpty()) this.title = UiText.Dynamic(title)
+        this.message = message
+        title?.let { this.title = it } ?: run { this.title = UiText.Resource(R.string.error) }
 
         positiveButton {
             text = UiText.Resource(R.string.lbl_ok)
@@ -340,7 +336,7 @@ fun DialogStateManager.showInfoDialog(
 fun DialogStateManager.showWarningDialog(
     title: UiText?,
     message: UiText,
-    icon: UiImage? = null,
+    icon: UiImage? = UiImage.DrawableResource(R.drawable.ic_warning),
     positiveButtonText: UiText? = null,
     onDone: () -> Unit = {},
     onCancel: () -> Unit = {}
@@ -398,7 +394,6 @@ fun DialogStateManager.showDestructiveDialog(
  */
 interface ResourceProvider {
     fun getColor(@ColorRes colorRes: Int): Color
-    fun getVector(@DrawableRes drawableRes: Int): ImageVector?
 }
 
 /**
@@ -410,15 +405,5 @@ class DefaultResourceProvider(private val context: Context) : ResourceProvider {
     override fun getColor(@ColorRes colorRes: Int): Color {
         // ContextCompat.getColor returns an int (the ARGB value); we wrap it in Compose’s Color.
         return Color(ContextCompat.getColor(context, colorRes))
-    }
-
-    override fun getVector(@DrawableRes drawableRes: Int): ImageVector? {
-        // For a real application you might have a more elaborate mapping.
-        // In this simple example, if the drawable resource equals R.drawable.ic_info,
-        // we return Icons.Filled.Info; otherwise, return null.
-        return when (drawableRes) {
-            R.drawable.ic_info -> Icons.Filled.Info
-            else -> null
-        }
     }
 }

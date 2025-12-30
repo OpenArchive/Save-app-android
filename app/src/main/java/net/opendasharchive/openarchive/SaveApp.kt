@@ -80,10 +80,10 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
             androidContext(this@SaveApp)
             modules(
                 coreModule,
+                passcodeModule,
                 featuresModule,
                 retrofitModule,
                 unixSocketModule,
-                passcodeModule,
                 analyticsModule(
                     mixpanelToken = getString(R.string.mixpanel_key),
                     cleanInsightsConsentChecker = { CleanInsightsManager.hasConsent() }

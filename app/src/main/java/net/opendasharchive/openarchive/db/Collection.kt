@@ -16,6 +16,11 @@ data class Collection(
                 null, "id ASC", null)
         }
 
+        fun getByProjectRecentFirst(projectId: Long): List<Collection> {
+            return find(Collection::class.java, "project_id = ?", arrayOf(projectId.toString()),
+                null, "id DESC", null)
+        }
+
         fun get(collectionId: Long?): Collection? {
             @Suppress("NAME_SHADOWING")
             val collectionId = collectionId ?: return null

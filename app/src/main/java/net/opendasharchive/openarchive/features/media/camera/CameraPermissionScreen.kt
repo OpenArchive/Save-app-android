@@ -3,15 +3,13 @@ package net.opendasharchive.openarchive.features.media.camera
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -31,7 +29,6 @@ fun CameraPermissionScreen(
     onOpenSettings: () -> Unit = {},
     onCancel: () -> Unit
 ) {
-    val context = LocalContext.current
     
     Box(
         modifier = modifier
@@ -48,7 +45,7 @@ fun CameraPermissionScreen(
         ) {
             // Header
             Icon(
-                imageVector = Icons.Default.CameraAlt,
+                painter = painterResource(R.drawable.ic_camera_alt),
                 contentDescription = null,
                 modifier = Modifier.size(80.dp),
                 tint = Color.White
@@ -120,7 +117,7 @@ fun CameraPermissionScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Settings,
+                                painter = painterResource(R.drawable.ic_settings),
                                 contentDescription = null,
                                 modifier = Modifier.size(18.dp)
                             )
@@ -175,7 +172,7 @@ fun CameraPermissionScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Settings,
+                            painter = painterResource(R.drawable.ic_settings),
                             contentDescription = null,
                             modifier = Modifier.size(18.dp),
                             tint = Color.White.copy(alpha = 0.7f)

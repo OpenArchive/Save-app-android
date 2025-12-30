@@ -38,8 +38,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -306,14 +307,23 @@ private fun FolderBarEditMode(
 ) {
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
-    val context = LocalContext.current
+    val keyboard = LocalSoftwareKeyboardController.current
+    val view = LocalView.current
     var folderName by remember { mutableStateOf(initialName) }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
         // Show keyboard
-        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
+        keyboard?.show()
+    }
+
+    fun closeImeAndClearFocus() {
+        focusManager.clearFocus()
+        keyboard?.hide()
+
+        // fallback (optional but reliable) using a real token
+        val imm = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     Row(
@@ -323,10 +333,7 @@ private fun FolderBarEditMode(
         // Close Button
         IconButton(
             onClick = {
-                focusManager.clearFocus()
-                val imm =
-                    context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.hideSoftInputFromWindow(null, 0)
+                closeImeAndClearFocus()
                 onCancel()
             },
             modifier = Modifier.size(28.dp)
@@ -352,10 +359,7 @@ private fun FolderBarEditMode(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(
                 onDone = {
-                    focusManager.clearFocus()
-                    val imm =
-                        context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    imm.hideSoftInputFromWindow(null, 0)
+                    closeImeAndClearFocus()
                     onSave(folderName)
                 }
             ),

@@ -23,14 +23,6 @@
 # A resource is loaded with a relative path so the package of this class must be preserved.
 -keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
 
--assumenosideeffects class androidx.compose.material.icons.extended.{
-    !Visibility,
-    !VisibilityOff,
-    **
-} {
-    <methods>;
-}
-
 -if class androidx.credentials.CredentialManager
 -keep class androidx.credentials.playservices.** {
   *;

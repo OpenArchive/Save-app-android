@@ -2,7 +2,6 @@ package net.opendasharchive.openarchive.core.di
 
 import android.app.Application
 import android.content.ContentResolver
-import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.internetarchive.internetArchiveModule
 import net.opendasharchive.openarchive.features.main.data.CollectionRepository
 import net.opendasharchive.openarchive.features.main.data.MediaRepository
@@ -16,6 +15,8 @@ import net.opendasharchive.openarchive.features.main.ui.HomeViewModel
 import net.opendasharchive.openarchive.features.main.ui.MainMediaViewModel
 import net.opendasharchive.openarchive.features.media.PreviewMediaViewModel
 import net.opendasharchive.openarchive.features.media.ReviewMediaViewModel
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.spaces.SpaceListViewModel
 import net.opendasharchive.openarchive.features.spaces.SpaceSetupViewModel
 import net.opendasharchive.openarchive.services.SaveClientFactory
@@ -33,10 +34,13 @@ import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupViewModel
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdRepoRepository
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdRepoViewModel
 import net.opendasharchive.openarchive.upload.UploadManagerViewModel
+import net.opendasharchive.openarchive.upload.JobSchedulerUploadJobScheduler
+import net.opendasharchive.openarchive.upload.UploadJobScheduler
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import org.koin.android.ext.koin.androidApplication
 
 val featuresModule = module {
     includes(internetArchiveModule)
@@ -83,7 +87,16 @@ val featuresModule = module {
         get<Application>().contentResolver
     }
     viewModelOf(::ReviewMediaViewModel)
-    viewModelOf(::PreviewMediaViewModel)
+    viewModel { (navigator: Navigator, route: AppRoute.PreviewMediaRoute) ->
+        PreviewMediaViewModel(
+            route = route,
+            navigator = navigator,
+            dialogManager = get(),
+            projectRepository = get(),
+            mediaRepository = get(),
+            uploadJobScheduler = get()
+        )
+    }
 
     // WebDAV
     single<SaveClientFactory> { SaveClientFactoryImpl(get()) }
@@ -94,4 +107,7 @@ val featuresModule = module {
 
     // Upload Manager
     viewModelOf(::UploadManagerViewModel)
+
+    // Upload scheduling
+    single<UploadJobScheduler> { JobSchedulerUploadJobScheduler(androidApplication()) }
 }

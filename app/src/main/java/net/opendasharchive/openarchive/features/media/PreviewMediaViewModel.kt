@@ -27,6 +27,7 @@ import net.opendasharchive.openarchive.features.main.data.ProjectRepository
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.util.Prefs
+import net.opendasharchive.openarchive.upload.UploadJobScheduler
 
 data class PreviewMediaState(
     val mediaList: List<Media> = emptyList(),
@@ -58,7 +59,6 @@ sealed class PreviewMediaAction {
 
 sealed class PreviewMediaEvent {
     data class LaunchPicker(val type: AddMediaType) : PreviewMediaEvent()
-    data object StartUploadService : PreviewMediaEvent()
 }
 
 class PreviewMediaViewModel(
@@ -66,7 +66,8 @@ class PreviewMediaViewModel(
     private val navigator: Navigator,
     private val dialogManager: DialogStateManager,
     private val projectRepository: ProjectRepository,
-    private val mediaRepository: MediaRepository
+    private val mediaRepository: MediaRepository,
+    private val uploadJobScheduler: UploadJobScheduler
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(PreviewMediaState())
@@ -244,8 +245,7 @@ class PreviewMediaViewModel(
                     it.save()
                 }
             }
-            // invoke UploadManager
-            emitEvent(PreviewMediaEvent.StartUploadService)
+            uploadJobScheduler.schedule()
             navigator.navigateAndClear(AppRoute.HomeRoute)
         }
     }
@@ -255,7 +255,7 @@ class PreviewMediaViewModel(
     }
 
     private fun showFirstTimeBatch() {
-        //if (Prefs.batchHintShown) return
+        if (Prefs.batchHintShown) return
 
         dialogManager.showDialog {
             icon = R.drawable.ic_media_new.asUiImage()

@@ -2,6 +2,7 @@ package net.opendasharchive.openarchive.features.settings.passcode.passcode_entr
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,10 +11,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
+import net.opendasharchive.openarchive.features.settings.passcode.components.MessageManager
 
 class PasscodeEntryViewModel(
+    private val navigator: Navigator,
     private val repository: PasscodeRepository,
     private val config: AppConfig
 ) : ViewModel() {
@@ -82,45 +90,49 @@ class PasscodeEntryViewModel(
     private fun checkPasscode() = viewModelScope.launch {
         val currentState = uiState.value
         val currentPasscode = currentState.passcode
+
         delay(200)
-        val (passcodeHash, passcodeSalt) = repository.getPasscodeHashAndSalt()
 
-        if (passcodeHash != null && passcodeSalt != null) {
-            val hash = repository.hashPasscode(currentPasscode, passcodeSalt)
-            if (hash.contentEquals(passcodeHash)) {
-                repository.resetFailedAttempts()
-                _uiEvent.send(PasscodeEntryUiEvent.Success)
-            } else {
-                repository.recordFailedAttempt()
-                val remainingAttempts: Int? = if (config.maxRetryLimitEnabled) {
-                    repository.getRemainingAttempts()
-                } else null
+        val hasPasscodeSet = withContext(Dispatchers.IO) {
+            repository.getPasscodeHashAndSalt().let { it.first != null && it.second != null }
+        }
 
-                if (repository.isLockedOut()) {
-                    _uiEvent.send(PasscodeEntryUiEvent.LockedOut)
-                } else {
-                    _uiEvent.send(PasscodeEntryUiEvent.IncorrectPasscode(remainingAttempts))
-                }
-                _uiState.update { it.copy(shouldShake = true) }
-                delay(500)
-                _uiState.update { it.copy(shouldShake = false) }
-            }
+        if (!hasPasscodeSet) {
+            MessageManager.showMessage(UiText.Resource(R.string.passcode_not_set))
+            shake()
+            resetUi()
+            return@launch
+        }
+
+        val ok = repository.verifyPasscode(currentPasscode)
+
+        if (ok) {
+            repository.resetFailedAttempts()
+            navigator.navigateBack()
         } else {
-            _uiEvent.send(PasscodeEntryUiEvent.PasscodeNotSet)
-            _uiState.update { it.copy(shouldShake = true) }
-            delay(500)
-            _uiState.update { it.copy(shouldShake = false) }
+            repository.recordFailedAttempt()
+
+            if (repository.isLockedOut()) {
+                MessageManager.showMessage(UiText.Resource(R.string.passcode_too_many_failed_attempts))
+                navigator.navigateBack()
+            } else {
+                val remainingAttempts = if (config.maxRetryLimitEnabled) repository.getRemainingAttempts() else null
+                _uiEvent.send(PasscodeEntryUiEvent.IncorrectPasscode(remainingAttempts))
+            }
+            shake()
         }
 
-        _uiState.update {
-            it.copy(
-                passcode = "",
-                isProcessing = false
-            )
-        }
-//        _passcode.value = ""
-//        _isCheckingPasscode.value = false
+        resetUi()
+    }
 
+    private suspend fun shake() {
+        _uiState.update { it.copy(shouldShake = true) }
+        delay(500)
+        _uiState.update { it.copy(shouldShake = false) }
+    }
+
+    private fun resetUi() {
+        _uiState.update { it.copy(passcode = "", isProcessing = false) }
     }
 }
 
@@ -138,8 +150,5 @@ sealed class PasscodeEntryScreenAction {
 }
 
 sealed class PasscodeEntryUiEvent {
-    data object Success : PasscodeEntryUiEvent()
     data class IncorrectPasscode(val remainingAttempts: Int? = null) : PasscodeEntryUiEvent()
-    data object PasscodeNotSet : PasscodeEntryUiEvent()
-    data object LockedOut : PasscodeEntryUiEvent()
 }

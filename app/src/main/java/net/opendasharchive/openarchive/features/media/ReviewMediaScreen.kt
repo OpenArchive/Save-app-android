@@ -103,9 +103,7 @@ class ReviewMediaFragment : BaseFragment(), ToolbarConfigurable {
             setContent {
                 SaveAppTheme {
                     ReviewMediaScreen(
-                        onNavigateBack = {
-                            findNavController().popBackStack()
-                        }
+                        //onNavigateBack = { findNavController().popBackStack() }
                     )
                 }
             }
@@ -149,37 +147,12 @@ class ReviewMediaFragment : BaseFragment(), ToolbarConfigurable {
 @Composable
 fun ReviewMediaScreen(
     viewModel: ReviewMediaViewModel = koinViewModel(),
-    onNavigateBack: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-    val activity = context as? FragmentActivity
-    val dialogManager = (activity as? BaseActivity)?.dialogManager
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
-            when (event) {
-                ReviewMediaEvent.NavigateBack -> {
-                    onNavigateBack()
-                }
-                is ReviewMediaEvent.ShowFlagHint -> {
-                    if (!Prefs.flagHintShown && dialogManager != null) {
-                        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-                            title = UiText.Resource(R.string.popup_flag_title)
-                            message = UiText.Resource(R.string.popup_flag_desc)
-                            icon = UiImage.DrawableResource(R.drawable.ic_flag_selected)
-                            iconColor = UiColor.Resource(R.color.orange_light)
-                            positiveButton {
-                                text = UiText.Resource(R.string.lbl_got_it)
-                                action = {
-                                    dialogManager.dismissDialog()
-                                }
-                            }
-                        }
-                        Prefs.flagHintShown = true
-                    }
-                }
-            }
+
         }
     }
 

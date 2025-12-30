@@ -17,6 +17,7 @@ import org.koin.android.ext.android.inject
 
 class PasscodeSetupActivity : BaseActivity() {
 
+    private val viewModel: PasscodeSetupViewModel by inject()
     private val hapticManager: HapticManager by inject()
 
     companion object {
@@ -47,18 +48,19 @@ class PasscodeSetupActivity : BaseActivity() {
                     }
 
                     PasscodeSetupScreen(
-                        onPasscodeSet = {
-                            // Passcode successfully set
-                            setResult(RESULT_OK, Intent().apply {
-                                putExtra(EXTRA_PASSCODE_ENABLED, true)
-                            })
-                            finish()
-                        },
-                        onCancel = {
-                            // User canceled the setup
-                            setResult(RESULT_CANCELED)
-                            finish()
-                        }
+                        viewModel = viewModel,
+//                        onPasscodeSet = {
+//                            // Passcode successfully set
+//                            setResult(RESULT_OK, Intent().apply {
+//                                putExtra(EXTRA_PASSCODE_ENABLED, true)
+//                            })
+//                            finish()
+//                        },
+//                        onCancel = {
+//                            // User canceled the setup
+//                            setResult(RESULT_CANCELED)
+//                            finish()
+//                        }
                     )
                 }
             }
@@ -75,8 +77,4 @@ class PasscodeSetupActivity : BaseActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        hapticManager.clear() // Clear the reference to prevent leaks
-    }
 }

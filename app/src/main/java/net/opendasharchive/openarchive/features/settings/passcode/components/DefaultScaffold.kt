@@ -11,16 +11,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import net.opendasharchive.openarchive.features.core.ComposeAppBar
+import net.opendasharchive.openarchive.features.core.UiText
 
 object MessageManager {
-    private val _messageChannel = Channel<String>(Channel.BUFFERED)
+    private val _messageChannel = Channel<UiText>(Channel.BUFFERED)
     val messageFlow = _messageChannel.receiveAsFlow()
 
-    suspend fun showMessage(message: String) {
+    suspend fun showMessage(message: UiText) {
         _messageChannel.send(message)
     }
 }
@@ -53,11 +55,12 @@ fun DefaultScaffold(
     content: @Composable () -> Unit
 ) {
 
+    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         MessageManager.messageFlow.collectLatest { message ->
-            snackbarHostState.showSnackbar(message)
+            snackbarHostState.showSnackbar(message.asString(context))
         }
     }
 

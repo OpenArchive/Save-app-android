@@ -75,7 +75,7 @@ import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import net.opendasharchive.openarchive.upload.ComposeUploadManagerFragment
 import net.opendasharchive.openarchive.upload.SKBottomSheetDialogFragment
 import net.opendasharchive.openarchive.upload.UploadManagerFragment
-import net.opendasharchive.openarchive.upload.UploadService
+import net.opendasharchive.openarchive.upload.UploadJobScheduler
 import net.opendasharchive.openarchive.util.InAppReviewHelper
 import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
@@ -95,6 +95,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     private val appConfig by inject<AppConfig>()
     private val viewModel by viewModel<MainViewModel>()
+    private val uploadJobScheduler by inject<UploadJobScheduler>()
 
     private var mMenuDelete: MenuItem? = null
 
@@ -275,7 +276,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             val mediaId = bundle.getLong("mediaId")
             // Now you know which media item is being retried.
             // You can start the upload service or update the UI accordingly.
-            UploadService.startUploadService(this)
+            uploadJobScheduler.schedule()
         }
 
         supportFragmentManager.setFragmentResultListener(
@@ -406,7 +407,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         lifecycleScope.launch(Dispatchers.IO) {
             ProofModeHelper.init(this@MainActivity) {
                 // Check for any queued uploads and restart, only after ProofMode is correctly initialized.
-                UploadService.startUploadService(this@MainActivity)
+                uploadJobScheduler.schedule()
             }
         }
     }
@@ -1264,7 +1265,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             }
 
             // Stop the upload service when the bottom sheet is shown
-            UploadService.stopUploadService(this)
+            uploadJobScheduler.cancel()
         }
     }
 
@@ -1288,7 +1289,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                                 Media.ORDER_PRIORITY
                             ).isNotEmpty()
                         ) {
-                            UploadService.startUploadService(this@MainActivity)
+                            uploadJobScheduler.schedule()
                         }
                     }
                 })

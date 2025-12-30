@@ -91,7 +91,7 @@ class SugarProjectRepository : ProjectRepository {
 
 class SugarCollectionRepository : CollectionRepository {
     override suspend fun getCollections(projectId: Long): List<Collection> = withContext(Dispatchers.IO) {
-        Collection.getByProject(projectId)
+        Collection.getByProjectRecentFirst(projectId)
     }
 
     override suspend fun deleteCollection(id: Long) {

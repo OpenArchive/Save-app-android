@@ -60,7 +60,6 @@ import net.opendasharchive.openarchive.features.onboarding.components.Onboarding
 @Composable
 fun OnboardingInstructionsScreen(
     onDone: () -> Unit,
-    onBackPressed: () -> Unit
 ) {
     val slides = listOf(
         OnboardingSlide(
@@ -333,7 +332,6 @@ private fun OnboardingInstructionsScreenPreview() {
     SaveAppTheme {
         OnboardingInstructionsScreen(
             onDone = {},
-            onBackPressed = {}
         )
     }
 }

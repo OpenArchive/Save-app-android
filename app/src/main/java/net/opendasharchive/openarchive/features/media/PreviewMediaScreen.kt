@@ -42,7 +42,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -62,15 +61,12 @@ import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFam
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.upload.UploadService
 
 @Composable
 fun PreviewMediaScreen(
     viewModel: PreviewMediaViewModel,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-
-    val context = LocalContext.current.applicationContext
 
     val pickerLaunchers = rememberContentPickerLaunchers(
         projectProvider = {
@@ -94,9 +90,6 @@ fun PreviewMediaScreen(
                     pickerLaunchers.launch(event.type)
                 }
 
-                is PreviewMediaEvent.StartUploadService -> {
-                    UploadService.startUploadService(context)
-                }
             }
         }
     }

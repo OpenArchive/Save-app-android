@@ -12,92 +12,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.db.Project
-import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.main.data.ProjectRepository
 import net.opendasharchive.openarchive.features.main.data.SpaceRepository
+import net.opendasharchive.openarchive.features.main.ui.AppRoute.*
 import net.opendasharchive.openarchive.features.main.ui.HomeEvent.LaunchPicker
-import net.opendasharchive.openarchive.features.main.ui.HomeEvent.Navigate
-import net.opendasharchive.openarchive.features.main.ui.HomeNavigation.AddNewFolder
-import net.opendasharchive.openarchive.features.main.ui.HomeNavigation.ArchivedFolders
 import net.opendasharchive.openarchive.features.main.ui.components.HomeBottomTab
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.util.Prefs
-
-sealed class HomeNavigation {
-    data class PreviewMedia(val spaceId: Long, val projectId: Long) : HomeNavigation()
-    data object ProofMode : HomeNavigation()
-    data object SpaceList : HomeNavigation()
-    data class ArchivedFolders(val spaceId: Long) : HomeNavigation()
-    data object Cache : HomeNavigation()
-    data object SpaceSetup : HomeNavigation()
-    data class AddNewFolder(val spaceId: Long) : HomeNavigation()
-    data class Camera(
-        val projectId: Long,
-        val config: CameraConfig = CameraConfig(
-            allowVideoCapture = true,
-            allowPhotoCapture = true,
-            allowMultipleCapture = false,
-            enablePreview = true,
-            showFlashToggle = true,
-            showGridToggle = true,
-            showCameraSwitch = true
-        )
-    ) : HomeNavigation()
-}
-
-/**
- * Activity-scoped state for the Home shell.
- * This is the SINGLE SOURCE OF TRUTH for:
- * - All spaces
- * - Current selected space
- * - All projects in the current space
- * - Currently selected project ID
- * - Pager state
- *
- * MainMediaViewModel should NOT duplicate this data.
- */
-data class HomeState(
-    val spaces: List<Space> = emptyList(),
-    val currentSpace: Space? = null,
-    val projects: List<Project> = emptyList(),
-    val selectedProjectId: Long? = null,
-    val pagerIndex: Int = 0,
-    val lastMediaIndex: Int = 0,
-    val showContentPicker: Boolean = false,
-    val mediaRefreshProjectId: Long? = null,
-    val mediaRefreshToken: Long = 0L
-)
-
-sealed class HomeAction {
-    data object Load : HomeAction()
-    data object Reload : HomeAction() // Force reload projects
-    data class SelectSpace(val spaceId: Long) : HomeAction()
-    data class SelectProject(val projectId: Long?) : HomeAction()
-    data class UpdatePager(val page: Int) : HomeAction()
-    data object AddClick : HomeAction()
-    data object AddLongClick : HomeAction()
-    data class TabSelected(val tab: HomeBottomTab) : HomeAction()
-    data object ContentPickerDismissed : HomeAction()
-    data class ContentPickerPicked(val type: AddMediaType) : HomeAction()
-    data class Navigate(val destination: HomeNavigation) : HomeAction()
-    data object NavigateToAddNewFolder : HomeAction()
-    data object NavigateToArchivedFolders : HomeAction()
-    data object NavigateToPreviewMedia : HomeAction()
-    data class MediaImported(val projectId: Long) : HomeAction()
-
-    // NEW: Project-level actions that modify the projects list
-    data class RenameProject(val projectId: Long, val newName: String) : HomeAction()
-    data class ArchiveProject(val projectId: Long) : HomeAction()
-    data class DeleteProject(val projectId: Long) : HomeAction()
-}
-
-sealed class HomeEvent {
-    data class NavigateToProject(val projectId: Long) : HomeEvent()
-    data class LaunchPicker(val type: AddMediaType) : HomeEvent() // Launch native picker
-    data class Navigate(val destination: HomeNavigation) : HomeEvent()
-    data class ShowMessage(val message: String) : HomeEvent()
-}
 
 /**
  * IMPROVED HomeViewModel:
@@ -142,23 +64,21 @@ class HomeViewModel(
                 emitEvent(LaunchPicker(action.type))
             }
 
-            is HomeAction.Navigate -> {
-                emitEvent(Navigate(action.destination))
-            }
+            is HomeAction.Navigate -> navigator.navigateTo(action.route)
 
             HomeAction.NavigateToAddNewFolder -> {
                 val spaceId = uiState.value.currentSpace?.id ?: return
-                emitEvent(Navigate(AddNewFolder(spaceId)))
+                navigator.navigateTo(AddFolderRoute(spaceId))
             }
 
             HomeAction.NavigateToArchivedFolders -> {
                 val spaceId = uiState.value.currentSpace?.id ?: return
-                emitEvent(Navigate(ArchivedFolders(spaceId)))
+                navigator.navigateTo(FolderListRoute(spaceId = spaceId, showArchived = true))
             }
 
             HomeAction.NavigateToPreviewMedia -> {
                 val projectId = uiState.value.selectedProjectId ?: return
-                navigator.navigateTo(AppRoute.PreviewMediaRoute(projectId = projectId))
+                navigator.navigateTo(PreviewMediaRoute(projectId = projectId))
                 //emitEvent(Navigate(HomeNavigation.PreviewMedia(spaceId, projectId)))
 
                 navigator
@@ -174,7 +94,22 @@ class HomeViewModel(
                     )
                 }
 
-                _uiEvent.emit(HomeEvent.Navigate(destination = HomeNavigation.PreviewMedia(spaceId = spaceId, projectId = projectId)))
+                navigator.navigateTo(PreviewMediaRoute(projectId))
+            }
+
+            HomeAction.NavigateToCamera -> viewModelScope.launch {
+                val projectId = uiState.value.selectedProjectId ?: return@launch
+                val config = CameraConfig(
+                    allowVideoCapture = true,
+                    allowPhotoCapture = true,
+                    allowMultipleCapture = false,
+                    enablePreview = true,
+                    showFlashToggle = true,
+                    showGridToggle = true,
+                    showCameraSwitch = true
+                )
+                val route = AppRoute.CameraRoute(projectId, config)
+                navigator.navigateTo(route)
             }
 
             // NEW: Handle project mutations
@@ -325,10 +260,10 @@ class HomeViewModel(
         val isSettings = state.pagerIndex == settingsIndex
 
         when {
-            state.currentSpace == null -> emitEvent(HomeEvent.Navigate(HomeNavigation.SpaceSetup))
+            state.currentSpace == null -> navigator.navigateTo(AppRoute.SpaceSetupRoute)
             state.projects.isEmpty() || state.selectedProjectId == null -> {
                 state.currentSpace.id?.let {
-                    emitEvent(HomeEvent.Navigate(HomeNavigation.AddNewFolder(it)))
+                    navigator.navigateTo(AppRoute.AddFolderRoute(it))
                 }
             }
 
@@ -345,7 +280,7 @@ class HomeViewModel(
             else -> {
                 // launch gallery
                 viewModelScope.launch {
-                    _uiEvent.emit(HomeEvent.LaunchPicker(AddMediaType.GALLERY))
+                    _uiEvent.emit(LaunchPicker(AddMediaType.GALLERY))
                 }
             }
         }
@@ -357,10 +292,10 @@ class HomeViewModel(
         val isSettings = state.pagerIndex == settingsIndex
 
         when {
-            state.currentSpace == null -> emitEvent(HomeEvent.Navigate(HomeNavigation.SpaceSetup))
+            state.currentSpace == null -> navigator.navigateTo(AppRoute.SpaceSetupRoute)
             state.projects.isEmpty() || state.selectedProjectId == null -> {
                 state.currentSpace.id?.let {
-                    emitEvent(HomeEvent.Navigate(HomeNavigation.AddNewFolder(it)))
+                    navigator.navigateTo(AppRoute.AddFolderRoute(it))
                 }
             }
 

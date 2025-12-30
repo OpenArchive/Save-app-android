@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -29,7 +27,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -46,14 +43,6 @@ import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPr
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
-import net.opendasharchive.openarchive.features.core.UiImage
-import net.opendasharchive.openarchive.features.core.UiText
-import net.opendasharchive.openarchive.features.core.dialog.ButtonData
-import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
-import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
-import net.opendasharchive.openarchive.features.core.dialog.DialogType
-import net.opendasharchive.openarchive.features.core.dialog.showDialog
-import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.CustomSecureField
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.CustomTextField
 import net.opendasharchive.openarchive.services.webdav.CreativeCommonsLicenseContent
@@ -86,76 +75,12 @@ class WebDavDetailScreenFragment : BaseFragment(), ToolbarConfigurable {
 @Composable
 fun WebDavDetailScreen(
     viewModel: WebDavDetailViewModel,
-    dialogManager: DialogStateManager,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val context = LocalContext.current
-
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect { event ->
-            when (event) {
 
-                is WebDavDetailEvent.ShowUnsavedChangesDialog -> {
-                    dialogManager.showDialog(
-                        DialogConfig(
-                            type = DialogType.Warning,
-                            title = UiText.Resource(R.string.unsaved_changes),
-                            message = UiText.Resource(R.string.do_you_want_to_save),
-                            icon = UiImage.DynamicVector(Icons.Default.Warning),
-                            positiveButton = ButtonData(
-                                text = UiText.Resource(R.string.lbl_save),
-                                action = { viewModel.onAction(WebDavDetailAction.SaveChanges) }
-                            ),
-                            neutralButton = ButtonData(
-                                text = UiText.Resource(R.string.lbl_discard),
-                                action = { viewModel.onAction(WebDavDetailAction.NavigateBack) }
-                            )
-                        )
-                    )
-                }
-
-                is WebDavDetailEvent.ShowRemoveConfirmationDialog -> {
-                    dialogManager.showDialog(
-                        DialogConfig(
-                            type = DialogType.Warning,
-                            title = UiText.Resource(R.string.remove_from_app),
-                            message = UiText.Resource(R.string.are_you_sure_you_want_to_remove_this_server_from_the_app),
-                            icon = UiImage.DrawableResource(R.drawable.ic_trash),
-                            destructiveButton = ButtonData(
-                                text = UiText.Resource(R.string.lbl_remove),
-                                action = { viewModel.onAction(WebDavDetailAction.ConfirmRemoveSpace) }
-                            ),
-                            neutralButton = ButtonData(
-                                text = UiText.Resource(R.string.lbl_Cancel),
-                                action = {}
-                            )
-                        )
-                    )
-                }
-
-                is WebDavDetailEvent.ShowSuccessDialog -> {
-                    dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-                        type = DialogType.Success
-                        title = UiText.Resource(R.string.label_success_title)
-                        message = UiText.Resource(R.string.msg_edit_server_success)
-                        icon = UiImage.DrawableResource(R.drawable.ic_done)
-                        positiveButton {
-                            text = UiText.Resource(R.string.lbl_got_it)
-                            action = {
-                                viewModel.onAction(WebDavDetailAction.NavigateBack)
-                            }
-                        }
-                    }
-                }
-
-                is WebDavDetailEvent.ShowError -> {
-                    dialogManager.showErrorDialog(
-                        message = event.message.asString(context),
-                        title = context.getString(R.string.error)
-                    )
-                }
-            }
         }
     }
 

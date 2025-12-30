@@ -10,10 +10,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 
 class PasscodeSetupViewModel(
+    private val navigator: Navigator,
     private val repository: PasscodeRepository,
     private val config: AppConfig
 ) : ViewModel() {
@@ -29,7 +32,7 @@ class PasscodeSetupViewModel(
         when (action) {
             is PasscodeSetupUiAction.OnNumberClick -> onNumberClick(action.number)
             PasscodeSetupUiAction.OnBackspaceClick -> onBackspaceClick()
-            PasscodeSetupUiAction.OnCancel -> onCancel()
+            PasscodeSetupUiAction.OnCancel -> navigator.navigateBack()
             PasscodeSetupUiAction.OnSubmit -> onSubmit()
         }
     }
@@ -97,7 +100,7 @@ class PasscodeSetupViewModel(
                 val salt = repository.generateSalt()
                 val hash = repository.hashPasscode(passcode, salt)
                 repository.storePasscodeHashAndSalt(hash, salt)
-                _uiEvent.send(PasscodeSetupUiEvent.PasscodeSet)
+                navigator.navigateBack()
             } else {
                 _uiState.update { it.copy(shouldShake = true) }
                 _uiEvent.send(PasscodeSetupUiEvent.PasscodeDoNotMatch)
@@ -130,10 +133,6 @@ class PasscodeSetupViewModel(
             )
         }
     }
-
-    private fun onCancel() = viewModelScope.launch {
-        _uiEvent.send(PasscodeSetupUiEvent.PasscodeCancelled)
-    }
 }
 
 data class PasscodeSetupUiState(
@@ -153,7 +152,5 @@ sealed class PasscodeSetupUiAction {
 }
 
 sealed class PasscodeSetupUiEvent {
-    data object PasscodeSet : PasscodeSetupUiEvent()
     data object PasscodeDoNotMatch : PasscodeSetupUiEvent()
-    data object PasscodeCancelled : PasscodeSetupUiEvent()
 }

@@ -8,7 +8,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,20 +30,20 @@ import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.asString
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 
 @Composable
 fun SpaceSetupSuccessScreen(
-    onNavigateToMain: () -> Unit = {},
     viewModel: SpaceSetupSuccessViewModel ,
+    onNavigateBack: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        viewModel.events.collect { event ->
+        viewModel.uiEvent.collect { event ->
             when (event) {
-                is SpaceSetupSuccessEvent.NavigateToMain -> {
-                    onNavigateToMain()
+                is SpaceSetupSuccessEvent.SendResultBack -> {
+                    onNavigateBack()
                 }
             }
         }
@@ -144,15 +143,14 @@ fun SpaceSetupSuccessWebDavPreview() {
 }
 
 class SpaceSetupSuccessViewModel(
-    navArgs: AppRoute.SpaceSetupSuccessRoute
+    route: AppRoute.SpaceSetupSuccessRoute,
+    private val navigator: Navigator,
 ) : ViewModel() {
-
-
 
     private val _uiState = MutableStateFlow(
         SpaceSetupSuccessState(
-            spaceType = navArgs.spaceType,
-            message = when(navArgs.spaceType) {
+            spaceType = route.spaceType,
+            message = when(route.spaceType) {
                 Space.Type.WEBDAV -> UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server)
                 Space.Type.INTERNET_ARCHIVE -> UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server)
                 Space.Type.RAVEN -> UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server)
@@ -161,17 +159,20 @@ class SpaceSetupSuccessViewModel(
     )
     val uiState: StateFlow<SpaceSetupSuccessState> = _uiState.asStateFlow()
 
-    private val _events = Channel<SpaceSetupSuccessEvent>()
-    val events = _events.receiveAsFlow()
+    private val _uiEvent = Channel<SpaceSetupSuccessEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     fun onAction(action: SpaceSetupSuccessAction) {
         when (action) {
-            is SpaceSetupSuccessAction.Done -> {
-                viewModelScope.launch {
-                    _events.send(SpaceSetupSuccessEvent.NavigateToMain)
-                }
-            }
+            is SpaceSetupSuccessAction.Done -> onDone()
         }
+    }
+
+    private fun onDone() = viewModelScope.launch {
+
+        //TODO: Navigate back with result
+        _uiEvent.send(SpaceSetupSuccessEvent.SendResultBack)
+        navigator.navigateAndClear(AppRoute.HomeRoute)
     }
 }
 
@@ -185,5 +186,5 @@ sealed interface SpaceSetupSuccessAction {
 }
 
 sealed interface SpaceSetupSuccessEvent {
-    data object NavigateToMain : SpaceSetupSuccessEvent
+    data object SendResultBack : SpaceSetupSuccessEvent
 }

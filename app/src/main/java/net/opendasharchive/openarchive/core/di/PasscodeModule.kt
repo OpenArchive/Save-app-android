@@ -1,14 +1,16 @@
 package net.opendasharchive.openarchive.core.di
 
 import android.content.Context
+import android.content.SharedPreferences
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.features.settings.passcode.HapticManager
 import net.opendasharchive.openarchive.features.settings.passcode.HashingStrategy
 import net.opendasharchive.openarchive.features.settings.passcode.PBKDF2HashingStrategy
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
+import net.opendasharchive.openarchive.features.settings.passcode.PrefAead
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_entry.PasscodeEntryViewModel
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupViewModel
-import org.koin.core.module.dsl.viewModel
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val passcodeModule = module {
@@ -35,16 +37,25 @@ val passcodeModule = module {
         PBKDF2HashingStrategy()
     }
 
+    // SharedPreferences injected once
+    single<SharedPreferences> {
+        get<Context>().applicationContext
+            .getSharedPreferences("secret_shared_prefs", Context.MODE_PRIVATE)
+    }
+
+    // Crypto primitive — singleton
+    single { PrefAead(get<Context>()) }
+
     single<PasscodeRepository> {
-        val hashingStrategy: HashingStrategy = PBKDF2HashingStrategy()
 
         PasscodeRepository(
-            context = get<Context>(),
-            config = get<AppConfig>(),
-            hashingStrategy = hashingStrategy
+            prefs = get(),
+            config = get(),
+            hashingStrategy = get(),
+            aead = get(),
         )
     }
 
-    viewModel { PasscodeEntryViewModel(get(), get()) }
-    viewModel { PasscodeSetupViewModel(get(), get()) }
+    viewModelOf(::PasscodeEntryViewModel)
+    viewModelOf(::PasscodeSetupViewModel)
 }

@@ -12,10 +12,10 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import androidx.work.Configuration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.CleanInsightsManager
 import net.opendasharchive.openarchive.R
@@ -37,45 +37,14 @@ class UploadService : JobService() {
     private val analyticsManager: AnalyticsManager by inject()
 
     companion object {
-        private const val MY_BACKGROUND_JOB = 0
         private const val NOTIFICATION_CHANNEL_ID = "oasave_channel_1"
-
-        fun startUploadService(activity: Activity) {
-            val jobScheduler =
-                ContextCompat.getSystemService(activity, JobScheduler::class.java) ?: return
-            var jobBuilder = JobInfo.Builder(
-                MY_BACKGROUND_JOB,
-                ComponentName(activity, UploadService::class.java)
-            ).setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                jobBuilder = jobBuilder.setUserInitiated(true)
-            }
-            jobScheduler.schedule(jobBuilder.build())
-        }
-
-        fun startUploadService(context: Context) {
-            val jobScheduler =
-                ContextCompat.getSystemService(context, JobScheduler::class.java) ?: return
-            var jobBuilder = JobInfo.Builder(
-                MY_BACKGROUND_JOB,
-                ComponentName(context, UploadService::class.java)
-            ).setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                jobBuilder = jobBuilder.setUserInitiated(true)
-            }
-            jobScheduler.schedule(jobBuilder.build())
-        }
-
-        fun stopUploadService(context: Context) {
-            val jobScheduler =
-                ContextCompat.getSystemService(context, JobScheduler::class.java) ?: return
-            jobScheduler.cancel(MY_BACKGROUND_JOB)
-        }
     }
 
     private var mRunning = false
     private var mKeepUploading = true
     private val mConduits = ArrayList<Conduit>()
+    private var serviceJob = SupervisorJob()
+    private var serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
 
     override fun onCreate() {
         super.onCreate()
@@ -84,7 +53,11 @@ class UploadService : JobService() {
     }
 
     override fun onStartJob(params: JobParameters): Boolean {
-        CoroutineScope(Dispatchers.IO).launch {
+        mKeepUploading = true
+        serviceJob.cancel()
+        serviceJob = SupervisorJob()
+        serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
+        serviceScope.launch {
             upload {
                 jobFinished(params, false)
             }
@@ -106,6 +79,7 @@ class UploadService : JobService() {
         mKeepUploading = false
         for (conduit in mConduits) conduit.cancel()
         mConduits.clear()
+        serviceJob.cancel()
 
         return true
     }
@@ -238,7 +212,7 @@ class UploadService : JobService() {
             projectId = media.projectId,
             collectionId = media.collectionId,
             mediaId = media.id,
-            progress = -1,
+            progress = 0,
             isUploaded = false
         )
 
@@ -270,7 +244,7 @@ class UploadService : JobService() {
 
         // Try again when there is a network.
         val job = JobInfo.Builder(
-            MY_BACKGROUND_JOB,
+            UploadJobConfig.JOB_ID,
             ComponentName(this, UploadService::class.java)
         )
             .setRequiredNetworkType(type)

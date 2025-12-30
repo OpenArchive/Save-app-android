@@ -60,8 +60,5 @@ sealed interface WebDavDetailAction {
 }
 
 sealed interface WebDavDetailEvent {
-    data object ShowUnsavedChangesDialog : WebDavDetailEvent
-    data object ShowRemoveConfirmationDialog : WebDavDetailEvent
-    data object ShowSuccessDialog : WebDavDetailEvent
-    data class ShowError(val message: UiText) : WebDavDetailEvent
+
 }

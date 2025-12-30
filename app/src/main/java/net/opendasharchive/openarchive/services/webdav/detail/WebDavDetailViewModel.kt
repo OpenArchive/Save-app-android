@@ -11,7 +11,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.ButtonData
+import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
+import net.opendasharchive.openarchive.features.core.dialog.showWarningDialog
 import net.opendasharchive.openarchive.features.main.data.SpaceRepository
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
@@ -21,6 +28,7 @@ class WebDavDetailViewModel(
     private val route: AppRoute.WebDavDetailRoute,
     private val navigator: Navigator,
     private val spaceRepository: SpaceRepository,
+    private val dialogManager: DialogStateManager,
 ) : ViewModel() {
 
     private lateinit var space: Space
@@ -73,7 +81,7 @@ class WebDavDetailViewModel(
             is WebDavDetailAction.Cancel -> {
                 viewModelScope.launch {
                     if (_uiState.value.hasUnsavedChanges) {
-                        _uiEvent.send(WebDavDetailEvent.ShowUnsavedChangesDialog)
+                        showUnsavedChangeWarning()
                     } else {
                         navigator.navigateBack()
                     }
@@ -84,15 +92,9 @@ class WebDavDetailViewModel(
                 saveChanges()
             }
 
-            is WebDavDetailAction.RemoveSpace -> {
-                viewModelScope.launch {
-                    _uiEvent.send(WebDavDetailEvent.ShowRemoveConfirmationDialog)
-                }
-            }
+            is WebDavDetailAction.RemoveSpace -> removeConfirmDialog()
 
-            is WebDavDetailAction.ConfirmRemoveSpace -> {
-                removeSpace()
-            }
+            is WebDavDetailAction.ConfirmRemoveSpace -> removeSpace()
 
             is WebDavDetailAction.NavigateBack -> {
                 viewModelScope.launch {
@@ -192,8 +194,17 @@ class WebDavDetailViewModel(
             )
         }
 
-        viewModelScope.launch {
-            _uiEvent.send(WebDavDetailEvent.ShowSuccessDialog)
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Success
+            title = UiText.Resource(R.string.label_success_title)
+            message = UiText.Resource(R.string.msg_edit_server_success)
+            icon = UiImage.DrawableResource(R.drawable.ic_done)
+            positiveButton {
+                text = UiText.Resource(R.string.lbl_got_it)
+                action = {
+                    navigator.navigateBack()
+                }
+            }
         }
     }
 
@@ -267,5 +278,37 @@ class WebDavDetailViewModel(
 
             spaceRepository.updateSpace(route.spaceId, space)
         }
+    }
+
+    private fun showUnsavedChangeWarning() {
+        dialogManager.showWarningDialog(
+            title = UiText.Resource(R.string.unsaved_changes),
+            message = UiText.Resource(R.string.do_you_want_to_save),
+            onDone = {
+                saveChanges()
+            },
+            onCancel = {
+                navigator.navigateBack()
+            }
+        )
+    }
+
+    private fun removeConfirmDialog() {
+        val config = DialogConfig(
+            type = DialogType.Warning,
+            title = UiText.Resource(R.string.remove_from_app),
+            message = UiText.Resource(R.string.are_you_sure_you_want_to_remove_this_server_from_the_app),
+            icon = UiImage.DrawableResource(R.drawable.ic_trash),
+            destructiveButton = ButtonData(
+                text = UiText.Resource(R.string.lbl_remove),
+                action = { removeSpace() }
+            ),
+            neutralButton = ButtonData(
+                text = UiText.Resource(R.string.lbl_Cancel),
+                action = {}
+            )
+        )
+
+        dialogManager.showDialog(config)
     }
 }
