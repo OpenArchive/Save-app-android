@@ -19,9 +19,13 @@ import androidx.core.net.toUri
 import androidx.core.view.MenuProvider
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaMediaBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
@@ -369,137 +373,151 @@ class StorachaMediaFragment :
     private fun handleMedia(uri: Uri) {
         Timber.d("Going to upload file: $uri")
 
-        // Clean up any previous failed upload before starting a new one
-        lastFailedUpload?.let { previousFailedUpload ->
+        // Launch coroutine to handle I/O operations off the main thread
+        lifecycleScope.launch {
             try {
-                if (previousFailedUpload.tempFile.exists()) {
-                    previousFailedUpload.tempFile.delete()
-                    Timber.d("Cleaned up previous failed upload temp file: ${previousFailedUpload.tempFile.name}")
+                // Clean up any previous failed upload before starting a new one
+                lastFailedUpload?.let { previousFailedUpload ->
+                    try {
+                        if (previousFailedUpload.tempFile.exists()) {
+                            previousFailedUpload.tempFile.delete()
+                            Timber.d("Cleaned up previous failed upload temp file: ${previousFailedUpload.tempFile.name}")
+                        }
+                        if (previousFailedUpload.carFile.exists()) {
+                            previousFailedUpload.carFile.delete()
+                            Timber.d("Cleaned up previous failed upload CAR file: ${previousFailedUpload.carFile.name}")
+                        }
+                    } catch (e: Exception) {
+                        Timber.e("Failed to clean up previous failed upload: ${e.message}")
+                    }
+                    lastFailedUpload = null
                 }
-                if (previousFailedUpload.carFile.exists()) {
-                    previousFailedUpload.carFile.delete()
-                    Timber.d("Cleaned up previous failed upload CAR file: ${previousFailedUpload.carFile.name}")
-                }
-            } catch (e: Exception) {
-                Timber.e("Failed to clean up previous failed upload: ${e.message}")
-            }
-            lastFailedUpload = null
-        }
 
-        val userDid = DidManager(requireContext()).getOrCreateDid()
-        val spaceDid = args.spaceId
+                val userDid = DidManager(requireContext()).getOrCreateDid()
+                val spaceDid = args.spaceId
 
-        // Check if URI is a FileProvider URI pointing to our cache directory
-        val tempFile =
-            try {
-                if (uri.scheme == "content" && uri.authority == "${requireContext().packageName}.provider") {
-                    // This is likely from our camera - try to get the actual file path
-                    Timber.d("Camera URI detected: $uri, path: ${uri.path}")
-                    val path = uri.path?.removePrefix("/cache/")
-                    if (path != null && path != uri.path) {
-                        val existingFile = File(requireContext().cacheDir, path)
-                        Timber.d(
-                            "Checking for existing file at: ${existingFile.absolutePath}, exists: ${existingFile.exists()}, size: ${existingFile.length()}",
-                        )
-                        if (existingFile.exists() && existingFile.length() > 0) {
-                            Timber.d("Using existing camera file: ${existingFile.absolutePath}, size: ${existingFile.length()} bytes")
-                            existingFile
-                        } else {
-                            Timber.w("File does not exist or is empty: ${existingFile.absolutePath}")
+                // Perform all I/O operations on IO dispatcher
+                val finalTempFile = withContext(Dispatchers.IO) {
+                    // Check if URI is a FileProvider URI pointing to our cache directory
+                    val tempFile =
+                        try {
+                            if (uri.scheme == "content" && uri.authority == "${requireContext().packageName}.provider") {
+                                // This is likely from our camera - try to get the actual file path
+                                Timber.d("Camera URI detected: $uri, path: ${uri.path}")
+                                val path = uri.path?.removePrefix("/cache/")
+                                if (path != null && path != uri.path) {
+                                    val existingFile = File(requireContext().cacheDir, path)
+                                    Timber.d(
+                                        "Checking for existing file at: ${existingFile.absolutePath}, exists: ${existingFile.exists()}, size: ${existingFile.length()}",
+                                    )
+                                    if (existingFile.exists() && existingFile.length() > 0) {
+                                        Timber.d("Using existing camera file: ${existingFile.absolutePath}, size: ${existingFile.length()} bytes")
+                                        existingFile
+                                    } else {
+                                        Timber.w("File does not exist or is empty: ${existingFile.absolutePath}")
+                                        null
+                                    }
+                                } else {
+                                    Timber.w("Could not extract path from URI: $uri")
+                                    null
+                                }
+                            } else {
+                                null
+                            }
+                        } catch (e: Exception) {
+                            Timber.e(e, "Error checking for existing file")
                             null
                         }
+
+                    if (tempFile != null) {
+                        // Use the existing file from camera
+                        tempFile
                     } else {
-                        Timber.w("Could not extract path from URI: $uri")
-                        null
-                    }
-                } else {
-                    null
-                }
-            } catch (e: Exception) {
-                Timber.e(e, "Error checking for existing file")
-                null
-            }
+                        // Need to copy from URI (gallery, etc.)
+                        val title =
+                            Utility.getUriDisplayName(requireContext(), uri)
+                                ?: "IMG_${System.currentTimeMillis()}.jpg"
+                        val newTempFile = Utility.getOutputMediaFileByCacheNoTimestamp(requireContext(), title)
 
-        val finalTempFile =
-            if (tempFile != null) {
-                // Use the existing file from camera
-                tempFile
-            } else {
-                // Need to copy from URI (gallery, etc.)
-                val title =
-                    Utility.getUriDisplayName(requireContext(), uri)
-                        ?: "IMG_${System.currentTimeMillis()}.jpg"
-                val newTempFile = Utility.getOutputMediaFileByCacheNoTimestamp(requireContext(), title)
-
-                if (newTempFile == null) {
-                    Timber.e("Failed to create temp file for URI: $uri")
-                    showError("Failed to create temporary file")
-                    return
-                }
-
-                // Use the exact same pattern as Picker.kt for file copying
-                try {
-                    requireContext().contentResolver.openInputStream(uri)?.use { inputStream ->
-                        if (!Utility.writeStreamToFile(inputStream, newTempFile)) {
-                            Timber.e("Failed to write stream to file for URI: $uri")
-                            showError("Failed to copy image data")
-                            return
+                        if (newTempFile == null) {
+                            Timber.e("Failed to create temp file for URI: $uri")
+                            throw IllegalStateException("Failed to create temporary file")
                         }
-                    } ?: run {
-                        Timber.e("Failed to open input stream for URI: $uri")
-                        showError("Failed to read image")
-                        return
+
+                        // Use the exact same pattern as Picker.kt for file copying
+                        try {
+                            requireContext().contentResolver.openInputStream(uri)?.use { inputStream ->
+                                if (!Utility.writeStreamToFile(inputStream, newTempFile)) {
+                                    Timber.e("Failed to write stream to file for URI: $uri")
+                                    throw IllegalStateException("Failed to copy image data")
+                                }
+                            } ?: run {
+                                Timber.e("Failed to open input stream for URI: $uri")
+                                throw IllegalStateException("Failed to read image")
+                            }
+                        } catch (e: java.io.FileNotFoundException) {
+                            Timber.e(e, "File not found for URI: $uri")
+                            throw IllegalStateException("File not found")
+                        } catch (e: SecurityException) {
+                            Timber.e(e, "Permission denied for URI: $uri")
+                            throw SecurityException("Permission denied to read image")
+                        } catch (e: java.io.IOException) {
+                            Timber.e(e, "IO error reading URI: $uri")
+                            throw java.io.IOException("Failed to read image: ${e.message}")
+                        }
+
+                        // Verify file was actually written with content
+                        if (!newTempFile.exists() || newTempFile.length() == 0L) {
+                            Timber.e("Temp file is empty after copy. File exists: ${newTempFile.exists()}, size: ${newTempFile.length()}")
+                            throw IllegalStateException("Image file is empty (0 bytes). Please try again.")
+                        }
+
+                        Timber.d("Successfully copied file from URI to temp file: ${newTempFile.absolutePath}, size: ${newTempFile.length()} bytes")
+                        newTempFile
                     }
-                } catch (e: java.io.FileNotFoundException) {
-                    Timber.e(e, "File not found for URI: $uri")
-                    showError("File not found")
-                    return
-                } catch (e: SecurityException) {
-                    Timber.e(e, "Permission denied for URI: $uri")
-                    showError("Permission denied to read image")
-                    return
-                } catch (e: java.io.IOException) {
-                    Timber.e(e, "IO error reading URI: $uri")
-                    showError("Failed to read image: ${e.message}")
-                    return
                 }
 
-                // Verify file was actually written with content
-                if (!newTempFile.exists() || newTempFile.length() == 0L) {
-                    Timber.e("Temp file is empty after copy. File exists: ${newTempFile.exists()}, size: ${newTempFile.length()}")
-                    showError("Image file is empty (0 bytes). Please try again.")
-                    return
+                // Generate proper CAR file from the temporary file (writes directly to cache dir)
+                // This should also be done on IO thread as it involves file I/O
+                val carResult = withContext(Dispatchers.IO) {
+                    CarFileCreator.createCarFile(finalTempFile, requireContext().cacheDir)
                 }
 
-                Timber.d("Successfully copied file from URI to temp file: ${newTempFile.absolutePath}, size: ${newTempFile.length()} bytes")
-                newTempFile
+                val uploadSessionId = args.sessionId.ifEmpty { null }
+
+                // Store upload details for potential retry and cleanup
+                lastFailedUpload =
+                    FailedUploadData(
+                        uri = uri,
+                        tempFile = finalTempFile,
+                        carFile = carResult.carFile,
+                        userDid = userDid,
+                        spaceDid = spaceDid,
+                        sessionId = uploadSessionId ?: "",
+                        isAdmin = args.isAdmin,
+                    )
+
+                viewModel.uploadFile(
+                    finalTempFile,
+                    carResult,
+                    userDid,
+                    spaceDid,
+                    uploadSessionId,
+                    args.isAdmin,
+                )
+            } catch (e: Exception) {
+                Timber.e(e, "Error handling media: ${e.message}")
+                // Show user-friendly error message based on exception type
+                val userMessage = when (e) {
+                    is IllegalStateException -> e.message ?: "Failed to process file. Please try again."
+                    is java.io.FileNotFoundException -> "File not found. Please try selecting the file again."
+                    is SecurityException -> "Permission denied. Please grant file access permission."
+                    is java.io.IOException -> "Failed to read the file. Please try again."
+                    else -> "Failed to process file. Please try again."
+                }
+                showError(userMessage)
             }
-
-        // Generate proper CAR file from the temporary file (writes directly to cache dir)
-        val carResult = CarFileCreator.createCarFile(finalTempFile, requireContext().cacheDir)
-
-        val uploadSessionId = args.sessionId.ifEmpty { null }
-
-        // Store upload details for potential retry and cleanup
-        lastFailedUpload =
-            FailedUploadData(
-                uri = uri,
-                tempFile = finalTempFile,
-                carFile = carResult.carFile,
-                userDid = userDid,
-                spaceDid = spaceDid,
-                sessionId = uploadSessionId ?: "",
-                isAdmin = args.isAdmin,
-            )
-
-        viewModel.uploadFile(
-            finalTempFile,
-            carResult,
-            userDid,
-            spaceDid,
-            uploadSessionId,
-            args.isAdmin,
-        )
+        }
     }
 
     private fun handleSelectedFiles(uris: List<Uri>) {
@@ -781,32 +799,43 @@ class StorachaMediaFragment :
         lastFailedUpload?.let { failedUpload ->
             Timber.d("Retrying upload for file: ${failedUpload.uri}")
 
-            // Clean up old CAR file if it exists
-            try {
-                if (failedUpload.carFile.exists()) {
-                    failedUpload.carFile.delete()
-                    Timber.d("Deleted old CAR file before retry: ${failedUpload.carFile.name}")
+            // Launch coroutine to handle I/O operations off the main thread
+            lifecycleScope.launch {
+                try {
+                    // Clean up old CAR file if it exists
+                    withContext(Dispatchers.IO) {
+                        try {
+                            if (failedUpload.carFile.exists()) {
+                                failedUpload.carFile.delete()
+                                Timber.d("Deleted old CAR file before retry: ${failedUpload.carFile.name}")
+                            }
+                        } catch (e: Exception) {
+                            Timber.e("Failed to delete old CAR file: ${e.message}")
+                        }
+                    }
+
+                    // Regenerate CAR file for retry
+                    val carResult = withContext(Dispatchers.IO) {
+                        CarFileCreator.createCarFile(failedUpload.tempFile, requireContext().cacheDir)
+                    }
+                    val retrySessionId = failedUpload.sessionId.ifEmpty { null }
+
+                    // Update lastFailedUpload with new CAR file
+                    lastFailedUpload = failedUpload.copy(carFile = carResult.carFile)
+
+                    viewModel.uploadFile(
+                        failedUpload.tempFile,
+                        carResult,
+                        failedUpload.userDid,
+                        failedUpload.spaceDid,
+                        retrySessionId,
+                        failedUpload.isAdmin,
+                    )
+                } catch (e: Exception) {
+                    Timber.e(e, "Error retrying upload: ${e.message}")
+                    showError("Failed to retry upload. Please try again.")
                 }
-            } catch (e: Exception) {
-                Timber.e("Failed to delete old CAR file: ${e.message}")
             }
-
-            // Regenerate CAR file for retry
-            val carResult =
-                CarFileCreator.createCarFile(failedUpload.tempFile, requireContext().cacheDir)
-            val retrySessionId = failedUpload.sessionId.ifEmpty { null }
-
-            // Update lastFailedUpload with new CAR file
-            lastFailedUpload = failedUpload.copy(carFile = carResult.carFile)
-
-            viewModel.uploadFile(
-                failedUpload.tempFile,
-                carResult,
-                failedUpload.userDid,
-                failedUpload.spaceDid,
-                retrySessionId,
-                failedUpload.isAdmin,
-            )
         }
     }
 
