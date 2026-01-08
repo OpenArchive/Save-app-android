@@ -24,6 +24,31 @@ android {
         buildConfig = true
     }
 
+    // Match parent app's flavor dimensions
+    flavorDimensions += listOf("distribution", "env")
+
+    productFlavors {
+        create("gms") {
+            dimension = "distribution"
+        }
+
+        create("foss") {
+            dimension = "distribution"
+        }
+
+        create("dev") {
+            dimension = "env"
+        }
+
+        create("staging") {
+            dimension = "env"
+        }
+
+        create("prod") {
+            dimension = "env"
+        }
+    }
+
     buildTypes {
         debug {
             buildConfigField("boolean", "ENABLE_ANALYTICS_IN_DEBUG", "true")
@@ -53,10 +78,20 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.process)
 
-    // Analytics SDKs
-    api(libs.mixpanel)
+    // Analytics SDKs - flavor specific
+    "gmsApi"(libs.mixpanel)
+    "gmsApi"(libs.firebase.analytics)
+
+    // CleanInsights for both GMS and FOSS builds
     api(libs.clean.insights)
-    api(libs.firebase.analytics)
+
+    // Crash Reporting - flavor specific
+    "gmsApi"(libs.firebase.crashlytics)
+    "fossApi"("ch.acra:acra-http:5.11.3")
+    "fossApi"("ch.acra:acra-dialog:5.11.3")
+
+    // Logging
+    implementation(libs.timber)
 
     // Dependency Injection
     implementation(libs.koin.core)

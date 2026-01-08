@@ -1,0 +1,36 @@
+[package]
+name = "c2pa-ffi"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88.0"
+
+[lib]
+name = "c2pa_ffi"
+crate-type = ["cdylib"]
+
+[dependencies]
+# C2PA library for content authenticity
+c2pa = "0.36"
+
+# JNI bindings for Android
+jni = "0.21"
+
+# JSON serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+anyhow = "1.0"
+
+# Logging
+log = "0.4"
+android_logger = "0.14"
+
+# Hashing
+sha2 = "0.10"
+
+[profile.release]
+opt-level = "z"     # Optimize for size
+lto = true          # Enable Link Time Optimization
+codegen-units = 1   # Reduce parallel codegen units for better optimization
+strip = "debuginfo" # Strip debug info only, keep exported JNI symbols

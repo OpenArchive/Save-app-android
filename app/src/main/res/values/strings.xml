@@ -425,4 +425,26 @@
     <string name="grid" translatable="false">Grid</string>
     <string name="flash" translatable="false">Flash</string>
     <string name="camera_paused_message" translatable="false">Tap to wake camera</string>
+
+    <!-- C2PA Content Provenance -->
+    <string name="use_c2pa">Enable C2PA Provenance</string>
+    <string name="use_c2pa_summary">Generate cryptographic proofs for media authenticity using C2PA standard</string>
+    <string name="c2pa_signing">Signing Configuration</string>
+
+    <!-- C2PA Screen Strings -->
+    <string name="pref_key_use_c2pa" translatable="false">use_c2pa</string>
+    <string name="c2pa_content_authenticity">C2PA Content Authenticity</string>
+    <string name="prefs_use_c2pa_title">Enable C2PA</string>
+    <string name="prefs_use_c2pa_summary">Generate cryptographic content credentials</string>
+    <string name="prefs_use_c2pa_description"><![CDATA[C2PA (Coalition for Content Provenance and Authenticity) is an industry standard for verifying the source and history of media content. <a href=\"%1$s\"><u>Learn more here.</u></a>]]></string>
+
+    <string name="c2pa_warning_text"><![CDATA[
+    To help verify where your media was captured, C2PA collects metadata including location data from nearby cell towers to corroborate where content was created. Android requires location access to collect this information.<br/><br/>
+    <b>*Neither <i>Save</i> nor <i>OpenArchive</i> will be able to access or store this location data directly. It will be cryptographically signed and included in the C2PA manifest file uploaded with your media.</b>
+    ]]>
+    </string>
+    <string name="c2pa_signing_key">Signing Key</string>
+    <string name="c2pa_signing_key_summary">Configure cryptographic signing key for C2PA manifests</string>
+    <string name="c2pa_about_title">About C2PA</string>
+    <string name="c2pa_about_summary">C2PA provides cryptographic proof of media authenticity and origin. Manifests are stored as separate .c2pa.json files to preserve original file integrity.</string>
 </resources>

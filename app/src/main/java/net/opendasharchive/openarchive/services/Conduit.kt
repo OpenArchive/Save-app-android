@@ -20,11 +20,11 @@ import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.services.internetarchive.IaConduit
 import net.opendasharchive.openarchive.services.webdav.WebDavConduit
 import net.opendasharchive.openarchive.upload.BroadcastManager
+import net.opendasharchive.openarchive.util.C2paHelper
 import net.opendasharchive.openarchive.util.Prefs
 import okhttp3.HttpUrl
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import org.witness.proofmode.storage.DefaultStorageProvider
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -99,20 +99,29 @@ abstract class Conduit(
         mCancelled = true
     }
 
-    fun getProof(): Array<out File> {
-        if (!Prefs.useProofMode) return emptyArray()
+    /**
+     * Get C2PA manifest file for this media
+     * Returns the sidecar .c2pa.json file if C2PA is enabled and manifest exists
+     */
+    fun getC2paManifest(): File? {
+        if (!Prefs.useC2pa) {
+            AppLogger.d("[C2PA] Disabled, skipping manifest retrieval")
+            return null
+        }
+
         try {
-        // Here we are simply fetching the files. Don't generate proof here. This is only called during upload.
-        // Generating Proof here won't make sense because the file can be created well before it could be uploaded.
-          //var files = ProofMode.getProofDir(mContext, mMedia.mediaHashString).listFiles() ?: emptyArray()
-          var files = DefaultStorageProvider(mContext).getHashStorageDir(mMedia.mediaHashString)?.listFiles() ?: emptyArray()
-          return files
-        } catch (exception: FileNotFoundException) {
-            AppLogger.e(exception)
-            return emptyArray()
-        } catch (exception: SecurityException) {
-            AppLogger.e(exception)
-            return emptyArray()
+            val manifestFile = C2paHelper.getC2paFile(mContext, mMedia.mediaHashString)
+
+            if (manifestFile.exists()) {
+                AppLogger.d("[C2PA] Manifest found: ${manifestFile.absolutePath}")
+                return manifestFile
+            } else {
+                AppLogger.w("[C2PA] Manifest not found for ${mMedia.mediaHashString}")
+                return null
+            }
+        } catch (exception: Exception) {
+            AppLogger.e("[C2PA] Error retrieving manifest", exception)
+            return null
         }
     }
 

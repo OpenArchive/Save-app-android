@@ -61,8 +61,9 @@ netcipher = "2.2.0-alpha"
 okhttp = "4.12.0"
 permissionx = "1.8.1"
 preference = "1.2.1"
-proofmode = "1.0.30"
 recyclerview = "1.4.0"
+simple-c2pa = "0.0.13"
+jna = "5.13.0"
 recyclerview-selection = "1.2.0"
 retrofit = "3.0.0"
 robolectric = "4.16"
@@ -238,7 +239,8 @@ jtorctl = { group = "info.guardianproject", name = "jtorctl", version.ref = "jto
 mixpanel = { group = "com.mixpanel.android", name = "mixpanel-android", version.ref = "mixpanel" }
 netcipher = { group = "info.guardianproject.netcipher", name = "netcipher", version.ref = "netcipher" }
 permissionx = { group = "com.guolindev.permissionx", name = "permissionx", version.ref = "permissionx" }
-proofmode = { group = "org.proofmode", name = "android-libproofmode", version.ref = "proofmode" }
+simple-c2pa = { group = "org.witness", name = "simple-c2pa", version.ref = "simple-c2pa" }
+jna = { group = "net.java.dev.jna", name = "jna", version.ref = "jna" }
 satyan-sugar = { group = "com.github.satyan", name = "sugar", version.ref = "satyan-sugar" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 tor-android = { group = "info.guardianproject", name = "tor-android", version.ref = "tor-android" }

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,15 +22,17 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -42,44 +45,41 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.text.HtmlCompat
-import me.zhanghai.compose.preference.ProvidePreferenceLocals
-import me.zhanghai.compose.preference.switchPreference
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.core.ComposeAppBar
 import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
+import net.opendasharchive.openarchive.util.Prefs
 
 @Composable
-fun ProofModeScreen(
+fun C2paScreen(
     onNavigateBack: () -> Unit
 ) {
-
     SaveAppTheme {
-
-
         DefaultScaffold(
             topAppBar = {
                 ComposeAppBar(
-                    title = stringResource(R.string.proofmode),
+                    title = stringResource(R.string.c2pa_content_authenticity),
                     onNavigationAction = {
                         onNavigateBack()
                     }
                 )
             },
-
-            ) {
-
-            ProofModeScreenContent()
+        ) {
+            C2paScreenContent()
         }
     }
 }
 
 @Composable
-fun ProofModeScreenContent() {
+fun C2paScreenContent() {
     val context = LocalContext.current
-    val uriHandler = LocalUriHandler.current
 
+    var useC2pa by remember {
+        mutableStateOf(Prefs.useC2pa)
+    }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -93,12 +93,10 @@ fun ProofModeScreenContent() {
         }
     }
 
-    val useProofModeKeyEncryption = remember { mutableStateOf(false) }
-
     val spannedText: Spanned = HtmlCompat.fromHtml(
         stringResource(
-            R.string.prefs_use_proofmode_description,
-            "https://proofmode.org/"
+            R.string.prefs_use_c2pa_description,
+            "https://c2pa.org/"
         ), HtmlCompat.FROM_HTML_MODE_COMPACT
     )
 
@@ -126,63 +124,72 @@ fun ProofModeScreenContent() {
             }
     }
 
-    ProvidePreferenceLocals {
-        val useProofModeKey = stringResource(R.string.pref_key_use_proof_mode)
-
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-
-
-            switchPreference(
-                key = useProofModeKey,
-                defaultValue = false,
-                enabled = {
-                    true
-                },
-                rememberState = {
-                    useProofModeKeyEncryption
-                },
-                title = { Text(stringResource(R.string.prefs_use_proofmode_title)) },
-                summary = { Text(stringResource(R.string.prefs_use_proofmode_summary)) }
-            )
-
-            item {
-                Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-                    Text(annotatedString, fontSize = 11.sp)
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.prefs_use_c2pa_title),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text(
+                        text = stringResource(R.string.prefs_use_c2pa_summary),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
+                Switch(
+                    checked = useC2pa,
+                    onCheckedChange = { enabled ->
+                        useC2pa = enabled
+                        Prefs.useC2pa = enabled
+                        AppLogger.d("[C2PA] Toggle changed to: $enabled, Prefs.useC2pa now: ${Prefs.useC2pa}")
+                    }
+                )
             }
+        }
 
-            item {
-                Column(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)
+        item {
+            Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                Text(annotatedString, fontSize = 11.sp)
+            }
+        }
+
+        item {
+            Column(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)
+            ) {
+                Card(
+                    shape = RoundedCornerShape(8.dp)
                 ) {
-
-                    Card(
-                        shape = RoundedCornerShape(8.dp)
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.Top,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            verticalAlignment = Alignment.Top,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Icon(
-                                Icons.Outlined.Info,
-                                tint = MaterialTheme.colorScheme.error,
-                                contentDescription = null
-                            )
-                            Text(
-                                text = AnnotatedString.fromHtml(
-                                    stringResource(R.string.proof_mode_warning_text),
-                                    linkStyles = TextLinkStyles(
-                                        style = SpanStyle(
-                                            textDecoration = TextDecoration.Underline,
-                                            fontStyle = FontStyle.Italic,
-                                            color = Color.Blue
-                                        )
+                        Icon(
+                            Icons.Outlined.Info,
+                            tint = MaterialTheme.colorScheme.error,
+                            contentDescription = null
+                        )
+                        Text(
+                            text = AnnotatedString.fromHtml(
+                                stringResource(R.string.c2pa_warning_text),
+                                linkStyles = TextLinkStyles(
+                                    style = SpanStyle(
+                                        textDecoration = TextDecoration.Underline,
+                                        fontStyle = FontStyle.Italic,
+                                        color = Color.Blue
                                     )
-                                ),
-                            )
-                        }
+                                )
+                            ),
+                        )
                     }
                 }
             }
@@ -192,8 +199,8 @@ fun ProofModeScreenContent() {
 
 @Preview
 @Composable
-private fun ProofModeScreenPreview() {
+private fun C2paScreenPreview() {
     DefaultScaffoldPreview {
-        ProofModeScreenContent()
+        C2paScreenContent()
     }
 }

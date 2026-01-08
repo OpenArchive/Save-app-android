@@ -29,8 +29,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.play.core.review.ReviewManager
-import com.google.android.play.core.review.ReviewManagerFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -77,7 +75,6 @@ import net.opendasharchive.openarchive.upload.UploadService
 import net.opendasharchive.openarchive.util.InAppReviewHelper
 import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
-import net.opendasharchive.openarchive.util.ProofModeHelper
 import net.opendasharchive.openarchive.util.extensions.Position
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import net.opendasharchive.openarchive.util.extensions.cloak
@@ -144,7 +141,9 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     private lateinit var permissionManager: PermissionManager
 
-    private lateinit var reviewManager: ReviewManager
+    // ReviewManager is only available in GMS builds (Google Play In-App Review API)
+    // FOSS builds use a custom dialog instead
+    private var reviewManager: Any? = null
     private var shouldPromptReview = false
     private var shouldCheckForUpdate = false
 
@@ -281,7 +280,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             getCurrentMediaFragment()?.setArrowVisible(true)
         }
 
-        reviewManager = ReviewManagerFactory.create(this)
+        // Initialize in-app review (GMS: Google Play In-App Review, FOSS: Custom F-Droid dialog)
         InAppReviewHelper.requestReviewInfo(this, analyticsManager)
         shouldPromptReview = InAppReviewHelper.onAppLaunched()
 
@@ -397,13 +396,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     override fun onStart() {
         super.onStart()
 
-        // Initialize ProofMode on background thread to avoid ANR during RSA key generation
-        lifecycleScope.launch(Dispatchers.IO) {
-            ProofModeHelper.init(this@MainActivity) {
-                // Check for any queued uploads and restart, only after ProofMode is correctly initialized.
-                UploadService.startUploadService(this@MainActivity)
-            }
-        }
+        // Check for any queued uploads and restart (C2PA is initialized in SaveApp.kt)
+        UploadService.startUploadService(this@MainActivity)
     }
 
     // ----- Initialization Methods -----

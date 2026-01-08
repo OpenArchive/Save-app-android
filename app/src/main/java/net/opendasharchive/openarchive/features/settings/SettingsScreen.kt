@@ -60,7 +60,14 @@ fun SettingsScreen(
             // Verify Category
             preferenceCategory(title = { Text("Verify") }, key = "verify")
             preference(
-                key = "proof_mode", title = { Text("Proof Mode") })
+                key = "c2pa_settings",
+                title = { Text("C2PA Content Authenticity") },
+                summary = { Text("Configure cryptographic content provenance") },
+                onClick = {
+                    val intent = Intent(context, C2paSettingsActivity::class.java)
+                    context.startActivity(intent)
+                }
+            )
 
             // Encrypt Category
             preferenceCategory(title = { Text("Encrypt") }, key = "encrypt")

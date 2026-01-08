@@ -6,6 +6,7 @@ import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.services.Conduit
 import net.opendasharchive.openarchive.services.SaveClient
@@ -43,8 +44,7 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
 
             val fileName = getUploadFileName(mMedia, true)
             val metaJson = gson.toJson(mMedia)
-            // Commenting out proof generation - 17th April 2025
-            // val proof = getProof()
+            val c2paManifest = getC2paManifest()
 
             if (mMedia.serverUrl.isBlank()) {
                 // TODO this should make sure we aren't accidentally using one of archive.org's metadata fields by accident
@@ -60,11 +60,11 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
             // upload metadata and proofs async, and report failures
             client.uploadMetaData(metaJson, fileName)
 
-            // Commenting out proof generation - 17th April 2025
-            // Upload ProofMode metadata, if enabled and successfully created.
-            // for (file in proof) {
-            //      client.uploadProofFiles(file)
-            // }
+            // Upload C2PA manifest, if enabled and successfully created.
+            if (c2paManifest != null) {
+                AppLogger.d("Uploading C2PA manifest to Internet Archive: ${c2paManifest.name}")
+                client.uploadProofFiles(c2paManifest)
+            }
 
             jobSucceeded()
 

@@ -82,11 +82,13 @@
 
         <Preference
             android:iconSpaceReserved="false"
-            android:key="@string/pref_key_proof_mode"
+            android:key="c2pa_settings"
             android:layout="@layout/custom_preference"
             android:singleLineTitle="false"
-            android:title="@string/proofmode"
-            app:iconSpaceReserved="false" />
+            android:title="@string/c2pa_content_authenticity"
+            android:summary="Configure cryptographic content provenance"
+            app:iconSpaceReserved="false">
+        </Preference>
 
     </PreferenceCategory>
 

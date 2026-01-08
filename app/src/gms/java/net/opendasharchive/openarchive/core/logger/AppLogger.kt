@@ -1,20 +1,21 @@
 package net.opendasharchive.openarchive.core.logger
 
 import android.content.Context
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import net.opendasharchive.openarchive.analytics.api.AnalyticsEvent
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
-import net.opendasharchive.openarchive.core.logger.AppLogger.init
+import net.opendasharchive.openarchive.analytics.crash.CrashReporter
+import net.opendasharchive.openarchive.analytics.crash.FirebaseCrashReporter
 import timber.log.Timber
 
 
 /**
  * A utility object for centralized logging in Android applications.
- * Integrates with Timber, Firebase Crashlytics, and Analytics for comprehensive error tracking.
+ * Integrates with Timber, Crash Reporting, and Analytics for comprehensive error tracking.
+ *
+ * GMS Version - Uses Firebase Crashlytics via CrashReporter abstraction
  *
  * Features:
  * - Logs to Logcat via Timber
@@ -24,7 +25,7 @@ import timber.log.Timber
  */
 object AppLogger {
 
-    private var crashlytics: FirebaseCrashlytics? = null
+    private var crashReporter: CrashReporter? = null
     private var currentScreen: String = "Unknown"
     private var analyticsManager: AnalyticsManager? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -38,9 +39,11 @@ object AppLogger {
         Timber.plant(DebugTreeWithTag())
 
         try {
-            crashlytics = FirebaseCrashlytics.getInstance()
+            crashReporter = FirebaseCrashReporter().apply {
+                initialize()
+            }
         } catch (e: Exception) {
-            Timber.e(e, "Failed to initialize Firebase Crashlytics")
+            Timber.e(e, "Failed to initialize Crash Reporter")
         }
     }
 
@@ -56,7 +59,7 @@ object AppLogger {
      */
     fun setCurrentScreen(screenName: String) {
         currentScreen = screenName
-        crashlytics?.log("Screen: $screenName")
+        crashReporter?.log("Screen: $screenName")
     }
 
     /**
@@ -65,7 +68,7 @@ object AppLogger {
      */
     fun breadcrumb(action: String, details: String? = null) {
         val breadcrumb = if (details != null) "$action: $details" else action
-        crashlytics?.log("[$currentScreen] $breadcrumb")
+        crashReporter?.log("[$currentScreen] $breadcrumb")
     }
 
     // Info Level Logging
@@ -97,18 +100,18 @@ object AppLogger {
         Timber.e(fullMessage)
 
         // Add breadcrumb for context
-        crashlytics?.log("ERROR: $fullMessage")
+        crashReporter?.log("ERROR: $fullMessage")
     }
 
     /**
      * Log error with exception
-     * Sends to Firebase Crashlytics + Analytics
+     * Sends to Crash Reporter + Analytics
      */
     fun e(message: String, throwable: Throwable) {
         Timber.e(throwable, message)
 
-        // Send to Firebase Crashlytics (non-fatal exception)
-        crashlytics?.let {
+        // Send to Crash Reporter (non-fatal exception)
+        crashReporter?.let {
             it.log("[$currentScreen] ERROR: $message")
             it.recordException(throwable)
         }
@@ -127,13 +130,13 @@ object AppLogger {
 
     /**
      * Log exception only
-     * Sends to Firebase Crashlytics + Analytics
+     * Sends to Crash Reporter + Analytics
      */
     fun e(throwable: Throwable) {
         Timber.e(throwable)
 
-        // Send to Firebase Crashlytics (non-fatal exception)
-        crashlytics?.let {
+        // Send to Crash Reporter (non-fatal exception)
+        crashReporter?.let {
             it.log("[$currentScreen] EXCEPTION: ${throwable.message}")
             it.recordException(throwable)
         }

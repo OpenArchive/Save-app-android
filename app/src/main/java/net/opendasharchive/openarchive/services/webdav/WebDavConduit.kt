@@ -197,13 +197,19 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context) {
             null
         )
 
-        /// Upload ProofMode metadata, if enabled and successfully created.
-        for (file in getProof()) {
+        /// Upload C2PA manifest, if enabled and successfully created.
+        val c2paManifest = getC2paManifest()
+        if (c2paManifest != null) {
             if (mCancelled) throw Exception("Cancelled")
 
+            AppLogger.d("Uploading C2PA manifest: ${c2paManifest.name}")
             mClient.put(
-                construct(base, path, file.name), file, "text/plain",
-                false, null)
+                construct(base, path, c2paManifest.name),
+                c2paManifest,
+                "application/json",
+                false,
+                null
+            )
         }
     }
 }

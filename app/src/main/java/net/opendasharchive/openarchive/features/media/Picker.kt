@@ -15,6 +15,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import net.opendasharchive.openarchive.features.media.camera.CameraActivity
@@ -25,14 +26,15 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Project
+import net.opendasharchive.openarchive.util.C2paHelper
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Utility
 import net.opendasharchive.openarchive.util.extensions.makeSnackBar
-import org.witness.proofmode.ProofMode
-import org.witness.proofmode.crypto.HashUtils
 import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.InputStream
+import java.security.MessageDigest
 import java.util.Date
 
 object Picker {
@@ -384,7 +386,7 @@ object Picker {
         // Generate hash regardless of proof mode setting for consistency
         try {
             media.mediaHashString = file?.let {
-                HashUtils.getSHA256FromFileContent(it.inputStream())
+                calculateSHA256(it.inputStream())
             } ?: ""
         } catch (e: Exception) {
             AppLogger.e("Failed to generate hash for media", e)
@@ -395,31 +397,82 @@ object Picker {
         media.title = title
         media.save()
 
-        // Generate ProofMode data if enabled
-        if (generateProof && Prefs.useProofMode) {
-
+        // Generate C2PA manifest if enabled
+        AppLogger.d("[C2PA] Check - generateProof: $generateProof, Prefs.useC2pa: ${Prefs.useC2pa}")
+        if (generateProof && Prefs.useC2pa) {
             try {
-                //If Proof mode is on we need this to be on always
-                // Ensure location and network tracking are enabled for camera captures
-                // Only enabled for camera captures (generateProof = true)
-                Prefs.proofModeLocation = true
-                Prefs.proofModeNetwork = true
+                AppLogger.d("[C2PA] Generating manifest for URI: $uri, Hash: ${media.mediaHashString}")
 
-                AppLogger.d("Generating ProofMode data for URI: $uri, Hash: ${media.mediaHashString}")
+                // Get the file from the URI - handle both file:// URIs and regular paths
+                val filePath = if (media.originalFilePath.startsWith("file://")) {
+                    Uri.parse(media.originalFilePath).path ?: media.originalFilePath.removePrefix("file://")
+                } else {
+                    media.originalFilePath
+                }
+                val mediaFile = File(filePath)
+                AppLogger.d("[C2PA] Media file path: $filePath, exists: ${mediaFile.exists()}")
+                if (mediaFile.exists()) {
+                    // Extract GPS location from EXIF if not already set
+                    if (media.location.isNullOrEmpty()) {
+                        try {
+                            val exif = ExifInterface(mediaFile.absolutePath)
+                            val latLong = FloatArray(2)
+                            if (exif.getLatLong(latLong)) {
+                                media.location = "${latLong[0]}, ${latLong[1]}"
+                                media.save()
+                                AppLogger.d("[C2PA] Extracted GPS from EXIF: ${media.location}")
+                            }
+                        } catch (e: Exception) {
+                            AppLogger.w("[C2PA] Failed to extract EXIF location: ${e.message}")
+                        }
+                    }
 
-                // Generate proof using the ProofMode library
-                ProofMode.generateProof(context, uri, media.mediaHashString)
+                    // Build metadata for the manifest
+                    val metadata = mutableMapOf<String, String>()
+                    metadata["title"] = media.title
+                    media.description?.let { metadata["description"] = it }
+                    media.author?.let { metadata["author"] = it }
 
-                AppLogger.i("ProofMode generation completed for media: ${media.title}")
+                    // Check if location is available
+                    if (media.location != null) {
+                        metadata["location"] = media.location!!
+                        AppLogger.d("[C2PA] Location data: ${media.location}")
+                    } else {
+                        AppLogger.w("[C2PA] No location data available for media")
+                    }
+
+                    media.tags?.let { metadata["tags"] = it }
+                    media.licenseUrl?.let { metadata["license"] = it }
+                    media.createDate?.time?.toString()?.let { metadata["timestamp"] = it }
+
+                    AppLogger.d("[C2PA] Metadata collected: ${metadata.keys.joinToString(", ")}")
+
+                    // Generate C2PA manifest
+                    val manifestFile = C2paHelper.generateManifest(
+                        context = context,
+                        mediaFile = mediaFile,
+                        mediaHash = media.mediaHashString,
+                        metadata = metadata
+                    )
+
+                    if (manifestFile != null && manifestFile.exists()) {
+                        AppLogger.i("[C2PA] Manifest generated successfully: ${manifestFile.absolutePath}")
+                    } else {
+                        AppLogger.w("[C2PA] Manifest generation returned null or file doesn't exist")
+                    }
+                    AppLogger.i("[C2PA] Generation completed for media: ${media.title}")
+                } else {
+                    AppLogger.w("[C2PA] Media file not found at path: ${media.originalFilePath}")
+                }
             } catch (e: Exception) {
-                AppLogger.e("Failed to generate ProofMode data", e)
-                Timber.w("ProofMode generation failed: ${e.message}")
+                AppLogger.e("[C2PA] Failed to generate manifest", e)
+                Timber.w("[C2PA] Manifest generation failed: ${e.message}")
             }
         } else {
             if (generateProof) {
-                AppLogger.w("ProofMode generation requested but useProofMode is disabled")
+                AppLogger.w("[C2PA] Generation requested but useC2pa is disabled")
             }
-            Timber.w("Skipping proof generation - generateProof: $generateProof, useProofMode: ${Prefs.useProofMode}")
+            Timber.w("[C2PA] Skipping generation - generateProof: $generateProof, useC2pa: ${Prefs.useC2pa}")
         }
         return media
     }
@@ -471,5 +524,23 @@ object Picker {
                 "application/octet-stream" // Generic binary type
             }
         }
+    }
+
+    /**
+     * Calculate SHA256 hash from an InputStream
+     * Replaces ProofMode's HashUtils.getSHA256FromFileContent
+     */
+    private fun calculateSHA256(inputStream: InputStream): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        val buffer = ByteArray(8192)
+        var bytesRead: Int
+
+        inputStream.use { stream ->
+            while (stream.read(buffer).also { bytesRead = it } != -1) {
+                digest.update(buffer, 0, bytesRead)
+            }
+        }
+
+        return digest.digest().joinToString("") { "%02x".format(it) }
     }
 }

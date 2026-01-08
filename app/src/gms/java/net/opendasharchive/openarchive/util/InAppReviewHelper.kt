@@ -28,6 +28,9 @@ object InAppReviewHelper {
     // Once requestReviewFlow() succeeds, we cache this:
     private var reviewInfo: ReviewInfo? = null
 
+    // ReviewManager instance
+    private var reviewManager: ReviewManager? = null
+
     // Coroutine scope for analytics
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
@@ -42,9 +45,9 @@ object InAppReviewHelper {
      * Call early (e.g. in onCreate of MainActivity) to asynchronously fetch ReviewInfo.
      */
     fun requestReviewInfo(context: Context, analyticsManager: AnalyticsManager) {
-        val manager: ReviewManager = ReviewManagerFactory.create(context)
-        manager.requestReviewFlow()
-            .addOnCompleteListener { task ->
+        reviewManager = ReviewManagerFactory.create(context)
+        reviewManager?.requestReviewFlow()
+            ?.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     reviewInfo = task.result
                     AppLogger.d("InAppReview", "ReviewInfo obtained successfully.")
@@ -89,18 +92,24 @@ object InAppReviewHelper {
     /**
      * Once you decide it's time to actually show the prompt (e.g. in onResume, after UI ready),
      * call this. If reviewInfo is non-null it will launch; otherwise it just logs "no Info."
+     *
+     * @param activity The activity to launch the review flow in
+     * @param reviewManagerParam Ignored - kept for API compatibility with FOSS build
+     * @param analyticsManager Analytics manager for tracking events
      */
-    fun showReviewIfPossible(activity: Activity, reviewManager: ReviewManager, analyticsManager: AnalyticsManager) {
+    fun showReviewIfPossible(activity: Activity, reviewManagerParam: Any?, analyticsManager: AnalyticsManager) {
         reviewInfo?.let { info ->
-            reviewManager.launchReviewFlow(activity, info)
-                .addOnCompleteListener {
+            reviewManager?.launchReviewFlow(activity, info)
+                ?.addOnCompleteListener {
                     AppLogger.d("InAppReview", "Review flow finished.")
                     // Track review flow completed
                     scope.launch {
                         analyticsManager.trackEvent(AnalyticsEvent.ReviewPromptCompleted)
                     }
                     reviewInfo = null
-                }
+                } ?: run {
+                AppLogger.d("InAppReview", "ReviewManager was null; cannot launch review flow.")
+            }
         } ?: run {
             AppLogger.d("InAppReview", "ReviewInfo was null; cannot launch review flow.")
         }

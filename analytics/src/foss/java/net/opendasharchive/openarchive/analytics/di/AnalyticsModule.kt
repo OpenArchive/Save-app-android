@@ -5,21 +5,17 @@ import net.opendasharchive.openarchive.analytics.api.AnalyticsManagerImpl
 import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
 import net.opendasharchive.openarchive.analytics.api.session.SessionTrackerImpl
 import net.opendasharchive.openarchive.analytics.core.AnalyticsProvider
+import net.opendasharchive.openarchive.analytics.crash.AcraCrashReporter
+import net.opendasharchive.openarchive.analytics.crash.CrashReporter
 import net.opendasharchive.openarchive.analytics.providers.cleaninsights.CleanInsightsProvider
-import net.opendasharchive.openarchive.analytics.providers.firebase.FirebaseProvider
-import net.opendasharchive.openarchive.analytics.providers.mixpanel.MixpanelProvider
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.module.dsl.singleOf
-import org.koin.dsl.bind
 import org.koin.dsl.module
 
 /**
- * Koin dependency injection module for analytics
+ * FOSS Analytics Module - CleanInsights only
  *
- * Provides:
- * - Analytics providers (Mixpanel, Firebase, CleanInsights)
- * - AnalyticsManager (unified interface)
- * - SessionTracker (reactive session management)
+ * This module is used for F-Droid builds and only includes CleanInsights,
+ * a privacy-focused, GDPR-compliant analytics provider.
  *
  * Usage in app module:
  * ```kotlin
@@ -34,24 +30,11 @@ import org.koin.dsl.module
  * ```
  */
 fun analyticsModule(
-    mixpanelToken: String,
+    mixpanelToken: String,  // Ignored in FOSS build, kept for signature compatibility
     cleanInsightsConsentChecker: () -> Boolean
 ) = module {
 
-    // Providers - Each provider is a singleton
-    single<AnalyticsProvider>(qualifier = org.koin.core.qualifier.named("mixpanel")) {
-        MixpanelProvider(
-            context = androidContext(),
-            token = mixpanelToken
-        )
-    }
-
-    single<AnalyticsProvider>(qualifier = org.koin.core.qualifier.named("firebase")) {
-        FirebaseProvider(
-            context = androidContext()
-        )
-    }
-
+    // CleanInsights Provider - Privacy-focused analytics
     single<AnalyticsProvider>(qualifier = org.koin.core.qualifier.named("cleaninsights")) {
         CleanInsightsProvider(
             context = androidContext(),
@@ -60,12 +43,10 @@ fun analyticsModule(
         )
     }
 
-    // AnalyticsManager - Unified interface for all providers
+    // AnalyticsManager - Unified interface with only CleanInsights
     single<AnalyticsManager> {
         AnalyticsManagerImpl(
             providers = listOf(
-                get(qualifier = org.koin.core.qualifier.named("mixpanel")),
-                get(qualifier = org.koin.core.qualifier.named("firebase")),
                 get(qualifier = org.koin.core.qualifier.named("cleaninsights"))
             )
         )
@@ -78,4 +59,7 @@ fun analyticsModule(
             context = androidContext()
         )
     }
+
+    // Crash Reporting - ACRA
+    single<CrashReporter> { AcraCrashReporter(androidContext()) }
 }

@@ -27,6 +27,7 @@ import net.opendasharchive.openarchive.core.di.retrofitModule
 import net.opendasharchive.openarchive.core.di.unixSocketModule
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeManager
+import net.opendasharchive.openarchive.util.C2paHelper
 import net.opendasharchive.openarchive.util.Prefs
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -42,6 +43,8 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
+        // ACRA crash reporting is now handled by the analytics module
+        // (AcraCrashReporter for FOSS, FirebaseCrashReporter for GMS)
     }
 
     private fun applyTheme() {
@@ -60,6 +63,9 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
         registerActivityLifecycleCallbacks(PasscodeManager())
 
         Prefs.load(this)
+
+        // Initialize C2PA Helper
+        C2paHelper.init(this)
 
         // Initialize Koin DI
         startKoin {

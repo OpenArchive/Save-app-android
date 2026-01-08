@@ -12,8 +12,10 @@ plugins {
     alias(libs.plugins.navigation.safeargs)
     alias(libs.plugins.androidx.room)
     alias(libs.plugins.detekt.plugin)
-    alias(libs.plugins.google.gms.google.services)
-    alias(libs.plugins.google.firebase.crashlytics)
+    // Rust Android Gradle plugin - COMMENTED OUT due to Gradle 9.2 incompatibility
+    // Use manual Rust build script instead (see rust-c2pa-ffi/build-android.sh)
+    // id("org.mozilla.rust-android-gradle.rust-android") version "0.9.4"
+    // Google Services plugins applied conditionally at bottom of file for GMS builds only
 }
 
 fun loadLocalProperties(): Properties = Properties().apply {
@@ -94,10 +96,25 @@ android {
         }
     }
 
-    flavorDimensions += "env"
+    flavorDimensions += listOf("distribution", "env")
 
     productFlavors {
 
+        // Distribution dimension
+        create("gms") {
+            dimension = "distribution"
+            buildConfigField("boolean", "IS_GMS_BUILD", "true")
+            buildConfigField("boolean", "IS_FOSS_BUILD", "false")
+        }
+
+        create("foss") {
+            dimension = "distribution"
+            applicationIdSuffix = ".foss"
+            buildConfigField("boolean", "IS_GMS_BUILD", "false")
+            buildConfigField("boolean", "IS_FOSS_BUILD", "true")
+        }
+
+        // Environment dimension
         create("dev") {
             dimension = "env"
             versionNameSuffix = "-dev"
@@ -260,14 +277,14 @@ dependencies {
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui)
 
-    // Google Play Services
+    // Google Play Services (GMS builds only)
     //implementation(libs.google.auth)
     //implementation(libs.google.play.asset.delivery.ktx)
     //implementation(libs.google.play.feature.delivery)
     //implementation(libs.google.play.feature.delivery.ktx)
-    implementation(libs.google.play.review)
-    implementation(libs.google.play.review.ktx)
-    implementation(libs.google.play.app.update.ktx)
+    "gmsImplementation"(libs.google.play.review)
+    "gmsImplementation"(libs.google.play.review.ktx)
+    "gmsImplementation"(libs.google.play.app.update.ktx)
 
     // Google Drive API
     //implementation(libs.google.api.client.android)
@@ -285,19 +302,16 @@ dependencies {
     implementation(libs.jtorctl)
     implementation(libs.bitcoinj.core)
 
-    // ProofMode
-    implementation(libs.proofmode) {
-        exclude(group = "org.bitcoinj")
-        exclude(group = "com.google.protobuf")
-        exclude(group = "org.slf4j")
-        exclude(group = "net.jcip")
-        exclude(group = "commons-cli")
-        exclude(group = "org.json")
-        exclude(group = "com.google.guava")
-        exclude(group = "com.google.guava", module = "guava-jdk5")
-        exclude(group = "com.google.code.findbugs", module = "annotations")
-        exclude(group = "com.squareup.okio", module = "okio")
-    }
+    // C2PA - Content Authenticity
+    // TODO: Add actual C2PA library once available
+    // simple-c2pa (org.witness:simple-c2pa:0.0.13) is not available in Maven
+    // Options:
+    //   1. Use c2pa-android (https://github.com/contentauth/c2pa-android)
+    //   2. Use c2pa-rs directly via JNI
+    //   3. Build simple-c2pa from source
+    // For now, using stub implementation in C2paHelper
+    // implementation(libs.simple.c2pa)
+    // implementation(libs.jna)
 
     // Barcode Scanning
     implementation(libs.zxing.core)
@@ -312,11 +326,8 @@ dependencies {
     implementation(libs.permissionx)
     implementation(libs.satyan.sugar)
 
-    // Analytics Module
+    // Analytics Module (includes crash reporting)
     implementation(project(":analytics"))
-
-    // Firebase (Crashlytics only - Analytics is in :analytics module)
-    implementation(libs.firebase.crashlytics)
 
     // Testing
     testImplementation(libs.junit)
@@ -347,4 +358,24 @@ detekt {
     allRules = false
     autoCorrect = false
     ignoreFailures = true
+}
+
+// Configure Rust build for C2PA FFI (FOSS builds only)
+// COMMENTED OUT - Use build-android.sh script instead due to Gradle plugin incompatibility
+//cargo {
+//    module = "../rust-c2pa-ffi"
+//    libname = "c2pa_ffi"
+//    targets = listOf("arm64", "arm", "x86", "x86_64")
+//    profile = "release"
+//    verbose = true
+//
+//    // Only build for FOSS variants
+//    // GMS builds can use pre-compiled libraries or different implementation
+//    targetIncludes = arrayOf("Foss.*")
+//}
+
+// Conditionally apply Google Services plugins only for GMS builds
+if (gradle.startParameter.taskRequests.toString().contains("Gms", ignoreCase = true)) {
+    apply(plugin = "com.google.gms.google-services")
+    apply(plugin = "com.google.firebase.crashlytics")
 }

@@ -142,8 +142,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
-        getPrefByKey<Preference>(R.string.pref_key_proof_mode)?.setOnPreferenceClickListener {
-            startActivity(Intent(context, ProofModeSettingsActivity::class.java))
+        findPreference<Preference>("c2pa_settings")?.setOnPreferenceClickListener {
+            startActivity(Intent(context, C2paSettingsActivity::class.java))
             true
         }
 
