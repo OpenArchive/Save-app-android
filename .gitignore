@@ -45,7 +45,6 @@ app/releaseflavor/*
 
 # Rust - C2PA FFI
 rust-c2pa-ffi/target/
-rust-c2pa-ffi/Cargo.lock
 **/*.rs.bk
 
 # fastlane
