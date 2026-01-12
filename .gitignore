@@ -64,3 +64,6 @@ fastlane/.env
 /.kotlin/
 /app/release/
 /app/prod/release/save-unspecified-prod-release.aab
+
+# C2PA Rust FFI compiled libraries (built during F-Droid build)
+app/src/main/jniLibs/**/*.so
