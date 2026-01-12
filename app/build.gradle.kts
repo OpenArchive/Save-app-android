@@ -109,7 +109,8 @@ android {
 
         create("foss") {
             dimension = "distribution"
-            applicationIdSuffix = ".foss"
+            // No applicationIdSuffix for FOSS builds
+            // F-Droid expects: net.opendasharchive.openarchive.release
             buildConfigField("boolean", "IS_GMS_BUILD", "false")
             buildConfigField("boolean", "IS_FOSS_BUILD", "true")
         }
