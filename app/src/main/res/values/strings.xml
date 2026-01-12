@@ -447,4 +447,9 @@
     <string name="c2pa_signing_key_summary">Configure cryptographic signing key for C2PA manifests</string>
     <string name="c2pa_about_title">About C2PA</string>
     <string name="c2pa_about_summary">C2PA provides cryptographic proof of media authenticity and origin. Manifests are stored as separate .c2pa.json files to preserve original file integrity.</string>
+
+    <!-- C2PA Location Permission -->
+    <string name="c2pa_enabled">C2PA content provenance enabled</string>
+    <string name="c2pa_location_permission_denied">C2PA disabled - location permission is required for content provenance</string>
+    <string name="c2pa_auto_disabled">C2PA has been automatically disabled because location permission was removed</string>
 </resources>

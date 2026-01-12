@@ -285,6 +285,7 @@ dependencies {
     "gmsImplementation"(libs.google.play.review)
     "gmsImplementation"(libs.google.play.review.ktx)
     "gmsImplementation"(libs.google.play.app.update.ktx)
+    "gmsImplementation"("com.google.android.gms:play-services-location:21.1.0")
 
     // Google Drive API
     //implementation(libs.google.api.client.android)

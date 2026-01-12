@@ -26,7 +26,9 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.db.Project
+import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.util.C2paHelper
+import net.opendasharchive.openarchive.util.MetadataCollector
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Utility
 import net.opendasharchive.openarchive.util.extensions.makeSnackBar
@@ -397,13 +399,16 @@ object Picker {
         media.title = title
         media.save()
 
-        // Generate C2PA manifest if enabled
-        AppLogger.d("[C2PA] Check - generateProof: $generateProof, Prefs.useC2pa: ${Prefs.useC2pa}")
-        if (generateProof && Prefs.useC2pa) {
-            try {
-                AppLogger.d("[C2PA] Generating manifest for URI: $uri, Hash: ${media.mediaHashString}")
+        // Generate C2PA manifest if enabled AND uploading to WebDAV
+        AppLogger.d("[C2PA] Check - generateProof: $generateProof, Prefs.useC2pa: ${Prefs.useC2pa}, Space type: ${project.space?.tType?.friendlyName}")
 
-                // Get the file from the URI - handle both file:// URIs and regular paths
+        // C2PA only works for WebDAV at the moment
+        val isWebDAV = project.space?.tType == Space.Type.WEBDAV
+        if (generateProof && Prefs.useC2pa && isWebDAV) {
+            try {
+                AppLogger.d("[C2PA] WebDAV space detected - generating C2PA manifest with full metadata")
+
+                // Get the file from the URI
                 val filePath = if (media.originalFilePath.startsWith("file://")) {
                     Uri.parse(media.originalFilePath).path ?: media.originalFilePath.removePrefix("file://")
                 } else {
@@ -411,48 +416,62 @@ object Picker {
                 }
                 val mediaFile = File(filePath)
                 AppLogger.d("[C2PA] Media file path: $filePath, exists: ${mediaFile.exists()}")
+
                 if (mediaFile.exists()) {
-                    // Extract GPS location from EXIF if not already set
-                    if (media.location.isNullOrEmpty()) {
-                        try {
-                            val exif = ExifInterface(mediaFile.absolutePath)
-                            val latLong = FloatArray(2)
-                            if (exif.getLatLong(latLong)) {
-                                media.location = "${latLong[0]}, ${latLong[1]}"
-                                media.save()
-                                AppLogger.d("[C2PA] Extracted GPS from EXIF: ${media.location}")
-                            }
-                        } catch (e: Exception) {
-                            AppLogger.w("[C2PA] Failed to extract EXIF location: ${e.message}")
+                    // Step 1: Collect metadata (device info + GPS location) - launch in IO dispatcher
+                    val metadata = kotlinx.coroutines.runBlocking(Dispatchers.IO) {
+                        MetadataCollector.collectMetadata(
+                            context = context,
+                            includeLocation = true  // Include location for WebDAV
+                        )
+                    }
+
+                    // Step 2: Write ALL metadata to EXIF
+                    MetadataCollector.writeExifMetadata(mediaFile, metadata)
+                    AppLogger.d("[C2PA] EXIF metadata written: device=${metadata.deviceMake} ${metadata.deviceModel}, location=${metadata.latitude},${metadata.longitude}")
+
+                    // Step 3: Read EXIF back to populate Media object
+                    try {
+                        val exif = ExifInterface(mediaFile.absolutePath)
+
+                        // Extract GPS location (using non-deprecated API)
+                        val latLong = exif.latLong
+                        if (latLong != null) {
+                            media.location = "${latLong[0]}, ${latLong[1]}"
+                            AppLogger.d("[C2PA] Extracted GPS from EXIF: ${media.location}")
                         }
+
+                        // Extract device info for author field
+                        val make = exif.getAttribute(ExifInterface.TAG_MAKE)
+                        val model = exif.getAttribute(ExifInterface.TAG_MODEL)
+                        if (!make.isNullOrEmpty() && !model.isNullOrEmpty()) {
+                            media.author = "$make $model"
+                            AppLogger.d("[C2PA] Extracted device from EXIF: ${media.author}")
+                        }
+
+                        media.save()
+                    } catch (e: Exception) {
+                        AppLogger.w("[C2PA] Failed to extract EXIF data: ${e.message}")
                     }
 
-                    // Build metadata for the manifest
-                    val metadata = mutableMapOf<String, String>()
-                    metadata["title"] = media.title
-                    media.description?.let { metadata["description"] = it }
-                    media.author?.let { metadata["author"] = it }
+                    // Step 4: Build metadata for C2PA manifest
+                    val manifestMetadata = mutableMapOf<String, String>()
+                    manifestMetadata["title"] = media.title
+                    media.description?.let { manifestMetadata["description"] = it }
+                    media.author?.let { manifestMetadata["author"] = it }
+                    media.location?.let { manifestMetadata["location"] = it }
+                    media.tags?.let { manifestMetadata["tags"] = it }
+                    media.licenseUrl?.let { manifestMetadata["license"] = it }
+                    media.createDate?.time?.toString()?.let { manifestMetadata["timestamp"] = it }
 
-                    // Check if location is available
-                    if (media.location != null) {
-                        metadata["location"] = media.location!!
-                        AppLogger.d("[C2PA] Location data: ${media.location}")
-                    } else {
-                        AppLogger.w("[C2PA] No location data available for media")
-                    }
+                    AppLogger.d("[C2PA] Metadata for manifest: ${manifestMetadata.keys.joinToString(", ")}")
 
-                    media.tags?.let { metadata["tags"] = it }
-                    media.licenseUrl?.let { metadata["license"] = it }
-                    media.createDate?.time?.toString()?.let { metadata["timestamp"] = it }
-
-                    AppLogger.d("[C2PA] Metadata collected: ${metadata.keys.joinToString(", ")}")
-
-                    // Generate C2PA manifest
+                    // Step 5: Generate C2PA manifest
                     val manifestFile = C2paHelper.generateManifest(
                         context = context,
                         mediaFile = mediaFile,
                         mediaHash = media.mediaHashString,
-                        metadata = metadata
+                        metadata = manifestMetadata
                     )
 
                     if (manifestFile != null && manifestFile.exists()) {
@@ -460,19 +479,18 @@ object Picker {
                     } else {
                         AppLogger.w("[C2PA] Manifest generation returned null or file doesn't exist")
                     }
-                    AppLogger.i("[C2PA] Generation completed for media: ${media.title}")
                 } else {
                     AppLogger.w("[C2PA] Media file not found at path: ${media.originalFilePath}")
                 }
             } catch (e: Exception) {
                 AppLogger.e("[C2PA] Failed to generate manifest", e)
-                Timber.w("[C2PA] Manifest generation failed: ${e.message}")
             }
         } else {
-            if (generateProof) {
+            if (generateProof && Prefs.useC2pa && !isWebDAV) {
+                AppLogger.i("[C2PA] Skipping - C2PA only enabled for WebDAV spaces (current: ${project.space?.tType?.friendlyName})")
+            } else if (generateProof) {
                 AppLogger.w("[C2PA] Generation requested but useC2pa is disabled")
             }
-            Timber.w("[C2PA] Skipping generation - generateProof: $generateProof, useC2pa: ${Prefs.useC2pa}")
         }
         return media
     }

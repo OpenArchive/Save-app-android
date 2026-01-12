@@ -1,6 +1,8 @@
 package net.opendasharchive.openarchive.features.settings
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import android.text.Spanned
@@ -8,6 +10,8 @@ import android.text.style.URLSpan
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.LaunchedEffect
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -81,15 +85,52 @@ fun C2paScreenContent() {
         mutableStateOf(Prefs.useC2pa)
     }
 
+    // Check if location permission is granted
+    fun hasLocationPermission(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    // Check permission when screen is shown
+    LaunchedEffect(Unit) {
+        if (useC2pa && !hasLocationPermission()) {
+            // C2PA is enabled but permission is missing - auto-disable
+            useC2pa = false
+            Prefs.useC2pa = false
+            Toast.makeText(
+                context,
+                context.getString(R.string.c2pa_auto_disabled),
+                Toast.LENGTH_LONG
+            ).show()
+            AppLogger.w("[C2PA] Auto-disabled due to missing location permission")
+        }
+    }
+
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
-        if (!isGranted) {
-            Toast.makeText(context, "Please allow all permissions", Toast.LENGTH_LONG).show()
-            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-            val uri = Uri.fromParts("package", context.packageName, null)
-            intent.data = uri
-            context.startActivity(intent)
+        if (isGranted) {
+            // Permission granted - enable C2PA
+            useC2pa = true
+            Prefs.useC2pa = true
+            Toast.makeText(
+                context,
+                context.getString(R.string.c2pa_enabled),
+                Toast.LENGTH_SHORT
+            ).show()
+            AppLogger.d("[C2PA] Enabled after permission grant")
+        } else {
+            // Permission denied - disable C2PA
+            useC2pa = false
+            Prefs.useC2pa = false
+            Toast.makeText(
+                context,
+                context.getString(R.string.c2pa_location_permission_denied),
+                Toast.LENGTH_LONG
+            ).show()
+            AppLogger.w("[C2PA] Disabled due to permission denial")
         }
     }
 
@@ -147,9 +188,23 @@ fun C2paScreenContent() {
                 Switch(
                     checked = useC2pa,
                     onCheckedChange = { enabled ->
-                        useC2pa = enabled
-                        Prefs.useC2pa = enabled
-                        AppLogger.d("[C2PA] Toggle changed to: $enabled, Prefs.useC2pa now: ${Prefs.useC2pa}")
+                        if (enabled) {
+                            // Enabling C2PA - check/request permission first
+                            if (hasLocationPermission()) {
+                                useC2pa = true
+                                Prefs.useC2pa = true
+                                AppLogger.d("[C2PA] Enabled (permission already granted)")
+                            } else {
+                                // Request location permission
+                                AppLogger.d("[C2PA] Requesting location permission")
+                                permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                            }
+                        } else {
+                            // Disabling C2PA - no permission needed
+                            useC2pa = false
+                            Prefs.useC2pa = false
+                            AppLogger.d("[C2PA] Disabled by user")
+                        }
                     }
                 )
             }

@@ -286,6 +286,19 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
         // Set flag to check for app updates on first onResume
         shouldCheckForUpdate = Prefs.didCompleteOnboarding
+
+        // Check C2PA location permission at startup
+        if (Prefs.useC2pa) {
+            val hasLocationPermission = ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+            if (!hasLocationPermission) {
+                AppLogger.w("[C2PA] Location permission missing at startup - disabling C2PA")
+                Prefs.useC2pa = false
+            }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
