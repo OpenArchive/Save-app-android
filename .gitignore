@@ -48,7 +48,7 @@ rust-c2pa-ffi/target/
 **/*.rs.bk
 
 # fastlane
-fastlane/metadata/*
+
 fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots
