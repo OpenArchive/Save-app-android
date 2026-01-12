@@ -62,8 +62,8 @@ android {
         applicationId = "net.opendasharchive.openarchive"
         minSdk = 29
         targetSdk = 36
-        versionCode = 30021
-        versionName = "4.0.3"
+        versionCode = 30022
+        versionName = "4.0.4"
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
