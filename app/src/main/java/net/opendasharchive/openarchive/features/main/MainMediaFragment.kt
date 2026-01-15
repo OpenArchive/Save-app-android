@@ -145,6 +145,13 @@ class MainMediaFragment : BaseFragment() {
 
     fun updateProjectItem(collectionId: Long, mediaId: Long, progress: Int, isUploaded: Boolean) {
         AppLogger.i("Current progress for $collectionId: ", progress)
+
+        // Check if view is still available before accessing viewLifecycleOwner
+        if (view == null) {
+            AppLogger.i("View is null, skipping update for $collectionId")
+            return
+        }
+
         mAdapters[collectionId]?.apply {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
                 updateItem(mediaId, progress, isUploaded)
@@ -167,6 +174,12 @@ class MainMediaFragment : BaseFragment() {
     }
 
     fun refresh() {
+        // Check if view is still available before updating UI
+        if (view == null) {
+            AppLogger.i("View is null, skipping refresh")
+            return
+        }
+
         mCollections = Collection.getByProject(mProjectId).associateBy { it.id }.toMutableMap()
 
         // Remove all sections, which' collections don't exist anymore.
