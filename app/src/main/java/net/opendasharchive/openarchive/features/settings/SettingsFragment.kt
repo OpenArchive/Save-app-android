@@ -267,11 +267,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun scrollTo(savedScrollY: Int) {
         // Post to ensure RecyclerView is fully laid out with items
-        listView.post {
-            val currentScrollY = listView.computeVerticalScrollOffset()
+        listView?.post {
+            // Check again inside the lambda as the view may be destroyed by the time this runs
+            val recyclerView = listView ?: return@post
+            val currentScrollY = recyclerView.computeVerticalScrollOffset()
             val scrollDelta = savedScrollY - currentScrollY
             AppLogger.i("SettingsFragment - scrolling from $currentScrollY to $savedScrollY (delta: $scrollDelta)")
-            listView.scrollBy(0, scrollDelta)
+            recyclerView.scrollBy(0, scrollDelta)
         }
     }
 
@@ -279,7 +281,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         super.onPause()
 
         // Save current scroll position to Prefs
-        val scrollY = listView.computeVerticalScrollOffset()
+        val scrollY = listView?.computeVerticalScrollOffset() ?: return
         AppLogger.i("SettingsFragment onPause - saving scroll position: $scrollY")
         Prefs.putInt("settings_scroll_position", scrollY)
     }

@@ -94,6 +94,7 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
                     imageRequest = load(R.drawable.ic_image) {
                         crossfade(false)
                     }
+                    clearColorFilter()
                     applyPlaceholderTint(isSelected)
                     show()
                 }
@@ -133,6 +134,7 @@ class PreviewViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolde
                     imageRequest = load(R.drawable.ic_video) {
                         crossfade(false)
                     }
+                    clearColorFilter()
                     applyPlaceholderTint(isSelected)
                     show()
                 }

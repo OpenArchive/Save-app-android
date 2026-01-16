@@ -109,6 +109,7 @@ class MainMediaViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHol
                 imageRequest = binding.image.load(R.drawable.ic_image, imageLoader) {
                     crossfade(false)
                 }
+                binding.image.clearColorFilter()
                 applyPlaceholderTint(isSelected)
                 binding.mediaTitle.text = media.title
                 binding.mediaTitle.show()
@@ -160,6 +161,7 @@ class MainMediaViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHol
                 imageRequest = binding.image.load(R.drawable.ic_video, imageLoader) {
                     crossfade(false)
                 }
+                binding.image.clearColorFilter()
                 applyPlaceholderTint(isSelected)
 
                 binding.mediaTitle.text = media.title
