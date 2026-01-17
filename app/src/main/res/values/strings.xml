@@ -24,6 +24,19 @@
     <string name="content_picker_label">Add media from</string>
     <string name="disable_passcode_dialog_title">Disable Passcode</string>
     <string name="disable_passcode_dialog_msg">Are you sure you want to disable the passcode?</string>
+    <!-- Embedded Tor Service Strings -->
+    <string name="tor_notification_title">Tor Network</string>
+    <string name="tor_notification_connecting">Connecting to Tor network…</string>
+    <string name="tor_notification_connected">Connected to Tor network</string>
+    <string name="tor_notification_channel_name">Tor Service</string>
+    <string name="tor_notification_channel_description">Notifications for the embedded Tor service</string>
+    <string name="tor_status_connecting">Connecting to Tor…</string>
+    <string name="tor_status_verifying">Connected, verifying routing…</string>
+    <string name="tor_status_connected">Connected to Tor network</string>
+    <string name="tor_status_verified">Verified via Tor (Exit: %1$s)</string>
+    <string name="tor_status_error">Tor error: %1$s</string>
+
+    <!-- Legacy Tor strings (kept for backwards compatibility) -->
     <string name="tor_disabled_title">Onion routing under development</string>
     <string name="tor_disabled_message">This feature is currently under development. For now, you can use Orbot or any VPN of your choice to enhance your privacy and security.</string>
     <string name="tor_download_btn_label">Download Orbot</string>

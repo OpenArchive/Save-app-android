@@ -11,7 +11,9 @@ import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import coil3.video.VideoFrameDecoder
 import com.orm.SugarApp
-import info.guardianproject.netcipher.proxy.OrbotHelper
+import net.opendasharchive.openarchive.core.di.torModule
+import net.opendasharchive.openarchive.services.tor.TorConstants
+import net.opendasharchive.openarchive.services.tor.TorServiceManager
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
@@ -77,6 +79,7 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
                 retrofitModule,
                 unixSocketModule,
                 passcodeModule,
+                torModule,
                 analyticsModule(
                     mixpanelToken = getString(R.string.mixpanel_key),
                     cleanInsightsConsentChecker = { CleanInsightsManager.hasConsent() }
@@ -86,7 +89,11 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
 
         applyTheme()
 
-        if (Prefs.useTor) initNetCipher()
+        // Start embedded Tor service if enabled
+        if (Prefs.useTor) {
+            val torServiceManager: TorServiceManager by inject()
+            torServiceManager.start()
+        }
 
         // Legacy CleanInsightsManager (kept for backwards compatibility)
         CleanInsightsManager.init(this)
@@ -110,6 +117,7 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
         }
 
         createSnowbirdNotificationChannel()
+        createTorNotificationChannel()
     }
 
     override fun onStart(owner: LifecycleOwner) {
@@ -133,15 +141,18 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
         }
     }
 
-    private fun initNetCipher() {
-        AppLogger.d("Initializing NetCipher client")
-        val oh = OrbotHelper.get(this)
-
-        if (BuildConfig.DEBUG) {
-            oh.skipOrbotValidation()
+    private fun createTorNotificationChannel() {
+        val channel = NotificationChannel(
+            TorConstants.TOR_NOTIFICATION_CHANNEL_ID,
+            getString(R.string.tor_notification_channel_name),
+            NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            description = getString(R.string.tor_notification_channel_description)
         }
 
-//        oh.init()
+        val notificationManager: NotificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
 
     private fun createSnowbirdNotificationChannel() {

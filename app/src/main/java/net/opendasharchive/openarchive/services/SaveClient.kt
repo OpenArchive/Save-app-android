@@ -1,148 +1,97 @@
 package net.opendasharchive.openarchive.services
 
 import android.content.Context
-import android.content.Intent
 import com.thegrizzlylabs.sardineandroid.impl.OkHttpSardine
-import info.guardianproject.netcipher.client.StrongBuilder
-import info.guardianproject.netcipher.client.StrongBuilderBase
-import info.guardianproject.netcipher.proxy.OrbotHelper
-import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.services.tor.TorConstants
+import net.opendasharchive.openarchive.services.tor.TorServiceManager
 import net.opendasharchive.openarchive.services.webdav.BasicAuthInterceptor
 import net.opendasharchive.openarchive.util.Prefs
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
-import okhttp3.Request
-import okhttp3.internal.platform.Platform
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import java.net.InetSocketAddress
+import java.net.Proxy
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.suspendCoroutine
 
-class SaveClient(context: Context) : StrongBuilderBase<SaveClient, OkHttpClient>(context) {
+/**
+ * Exception thrown when Tor is enabled but not yet ready.
+ */
+class TorNotReadyException(message: String) : Exception(message)
 
-    class OrbotException(message: String): Exception(message)
+/**
+ * Factory for creating OkHttpClient instances with optional Tor proxy support.
+ *
+ * When Tor is enabled in preferences, the client will route all traffic through
+ * the embedded Tor SOCKS5 proxy. The SOCKS port is dynamically allocated for
+ * security reasons.
+ */
+object SaveClient : KoinComponent {
 
-    private var okBuilder: OkHttpClient.Builder
+    private val torServiceManager: TorServiceManager by inject()
 
-    init {
+    /**
+     * Creates an OkHttpClient configured for the current settings.
+     *
+     * @param context Application context
+     * @param user Optional username for basic auth
+     * @param password Optional password for basic auth
+     * @return Configured OkHttpClient
+     * @throws TorNotReadyException if Tor is enabled but not yet connected
+     */
+    suspend fun get(context: Context, user: String = "", password: String = ""): OkHttpClient {
         val cacheInterceptor = Interceptor { chain ->
-            val request = chain.request().newBuilder().addHeader("Connection", "close").build()
+            val request = chain.request().newBuilder()
+                .addHeader("Connection", "close")
+                .build()
             chain.proceed(request)
         }
 
-        okBuilder = OkHttpClient.Builder()
+        val builder = OkHttpClient.Builder()
             .addInterceptor(cacheInterceptor)
-            .connectTimeout(40L, TimeUnit.SECONDS)
-            .writeTimeout(40L, TimeUnit.SECONDS)
-            .readTimeout(40L, TimeUnit.SECONDS)
+            .connectTimeout(60L, TimeUnit.SECONDS)
+            .writeTimeout(60L, TimeUnit.SECONDS)
+            .readTimeout(60L, TimeUnit.SECONDS)
             .retryOnConnectionFailure(false)
             .protocols(arrayListOf(Protocol.HTTP_1_1))
+
+        // Add basic auth interceptor if credentials provided
+        if (user.isNotEmpty() || password.isNotEmpty()) {
+            builder.addInterceptor(BasicAuthInterceptor(user, password))
+        }
+
+        // Apply SOCKS5 proxy when Tor is enabled
+        if (Prefs.useTor) {
+            val port = torServiceManager.socksPort.value
+
+            if (port <= 0) {
+                throw TorNotReadyException("Tor SOCKS port not yet available. Please wait for Tor to connect.")
+            }
+
+            builder.proxy(
+                Proxy(
+                    Proxy.Type.SOCKS,
+                    InetSocketAddress(TorConstants.SOCKS5_PROXY_ADDRESS, port)
+                )
+            )
+        }
+
+        return builder.build()
     }
 
     /**
-     * OkHttp3 [does not support SOCKS proxies.](https://github.com/square/okhttp/issues/2315)
+     * Creates a Sardine WebDAV client configured for the current settings.
      *
-     * @return false
+     * @param context Application context
+     * @param space The space containing WebDAV credentials
+     * @return Configured OkHttpSardine instance
+     * @throws TorNotReadyException if Tor is enabled but not yet connected
      */
-    override fun supportsSocksProxy(): Boolean {
-        return false
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    override fun build(status: Intent): OkHttpClient {
-        if (!status.hasExtra(OrbotHelper.EXTRA_STATUS)) {
-            status.putExtra(OrbotHelper.EXTRA_STATUS, OrbotHelper.STATUS_OFF)
-        }
-
-        return applyTo(okBuilder, status).build()
-    }
-
-    /**
-     * Adds NetCipher configuration to an existing OkHttpClient.Builder,
-     * in case you have additional configuration that you wish to
-     * perform.
-     *
-     * @param builder a new or partially-configured OkHttpClient.Builder
-     * @return the same builder
-     */
-    private fun applyTo(builder: OkHttpClient.Builder, status: Intent?): OkHttpClient.Builder {
-        val factory = buildSocketFactory()
-
-        if (factory != null) {
-            val trustManager = Platform.get().trustManager(factory)
-
-            if (trustManager != null) {
-                builder.sslSocketFactory(factory, trustManager)
-            }
-        }
-
-        return builder
-            .proxy(buildProxy(status))
-    }
-
-    @Throws(Exception::class)
-    override fun get(status: Intent, connection: OkHttpClient, url: String): String? {
-        val request: Request = Request.Builder().url(TOR_CHECK_URL).build()
-
-        return connection.newCall(request).execute().body?.string()
-    }
-
-    companion object {
-        suspend fun get(context: Context, user: String = "", password: String = ""): OkHttpClient {
-
-            val strongBuilder = SaveClient(context)
-
-            if (user.isNotEmpty() || password.isNotEmpty()) {
-                strongBuilder.okBuilder.addInterceptor(BasicAuthInterceptor(user, password))
-            }
-
-            return suspendCoroutine {
-                val callback = object : StrongBuilder.Callback<OkHttpClient?> {
-                    override fun onConnected(connection: OkHttpClient?) {
-                        val result = if (connection != null) {
-                            Result.success(connection)
-                        }
-                        else {
-                            Result.failure(OrbotException(context.getString(R.string.tor_connection_exception)))
-                        }
-
-                        it.resumeWith(result)
-                    }
-
-                    override fun onConnectionException(e: java.lang.Exception?) {
-                        it.resumeWith(Result.failure(e ?: OrbotException(context.getString(R.string.tor_connection_exception))))
-                    }
-
-                    override fun onTimeout() {
-                        it.resumeWith(Result.failure(OrbotException(context.getString(R.string.tor_connection_timeout))))
-                    }
-
-                    override fun onInvalid() {
-                        it.resumeWith(Result.failure(OrbotException(context.getString(R.string.tor_connection_invalid))))
-                    }
-                }
-
-                if (Prefs.useTor) {
-                    if (!OrbotHelper.requestStartTor(context)) {
-                        callback.onInvalid()
-                    }
-                    else {
-                        strongBuilder.build(callback)
-                    }
-                }
-                else {
-                    callback.onConnected(strongBuilder.build(Intent()))
-                }
-            }
-        }
-
-        suspend fun getSardine(context: Context, space: Space): OkHttpSardine {
-            val sardine = OkHttpSardine(get(context))
-            sardine.setCredentials(space.username, space.password)
-
-            return sardine
-        }
+    suspend fun getSardine(context: Context, space: Space): OkHttpSardine {
+        val sardine = OkHttpSardine(get(context))
+        sardine.setCredentials(space.username, space.password)
+        return sardine
     }
 }

@@ -9,8 +9,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.services.tor.TorServiceManager
+import net.opendasharchive.openarchive.services.tor.TorStatus
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.core.BaseActivity
@@ -32,9 +35,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private val passcodeRepository by inject<PasscodeRepository>()
     private val analyticsManager: AnalyticsManager by inject()
+    private val torServiceManager: TorServiceManager by inject()
     private val dialogManager: DialogStateManager by activityViewModel()
 
     private var passcodePreference: SwitchPreferenceCompat? = null
+    private var torPreference: SwitchPreferenceCompat? = null
 
     private val activityResultLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -147,48 +152,32 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
-        findPreference<Preference>(Prefs.USE_TOR)?.setOnPreferenceChangeListener { _, newValue ->
-            val enabled = newValue as Boolean
-            Prefs.useTor = enabled
-
-            // Add breadcrumb for crash analysis
-            AppLogger.breadcrumb("Feature Toggled", "tor: $enabled")
-
-            // Track feature toggle
-            lifecycleScope.launch {
-                analyticsManager.trackFeatureToggled("tor", enabled)
-            }
-
-            //torViewModel.updateTorServiceState()
-            true
-        }
-
-        getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_tor)?.apply {
+        // Setup embedded Tor toggle
+        torPreference = getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_tor)
+        torPreference?.apply {
             isEnabled = true
-
-            setOnPreferenceClickListener {
-                dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-                    type = DialogType.Info
-                    iconColor = dialogManager.requireResourceProvider().getColor(R.color.colorTertiary)
-                    title = UiText.StringResource(R.string.tor_disabled_title)
-                    message = UiText.StringResource(R.string.tor_disabled_message)
-                    positiveButton {
-                        text = UiText.StringResource(R.string.tor_download_btn_label)
-                        action = {
-                            // Launch the Tor download activity
-                            val intent = Intent(Intent.ACTION_VIEW, Prefs.TOR_DOWNLOAD_URL)
-                            startActivity(intent)
-                        }
-                    }
-                    neutralButton {
-                        text = UiText.StringResource(android.R.string.cancel)
-                    }
-                }
-                true
-            }
+            isChecked = Prefs.useTor
 
             setOnPreferenceChangeListener { _, newValue ->
-                false
+                val enabled = newValue as Boolean
+                Prefs.useTor = enabled
+
+                // Add breadcrumb for crash analysis
+                AppLogger.breadcrumb("Feature Toggled", "tor: $enabled")
+
+                // Track feature toggle
+                lifecycleScope.launch {
+                    analyticsManager.trackFeatureToggled("tor", enabled)
+                }
+
+                // Start or stop the embedded Tor service
+                if (enabled) {
+                    torServiceManager.start()
+                } else {
+                    torServiceManager.stop()
+                }
+
+                true
             }
         }
 
@@ -257,6 +246,38 @@ class SettingsFragment : PreferenceFragmentCompat() {
         super.onViewCreated(view, savedInstanceState)
         val savedScrollY = Prefs.getInt("settings_scroll_position", 0)
         scrollTo(savedScrollY)
+
+        // Observe Tor status and update preference summary
+        observeTorStatus()
+    }
+
+    private fun observeTorStatus() {
+        lifecycleScope.launch {
+            torServiceManager.torStatus.collectLatest { status ->
+                val summaryText = when (status) {
+                    is TorStatus.Idle -> getString(R.string.prefs_use_tor_summary)
+                    is TorStatus.Starting -> getString(R.string.tor_status_connecting)
+                    is TorStatus.On -> {
+                        // Trigger verification when Tor reports connected
+                        verifyTorConnection()
+                        getString(R.string.tor_status_verifying)
+                    }
+                    is TorStatus.Verified -> getString(R.string.tor_status_verified, status.exitIp)
+                    is TorStatus.Off -> getString(R.string.prefs_use_tor_summary)
+                    is TorStatus.Error -> getString(R.string.tor_status_error, status.message)
+                }
+                torPreference?.summary = summaryText
+            }
+        }
+    }
+
+    private fun verifyTorConnection() {
+        lifecycleScope.launch {
+            val result = torServiceManager.verifyTorConnection()
+            if (!result.isUsingTor && result.error != null) {
+                AppLogger.w("Tor verification failed: ${result.error}")
+            }
+        }
     }
 
         override fun onResume() {
