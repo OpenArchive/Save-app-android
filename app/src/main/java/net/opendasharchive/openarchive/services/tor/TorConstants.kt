@@ -17,9 +17,15 @@ object TorConstants {
     /** Tor notification channel ID */
     const val TOR_NOTIFICATION_CHANNEL_ID = "tor_service_channel"
 
-    /** Default torrc configuration for security (random port allocation) */
+    /**
+     * Default torrc configuration for security.
+     *
+     * - SocksPort auto: Random port allocation (prevents port-squatting)
+     * - IsolateSOCKSAuth: Each unique username/password gets a separate circuit
+     * - IsolateClientAddr: Isolate by client address (additional protection)
+     */
     const val DEFAULT_TORRC_CONFIG = """
-SocksPort auto
+SocksPort auto IsolateSOCKSAuth IsolateClientAddr
 HTTPTunnelPort auto
 """
 }
