@@ -57,18 +57,9 @@ class TorForegroundService : TorService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // Handle notification update intent
+        // Handle notification update intent - show simple "connected" message (no sensitive IP info)
         if (intent?.action == ACTION_UPDATE_NOTIFICATION) {
-            val exitIp = intent.getStringExtra(EXTRA_EXIT_IP)
-            val exitCountry = intent.getStringExtra(EXTRA_EXIT_COUNTRY)
-            if (exitIp != null) {
-                val notificationText = if (exitCountry != null) {
-                    getString(R.string.tor_status_verified_with_country, exitIp, exitCountry)
-                } else {
-                    getString(R.string.tor_status_verified, exitIp)
-                }
-                updateNotification(notificationText)
-            }
+            updateNotification(getString(R.string.tor_notification_connected))
             return START_STICKY
         }
 
@@ -99,8 +90,17 @@ class TorForegroundService : TorService() {
 
     private fun updateNotification(contentText: String) {
         val notification = createNotification(contentText)
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(TorConstants.TOR_NOTIFICATION_ID, notification)
+        // Use startForeground to update notification - this maintains the foreground service binding
+        // and ensures the notification cannot be dismissed
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(
+                TorConstants.TOR_NOTIFICATION_ID,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            )
+        } else {
+            startForeground(TorConstants.TOR_NOTIFICATION_ID, notification)
+        }
     }
 
     private fun createNotification(contentText: String): Notification {
@@ -113,31 +113,22 @@ class TorForegroundService : TorService() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        return NotificationCompat.Builder(this, TorConstants.TOR_NOTIFICATION_CHANNEL_ID)
+        val builder = NotificationCompat.Builder(this, TorConstants.TOR_NOTIFICATION_CHANNEL_ID)
             .setContentTitle(getString(R.string.tor_notification_title))
             .setContentText(contentText)
             .setSmallIcon(R.drawable.ic_tor)
             .setContentIntent(pendingIntent)
-            .setOngoing(true)  // Cannot be swiped away
-            .setAutoCancel(false)  // Don't auto-dismiss on tap
+            .setOngoing(false)  // Allow dismissal for privacy
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
-            .setVisibility(NotificationCompat.VISIBILITY_SECRET)  // Hide sensitive content on lock screen
-            .setPublicVersion(createPublicNotification())  // Show generic version on lock screen
             .setShowWhen(false)  // Don't show timestamp
-            .build()
-    }
 
-    /**
-     * Creates a redacted notification to show on lock screen.
-     * Hides sensitive IP information.
-     */
-    private fun createPublicNotification(): Notification {
-        return NotificationCompat.Builder(this, TorConstants.TOR_NOTIFICATION_CHANNEL_ID)
-            .setContentTitle(getString(R.string.tor_notification_title))
-            .setContentText(getString(R.string.tor_notification_connected))
-            .setSmallIcon(R.drawable.ic_tor)
-            .build()
+        // For Android 12+, ensure immediate foreground service notification
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            builder.setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+        }
+
+        return builder.build()
     }
 
     /**
