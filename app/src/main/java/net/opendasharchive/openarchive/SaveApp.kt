@@ -141,6 +141,15 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
         }
     }
 
+    override fun onTerminate() {
+        super.onTerminate()
+        // Clean up Tor service when app is terminated
+        if (Prefs.useTor) {
+            val torServiceManager: TorServiceManager by inject()
+            torServiceManager.cleanup()
+        }
+    }
+
     private fun createTorNotificationChannel() {
         val channel = NotificationChannel(
             TorConstants.TOR_NOTIFICATION_CHANNEL_ID,

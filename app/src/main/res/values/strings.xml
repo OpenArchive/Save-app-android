@@ -33,8 +33,11 @@
     <string name="tor_status_connecting">Connecting to Tor…</string>
     <string name="tor_status_verifying">Connected, verifying routing…</string>
     <string name="tor_status_connected">Connected to Tor network</string>
-    <string name="tor_status_verified">Verified via Tor (Exit: %1$s)</string>
+    <string name="tor_status_verified">Connected, Verified.\nExit: %1$s</string>
+    <string name="tor_status_verified_with_country">Connected, Verified.\nExit: %1$s - %2$s</string>
     <string name="tor_status_error">Tor error: %1$s</string>
+    <string name="tor_notification_permission_title">Notification Permission</string>
+    <string name="tor_notification_permission_message">To show Tor connection status in your notification bar, Save needs notification permission. You can still use Tor without this permission.</string>
 
     <!-- Legacy Tor strings (kept for backwards compatibility) -->
     <string name="tor_disabled_title">Onion routing under development</string>

@@ -185,6 +185,100 @@ class TorServiceManager(private val context: Context) {
     }
 
     /**
+     * Fetches the country name for a given IP address using free geolocation APIs.
+     * Routes the request through Tor for privacy.
+     * Tries multiple HTTPS APIs as fallbacks since some have rate limits or block Tor.
+     *
+     * @param ip The IP address to look up
+     * @param torClient OkHttpClient configured to use Tor SOCKS proxy
+     * @return Country name or null if lookup fails
+     */
+    private suspend fun getExitCountry(ip: String, torClient: OkHttpClient): String? = withContext(Dispatchers.IO) {
+        // Try primary API (ipwho.is - free, no rate limits, returns JSON)
+        try {
+            val request = Request.Builder()
+                .url("https://ipwho.is/$ip")
+                .build()
+
+            val response = torClient.newCall(request).execute()
+            val body = response.body?.string()
+
+            if (response.isSuccessful && body != null) {
+                val json = JSONObject(body)
+                if (json.optBoolean("success", true)) {
+                    val country = json.optString("country", "")
+                    if (country.isNotEmpty()) {
+                        AppLogger.d("TorServiceManager: Exit country (ipwho.is): $country")
+                        return@withContext country
+                    }
+                }
+            }
+            AppLogger.d("TorServiceManager: ipwho.is geolocation failed: ${response.code}, body: $body")
+        } catch (e: Exception) {
+            AppLogger.w("TorServiceManager: ipwho.is country lookup failed", e)
+        }
+
+        // Try secondary API (freeipapi.com - free, generous limits)
+        try {
+            val request = Request.Builder()
+                .url("https://freeipapi.com/api/json/$ip")
+                .build()
+
+            val response = torClient.newCall(request).execute()
+            val body = response.body?.string()
+
+            if (response.isSuccessful && body != null) {
+                val json = JSONObject(body)
+                val country = json.optString("countryName", "")
+                if (country.isNotEmpty()) {
+                    AppLogger.d("TorServiceManager: Exit country (freeipapi.com): $country")
+                    return@withContext country
+                }
+            }
+            AppLogger.d("TorServiceManager: freeipapi.com geolocation failed: ${response.code}, body: $body")
+        } catch (e: Exception) {
+            AppLogger.w("TorServiceManager: freeipapi.com country lookup failed", e)
+        }
+
+        // Try tertiary API (ipapi.co - returns plain text country name)
+        try {
+            val request = Request.Builder()
+                .url("https://ipapi.co/$ip/country_name/")
+                .build()
+
+            val response = torClient.newCall(request).execute()
+            val body = response.body?.string()?.trim()
+
+            if (response.isSuccessful && !body.isNullOrEmpty() && !body.startsWith("{") && !body.contains("error")) {
+                AppLogger.d("TorServiceManager: Exit country (ipapi.co): $body")
+                return@withContext body
+            }
+            AppLogger.d("TorServiceManager: ipapi.co geolocation failed: ${response.code}, body: $body")
+        } catch (e: Exception) {
+            AppLogger.w("TorServiceManager: ipapi.co country lookup failed", e)
+        }
+
+        AppLogger.w("TorServiceManager: All geolocation APIs failed for IP: $ip")
+        null
+    }
+
+    /**
+     * Converts a 2-letter ISO country code to full country name.
+     * Falls back to the code itself if not found.
+     */
+    private fun countryCodeToName(code: String): String {
+        return try {
+            java.util.Locale.Builder()
+                .setRegion(code)
+                .build()
+                .displayCountry
+                .takeIf { it.isNotEmpty() } ?: code
+        } catch (e: Exception) {
+            code
+        }
+    }
+
+    /**
      * Verifies that traffic is actually routing through the Tor network.
      *
      * This makes a request to check.torproject.org through the SOCKS proxy
@@ -229,16 +323,32 @@ class TorServiceManager(private val context: Context) {
 
                 AppLogger.d("TorServiceManager: Verification result - IsTor: $isTor, IP: $ip")
 
-                if (isTor) {
-                    // Update status to Verified with exit IP
-                    _torStatus.value = TorStatus.Verified(ip)
+                if (isTor && ip.isNotEmpty()) {
+                    // Lookup exit country (non-blocking, country may be null)
+                    val country = getExitCountry(ip, torClient)
 
-                    // Update the notification to show verified status
+                    // Create connection info with IP and country
+                    val connectionInfo = TorConnectionInfo(
+                        exitIp = ip,
+                        exitCountry = country
+                    )
+
+                    // Update status to Verified with full connection info
+                    _torStatus.value = TorStatus.Verified(connectionInfo)
+
+                    // Update the notification to show verified status with country
                     val updateIntent = Intent(context, TorForegroundService::class.java).apply {
                         action = TorForegroundService.ACTION_UPDATE_NOTIFICATION
                         putExtra(TorForegroundService.EXTRA_EXIT_IP, ip)
+                        putExtra(TorForegroundService.EXTRA_EXIT_COUNTRY, country)
                     }
                     context.startService(updateIntent)
+
+                    return@withContext TorVerificationResult(
+                        isUsingTor = true,
+                        exitIp = ip,
+                        exitCountry = country
+                    )
                 }
 
                 return@withContext TorVerificationResult(

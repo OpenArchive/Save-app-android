@@ -60,8 +60,14 @@ class TorForegroundService : TorService() {
         // Handle notification update intent
         if (intent?.action == ACTION_UPDATE_NOTIFICATION) {
             val exitIp = intent.getStringExtra(EXTRA_EXIT_IP)
+            val exitCountry = intent.getStringExtra(EXTRA_EXIT_COUNTRY)
             if (exitIp != null) {
-                updateNotification(getString(R.string.tor_status_verified, exitIp))
+                val notificationText = if (exitCountry != null) {
+                    getString(R.string.tor_status_verified_with_country, exitIp, exitCountry)
+                } else {
+                    getString(R.string.tor_status_verified, exitIp)
+                }
+                updateNotification(notificationText)
             }
             return START_STICKY
         }
@@ -101,7 +107,9 @@ class TorForegroundService : TorService() {
         val pendingIntent = PendingIntent.getActivity(
             this,
             0,
-            Intent(this, MainActivity::class.java),
+            Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            },
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
@@ -110,10 +118,36 @@ class TorForegroundService : TorService() {
             .setContentText(contentText)
             .setSmallIcon(R.drawable.ic_tor)
             .setContentIntent(pendingIntent)
-            .setOngoing(true)
+            .setOngoing(true)  // Cannot be swiped away
+            .setAutoCancel(false)  // Don't auto-dismiss on tap
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setVisibility(NotificationCompat.VISIBILITY_SECRET)  // Hide sensitive content on lock screen
+            .setPublicVersion(createPublicNotification())  // Show generic version on lock screen
+            .setShowWhen(false)  // Don't show timestamp
             .build()
+    }
+
+    /**
+     * Creates a redacted notification to show on lock screen.
+     * Hides sensitive IP information.
+     */
+    private fun createPublicNotification(): Notification {
+        return NotificationCompat.Builder(this, TorConstants.TOR_NOTIFICATION_CHANNEL_ID)
+            .setContentTitle(getString(R.string.tor_notification_title))
+            .setContentText(getString(R.string.tor_notification_connected))
+            .setSmallIcon(R.drawable.ic_tor)
+            .build()
+    }
+
+    /**
+     * Called when the app is swiped away from recent apps.
+     * Clean up Tor service and notification.
+     */
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        // Stop the service and clear notification when app is removed from recents
+        clearNotificationAndStop()
     }
 
     override fun onDestroy() {
@@ -124,12 +158,22 @@ class TorForegroundService : TorService() {
                 // Receiver not registered
             }
         }
-        stopForeground(STOP_FOREGROUND_REMOVE)
+        clearNotificationAndStop()
         super.onDestroy()
+    }
+
+    private fun clearNotificationAndStop() {
+        // Clear the notification
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(TorConstants.TOR_NOTIFICATION_ID)
+
+        // Stop foreground and remove notification
+        stopForeground(STOP_FOREGROUND_REMOVE)
     }
 
     companion object {
         const val ACTION_UPDATE_NOTIFICATION = "net.opendasharchive.openarchive.tor.UPDATE_NOTIFICATION"
         const val EXTRA_EXIT_IP = "exit_ip"
+        const val EXTRA_EXIT_COUNTRY = "exit_country"
     }
 }

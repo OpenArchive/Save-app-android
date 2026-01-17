@@ -45,7 +45,7 @@
             android:layout_below="@android:id/title"
             android:layout_alignStart="@android:id/title"
             android:fontFamily="@font/montserrat_medium_italic"
-            android:maxLines="1"
+            android:maxLines="3"
             android:textColor="@color/colorOnSurfaceVariant"
             android:textFontWeight="500"
             android:textSize="11sp"

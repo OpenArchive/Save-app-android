@@ -1,10 +1,14 @@
 package net.opendasharchive.openarchive.features.settings
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -18,6 +22,8 @@ import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.ButtonData
+import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
@@ -50,6 +56,23 @@ class SettingsFragment : PreferenceFragmentCompat() {
         } else {
             passcodePreference?.isChecked = false
         }
+    }
+
+    // Callback to invoke after notification permission result
+    private var notificationPermissionCallback: (() -> Unit)? = null
+
+    // Launcher for notification permission (Android 13+)
+    private val notificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            notificationPermissionCallback?.invoke()
+        } else {
+            // Permission denied - still start Tor but warn user
+            AppLogger.w("Notification permission denied - Tor will run without notification")
+            notificationPermissionCallback?.invoke()
+        }
+        notificationPermissionCallback = null
     }
 
 //    override fun onCreateView(
@@ -160,24 +183,42 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
             setOnPreferenceChangeListener { _, newValue ->
                 val enabled = newValue as Boolean
-                Prefs.useTor = enabled
 
-                // Add breadcrumb for crash analysis
-                AppLogger.breadcrumb("Feature Toggled", "tor: $enabled")
-
-                // Track feature toggle
-                lifecycleScope.launch {
-                    analyticsManager.trackFeatureToggled("tor", enabled)
-                }
-
-                // Start or stop the embedded Tor service
                 if (enabled) {
-                    torServiceManager.start()
-                } else {
-                    torServiceManager.stop()
-                }
+                    // Request notification permission first (Android 13+), then start Tor
+                    checkNotificationPermission {
+                        Prefs.useTor = true
 
-                true
+                        // Add breadcrumb for crash analysis
+                        AppLogger.breadcrumb("Feature Toggled", "tor: true")
+
+                        // Track feature toggle
+                        lifecycleScope.launch {
+                            analyticsManager.trackFeatureToggled("tor", true)
+                        }
+
+                        // Start the embedded Tor service
+                        // Toggle state will be updated by observeTorStatus() when verified
+                        torServiceManager.start()
+                    }
+                    // Return false - toggle state is controlled by status observer
+                    false
+                } else {
+                    Prefs.useTor = false
+
+                    // Add breadcrumb for crash analysis
+                    AppLogger.breadcrumb("Feature Toggled", "tor: false")
+
+                    // Track feature toggle
+                    lifecycleScope.launch {
+                        analyticsManager.trackFeatureToggled("tor", false)
+                    }
+
+                    // Stop the embedded Tor service
+                    torServiceManager.stop()
+                    // Return false - toggle state is controlled by status observer
+                    false
+                }
             }
         }
 
@@ -254,20 +295,97 @@ class SettingsFragment : PreferenceFragmentCompat() {
     private fun observeTorStatus() {
         lifecycleScope.launch {
             torServiceManager.torStatus.collectLatest { status ->
-                val summaryText = when (status) {
-                    is TorStatus.Idle -> getString(R.string.prefs_use_tor_summary)
-                    is TorStatus.Starting -> getString(R.string.tor_status_connecting)
-                    is TorStatus.On -> {
-                        // Trigger verification when Tor reports connected
-                        verifyTorConnection()
-                        getString(R.string.tor_status_verifying)
+                when (status) {
+                    is TorStatus.Idle -> {
+                        torPreference?.isEnabled = true
+                        torPreference?.isChecked = false
+                        torPreference?.summary = getString(R.string.prefs_use_tor_summary)
                     }
-                    is TorStatus.Verified -> getString(R.string.tor_status_verified, status.exitIp)
-                    is TorStatus.Off -> getString(R.string.prefs_use_tor_summary)
-                    is TorStatus.Error -> getString(R.string.tor_status_error, status.message)
+                    is TorStatus.Starting -> {
+                        // Disable toggle while connecting
+                        torPreference?.isEnabled = false
+                        torPreference?.isChecked = false
+                        torPreference?.summary = getString(R.string.tor_status_connecting)
+                    }
+                    is TorStatus.On -> {
+                        // Still connecting (verifying) - keep toggle disabled and unchecked
+                        torPreference?.isEnabled = false
+                        torPreference?.isChecked = false
+                        torPreference?.summary = getString(R.string.tor_status_connecting)
+                        // Trigger verification
+                        verifyTorConnection()
+                    }
+                    is TorStatus.Verified -> {
+                        // Now fully connected - enable toggle and show as checked
+                        torPreference?.isEnabled = true
+                        torPreference?.isChecked = true
+                        val info = status.info
+                        torPreference?.summary = if (info.exitCountry != null) {
+                            getString(R.string.tor_status_verified_with_country, info.exitIp, info.exitCountry)
+                        } else {
+                            getString(R.string.tor_status_verified, info.exitIp)
+                        }
+                    }
+                    is TorStatus.Off -> {
+                        torPreference?.isEnabled = true
+                        torPreference?.isChecked = false
+                        torPreference?.summary = getString(R.string.prefs_use_tor_summary)
+                    }
+                    is TorStatus.Error -> {
+                        torPreference?.isEnabled = true
+                        torPreference?.isChecked = false
+                        torPreference?.summary = getString(R.string.tor_status_error, status.message)
+                    }
                 }
-                torPreference?.summary = summaryText
             }
+        }
+    }
+
+    /**
+     * Check notification permission (for Android 13+) and invoke the callback.
+     * On older Android versions or if permission is already granted, callback is invoked immediately.
+     */
+    private fun checkNotificationPermission(onComplete: () -> Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val permissionStatus = ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+
+            if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
+                // Permission already granted
+                onComplete()
+            } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                // Show rationale dialog explaining why we need notification permission
+                dialogManager.showDialog(
+                    config = DialogConfig(
+                        type = DialogType.Warning,
+                        title = UiText.StringResource(R.string.tor_notification_permission_title),
+                        message = UiText.StringResource(R.string.tor_notification_permission_message),
+                        positiveButton = ButtonData(
+                            text = UiText.StringResource(R.string.lbl_ok),
+                            action = {
+                                notificationPermissionCallback = onComplete
+                                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            }
+                        ),
+                        neutralButton = ButtonData(
+                            text = UiText.StringResource(R.string.lbl_Cancel),
+                            action = {
+                                // User cancelled - still start Tor without notification
+                                onComplete()
+                            }
+                        )
+                    )
+                )
+            } else {
+                // Request permission directly
+                notificationPermissionCallback = onComplete
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        } else {
+            // For Android versions below 13, no notification permission is needed
+            onComplete()
         }
     }
 

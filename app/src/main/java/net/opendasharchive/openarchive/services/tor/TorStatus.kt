@@ -1,6 +1,17 @@
 package net.opendasharchive.openarchive.services.tor
 
 /**
+ * Connection information for a verified Tor connection.
+ *
+ * @property exitIp The IP address of the Tor exit node
+ * @property exitCountry The country of the exit node (from IP geolocation), null if lookup failed
+ */
+data class TorConnectionInfo(
+    val exitIp: String,
+    val exitCountry: String? = null
+)
+
+/**
  * Represents the current status of the embedded Tor service.
  */
 sealed class TorStatus {
@@ -14,7 +25,7 @@ sealed class TorStatus {
     object On : TorStatus()
 
     /** Tor service is connected AND verified to be routing through Tor */
-    data class Verified(val exitIp: String) : TorStatus()
+    data class Verified(val info: TorConnectionInfo) : TorStatus()
 
     /** Tor service is stopped/disabled */
     object Off : TorStatus()
@@ -29,5 +40,6 @@ sealed class TorStatus {
 data class TorVerificationResult(
     val isUsingTor: Boolean,
     val exitIp: String? = null,
+    val exitCountry: String? = null,
     val error: String? = null
 )
