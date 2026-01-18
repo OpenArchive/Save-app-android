@@ -58,8 +58,7 @@ object AppLogger {
                 .withPluginConfigurations(
                     MailSenderConfigurationBuilder()
                         .withMailTo(acraEmail)
-                        .withReportAsFile(true)
-                        .withReportFileName("save_crash_report.txt")
+                        .withReportAsFile(false)  // Embed in body to avoid Android intent bug
                         .withSubject("Save App Crash Report")
                         .build(),
                     DialogConfigurationBuilder()
