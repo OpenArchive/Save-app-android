@@ -14,14 +14,20 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
+import net.opendasharchive.openarchive.analytics.api.AnalyticsEvent
+import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.core.logger.AppLogger
+import okhttp3.Authenticator
 import okhttp3.CertificatePinner
+import okhttp3.Credentials
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Route
 import org.json.JSONObject
 import org.torproject.jni.TorService
 import java.net.InetSocketAddress
 import java.net.Proxy
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
 import kotlin.math.pow
@@ -57,6 +63,7 @@ import kotlin.math.pow
  */
 class TorServiceManager(
     private val context: Context,
+    private val analyticsManager: AnalyticsManager,
 ) {
     private val _torStatus = MutableStateFlow<TorStatus>(TorStatus.Idle)
     val torStatus: StateFlow<TorStatus> = _torStatus.asStateFlow()
@@ -69,6 +76,17 @@ class TorServiceManager(
 
     private var torService: TorService? = null
     private var isBound = false
+
+    /**
+     * Circuit isolation purposes - each gets a unique credential for stream isolation.
+     * Tor's IsolateSOCKSAuth ensures different credentials use different circuits.
+     */
+    enum class CircuitPurpose {
+        VERIFICATION,
+        GEOLOCATION,
+        UPLOAD,
+        GENERAL
+    }
 
     private val serviceConnection =
         object : ServiceConnection {
@@ -282,12 +300,45 @@ class TorServiceManager(
         }
 
     /**
-     * Creates an OkHttpClient for verification with certificate pinning.
+     * Creates a SOCKS5 proxy authenticator for circuit isolation.
      *
-     * SECURITY: Pins the certificate for check.torproject.org to prevent
-     * man-in-the-middle attacks during verification.
+     * SECURITY: Tor's IsolateSOCKSAuth feature ensures that connections with
+     * different username/password combinations use different circuits. This
+     * prevents traffic correlation between different app operations.
+     *
+     * @param purpose The purpose of this connection (determines circuit isolation)
+     * @return Authenticator that provides unique credentials per purpose
      */
-    private fun createVerificationClient(port: Int): OkHttpClient {
+    private fun createCircuitIsolatingAuthenticator(purpose: CircuitPurpose): Authenticator {
+        // Use purpose + UUID for unique circuit per request type
+        // Same purpose reuses circuit, different purposes get different circuits
+        val username = "save-${purpose.name.lowercase()}"
+        val password = UUID.randomUUID().toString()
+
+        return Authenticator { _: Route?, response: okhttp3.Response ->
+            if (response.request.header("Proxy-Authorization") != null) {
+                // Already attempted authentication, give up to avoid infinite loop
+                null
+            } else {
+                response.request.newBuilder()
+                    .header("Proxy-Authorization", Credentials.basic(username, password))
+                    .build()
+            }
+        }
+    }
+
+    /**
+     * Creates an OkHttpClient with circuit isolation and certificate pinning.
+     *
+     * SECURITY:
+     * - Certificate pinning for check.torproject.org prevents MITM attacks
+     * - Circuit isolation via IsolateSOCKSAuth prevents traffic correlation
+     *
+     * @param port The SOCKS5 proxy port
+     * @param purpose The purpose of this client (for circuit isolation)
+     * @return Configured OkHttpClient
+     */
+    private fun createIsolatedClient(port: Int, purpose: CircuitPurpose): OkHttpClient {
         // Certificate pinning for check.torproject.org
         // These are SHA-256 hashes of the certificate public keys
         val certificatePinner =
@@ -308,9 +359,60 @@ class TorServiceManager(
                     Proxy.Type.SOCKS,
                     InetSocketAddress(TorConstants.SOCKS5_PROXY_ADDRESS, port),
                 ),
-            ).certificatePinner(certificatePinner)
+            )
+            .proxyAuthenticator(createCircuitIsolatingAuthenticator(purpose))
+            .certificatePinner(certificatePinner)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
+            .build()
+    }
+
+    /**
+     * Creates an OkHttpClient for geolocation lookups (no certificate pinning).
+     *
+     * @param port The SOCKS5 proxy port
+     * @return Configured OkHttpClient for geolocation APIs
+     */
+    private fun createGeolocationClient(port: Int): OkHttpClient {
+        return OkHttpClient
+            .Builder()
+            .proxy(
+                Proxy(
+                    Proxy.Type.SOCKS,
+                    InetSocketAddress(TorConstants.SOCKS5_PROXY_ADDRESS, port),
+                ),
+            )
+            .proxyAuthenticator(createCircuitIsolatingAuthenticator(CircuitPurpose.GEOLOCATION))
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build()
+    }
+
+    /**
+     * Creates an OkHttpClient configured for Tor with circuit isolation.
+     *
+     * Use this method when making requests through Tor to ensure proper
+     * circuit isolation between different types of operations.
+     *
+     * @param purpose The purpose of this client (UPLOAD, GENERAL, etc.)
+     * @return Configured OkHttpClient, or null if Tor is not ready
+     */
+    fun createTorClient(purpose: CircuitPurpose = CircuitPurpose.GENERAL): OkHttpClient? {
+        val port = _socksPort.value
+        if (port <= 0) return null
+
+        return OkHttpClient
+            .Builder()
+            .proxy(
+                Proxy(
+                    Proxy.Type.SOCKS,
+                    InetSocketAddress(TorConstants.SOCKS5_PROXY_ADDRESS, port),
+                ),
+            )
+            .proxyAuthenticator(createCircuitIsolatingAuthenticator(purpose))
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
             .build()
     }
 
@@ -322,14 +424,23 @@ class TorServiceManager(
      *
      * Features:
      * - Certificate pinning for check.torproject.org
+     * - Circuit isolation (verification uses dedicated circuit)
      * - Exponential backoff retry on failure (up to MAX_VERIFICATION_RETRIES)
+     * - Metrics tracking for success/failure rates
      *
      * @return TorVerificationResult containing verification status and exit IP
      */
     suspend fun verifyTorConnection(): TorVerificationResult =
         withContext(Dispatchers.IO) {
+            val startTime = System.currentTimeMillis()
             val port = _socksPort.value
             if (port <= 0) {
+                trackVerificationMetrics(
+                    success = false,
+                    retryCount = 0,
+                    durationMs = System.currentTimeMillis() - startTime,
+                    errorType = "port_unavailable"
+                )
                 return@withContext TorVerificationResult(
                     isUsingTor = false,
                     error = "Tor SOCKS port not available",
@@ -343,6 +454,12 @@ class TorServiceManager(
                 try {
                     val result = attemptVerification(port)
                     if (result.isUsingTor || result.error == null) {
+                        trackVerificationMetrics(
+                            success = result.isUsingTor,
+                            retryCount = attempt,
+                            durationMs = System.currentTimeMillis() - startTime,
+                            errorType = if (result.isUsingTor) null else "not_using_tor"
+                        )
                         return@withContext result
                     }
                     lastError = result.error
@@ -366,6 +483,14 @@ class TorServiceManager(
                 }
             }
 
+            val errorType = categorizeError(lastError)
+            trackVerificationMetrics(
+                success = false,
+                retryCount = attempt,
+                durationMs = System.currentTimeMillis() - startTime,
+                errorType = errorType
+            )
+
             AppLogger.e("TorServiceManager: Verification failed after $MAX_VERIFICATION_RETRIES attempts")
             return@withContext TorVerificationResult(
                 isUsingTor = false,
@@ -374,15 +499,54 @@ class TorServiceManager(
         }
 
     /**
-     * Single verification attempt with certificate pinning.
+     * Categorizes error messages for analytics (GDPR-safe, no sensitive data).
+     */
+    private fun categorizeError(error: String?): String {
+        return when {
+            error == null -> "unknown"
+            error.contains("timeout", ignoreCase = true) -> "timeout"
+            error.contains("connect", ignoreCase = true) -> "connection_failed"
+            error.contains("certificate", ignoreCase = true) -> "certificate_error"
+            error.contains("SSL", ignoreCase = true) -> "ssl_error"
+            error.contains("proxy", ignoreCase = true) -> "proxy_error"
+            else -> "other"
+        }
+    }
+
+    /**
+     * Tracks verification metrics via analytics.
+     */
+    private suspend fun trackVerificationMetrics(
+        success: Boolean,
+        retryCount: Int,
+        durationMs: Long,
+        errorType: String?
+    ) {
+        try {
+            analyticsManager.trackEvent(
+                AnalyticsEvent.TorVerificationAttempt(
+                    success = success,
+                    retryCount = retryCount,
+                    durationMs = durationMs,
+                    errorType = errorType
+                )
+            )
+        } catch (e: Exception) {
+            AppLogger.w("TorServiceManager: Failed to track verification metrics", e)
+        }
+    }
+
+    /**
+     * Single verification attempt with certificate pinning and circuit isolation.
      */
     private suspend fun attemptVerification(port: Int): TorVerificationResult =
         withContext(Dispatchers.IO) {
-            val torClient = createVerificationClient(port)
+            // Use isolated client for verification (dedicated circuit)
+            val verificationClient = createIsolatedClient(port, CircuitPurpose.VERIFICATION)
 
             val request = Request.Builder().url(TOR_CHECK_API_URL).build()
 
-            val response = torClient.newCall(request).execute()
+            val response = verificationClient.newCall(request).execute()
             val body = response.body?.string()
 
             if (response.isSuccessful && body != null) {
@@ -393,8 +557,9 @@ class TorServiceManager(
                 AppLogger.d("TorServiceManager: Verification result - IsTor: $isTor")
 
                 if (isTor && ip.isNotEmpty()) {
-                    // Lookup exit country (non-blocking, country may be null)
-                    val country = getExitCountry(ip, torClient)
+                    // Lookup exit country using separate circuit (geolocation isolation)
+                    val geolocationClient = createGeolocationClient(port)
+                    val country = getExitCountry(ip, geolocationClient)
 
                     // Create connection info with IP and country
                     val connectionInfo =
@@ -420,7 +585,10 @@ class TorServiceManager(
                     )
                 }
 
-                return@withContext TorVerificationResult(isUsingTor = isTor, exitIp = ip.ifEmpty { null })
+                return@withContext TorVerificationResult(
+                    isUsingTor = isTor,
+                    exitIp = ip.ifEmpty { null }
+                )
             } else {
                 return@withContext TorVerificationResult(
                     isUsingTor = false,

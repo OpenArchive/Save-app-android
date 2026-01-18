@@ -409,4 +409,56 @@ sealed interface AnalyticsEvent {
         override val value = errorCode.toDouble()
         override val properties = mapOf("error_code" to errorCode)
     }
+
+    // ==================== TOR CONNECTIVITY ====================
+
+    data class TorConnectionAttempt(
+        val success: Boolean,
+        val retryCount: Int = 0,
+        val durationMs: Long = 0,
+    ) : AnalyticsEvent {
+        override val category = "tor"
+        override val action = if (success) "connection_success" else "connection_failure"
+        override val label: String? = null
+        override val value = durationMs.toDouble()
+        override val properties = mapOf(
+            "success" to success,
+            "retry_count" to retryCount,
+            "duration_ms" to durationMs,
+        )
+    }
+
+    data class TorVerificationAttempt(
+        val success: Boolean,
+        val retryCount: Int = 0,
+        val durationMs: Long = 0,
+        val errorType: String? = null,
+    ) : AnalyticsEvent {
+        override val category = "tor"
+        override val action = if (success) "verification_success" else "verification_failure"
+        override val label = errorType
+        override val value = durationMs.toDouble()
+        override val properties = buildMap {
+            put("success", success)
+            put("retry_count", retryCount)
+            put("duration_ms", durationMs)
+            errorType?.let { put("error_type", it) }
+        }
+    }
+
+    data object TorEnabled : AnalyticsEvent {
+        override val category = "tor"
+        override val action = "enabled"
+        override val label: String? = null
+        override val value: Double? = null
+        override val properties: Map<String, Any> = emptyMap()
+    }
+
+    data object TorDisabled : AnalyticsEvent {
+        override val category = "tor"
+        override val action = "disabled"
+        override val label: String? = null
+        override val value: Double? = null
+        override val properties: Map<String, Any> = emptyMap()
+    }
 }

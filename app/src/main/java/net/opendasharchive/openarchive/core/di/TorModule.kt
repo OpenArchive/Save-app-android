@@ -10,5 +10,5 @@ import org.koin.dsl.module
  * Provides TorServiceManager as a singleton to manage the embedded Tor service.
  */
 val torModule = module {
-    single { TorServiceManager(androidContext()) }
+    single { TorServiceManager(androidContext(), get()) }
 }
