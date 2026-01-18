@@ -6,10 +6,4 @@
     <string name="crash_dialog_comment_prompt">What were you doing when the crash occurred? (optional)</string>
     <string name="crash_dialog_ok_toast">Send Report</string>
     <string name="crash_dialog_cancel">Don\'t Send</string>
-
-    <!-- F-Droid review prompts -->
-    <string name="rate_app_title">Enjoying Save?</string>
-    <string name="rate_app_message_fdroid">Please take a moment to rate Save on F-Droid. Your feedback helps us improve!</string>
-    <string name="rate_now">Rate on F-Droid</string>
-    <string name="later">Maybe Later</string>
 </resources>

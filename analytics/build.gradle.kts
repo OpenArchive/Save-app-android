@@ -87,7 +87,7 @@ dependencies {
 
     // Crash Reporting - flavor specific
     "gmsApi"(libs.firebase.crashlytics)
-    "fossApi"("ch.acra:acra-http:5.11.3")
+    "fossApi"("ch.acra:acra-mail:5.11.3")
     "fossApi"("ch.acra:acra-dialog:5.11.3")
 
     // Logging

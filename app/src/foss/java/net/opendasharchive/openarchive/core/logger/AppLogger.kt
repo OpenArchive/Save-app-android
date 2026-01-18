@@ -1,13 +1,20 @@
 package net.opendasharchive.openarchive.core.logger
 
+import android.app.Application
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.analytics.crash.AcraCrashReporter
 import net.opendasharchive.openarchive.analytics.crash.CrashReporter
+import org.acra.ACRA
+import org.acra.config.CoreConfigurationBuilder
+import org.acra.config.DialogConfigurationBuilder
+import org.acra.config.MailSenderConfigurationBuilder
+import org.acra.data.StringFormat
 import timber.log.Timber
 
 
@@ -29,6 +36,49 @@ object AppLogger {
     private var currentScreen: String = "Unknown"
     private var analyticsManager: AnalyticsManager? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var acraInitialized = false
+
+    /**
+     * Initialize ACRA crash reporting.
+     * Must be called from Application.attachBaseContext() after super.attachBaseContext().
+     */
+    fun initAcra(app: Application) {
+        if (acraInitialized) return
+
+        try {
+            val acraEmail = net.opendasharchive.openarchive.BuildConfig.ACRA_EMAIL
+            if (acraEmail.isBlank()) {
+                Timber.w("ACRA_EMAIL not configured in local.properties - crash reporting disabled")
+                return
+            }
+
+            val config = CoreConfigurationBuilder()
+                .withReportFormat(StringFormat.KEY_VALUE_LIST)
+                .withBuildConfigClass(net.opendasharchive.openarchive.BuildConfig::class.java)
+                .withPluginConfigurations(
+                    MailSenderConfigurationBuilder()
+                        .withMailTo(acraEmail)
+                        .withReportAsFile(true)
+                        .withReportFileName("save_crash_report.txt")
+                        .withSubject("Save App Crash Report")
+                        .build(),
+                    DialogConfigurationBuilder()
+                        .withTitle(app.getString(R.string.crash_dialog_title))
+                        .withText(app.getString(R.string.crash_dialog_text))
+                        .withCommentPrompt(app.getString(R.string.crash_dialog_comment_prompt))
+                        .withPositiveButtonText(app.getString(R.string.crash_dialog_ok_toast))
+                        .withNegativeButtonText(app.getString(R.string.crash_dialog_cancel))
+                        .build()
+                )
+                .build()
+
+            ACRA.init(app, config)
+            acraInitialized = true
+            Timber.d("ACRA initialized successfully")
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to initialize ACRA")
+        }
+    }
 
     /**
      * Initializes the logger

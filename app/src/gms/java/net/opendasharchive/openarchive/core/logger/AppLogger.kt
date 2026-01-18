@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.core.logger
 
+import android.app.Application
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +30,15 @@ object AppLogger {
     private var currentScreen: String = "Unknown"
     private var analyticsManager: AnalyticsManager? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+    /**
+     * Initialize crash reporting (ACRA for FOSS builds).
+     * No-op for GMS builds - Firebase Crashlytics is initialized automatically.
+     */
+    @Suppress("UNUSED_PARAMETER")
+    fun initAcra(app: Application) {
+        // No-op for GMS builds - Firebase Crashlytics handles crash reporting
+    }
 
     /**
      * Initializes the logger

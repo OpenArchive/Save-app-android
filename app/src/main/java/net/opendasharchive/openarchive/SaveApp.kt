@@ -45,8 +45,8 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
-        // ACRA crash reporting is now handled by the analytics module
-        // (AcraCrashReporter for FOSS, FirebaseCrashReporter for GMS)
+        // Initialize ACRA for FOSS builds (no-op for GMS builds)
+        AppLogger.initAcra(this)
     }
 
     private fun applyTheme() {

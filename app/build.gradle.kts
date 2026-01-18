@@ -113,6 +113,10 @@ android {
             // F-Droid expects: net.opendasharchive.openarchive.release
             buildConfigField("boolean", "IS_GMS_BUILD", "false")
             buildConfigField("boolean", "IS_FOSS_BUILD", "true")
+            // ACRA crash report email - loaded from local.properties or env var
+            val localProps = loadLocalProperties()
+            val acraEmail = localProps.getProperty("ACRA_EMAIL") ?: System.getenv("ACRA_EMAIL") ?: ""
+            buildConfigField("String", "ACRA_EMAIL", "\"$acraEmail\"")
         }
 
         // Environment dimension
