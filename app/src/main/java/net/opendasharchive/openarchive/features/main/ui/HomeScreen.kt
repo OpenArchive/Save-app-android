@@ -23,7 +23,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
+import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.core.navigation.ResultEffect
@@ -201,15 +203,24 @@ fun HomeScreenContent(
 
     val showDrawer = isSettings.not() && state.spaces.isNotEmpty()
 
-    // Sync pager → HomeViewModel
-    LaunchedEffect(pagerState.currentPage) {
-        onAction(HomeAction.UpdatePager(pagerState.currentPage))
+    // Sync pager → HomeViewModel ONLY when settled
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.settledPage }
+            .distinctUntilChanged()
+            .collect { settledPage ->
+                onAction(HomeAction.UpdatePager(settledPage))
+            }
     }
 
     // HomeViewModel → pager (when state changes)
     LaunchedEffect(state.pagerIndex) {
-        if (pagerState.currentPage != state.pagerIndex) {
-            pagerState.animateScrollToPage(state.pagerIndex)
+        if (!pagerState.isScrollInProgress && pagerState.currentPage != state.pagerIndex) {
+            val distance = kotlin.math.abs(pagerState.currentPage - state.pagerIndex)
+            if (distance > 2) {
+                pagerState.scrollToPage(state.pagerIndex)
+            } else {
+                pagerState.animateScrollToPage(state.pagerIndex)
+            }
         }
     }
 
@@ -304,6 +315,7 @@ fun HomeScreenContent(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(paddingValues),
+                        beyondViewportPageCount = 0,
                         // IMPORTANT: Set a key so pager items are properly keyed by content
                         key = { page ->
                             if (page == settingsIndex) {
