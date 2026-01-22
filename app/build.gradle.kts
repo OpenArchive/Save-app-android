@@ -5,7 +5,6 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
@@ -31,20 +30,16 @@ fun loadLocalProperties(): Properties = Properties().apply {
 }
 
 kotlin {
-
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_17)
-        languageVersion.set(KotlinVersion.KOTLIN_2_2)
-    }
-}
-
-kotlin {
     compilerOptions {
 
-        jvmTarget.set(JvmTarget.JVM_17)
-        languageVersion.set(KotlinVersion.KOTLIN_2_2)
+        jvmTarget.set(JvmTarget.JVM_21)
+        languageVersion.set(KotlinVersion.KOTLIN_2_3)
 
-        freeCompilerArgs.add("-Xcontext-sensitive-resolution")
+        freeCompilerArgs.addAll(
+            "-Xcontext-sensitive-resolution",
+            "-opt-in=com.google.accompanist.permissions.ExperimentalPermissionsApi",
+            "-opt-in=kotlin.time.ExperimentalTime"
+        )
     }
 }
 
@@ -55,8 +50,8 @@ android {
     compileSdk = 36
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     defaultConfig {
@@ -72,14 +67,11 @@ android {
         resValue("string", "mixpanel_key", localProps.getProperty("MIXPANELKEY") ?: "")
     }
 
-    base {
-        archivesName.set("save-${project.version}")
-    }
-
     buildFeatures {
         viewBinding = true
         buildConfig = true
         compose = true
+        resValues = true
     }
 
     buildTypes {
@@ -150,6 +142,10 @@ android {
         }
     }
 
+    androidResources {
+        generateLocaleConfig = true
+    }
+
 
     configurations.all {
         resolutionStrategy {
@@ -157,10 +153,14 @@ android {
             exclude(group = "org.bouncycastle", module = "bcprov-jdk15on")
         }
     }
+}
 
-    room {
-        schemaDirectory("$projectDir/schemas")
-    }
+base {
+    archivesName.set("save-${project.version}")
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {
@@ -169,6 +169,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.collections.immutable)
+    implementation(libs.kotlinx.datetime)
 
     // AndroidX Core
     implementation(libs.androidx.core.ktx)
@@ -223,6 +224,7 @@ dependencies {
     implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.compose.preferences)
     implementation(libs.reorderable)
+    implementation(libs.accompanist.permissions)
 
     // Material Design
     implementation(libs.google.material)
