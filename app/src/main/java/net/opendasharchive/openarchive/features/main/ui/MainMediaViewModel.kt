@@ -26,6 +26,7 @@ import net.opendasharchive.openarchive.core.domain.Submission
 import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.repositories.CollectionRepository
+import net.opendasharchive.openarchive.core.repositories.InvalidationBus
 import net.opendasharchive.openarchive.core.repositories.MediaRepository
 import net.opendasharchive.openarchive.core.repositories.ProjectRepository
 import net.opendasharchive.openarchive.core.repositories.SpaceRepository
@@ -180,12 +181,14 @@ class MainMediaViewModel(
             projectRepository.observeProject(pid),
             spaceRepository.observeCurrentSpace(),
             collectionRepository.observeCollections(pid),
-            mediaRepository.observeMediaForProject(pid)
-        ) { project, space, collections, media ->
+            mediaRepository.observeMediaForProject(pid),
+            uiState.map { it.selectedMediaIds }.distinctUntilChanged()
+        ) { project, space, collections, media, selectedIds ->
             val sections = collections.map { collection ->
                 CollectionSection(
                     collection = collection,
                     media = media.filter { it.submissionId == collection.id }
+                        .map { it.copy(isSelected = selectedIds.contains(it.id)) }
                 )
             }.filter { it.media.isNotEmpty() }
 
@@ -226,8 +229,8 @@ class MainMediaViewModel(
             EditFolderClicked -> enterEditMode()
             CancelEditMode -> exitEditMode()
             is SaveFolderName -> requestSaveFolderName(action.newName)
-            ShowDeleteSelectedMediaDialog -> showConfirmRemoveProjectDialog()
-            ShowRemoveProjectDialog -> showConfirmDeleteSelectedDialog()
+            ShowDeleteSelectedMediaDialog -> showConfirmDeleteSelectedDialog()
+            ShowRemoveProjectDialog -> showConfirmRemoveProjectDialog()
             OnArchiveProject -> requestArchiveProject()
             is ShowHideFolderOptionsPopup -> _uiState.update { it.copy(showFolderOptionsPopup = action.showPopup) }
         }
@@ -274,29 +277,9 @@ class MainMediaViewModel(
     }
 
     fun refreshSections() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val projectId = uiState.value.projectId ?: return@launch
-
-            val collections = collectionRepository.getCollections(projectId)
-            val newSections = collections
-                .map { collection ->
-                    val media = mediaRepository.getMediaForCollection(collection.id)
-                    collection to media
-                }
-                .filter { (_, media) -> media.isNotEmpty() }
-                .map { (collection, media) -> CollectionSection(collection, media) }
-
-            val totalCount = newSections.sumOf { it.media.size }
-
-            withContext(Dispatchers.Main) {
-                _uiState.update {
-                    it.copy(
-                        sections = newSections,
-                        totalMediaCount = totalCount
-                    )
-                }
-            }
-        }
+        // Ping the invalidation bus to wake up the reactive observeData() flow.
+        // This is safe to call even if the flow is already running as it's distinctUntilChanged.
+        InvalidationBus.invalidateAll()
     }
 
     private fun handleMediaClick(media: Evidence) {
@@ -347,7 +330,7 @@ class MainMediaViewModel(
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-            mediaRepository.setSelected(media.id, newSelected.contains(media.id))
+            // mediaRepository.setSelected(media.id, newSelected.contains(media.id))
 
             withContext(Dispatchers.Main) {
                 _uiState.update { it.copy(selectedMediaIds = newSelected) }
@@ -379,9 +362,11 @@ class MainMediaViewModel(
             val newSelected =
                 if (currentSelected.size == allMediaIds.size) emptySet() else allMediaIds
 
+            /*
             _uiState.value.sections.flatMap { it.media }.forEach { media ->
                 mediaRepository.setSelected(media.id, newSelected.contains(media.id))
             }
+            */
 
             withContext(Dispatchers.Main) {
                 _uiState.update { it.copy(selectedMediaIds = newSelected) }
@@ -414,11 +399,13 @@ class MainMediaViewModel(
 
     fun cancelSelection() {
         viewModelScope.launch(Dispatchers.IO) {
+            /*
             _uiState.value.sections.flatMap { it.media }.forEach { media ->
                 if (media.isSelected) {
                     mediaRepository.setSelected(media.id, false)
                 }
             }
+            */
 
             withContext(Dispatchers.Main) {
                 _uiState.update {

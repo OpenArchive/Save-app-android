@@ -267,6 +267,7 @@ fun HomeScreenContent(
                             onAction(HomeAction.Navigate(route = AppRoute.SpaceSetupRoute))
                         },
                         onAddNewFolderClicked = {
+                            scope.launch { drawerState.close() }
                             onAction(HomeAction.NavigateToAddNewFolder)
                         },
                     )

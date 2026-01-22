@@ -79,7 +79,7 @@ internal fun FolderBar(
             FolderBarMode.SELECTION -> FolderBarSelectionMode(
                 selectedCount = state.selectedCount,
                 onCancel = { onIntent(FolderBarIntent.CancelSelection) },
-                onDelete = { onIntent(FolderBarIntent.DeleteSelectedRequest) },
+                onDelete = { onIntent(FolderBarIntent.DeleteSelectedMediaRequest) },
             )
 
             FolderBarMode.EDIT -> FolderBarEditMode(
@@ -114,7 +114,7 @@ sealed interface FolderBarIntent {
 
     // selection mode actions
     data object CancelSelection : FolderBarIntent
-    data object DeleteSelectedRequest : FolderBarIntent
+    data object DeleteSelectedMediaRequest : FolderBarIntent
 
     // edit mode actions
     data object CancelEdit : FolderBarIntent

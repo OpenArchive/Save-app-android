@@ -113,9 +113,6 @@ class HomeViewModel(
             HomeAction.NavigateToPreviewMedia -> {
                 val projectId = uiState.value.selectedProjectId ?: return
                 navigator.navigateTo(AppRoute.PreviewMediaRoute(projectId = projectId))
-                //emitEvent(Navigate(HomeNavigation.PreviewMedia(spaceId, projectId)))
-
-                navigator
             }
 
             is HomeAction.MediaImported -> viewModelScope.launch {

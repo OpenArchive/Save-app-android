@@ -52,6 +52,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlinx.datetime.toJavaLocalDateTime
+import net.opendasharchive.openarchive.core.domain.VaultType
 import java.time.ZoneId
 
 /**
@@ -148,7 +149,7 @@ fun MainMediaContent(
             RemoveFolder -> onAction(MainMediaAction.ShowRemoveProjectDialog)
 
             CancelSelection -> onAction(MainMediaAction.CancelSelection)
-            DeleteSelectedRequest -> onAction(MainMediaAction.ShowDeleteSelectedMediaDialog)
+            DeleteSelectedMediaRequest -> onAction(MainMediaAction.ShowDeleteSelectedMediaDialog)
 
             CancelEdit -> onAction(MainMediaAction.CancelEditMode)
             is SaveName -> onAction(MainMediaAction.SaveFolderName(intent.name))
@@ -424,6 +425,37 @@ private fun formatUploadDate(date: Date): String {
 @Preview(showBackground = true)
 @Composable
 private fun MainMediaScreenPreview() {
+    SaveAppTheme {
+        MainMediaContent(
+            state = MainMediaState(
+                currentSpace = Vault(id = 1, name = "My Vault", type = VaultType.PRIVATE_SERVER),
+                currentProject = Archive(id = 1, description = "My Project", vaultId = 1),
+                folderBarMode = FolderBarMode.INFO,
+                totalMediaCount = 24
+            ),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MainMediaScreenNoFolderPreview() {
+    SaveAppTheme {
+        MainMediaContent(
+            state = MainMediaState(
+                currentSpace = Vault(id = 1, name = "My Vault", type = VaultType.PRIVATE_SERVER),
+                folderBarMode = FolderBarMode.INFO,
+                totalMediaCount = 24
+            ),
+            onAction = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MainMediaScreenNoServerPreview() {
     SaveAppTheme {
         MainMediaContent(
             state = MainMediaState(),

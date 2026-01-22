@@ -25,7 +25,10 @@ class SugarMediaRepository(private val io: CoroutineDispatcher = Dispatchers.IO)
         .distinctUntilChanged()
 
     override suspend fun getMediaForProject(projectId: Long): List<Evidence> = withContext(io) {
-        SugarRecord.find(Media::class.java, "project_id = ?", projectId.toString())
+        SugarRecord.find(
+            Media::class.java, "project_id = ?",
+            arrayOf(projectId.toString()), null, "id DESC", null
+        )
             .map { it.toDomain() }
     }
 
@@ -68,7 +71,10 @@ class SugarMediaRepository(private val io: CoroutineDispatcher = Dispatchers.IO)
 
     override suspend fun addEvidence(evidence: Evidence): Long = withContext(io) {
         val id = evidence.toEntity().save()
-        if (id > 0) InvalidationBus.invalidateMedia()
+        if (id > 0) {
+            InvalidationBus.invalidateMedia()
+            InvalidationBus.invalidateCollections()
+        }
         id
     }
 
