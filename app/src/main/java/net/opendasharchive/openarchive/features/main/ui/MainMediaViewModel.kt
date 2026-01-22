@@ -72,7 +72,11 @@ data class MainMediaState(
  * User actions scoped to MainMediaScreen.
  */
 sealed class MainMediaAction {
-    data class LoadProject(val projectId: Long, val project: Archive? = null, val space: Vault? = null) :
+    data class LoadProject(
+        val projectId: Long,
+        val project: Archive? = null,
+        val space: Vault? = null
+    ) :
         MainMediaAction()
 
     data class Refresh(val projectId: Long) : MainMediaAction()
@@ -116,7 +120,9 @@ sealed class MainMediaEvent {
 
 // NEW: Project-level mutation requests (handled by HomeViewModel)
 sealed class MainMediaProjectEvent {
-    data class RequestProjectRename(val projectId: Long, val newName: String) : MainMediaProjectEvent()
+    data class RequestProjectRename(val projectId: Long, val newName: String) :
+        MainMediaProjectEvent()
+
     data class RequestProjectArchive(val projectId: Long) : MainMediaProjectEvent()
     data class RequestProjectDelete(val projectId: Long) : MainMediaProjectEvent()
 }
@@ -274,7 +280,12 @@ class MainMediaViewModel(
     private fun handleMediaLongPress(media: Evidence) {
         viewModelScope.launch {
             if (!_uiState.value.isInSelectionMode) {
-                _uiState.update { it.copy(isInSelectionMode = true, folderBarMode = FolderBarMode.SELECTION) }
+                _uiState.update {
+                    it.copy(
+                        isInSelectionMode = true,
+                        folderBarMode = FolderBarMode.SELECTION
+                    )
+                }
             }
             toggleMediaSelection(media)
         }
@@ -295,7 +306,12 @@ class MainMediaViewModel(
                 _uiState.update { it.copy(selectedMediaIds = newSelected) }
 
                 if (newSelected.isEmpty() && _uiState.value.isInSelectionMode) {
-                    _uiState.update { it.copy(isInSelectionMode = false, folderBarMode = FolderBarMode.INFO) }
+                    _uiState.update {
+                        it.copy(
+                            isInSelectionMode = false,
+                            folderBarMode = FolderBarMode.INFO
+                        )
+                    }
                 }
 
                 _uiEvent.emit(
@@ -313,7 +329,8 @@ class MainMediaViewModel(
             val allMediaIds = _uiState.value.sections.flatMap { it.media }.map { it.id }.toSet()
             val currentSelected = _uiState.value.selectedMediaIds
 
-            val newSelected = if (currentSelected.size == allMediaIds.size) emptySet() else allMediaIds
+            val newSelected =
+                if (currentSelected.size == allMediaIds.size) emptySet() else allMediaIds
 
             _uiState.value.sections.flatMap { it.media }.forEach { media ->
                 mediaRepository.setSelected(media.id, newSelected.contains(media.id))
@@ -386,7 +403,10 @@ class MainMediaViewModel(
                             if (media.id == mediaId) {
                                 when {
                                     isUploaded -> {
-                                        media.copy(status = EvidenceStatus.UPLOADED, uploadPercentage = 100)
+                                        media.copy(
+                                            status = EvidenceStatus.UPLOADED,
+                                            uploadPercentage = 100
+                                        )
                                     }
 
                                     progress >= 0 -> {
@@ -428,8 +448,18 @@ class MainMediaViewModel(
 
     fun enableSelectionMode() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isInSelectionMode = true, folderBarMode = FolderBarMode.SELECTION) }
-            _uiEvent.emit(MainMediaEvent.SelectionModeChanged(true, _uiState.value.selectedMediaIds.size))
+            _uiState.update {
+                it.copy(
+                    isInSelectionMode = true,
+                    folderBarMode = FolderBarMode.SELECTION
+                )
+            }
+            _uiEvent.emit(
+                MainMediaEvent.SelectionModeChanged(
+                    true,
+                    _uiState.value.selectedMediaIds.size
+                )
+            )
         }
     }
 

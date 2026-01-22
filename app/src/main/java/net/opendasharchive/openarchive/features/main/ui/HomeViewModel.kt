@@ -125,7 +125,8 @@ class HomeViewModel(
 
                 navigator
             }
-            is HomeAction.MediaImported -> viewModelScope.launch{
+
+            is HomeAction.MediaImported -> viewModelScope.launch {
                 val spaceId = uiState.value.currentSpace?.id ?: return@launch
                 val projectId = uiState.value.selectedProjectId ?: return@launch
 
