@@ -55,9 +55,7 @@ class SpaceListFragment : BaseFragment() {
             }
 
             Space.Type.WEBDAV -> {
-                val action =
-                    SpaceListFragmentDirections.actionFragmentSpaceListToFragmentWebDav(spaceId)
-                findNavController().navigate(action)
+                // Do nothing
             }
 
 

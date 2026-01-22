@@ -1,12 +1,7 @@
 package net.opendasharchive.openarchive.services.webdav.login
 
 import android.content.res.Configuration
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.addCallback
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -60,70 +55,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.fragment.compose.content
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
-import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeColors
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
-import net.opendasharchive.openarchive.db.Space
-import net.opendasharchive.openarchive.features.core.BaseFragment
-import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
 import net.opendasharchive.openarchive.features.core.UiText
-import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
-import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.CustomSecureField
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.CustomTextField
 import net.opendasharchive.openarchive.util.NetworkUtils
-import org.koin.androidx.viewmodel.ext.android.viewModel
-
-class WebDavLoginScreenFragment : BaseFragment(), ToolbarConfigurable {
-
-    private val args: WebDavLoginScreenFragmentArgs by navArgs()
-    private val viewModel: WebDavLoginViewModel by viewModel()
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View = content {
-        SaveAppTheme {
-            WebDavLoginScreen(
-                viewModel = viewModel,
-            )
-        }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        // Handle back press with unsaved changes check
-        if (args.spaceId != WebDavLoginViewModel.ARG_VAL_NEW_SPACE) {
-            requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-                // This will be handled by the Compose screen via events
-                findNavController().popBackStack()
-            }
-        }
-    }
-
-    override fun getToolbarTitle(): String {
-        return if (args.spaceId == WebDavLoginViewModel.ARG_VAL_NEW_SPACE) {
-            getString(R.string.private_server)
-        } else {
-            val space = Space.get(args.spaceId)
-            when {
-                space?.name?.isNotBlank() == true -> space.name
-                space?.friendlyName?.isNotBlank() == true -> space.friendlyName
-                else -> getString(R.string.private_server)
-            }
-        }
-    }
-
-    override fun shouldShowBackButton() = true
-}
 
 @Composable
 fun WebDavLoginScreen(

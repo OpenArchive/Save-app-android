@@ -1,10 +1,6 @@
 package net.opendasharchive.openarchive.services.webdav.detail
 
 import android.content.res.Configuration
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,41 +32,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.fragment.compose.content
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
-import net.opendasharchive.openarchive.features.core.BaseFragment
-import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.CustomSecureField
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.CustomTextField
 import net.opendasharchive.openarchive.services.webdav.CreativeCommonsLicenseContent
 import net.opendasharchive.openarchive.services.webdav.LicenseCallbacks
 import net.opendasharchive.openarchive.services.webdav.LicenseState
-
-class WebDavDetailScreenFragment : BaseFragment(), ToolbarConfigurable {
-
-//    private val args: WebDavDetailScreenFragmentArgs by navArgs()
-//    private val viewModel: WebDavDetailViewModel by viewModel()
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View = content {
-//        SaveAppTheme {
-//            WebDavDetailScreen(
-//                viewModel = viewModel,
-//                dialogManager = dialogManager,
-//            )
-//        }
-    }
-
-    override fun getToolbarTitle(): String = getString(R.string.private_server)
-
-    override fun shouldShowBackButton() = true
-}
 
 @Composable
 fun WebDavDetailScreen(
