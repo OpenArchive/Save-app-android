@@ -20,7 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
-import net.opendasharchive.openarchive.db.Media
+import net.opendasharchive.openarchive.core.domain.Evidence
+import net.opendasharchive.openarchive.core.domain.EvidenceStatus
 
 /**
  * Shared media status overlay component for showing upload states.
@@ -36,7 +37,7 @@ import net.opendasharchive.openarchive.db.Media
  */
 @Composable
 fun MediaStatusOverlay(
-    media: Media,
+    evidence: Evidence,
     modifier: Modifier = Modifier,
     showProgressText: Boolean = true,
     backgroundColor: Color = colorResource(R.color.transparent_loading_overlay),
@@ -44,8 +45,8 @@ fun MediaStatusOverlay(
     showQueuedState: Boolean = true,
     showUploadingState: Boolean = true
 ) {
-    when (media.sStatus) {
-        Media.Status.Error -> {
+    when (evidence.status) {
+        EvidenceStatus.ERROR -> {
             Box(
                 modifier = modifier
                     .fillMaxSize()
@@ -61,7 +62,7 @@ fun MediaStatusOverlay(
             }
         }
 
-        Media.Status.Queued -> {
+        EvidenceStatus.QUEUED -> {
             if (showQueuedState) {
                 Box(
                     modifier = modifier
@@ -78,9 +79,9 @@ fun MediaStatusOverlay(
             }
         }
 
-        Media.Status.Uploading -> {
+        EvidenceStatus.UPLOADING -> {
             if (showUploadingState) {
-                val progressValue = media.uploadPercentage ?: 0
+                val progressValue = evidence.uploadPercentage ?: 0
                 Box(
                     modifier = modifier
                         .fillMaxSize()

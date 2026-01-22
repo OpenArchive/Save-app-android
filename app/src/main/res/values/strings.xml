@@ -327,6 +327,8 @@
     <string name="pref_summary_privacy_policy">Read our Terms and Privacy Policy</string>
     <string name="pref_title_version" translatable="false">Version</string>
     <string name="pref_title_dark_mode" translatable="false">Switch to dark mode</string>
+    <string name="pref_title_language">App language</string>
+    <string name="pref_summary_language">Change the language for this app</string>
 
     <!-- General -->
     <string name="label_success_title">Success!</string>

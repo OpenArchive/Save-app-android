@@ -77,7 +77,7 @@ import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPr
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
-import net.opendasharchive.openarchive.db.Media
+import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
@@ -127,6 +127,7 @@ class ReviewMediaFragment : BaseFragment(), ToolbarConfigurable {
                         findNavController().popBackStack()
                         true
                     }
+
                     else -> false
                 }
             }
@@ -289,7 +290,7 @@ private fun BatchPreviewSection(state: ReviewMediaState) {
 
 @Composable
 private fun MediaPreview(
-    media: Media?,
+    media: Evidence?,
     modifier: Modifier = Modifier,
     background: Color = MaterialTheme.colorScheme.background,
     contentScale: ContentScale = ContentScale.Fit
@@ -310,6 +311,7 @@ private fun MediaPreview(
                     tint = Color.Gray
                 )
             }
+
             media.mimeType.startsWith("image") -> {
                 SubcomposeAsyncImage(
                     model = ImageRequest.Builder(context)
@@ -332,6 +334,7 @@ private fun MediaPreview(
                     }
                 )
             }
+
             media.mimeType.startsWith("video") -> {
                 val videoUri = when {
                     !media.originalFilePath.isNullOrBlank() -> media.originalFilePath.toUri()
@@ -367,6 +370,7 @@ private fun MediaPreview(
                     }
                 )
             }
+
             media.mimeType.startsWith("audio") -> {
                 Icon(
                     painter = painterResource(R.drawable.ic_music),
@@ -375,6 +379,7 @@ private fun MediaPreview(
                     tint = Color.Gray
                 )
             }
+
             media.mimeType == "application/pdf" -> {
                 // TODO: Implement PDF preview using PdfThumbnailLoader
                 Icon(
@@ -384,6 +389,7 @@ private fun MediaPreview(
                     tint = Color.Gray
                 )
             }
+
             else -> {
                 Icon(
                     painter = painterResource(R.drawable.no_thumbnail),
@@ -598,7 +604,7 @@ private fun ReviewMediaSingleModePreview() {
     DefaultScaffoldPreview {
         ReviewMediaContent(
             state = ReviewMediaState(
-                mediaList = listOf(Media()),
+                mediaList = listOf(Evidence(id = 1)),
                 currentIndex = 0,
                 isBatchMode = false,
                 description = "",
@@ -620,7 +626,7 @@ private fun ReviewMediaBatchModePreview() {
     DefaultScaffoldPreview {
         ReviewMediaContent(
             state = ReviewMediaState(
-                mediaList = listOf(Media(), Media(), Media()),
+                mediaList = listOf(Evidence(id = 1), Evidence(id = 2), Evidence(id = 3)),
                 currentIndex = 0,
                 isBatchMode = true,
                 description = "Shared description",
@@ -641,7 +647,7 @@ private fun ReviewMediaWithDataPreview() {
     DefaultScaffoldPreview {
         ReviewMediaContent(
             state = ReviewMediaState(
-                mediaList = listOf(Media()),
+                mediaList = listOf(Evidence(id = 1)),
                 currentIndex = 0,
                 isBatchMode = false,
                 description = "A beautiful sunset captured at the beach during my vacation.",

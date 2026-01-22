@@ -86,7 +86,7 @@ class SpaceSetupActivity : BaseActivity() {
                 navGraph.setStartDestination(R.id.fragment_add_folder)
             }
             StartDestination.ADD_NEW_FOLDER -> {
-                navGraph.setStartDestination(R.id.fragment_create_new_folder)
+                //navGraph.setStartDestination(R.id.fragment_create_new_folder)
             }
             StartDestination.ARCHIVED_FOLDER_LIST -> {
                 navGraph.setStartDestination(R.id.fragment_folders)

@@ -21,7 +21,7 @@ import coil3.request.ImageRequest
 import coil3.request.error
 import coil3.video.VideoFrameDecoder
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.db.Media
+import net.opendasharchive.openarchive.core.domain.Evidence
 import java.io.File
 
 /**
@@ -38,7 +38,7 @@ import java.io.File
  */
 @Composable
 fun MediaThumbnail(
-    media: Media,
+    evidence: Evidence,
     modifier: Modifier = Modifier,
     isSelected: Boolean = false,
     alpha: Float = 1f,
@@ -48,22 +48,22 @@ fun MediaThumbnail(
     onTitleVisibilityChanged: ((Boolean) -> Unit)? = null
 ) {
     val context = LocalContext.current
-    val imageExists = remember(media.originalFilePath) {
-        runCatching { media.file.exists() }.getOrDefault(false)
+    val imageExists = remember(evidence.originalFilePath) {
+        runCatching { evidence.file.exists() }.getOrDefault(false)
     }
-    val videoExists = remember(media.originalFilePath) {
+    val videoExists = remember(evidence.originalFilePath) {
         runCatching {
-            val primary = media.originalFilePath.takeIf { it.isNotBlank() }?.let { File(it).exists() } ?: false
-            val secondary = media.fileUri.path?.let { File(it).exists() } ?: false
+            val primary = evidence.originalFilePath.takeIf { it.isNotBlank() }?.let { File(it).exists() } ?: false
+            val secondary = evidence.fileUri.path?.let { File(it).exists() } ?: false
             primary || secondary
         }.getOrDefault(false)
     }
 
     when {
-        media.mimeType.startsWith("image") && imageExists -> {
+        evidence.mimeType.startsWith("image") && imageExists -> {
             SubcomposeAsyncImage(
                 model = ImageRequest.Builder(context)
-                    .data(media.fileUri)
+                    .data(evidence.fileUri)
                     .error(R.drawable.ic_image)
                     .build(),
                 contentDescription = null,
@@ -77,10 +77,10 @@ fun MediaThumbnail(
             onTitleVisibilityChanged?.invoke(false)
         }
 
-        media.mimeType.startsWith("video") && videoExists -> {
+        evidence.mimeType.startsWith("video") && videoExists -> {
             SubcomposeAsyncImage(
                 model = ImageRequest.Builder(context)
-                    .data(media.originalFilePath.ifEmpty { media.fileUri })
+                    .data(evidence.originalFilePath.ifEmpty { evidence.fileUri.toString() })
                     .decoderFactory(VideoFrameDecoder.Factory())
                     .error(R.drawable.ic_video)
                     .build(),
@@ -95,7 +95,7 @@ fun MediaThumbnail(
             onTitleVisibilityChanged?.invoke(false)
         }
 
-        media.mimeType.startsWith("video") -> {
+        evidence.mimeType.startsWith("video") -> {
             MediaPlaceholderIcon(
                 drawableRes = R.drawable.ic_video,
                 isSelected = isSelected,
@@ -106,7 +106,7 @@ fun MediaThumbnail(
             onTitleVisibilityChanged?.invoke(true)
         }
 
-        media.mimeType.startsWith("image") -> {
+        evidence.mimeType.startsWith("image") -> {
             MediaPlaceholderIcon(
                 drawableRes = R.drawable.ic_image,
                 isSelected = isSelected,
@@ -117,9 +117,9 @@ fun MediaThumbnail(
             onTitleVisibilityChanged?.invoke(true)
         }
 
-        media.mimeType == "application/pdf" -> {
+        evidence.mimeType == "application/pdf" -> {
             PdfThumbnailView(
-                uri = media.fileUri,
+                uri = evidence.fileUri,
                 placeholderRes = R.drawable.ic_pdf,
                 maxDimensionPx = pdfMaxDimensionPx,
                 contentScale = ContentScale.Crop,
@@ -131,7 +131,7 @@ fun MediaThumbnail(
             )
         }
 
-        media.mimeType.startsWith("audio") -> {
+        evidence.mimeType.startsWith("audio") -> {
             MediaPlaceholderIcon(
                 drawableRes = R.drawable.ic_music,
                 isSelected = isSelected,
@@ -142,7 +142,7 @@ fun MediaThumbnail(
             onTitleVisibilityChanged?.invoke(true)
         }
 
-        media.mimeType.startsWith("application") -> {
+        evidence.mimeType.startsWith("application") -> {
             MediaPlaceholderIcon(
                 drawableRes = R.drawable.ic_unknown_file,
                 isSelected = isSelected,

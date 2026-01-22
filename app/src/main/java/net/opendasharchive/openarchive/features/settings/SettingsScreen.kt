@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.PaddingValues
@@ -48,7 +50,6 @@ import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles
-import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
@@ -62,6 +63,7 @@ import org.koin.compose.koinInject
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import net.opendasharchive.openarchive.features.core.BaseComposeActivity
 import net.opendasharchive.openarchive.features.core.UiColor
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 
@@ -104,6 +106,8 @@ fun SettingsScreen(
                 titleTor = stringResource(R.string.prefs_use_tor_title),
                 summaryTor = stringResource(R.string.prefs_use_tor_summary),
                 titleDarkMode = stringResource(R.string.pref_title_dark_mode),
+                titleLanguage = stringResource(R.string.pref_title_language),
+                summaryLanguage = stringResource(R.string.pref_summary_language),
                 titleAbout = stringResource(R.string.save_by_open_archive),
                 summaryAbout = stringResource(R.string.discover_the_save_app),
                 titlePrivacy = stringResource(R.string.pref_title_privacy_policy),
@@ -123,7 +127,7 @@ fun SettingsScreen(
                     result.resultCode == Activity.RESULT_OK &&
                         (result.data?.getBooleanExtra(PasscodeSetupActivity.EXTRA_PASSCODE_ENABLED, false) ?: false)
                 passcodeState.value = passcodeEnabled
-                (context as? BaseActivity)?.updateScreenshotPrevention()
+                (context as? BaseComposeActivity)?.updateScreenshotPrevention()
             }
 
         SettingsScreenContent(
@@ -148,7 +152,7 @@ fun SettingsScreen(
                             text = UiText.Resource(R.string.answer_yes)
                             action = {
                                 passcodeRepository.clearPasscode()
-                                (context as? BaseActivity)?.updateScreenshotPrevention()
+                                (context as? BaseComposeActivity)?.updateScreenshotPrevention()
                                 passcodeState.value = false
                             }
                         }
@@ -182,6 +186,7 @@ fun SettingsScreen(
                 AppLogger.breadcrumb("Feature Toggled", "dark_mode: $enabled")
                 coroutineScope.launch { analyticsManager.trackFeatureToggled("dark_mode", enabled) }
             },
+            onLanguageClick = { openAppLanguageSettings(context) },
             onMediaServersClick = {
                 onNavigateToSpaceList()
             },
@@ -210,6 +215,7 @@ private fun SettingsScreenContent(
     onWifiOnlyToggle: (Boolean) -> Unit,
     onTorToggle: () -> Unit,
     onDarkModeToggle: (Boolean) -> Unit,
+    onLanguageClick: () -> Unit,
     onMediaServersClick: () -> Unit,
     onMediaFoldersClick: () -> Unit,
     onProofModeClick: () -> Unit,
@@ -297,6 +303,13 @@ private fun SettingsScreenContent(
             )
         }
         preference(
+            key = "language",
+            title = { PreferenceTitle(text = strings.titleLanguage) },
+            summary = { PreferenceSummary(text = strings.summaryLanguage) },
+            modifier = rowModifier,
+            onClick = onLanguageClick,
+        )
+        preference(
             key = "about",
             title = { PreferenceTitle(text = strings.titleAbout) },
             summary = { PreferenceSummary(text = strings.summaryAbout) },
@@ -336,6 +349,8 @@ private data class SettingsStrings(
     val titleTor: String,
     val summaryTor: String,
     val titleDarkMode: String,
+    val titleLanguage: String,
+    val summaryLanguage: String,
     val titleAbout: String,
     val summaryAbout: String,
     val titlePrivacy: String,
@@ -346,6 +361,19 @@ private data class SettingsStrings(
 // Helper function for opening URLs
 private fun openUrl(context: Context, url: String) {
     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+    context.startActivity(intent)
+}
+
+private fun openAppLanguageSettings(context: Context) {
+    val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        Intent(Settings.ACTION_APP_LOCALE_SETTINGS).apply {
+            data = Uri.fromParts("package", context.packageName, null)
+        }
+    } else {
+        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.fromParts("package", context.packageName, null)
+        }
+    }
     context.startActivity(intent)
 }
 
@@ -525,6 +553,8 @@ private fun PreviewSettingsScreen() {
                     titleTor = "Use Tor",
                     summaryTor = "Enable Tor for encryption",
                     titleDarkMode = "Switch to dark mode",
+                    titleLanguage = "App language",
+                    summaryLanguage = "Change the language for this app",
                     titleAbout = "Save by Open Archive",
                     summaryAbout = "Discover the Save app",
                     titlePrivacy = "Terms & Privacy Policy",
@@ -540,6 +570,7 @@ private fun PreviewSettingsScreen() {
             onWifiOnlyToggle = {},
             onTorToggle = {},
             onDarkModeToggle = {},
+            onLanguageClick = {},
             onMediaServersClick = {},
             onMediaFoldersClick = {},
             onProofModeClick = {},

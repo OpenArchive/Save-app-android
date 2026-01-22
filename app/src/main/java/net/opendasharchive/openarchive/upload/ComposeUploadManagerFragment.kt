@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.features.core.UiText
@@ -66,7 +67,7 @@ class ComposeUploadManagerFragment : SKBottomSheetDialogFragment() {
         return uploadViewModel.getUploadingCounter()
     }
 
-    private fun showRetryDialog(mediaItem: Media, position: Int) {
+    private fun showRetryDialog(mediaItem: Evidence, position: Int) {
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Error
             title = UiText.Resource(R.string.upload_unsuccessful)

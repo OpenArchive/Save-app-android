@@ -3,7 +3,7 @@ package net.opendasharchive.openarchive.features.main.ui
 import android.net.Uri
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
-import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
@@ -36,12 +36,12 @@ sealed class AppRoute(open val deeplink: String) : NavKey {
     @Serializable
     data class SetupLicenseRoute(
         val spaceId: Long,
-        val spaceType: Space.Type,
+        val spaceType: VaultType,
     ) : AppRoute("setup_license")
 
     @Serializable
     data class SpaceSetupSuccessRoute(
-        val spaceType: Space.Type
+        val spaceType: VaultType
     ) : AppRoute("space_setup_success")
 
     @Serializable

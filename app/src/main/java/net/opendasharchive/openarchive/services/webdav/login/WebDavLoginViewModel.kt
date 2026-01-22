@@ -11,13 +11,13 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
+import net.opendasharchive.openarchive.core.domain.Vault
+import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
-import net.opendasharchive.openarchive.features.core.dialog.DialogType
-import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
+import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.services.webdav.WebDavRepository
@@ -26,6 +26,7 @@ import java.io.IOException
 class WebDavLoginViewModel(
     private val navigator: Navigator,
     private val repository: WebDavRepository,
+    private val spaceRepository: SpaceRepository,
     private val dialogManager: DialogStateManager,
     private val analyticsManager: AnalyticsManager
 ) : ViewModel() {
@@ -35,7 +36,7 @@ class WebDavLoginViewModel(
         private const val REMOTE_PHP_ADDRESS = "/remote.php/webdav/"
     }
 
-    private var space: Space = Space(Space.Type.WEBDAV)
+    private var spaceId: Long = 0L
 
     private val _uiState = MutableStateFlow(WebDavLoginState())
     val uiState: StateFlow<WebDavLoginState> = _uiState.asStateFlow()
@@ -151,40 +152,67 @@ class WebDavLoginViewModel(
             return
         }
 
-        // Update space with form values
-        space.host = fixedUrl.toString()
-        space.username = currentState.username
-        space.password = currentState.password
-
         // Check for duplicate credentials
-        val existing = Space.get(Space.Type.WEBDAV, space.host, space.username)
-        if (existing.isNotEmpty() && existing[0].id != space.id) {
-            showError(UiText.Resource(R.string.you_already_have_a_server_with_these_credentials))
-            return
-        }
-
-        _uiState.update { it.copy(isLoading = true, serverUrl = space.host) }
-
         viewModelScope.launch {
+            val spaces = spaceRepository.getSpaces()
+            val existing = spaces.filter {
+                it.type == VaultType.PRIVATE_SERVER && it.host == fixedUrl.toString() && it.username == currentState.username
+            }
+            if (existing.isNotEmpty() && existing[0].id != spaceId) {
+                showError(UiText.Resource(R.string.you_already_have_a_server_with_these_credentials))
+                return@launch
+            }
+
+            _uiState.update { it.copy(isLoading = true, serverUrl = fixedUrl.toString()) }
+
             try {
-                repository.testConnection(space)
+                val tempVault = Vault(
+                    id = spaceId,
+                    type = VaultType.PRIVATE_SERVER,
+                    name = "", // Will be set in SetupLicense
+                    host = fixedUrl.toString(),
+                    username = currentState.username,
+                    password = currentState.password
+                )
+                repository.testConnection(tempVault)
 
                 // Check if this is a new backend or existing one
-                val isNewBackend = space.id == null || space.id == 0L
+                val isNewBackend = spaceId == 0L
 
-                space.save()
-                Space.current = space
+                val vaultToSave = if (isNewBackend) {
+                    tempVault
+                } else {
+                    spaceRepository.getSpaceById(spaceId)?.copy(
+                        host = tempVault.host,
+                        username = tempVault.username,
+                        password = tempVault.password
+                    ) ?: tempVault
+                }
+
+                val savedId = if (isNewBackend) {
+                    spaceRepository.addSpace(vaultToSave)
+                } else {
+                    spaceRepository.updateSpace(spaceId, vaultToSave)
+                    spaceId
+                }
+
+                spaceRepository.setCurrentSpace(savedId)
 
                 // Track backend configuration
                 analyticsManager.trackBackendConfigured(
-                    backendType = Space.Type.WEBDAV.friendlyName,
+                    backendType = VaultType.PRIVATE_SERVER.name, // Using enum name
                     isNew = isNewBackend
                 )
 
                 _uiState.update { it.copy(isLoading = false) }
 
                 // Navigate to Setup License
-                navigator.navigateTo(AppRoute.SetupLicenseRoute(spaceId = space.id, spaceType = Space.Type.WEBDAV))
+                navigator.navigateTo(
+                    AppRoute.SetupLicenseRoute(
+                        spaceId = savedId,
+                        spaceType = VaultType.PRIVATE_SERVER
+                    )
+                )
 
             } catch (e: IOException) {
                 _uiState.update { it.copy(isLoading = false) }
@@ -202,9 +230,9 @@ class WebDavLoginViewModel(
 
                     // Invalid server URL errors (unable to resolve, 404, 400, etc.)
                     e.message?.contains("Unable to resolve host", ignoreCase = true) == true ||
-                    e.message?.startsWith("404") == true ||
-                    e.message?.startsWith("400") == true ||
-                    e.message?.startsWith("403") == true -> {
+                            e.message?.startsWith("404") == true ||
+                            e.message?.startsWith("400") == true ||
+                            e.message?.startsWith("403") == true -> {
                         _uiState.update { it.copy(serverError = UiText.Dynamic(" ")) }
                         showError(UiText.Resource(R.string.web_dav_host_error))
                     }

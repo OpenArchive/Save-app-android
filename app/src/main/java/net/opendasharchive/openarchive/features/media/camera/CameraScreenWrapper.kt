@@ -1,21 +1,15 @@
 package net.opendasharchive.openarchive.features.media.camera
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.features.main.HomeActivity
+import net.opendasharchive.openarchive.util.rememberComposePermissionManager
 
 /**
  * Wrapper composable that replicates all the logic from CameraActivity.
@@ -39,7 +33,7 @@ fun CameraScreenWrapper(
     onCancel: () -> Unit
 ) {
     val context = LocalContext.current
-    val activity = context as? HomeActivity
+    val permissionManager = rememberComposePermissionManager()
 
     // Permission states
     var showPermissionScreen by remember { mutableStateOf(false) }
@@ -48,91 +42,12 @@ fun CameraScreenWrapper(
     var hasCameraPermissionBeenRequested by remember { mutableStateOf(false) }
     var hasAudioPermissionBeenRequested by remember { mutableStateOf(false) }
 
-    // Helper functions
-    val checkCameraPermission = {
-        ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.CAMERA
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    val checkAudioPermission = {
-        ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.RECORD_AUDIO
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    val shouldShowCameraRationale = {
-        activity?.let {
-            ActivityCompat.shouldShowRequestPermissionRationale(
-                it,
-                Manifest.permission.CAMERA
-            )
-        } ?: false
-    }
-
-    val shouldShowAudioRationale = {
-        activity?.let {
-            ActivityCompat.shouldShowRequestPermissionRationale(
-                it,
-                Manifest.permission.RECORD_AUDIO
-            )
-        } ?: false
-    }
-
-    // Audio permission launcher
-    val audioPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        AppLogger.d("Audio permission result: $granted")
-        hasAudioPermissionBeenRequested = true
-
-        if (!granted) {
-            // Check if audio permission was permanently denied (only after we've requested it)
-            isAudioPermissionPermanentlyDenied = !shouldShowAudioRationale()
-        } else {
-            isAudioPermissionPermanentlyDenied = false
-        }
-        // Audio permission result doesn't affect UI state for now
-        // Video recording will work without audio if needed
-    }
-
-    // Camera permission launcher
-    val cameraPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        AppLogger.d("Camera permission result: $granted")
-        hasCameraPermissionBeenRequested = true
-
-        if (granted) {
-            showPermissionScreen = false
-            isCameraPermissionPermanentlyDenied = false
-
-            // If camera permission is granted, request audio permission for video if needed
-            if (config.allowVideoCapture && !checkAudioPermission()) {
-                audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-            }
-        } else {
-            // Check if permission was permanently denied (only after we've requested it)
-            isCameraPermissionPermanentlyDenied = !shouldShowCameraRationale()
-            showPermissionScreen = true
-        }
-    }
+    // Helper functions are provided by ComposePermissionManager
 
     // Request camera permission function
     val requestCameraPermission = {
-        cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
-    }
-
-    // Request audio permission if needed
-    val requestAudioPermissionIfNeeded = {
-        if (config.allowVideoCapture) {
-            val audioGranted = checkAudioPermission()
-            if (!audioGranted) {
-                audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-            }
-        }
+        hasCameraPermissionBeenRequested = true
+        permissionManager.requestCameraPermission()
     }
 
     // Open app settings
@@ -145,7 +60,7 @@ fun CameraScreenWrapper(
 
     // Check and update permission states (for when returning from settings)
     val checkAndUpdatePermissionStates = {
-        val wasCameraPermissionGranted = checkCameraPermission()
+        val wasCameraPermissionGranted = permissionManager.isCameraGranted()
 
         if (wasCameraPermissionGranted && showPermissionScreen) {
             // Camera permission was granted while we were showing permission screen
@@ -153,34 +68,69 @@ fun CameraScreenWrapper(
             isCameraPermissionPermanentlyDenied = false
 
             // If camera permission is now granted, request audio permission for video if needed
-            requestAudioPermissionIfNeeded()
+            if (config.allowVideoCapture) {
+                hasAudioPermissionBeenRequested = true
+                permissionManager.requestAudioPermissionIfNeeded(config.allowVideoCapture)
+            }
         } else if (!wasCameraPermissionGranted && !showPermissionScreen) {
             // Camera permission was revoked while we were showing camera
             // Only consider it permanently denied if we've already requested it before
             isCameraPermissionPermanentlyDenied = hasCameraPermissionBeenRequested &&
-                !shouldShowCameraRationale()
+                !permissionManager.shouldShowCameraRationale()
             showPermissionScreen = true
         }
 
         // Update audio permission state if video capture is enabled
         if (config.allowVideoCapture) {
-            val isAudioGranted = checkAudioPermission()
+            val isAudioGranted = permissionManager.isAudioGranted()
 
             if (!isAudioGranted && hasAudioPermissionBeenRequested) {
                 // Only consider it permanently denied if we've already requested it before
-                isAudioPermissionPermanentlyDenied = !shouldShowAudioRationale()
+                isAudioPermissionPermanentlyDenied = !permissionManager.shouldShowAudioRationale()
             } else if (isAudioGranted) {
                 isAudioPermissionPermanentlyDenied = false
             }
         }
     }
 
+    LaunchedEffect(permissionManager.cameraStatus()) {
+        if (permissionManager.isCameraGranted()) {
+            AppLogger.d("Camera permission result: true")
+            hasCameraPermissionBeenRequested = true
+            showPermissionScreen = false
+            isCameraPermissionPermanentlyDenied = false
+
+            if (config.allowVideoCapture && !permissionManager.isAudioGranted()) {
+                hasAudioPermissionBeenRequested = true
+                permissionManager.requestAudioPermission()
+            }
+        } else if (hasCameraPermissionBeenRequested) {
+            AppLogger.d("Camera permission result: false")
+            isCameraPermissionPermanentlyDenied = !permissionManager.shouldShowCameraRationale()
+            showPermissionScreen = true
+        }
+    }
+
+    LaunchedEffect(permissionManager.audioStatus()) {
+        if (permissionManager.isAudioGranted()) {
+            AppLogger.d("Audio permission result: true")
+            hasAudioPermissionBeenRequested = true
+            isAudioPermissionPermanentlyDenied = false
+        } else if (hasAudioPermissionBeenRequested) {
+            AppLogger.d("Audio permission result: false")
+            isAudioPermissionPermanentlyDenied = !permissionManager.shouldShowAudioRationale()
+        }
+    }
+
     // Initial permission check
     LaunchedEffect(Unit) {
-        if (checkCameraPermission()) {
+        if (permissionManager.isCameraGranted()) {
             showPermissionScreen = false
             // If camera permission is granted, request audio permission for video if needed
-            requestAudioPermissionIfNeeded()
+            if (config.allowVideoCapture) {
+                hasAudioPermissionBeenRequested = true
+                permissionManager.requestAudioPermissionIfNeeded(config.allowVideoCapture)
+            }
         } else {
             // For first launch, we don't know if it's permanently denied yet
             // Just show permission screen and let user try to grant

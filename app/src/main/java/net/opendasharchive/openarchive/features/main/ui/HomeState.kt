@@ -1,7 +1,7 @@
 package net.opendasharchive.openarchive.features.main.ui
 
-import net.opendasharchive.openarchive.db.Project
-import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.core.domain.Archive
+import net.opendasharchive.openarchive.core.domain.Vault
 
 /**
  * Activity-scoped state for the Home shell.
@@ -15,9 +15,9 @@ import net.opendasharchive.openarchive.db.Space
  * MainMediaViewModel should NOT duplicate this data.
  */
 data class HomeState(
-    val spaces: List<Space> = emptyList(),
-    val currentSpace: Space? = null,
-    val projects: List<Project> = emptyList(),
+    val spaces: List<Vault> = emptyList(),
+    val currentSpace: Vault? = null,
+    val projects: List<Archive> = emptyList(),
     val selectedProjectId: Long? = null,
     val pagerIndex: Int = 0,
     val lastMediaIndex: Int = 0,

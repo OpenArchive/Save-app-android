@@ -29,9 +29,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.domain.Vault
+import net.opendasharchive.openarchive.core.domain.mappers.toDomain
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
-import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.db.dummySpaceList
 import net.opendasharchive.openarchive.features.main.ui.components.SpaceIcon
 
@@ -90,7 +91,7 @@ fun SpaceListScreenContent(
                     SpaceListItem(
                         space = space,
                         onClick = {
-                            onAction(SpaceListAction.NavigateToSpace(space.id, space.tType))
+                            onAction(SpaceListAction.NavigateToSpace(space.id, space.type))
                         }
                     )
                 }
@@ -163,7 +164,7 @@ fun SpaceListScreenContent(
 
 @Composable
 fun SpaceListItem(
-    space: Space,
+    space: Vault,
     onClick: () -> Unit
 ) {
     Row(
@@ -175,7 +176,7 @@ fun SpaceListItem(
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         SpaceIcon(
-            type = space.tType,
+            type = space.type,
             modifier = Modifier.size(42.dp)
         )
 
@@ -193,7 +194,7 @@ fun SpaceListItem(
             )
 
             Text(
-                text = space.tType.friendlyName,
+                text = space.type.friendlyName,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp,
@@ -212,7 +213,7 @@ private fun SpaceListScreenPreview() {
 
         SpaceListScreenContent(
             state = SpaceListState(
-                spaceList = dummySpaceList,
+                spaceList = dummySpaceList.map { it.toDomain() },
             ),
             onAction = {}
         )

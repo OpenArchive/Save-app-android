@@ -49,8 +49,8 @@ import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
-import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.main.ui.components.SpaceIcon
 import java.text.NumberFormat
 
@@ -94,7 +94,7 @@ internal fun FolderBar(
 @Immutable
 data class FolderBarState(
     val mode: FolderBarMode,
-    val spaceType: Space.Type? = null,
+    val spaceType: VaultType? = null,
     val projectName: String? = null,
     val totalMediaCount: Int = 0,
     val selectedCount: Int = 0,

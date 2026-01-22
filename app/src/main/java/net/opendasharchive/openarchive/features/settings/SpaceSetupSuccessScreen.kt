@@ -24,9 +24,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.presentation.components.PrimaryButton
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.asString
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
@@ -135,7 +135,7 @@ fun SpaceSetupSuccessWebDavPreview() {
         SpaceSetupSuccessContent(
             state = SpaceSetupSuccessState(
                 message = UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server),
-                spaceType = Space.Type.WEBDAV
+                spaceType = VaultType.PRIVATE_SERVER
             ),
             onAction = {}
         )
@@ -151,9 +151,9 @@ class SpaceSetupSuccessViewModel(
         SpaceSetupSuccessState(
             spaceType = route.spaceType,
             message = when(route.spaceType) {
-                Space.Type.WEBDAV -> UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server)
-                Space.Type.INTERNET_ARCHIVE -> UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server)
-                Space.Type.RAVEN -> UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server)
+                VaultType.PRIVATE_SERVER -> UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server)
+                VaultType.INTERNET_ARCHIVE -> UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server)
+                VaultType.DWEB_STORAGE -> UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server)
             },
         )
     )
@@ -178,7 +178,7 @@ class SpaceSetupSuccessViewModel(
 
 data class SpaceSetupSuccessState(
     val message: UiText,
-    val spaceType: Space.Type,
+    val spaceType: VaultType,
 )
 
 sealed interface SpaceSetupSuccessAction {

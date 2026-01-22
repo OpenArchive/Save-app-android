@@ -2,18 +2,23 @@ package net.opendasharchive.openarchive.features.main.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.opendasharchive.openarchive.db.Project
-import net.opendasharchive.openarchive.features.main.data.ProjectRepository
-import net.opendasharchive.openarchive.features.main.data.SpaceRepository
+import net.opendasharchive.openarchive.core.domain.Archive
+import net.opendasharchive.openarchive.core.repositories.ProjectRepository
+import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.features.main.ui.AppRoute.*
 import net.opendasharchive.openarchive.features.main.ui.HomeEvent.LaunchPicker
 import net.opendasharchive.openarchive.features.main.ui.components.HomeBottomTab
@@ -21,12 +26,14 @@ import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.util.Prefs
 
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+
 /**
- * IMPROVED HomeViewModel:
- * - Single source of truth for spaces, projects, selected project
- * - Handles ALL project-level mutations (rename, archive, delete)
- * - Exposes helpers to get current project details
- * - Reloads projects list after mutations
+ * HomeViewModel handles logic for the home screen including spaces and projects.
  */
 class HomeViewModel(
     private val route: AppRoute.HomeRoute,
@@ -42,13 +49,48 @@ class HomeViewModel(
     val uiEvent = _uiEvent.asSharedFlow()
 
     init {
-        onAction(HomeAction.Load)
+        observeData()
+    }
+
+    private fun observeData() {
+
+        combine(
+            spaceRepository.observeSpaces(),
+            spaceRepository.observeCurrentSpace(),
+        ) { spaces, current ->
+            val actualCurrent = current ?: spaces.firstOrNull()
+            Triple(spaces, current, actualCurrent)
+        }.flatMapLatest { (spaces, current, actualCurrent) ->
+            if (current == null && actualCurrent != null) {
+                viewModelScope.launch {
+                    spaceRepository.setCurrentSpace(actualCurrent.id)
+                }
+            }
+
+            val projectsFlow = actualCurrent?.let { projectRepository.observeProjects(it.id) }
+                ?: flowOf(emptyList())
+
+
+            projectsFlow.map { projects -> Triple(spaces, actualCurrent, projects) }
+        }.onEach { (spaces, currentSpace, projects) ->
+            _uiState.update {
+                val selectedProjectId =
+                    it.selectedProjectId?.takeIf { id -> projects.any { it.id == id } }
+                        ?: projects.firstOrNull()?.id
+                it.copy(
+                    spaces = spaces,
+                    currentSpace = currentSpace,
+                    projects = projects,
+                    selectedProjectId = selectedProjectId,
+                )
+            }
+        }.launchIn(viewModelScope)
     }
 
     fun onAction(action: HomeAction) {
         when (action) {
-            HomeAction.Load -> loadSpacesAndProjects()
-            HomeAction.Reload -> reloadProjects()
+            HomeAction.Load -> Unit // Already observing
+            HomeAction.Reload -> Unit // Already observing
             is HomeAction.SelectSpace -> selectSpace(action.spaceId)
             is HomeAction.SelectProject -> selectProject(action.projectId)
             is HomeAction.UpdatePager -> updatePager(action.page)
@@ -119,103 +161,15 @@ class HomeViewModel(
         }
     }
 
-    /**
-     * Get the currently selected project.
-     * Used by UI to display project details without duplicating state.
-     */
-    fun getSelectedProject(): Project? {
-        val selectedId = _uiState.value.selectedProjectId ?: return null
-        return _uiState.value.projects.find { it.id == selectedId }
-    }
-
-    /**
-     * Get project by ID from the current projects list.
-     */
-    fun getProject(projectId: Long): Project? {
-        return _uiState.value.projects.find { it.id == projectId }
-    }
-
-    private fun loadSpacesAndProjects() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val spaces = spaceRepository.getSpaces()
-            val currentSpace = spaceRepository.getCurrentSpace() ?: spaces.firstOrNull()
-            val projects = currentSpace?.let { projectRepository.getProjects(it.id) } ?: emptyList()
-            val selectedProjectId = projects.firstOrNull()?.id
-
-            withContext(Dispatchers.Main) {
-                _uiState.update {
-                    it.copy(
-                        spaces = spaces,
-                        currentSpace = currentSpace,
-                        projects = projects,
-                        selectedProjectId = selectedProjectId,
-                        pagerIndex = it.pagerIndex.coerceIn(0, maxOf(projects.size, 1))
-                    )
-                }
-                selectedProjectId?.let { _uiEvent.emit(HomeEvent.NavigateToProject(it)) }
-            }
-        }
-    }
-
-    /**
-     * NEW: Reload projects list without changing space.
-     * Called after project mutations (rename/archive/delete).
-     */
-    private fun reloadProjects() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val currentSpace = _uiState.value.currentSpace ?: return@launch
-            val projects = projectRepository.getProjects(currentSpace.id)
-
-            withContext(Dispatchers.Main) {
-                val currentSelectedId = _uiState.value.selectedProjectId
-                val currentPagerIndex = _uiState.value.pagerIndex
-
-                // If currently selected project was deleted, select first project
-                val newSelectedId = if (projects.any { it.id == currentSelectedId }) {
-                    currentSelectedId
-                } else {
-                    projects.firstOrNull()?.id
-                }
-
-                // Adjust pager index if needed
-                val settingsIndex = maxOf(1, projects.size)
-                val newPagerIndex = if (currentPagerIndex >= settingsIndex) {
-                    // Was on settings, stay on settings
-                    settingsIndex
-                } else {
-                    // Was on a project page, stay on same index if valid
-                    currentPagerIndex.coerceIn(0, maxOf(0, projects.size - 1))
-                }
-
-                _uiState.update {
-                    it.copy(
-                        projects = projects,
-                        selectedProjectId = newSelectedId,
-                        pagerIndex = newPagerIndex,
-                        lastMediaIndex = if (newPagerIndex < settingsIndex) newPagerIndex else it.lastMediaIndex
-                    )
-                }
-            }
-        }
-    }
-
     private fun selectSpace(spaceId: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val space = spaceRepository.getSpaces().firstOrNull { it.id == spaceId } ?: return@launch
-            spaceRepository.setCurrentSpace(space.id)
-            val projects = projectRepository.getProjects(space.id)
-            val selectedProjectId = projects.firstOrNull()?.id
-
-            withContext(Dispatchers.Main) {
-                _uiState.update {
-                    it.copy(
-                        currentSpace = space,
-                        projects = projects,
-                        selectedProjectId = selectedProjectId,
-                        pagerIndex = 0,
-                        lastMediaIndex = 0
-                    )
-                }
+        viewModelScope.launch {
+            spaceRepository.setCurrentSpace(spaceId)
+            // Projects will be reloaded automatically via observeData
+            _uiState.update {
+                it.copy(
+                    pagerIndex = 0,
+                    lastMediaIndex = 0
+                )
             }
         }
     }
@@ -230,7 +184,7 @@ class HomeViewModel(
         }
     }
 
-    private fun resolvePagerIndexForProject(projectId: Long?, projects: List<Project>): Int {
+    private fun resolvePagerIndexForProject(projectId: Long?, projects: List<Archive>): Int {
         val idx = projects.indexOfFirst { it.id == projectId }
         return if (idx >= 0) idx else 0
     }
@@ -335,60 +289,25 @@ class HomeViewModel(
     // NEW: Project mutation methods
 
     private fun renameProject(projectId: Long, newName: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             projectRepository.renameProject(projectId, newName)
-
-            withContext(Dispatchers.Main) {
-                // Update the project in our local list immediately for instant feedback
-                _uiState.update { state ->
-                    val updatedProjects = state.projects.map { project ->
-                        if (project.id == projectId) {
-                            project.apply { description = newName }
-                        } else {
-                            project
-                        }
-                    }
-                    state.copy(projects = updatedProjects)
-                }
-            }
-
-            // Then reload to ensure consistency
-            reloadProjects()
+            // UI updates automatically via flow
         }
     }
 
     private fun archiveProject(projectId: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
-            // TODO: Add archiveProject to ProjectRepository interface
-            // For now, use direct Sugar ORM call but this should be in repository
-            val project = projectRepository.getProject(projectId)
-            project?.let {
-                it.isArchived = true
-                it.save()
+        viewModelScope.launch {
+            projectRepository.getProject(projectId)?.let { project ->
+                projectRepository.archiveProject(projectId, !project.isArchived)
             }
-
-            withContext(Dispatchers.Main) {
-                emitEvent(HomeEvent.ShowMessage("Folder archived"))
-            }
-
-            // Reload projects list (archived projects should be filtered out)
-            reloadProjects()
+            emitEvent(HomeEvent.ShowMessage("Folder archived"))
         }
     }
 
     private fun deleteProject(projectId: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
-            // TODO: Add deleteProject to ProjectRepository interface
-            // For now, use direct Sugar ORM call but this should be in repository
-            val project = projectRepository.getProject(projectId)
-            project?.delete()
-
-            withContext(Dispatchers.Main) {
-                emitEvent(HomeEvent.ShowMessage("Folder removed"))
-            }
-
-            // Reload projects list
-            reloadProjects()
+        viewModelScope.launch {
+            projectRepository.deleteProject(projectId)
+            emitEvent(HomeEvent.ShowMessage("Folder removed"))
         }
     }
 

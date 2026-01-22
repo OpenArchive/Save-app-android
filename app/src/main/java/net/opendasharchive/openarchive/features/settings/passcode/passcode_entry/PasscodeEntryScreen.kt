@@ -5,7 +5,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,9 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,15 +27,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultEmptyScaffoldPreview
-import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.UiTextArg
 import net.opendasharchive.openarchive.features.settings.passcode.AppHapticFeedbackType
@@ -45,19 +39,25 @@ import net.opendasharchive.openarchive.features.settings.passcode.HapticManager
 import net.opendasharchive.openarchive.features.settings.passcode.components.MessageManager
 import net.opendasharchive.openarchive.features.settings.passcode.components.NumericKeypad
 import net.opendasharchive.openarchive.features.settings.passcode.components.PasscodeDots
-import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
 
 @Composable
 fun PasscodeEntryScreen(
     viewModel: PasscodeEntryViewModel,
-    hapticManager: HapticManager = koinInject()
+    hapticManager: HapticManager = koinInject(),
+    onSuccess: () -> Unit,
+    onLockedOut: () -> Unit,
+    onExit: () -> Unit,
 ) {
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     val hapticFeedback = LocalHapticFeedback.current
+
+    BackHandler(enabled = true) {
+        onExit()
+    }
 
     // Function to handle passcode entry
     LaunchedEffect(Unit) {
@@ -74,6 +74,8 @@ fun PasscodeEntryScreen(
                     }
 
                 }
+                PasscodeEntryUiEvent.Success -> onSuccess()
+                PasscodeEntryUiEvent.LockedOut -> onLockedOut()
             }
         }
     }

@@ -54,24 +54,6 @@ fun AddFolderScreen(
     }
 }
 
-@Composable
-fun AddFolderScreenLegacy() {
-
-    val navController = LocalView.current.findNavController()
-
-    SaveAppTheme {
-        AddFolderScreenContent(
-            onCreateFolder = {
-                navController.navigate(R.id.fragment_add_folder_to_fragment_create_new_folder)
-            },
-            onBrowseFolders = {
-                navController.navigate(R.id.fragment_add_folder_to_fragment_browse_folders)
-            }
-        )
-    }
-
-}
-
 
 @Composable
 fun AddFolderScreenContent(

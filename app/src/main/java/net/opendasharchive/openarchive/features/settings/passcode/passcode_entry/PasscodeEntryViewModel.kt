@@ -14,14 +14,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.features.core.UiText
-import net.opendasharchive.openarchive.features.main.ui.AppRoute
-import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 import net.opendasharchive.openarchive.features.settings.passcode.components.MessageManager
 
 class PasscodeEntryViewModel(
-    private val navigator: Navigator,
     private val repository: PasscodeRepository,
     private val config: AppConfig
 ) : ViewModel() {
@@ -38,6 +35,15 @@ class PasscodeEntryViewModel(
 
     private val _uiEvent = Channel<PasscodeEntryUiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
+
+    init {
+        if (repository.isLockedOut()) {
+            viewModelScope.launch {
+                MessageManager.showMessage(UiText.Resource(R.string.passcode_too_many_failed_attempts))
+                _uiEvent.send(PasscodeEntryUiEvent.LockedOut)
+            }
+        }
+    }
 
 //    val passcodeLength: Int
 //        get() = config.passcodeLength
@@ -108,13 +114,13 @@ class PasscodeEntryViewModel(
 
         if (ok) {
             repository.resetFailedAttempts()
-            navigator.navigateBack()
+            _uiEvent.send(PasscodeEntryUiEvent.Success)
         } else {
             repository.recordFailedAttempt()
 
             if (repository.isLockedOut()) {
                 MessageManager.showMessage(UiText.Resource(R.string.passcode_too_many_failed_attempts))
-                navigator.navigateBack()
+                _uiEvent.send(PasscodeEntryUiEvent.LockedOut)
             } else {
                 val remainingAttempts = if (config.maxRetryLimitEnabled) repository.getRemainingAttempts() else null
                 _uiEvent.send(PasscodeEntryUiEvent.IncorrectPasscode(remainingAttempts))
@@ -151,4 +157,6 @@ sealed class PasscodeEntryScreenAction {
 
 sealed class PasscodeEntryUiEvent {
     data class IncorrectPasscode(val remainingAttempts: Int? = null) : PasscodeEntryUiEvent()
+    data object Success : PasscodeEntryUiEvent()
+    data object LockedOut : PasscodeEntryUiEvent()
 }

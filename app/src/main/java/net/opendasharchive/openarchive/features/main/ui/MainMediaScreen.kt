@@ -39,19 +39,20 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.domain.Archive
+import net.opendasharchive.openarchive.core.domain.Vault
+import net.opendasharchive.openarchive.core.domain.Evidence
+import net.opendasharchive.openarchive.core.domain.EvidenceStatus
 import net.opendasharchive.openarchive.core.presentation.media.MediaStatusOverlay
 import net.opendasharchive.openarchive.core.presentation.media.MediaThumbnail
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.db.Project
-import net.opendasharchive.openarchive.db.Space
-import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
-import org.koin.compose.koinInject
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.datetime.toJavaLocalDateTime
+import java.time.ZoneId
 
 /**
  * IMPROVED MainMediaScreen:
@@ -62,8 +63,8 @@ import java.util.Locale
 @Composable
 fun MainMediaScreen(
     viewModel: MainMediaViewModel,
-    currentSpace: Space?,
-    currentProject: Project?,
+    currentSpace: Vault?,
+    currentProject: Archive?,
     refreshProjectId: Long?,
     refreshToken: Long,
     onNavigateToPreview: () -> Unit,
@@ -118,8 +119,8 @@ fun MainMediaScreen(
 @Composable
 fun MainMediaContent(
     state: MainMediaState,
-    currentSpace: Space?,
-    currentProject: Project?,
+    currentSpace: Vault?,
+    currentProject: Archive?,
     onAction: (MainMediaAction) -> Unit,
 ) {
 
@@ -131,10 +132,16 @@ fun MainMediaContent(
     }
 
 
-    val folderBarState = remember(state.folderBarMode, state.totalMediaCount, state.selectedMediaIds, state.showFolderOptionsPopup, currentProject) {
+    val folderBarState = remember(
+        state.folderBarMode,
+        state.totalMediaCount,
+        state.selectedMediaIds,
+        state.showFolderOptionsPopup,
+        currentProject
+    ) {
         FolderBarState(
             mode = state.folderBarMode,
-            spaceType = currentSpace?.tType,
+            spaceType = currentSpace?.type,
             projectName = currentProject?.description,
             totalMediaCount = state.totalMediaCount,
             selectedCount = state.selectedMediaIds.size,
@@ -144,7 +151,7 @@ fun MainMediaContent(
     }
 
     fun handleFolderIntent(intent: FolderBarIntent) {
-        when(intent) {
+        when (intent) {
             OptionsOpened -> onAction(MainMediaAction.ShowHideFolderOptionsPopup(true))
             OptionsDismissed -> onAction(MainMediaAction.ShowHideFolderOptionsPopup(false))
 
@@ -211,7 +218,7 @@ fun MainMediaContent(
 @Composable
 private fun CollectionHeaderView(section: CollectionSection) {
     val uploadingCount = section.media.count { it.isUploading }
-    val uploadedCount = section.media.count { it.sStatus == Media.Status.Uploaded }
+    val uploadedCount = section.media.count { it.status == EvidenceStatus.UPLOADED }
     val totalCount = section.media.size
 
     Row(
@@ -225,7 +232,13 @@ private fun CollectionHeaderView(section: CollectionSection) {
             text = if (uploadingCount > 0) {
                 stringResource(R.string.uploading)
             } else {
-                section.collection.uploadDate?.let { formatUploadDate(it) }
+                section.collection.uploadDate?.let {
+                    formatUploadDate(
+                        Date.from(
+                            it.toJavaLocalDateTime().atZone(ZoneId.systemDefault()).toInstant()
+                        )
+                    )
+                }
                     ?: "Ready to upload"
             },
             style = MaterialTheme.typography.bodySmall.copy(fontFamily = MontserratFontFamily)
@@ -251,8 +264,8 @@ private fun CollectionSectionView(
     section: CollectionSection,
     isInSelectionMode: Boolean,
     selectedMediaIds: Set<Long>,
-    onMediaClick: (Media) -> Unit,
-    onMediaLongPress: (Media) -> Unit
+    onMediaClick: (Evidence) -> Unit,
+    onMediaLongPress: (Evidence) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -268,13 +281,13 @@ private fun CollectionSectionView(
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
-                rowItems.forEach { media ->
+                rowItems.forEach { evidence ->
                     MediaGridItem(
-                        media = media,
+                        evidence = evidence,
                         isInSelectionMode = isInSelectionMode,
-                        isSelected = selectedMediaIds.contains(media.id),
-                        onClick = { onMediaClick(media) },
-                        onLongClick = { onMediaLongPress(media) },
+                        isSelected = selectedMediaIds.contains(evidence.id),
+                        onClick = { onMediaClick(evidence) },
+                        onLongClick = { onMediaLongPress(evidence) },
                         modifier = Modifier
                             .weight(1f)
                             .aspectRatio(1f)
@@ -294,14 +307,14 @@ private fun CollectionSectionView(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MediaGridItem(
-    media: Media,
+    evidence: Evidence,
     isInSelectionMode: Boolean,
     isSelected: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val thumbnailAlpha = if (media.sStatus == Media.Status.Uploaded) 1f else 0.5f
+    val thumbnailAlpha = if (evidence.status == EvidenceStatus.UPLOADED) 1f else 0.5f
 
     Box(
         modifier = modifier
@@ -310,7 +323,7 @@ private fun MediaGridItem(
     ) {
         // Use shared MediaThumbnail component
         MediaThumbnail(
-            media = media,
+            evidence = evidence,
             isSelected = isInSelectionMode && isSelected,
             alpha = thumbnailAlpha,
             placeholderPadding = 28.dp,
@@ -337,7 +350,7 @@ private fun MediaGridItem(
 
         // Use shared MediaStatusOverlay component (goes on top of everything)
         MediaStatusOverlay(
-            media = media,
+            evidence = evidence,
             modifier = Modifier.fillMaxSize(),
             showProgressText = false,
             backgroundColor = colorResource(R.color.transparent_black),

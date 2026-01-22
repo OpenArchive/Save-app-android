@@ -32,7 +32,8 @@ class BrowseFoldersAdapter(
 
     override fun getItemCount(): Int = folders.size
 
-    inner class FolderViewHolder(private val binding: FolderRowBinding, private val onClick: (folder: Folder) -> Unit) : RecyclerView.ViewHolder(binding.root) {
+    inner class FolderViewHolder(private val binding: FolderRowBinding, private val onClick: (folder: Folder) -> Unit) :
+        RecyclerView.ViewHolder(binding.root) {
 
         fun bind(folder: Folder) {
 

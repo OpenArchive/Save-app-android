@@ -11,9 +11,13 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.core.ComposeAppBar
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.settings.passcode.HapticManager
 import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
 import org.koin.android.ext.android.inject
+import org.koin.androidx.compose.koinViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 
 class PasscodeSetupActivity : BaseActivity() {
 
@@ -49,18 +53,18 @@ class PasscodeSetupActivity : BaseActivity() {
 
                     PasscodeSetupScreen(
                         viewModel = viewModel,
-//                        onPasscodeSet = {
-//                            // Passcode successfully set
-//                            setResult(RESULT_OK, Intent().apply {
-//                                putExtra(EXTRA_PASSCODE_ENABLED, true)
-//                            })
-//                            finish()
-//                        },
-//                        onCancel = {
-//                            // User canceled the setup
-//                            setResult(RESULT_CANCELED)
-//                            finish()
-//                        }
+                        onPasscodeSet = {
+                            // Passcode successfully set
+                            setResult(RESULT_OK, Intent().apply {
+                                putExtra(EXTRA_PASSCODE_ENABLED, true)
+                            })
+                            finish()
+                        },
+                        onCancel = {
+                            // User canceled the setup
+                            setResult(RESULT_CANCELED)
+                            finish()
+                        }
                     )
                 }
             }

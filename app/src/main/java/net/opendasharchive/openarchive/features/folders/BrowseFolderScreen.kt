@@ -48,8 +48,10 @@ import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.ButtonData
 import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
-import org.koin.androidx.compose.koinViewModel
+import net.opendasharchive.openarchive.features.folders.Folder
+import net.opendasharchive.openarchive.util.DateUtils
 import java.util.Date
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun BrowseFolderScreen(
@@ -187,10 +189,10 @@ fun BrowseFolderItem(
             // Timestamp is hidden in XML (visibility="gone"), but keeping structure for future
             // Uncomment below if you want to show timestamp:
             // Text(
-            //     text = SimpleDateFormat.getDateTimeInstance(
-            //         SimpleDateFormat.LONG,
-            //         SimpleDateFormat.MEDIUM
-            //     ).format(folder.modified),
+            //     text = java.text.SimpleDateFormat.getDateTimeInstance(
+            //         java.text.SimpleDateFormat.LONG,
+            //         java.text.SimpleDateFormat.MEDIUM
+            //     ).format(folder.modified.toJavaDate()),
             //     fontSize = 15.sp,
             //     color = MaterialTheme.colorScheme.onSurfaceVariant
             // )
@@ -217,13 +219,13 @@ private fun BrowseFolderScreenPreview() {
         BrowseFolderScreenContent(
             state = BrowseFoldersState(
                 folders = listOf(
-                    Folder(name = "Documents", modified = Date()),
-                    Folder(name = "Photos", modified = Date()),
-                    Folder(name = "Videos", modified = Date()),
-                    Folder(name = "Downloads", modified = Date()),
-                    Folder(name = "Projects", modified = Date()),
+                    Folder(name = "Documents", modified = DateUtils.nowDateTime),
+                    Folder(name = "Photos", modified = DateUtils.nowDateTime),
+                    Folder(name = "Videos", modified = DateUtils.nowDateTime),
+                    Folder(name = "Downloads", modified = DateUtils.nowDateTime),
+                    Folder(name = "Projects", modified = DateUtils.nowDateTime),
                 ),
-                selectedFolder = Folder(name = "Photos", modified = Date())
+                selectedFolder = Folder(name = "Photos", modified = DateUtils.nowDateTime)
             ),
             onAction = {}
         )

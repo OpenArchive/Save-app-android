@@ -45,11 +45,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.domain.Evidence
+import net.opendasharchive.openarchive.core.domain.EvidenceStatus
 import net.opendasharchive.openarchive.core.presentation.media.MediaStatusOverlay
 import net.opendasharchive.openarchive.core.presentation.media.MediaThumbnail
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.db.Media
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -57,7 +58,7 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 fun UploadManagerScreen(
     viewModel: UploadManagerViewModel,
     onClose: () -> Unit,
-    onShowRetryDialog: (Media, Int) -> Unit
+    onShowRetryDialog: (Evidence, Int) -> Unit
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -66,7 +67,7 @@ fun UploadManagerScreen(
             when (event) {
                 is UploadManagerEvent.Close -> onClose()
                 is UploadManagerEvent.ShowRetryDialog -> onShowRetryDialog(
-                    event.media,
+                    event.evidence,
                     event.position
                 )
             }
@@ -91,7 +92,7 @@ fun UploadManagerScreen(
 private fun UploadManagerContent(
     state: UploadManagerState,
     onAction: (UploadManagerAction) -> Unit,
-    onShowRetryDialog: (Media, Int) -> Unit
+    onShowRetryDialog: (Evidence, Int) -> Unit
 ) {
     val hapticFeedback = LocalHapticFeedback.current
     val lazyListState = rememberLazyListState()
@@ -180,16 +181,16 @@ private fun UploadManagerContent(
         ) {
             itemsIndexed(
                 items = state.mediaList,
-                key = { _, media -> media.id }
-            ) { index, media ->
-                ReorderableItem(reorderableState, key = media.id) { isDragging ->
+                key = { _, evidence -> evidence.id }
+            ) { index, evidence ->
+                ReorderableItem(reorderableState, key = evidence.id) { isDragging ->
                     Column {
-                        UploadMediaItem(
-                            media = media,
+                        UploadEvidenceItem(
+                            evidence = evidence,
                             isDragging = isDragging,
                             onDelete = {
-                                if (media.sStatus == Media.Status.Error) {
-                                    onShowRetryDialog(media, index)
+                                if (evidence.status == EvidenceStatus.ERROR) {
+                                    onShowRetryDialog(evidence, index)
                                 } else {
                                     onAction(UploadManagerAction.DeleteItem(index))
                                 }
@@ -217,8 +218,8 @@ private fun UploadManagerContent(
 }
 
 @Composable
-private fun UploadMediaItem(
-    media: Media,
+private fun UploadEvidenceItem(
+    evidence: Evidence,
     isDragging: Boolean,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
@@ -272,7 +273,7 @@ private fun UploadMediaItem(
                         .padding(8.dp)
                 ) {
                     MediaThumbnail(
-                        media = media,
+                        evidence = evidence,
                         alpha = alpha,
                         placeholderPadding = 12.dp,
                         pdfMaxDimensionPx = 400,
@@ -281,7 +282,7 @@ private fun UploadMediaItem(
 
                     // Overlay for status - show only Error, not Queued/Uploading (queue is paused)
                     MediaStatusOverlay(
-                        media = media,
+                        evidence = evidence,
                         showProgressText = false,
                         backgroundColor = colorResource(R.color.transparent_black),
                         progressIndicatorSize = 32,
@@ -299,11 +300,11 @@ private fun UploadMediaItem(
                 verticalArrangement = Arrangement.Center
             ) {
                 val titleText = buildString {
-                    if (media.sStatus == Media.Status.Error) {
+                    if (evidence.status == EvidenceStatus.ERROR) {
                         append(stringResource(R.string.error))
                         append(": ")
                     }
-                    append(media.title)
+                    append(evidence.title)
                 }
 
                 if (titleText.isNotBlank()) {
@@ -319,7 +320,7 @@ private fun UploadMediaItem(
                     )
                 }
 
-                val fileInfoText = getFileInfoText(media)
+                val fileInfoText = getFileInfoText(evidence)
                 if (fileInfoText.isNotBlank()) {
                     Text(
                         text = fileInfoText,
@@ -348,21 +349,21 @@ private fun UploadMediaItem(
 // have been moved to shared components in core.presentation.media package
 
 @Composable
-private fun getFileInfoText(media: Media): String {
+private fun getFileInfoText(evidence: Evidence): String {
     val context = LocalContext.current
 
-    if (media.sStatus == Media.Status.Error && media.statusMessage.isNotBlank()) {
-        return media.statusMessage
+    if (evidence.status == EvidenceStatus.ERROR && evidence.statusMessage.isNotBlank()) {
+        return evidence.statusMessage
     }
 
-    val file = media.file
+    val file = evidence.file
     return if (file.exists()) {
         Formatter.formatShortFileSize(context, file.length())
     } else {
-        if (media.contentLength > 0) {
-            Formatter.formatShortFileSize(context, media.contentLength)
+        if (evidence.contentLength > 0) {
+            Formatter.formatShortFileSize(context, evidence.contentLength)
         } else {
-            media.formattedCreateDate
+            evidence.title // Fallback
         }
     }
 }
@@ -372,17 +373,22 @@ private fun getFileInfoText(media: Media): String {
 @Composable
 private fun UploadManagerContentPreview() {
     val sampleMedia = listOf(
-        Media(originalFilePath = "", mimeType = "image/jpeg", title = "Image 1.jpg").apply {
-            status = Media.Status.Uploading.id
-            uploadPercentage = 45
+        Evidence(
+            originalFilePath = "",
+            mimeType = "image/jpeg",
+            title = "Image 1.jpg",
+            status = EvidenceStatus.UPLOADING
+        ).apply {
+            // uploadPercentage is 0 by default in Evidence, let's keep it simple
         },
-        Media(originalFilePath = "", mimeType = "video/mp4", title = "Video 1.mp4").apply {
-            status = Media.Status.Queued.id
-        },
-        Media(originalFilePath = "", mimeType = "application/pdf", title = "Document 1.pdf").apply {
-            status = Media.Status.Error.id
+        Evidence(originalFilePath = "", mimeType = "video/mp4", title = "Video 1.mp4", status = EvidenceStatus.QUEUED),
+        Evidence(
+            originalFilePath = "",
+            mimeType = "application/pdf",
+            title = "Document 1.pdf",
+            status = EvidenceStatus.ERROR,
             statusMessage = "Upload failed"
-        }
+        )
     )
 
     SaveAppTheme {

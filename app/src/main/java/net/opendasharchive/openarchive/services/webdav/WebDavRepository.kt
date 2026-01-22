@@ -3,10 +3,12 @@ package net.opendasharchive.openarchive.services.webdav
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.folders.Folder
+import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.services.SaveClient
 import net.opendasharchive.openarchive.services.SaveClientFactory
+import net.opendasharchive.openarchive.util.DateUtils
+import net.opendasharchive.openarchive.util.toKotlinLocalDateTime
 import okhttp3.Request
 import java.io.IOException
 import java.util.Date
@@ -18,10 +20,10 @@ class WebDavRepository(
     private val context: Context,
     private val saveClientFactory: SaveClientFactory
 ) {
-    suspend fun testConnection(space: Space) = withContext(Dispatchers.IO) {
-        val url = space.hostUrl ?: throw IOException("400 Bad Request")
+    suspend fun testConnection(vault: Vault) = withContext(Dispatchers.IO) {
+        val url = vault.host
 
-        val client = saveClientFactory.createClient(space.username, space.password)
+        val client = saveClientFactory.createClient(vault.username, vault.password)
 
         val request = Request.Builder()
             .url(url)
@@ -52,12 +54,12 @@ class WebDavRepository(
     }
 
     @Throws(IOException::class)
-    suspend fun getFolders(space: Space): List<Folder> = withContext(Dispatchers.IO) {
-        val root = space.hostUrl?.encodedPath
+    suspend fun getFolders(vault: Vault): List<Folder> = withContext(Dispatchers.IO) {
+        val root = vault.hostUrl?.encodedPath
 
-        SaveClient.getSardine(context, space).list(space.host)?.mapNotNull {
+        SaveClient.getSardine(context, vault.username, vault.password).list(vault.host)?.mapNotNull {
             if (it?.isDirectory == true && it.path != root) {
-                Folder(it.name, it.modified ?: Date())
+                Folder(it.name, it.modified?.toKotlinLocalDateTime() ?: DateUtils.nowDateTime)
             } else {
                 null
             }

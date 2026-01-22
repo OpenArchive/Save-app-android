@@ -9,8 +9,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.db.Space
-import net.opendasharchive.openarchive.features.main.data.SpaceRepository
+import net.opendasharchive.openarchive.core.domain.Vault
+import net.opendasharchive.openarchive.core.domain.VaultType
+import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
@@ -127,14 +128,14 @@ class SetupLicenseViewModel(
         // the SAME space that was just authenticated, not creating a new one.
         val currentState = uiState.value
 
-        val space = spaceRepository.getSpaceById(route.spaceId) ?: error("Space not found")
+        val vault = spaceRepository.getSpaceById(route.spaceId) ?: error("Space not found")
 
         val licenseState =
-            initializeLicenseState(state = currentState, currentLicense = space.license)
+            initializeLicenseState(state = currentState, currentLicense = vault.licenseUrl)
         _uiState.update { currentState ->
             currentState.copy(
-                space = space,
-                serverName = space.name,
+                vault = vault,
+                serverName = vault.name,
                 ccEnabled = licenseState.ccEnabled,
                 allowRemix = licenseState.allowRemix,
                 requireShareAlike = licenseState.requireShareAlike,
@@ -143,28 +144,28 @@ class SetupLicenseViewModel(
                 licenseUrl = licenseState.licenseUrl
             )
         }
-
     }
 
     private fun onNext() = viewModelScope.launch {
         val currentState = uiState.value
-        val space = currentState.space ?: return@launch
+        val vault = currentState.vault ?: return@launch
         // Save all changes (name + license) when user taps Next
 
-
         // Only save nickname for WebDAV/private servers, not for Internet Archive
-        if (currentState.spaceType != Space.Type.INTERNET_ARCHIVE) {
-            space.name = currentState.serverName
+        var updatedVault = if (currentState.spaceType != VaultType.INTERNET_ARCHIVE) {
+            vault.copy(name = currentState.serverName)
+        } else {
+            vault
         }
 
-        space.license = currentState.licenseUrl
+        updatedVault = updatedVault.copy(licenseUrl = currentState.licenseUrl)
 
-        AppLogger.d("Updating space - ID: ${space.id}, type: ${currentState.spaceType}, name: '${space.name}', license: '${space.license}'")
+        AppLogger.d("Updating space - ID: ${updatedVault.id}, type: ${currentState.spaceType}, name: '${updatedVault.name}', license: '${updatedVault.licenseUrl}'")
 
         // Save updates to existing space
-        spaceRepository.updateSpace(route.spaceId, space)
+        spaceRepository.updateSpace(route.spaceId, updatedVault)
 
-        AppLogger.d("Space saved successfully - ID: ${space.id}")
+        AppLogger.d("Space saved successfully - ID: ${updatedVault.id}")
 
         navigator.navigateTo(AppRoute.SpaceSetupSuccessRoute(currentState.spaceType))
     }
@@ -229,9 +230,9 @@ class SetupLicenseViewModel(
 @Immutable
 data class SetupLicenseState(
     val spaceId: Long,
-    val space: Space? = null,
+    val vault: Vault? = null,
     val serverName: String = "",
-    val spaceType: Space.Type,
+    val spaceType: VaultType,
     // Creative Commons License state
     val ccEnabled: Boolean = false,
     val allowRemix: Boolean = false,

@@ -38,8 +38,11 @@ kotlin {
         freeCompilerArgs.addAll(
             "-Xcontext-sensitive-resolution",
             "-opt-in=com.google.accompanist.permissions.ExperimentalPermissionsApi",
-            "-opt-in=kotlin.time.ExperimentalTime"
+            "-opt-in=kotlin.time.ExperimentalTime",
+            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
         )
+
+        freeCompilerArgs.add("-Xcontext-parameters")
     }
 }
 

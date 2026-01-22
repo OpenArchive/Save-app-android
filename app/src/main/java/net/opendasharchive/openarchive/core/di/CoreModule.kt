@@ -1,7 +1,7 @@
 package net.opendasharchive.openarchive.core.di
 
-import android.content.Context
-import androidx.lifecycle.SavedStateHandle
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import net.opendasharchive.openarchive.features.core.dialog.DefaultResourceProvider
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.ResourceProvider
@@ -15,6 +15,7 @@ import net.opendasharchive.openarchive.features.settings.license.SetupLicenseVie
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val coreModule = module {
@@ -24,19 +25,15 @@ val coreModule = module {
     // Provide the DialogStateManager as a Singleton
     single { DialogStateManager(resourceProvider = get()) }
 
-    viewModel {
-        MainViewModel()
-    }
+    // Dispatchers
+    single<CoroutineDispatcher>(named("io")) { Dispatchers.IO }
+    single<CoroutineDispatcher>(named("main")) { Dispatchers.Main }
 
-    viewModel {
-        BrowseFoldersViewModel(
-            webDavRepository = get()
-        )
-    }
+    viewModelOf(::MainViewModel)
 
-    viewModel {
-        CreateNewFolderViewModel()
-    }
+    viewModelOf(::BrowseFoldersViewModel)
+
+    viewModelOf(::CreateNewFolderViewModel)
 
     viewModelOf(::SetupLicenseViewModel)
 

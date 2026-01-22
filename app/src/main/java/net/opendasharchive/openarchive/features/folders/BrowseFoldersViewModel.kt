@@ -11,14 +11,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.opendasharchive.openarchive.db.Project
-import net.opendasharchive.openarchive.db.Space
+import kotlinx.datetime.LocalDateTime
+import net.opendasharchive.openarchive.core.domain.Archive
 import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.core.repositories.ProjectRepository
+import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.services.webdav.WebDavRepository
+import net.opendasharchive.openarchive.util.DateUtils
 import timber.log.Timber
-import java.util.Date
 
-data class Folder(val name: String, val modified: Date)
+data class Folder(val name: String, val modified: LocalDateTime)
 
 data class BrowseFoldersState(
     val folders: List<Folder> = emptyList(),
@@ -39,7 +41,9 @@ sealed interface BrowseFoldersEvent {
 }
 
 class BrowseFoldersViewModel(
-    private val webDavRepository: WebDavRepository
+    private val webDavRepository: WebDavRepository,
+    private val spaceRepository: SpaceRepository,
+    private val projectRepository: ProjectRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(BrowseFoldersState())
@@ -75,15 +79,19 @@ class BrowseFoldersViewModel(
     }
 
     private fun loadFolders() {
-        val space = Space.current ?: return
-
         viewModelScope.launch {
+            val space = spaceRepository.getCurrentSpace() ?: return@launch
+
             _uiState.update { it.copy(isLoading = true, error = null) }
             progressBarFlag.value = true
 
             try {
                 val folderList = webDavRepository.getFolders(space)
-                val filteredFolders = folderList.filter { !space.hasProject(it.name) }
+
+                // Filter out folders that are already tracked as projects
+                val filteredFolders = folderList.filter { folder ->
+                    projectRepository.getProjectByName(space.id, folder.name) == null
+                }
 
                 _uiState.update {
                     it.copy(
@@ -114,18 +122,21 @@ class BrowseFoldersViewModel(
     }
 
     private fun addFolder() {
-        val folder = _uiState.value.selectedFolder ?: return
-        val space = Space.current ?: return
-
-        // This should not happen. These should have been filtered on display.
-        if (space.hasProject(folder.name)) return
-
-        val license = space.license
-        val project = Project(folder.name, Date(), space.id, licenseUrl = license)
-        project.save()
-
         viewModelScope.launch {
-            _events.send(BrowseFoldersEvent.ShowSuccessDialog(project.id))
+            val folder = _uiState.value.selectedFolder ?: return@launch
+            val space = spaceRepository.getCurrentSpace() ?: return@launch
+
+            if (projectRepository.getProjectByName(space.id, folder.name) != null) return@launch
+
+            val archive = Archive(
+                description = folder.name,
+                created = DateUtils.nowDateTime,
+                vaultId = space.id,
+                licenseUrl = space.licenseUrl
+            )
+            val projectId = projectRepository.addProject(archive)
+
+            _events.send(BrowseFoldersEvent.ShowSuccessDialog(projectId))
         }
     }
 
@@ -135,21 +146,4 @@ class BrowseFoldersViewModel(
         }
     }
 
-    // Legacy method for Fragment support
-    fun getFiles(space: Space) {
-        viewModelScope.launch {
-            progressBarFlag.value = true
-
-            try {
-                val folderList = webDavRepository.getFolders(space)
-                val filteredFolders = folderList.filter { !space.hasProject(it.name) }
-                mFolders.value = filteredFolders
-                progressBarFlag.value = false
-            } catch (e: Throwable) {
-                progressBarFlag.value = false
-                mFolders.value = arrayListOf()
-                Timber.e(e)
-            }
-        }
-    }
 }

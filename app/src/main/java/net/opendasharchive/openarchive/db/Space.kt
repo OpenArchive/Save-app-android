@@ -66,10 +66,6 @@ data class Space(
         RAVEN(5, "DWeb Storage"),
     }
 
-    enum class IconStyle {
-        SOLID, OUTLINE
-    }
-
     companion object {
         fun getAll(): Iterator<Space> {
             return findAll(Space::class.java)

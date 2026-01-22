@@ -20,7 +20,7 @@ import kotlin.coroutines.suspendCoroutine
 
 class SaveClient(context: Context) : StrongBuilderBase<SaveClient, OkHttpClient>(context) {
 
-    class OrbotException(message: String): Exception(message)
+    class OrbotException(message: String) : Exception(message)
 
     private var okBuilder: OkHttpClient.Builder
 
@@ -103,8 +103,7 @@ class SaveClient(context: Context) : StrongBuilderBase<SaveClient, OkHttpClient>
                     override fun onConnected(connection: OkHttpClient?) {
                         val result = if (connection != null) {
                             Result.success(connection)
-                        }
-                        else {
+                        } else {
                             Result.failure(OrbotException(context.getString(R.string.tor_connection_exception)))
                         }
 
@@ -112,7 +111,11 @@ class SaveClient(context: Context) : StrongBuilderBase<SaveClient, OkHttpClient>
                     }
 
                     override fun onConnectionException(e: java.lang.Exception?) {
-                        it.resumeWith(Result.failure(e ?: OrbotException(context.getString(R.string.tor_connection_exception))))
+                        it.resumeWith(
+                            Result.failure(
+                                e ?: OrbotException(context.getString(R.string.tor_connection_exception))
+                            )
+                        )
                     }
 
                     override fun onTimeout() {
@@ -127,20 +130,18 @@ class SaveClient(context: Context) : StrongBuilderBase<SaveClient, OkHttpClient>
                 if (Prefs.useTor) {
                     if (!OrbotHelper.requestStartTor(context)) {
                         callback.onInvalid()
-                    }
-                    else {
+                    } else {
                         strongBuilder.build(callback)
                     }
-                }
-                else {
+                } else {
                     callback.onConnected(strongBuilder.build(Intent()))
                 }
             }
         }
 
-        suspend fun getSardine(context: Context, space: Space): OkHttpSardine {
+        suspend fun getSardine(context: Context, user: String, pass: String): OkHttpSardine {
             val sardine = OkHttpSardine(get(context))
-            sardine.setCredentials(space.username, space.password)
+            sardine.setCredentials(user, pass)
 
             return sardine
         }

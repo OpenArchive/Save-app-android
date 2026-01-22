@@ -59,9 +59,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun CreateNewFolderScreen(
-    viewModel: CreateNewFolderViewModel = koinViewModel(),
-    onNavigateBackWithResult: (Long) -> Unit = {},
-    onNavigateBackCanceled: () -> Unit = {}
+    viewModel: CreateNewFolderViewModel,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -71,29 +69,6 @@ fun CreateNewFolderScreen(
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
-                is CreateNewFolderEvent.ShowSuccessDialog -> {
-                    dialogManager?.showDialog(
-                        DialogConfig(
-                            type = DialogType.Success,
-                            title = UiText.Resource(R.string.label_success_title),
-                            message = UiText.Resource(R.string.create_folder_ok_message),
-                            icon = UiImage.DrawableResource(R.drawable.ic_done),
-                            positiveButton = ButtonData(
-                                text = UiText.Resource(R.string.label_got_it),
-                                action = { viewModel.navigateBackWithResult(event.projectId) }
-                            ),
-                            onDismissAction = { viewModel.navigateBackWithResult(event.projectId) }
-                        )
-                    )
-                }
-
-                is CreateNewFolderEvent.NavigateBackWithResult -> {
-                    onNavigateBackWithResult(event.projectId)
-                }
-
-                is CreateNewFolderEvent.NavigateBackCanceled -> {
-                    onNavigateBackCanceled()
-                }
 
                 is CreateNewFolderEvent.ShowError -> {
                     Toast.makeText(context, event.message.asString(context), Toast.LENGTH_SHORT).show()
@@ -158,7 +133,7 @@ fun CreateNewFolderScreenContent(
                 imeAction = ImeAction.Done,
                 onImeAction = {
                     focusManager.clearFocus()
-                    if (state.isValid) {
+                    if (state.isValid && !state.isSaving) {
                         onAction(CreateNewFolderAction.CreateFolder)
                     }
                 }
@@ -202,7 +177,7 @@ fun CreateNewFolderScreenContent(
                 modifier = Modifier
                     .weight(1f)
                     .heightIn(ThemeDimensions.touchable),
-                enabled = state.isValid,
+                enabled = state.isValid && !state.isSaving,
                 shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.tertiary,

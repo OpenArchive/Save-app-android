@@ -54,13 +54,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.presentation.media.MediaStatusOverlay
 import net.opendasharchive.openarchive.core.presentation.media.MediaThumbnail
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
-import net.opendasharchive.openarchive.db.Media
 
 @Composable
 fun PreviewMediaScreen(
@@ -175,14 +175,14 @@ private fun PreviewMediaContent(
 
     if (state.showContentPicker) {
 
-            ContentPickerSheet(
-                onDismiss = {
-                    onAction(PreviewMediaAction.ContentPickerDismissed)
-                },
-                onMediaPicked = { type ->
-                    onAction(PreviewMediaAction.ContentPickerPicked(type))
-                }
-            )
+        ContentPickerSheet(
+            onDismiss = {
+                onAction(PreviewMediaAction.ContentPickerDismissed)
+            },
+            onMediaPicked = { type ->
+                onAction(PreviewMediaAction.ContentPickerPicked(type))
+            }
+        )
     }
 }
 
@@ -191,10 +191,10 @@ private fun PreviewMediaContent(
 @Composable
 private fun PreviewMediaContentPreview() {
     val sampleMedia = listOf(
-        Media(originalFilePath = "", mimeType = "image/jpeg", title = "Image 1"),
-        Media(originalFilePath = "", mimeType = "video/mp4", title = "Video 1"),
-        Media(originalFilePath = "", mimeType = "application/pdf", title = "Doc 1"),
-        Media(originalFilePath = "", mimeType = "audio/mp3", title = "Audio 1")
+        Evidence(id = 1, originalFilePath = "", mimeType = "image/jpeg", title = "Image 1"),
+        Evidence(id = 2, originalFilePath = "", mimeType = "video/mp4", title = "Video 1"),
+        Evidence(id = 3, originalFilePath = "", mimeType = "application/pdf", title = "Doc 1"),
+        Evidence(id = 4, originalFilePath = "", mimeType = "audio/mp3", title = "Audio 1")
     )
     SaveAppTheme {
         PreviewMediaContent(
@@ -214,10 +214,10 @@ private fun PreviewMediaContentPreview() {
 @Composable
 private fun PreviewMediaContentSelectionPreview() {
     val sampleMedia = listOf(
-        Media(originalFilePath = "", mimeType = "image/jpeg", title = "Image 1"),
-        Media(originalFilePath = "", mimeType = "video/mp4", title = "Video 1"),
-        Media(originalFilePath = "", mimeType = "application/pdf", title = "Doc 1"),
-        Media(originalFilePath = "", mimeType = "audio/mp3", title = "Audio 1")
+        Evidence(id = 1, originalFilePath = "", mimeType = "image/jpeg", title = "Image 1"),
+        Evidence(id = 2, originalFilePath = "", mimeType = "video/mp4", title = "Video 1"),
+        Evidence(id = 3, originalFilePath = "", mimeType = "application/pdf", title = "Doc 1"),
+        Evidence(id = 4, originalFilePath = "", mimeType = "audio/mp3", title = "Audio 1")
     )
     SaveAppTheme {
         PreviewMediaContent(
@@ -410,7 +410,7 @@ private fun SelectionTextButton(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MediaListItem(
-    media: Media,
+    media: Evidence,
     isInSelectionMode: Boolean,
     isSelected: Boolean,
     onClick: () -> Unit,
@@ -442,7 +442,7 @@ private fun MediaListItem(
         contentAlignment = Alignment.Center
     ) {
         MediaThumbnail(
-            media = media,
+            evidence = media,
             isSelected = isInSelectionMode && isSelected,
             alpha = if (isInSelectionMode && isSelected) 0.5f else 1f,
             placeholderPadding = 24.dp,
@@ -478,7 +478,7 @@ private fun MediaListItem(
         }
 
         MediaStatusOverlay(
-            media = media,
+            evidence = media,
             showProgressText = true,
             backgroundColor = colorResource(R.color.transparent_loading_overlay),
             progressIndicatorSize = 42,

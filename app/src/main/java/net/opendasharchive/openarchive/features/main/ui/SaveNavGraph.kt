@@ -20,17 +20,18 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.navigation.LocalResultEventBus
 import net.opendasharchive.openarchive.core.navigation.ResultEventBus
 import net.opendasharchive.openarchive.core.navigation.rememberResultStore
-import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.dialog.DialogHost
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.folders.AddFolderScreen
 import net.opendasharchive.openarchive.features.folders.BrowseFolderScreen
 import net.opendasharchive.openarchive.features.folders.CreateNewFolderScreen
+import net.opendasharchive.openarchive.features.folders.CreateNewFolderViewModel
 import net.opendasharchive.openarchive.features.internetarchive.presentation.details.InternetArchiveDetailsScreen
 import net.opendasharchive.openarchive.features.internetarchive.presentation.details.InternetArchiveDetailsViewModel
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.InternetArchiveLoginScreen
@@ -51,10 +52,8 @@ import net.opendasharchive.openarchive.features.settings.SpaceSetupSuccessScreen
 import net.opendasharchive.openarchive.features.settings.SpaceSetupSuccessViewModel
 import net.opendasharchive.openarchive.features.settings.license.SetupLicenseScreen
 import net.opendasharchive.openarchive.features.settings.license.SetupLicenseViewModel
-import net.opendasharchive.openarchive.features.settings.passcode.HapticManager
+import net.opendasharchive.openarchive.features.settings.passcode.PasscodeFlowState
 import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
-import net.opendasharchive.openarchive.features.settings.passcode.passcode_entry.PasscodeEntryScreen
-import net.opendasharchive.openarchive.features.settings.passcode.passcode_entry.PasscodeEntryViewModel
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupScreen
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupViewModel
 import net.opendasharchive.openarchive.features.spaces.SpaceListScreen
@@ -72,17 +71,21 @@ import org.koin.core.parameter.parametersOf
 
 @Composable
 fun SaveNavGraph(
-    dialogManager: DialogStateManager
+    dialogManager: DialogStateManager,
+    navigator: Navigator
 ) {
-
-    val navigator = rememberNavigator()
     val resultBus = remember { ResultEventBus() }
     val resultStore = rememberResultStore()
+    val passcodeFlowState: PasscodeFlowState = koinInject()
 
     val currentRoute = navigator.backstack.lastOrNull()
     AppLogger.d("Navigation", "Current route: $currentRoute")
     // LaunchedEffect restarts whenever currentRoute changes
     LaunchedEffect(currentRoute) {
+        val isPasscodeFlow = currentRoute is AppRoute.PasscodeEntryRoute ||
+            currentRoute is AppRoute.PasscodeSetupRoute
+        passcodeFlowState.setActive(isPasscodeFlow)
+
         when (currentRoute) {
             is AppRoute.CameraRoute -> {
                 // We are at camera route
@@ -93,7 +96,6 @@ fun SaveNavGraph(
         }
     }
 
-    SaveAppTheme {
 
         DialogHost(dialogManager)
 
@@ -251,9 +253,9 @@ fun SaveNavGraph(
                         }
 
                         val titleRes = when (route.spaceType) {
-                            Space.Type.INTERNET_ARCHIVE -> R.string.internet_archive
-                            Space.Type.WEBDAV -> R.string.private_server
-                            Space.Type.RAVEN -> R.string.dweb_title
+                            VaultType.INTERNET_ARCHIVE -> R.string.internet_archive
+                            VaultType.PRIVATE_SERVER -> R.string.private_server
+                            VaultType.DWEB_STORAGE -> R.string.dweb_title
                         }
 
                         DefaultScaffold(
@@ -333,17 +335,16 @@ fun SaveNavGraph(
                         }
                     }
 
-                    entry<AppRoute.CreateNewFolderRoute> {
+                    entry<AppRoute.CreateNewFolderRoute> { route ->
+                        val viewModel = koinViewModel<CreateNewFolderViewModel>() {
+                            parametersOf(navigator, route)
+                        }
                         DefaultScaffold(
                             title = stringResource(id = R.string.create_a_new_folder),
                             onNavigateBack = { navigator.navigateBack() }
                         ) {
                             CreateNewFolderScreen(
-                                onNavigateBackWithResult = { projectId ->
-                                    //onFolderSelected(projectId)
-                                    navigator.navigateBack()
-                                },
-                                onNavigateBackCanceled = { navigator.navigateBack() }
+                                viewModel = viewModel
                             )
                         }
                     }
@@ -452,37 +453,6 @@ fun SaveNavGraph(
                         }
                     }
 
-                    entry<AppRoute.PasscodeSetupRoute> { route ->
-
-                        val viewModel = koinViewModel<PasscodeSetupViewModel> {
-                            parametersOf(navigator, route)
-                        }
-
-                        DefaultScaffold(
-                            title = stringResource(id = R.string.set_passcode),
-                            onNavigateBack = { navigator.navigateBack() }
-                        ) {
-                            PasscodeSetupScreen(
-                                viewModel = viewModel
-                            )
-                        }
-                    }
-
-                    entry<AppRoute.PasscodeEntryRoute> { route ->
-                        val viewModel = koinViewModel<PasscodeEntryViewModel> {
-                            parametersOf(navigator, route)
-                        }
-
-                        DefaultScaffold(
-                            title = stringResource(id = R.string.enter_passcode),
-                            onNavigateBack = { navigator.navigateBack() }
-                        ) {
-                            PasscodeEntryScreen(
-                                viewModel = viewModel,
-                            )
-                        }
-                    }
-
                     entry<AppRoute.CameraRoute> { route ->
                         CameraScreenWrapper(
                             config = route.config,
@@ -505,7 +475,6 @@ fun SaveNavGraph(
                 }
             )
         }
-    }
 }
 
 

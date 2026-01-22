@@ -1,7 +1,7 @@
 package net.opendasharchive.openarchive.upload
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,35 +10,36 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.opendasharchive.openarchive.db.Media
+import net.opendasharchive.openarchive.core.domain.Evidence
+import net.opendasharchive.openarchive.core.domain.EvidenceStatus
+import net.opendasharchive.openarchive.core.repositories.MediaRepository
 
 data class UploadManagerState(
-    val mediaList: List<Media> = emptyList(),
+    val mediaList: List<Evidence> = emptyList(),
     val isLoading: Boolean = false
 )
 
 sealed class UploadManagerAction {
     data object Refresh : UploadManagerAction()
-    data class UpdateItem(val mediaId: Long, val progress: Int = -1, val isUploaded: Boolean = false) : UploadManagerAction()
+    data class UpdateItem(val mediaId: Long, val progress: Int = -1, val isUploaded: Boolean = false) :
+        UploadManagerAction()
+
     data class RemoveItem(val mediaId: Long) : UploadManagerAction()
     data class DeleteItem(val position: Int) : UploadManagerAction()
-    data class RetryItem(val media: Media) : UploadManagerAction()
+    data class RetryItem(val evidence: Evidence) : UploadManagerAction()
     data class MoveItem(val fromPosition: Int, val toPosition: Int) : UploadManagerAction()
     data object Close : UploadManagerAction()
 }
 
 sealed class UploadManagerEvent {
     data object Close : UploadManagerEvent()
-    data class ShowRetryDialog(val media: Media, val position: Int) : UploadManagerEvent()
+    data class ShowRetryDialog(val evidence: Evidence, val position: Int) : UploadManagerEvent()
 }
 
 class UploadManagerViewModel(
-    application: Application
-) : AndroidViewModel(application) {
-
-    companion object {
-        private val STATUSES = listOf(Media.Status.Uploading, Media.Status.Queued, Media.Status.Error)
-    }
+    private val application: Application,
+    private val mediaRepository: MediaRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UploadManagerState())
     val uiState: StateFlow<UploadManagerState> = _uiState.asStateFlow()
@@ -56,17 +57,19 @@ class UploadManagerViewModel(
             is UploadManagerAction.UpdateItem -> updateItem(action.mediaId, action.progress, action.isUploaded)
             is UploadManagerAction.RemoveItem -> removeItem(action.mediaId)
             is UploadManagerAction.DeleteItem -> deleteItem(action.position)
-            is UploadManagerAction.RetryItem -> retryItem(action.media)
+            is UploadManagerAction.RetryItem -> retryItem(action.evidence)
             is UploadManagerAction.MoveItem -> moveItem(action.fromPosition, action.toPosition)
             is UploadManagerAction.Close -> close()
         }
     }
 
     private fun refresh() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                mediaList = Media.getByStatus(STATUSES, Media.ORDER_PRIORITY)
-            )
+        viewModelScope.launch {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    mediaList = mediaRepository.getQueue()
+                )
+            }
         }
     }
 
@@ -77,19 +80,20 @@ class UploadManagerViewModel(
 
             if (index >= 0) {
                 val item = updatedList[index]
-                when {
+                val updatedItem = when {
                     isUploaded -> {
-                        item.status = Media.Status.Uploaded.id
+                        item.copy(status = EvidenceStatus.UPLOADED)
                     }
+
                     progress >= 0 -> {
-                        item.uploadPercentage = progress
-                        item.status = Media.Status.Uploading.id
+                        item.copy(uploadPercentage = progress, status = EvidenceStatus.UPLOADING)
                     }
+
                     else -> {
-                        item.status = Media.Status.Queued.id
+                        item.copy(status = EvidenceStatus.QUEUED)
                     }
                 }
-                updatedList[index] = item
+                updatedList[index] = updatedItem
             }
 
             currentState.copy(mediaList = updatedList)
@@ -105,59 +109,53 @@ class UploadManagerViewModel(
     }
 
     private fun deleteItem(position: Int) {
-        val currentList = _uiState.value.mediaList
-        if (position < 0 || position >= currentList.size) return
+        viewModelScope.launch {
+            val currentList = _uiState.value.mediaList
+            if (position < 0 || position >= currentList.size) return@launch
 
-        val item = currentList[position]
-        val collection = item.collection
+            val item = currentList[position]
 
-        // Delete the media item first
-        item.delete()
+            // Delete the media item (repository handles collection deletion if empty)
+            mediaRepository.deleteMedia(item.id)
 
-        // Delete collection if it's now empty (no cascade delete support in db)
-        if (collection != null && collection.media.isEmpty()) {
-            collection.delete()
+            removeItem(item.id)
+
+            // Broadcast the delete action to notify MainMediaFragment
+            BroadcastManager.postDelete(application, item.id)
+            UploadEventBus.emitDeleted(
+                projectId = item.archiveId,
+                collectionId = item.submissionId,
+                mediaId = item.id
+            )
         }
-
-        removeItem(item.id)
-
-        // Broadcast the delete action to notify MainMediaFragment
-        BroadcastManager.postDelete(getApplication(), item.id)
-        UploadEventBus.emitDeleted(
-            projectId = item.projectId,
-            collectionId = item.collectionId,
-            mediaId = item.id
-        )
     }
 
-    private fun retryItem(media: Media) {
-        media.apply {
-            sStatus = Media.Status.Queued
-            uploadPercentage = 0
-            statusMessage = ""
-            save()
+    private fun retryItem(evidence: Evidence) {
+        viewModelScope.launch {
+            mediaRepository.retryMedia(evidence.id)
+
+            updateItem(evidence.id, progress = -1, isUploaded = false)
+
+            // Broadcast the change to notify MainMediaFragment
+            BroadcastManager.postChange(application, evidence.submissionId, evidence.id)
+            UploadEventBus.emitChanged(
+                projectId = evidence.archiveId,
+                collectionId = evidence.submissionId,
+                mediaId = evidence.id,
+                progress = -1,
+                isUploaded = false
+            )
         }
-
-        updateItem(media.id, progress = -1, isUploaded = false)
-
-        // Broadcast the change to notify MainMediaFragment
-        BroadcastManager.postChange(getApplication(), media.collectionId, media.id)
-        UploadEventBus.emitChanged(
-            projectId = media.projectId,
-            collectionId = media.collectionId,
-            mediaId = media.id,
-            progress = -1,
-            isUploaded = false
-        )
     }
 
     private fun moveItem(fromPosition: Int, toPosition: Int) {
-        _uiState.update { currentState ->
-            val updatedList = currentState.mediaList.toMutableList()
+        viewModelScope.launch {
+            val updatedList = _uiState.value.mediaList.toMutableList()
 
             if (fromPosition < 0 || fromPosition >= updatedList.size ||
-                toPosition < 0 || toPosition >= updatedList.size) {
-                return@update currentState
+                toPosition < 0 || toPosition >= updatedList.size
+            ) {
+                return@launch
             }
 
             val movedItem = updatedList.removeAt(fromPosition)
@@ -166,11 +164,10 @@ class UploadManagerViewModel(
             // Update priorities
             var priority = updatedList.size
             for (item in updatedList) {
-                item.priority = priority--
-                item.save()
+                mediaRepository.updatePriority(item.id, priority--)
             }
 
-            currentState.copy(mediaList = updatedList)
+            _uiState.update { it.copy(mediaList = updatedList) }
         }
     }
 

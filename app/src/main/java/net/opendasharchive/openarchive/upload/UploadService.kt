@@ -21,12 +21,15 @@ import net.opendasharchive.openarchive.CleanInsightsManager
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.analytics.api.AnalyticsEvent
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
+import net.opendasharchive.openarchive.core.domain.Evidence
+import net.opendasharchive.openarchive.core.domain.EvidenceStatus
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.features.main.MainActivity
+import net.opendasharchive.openarchive.core.repositories.MediaRepository
+import net.opendasharchive.openarchive.core.repositories.ProjectRepository
+import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.services.Conduit
 import net.opendasharchive.openarchive.util.Prefs
-import net.opendasharchive.openarchive.upload.UploadEventBus
 import org.koin.android.ext.android.inject
 import java.io.IOException
 import java.util.*
@@ -35,6 +38,9 @@ class UploadService : JobService() {
 
     // Inject analytics manager
     private val analyticsManager: AnalyticsManager by inject()
+    private val mediaRepository: MediaRepository by inject()
+    private val projectRepository: ProjectRepository by inject()
+    private val spaceRepository: SpaceRepository by inject()
 
     companion object {
         private const val NOTIFICATION_CHANNEL_ID = "oasave_channel_1"
@@ -103,17 +109,14 @@ class UploadService : JobService() {
             return completed()
         }
 
-        // Get all media items that are set into queued state.
-        var results = emptyList<Media>()
+        // Get items that are set into queued state.
+        var results = emptyList<Evidence>()
         var successCount = 0
         var failedCount = 0
         var totalCount = 0
 
         // Get initial batch
-        val initialBatch = Media.getByStatus(
-            listOf(Media.Status.Queued, Media.Status.Uploading),
-            Media.ORDER_PRIORITY
-        )
+        val initialBatch = mediaRepository.getQueue()
 
         if (initialBatch.isNotEmpty()) {
             // Track upload session started (1+ files)
@@ -128,36 +131,37 @@ class UploadService : JobService() {
         }
 
         while (mKeepUploading &&
-            Media.getByStatus(
-                listOf(Media.Status.Queued, Media.Status.Uploading),
-                Media.ORDER_PRIORITY
-            )
+            mediaRepository.getQueue()
                 .also { results = it }
                 .isNotEmpty()
         ) {
-            val datePublish = Date()
+            val datePublish = net.opendasharchive.openarchive.util.DateUtils.nowDateTime
 
             for (media in results) {
                 totalCount++
-                if (media.sStatus != Media.Status.Uploading) {
-                    media.uploadDate = datePublish
-                    media.progress = 0 // Should we reset this?
-                    media.sStatus = Media.Status.Uploading
-                    media.statusMessage = ""
+                var updatedMedia = media
+                if (updatedMedia.status != EvidenceStatus.UPLOADING) {
+                    updatedMedia = updatedMedia.copy(
+                        uploadDate = datePublish,
+                        progress = 0,
+                        status = EvidenceStatus.UPLOADING,
+                        statusMessage = ""
+                    )
                 }
 
-                media.licenseUrl = media.project?.licenseUrl
+                val project = projectRepository.getProject(updatedMedia.archiveId)
+                updatedMedia = updatedMedia.copy(licenseUrl = project?.licenseUrl)
 
-                val collection = media.collection
+                // Persist updated state before starting upload
+                mediaRepository.updateEvidence(updatedMedia)
 
-                if (collection?.uploadDate == null) {
-                    collection?.uploadDate = datePublish
-                    collection?.save()
-                }
+                // TODO: Submission upload date update if needed.
+                // Original code was updating collection.uploadDate.
+                // We might need a CollectionRepository or add a method to ProjectRepository.
 
                 try {
-                    AppLogger.i("Started uploading", media)
-                    val uploadSuccess = upload(media)
+                    AppLogger.i("Started uploading", updatedMedia)
+                    val uploadSuccess = upload(updatedMedia)
                     if (uploadSuccess) {
                         successCount++
                     } else {
@@ -166,13 +170,16 @@ class UploadService : JobService() {
                 } catch (ioe: IOException) {
                     AppLogger.e(ioe)
 
-                    media.statusMessage = "error in uploading media: " + ioe.message
-                    media.sStatus = Media.Status.Error
-                    media.save()
+                    updatedMedia = updatedMedia.copy(
+                        statusMessage = "error in uploading media: " + ioe.message,
+                        status = EvidenceStatus.ERROR
+                    )
+                    mediaRepository.updateEvidence(updatedMedia)
+
                     UploadEventBus.emitChanged(
-                        projectId = media.projectId,
-                        collectionId = media.collectionId,
-                        mediaId = media.id,
+                        projectId = updatedMedia.archiveId,
+                        collectionId = updatedMedia.submissionId,
+                        mediaId = updatedMedia.id,
                         progress = -1,
                         isUploaded = false
                     )
@@ -203,26 +210,28 @@ class UploadService : JobService() {
     }
 
     @Throws(IOException::class)
-    private suspend fun upload(media: Media): Boolean {
-        media.sStatus = Media.Status.Uploading
-        AppLogger.i("${media.id} - media status changed to uploading")
-        media.save()
-        BroadcastManager.postChange(this, media.collectionId, media.id)
+    private suspend fun upload(media: Evidence): Boolean {
+        var updatedMedia = media.copy(status = EvidenceStatus.UPLOADING)
+        AppLogger.i("${updatedMedia.id} - media status changed to uploading")
+        mediaRepository.updateEvidence(updatedMedia)
+
+        BroadcastManager.postChange(this, updatedMedia.submissionId, updatedMedia.id)
         UploadEventBus.emitChanged(
-            projectId = media.projectId,
-            collectionId = media.collectionId,
-            mediaId = media.id,
+            projectId = updatedMedia.archiveId,
+            collectionId = updatedMedia.submissionId,
+            mediaId = updatedMedia.id,
             progress = 0,
             isUploaded = false
         )
 
-        val conduit = Conduit.get(media, this)
+        val conduit = Conduit.get(updatedMedia, this)
         if (conduit == null) {
             AppLogger.e("Conduit is null")
             return false
         }
 
-        CleanInsightsManager.measureEvent("upload", "try_upload", media.space?.tType?.friendlyName)
+        val vault = spaceRepository.getSpaceById(updatedMedia.vaultId)
+        CleanInsightsManager.measureEvent("upload", "try_upload", vault?.type?.friendlyName)
 
         mConduits.add(conduit)
         conduit.upload()

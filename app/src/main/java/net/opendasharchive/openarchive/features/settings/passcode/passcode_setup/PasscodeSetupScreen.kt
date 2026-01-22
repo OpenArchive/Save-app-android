@@ -43,7 +43,9 @@ import org.koin.compose.koinInject
 @Composable
 fun PasscodeSetupScreen(
     viewModel: PasscodeSetupViewModel,
-    hapticManager: HapticManager = koinInject()
+    hapticManager: HapticManager = koinInject(),
+    onPasscodeSet: () -> Unit,
+    onCancel: () -> Unit,
 ) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -58,6 +60,8 @@ fun PasscodeSetupScreen(
                     hapticManager.perform(hapticFeedback, AppHapticFeedbackType.Error)
                     MessageManager.showMessage(UiText.Resource(R.string.passcode_do_not_match))
                 }
+                PasscodeSetupUiEvent.PasscodeSet -> onPasscodeSet()
+                PasscodeSetupUiEvent.PasscodeCancelled -> onCancel()
             }
         }
     }

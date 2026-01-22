@@ -97,7 +97,7 @@ fun CameraBottomControls(
                             .background(Color.Black.copy(alpha = 0.3f), CircleShape)
                     ) {
                         Icon(
-                            painter = if (cameraState.isFrontCamera) painterResource( R.drawable.ic_camera_front) else painterResource(R.drawable.ic_camera_rear),
+                            painter = if (cameraState.isFrontCamera) painterResource( R.drawable.ic_camera_rear) else painterResource(R.drawable.ic_camera_front),
                             contentDescription = stringResource(R.string.switch_camera),
                             tint = Color.White
                         )
@@ -125,11 +125,10 @@ private fun CameraModeSelector(
     ) {
         CameraCaptureMode.entries.forEach { mode ->
             val isSelected = currentMode == mode
-            val context = androidx.compose.ui.platform.LocalContext.current
             Text(
                 text = when (mode) {
-                    CameraCaptureMode.PHOTO -> context.getString(R.string.photo_label)
-                    CameraCaptureMode.VIDEO -> context.getString(R.string.video_label)
+                    CameraCaptureMode.PHOTO -> stringResource(R.string.photo_label)
+                    CameraCaptureMode.VIDEO -> stringResource(R.string.video_label)
                 },
                 modifier = Modifier
                     .clip(RoundedCornerShape(16.dp))

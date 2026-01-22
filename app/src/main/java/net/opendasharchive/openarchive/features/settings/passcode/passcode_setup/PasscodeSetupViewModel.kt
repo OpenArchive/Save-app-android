@@ -16,7 +16,6 @@ import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 
 class PasscodeSetupViewModel(
-    private val navigator: Navigator,
     private val repository: PasscodeRepository,
     private val config: AppConfig
 ) : ViewModel() {
@@ -32,7 +31,9 @@ class PasscodeSetupViewModel(
         when (action) {
             is PasscodeSetupUiAction.OnNumberClick -> onNumberClick(action.number)
             PasscodeSetupUiAction.OnBackspaceClick -> onBackspaceClick()
-            PasscodeSetupUiAction.OnCancel -> navigator.navigateBack()
+            PasscodeSetupUiAction.OnCancel -> viewModelScope.launch {
+                _uiEvent.send(PasscodeSetupUiEvent.PasscodeCancelled)
+        }
             PasscodeSetupUiAction.OnSubmit -> onSubmit()
         }
     }
@@ -100,7 +101,7 @@ class PasscodeSetupViewModel(
                 val salt = repository.generateSalt()
                 val hash = repository.hashPasscode(passcode, salt)
                 repository.storePasscodeHashAndSalt(hash, salt)
-                navigator.navigateBack()
+                _uiEvent.send(PasscodeSetupUiEvent.PasscodeSet)
             } else {
                 _uiState.update { it.copy(shouldShake = true) }
                 _uiEvent.send(PasscodeSetupUiEvent.PasscodeDoNotMatch)
@@ -152,5 +153,7 @@ sealed class PasscodeSetupUiAction {
 }
 
 sealed class PasscodeSetupUiEvent {
+    data object PasscodeSet : PasscodeSetupUiEvent()
+    data object PasscodeCancelled : PasscodeSetupUiEvent()
     data object PasscodeDoNotMatch : PasscodeSetupUiEvent()
 }

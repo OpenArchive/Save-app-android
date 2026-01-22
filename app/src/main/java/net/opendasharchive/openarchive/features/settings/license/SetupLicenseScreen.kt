@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import net.opendasharchive.openarchive.R
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.viewmodel.compose.viewModel
+import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.presentation.components.PrimaryButton
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.db.Space
@@ -38,7 +39,7 @@ fun SetupLicenseScreen(
     val state by viewModel.uiState.collectAsState()
 
     SetupLicenseScreenContent(
-        state  = state,
+        state = state,
         onAction = viewModel::onAction
     )
 }
@@ -68,23 +69,23 @@ fun SetupLicenseScreenContent(
         ) {
             // Description text (hidden in edit mode)
 
-                val descriptionText = when (state.spaceType) {
-                    Space.Type.INTERNET_ARCHIVE -> stringResource(R.string.choose_license)
-                    else -> stringResource(R.string.name_your_server)
-                }
+            val descriptionText = when (state.spaceType) {
+                VaultType.INTERNET_ARCHIVE -> stringResource(R.string.choose_license)
+                else -> stringResource(R.string.name_your_server)
+            }
 
-                Text(
-                    text = descriptionText,
-                    modifier = Modifier.padding(24.dp),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+            Text(
+                text = descriptionText,
+                modifier = Modifier.padding(24.dp),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurface
+            )
 
 
             // Server name input (hidden for Internet Archive)
-            if (state.spaceType != Space.Type.INTERNET_ARCHIVE) {
+            if (state.spaceType != VaultType.INTERNET_ARCHIVE) {
                 CustomTextField(
                     value = state.serverName,
                     onValueChange = { onAction(SetupLicenseAction.UpdateServerName(it)) },
@@ -166,7 +167,7 @@ fun WebDavSetupLicenseScreenPreview() {
             state = SetupLicenseState(
                 ccEnabled = true,
                 spaceId = 1,
-                spaceType = Space.Type.WEBDAV
+                spaceType = VaultType.PRIVATE_SERVER
             ),
             onAction = {}
         )

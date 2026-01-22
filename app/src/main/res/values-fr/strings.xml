@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="title_activity_first_start">Lancement initial</string>
     <string name="action_settings">Paramètres</string>
-    <string name="internet_archive">« Internet Archive »</string>
+    <string name="internet_archive">Internet Archive</string>
     <string name="internet_archive_description">Téléversez vos médias vers un compte public gratuit sur internet Archive.</string>
     <string name="dweb_title">Service DWeb</string>
     <string name="dweb_description">Connectez-vous\nau web décentralisé</string>

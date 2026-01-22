@@ -12,18 +12,19 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.domain.Archive
+import net.opendasharchive.openarchive.core.domain.Evidence
+import net.opendasharchive.openarchive.core.domain.EvidenceStatus
+import net.opendasharchive.openarchive.core.domain.Submission
+import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.db.Collection
-import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.db.Project
-import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.core.repositories.CollectionRepository
+import net.opendasharchive.openarchive.core.repositories.MediaRepository
 import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
-import net.opendasharchive.openarchive.features.main.data.CollectionRepository
-import net.opendasharchive.openarchive.features.main.data.MediaRepository
 import net.opendasharchive.openarchive.upload.UploadEvent
 import net.opendasharchive.openarchive.upload.UploadEventBus
 
@@ -31,8 +32,8 @@ import net.opendasharchive.openarchive.upload.UploadEventBus
  * Represents one collection section with its media items.
  */
 data class CollectionSection(
-    val collection: Collection,
-    val media: List<Media>
+    val collection: Submission,
+    val media: List<Evidence>
 )
 
 /**
@@ -71,10 +72,12 @@ data class MainMediaState(
  * User actions scoped to MainMediaScreen.
  */
 sealed class MainMediaAction {
-    data class LoadProject(val projectId: Long, val project: Project? = null, val space: Space? = null) : MainMediaAction()
+    data class LoadProject(val projectId: Long, val project: Archive? = null, val space: Vault? = null) :
+        MainMediaAction()
+
     data class Refresh(val projectId: Long) : MainMediaAction()
-    data class MediaClicked(val media: Media) : MainMediaAction()
-    data class MediaLongPressed(val media: Media) : MainMediaAction()
+    data class MediaClicked(val media: Evidence) : MainMediaAction()
+    data class MediaLongPressed(val media: Evidence) : MainMediaAction()
     data class UpdateMediaItem(
         val collectionId: Long,
         val mediaId: Long,
@@ -91,11 +94,11 @@ sealed class MainMediaAction {
     data object EnterSelectionMode : MainMediaAction()
 
 
-    data  object ShowRemoveProjectDialog : MainMediaAction()
+    data object ShowRemoveProjectDialog : MainMediaAction()
     data object ShowDeleteSelectedMediaDialog : MainMediaAction()
 
     data class ShowHideFolderOptionsPopup(val showPopup: Boolean) : MainMediaAction()
-    data object OnArchiveProject: MainMediaAction()
+    data object OnArchiveProject : MainMediaAction()
 }
 
 /**
@@ -106,7 +109,7 @@ sealed class MainMediaAction {
 sealed class MainMediaEvent {
     data class NavigateToPreview(val projectId: Long) : MainMediaEvent()
     data object ShowUploadManager : MainMediaEvent()
-    data class ShowErrorDialog(val media: Media, val position: Int) : MainMediaEvent()
+    data class ShowErrorDialog(val media: Evidence, val position: Int) : MainMediaEvent()
     data class SelectionModeChanged(val isSelecting: Boolean, val count: Int) : MainMediaEvent()
     data object FocusFolderNameInput : MainMediaEvent()
 }
@@ -205,6 +208,7 @@ class MainMediaViewModel(
                             }
                         }
                     }
+
                     is UploadEvent.Deleted -> {
                         val currentProjectId = _uiState.value.projectId ?: return@collect
                         if (event.projectId == currentProjectId) {
@@ -242,29 +246,32 @@ class MainMediaViewModel(
         }
     }
 
-    private fun handleMediaClick(media: Media) {
+    private fun handleMediaClick(media: Evidence) {
         viewModelScope.launch {
             if (_uiState.value.isInSelectionMode) {
                 toggleMediaSelection(media)
             } else {
-                when (media.sStatus) {
-                    Media.Status.New,
-                    Media.Status.Local -> {
-                        _uiEvent.emit(MainMediaEvent.NavigateToPreview(media.projectId))
+                when (media.status) {
+                    EvidenceStatus.NEW,
+                    EvidenceStatus.LOCAL -> {
+                        _uiEvent.emit(MainMediaEvent.NavigateToPreview(media.archiveId))
                     }
-                    Media.Status.Queued,
-                    Media.Status.Uploading -> _uiEvent.emit(MainMediaEvent.ShowUploadManager)
-                    Media.Status.Error -> {
+
+                    EvidenceStatus.QUEUED,
+                    EvidenceStatus.UPLOADING -> _uiEvent.emit(MainMediaEvent.ShowUploadManager)
+
+                    EvidenceStatus.ERROR -> {
                         val position = findMediaPosition(media)
                         _uiEvent.emit(MainMediaEvent.ShowErrorDialog(media, position))
                     }
+
                     else -> Unit
                 }
             }
         }
     }
 
-    private fun handleMediaLongPress(media: Media) {
+    private fun handleMediaLongPress(media: Evidence) {
         viewModelScope.launch {
             if (!_uiState.value.isInSelectionMode) {
                 _uiState.update { it.copy(isInSelectionMode = true, folderBarMode = FolderBarMode.SELECTION) }
@@ -273,7 +280,7 @@ class MainMediaViewModel(
         }
     }
 
-    private fun toggleMediaSelection(media: Media) {
+    private fun toggleMediaSelection(media: Evidence) {
         val currentSelected = _uiState.value.selectedMediaIds
         val newSelected = if (currentSelected.contains(media.id)) {
             currentSelected - media.id
@@ -345,7 +352,7 @@ class MainMediaViewModel(
     fun cancelSelection() {
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.value.sections.flatMap { it.media }.forEach { media ->
-                if (media.selected) {
+                if (media.isSelected) {
                     mediaRepository.setSelected(media.id, false)
                 }
             }
@@ -379,19 +386,18 @@ class MainMediaViewModel(
                             if (media.id == mediaId) {
                                 when {
                                     isUploaded -> {
-                                        media.status = Media.Status.Uploaded.id
-                                        media
+                                        media.copy(status = EvidenceStatus.UPLOADED, uploadPercentage = 100)
                                     }
 
                                     progress >= 0 -> {
-                                        media.uploadPercentage = progress.coerceIn(0, 100)
-                                        media.status = Media.Status.Uploading.id
-                                        media
+                                        media.copy(
+                                            status = EvidenceStatus.UPLOADING,
+                                            uploadPercentage = progress.coerceIn(0, 100)
+                                        )
                                     }
 
                                     else -> {
-                                        media.status = Media.Status.Queued.id
-                                        media
+                                        media.copy(status = EvidenceStatus.QUEUED)
                                     }
                                 }
                             } else {
@@ -408,7 +414,7 @@ class MainMediaViewModel(
         }
     }
 
-    private fun findMediaPosition(media: Media): Int {
+    private fun findMediaPosition(media: Evidence): Int {
         var position = 0
         for (section in _uiState.value.sections) {
             val index = section.media.indexOfFirst { it.id == media.id }

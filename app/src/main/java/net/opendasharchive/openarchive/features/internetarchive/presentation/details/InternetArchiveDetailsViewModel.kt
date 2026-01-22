@@ -10,9 +10,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.features.internetarchive.domain.model.InternetArchive
-import net.opendasharchive.openarchive.features.main.data.SpaceRepository
+import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
@@ -25,7 +25,7 @@ class InternetArchiveDetailsViewModel(
     private val spaceRepository: SpaceRepository,
 ) : ViewModel(), KoinComponent {
 
-    private lateinit var space: Space
+    private lateinit var vault: Vault
 
     private val _uiState = MutableStateFlow(
         InternetArchiveDetailsState(
@@ -135,20 +135,20 @@ class InternetArchiveDetailsViewModel(
 
     private fun loadSpaceData() = viewModelScope.launch {
 
-        space = spaceRepository.getSpaceById(route.spaceId) ?: run {
+        vault = spaceRepository.getSpaceById(route.spaceId) ?: run {
             navigator.navigateBack()
             return@launch
         }
 
         try {
-            val metaData = if (space.metaData.isNotEmpty()) {
-                gson.fromJson(space.metaData, InternetArchive.MetaData::class.java)
+            val metaData = if (vault.metaData.isNotEmpty()) {
+                gson.fromJson(vault.metaData, InternetArchive.MetaData::class.java)
             } else {
                 // Fallback to space properties if no metaData
                 InternetArchive.MetaData(
-                    userName = space.username,
-                    screenName = space.displayname.ifEmpty { space.username },
-                    email = space.username
+                    userName = vault.username,
+                    screenName = vault.displayName.ifEmpty { vault.username },
+                    email = vault.username
                 )
             }
 
@@ -157,28 +157,28 @@ class InternetArchiveDetailsViewModel(
                     userName = metaData.userName,
                     email = metaData.email,
                     screenName = metaData.screenName,
-                    license = space.license
+                    license = vault.licenseUrl
                 )
 
-                initializeLicenseState(newState, space.license)
+                initializeLicenseState(newState, vault.licenseUrl)
             }
 
         } catch (e: Exception) {
             // If JSON parsing fails, use space properties as fallback
             val fallbackMetaData = InternetArchive.MetaData(
-                userName = space.username,
-                screenName = space.displayname.ifEmpty { space.username },
-                email = space.username
+                userName = vault.username,
+                screenName = vault.displayName.ifEmpty { vault.username },
+                email = vault.username
             )
             _uiState.update { currentState ->
                 val newState = currentState.copy(
                     userName = fallbackMetaData.userName,
                     email = fallbackMetaData.email,
                     screenName = fallbackMetaData.screenName,
-                    license = space.license
+                    license = vault.licenseUrl
                 )
 
-                initializeLicenseState(newState, space.license)
+                initializeLicenseState(newState, vault.licenseUrl)
             }
         }
     }
@@ -193,9 +193,9 @@ class InternetArchiveDetailsViewModel(
         }
     }
 
-    private fun updateLicense(license: String?) = viewModelScope.launch{
-        space.license = license
-        spaceRepository.updateSpace(route.spaceId, space)
+    private fun updateLicense(license: String?) = viewModelScope.launch {
+        vault = vault.copy(licenseUrl = license)
+        spaceRepository.updateSpace(route.spaceId, vault)
     }
 
     private fun initializeLicenseState(

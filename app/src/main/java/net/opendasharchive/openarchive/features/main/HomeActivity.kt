@@ -1,22 +1,17 @@
 package net.opendasharchive.openarchive.features.main
 
 import android.os.Bundle
-import android.view.View
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.core.BaseComposeActivity
 import net.opendasharchive.openarchive.features.main.ui.SaveNavGraph
-import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
-import org.koin.android.ext.android.inject
+import net.opendasharchive.openarchive.features.main.ui.rememberNavigator
 
-class HomeActivity: BaseComposeActivity() {
-
-    private val appConfig by inject<AppConfig>()
+class HomeActivity : BaseComposeActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,23 +29,21 @@ class HomeActivity: BaseComposeActivity() {
             )
         )
 
-        // Set system bars to be edge-to-edge
-//        window.decorView.systemUiVisibility = (
-//            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//        )
-
-        // Set navigation bar color to match bottom bar color
-        //window.navigationBarColor = ContextCompat.getColor(this, R.color.colorTertiary)
-
-
 
         // Set up your Compose UI and pass callbacks.
         setContent {
-            SaveNavGraph(
-                dialogManager
-            )
-        }
-    }
 
+            SaveAppTheme {
+
+                val navigator = rememberNavigator()
+
+                SaveNavGraph(
+                    dialogManager,
+                    navigator
+                )
+            }
+
+        }
+
+    }
 }

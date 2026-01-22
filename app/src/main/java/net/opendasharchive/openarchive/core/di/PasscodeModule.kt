@@ -6,6 +6,8 @@ import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.features.settings.passcode.HapticManager
 import net.opendasharchive.openarchive.features.settings.passcode.HashingStrategy
 import net.opendasharchive.openarchive.features.settings.passcode.PBKDF2HashingStrategy
+import net.opendasharchive.openarchive.features.settings.passcode.PasscodeFlowState
+import net.opendasharchive.openarchive.features.settings.passcode.PasscodeGate
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 import net.opendasharchive.openarchive.features.settings.passcode.PrefAead
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_entry.PasscodeEntryViewModel
@@ -45,6 +47,9 @@ val passcodeModule = module {
 
     // Crypto primitive — singleton
     single { PrefAead(get<Context>()) }
+
+    single { PasscodeFlowState() }
+    single { PasscodeGate(get()) }
 
     single<PasscodeRepository> {
 

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.ButtonData
@@ -19,7 +19,7 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.core.dialog.showWarningDialog
-import net.opendasharchive.openarchive.features.main.data.SpaceRepository
+import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.settings.CreativeCommonsLicenseManager
@@ -31,7 +31,7 @@ class WebDavDetailViewModel(
     private val dialogManager: DialogStateManager,
 ) : ViewModel() {
 
-    private lateinit var space: Space
+    private lateinit var vault: Vault
 
     private val _uiState = MutableStateFlow(
         WebDavDetailState(
@@ -48,25 +48,23 @@ class WebDavDetailViewModel(
     }
 
     private fun loadSpaceData() = viewModelScope.launch {
-
-        space = spaceRepository.getSpaceById(route.spaceId) ?: run {
+        vault = spaceRepository.getSpaceById(route.spaceId) ?: run {
             navigator.navigateBack()
             return@launch
         }
 
         _uiState.update { currentState ->
             val newState = currentState.copy(
-                serverUrl = space.host,
-                username = space.username,
-                password = space.password,
-                name = space.name,
-                originalName = space.name,
-                originalLicenseUrl = space.license
+                serverUrl = vault.host,
+                username = vault.username,
+                password = vault.password,
+                name = vault.name,
+                originalName = vault.name,
+                originalLicenseUrl = vault.licenseUrl
             )
 
-            initializeLicenseState(newState, space.license)
+            initializeLicenseState(newState, vault.licenseUrl)
         }
-
     }
 
     fun onAction(action: WebDavDetailAction) {
@@ -182,9 +180,8 @@ class WebDavDetailViewModel(
         val enteredName = currentState.name.trim()
 
         // Update both name and license (license is already set in generateAndUpdateLicense)
-        space.name = enteredName
-        // space.license is already updated in generateAndUpdateLicense()
-        space.save()
+        val updatedVault = vault.copy(name = enteredName)
+        spaceRepository.updateSpace(route.spaceId, updatedVault)
 
         _uiState.update {
             it.copy(
@@ -272,11 +269,10 @@ class WebDavDetailViewModel(
         // Don't save immediately - let saveChanges() handle persistence
         // This prevents duplicate space records when both name and license are changed
 
-        space.license = newLicense
+        vault = vault.copy(licenseUrl = newLicense)
 
         viewModelScope.launch {
-
-            spaceRepository.updateSpace(route.spaceId, space)
+            spaceRepository.updateSpace(route.spaceId, vault)
         }
     }
 

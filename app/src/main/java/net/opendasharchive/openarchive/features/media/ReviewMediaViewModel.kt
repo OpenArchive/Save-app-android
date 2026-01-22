@@ -14,7 +14,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.db.Media
+import net.opendasharchive.openarchive.core.domain.Evidence
+import net.opendasharchive.openarchive.core.domain.EvidenceStatus
+import net.opendasharchive.openarchive.core.repositories.MediaRepository
+import net.opendasharchive.openarchive.core.repositories.ProjectRepository
+import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.features.core.UiColor
 import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
@@ -26,7 +30,7 @@ import net.opendasharchive.openarchive.util.Prefs
 import java.io.File
 
 data class ReviewMediaState(
-    val mediaList: List<Media> = emptyList(),
+    val mediaList: List<Evidence> = emptyList(),
     val currentIndex: Int = 0,
     val isBatchMode: Boolean = false,
     val description: String = "",
@@ -37,10 +41,10 @@ data class ReviewMediaState(
     val showBackButton: Boolean = false,
     val showForwardButton: Boolean = false
 ) {
-    val currentMedia: Media?
+    val currentMedia: Evidence?
         get() = mediaList.getOrNull(currentIndex)
 
-    val batchPreviewMedia: List<Media>
+    val batchPreviewMedia: List<Evidence>
         get() = if (isBatchMode) mediaList.take(3) else emptyList()
 }
 
@@ -63,6 +67,9 @@ class ReviewMediaViewModel(
     private val navigator: Navigator,
     private val contentResolver: ContentResolver,
     private val dialogManager: DialogStateManager,
+    private val mediaRepository: MediaRepository,
+    private val projectRepository: ProjectRepository,
+    private val spaceRepository: SpaceRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ReviewMediaState())
@@ -78,9 +85,11 @@ class ReviewMediaViewModel(
     private fun loadMediaList() {
         viewModelScope.launch {
 
-            val mediaList = withContext(Dispatchers.IO) {
-                route.mediaIds.toList().mapNotNull { id -> Media.get(id) }
+            val mediaItems = mutableListOf<Evidence>()
+            route.mediaIds.forEach { id ->
+                mediaRepository.getEvidence(id)?.let { mediaItems.add(it) }
             }
+            val mediaList = mediaItems.toList()
 
             if (mediaList.isEmpty()) {
                 navigator.navigateBack()
@@ -146,18 +155,15 @@ class ReviewMediaViewModel(
                 showFlagHint(newFlagState)
             }
 
-            if (state.isBatchMode) {
-                withContext(Dispatchers.IO) {
-                    state.mediaList.forEach { media ->
-                        media.flag = newFlagState
-                    }
-                }
-            } else {
-                withContext(Dispatchers.IO) {
-                    state.currentMedia?.flag = newFlagState
+            val updatedMediaList = state.mediaList.map { evidence ->
+                if (state.isBatchMode || evidence.id == state.currentMedia?.id) {
+                    evidence.copy(isFlagged = newFlagState)
+                } else {
+                    evidence
                 }
             }
 
+            _uiState.update { it.copy(mediaList = updatedMediaList) }
             saveAllMedia()
             updateFlagState()
         }
@@ -185,16 +191,18 @@ class ReviewMediaViewModel(
         viewModelScope.launch {
             val state = _uiState.value
 
-            _uiState.update { it.copy(description = value) }
-
-            withContext(Dispatchers.IO) {
-                if (state.isBatchMode) {
-                    state.mediaList.forEach { media ->
-                        media.description = value
+            _uiState.update { state ->
+                val updatedMediaList = state.mediaList.map { evidence ->
+                    if (state.isBatchMode || evidence.id == state.currentMedia?.id) {
+                        evidence.copy(description = value)
+                    } else {
+                        evidence
                     }
-                } else {
-                    state.currentMedia?.description = value
                 }
+                state.copy(
+                    description = value,
+                    mediaList = updatedMediaList
+                )
             }
 
             saveAllMedia()
@@ -205,16 +213,18 @@ class ReviewMediaViewModel(
         viewModelScope.launch {
             val state = _uiState.value
 
-            _uiState.update { it.copy(location = value) }
-
-            withContext(Dispatchers.IO) {
-                if (state.isBatchMode) {
-                    state.mediaList.forEach { media ->
-                        media.location = value
+            _uiState.update { state ->
+                val updatedMediaList = state.mediaList.map { evidence ->
+                    if (state.isBatchMode || evidence.id == state.currentMedia?.id) {
+                        evidence.copy(location = value)
+                    } else {
+                        evidence
                     }
-                } else {
-                    state.currentMedia?.location = value
                 }
+                state.copy(
+                    location = value,
+                    mediaList = updatedMediaList
+                )
             }
 
             saveAllMedia()
@@ -252,18 +262,16 @@ class ReviewMediaViewModel(
         var commonDescription = firstMedia?.description
         var commonLocation = firstMedia?.location
 
-        withContext(Dispatchers.IO) {
-            for (media in state.mediaList) {
-                if (media.description != commonDescription) {
-                    commonDescription = null
-                }
-                if (media.location != commonLocation) {
-                    commonLocation = null
-                }
+        for (media in state.mediaList) {
+            if (media.description != commonDescription) {
+                commonDescription = null
+            }
+            if (media.location != commonLocation) {
+                commonLocation = null
+            }
 
-                if (commonDescription == null && commonLocation == null) {
-                    break
-                }
+            if (commonDescription == null && commonLocation == null) {
+                break
             }
         }
 
@@ -279,13 +287,8 @@ class ReviewMediaViewModel(
         val state = _uiState.value
         val currentMedia = state.currentMedia ?: return
 
-        val description = withContext(Dispatchers.IO) {
-            currentMedia.description
-        }
-
-        val currentLocation = withContext(Dispatchers.IO) {
-            currentMedia.location
-        }
+        val description = currentMedia.description
+        val currentLocation = currentMedia.location
 
         val location = if (currentLocation.isNullOrEmpty()) {
             extractLocationFromExif(currentMedia) ?: ""
@@ -315,20 +318,16 @@ class ReviewMediaViewModel(
         viewModelScope.launch {
             val state = _uiState.value
 
-            val isFlagged = withContext(Dispatchers.IO) {
-                var flagged = state.currentMedia?.flag ?: false
+            var flagged = state.currentMedia?.isFlagged ?: false
 
-                if (state.isBatchMode && flagged) {
-                    // Only show flagged if all are flagged
-                    if (state.mediaList.any { !it.flag }) {
-                        flagged = false
-                    }
+            if (state.isBatchMode && flagged) {
+                // Only show flagged if all are flagged
+                if (state.mediaList.any { !it.isFlagged }) {
+                    flagged = false
                 }
-
-                flagged
             }
 
-            _uiState.update { it.copy(isFlagged = isFlagged) }
+            _uiState.update { it.copy(isFlagged = flagged) }
         }
     }
 
@@ -344,20 +343,26 @@ class ReviewMediaViewModel(
     }
 
     private suspend fun saveAllMedia() {
-        withContext(Dispatchers.IO) {
-            _uiState.value.mediaList.forEach { media ->
-                media.licenseUrl = media.project?.licenseUrl ?: media.space?.license
-
-                if (media.sStatus == Media.Status.New) {
-                    media.sStatus = Media.Status.Local
+        val mediaList = _uiState.value.mediaList
+        mediaList.forEach { evidence ->
+            var finalEvidence = evidence
+            if (finalEvidence.licenseUrl == null) {
+                val archive = projectRepository.getProject(evidence.archiveId)
+                val license = archive?.licenseUrl ?: archive?.vaultId?.let {
+                    spaceRepository.getSpaceById(it)?.licenseUrl
                 }
-
-                media.save()
+                finalEvidence = finalEvidence.copy(licenseUrl = license)
             }
+
+            if (finalEvidence.status == EvidenceStatus.NEW) {
+                finalEvidence = finalEvidence.copy(status = EvidenceStatus.LOCAL)
+            }
+
+            mediaRepository.updateEvidence(finalEvidence)
         }
     }
 
-    private suspend fun extractLocationFromExif(media: Media): String? {
+    private suspend fun extractLocationFromExif(media: Evidence): String? {
         if (!media.mimeType.startsWith("image")) {
             return null
         }

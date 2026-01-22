@@ -55,29 +55,9 @@
 
     </fragment>
 
-
-    <fragment
-        android:id="@+id/fragment_web_dav"
-        android:name="net.opendasharchive.openarchive.services.webdav.WebDavFragment"
-        tools:layout="@layout/fragment_web_dav">
-        <action
-            android:id="@+id/action_fragment_web_dav_to_fragment_setup_license"
-            app:destination="@id/fragment_setup_license"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
-        <argument
-            android:name="space_id"
-            android:defaultValue="-1L"
-            app:argType="long" />
-    </fragment>
-
-
     <fragment
         android:id="@+id/fragment_web_dav_login"
-        android:name="net.opendasharchive.openarchive.services.webdav.login.WebDavLoginScreenFragment"
-        tools:layout="@layout/fragment_web_dav">
+        android:name="net.opendasharchive.openarchive.services.webdav.login.WebDavLoginScreenFragment">
         <action
             android:id="@+id/action_fragment_web_dav_to_fragment_setup_license"
             app:destination="@id/fragment_setup_license"
@@ -93,8 +73,7 @@
 
     <fragment
         android:id="@+id/fragment_web_dav_detail"
-        android:name="net.opendasharchive.openarchive.services.webdav.detail.WebDavDetailScreenFragment"
-        tools:layout="@layout/fragment_web_dav">
+        android:name="net.opendasharchive.openarchive.services.webdav.detail.WebDavDetailScreenFragment">
         <action
             android:id="@+id/action_fragment_web_dav_to_fragment_setup_license"
             app:destination="@id/fragment_setup_license"
@@ -178,14 +157,6 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
-
-        <action
-            android:id="@+id/fragment_add_folder_to_fragment_create_new_folder"
-            app:destination="@id/fragment_create_new_folder"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
     </composable>
 
 
@@ -193,11 +164,6 @@
         android:id="@+id/fragment_browse_folders"
         android:name="net.opendasharchive.openarchive.features.folders.BrowseFoldersFragment"
         tools:layout="@layout/fragment_browse_folders" />
-
-    <fragment
-        android:id="@+id/fragment_create_new_folder"
-        android:name="net.opendasharchive.openarchive.features.folders.CreateNewFolderFragment"
-        tools:layout="@layout/fragment_create_new_folder" />
 
     <fragment
         android:id="@+id/fragment_folders"

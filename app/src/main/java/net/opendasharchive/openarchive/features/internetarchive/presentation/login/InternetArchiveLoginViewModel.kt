@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.internetarchive.domain.usecase.InternetArchiveLoginUseCase
 import net.opendasharchive.openarchive.features.internetarchive.domain.usecase.ValidateLoginCredentialsUseCase
@@ -81,7 +82,7 @@ class InternetArchiveLoginViewModel(
                 .onSuccess { ia ->
                     _uiState.update { it.copy(isBusy = false) }
 
-                    navigator.navigateTo(AppRoute.SetupLicenseRoute(spaceId = space.id, spaceType = Space.Type.INTERNET_ARCHIVE))
+                    navigator.navigateTo(AppRoute.SetupLicenseRoute(spaceId = space.id, spaceType = VaultType.INTERNET_ARCHIVE))
                 }
                 .onFailure { error ->
                     _uiState.update { it.copy(isLoginError = true, isUsernameError = true, isPasswordError = true, isBusy = false) }

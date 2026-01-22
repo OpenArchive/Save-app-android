@@ -37,9 +37,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.domain.Archive
+import net.opendasharchive.openarchive.core.domain.Vault
+import net.opendasharchive.openarchive.core.domain.VaultType
+import net.opendasharchive.openarchive.core.domain.mappers.toDomain
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultBoxPreview
-import net.opendasharchive.openarchive.db.Project
-import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.db.dummyProjectList
 import net.opendasharchive.openarchive.db.dummySpaceList
 import net.opendasharchive.openarchive.features.core.Accordion
@@ -48,13 +50,13 @@ import net.opendasharchive.openarchive.features.core.rememberAccordionState
 
 @Composable
 fun MainDrawerContent(
-    selectedSpace: Space? = null,
-    spaceList: List<Space> = emptyList(),
-    projects: List<Project> = emptyList(),
-    selectedProject: Project? = null,
-    onProjectSelected: (Project) -> Unit = {},
+    selectedSpace: Vault? = null,
+    spaceList: List<Vault> = emptyList(),
+    projects: List<Archive> = emptyList(),
+    selectedProject: Archive? = null,
+    onProjectSelected: (Archive) -> Unit = {},
     onAddNewFolderClicked: () -> Unit = {},
-    onSpaceSelected: (Space) -> Unit,
+    onSpaceSelected: (Long) -> Unit,
     onAddNewSpaceClicked: () -> Unit,
 ) {
 
@@ -78,7 +80,7 @@ fun MainDrawerContent(
                 spaceList = spaceList,
                 onSpaceSelected = { selectedSpace ->
                     serverAccordionState.collapse()
-                    onSpaceSelected(selectedSpace)
+                    onSpaceSelected(selectedSpace.id)
                 },
                 onAddAnotherAccountClicked = onAddNewSpaceClicked
             )
@@ -110,7 +112,7 @@ fun MainDrawerContent(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             SpaceIcon(
-                                type = space.tType,
+                                type = space.type,
                                 modifier = Modifier.size(24.dp)
                             )
                             Text(
@@ -174,9 +176,9 @@ fun MainDrawerContent(
 
 @Composable
 private fun SpaceListItem(
-    space: Space,
+    space: Vault,
     isSelected: Boolean,
-    onSpaceSelected: (Space) -> Unit
+    onSpaceSelected: (Vault) -> Unit
 ) {
     val backgroundColor =
         if (isSelected) colorResource(R.color.colorTertiary) else colorResource(R.color.colorDrawerSpaceListBackground)
@@ -193,7 +195,7 @@ private fun SpaceListItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         SpaceIcon(
-            type = space.tType,
+            type = space.type,
             modifier = Modifier.size(24.dp),
             tint = colorResource(R.color.colorOnBackground)
         )
@@ -208,9 +210,9 @@ private fun SpaceListItem(
 
 @Composable
 private fun FolderItem(
-    project: Project,
+    project: Archive,
     isSelected: Boolean,
-    onProjectSelected: (Project) -> Unit
+    onProjectSelected: (Archive) -> Unit
 ) {
     val iconRes =
         if (isSelected) R.drawable.baseline_folder_white_24 else R.drawable.outline_folder_white_24
@@ -246,10 +248,10 @@ private fun FolderItem(
 private fun MainDrawerContentPreview() {
     DefaultBoxPreview {
         MainDrawerContent(
-            spaceList = dummySpaceList,
-            selectedSpace = dummySpaceList.first(),
-            projects = dummyProjectList,
-            selectedProject = dummyProjectList.first(),
+            spaceList = dummySpaceList.map { it.toDomain() },
+            selectedSpace = dummySpaceList.first().toDomain(),
+            projects = dummyProjectList.map { it.toDomain() },
+            selectedProject = dummyProjectList.first().toDomain(),
             onProjectSelected = {},
             onAddNewFolderClicked = {},
             onSpaceSelected = {},
@@ -261,9 +263,9 @@ private fun MainDrawerContentPreview() {
 @Composable
 fun ExpandableSpaceList(
     serverAccordionState: AccordionState,
-    selectedSpace: Space? = null,
-    spaceList: List<Space>,
-    onSpaceSelected: (Space) -> Unit,
+    selectedSpace: Vault? = null,
+    spaceList: List<Vault>,
+    onSpaceSelected: (Vault) -> Unit,
     onAddAnotherAccountClicked: () -> Unit,
 ) {
     Accordion(
@@ -322,9 +324,9 @@ fun ExpandableSpaceList(
 
 @Composable
 private fun DrawerSpaceListItem(
-    space: Space,
+    space: Vault,
     isSelected: Boolean,
-    onSpaceSelected: (Space) -> Unit
+    onSpaceSelected: (Vault) -> Unit
 ) {
     val backgroundColor =
         if (isSelected) colorResource(R.color.colorTertiary) else colorResource(R.color.colorDrawerSpaceListBackground)
@@ -341,7 +343,7 @@ private fun DrawerSpaceListItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         SpaceIcon(
-            type = space.tType,
+            type = space.type,
             modifier = Modifier.size(24.dp),
             tint = colorResource(R.color.colorOnBackground)
         )
@@ -382,14 +384,14 @@ private fun AddAnotherAccountItem(
 
 @Composable
 fun SpaceIcon(
-    type: Space.Type,
+    type: VaultType,
     modifier: Modifier = Modifier,
     tint: Color? = null
 ) {
     val icon = when (type) {
-        Space.Type.WEBDAV -> painterResource(R.drawable.ic_space_private_server)
-        Space.Type.INTERNET_ARCHIVE -> painterResource(R.drawable.ic_space_interent_archive)
-        Space.Type.RAVEN -> painterResource(R.drawable.ic_space_dweb)
+        VaultType.PRIVATE_SERVER -> painterResource(R.drawable.ic_space_private_server)
+        VaultType.INTERNET_ARCHIVE -> painterResource(R.drawable.ic_space_interent_archive)
+        VaultType.DWEB_STORAGE -> painterResource(R.drawable.ic_space_dweb)
     }
     Icon(
         modifier = modifier,
@@ -408,8 +410,8 @@ private fun ExpandableSpaceListPreview() {
 
     DefaultBoxPreview {
         ExpandableSpaceList(
-            selectedSpace = dummySpaceList[1],
-            spaceList = dummySpaceList,
+            selectedSpace = dummySpaceList[1].toDomain(),
+            spaceList = dummySpaceList.map { it.toDomain() },
             serverAccordionState = state,
             onSpaceSelected = {},
             onAddAnotherAccountClicked = {}

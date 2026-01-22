@@ -20,7 +20,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SpaceSetupFragment : BaseFragment() {
 
-    private val appConfig by inject<AppConfig>()
     private val viewModel: SpaceSetupViewModel by viewModel()
 
     override fun onCreateView(

@@ -97,7 +97,7 @@ class BrowseFoldersFragment : BaseFragment(), MenuProvider {
         }
 
         val space = Space.current
-        if (space != null) mViewModel.getFiles(space)
+        //if (space != null) mViewModel.getFiles(space)
 
         mViewModel.folders.observe(viewLifecycleOwner) {
             binding.projectsEmpty.toggle(it.isEmpty())
@@ -133,7 +133,6 @@ class BrowseFoldersFragment : BaseFragment(), MenuProvider {
     }
 
     private fun showFolderCreated(projectId: Long) {
-
         dialogManager.showSuccessDialog(
             title = R.string.label_success_title,
             message = R.string.create_folder_ok_message,

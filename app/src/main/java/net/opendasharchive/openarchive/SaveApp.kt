@@ -26,7 +26,6 @@ import net.opendasharchive.openarchive.core.di.passcodeModule
 import net.opendasharchive.openarchive.core.di.retrofitModule
 import net.opendasharchive.openarchive.core.di.unixSocketModule
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.db.DatabaseSeeder
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeManager
 import net.opendasharchive.openarchive.util.Prefs
 import org.koin.android.ext.koin.androidContext

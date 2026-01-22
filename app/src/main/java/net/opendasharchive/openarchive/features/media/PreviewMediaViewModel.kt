@@ -2,19 +2,16 @@ package net.opendasharchive.openarchive.features.media
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.db.Project
+import net.opendasharchive.openarchive.core.domain.Archive
+import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.features.core.UiColor
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.asUiImage
@@ -22,22 +19,22 @@ import net.opendasharchive.openarchive.features.core.asUiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
-import net.opendasharchive.openarchive.features.main.data.MediaRepository
-import net.opendasharchive.openarchive.features.main.data.ProjectRepository
+import net.opendasharchive.openarchive.core.repositories.MediaRepository
+import net.opendasharchive.openarchive.core.repositories.ProjectRepository
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.upload.UploadJobScheduler
 
 data class PreviewMediaState(
-    val mediaList: List<Media> = emptyList(),
+    val mediaList: List<Evidence> = emptyList(),
     val isLoading: Boolean = true,
     val selectionCount: Int = 0,
     val showAddMore: Boolean = false,
     val selectedIds: Set<Long> = emptySet(),
     val showContentPicker: Boolean = false,
     val selectedProjectId: Long? = null,
-    val selectedProject: Project? = null
+    val selectedProject: Archive? = null
 ) {
     val isInSelectionMode: Boolean
         get() = selectedIds.isNotEmpty()
@@ -97,16 +94,11 @@ class PreviewMediaViewModel(
 
     private fun loadProjectMedia() = viewModelScope.launch {
 
+        val media = mediaRepository.getLocalMedia()
 
-        val media = withContext(Dispatchers.IO) {
-            val items = Media.getByStatus(listOf(Media.Status.Local), Media.ORDER_CREATED)
-            items.forEach { // Are we storing selected state in media table?
-                if (it.selected) {
-                    it.selected = false
-                    it.save()
-                }
-            }
-            items
+        // Clear any lingering selection in the DB for these items
+        media.filter { it.isSelected }.forEach {
+            mediaRepository.setSelected(it.id, false)
         }
 
         val project = projectRepository.getProject(route.projectId)
@@ -116,7 +108,7 @@ class PreviewMediaViewModel(
                 mediaList = media,
                 isLoading = false,
                 selectionCount = 0,
-                showAddMore = Project.getById(route.projectId) != null,
+                showAddMore = project != null,
                 selectedIds = emptySet(),
                 selectedProjectId = route.projectId,
                 selectedProject = project
@@ -136,11 +128,13 @@ class PreviewMediaViewModel(
         } else {
 
             viewModelScope.launch {
-                navigator.navigateTo(AppRoute.ReviewMediaRoute(
-                    mediaIds = currentState.mediaList.mapNotNull { it.id }.toLongArray(),
-                    selectedIdx = currentState.mediaList.indexOf(media),
-                    batchMode = false
-                ))
+                navigator.navigateTo(
+                    AppRoute.ReviewMediaRoute(
+                        mediaIds = currentState.mediaList.mapNotNull { it.id }.toLongArray(),
+                        selectedIdx = currentState.mediaList.indexOf(media),
+                        batchMode = false
+                    )
+                )
             }
         }
     }
@@ -187,20 +181,21 @@ class PreviewMediaViewModel(
             val mediaForReview = if (batchMode) selected else current.mediaList
             val selectedMedia = if (batchMode) null else selected.firstOrNull()
 
-            navigator.navigateTo(AppRoute.ReviewMediaRoute(
-                mediaIds = mediaForReview.mapNotNull { it.id }.toLongArray(),
-                selectedIdx = mediaForReview.indexOf(selectedMedia),
-                batchMode = batchMode
-            ))
+            navigator.navigateTo(
+                AppRoute.ReviewMediaRoute(
+                    mediaIds = mediaForReview.mapNotNull { it.id }.toLongArray(),
+                    selectedIdx = mediaForReview.indexOf(selectedMedia),
+                    batchMode = batchMode
+                )
+            )
         }
     }
 
     private fun handleRemoveSelected() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                val selectedIds = _uiState.value.selectedIds
-                _uiState.value.mediaList.filter { selectedIds.contains(it.id) }
-                    .forEach { it.delete() }
+            val selectedIds = _uiState.value.selectedIds.toList()
+            selectedIds.forEach { id ->
+                mediaRepository.deleteMedia(id)
             }
             loadProjectMedia()
         }
@@ -238,13 +233,8 @@ class PreviewMediaViewModel(
 
     private fun handleUploadAll() {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                _uiState.value.mediaList.forEach {
-                    it.sStatus = Media.Status.Queued
-                    it.selected = false
-                    it.save()
-                }
-            }
+            val mediaIds = _uiState.value.mediaList.map { it.id }
+            mediaRepository.queueAllForUpload(mediaIds)
             uploadJobScheduler.schedule()
             navigator.navigateAndClear(AppRoute.HomeRoute)
         }

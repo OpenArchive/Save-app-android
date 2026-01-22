@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
@@ -32,6 +32,7 @@ sealed interface SpaceSetupEvent {
 class SpaceSetupViewModel(
     private val appConfig: AppConfig,
     private val navigator: Navigator,
+    private val spaceRepository: SpaceRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SpaceSetupState())
@@ -45,11 +46,14 @@ class SpaceSetupViewModel(
     }
 
     private fun loadInitialState() {
-        _uiState.update {
-            it.copy(
-                isInternetArchiveAllowed = !Space.has(Space.Type.INTERNET_ARCHIVE),
-                isDwebEnabled = appConfig.isDwebEnabled
-            )
+        viewModelScope.launch {
+            val hasInternetArchive = spaceRepository.getSpaces().any { it.name == "Internet Archive" }
+            _uiState.update {
+                it.copy(
+                    isInternetArchiveAllowed = !hasInternetArchive,
+                    isDwebEnabled = appConfig.isDwebEnabled
+                )
+            }
         }
     }
 
@@ -61,12 +65,14 @@ class SpaceSetupViewModel(
                     //_events.send(SpaceSetupEvent.NavigateToWebDav)
                 }
             }
+
             SpaceSetupAction.InternetArchiveClicked -> {
                 viewModelScope.launch {
                     navigator.navigateTo(AppRoute.IALoginRoute)
                     //_events.send(SpaceSetupEvent.NavigateToInternetArchive)
                 }
             }
+
             SpaceSetupAction.DwebClicked -> {
                 viewModelScope.launch {
                     _events.send(SpaceSetupEvent.NavigateToDweb)

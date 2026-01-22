@@ -9,10 +9,20 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.opendasharchive.openarchive.db.Project
-import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.domain.Archive
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.core.UiText
-import java.util.Date
+import net.opendasharchive.openarchive.core.repositories.ProjectRepository
+import net.opendasharchive.openarchive.core.repositories.SpaceRepository
+import net.opendasharchive.openarchive.features.core.UiImage
+import net.opendasharchive.openarchive.features.core.dialog.ButtonData
+import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showSuccessDialog
+import net.opendasharchive.openarchive.features.main.ui.Navigator
+import net.opendasharchive.openarchive.util.DateUtils
 
 data class CreateNewFolderState(
     val folderName: String = "",
@@ -24,13 +34,15 @@ data class CreateNewFolderState(
     val requireShareAlike: Boolean = false,
     val allowCommercial: Boolean = false,
     val cc0Enabled: Boolean = false,
-    val licenseUrl: String? = null
+    val licenseUrl: String? = null,
+    val isSaving: Boolean = false
 )
 
 sealed interface CreateNewFolderAction {
     data class UpdateFolderName(val name: String) : CreateNewFolderAction
     data object CreateFolder : CreateNewFolderAction
     data object Cancel : CreateNewFolderAction
+
     // Creative Commons License actions
     data class UpdateCcEnabled(val enabled: Boolean) : CreateNewFolderAction
     data class UpdateAllowRemix(val allowed: Boolean) : CreateNewFolderAction
@@ -40,16 +52,18 @@ sealed interface CreateNewFolderAction {
 }
 
 sealed interface CreateNewFolderEvent {
-    data class NavigateBackWithResult(val projectId: Long) : CreateNewFolderEvent
-    data class ShowSuccessDialog(val projectId: Long) : CreateNewFolderEvent
-    data object NavigateBackCanceled : CreateNewFolderEvent
     data class ShowError(val message: UiText) : CreateNewFolderEvent
 }
 
-class CreateNewFolderViewModel : ViewModel() {
+class CreateNewFolderViewModel(
+    private val navigator: Navigator,
+    private val dialogManager: DialogStateManager,
+    private val spaceRepository: SpaceRepository,
+    private val projectRepository: ProjectRepository,
+) : ViewModel() {
 
     companion object {
-        private const val SPECIAL_CHARS = ".*[\\\\/*\\s]"
+        private val INVALID_CHARS = Regex("[\\\\/*\\s]")
     }
 
     private val _uiState = MutableStateFlow(CreateNewFolderState())
@@ -74,11 +88,7 @@ class CreateNewFolderViewModel : ViewModel() {
                 createFolder()
             }
 
-            is CreateNewFolderAction.Cancel -> {
-                viewModelScope.launch {
-                    _events.send(CreateNewFolderEvent.NavigateBackCanceled)
-                }
-            }
+            is CreateNewFolderAction.Cancel -> navigator.navigateBack()
 
             is CreateNewFolderAction.UpdateCcEnabled -> {
                 _uiState.update { currentState ->
@@ -159,43 +169,61 @@ class CreateNewFolderViewModel : ViewModel() {
 
     private fun createFolder() {
         val name = _uiState.value.folderName.trim()
+        if (name.isBlank() || _uiState.value.isSaving) return
+        if (_uiState.value.isSaving) return
 
-        if (name.isBlank()) {
-            return
-        }
-
-        if (name.matches(SPECIAL_CHARS.toRegex())) {
-            viewModelScope.launch {
-                _events.send(
-                    CreateNewFolderEvent.ShowError(
-                        UiText.Resource(net.opendasharchive.openarchive.R.string.please_do_not_include_special_characters_in_the_name)
-                    )
-                )
-            }
-            return
-        }
-
-        val space = Space.current ?: return
-
-        if (space.hasProject(name)) {
-            viewModelScope.launch {
-                _events.send(
-                    CreateNewFolderEvent.ShowError(
-                        UiText.Resource(net.opendasharchive.openarchive.R.string.folder_name_already_exists)
-                    )
-                )
-            }
-            return
-        }
-
-        val license = _uiState.value.licenseUrl ?: space.license
-
-        val project = Project(name, Date(), space.id, licenseUrl = license)
-        project.save()
+        // mark saving NOW to close the race window
+        _uiState.update { it.copy(isSaving = true) }
 
         viewModelScope.launch {
-            _events.send(CreateNewFolderEvent.ShowSuccessDialog(project.id))
+
+            try {
+
+                if (INVALID_CHARS.containsMatchIn(name)) {
+                    _events.send(CreateNewFolderEvent.ShowError(UiText.Resource(R.string.please_do_not_include_special_characters_in_the_name)))
+                    return@launch
+                }
+
+                val space = spaceRepository.getCurrentSpace() ?: return@launch
+
+                if (projectRepository.getProjectByName(space.id, name) != null) {
+                    _events.send(CreateNewFolderEvent.ShowError(UiText.Resource(R.string.folder_name_already_exists)))
+                    return@launch
+                }
+
+                val license = _uiState.value.licenseUrl ?: space.licenseUrl
+
+                val archive = Archive(
+                    description = name,
+                    created = DateUtils.nowDateTime,
+                    vaultId = space.id,
+                    licenseUrl = license
+                )
+
+                val projectId = projectRepository.addProject(archive)
+                AppLogger.i("Created new project with id $projectId")
+                showFolderCreatedDialog()
+
+            } finally {
+                _uiState.update { it.copy(isSaving = false) }
+            }
         }
+    }
+
+    private fun showFolderCreatedDialog() {
+        dialogManager.showDialog(
+            DialogConfig(
+                type = DialogType.Success,
+                title = UiText.Resource(R.string.label_success_title),
+                message = UiText.Resource(R.string.create_folder_ok_message),
+                icon = UiImage.DrawableResource(R.drawable.ic_done),
+                positiveButton = ButtonData(
+                    text = UiText.Resource(R.string.label_got_it),
+                    action = { navigator.navigateBack() }
+                ),
+                onDismissAction = { navigator.navigateBack() }
+            )
+        )
     }
 
     private fun generateAndUpdateLicense() {
@@ -235,11 +263,5 @@ class CreateNewFolderViewModel : ViewModel() {
 
         val suffix = if (parts.isEmpty()) "" else "-${parts.joinToString("-")}"
         return "https://creativecommons.org/licenses/by$suffix/4.0/"
-    }
-
-    fun navigateBackWithResult(projectId: Long) {
-        viewModelScope.launch {
-            _events.send(CreateNewFolderEvent.NavigateBackWithResult(projectId))
-        }
     }
 }

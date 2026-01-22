@@ -6,15 +6,17 @@ import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.db.Media
+import net.opendasharchive.openarchive.core.domain.Evidence
+import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.services.Conduit
 import net.opendasharchive.openarchive.services.SaveClient
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import java.io.File
 import java.io.IOException
+import androidx.core.net.toUri
 
-class IaConduit(media: Media, context: Context) : Conduit(media, context) {
+class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, context) {
 
 
     companion object {
@@ -37,28 +39,29 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
         sanitize()
 
         try {
-            val mimeType = mMedia.mimeType
+            val vault = spaceRepository.getSpaceById(mEvidence.vaultId) ?: return false
+            val mimeType = mEvidence.mimeType
 
             val client = SaveClient.get(mContext)
 
-            val fileName = getUploadFileName(mMedia, true)
-            val metaJson = gson.toJson(mMedia)
+            val fileName = getUploadFileName(mEvidence, true)
+            val metaJson = gson.toJson(mEvidence)
             // Commenting out proof generation - 17th April 2025
             // val proof = getProof()
 
-            if (mMedia.serverUrl.isBlank()) {
+            if (mEvidence.serverUrl.isBlank()) {
                 // TODO this should make sure we aren't accidentally using one of archive.org's metadata fields by accident
-                val slug = getSlug(mMedia.title)
+                val slug = getSlug(mEvidence.title)
                 val newIdentifier = "$slug-${Util.RandomString(4).nextString()}"
                 // create an identifier for the upload
-                mMedia.serverUrl = newIdentifier
+                mEvidence = mEvidence.copy(serverUrl = newIdentifier)
             }
 
             // upload content synchronously for progress
-            client.uploadContent(fileName, mimeType)
+            client.uploadContent(fileName, mimeType, vault)
 
             // upload metadata and proofs async, and report failures
-            client.uploadMetaData(metaJson, fileName)
+            client.uploadMetaData(metaJson, fileName, vault)
 
             // Commenting out proof generation - 17th April 2025
             // Upload ProofMode metadata, if enabled and successfully created.
@@ -80,15 +83,15 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
         // Ignored. Not used here.
     }
 
-    private suspend fun OkHttpClient.uploadContent(fileName: String, mimeType: String) {
-        val mediaUri = mMedia.originalFilePath
+    private suspend fun OkHttpClient.uploadContent(fileName: String, mimeType: String, vault: Vault) {
+        val mediaUri = mEvidence.originalFilePath
 
-        val url = "${ARCHIVE_API_ENDPOINT}/${mMedia.serverUrl}/$fileName"
+        val url = "${ARCHIVE_API_ENDPOINT}/${mEvidence.serverUrl}/$fileName"
 
         val requestBody = RequestBodyUtil.create(
             mContext.contentResolver,
-            Uri.parse(mediaUri),
-            mMedia.contentLength,
+            mediaUri.toUri(),
+            mEvidence.contentLength,
             mimeType.toMediaTypeOrNull(),
             createListener(
                 cancellable = { !mCancelled },
@@ -101,14 +104,14 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
         val request = Request.Builder()
             .url(url)
             .put(requestBody)
-            .headers(mainHeader())
+            .headers(mainHeader(vault))
             .build()
 
         execute(request)
     }
 
     @Throws(IOException::class)
-    private fun OkHttpClient.uploadMetaData(content: String, fileName: String) {
+    private fun OkHttpClient.uploadMetaData(content: String, fileName: String, vault: Vault) {
         val requestBody = RequestBodyUtil.create(
             textMediaType,
             content.byteInputStream(),
@@ -116,12 +119,12 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
             createListener(cancellable = { !mCancelled })
         )
 
-        val url = "${ARCHIVE_API_ENDPOINT}/${mMedia.serverUrl}/$fileName.meta.json"
+        val url = "${ARCHIVE_API_ENDPOINT}/${mEvidence.serverUrl}/$fileName.meta.json"
 
         val request = Request.Builder()
             .url(url)
             .put(requestBody)
-            .headers(metadataHeader())
+            .headers(metadataHeader(vault))
             .build()
 
         enqueue(request)
@@ -129,7 +132,7 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
 
     /// upload proof mode
     @Throws(IOException::class)
-    private fun OkHttpClient.uploadProofFiles(uploadFile: File) {
+    private fun OkHttpClient.uploadProofFiles(uploadFile: File, vault: Vault) {
         val requestBody = RequestBodyUtil.create(
             mContext.contentResolver,
             Uri.fromFile(uploadFile),
@@ -137,73 +140,73 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
             textMediaType, createListener(cancellable = { !mCancelled })
         )
 
-        val url = "$ARCHIVE_API_ENDPOINT/${mMedia.serverUrl}/${uploadFile.name}"
+        val url = "$ARCHIVE_API_ENDPOINT/${mEvidence.serverUrl}/${uploadFile.name}"
 
         val request = Request.Builder()
             .url(url)
             .put(requestBody)
-            .headers(metadataHeader())
+            .headers(metadataHeader(vault))
             .build()
 
         enqueue(request)
     }
 
-    private fun mainHeader(): Headers {
+    private fun mainHeader(vault: Vault): Headers {
         val builder = Headers.Builder()
             .add("Accept", "*/*")
             .add("x-archive-auto-make-bucket", "1")
             .add("x-amz-auto-make-bucket", "1")
             .add("x-archive-interactive-priority", "1")
             .add("x-archive-meta-language", "eng") // FIXME set based on locale or selected.
-            .add("Authorization", "LOW " + mMedia.space?.username + ":" + mMedia.space?.password)
+            .add("Authorization", "LOW " + vault.username + ":" + vault.password)
 
-        val author = mMedia.author
+        val author = mEvidence.author
         if (author.isNotEmpty()) {
             builder.add("x-archive-meta-author", author)
         }
 
-        if (mMedia.contentLength > 0) {
-            builder.add("x-archive-size-hint", mMedia.contentLength.toString())
+        if (mEvidence.contentLength > 0) {
+            builder.add("x-archive-size-hint", mEvidence.contentLength.toString())
         }
 
         val collection = when {
-            mMedia.mimeType.startsWith("video") -> "opensource_movies"
-            mMedia.mimeType.startsWith("audio") -> "opensource_audio"
+            mEvidence.mimeType.startsWith("video") -> "opensource_movies"
+            mEvidence.mimeType.startsWith("audio") -> "opensource_audio"
             else -> "opensource_media"
         }
         builder.add("x-archive-meta-collection", collection)
 
-        if (mMedia.mimeType.isNotEmpty()) {
+        if (mEvidence.mimeType.isNotEmpty()) {
             val mediaType = when {
-                mMedia.mimeType.startsWith("image") -> "image"
-                mMedia.mimeType.startsWith("video") -> "movies"
-                mMedia.mimeType.startsWith("audio") -> "audio"
+                mEvidence.mimeType.startsWith("image") -> "image"
+                mEvidence.mimeType.startsWith("video") -> "movies"
+                mEvidence.mimeType.startsWith("audio") -> "audio"
                 else -> "data"
             }
             builder.add("x-archive-meta-mediatype", mediaType)
         }
 
-        if (mMedia.location.isNotEmpty()) {
-            builder.add("x-archive-meta-location", sanitizeHeaderValue(mMedia.location))
+        if (mEvidence.location.isNotEmpty()) {
+            builder.add("x-archive-meta-location", sanitizeHeaderValue(mEvidence.location))
         }
 
-        if (mMedia.tags.isNotEmpty()) {
-            val tags = mMedia.tagSet
+        if (mEvidence.tags.isNotEmpty()) {
+            val tags = mEvidence.tags.toMutableList()
             tags.add(mContext.getString(R.string.default_tags))
-            mMedia.tagSet = tags
+            mEvidence = mEvidence.copy(tags = tags)
 
-            builder.add("x-archive-meta-subject", mMedia.tags)
+            builder.add("x-archive-meta-subject", tags.joinToString(","))
         }
 
-        if (mMedia.description.isNotEmpty()) {
-            builder.add("x-archive-meta-description", sanitizeHeaderValue(mMedia.description))
+        if (mEvidence.description.isNotEmpty()) {
+            builder.add("x-archive-meta-description", sanitizeHeaderValue(mEvidence.description))
         }
 
-        if (mMedia.title.isNotEmpty()) {
-            builder.add("x-archive-meta-title", mMedia.title)
+        if (mEvidence.title.isNotEmpty()) {
+            builder.add("x-archive-meta-title", mEvidence.title)
         }
 
-        var licenseUrl = mMedia.licenseUrl
+        var licenseUrl = mEvidence.licenseUrl
 
         if (licenseUrl.isNullOrEmpty()) {
             licenseUrl = "https://creativecommons.org/licenses/by/4.0/"
@@ -215,11 +218,11 @@ class IaConduit(media: Media, context: Context) : Conduit(media, context) {
     }
 
     /// headers for meta-data and proof mode
-    private fun metadataHeader(): Headers {
+    private fun metadataHeader(vault: Vault): Headers {
         return Headers.Builder()
             .add("x-amz-auto-make-bucket", "1")
             .add("x-archive-meta-language", "eng") // TODO: FIXME set based on locale or selected
-            .add("Authorization", "LOW " + mMedia.space?.username + ":" + mMedia.space?.password)
+            .add("Authorization", "LOW " + vault.username + ":" + vault.password)
             .add("x-archive-meta-mediatype", "texts")
             .add("x-archive-meta-collection", "opensource")
             .build()

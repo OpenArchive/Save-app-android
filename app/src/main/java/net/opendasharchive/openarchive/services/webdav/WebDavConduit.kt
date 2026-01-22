@@ -4,34 +4,33 @@ import android.content.Context
 import com.thegrizzlylabs.sardineandroid.SardineListener
 import com.thegrizzlylabs.sardineandroid.impl.OkHttpSardine
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.db.Media
+import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.services.Conduit
 import net.opendasharchive.openarchive.services.SaveClient
 import okhttp3.HttpUrl
 import java.io.IOException
 
 
-class WebDavConduit(media: Media, context: Context) : Conduit(media, context) {
+class WebDavConduit(evidence: Evidence, context: Context) : Conduit(evidence, context) {
 
     private lateinit var mClient: OkHttpSardine
 
     override suspend fun upload(): Boolean {
-        val space = mMedia.space ?: return false
-        val base = space.hostUrl ?: return false
+        val vault = spaceRepository.getSpaceById(mEvidence.vaultId) ?: return false
+        val base = vault.hostUrl ?: return false
         val path = getPath() ?: return false
 
-        mClient = SaveClient.getSardine(mContext, space)
+        mClient = SaveClient.getSardine(mContext, vault.username, vault.password)
 
         sanitize()
 
-        val fileName = getUploadFileName(mMedia)
+        val fileName = getUploadFileName(mEvidence)
 
         try {
             createFolders(base, path)
 
             uploadMetadata(base, path, fileName)
-        }
-        catch (e: Throwable) {
+        } catch (e: Throwable) {
             jobFailed(e)
 
             return false
@@ -42,7 +41,7 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context) {
 //        }
 
         AppLogger.i("Begin media file upload...")
-        if (mMedia.contentLength > CHUNK_FILESIZE_THRESHOLD) {
+        if (mEvidence.contentLength > CHUNK_FILESIZE_THRESHOLD) {
             return uploadChunked(base, path, fileName)
         }
 
@@ -50,11 +49,12 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context) {
         AppLogger.i("Uploading started for single file upload...", "filePath: $fullPath")
 
         try {
-            mClient.put(mContext.contentResolver,
+            mClient.put(
+                mContext.contentResolver,
                 fullPath,
-                mMedia.fileUri,
-                mMedia.contentLength,
-                mMedia.mimeType,
+                mEvidence.fileUri,
+                mEvidence.contentLength,
+                mEvidence.mimeType,
                 false,
                 object : SardineListener {
                     var lastBytes: Long = 0
@@ -64,22 +64,21 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context) {
                             jobProgress(bytes)
                             lastBytes = bytes
                         }
-                        AppLogger.i("Bytes transferred for for ${mMedia.id}: ", "$bytes")
+                        AppLogger.i("Bytes transferred for for ${mEvidence.id}: ", "$bytes")
                     }
 
                     override fun continueUpload(): Boolean {
-                        AppLogger.i("Should continue upload for ${mMedia.id}?", "$mCancelled")
+                        AppLogger.i("Should continue upload for ${mEvidence.id}?", "$mCancelled")
                         return !mCancelled
                     }
                 })
-        }
-        catch (e: Throwable) {
+        } catch (e: Throwable) {
             jobFailed(e)
 
             return false
         }
 
-        mMedia.serverUrl = fullPath
+        mEvidence = mEvidence.copy(serverUrl = fullPath)
         jobSucceeded()
 
         return true
@@ -96,8 +95,8 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context) {
     @Throws(IOException::class)
     private suspend fun uploadChunked(base: HttpUrl, path: List<String>, fileName: String): Boolean {
         AppLogger.i("Uploading started as chunked upload...")
-        val space = mMedia.space ?: return false
-        val url = space.hostUrl ?: return false
+        val vault = spaceRepository.getSpaceById(mEvidence.vaultId) ?: return false
+        val url = vault.hostUrl ?: return false
 
         val tmpBase = HttpUrl.Builder()
             .scheme(url.scheme)
@@ -111,7 +110,7 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context) {
             .addPathSegment("dav")
             .build()
 
-        val tmpPath = listOf("uploads", space.username, fileName)
+        val tmpPath = listOf("uploads", vault.username, fileName)
 
         return try {
             createFolders(tmpBase, tmpPath)
@@ -121,8 +120,8 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context) {
 
             var offset = 0
 
-            mMedia.file.inputStream().use { inputStream ->
-                while (!mCancelled && offset < mMedia.contentLength) {
+            mEvidence.file.inputStream().use { inputStream ->
+                while (!mCancelled && offset < mEvidence.contentLength) {
                     var buffer = ByteArray(CHUNK_SIZE.toInt())
 
                     val length = inputStream.read(buffer)
@@ -147,7 +146,7 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context) {
                         mClient.put(
                             chunkPath,
                             buffer,
-                            mMedia.mimeType,
+                            mEvidence.mimeType,
                             object : SardineListener {
                                 override fun transferred(bytes: Long) {
                                     jobProgress(offset.toLong() + bytes)
@@ -166,18 +165,17 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context) {
 
             if (mCancelled) throw Exception("Cancelled")
 
-            val dest = mutableListOf("files", space.username)
+            val dest = mutableListOf("files", vault.username)
             dest.addAll(path)
 
             mClient.move(construct(tmpBase, tmpPath, ".file"), construct(tmpBase, dest, fileName))
 
-            mMedia.serverUrl = construct(base, path, fileName)
+            mEvidence = mEvidence.copy(serverUrl = construct(base, path, fileName))
 
             jobSucceeded()
 
             true
-        }
-        catch (e: Throwable) {
+        } catch (e: Throwable) {
             jobFailed(e)
 
             false
@@ -203,7 +201,8 @@ class WebDavConduit(media: Media, context: Context) : Conduit(media, context) {
 
             mClient.put(
                 construct(base, path, file.name), file, "text/plain",
-                false, null)
+                false, null
+            )
         }
     }
 }

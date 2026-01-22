@@ -16,9 +16,12 @@ import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.opendasharchive.openarchive.core.domain.Archive
+import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.db.Project
+import net.opendasharchive.openarchive.core.repositories.ProjectRepository
+import net.opendasharchive.openarchive.core.repositories.MediaRepository
+import org.koin.compose.koinInject
 import net.opendasharchive.openarchive.features.media.camera.CameraActivity
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.util.Prefs
@@ -35,14 +38,17 @@ data class ContentPickerLaunchers(
 @Composable
 fun rememberContentPickerLaunchers(
     useCustomCamera: Boolean = true,
-    projectProvider: () -> Project?,
+    projectProvider: () -> Archive?,
     onError: (String) -> Unit,
-    onMediaImported: (List<Media>) -> Unit,
+    onMediaImported: (List<Evidence>) -> Unit,
 ): ContentPickerLaunchers {
 
     val context = LocalContext.current
     val activity = context as Activity
     val scope = rememberCoroutineScope()
+
+    val projectRepository: ProjectRepository = koinInject()
+    val mediaRepository: MediaRepository = koinInject()
 
     var isProcessing by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -60,14 +66,18 @@ fun rememberContentPickerLaunchers(
             isProcessing = true
             errorMessage = null
             try {
-                val project = projectProvider() ?: run {
+                val archive = projectProvider() ?: run {
                     onError("Project provider returned null")
                     return@launch
                 }
-                val mediaList = withContext(Dispatchers.IO) {
-                    Picker.import(context, project, uris, generateProof = Prefs.useProofMode)
+                val submission = projectRepository.getActiveSubmission(archive.id)
+                val evidenceList = withContext(Dispatchers.IO) {
+                    MediaPicker.import(context, archive, submission.id, uris, generateProof = Prefs.useProofMode)
                 }
-                onMediaImported(mediaList)
+                evidenceList.forEach { evidence ->
+                    mediaRepository.addEvidence(evidence)
+                }
+                onMediaImported(evidenceList)
             } catch (e: CancellationException) {
                 // ignore
                 AppLogger.i("ContentPickerLauncher: Gallery import cancelled", e)
@@ -89,17 +99,21 @@ fun rememberContentPickerLaunchers(
             isProcessing = true
             errorMessage = null
             try {
-                val project = projectProvider()  ?: run {
+                val archive = projectProvider() ?: run {
                     onError("Project provider returned null")
                     return@launch
                 }
-                val media = withContext(Dispatchers.IO) {
+                val submission = projectRepository.getActiveSubmission(archive.id)
+                val evidenceList = withContext(Dispatchers.IO) {
                     // single-URI import
-                    Picker.import(context, project, uri, generateProof = false)
+                    MediaPicker.import(context, archive, submission.id, uri, generateProof = false)
                         ?.let { listOf(it) }
                         ?: emptyList()
                 }
-                onMediaImported(media)
+                evidenceList.forEach { evidence ->
+                    mediaRepository.addEvidence(evidence)
+                }
+                onMediaImported(evidenceList)
             } catch (e: Exception) {
                 errorMessage = "Failed to copy: ${e.localizedMessage}"
             } finally {
@@ -119,17 +133,21 @@ fun rememberContentPickerLaunchers(
             isProcessing = true
             errorMessage = null
             try {
-                val project = projectProvider()  ?: run {
+                val archive = projectProvider() ?: run {
                     onError("Project provider returned null")
                     return@launch
                 }
-                val media = withContext(Dispatchers.IO) {
+                val submission = projectRepository.getActiveSubmission(archive.id)
+                val evidenceList = withContext(Dispatchers.IO) {
                     // For in-app capture we pass generateProof = true (same semantics as Picker.register)
-                    Picker.import(context, project, finalUri, generateProof = true)
+                    MediaPicker.import(context, archive, submission.id, finalUri, generateProof = true)
                         ?.let { listOf(it) }
                         ?: emptyList()
                 }
-                onMediaImported(media)
+                evidenceList.forEach { evidence ->
+                    mediaRepository.addEvidence(evidence)
+                }
+                onMediaImported(evidenceList)
             } catch (e: Exception) {
                 errorMessage = "Camera file processing failed: ${e.localizedMessage}"
             } finally {
@@ -153,15 +171,19 @@ fun rememberContentPickerLaunchers(
             isProcessing = true
             errorMessage = null
             try {
-                val project = projectProvider()  ?: run {
+                val archive = projectProvider() ?: run {
                     onError("Project provider returned null")
                     return@launch
                 }
-                val media = withContext(Dispatchers.IO) {
+                val submission = projectRepository.getActiveSubmission(archive.id)
+                val evidenceList = withContext(Dispatchers.IO) {
                     // Camera capture → generateProof = true (same as Picker.register custom camera)
-                    Picker.import(context, project, uris, generateProof = true)
+                    MediaPicker.import(context, archive, submission.id, uris, generateProof = true)
                 }
-                onMediaImported(media)
+                evidenceList.forEach { evidence ->
+                    mediaRepository.addEvidence(evidence)
+                }
+                onMediaImported(evidenceList)
             } catch (e: Exception) {
                 errorMessage = "Failed to import from camera: ${e.localizedMessage}"
             } finally {

@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.core.navigation.ResultEffect
-import net.opendasharchive.openarchive.features.media.Picker
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.main.ui.components.HomeAppBar
@@ -38,9 +37,17 @@ import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.ContentPickerSheet
 import net.opendasharchive.openarchive.features.media.rememberContentPickerLaunchers
 import net.opendasharchive.openarchive.features.settings.SettingsScreen
+import net.opendasharchive.openarchive.util.rememberComposePermissionManager
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import kotlin.math.max
+import net.opendasharchive.openarchive.core.repositories.ProjectRepository
+import net.opendasharchive.openarchive.core.repositories.MediaRepository
+import org.koin.compose.koinInject
+
+import net.opendasharchive.openarchive.features.main.CheckForInAppUpdates
+import net.opendasharchive.openarchive.features.main.CheckForInAppReview
+import net.opendasharchive.openarchive.features.media.MediaPicker
 
 /**
  * IMPROVED HomeScreen:
@@ -56,42 +63,58 @@ fun HomeScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    // Handle In-App Updates
+    CheckForInAppUpdates(snackbarHostState)
+
+    // Handle In-App Review
+    CheckForInAppReview()
+
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    val projectRepository: ProjectRepository = koinInject()
+    val mediaRepository: MediaRepository = koinInject()
 
     // Content Picker Launchers for Gallery/Files
     // Camera is handled via navigation
     val pickerLaunchers = rememberContentPickerLaunchers(
-        projectProvider = { viewModel.getSelectedProject() },
+        projectProvider = { uiState.projects.firstOrNull { it.id == uiState.selectedProjectId } },
         onError = { message ->
             scope.launch {
                 snackbarHostState.showSnackbar(message)
             }
         },
-        onMediaImported = { mediaList ->
-            // TODO: Handle imported media (refresh, show toast, etc.)
+        onMediaImported = { evidenceList ->
+            // Handle imported media (refresh, show toast, etc.)
             // For now, we'll just reload the projects to refresh media counts
             viewModel.onAction(HomeAction.Reload)
-            viewModel.getSelectedProject()?.id?.let { projectId ->
+            uiState.selectedProjectId?.let { projectId ->
                 viewModel.onAction(HomeAction.MediaImported(projectId))
             }
         }
     )
+    val permissionManager = rememberComposePermissionManager()
 
     // Receive camera capture results from CameraScreen via ResultEventBus
     ResultEffect<CameraCaptureResult>(resultKey = "camera_capture_result") { result ->
         scope.launch(Dispatchers.IO) {
             try {
-                val project = viewModel.getProject(result.projectId)
-                if (project != null && result.capturedUris.isNotEmpty()) {
-                    val mediaList = Picker.import(
+                val archive = projectRepository.getProject(result.projectId)
+                if (archive != null && result.capturedUris.isNotEmpty()) {
+                    val submission = projectRepository.getActiveSubmission(archive.id)
+                    val evidenceList = MediaPicker.import(
                         context,
-                        project,
+                        archive,
+                        submission.id,
                         result.capturedUris,
                         generateProof = Prefs.useProofMode
                     )
+                    evidenceList.forEach { evidence ->
+                        mediaRepository.addEvidence(evidence)
+                    }
                     withContext(Dispatchers.Main) {
-                        snackbarHostState.showSnackbar("${mediaList.size} item(s) imported")
+                        snackbarHostState.showSnackbar("${evidenceList.size} item(s) imported")
                         viewModel.onAction(HomeAction.Reload)
                         viewModel.onAction(HomeAction.MediaImported(result.projectId))
                     }
@@ -107,7 +130,7 @@ fun HomeScreen(
     // Receive space added result to refresh space list after coming from space setup complete screen
     ResultEffect<Boolean>(resultKey = "refresh_spaces") { success ->
         if (success) {
-            viewModel.onAction(HomeAction.Reload)
+            viewModel.onAction(HomeAction.Load)
         }
     }
 
@@ -120,14 +143,19 @@ fun HomeScreen(
                             // Navigate to camera screen
                             viewModel.onAction(HomeAction.NavigateToCamera)
                         }
+
                         AddMediaType.GALLERY -> {
-                            pickerLaunchers.launch(AddMediaType.GALLERY)
+                            permissionManager.checkMediaPermissions {
+                                pickerLaunchers.launch(AddMediaType.GALLERY)
+                            }
                         }
+
                         AddMediaType.FILES -> {
                             pickerLaunchers.launch(AddMediaType.FILES)
                         }
                     }
                 }
+
                 is HomeEvent.NavigateToProject -> Unit
                 is HomeEvent.ShowMessage -> {
                     snackbarHostState.showSnackbar(event.message)
@@ -219,9 +247,9 @@ fun HomeScreenContent(
                                 }
                             }
                         },
-                        onSpaceSelected = { space ->
+                        onSpaceSelected = { spaceId ->
                             scope.launch { drawerState.close() }
-                            onAction(HomeAction.SelectSpace(space.id))
+                            onAction(HomeAction.SelectSpace(spaceId))
                         },
                         onAddNewSpaceClicked = {
                             scope.launch { drawerState.close() }
@@ -321,9 +349,11 @@ fun HomeScreenContent(
                                             is MainMediaProjectEvent.RequestProjectRename -> {
                                                 onAction(HomeAction.RenameProject(event.projectId, event.newName))
                                             }
+
                                             is MainMediaProjectEvent.RequestProjectArchive -> {
                                                 onAction(HomeAction.ArchiveProject(event.projectId))
                                             }
+
                                             is MainMediaProjectEvent.RequestProjectDelete -> {
                                                 onAction(HomeAction.DeleteProject(event.projectId))
                                             }
