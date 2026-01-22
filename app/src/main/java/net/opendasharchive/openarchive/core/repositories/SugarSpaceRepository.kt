@@ -28,9 +28,12 @@ class SugarSpaceRepository(private val io: CoroutineDispatcher = Dispatchers.IO)
         Space.current?.toDomain()
     }
 
-    override fun observeCurrentSpace(): Flow<Vault?> = InvalidationBus.currentSpace
-        .map { getCurrentSpace() }
-        .distinctUntilChanged()
+    override fun observeCurrentSpace(): Flow<Vault?> = kotlinx.coroutines.flow.combine(
+        InvalidationBus.spaces,
+        InvalidationBus.currentSpace
+    ) { _, _ ->
+        getCurrentSpace() ?: getSpaces().firstOrNull()
+    }.distinctUntilChanged()
 
     override suspend fun setCurrentSpace(id: Long) {
         withContext(io) {

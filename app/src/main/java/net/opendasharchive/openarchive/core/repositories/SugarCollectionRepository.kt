@@ -17,9 +17,11 @@ class SugarCollectionRepository(private val io: CoroutineDispatcher = Dispatcher
             Collection.getByProjectRecentFirst(projectId).map { it.toDomain() }
         }
 
-    override fun observeCollections(projectId: Long): Flow<List<Submission>> = InvalidationBus.collections
-        .map { getCollections(projectId) }
-        .distinctUntilChanged()
+    override fun observeCollections(projectId: Long): Flow<List<Submission>> {
+        return InvalidationBus.collections
+            .map { getCollections(projectId) }
+            .distinctUntilChanged()
+    }
 
     override suspend fun deleteCollection(id: Long) {
         withContext(io) {

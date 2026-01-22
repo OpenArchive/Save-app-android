@@ -28,9 +28,11 @@ class SugarProjectRepository(private val io: CoroutineDispatcher = Dispatchers.I
         Project.getById(id)?.toDomain()
     }
 
-    override fun observeProject(id: Long): Flow<Archive?> = InvalidationBus.projects
-        .map { getProject(id) }
-        .distinctUntilChanged()
+    override fun observeProject(id: Long): Flow<Archive?> {
+        return InvalidationBus.projects
+            .map { getProject(id) }
+            .distinctUntilChanged()
+    }
 
     override suspend fun renameProject(id: Long, newName: String) {
         withContext(io) {

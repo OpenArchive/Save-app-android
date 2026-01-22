@@ -124,7 +124,8 @@ fun MainMediaContent(
         state.totalMediaCount,
         state.selectedMediaIds,
         state.showFolderOptionsPopup,
-        state.currentProject
+        state.currentProject,
+        state.currentSpace
     ) {
         FolderBarState(
             mode = state.folderBarMode,
