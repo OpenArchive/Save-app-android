@@ -17,7 +17,7 @@ import net.opendasharchive.openarchive.db.Space
 class SugarProjectRepository(private val io: CoroutineDispatcher = Dispatchers.IO) : ProjectRepository {
 
     override suspend fun getProjects(vaultId: Long): List<Archive> = withContext(io) {
-        Space.Companion.get(vaultId)?.projects?.map { it.toDomain() } ?: emptyList()
+        Space.get(vaultId)?.projects?.map { it.toDomain() } ?: emptyList()
     }
 
     override fun observeProjects(vaultId: Long): Flow<List<Archive>> = InvalidationBus.projects
@@ -25,12 +25,16 @@ class SugarProjectRepository(private val io: CoroutineDispatcher = Dispatchers.I
         .distinctUntilChanged()
 
     override suspend fun getProject(id: Long): Archive? = withContext(io) {
-        Project.Companion.getById(id)?.toDomain()
+        Project.getById(id)?.toDomain()
     }
+
+    override fun observeProject(id: Long): Flow<Archive?> = InvalidationBus.projects
+        .map { getProject(id) }
+        .distinctUntilChanged()
 
     override suspend fun renameProject(id: Long, newName: String) {
         withContext(io) {
-            Project.Companion.getById(id)?.let {
+            Project.getById(id)?.let {
                 it.description = newName
                 it.save()
                 InvalidationBus.invalidateProjects()
@@ -39,7 +43,7 @@ class SugarProjectRepository(private val io: CoroutineDispatcher = Dispatchers.I
     }
 
     override suspend fun archiveProject(id: Long, isArchived: Boolean): Boolean = withContext(io) {
-        Project.Companion.getById(id)?.let {
+        Project.getById(id)?.let {
             it.isArchived = isArchived
             val saved = it.save() > 0
             if (saved) InvalidationBus.invalidateProjects()
@@ -48,14 +52,14 @@ class SugarProjectRepository(private val io: CoroutineDispatcher = Dispatchers.I
     }
 
     override suspend fun deleteProject(id: Long): Boolean = withContext(io) {
-        val deleted = Project.Companion.getById(id)?.delete() ?: false
+        val deleted = Project.getById(id)?.delete() ?: false
         if (deleted) InvalidationBus.invalidateProjects()
         deleted
     }
 
     override suspend fun getActiveSubmission(projectId: Long): Submission =
         withContext(io) {
-            Project.Companion.getById(projectId)!!.openCollection.toDomain()
+            Project.getById(projectId)!!.openCollection.toDomain()
         }
 
     override suspend fun getProjectByName(vaultId: Long, name: String): Archive? =

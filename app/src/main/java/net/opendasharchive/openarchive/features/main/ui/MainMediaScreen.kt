@@ -63,8 +63,6 @@ import java.time.ZoneId
 @Composable
 fun MainMediaScreen(
     viewModel: MainMediaViewModel,
-    currentSpace: Vault?,
-    currentProject: Archive?,
     refreshProjectId: Long?,
     refreshToken: Long,
     onNavigateToPreview: () -> Unit,
@@ -72,20 +70,12 @@ fun MainMediaScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(currentProject?.id) {
-        currentProject?.id?.let { projectId ->
-            viewModel.onAction(MainMediaAction.LoadProject(projectId, currentProject, currentSpace))
-        }
-    }
-
-    LaunchedEffect(refreshToken, currentProject?.id, refreshProjectId) {
-        val projectId = currentProject?.id ?: return@LaunchedEffect
+    LaunchedEffect(refreshToken, uiState.projectId, refreshProjectId) {
+        val projectId = uiState.projectId ?: return@LaunchedEffect
         if (refreshProjectId == projectId) {
             viewModel.onAction(MainMediaAction.Refresh(projectId))
         }
     }
-
-
 
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collectLatest { event ->
@@ -104,23 +94,19 @@ fun MainMediaScreen(
 
     MainMediaContent(
         state = uiState,
-        currentSpace = currentSpace,
-        currentProject = currentProject,
         onAction = viewModel::onAction,
     )
 }
 
 /**
  * IMPROVED MainMediaContent:
- * - Takes space and project directly (no homeState)
+ * - Reads space and project from state
  * - Archive/delete handled via ViewModel methods that emit events
  * - No direct Sugar ORM calls
  */
 @Composable
 fun MainMediaContent(
     state: MainMediaState,
-    currentSpace: Vault?,
-    currentProject: Archive?,
     onAction: (MainMediaAction) -> Unit,
 ) {
 
@@ -137,16 +123,16 @@ fun MainMediaContent(
         state.totalMediaCount,
         state.selectedMediaIds,
         state.showFolderOptionsPopup,
-        currentProject
+        state.currentProject
     ) {
         FolderBarState(
             mode = state.folderBarMode,
-            spaceType = currentSpace?.type,
-            projectName = currentProject?.description,
+            spaceType = state.currentSpace?.type,
+            projectName = state.currentProject?.description,
             totalMediaCount = state.totalMediaCount,
             selectedCount = state.selectedMediaIds.size,
             showOptionsPopup = state.showFolderOptionsPopup,
-            canShowOptions = currentProject != null
+            canShowOptions = state.currentProject != null
         )
     }
 
@@ -181,10 +167,10 @@ fun MainMediaContent(
             if (state.sections.isEmpty()) {
                 EmptyStateView(
                     title = stringResource(R.string.title_welcome),
-                    showWelcome = currentSpace == null,
+                    showWelcome = state.currentSpace == null,
                     message = when {
-                        currentSpace == null -> stringResource(R.string.tap_to_add_server)
-                        currentProject == null -> stringResource(R.string.tap_to_add_folder)
+                        state.currentSpace == null -> stringResource(R.string.tap_to_add_server)
+                        state.currentProject == null -> stringResource(R.string.tap_to_add_folder)
                         else -> stringResource(R.string.tap_to_add)
                     },
                 )
@@ -441,8 +427,6 @@ private fun MainMediaScreenPreview() {
     SaveAppTheme {
         MainMediaContent(
             state = MainMediaState(),
-            currentSpace = null,
-            currentProject = null,
             onAction = {},
         )
     }

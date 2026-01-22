@@ -8,6 +8,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -20,6 +27,8 @@ import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.repositories.CollectionRepository
 import net.opendasharchive.openarchive.core.repositories.MediaRepository
+import net.opendasharchive.openarchive.core.repositories.ProjectRepository
+import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
@@ -52,6 +61,8 @@ enum class FolderBarMode {
  */
 data class MainMediaState(
     val projectId: Long? = null,
+    val currentSpace: Vault? = null,
+    val currentProject: Archive? = null,
     val sections: List<CollectionSection> = emptyList(),
     val isInSelectionMode: Boolean = false,
     val selectedMediaIds: Set<Long> = emptySet(),
@@ -137,6 +148,8 @@ sealed class MainMediaProjectEvent {
 class MainMediaViewModel(
     private val projectId: Long,
     private val dialogManager: DialogStateManager,
+    private val spaceRepository: SpaceRepository,
+    private val projectRepository: ProjectRepository,
     private val collectionRepository: CollectionRepository,
     private val mediaRepository: MediaRepository
 ) : ViewModel() {
@@ -153,9 +166,44 @@ class MainMediaViewModel(
     init {
         AppLogger.i("MainMediaViewModel initialized for project $projectId")
         if (projectId >= 0) {
-            setProject(projectId)
+            _uiState.update { it.copy(projectId = projectId) }
         }
+        observeData()
         observeUploadEvents()
+    }
+
+    private fun observeData() {
+        val pid = projectId
+        if (pid < 0) return
+
+        combine(
+            projectRepository.observeProject(pid),
+            spaceRepository.observeCurrentSpace(),
+            collectionRepository.observeCollections(pid),
+            mediaRepository.observeMediaForProject(pid)
+        ) { project, space, collections, media ->
+            val sections = collections.map { collection ->
+                CollectionSection(
+                    collection = collection,
+                    media = media.filter { it.submissionId == collection.id }
+                )
+            }.filter { it.media.isNotEmpty() }
+
+            project to space to sections
+        }
+            .onEach { (pair, sections) ->
+                val (project, space) = pair
+                val totalCount = sections.sumOf { it.media.size }
+                _uiState.update {
+                    it.copy(
+                        currentProject = project,
+                        currentSpace = space,
+                        sections = sections,
+                        totalMediaCount = totalCount
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
     fun onAction(action: MainMediaAction) {
@@ -193,7 +241,6 @@ class MainMediaViewModel(
                 selectedMediaIds = emptySet()
             )
         }
-        refreshSections()
     }
 
     private fun observeUploadEvents() {
@@ -210,7 +257,7 @@ class MainMediaViewModel(
                                 isUploaded = event.isUploaded
                             )
                             if (event.progress < 0 || event.isUploaded) {
-                                refreshSections()
+                                // refreshSections() is no longer needed as observeData handles it
                             }
                         }
                     }
@@ -218,7 +265,7 @@ class MainMediaViewModel(
                     is UploadEvent.Deleted -> {
                         val currentProjectId = _uiState.value.projectId ?: return@collect
                         if (event.projectId == currentProjectId) {
-                            refreshSections()
+                            // refreshSections() is no longer needed
                         }
                     }
                 }
@@ -361,7 +408,6 @@ class MainMediaViewModel(
                     )
                 }
             }
-            refreshSections()
             _uiEvent.emit(MainMediaEvent.SelectionModeChanged(false, 0))
         }
     }

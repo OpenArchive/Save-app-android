@@ -8,6 +8,7 @@ interface ProjectRepository {
     suspend fun getProjects(vaultId: Long): List<Archive>
     fun observeProjects(vaultId: Long): Flow<List<Archive>>
     suspend fun getProject(id: Long): Archive?
+    fun observeProject(id: Long): Flow<Archive?>
     suspend fun renameProject(id: Long, newName: String)
     suspend fun archiveProject(id: Long, isArchived: Boolean): Boolean
     suspend fun deleteProject(id: Long): Boolean

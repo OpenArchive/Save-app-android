@@ -363,8 +363,6 @@ fun HomeScreenContent(
 
                                 MainMediaScreen(
                                     viewModel = viewModel,
-                                    currentSpace = state.currentSpace,
-                                    currentProject = projectForPage,
                                     refreshProjectId = state.mediaRefreshProjectId,
                                     refreshToken = state.mediaRefreshToken,
                                     onNavigateToPreview = {
@@ -377,8 +375,6 @@ fun HomeScreenContent(
                                 // No projects yet: show empty media state without spinning up a VM.
                                 MainMediaContent(
                                     state = MainMediaState(),
-                                    currentSpace = state.currentSpace,
-                                    currentProject = null,
                                     onAction = {}
                                 )
                             }

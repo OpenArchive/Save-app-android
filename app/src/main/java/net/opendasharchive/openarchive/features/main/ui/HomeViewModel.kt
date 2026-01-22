@@ -2,7 +2,6 @@ package net.opendasharchive.openarchive.features.main.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,25 +11,18 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.core.domain.Archive
 import net.opendasharchive.openarchive.core.repositories.ProjectRepository
 import net.opendasharchive.openarchive.core.repositories.SpaceRepository
-import net.opendasharchive.openarchive.features.main.ui.AppRoute.*
 import net.opendasharchive.openarchive.features.main.ui.HomeEvent.LaunchPicker
 import net.opendasharchive.openarchive.features.main.ui.components.HomeBottomTab
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.util.Prefs
-
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 
 /**
  * HomeViewModel handles logic for the home screen including spaces and projects.
@@ -110,17 +102,17 @@ class HomeViewModel(
 
             HomeAction.NavigateToAddNewFolder -> {
                 val spaceId = uiState.value.currentSpace?.id ?: return
-                navigator.navigateTo(AddFolderRoute(spaceId))
+                navigator.navigateTo(AppRoute.AddFolderRoute(spaceId))
             }
 
             HomeAction.NavigateToArchivedFolders -> {
                 val spaceId = uiState.value.currentSpace?.id ?: return
-                navigator.navigateTo(FolderListRoute(spaceId = spaceId, showArchived = true))
+                navigator.navigateTo(AppRoute.FolderListRoute(spaceId = spaceId, showArchived = true))
             }
 
             HomeAction.NavigateToPreviewMedia -> {
                 val projectId = uiState.value.selectedProjectId ?: return
-                navigator.navigateTo(PreviewMediaRoute(projectId = projectId))
+                navigator.navigateTo(AppRoute.PreviewMediaRoute(projectId = projectId))
                 //emitEvent(Navigate(HomeNavigation.PreviewMedia(spaceId, projectId)))
 
                 navigator
@@ -137,7 +129,7 @@ class HomeViewModel(
                     )
                 }
 
-                navigator.navigateTo(PreviewMediaRoute(projectId))
+                navigator.navigateTo(AppRoute.PreviewMediaRoute(projectId))
             }
 
             HomeAction.NavigateToCamera -> viewModelScope.launch {
@@ -217,7 +209,7 @@ class HomeViewModel(
         when {
             state.currentSpace == null -> navigator.navigateTo(AppRoute.SpaceSetupRoute)
             state.projects.isEmpty() || state.selectedProjectId == null -> {
-                state.currentSpace.id?.let {
+                state.currentSpace.id.let {
                     navigator.navigateTo(AppRoute.AddFolderRoute(it))
                 }
             }
@@ -249,7 +241,7 @@ class HomeViewModel(
         when {
             state.currentSpace == null -> navigator.navigateTo(AppRoute.SpaceSetupRoute)
             state.projects.isEmpty() || state.selectedProjectId == null -> {
-                state.currentSpace.id?.let {
+                state.currentSpace.id.let {
                     navigator.navigateTo(AppRoute.AddFolderRoute(it))
                 }
             }

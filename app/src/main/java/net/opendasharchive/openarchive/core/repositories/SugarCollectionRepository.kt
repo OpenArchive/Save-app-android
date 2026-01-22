@@ -14,7 +14,7 @@ class SugarCollectionRepository(private val io: CoroutineDispatcher = Dispatcher
 
     override suspend fun getCollections(projectId: Long): List<Submission> =
         withContext(io) {
-            Collection.Companion.getByProjectRecentFirst(projectId).map { it.toDomain() }
+            Collection.getByProjectRecentFirst(projectId).map { it.toDomain() }
         }
 
     override fun observeCollections(projectId: Long): Flow<List<Submission>> = InvalidationBus.collections
@@ -23,7 +23,7 @@ class SugarCollectionRepository(private val io: CoroutineDispatcher = Dispatcher
 
     override suspend fun deleteCollection(id: Long) {
         withContext(io) {
-            val deleted = Collection.Companion.get(id)?.delete() ?: false
+            val deleted = Collection.get(id)?.delete() ?: false
             if (deleted) InvalidationBus.invalidateCollections()
         }
     }
