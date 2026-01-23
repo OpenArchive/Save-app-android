@@ -1,6 +1,5 @@
 package net.opendasharchive.openarchive.features.spaces
 
-import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.layout.Column
@@ -27,7 +26,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdActivity
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SpaceSetupScreen(

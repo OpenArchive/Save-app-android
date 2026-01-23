@@ -66,8 +66,6 @@ import net.opendasharchive.openarchive.features.media.Picker
 import net.opendasharchive.openarchive.features.media.PreviewActivity
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.features.onboarding.Onboarding23Activity
-import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
-import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdActivity
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
@@ -141,7 +139,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     private val mNewFolderResultLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
-                refreshProjects(it.data?.getLongExtra(SpaceSetupActivity.EXTRA_FOLDER_ID, -1))
+                //refreshProjects(it.data?.getLongExtra(SpaceSetupActivity.EXTRA_FOLDER_ID, -1))
             }
         }
 
@@ -1054,25 +1052,25 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     // ----- Navigation & Media Handling -----
     private fun navigateToAddServer() {
         closeDrawer()
-        startActivity(Intent(this, SpaceSetupActivity::class.java))
+        //startActivity(Intent(this, SpaceSetupActivity::class.java))
     }
 
     private fun navigateToAddFolder() {
-        val intent = Intent(this, SpaceSetupActivity::class.java)
-        if (Space.current?.tType == Space.Type.INTERNET_ARCHIVE) {
-            // We cannot browse the Internet Archive. Directly forward to creating a project,
-            // as it doesn't make sense to show a one-option menu.
-            intent.putExtra(
-                SpaceSetupActivity.LABEL_START_DESTINATION,
-                StartDestination.ADD_NEW_FOLDER.name
-            )
-        } else {
-            intent.putExtra(
-                SpaceSetupActivity.LABEL_START_DESTINATION,
-                StartDestination.ADD_FOLDER.name
-            )
-        }
-        mNewFolderResultLauncher.launch(intent)
+//        val intent = Intent(this, SpaceSetupActivity::class.java)
+//        if (Space.current?.tType == Space.Type.INTERNET_ARCHIVE) {
+//            // We cannot browse the Internet Archive. Directly forward to creating a project,
+//            // as it doesn't make sense to show a one-option menu.
+//            intent.putExtra(
+//                SpaceSetupActivity.LABEL_START_DESTINATION,
+//                StartDestination.ADD_NEW_FOLDER.name
+//            )
+//        } else {
+//            intent.putExtra(
+//                SpaceSetupActivity.LABEL_START_DESTINATION,
+//                StartDestination.ADD_FOLDER.name
+//            )
+//        }
+//        mNewFolderResultLauncher.launch(intent)
     }
 
     private fun addClicked(mediaType: AddMediaType) {
@@ -1231,8 +1229,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     override fun onAddNewSpace() {
         collapseSpacesList()
         closeDrawer()
-        val intent = Intent(this, SpaceSetupActivity::class.java)
-        startActivity(intent)
+        //val intent = Intent(this, SpaceSetupActivity::class.java)
+        //startActivity(intent)
     }
 
     override fun getSelectedSpace(): Space? {

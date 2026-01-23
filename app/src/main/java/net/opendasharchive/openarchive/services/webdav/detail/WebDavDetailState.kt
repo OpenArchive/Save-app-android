@@ -1,7 +1,6 @@
 package net.opendasharchive.openarchive.services.webdav.detail
 
 import androidx.compose.runtime.Immutable
-import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.UiText
 
 @Immutable

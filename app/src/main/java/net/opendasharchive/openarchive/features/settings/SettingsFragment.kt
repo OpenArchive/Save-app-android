@@ -19,8 +19,6 @@ import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
-import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
-import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupActivity
 import net.opendasharchive.openarchive.util.Prefs
@@ -112,17 +110,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         getPrefByKey<Preference>(R.string.pref_media_servers)?.setOnPreferenceClickListener {
-            val intent = Intent(context, SpaceSetupActivity::class.java)
-            intent.putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.SPACE_LIST.name)
-            startActivity(intent)
+            //val intent = Intent(context, SpaceSetupActivity::class.java)
+            //intent.putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.SPACE_LIST.name)
+            //startActivity(intent)
             true
         }
 
         getPrefByKey<Preference>(R.string.pref_media_folders)?.setOnPreferenceClickListener {
-            val intent = Intent(context, SpaceSetupActivity::class.java)
-            intent.putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.ARCHIVED_FOLDER_LIST.name)
-            intent.putExtra(FoldersFragment.EXTRA_SHOW_ARCHIVED, true)
-            startActivity(intent)
+            //val intent = Intent(context, SpaceSetupActivity::class.java)
+            //intent.putExtra(SpaceSetupActivity.LABEL_START_DESTINATION, StartDestination.ARCHIVED_FOLDER_LIST.name)
+            //intent.putExtra(FoldersFragment.EXTRA_SHOW_ARCHIVED, true)
+            //startActivity(intent)
             true
         }
 

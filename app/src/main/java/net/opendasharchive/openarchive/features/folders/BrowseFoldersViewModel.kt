@@ -1,7 +1,5 @@
 package net.opendasharchive.openarchive.features.folders
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
@@ -13,9 +11,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import net.opendasharchive.openarchive.core.domain.Archive
-import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.core.repositories.ProjectRepository
 import net.opendasharchive.openarchive.core.repositories.SpaceRepository
+import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.services.webdav.WebDavRepository
 import net.opendasharchive.openarchive.util.DateUtils
 import timber.log.Timber
@@ -52,12 +50,6 @@ class BrowseFoldersViewModel(
     private val _events = Channel<BrowseFoldersEvent>()
     val events = _events.receiveAsFlow()
 
-    // Legacy LiveData for Fragment support
-    private val mFolders = MutableLiveData<List<Folder>>()
-    val folders: LiveData<List<Folder>> get() = mFolders
-
-    val progressBarFlag = MutableLiveData(false)
-
     init {
         loadFolders()
     }
@@ -83,7 +75,6 @@ class BrowseFoldersViewModel(
             val space = spaceRepository.getCurrentSpace() ?: return@launch
 
             _uiState.update { it.copy(isLoading = true, error = null) }
-            progressBarFlag.value = true
 
             try {
                 val folderList = webDavRepository.getFolders(space)
@@ -100,8 +91,6 @@ class BrowseFoldersViewModel(
                         error = null
                     )
                 }
-                mFolders.value = filteredFolders
-                progressBarFlag.value = false
             } catch (e: Throwable) {
                 Timber.e(e)
                 _uiState.update {
@@ -115,8 +104,7 @@ class BrowseFoldersViewModel(
                         }
                     )
                 }
-                mFolders.value = emptyList()
-                progressBarFlag.value = false
+
             }
         }
     }

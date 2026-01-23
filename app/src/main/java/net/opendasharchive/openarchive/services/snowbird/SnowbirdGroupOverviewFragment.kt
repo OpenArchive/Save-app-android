@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdGroupOverviewBinding
-import net.opendasharchive.openarchive.features.core.BaseFragment
 
 class SnowbirdGroupOverviewFragment private constructor(): BaseSnowbirdFragment() {
     private lateinit var viewBinding: FragmentSnowbirdGroupOverviewBinding

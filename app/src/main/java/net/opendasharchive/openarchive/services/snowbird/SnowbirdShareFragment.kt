@@ -9,7 +9,6 @@ import net.opendasharchive.openarchive.databinding.FragmentSnowbirdShareGroupBin
 import net.opendasharchive.openarchive.db.SnowbirdGroup
 import net.opendasharchive.openarchive.extensions.asQRCode
 import net.opendasharchive.openarchive.extensions.urlEncode
-import net.opendasharchive.openarchive.features.core.BaseFragment
 
 class SnowbirdShareFragment: BaseSnowbirdFragment() {
 

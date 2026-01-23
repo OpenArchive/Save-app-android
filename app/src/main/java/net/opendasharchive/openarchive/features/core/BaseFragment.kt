@@ -9,10 +9,7 @@ import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
-import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.activityViewModel
-import kotlin.getValue
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 abstract class BaseFragment : Fragment(), ToolbarConfigurable {
@@ -44,7 +41,6 @@ abstract class BaseFragment : Fragment(), ToolbarConfigurable {
 
     override fun onResume() {
         super.onResume()
-        (activity as? SpaceSetupActivity)?.updateToolbarFromFragment(this)
 
         // Track screen view
         screenStartTime = System.currentTimeMillis()

@@ -1,10 +1,6 @@
 package net.opendasharchive.openarchive.features.internetarchive.presentation.details
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,11 +23,8 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.fragment.compose.content
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
-import net.opendasharchive.openarchive.features.core.BaseFragment
-import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
 import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
@@ -40,32 +33,6 @@ import net.opendasharchive.openarchive.features.internetarchive.presentation.log
 import net.opendasharchive.openarchive.services.webdav.CreativeCommonsLicenseContent
 import net.opendasharchive.openarchive.services.webdav.LicenseCallbacks
 import net.opendasharchive.openarchive.services.webdav.LicenseState
-
-
-class InternetArchiveDetailFragment : BaseFragment(), ToolbarConfigurable {
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View = content{
-
-//        return ComposeView(requireContext()).apply {
-//            setContent {
-//                SaveAppTheme {
-//                    InternetArchiveDetailsScreen(
-//                        onNavigateBack = {
-//                            findNavController().popBackStack()
-//                        }
-//                    )
-//                }
-//            }
-//        }
-    }
-
-    override fun getToolbarTitle() = getString(R.string.internet_archive)
-    override fun shouldShowBackButton() = true
-}
 
 @Composable
 fun InternetArchiveDetailsScreen(

@@ -13,7 +13,6 @@ import com.orm.SugarRecord
 import kotlinx.serialization.Serializable
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.services.internetarchive.IaConduit
 import net.opendasharchive.openarchive.util.Prefs
 import okhttp3.HttpUrl
@@ -107,15 +106,6 @@ data class Space(
 
         fun get(id: Long): Space? {
             return findById(Space::class.java, id)
-        }
-
-        fun navigate(activity: AppCompatActivity) {
-            if (getAll().hasNext()) {
-                activity.finish()
-            } else {
-                activity.finishAffinity()
-                activity.startActivity(Intent(activity, SpaceSetupActivity::class.java))
-            }
         }
     }
 

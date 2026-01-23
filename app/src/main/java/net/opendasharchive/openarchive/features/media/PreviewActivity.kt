@@ -23,8 +23,6 @@ import net.opendasharchive.openarchive.features.core.asUiImage
 import net.opendasharchive.openarchive.features.core.asUiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
-import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
-import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
@@ -43,23 +41,7 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
     companion object {
         private const val PROJECT_ID_EXTRA = "project_id"
 
-        // Toggle to switch between old XML ReviewActivity and new Compose ReviewMediaScreen
-        // Set to true to use new Compose screen, false to use old XML activity
-        private const val USE_NEW_COMPOSE_REVIEW_SCREEN = true
-        private const val USE_NEW_COMPOSE_PREVIEW_SCREEN = true
-
         fun start(context: Context, projectId: Long) {
-            if (USE_NEW_COMPOSE_PREVIEW_SCREEN) {
-                val intent = Intent(context, SpaceSetupActivity::class.java).apply {
-                    putExtra(
-                        SpaceSetupActivity.LABEL_START_DESTINATION,
-                        StartDestination.PREVIEW_MEDIA.name
-                    )
-                    putExtra("project_id", projectId)
-                }
-                context.startActivity(intent)
-                return
-            }
 
             val i = Intent(context, PreviewActivity::class.java)
             i.putExtra(PROJECT_ID_EXTRA, projectId)
@@ -68,16 +50,13 @@ class PreviewActivity : BaseActivity(), View.OnClickListener, PreviewAdapter.Lis
         }
 
         private fun launchReviewScreen(context: Context, media: List<Media>, selected: Media? = null, batchMode: Boolean = false) {
-            if (USE_NEW_COMPOSE_REVIEW_SCREEN) {
-                // New Compose screen
-                ReviewActivity.launchReviewScreen(context, media, selected, batchMode)
-            } else {
+
                 // Old XML activity
                 @Suppress("DEPRECATION")
                 (context as? PreviewActivity)?.mLauncher?.launch(
                     ReviewActivity.getIntent(context, media, selected, batchMode)
                 )
-            }
+
         }
     }
 

@@ -199,14 +199,6 @@
             android:theme="@style/SaveAppTheme.NoActionBar" />
 
         <activity
-            android:name=".features.onboarding.SpaceSetupActivity"
-            android:exported="false"
-            android:label="@string/title_activity_first_start"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan" />
-
-        <activity
             android:name=".services.snowbird.SnowbirdActivity"
             android:exported="false"
             android:label="@string/dweb_title"

@@ -62,24 +62,6 @@ class ReviewActivity : BaseActivity(), View.OnClickListener {
 
             return i
         }
-
-        /**
-         * Launch the new Compose-based review screen
-         */
-        fun launchReviewScreen(context: Context, media: List<Media>, selected: Media? = null, batchMode: Boolean = false) {
-            val i = Intent(context, net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity::class.java)
-            i.putExtra(net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity.LABEL_START_DESTINATION,
-                net.opendasharchive.openarchive.features.onboarding.StartDestination.REVIEW_MEDIA.name)
-            i.putExtra("media_ids", media.map { it.id }.toLongArray())
-
-            if (selected != null) {
-                i.putExtra("selected_idx", media.indexOf(selected))
-            }
-
-            i.putExtra("batch_mode", batchMode)
-
-            context.startActivity(i)
-        }
     }
 
     private lateinit var mBinding: ActivityReviewBinding
