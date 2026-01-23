@@ -385,10 +385,7 @@ fun HomeScreenContent(
                             }
 
                             else -> {
-                                // No projects yet: show empty media state powered by SpaceOverviewViewModel.
-                                //val spaceVM = koinViewModel<SpaceOverviewViewModel>()
-                                //val spaceState by spaceVM.uiState.collectAsStateWithLifecycle()
-
+                                // No projects yet: show empty media state with current space from HomeViewModel
                                 MainMediaContent(
                                     state = MainMediaState(currentSpace = state.currentSpace),
                                     onAction = {}
