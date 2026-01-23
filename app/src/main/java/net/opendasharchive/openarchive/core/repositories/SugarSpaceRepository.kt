@@ -9,7 +9,7 @@ import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.core.domain.mappers.toDomain
 import net.opendasharchive.openarchive.core.domain.mappers.toEntity
-import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.db.sugar.Space
 
 /**
  * Sugar-backed implementations; keep all ORM calls off the main thread.

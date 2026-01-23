@@ -39,10 +39,10 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.ActivityMainBinding
 import net.opendasharchive.openarchive.databinding.PopupFolderOptionsBinding
-import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.db.Project
-import net.opendasharchive.openarchive.db.SnowbirdGroup
-import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.db.sugar.Media
+import net.opendasharchive.openarchive.db.sugar.Project
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroup
+import net.opendasharchive.openarchive.db.sugar.Space
 import net.opendasharchive.openarchive.extensions.getMeasurments
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.core.UiImage

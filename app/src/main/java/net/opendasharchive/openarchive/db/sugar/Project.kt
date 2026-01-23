@@ -1,6 +1,7 @@
-package net.opendasharchive.openarchive.db
+package net.opendasharchive.openarchive.db.sugar
 
 import com.orm.SugarRecord
+import net.opendasharchive.openarchive.db.sugar.Space
 import java.util.Date
 
 /**

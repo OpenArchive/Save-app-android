@@ -7,7 +7,7 @@ import info.guardianproject.netcipher.client.StrongBuilder
 import info.guardianproject.netcipher.client.StrongBuilderBase
 import info.guardianproject.netcipher.proxy.OrbotHelper
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.db.sugar.Space
 import net.opendasharchive.openarchive.services.webdav.BasicAuthInterceptor
 import net.opendasharchive.openarchive.util.Prefs
 import okhttp3.Interceptor

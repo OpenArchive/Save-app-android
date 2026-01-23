@@ -25,7 +25,7 @@ import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.navigation.LocalResultEventBus
 import net.opendasharchive.openarchive.core.navigation.ResultEventBus
 import net.opendasharchive.openarchive.core.navigation.rememberResultStore
-import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.db.sugar.Space
 import net.opendasharchive.openarchive.features.core.dialog.DialogHost
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.folders.AddFolderScreen

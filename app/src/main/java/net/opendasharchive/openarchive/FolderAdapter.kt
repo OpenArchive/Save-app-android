@@ -2,16 +2,13 @@ package net.opendasharchive.openarchive
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import net.opendasharchive.openarchive.databinding.RvFoldersRowBinding
-import net.opendasharchive.openarchive.db.Project
-import java.lang.ref.WeakReference
+import net.opendasharchive.openarchive.db.sugar.Project
 
 interface FolderAdapterListener {
 

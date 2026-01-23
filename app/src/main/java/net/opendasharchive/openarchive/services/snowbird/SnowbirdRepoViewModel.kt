@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.db.RefreshGroupResponse
-import net.opendasharchive.openarchive.db.SnowbirdError
-import net.opendasharchive.openarchive.db.SnowbirdFileItem
-import net.opendasharchive.openarchive.db.SnowbirdRepo
-import net.opendasharchive.openarchive.db.toRepo
+import net.opendasharchive.openarchive.services.snowbird.service.db.RefreshGroupResponse
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdError
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdFileItem
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdRepo
+import net.opendasharchive.openarchive.services.snowbird.service.db.toRepo
 import net.opendasharchive.openarchive.util.BaseViewModel
 import net.opendasharchive.openarchive.util.trackProcessingWithTimeout
 

@@ -7,9 +7,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import net.opendasharchive.openarchive.db.JoinGroupResponse
-import net.opendasharchive.openarchive.db.SnowbirdError
-import net.opendasharchive.openarchive.db.SnowbirdGroup
+import net.opendasharchive.openarchive.services.snowbird.service.db.JoinGroupResponse
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdError
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroup
 import net.opendasharchive.openarchive.util.BaseViewModel
 import net.opendasharchive.openarchive.util.trackProcessingWithTimeout
 

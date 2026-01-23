@@ -3,19 +3,17 @@ package net.opendasharchive.openarchive.services.snowbird.service
 import android.content.Context
 import android.net.Uri
 import kotlinx.serialization.Serializable
-import net.opendasharchive.openarchive.db.CreateRepoResponse
-import net.opendasharchive.openarchive.db.EmptyRequest
-import net.opendasharchive.openarchive.db.FileUploadResult
-import net.opendasharchive.openarchive.db.JoinGroupResponse
-import net.opendasharchive.openarchive.db.MembershipRequest
-import net.opendasharchive.openarchive.db.RefreshGroupResponse
-import net.opendasharchive.openarchive.db.RequestName
-import net.opendasharchive.openarchive.db.SerializableMarker
-import net.opendasharchive.openarchive.db.SnowbirdFileList
-import net.opendasharchive.openarchive.db.SnowbirdGroup
-import net.opendasharchive.openarchive.db.SnowbirdGroupList
-import net.opendasharchive.openarchive.db.SnowbirdRepo
-import net.opendasharchive.openarchive.db.SnowbirdRepoList
+import net.opendasharchive.openarchive.services.snowbird.service.db.CreateRepoResponse
+import net.opendasharchive.openarchive.services.snowbird.service.db.EmptyRequest
+import net.opendasharchive.openarchive.services.snowbird.service.db.FileUploadResult
+import net.opendasharchive.openarchive.services.snowbird.service.db.JoinGroupResponse
+import net.opendasharchive.openarchive.services.snowbird.service.db.MembershipRequest
+import net.opendasharchive.openarchive.services.snowbird.service.db.RefreshGroupResponse
+import net.opendasharchive.openarchive.services.snowbird.service.db.RequestName
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdFileList
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroup
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroupList
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdRepoList
 import net.opendasharchive.openarchive.extensions.createInputStream
 import net.opendasharchive.openarchive.extensions.getFilename
 import net.opendasharchive.openarchive.features.main.HttpMethod
@@ -41,7 +39,7 @@ class UnixSocketAPI(private var context: Context, private var client: UnixSocket
     // Media
 
     override suspend fun fetchFiles(groupKey: String, repoKey: String): SnowbirdFileList {
-        return client.sendRequest<EmptyRequest, SnowbirdFileList>(
+        return client.sendRequest<EmptyRequest, net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdFileList>(
             endpoint = MEDIA_PATH.format(groupKey, repoKey),
             method = HttpMethod.GET
         )
@@ -72,7 +70,7 @@ class UnixSocketAPI(private var context: Context, private var client: UnixSocket
     // Groups
 
     override suspend fun createGroup(groupName: RequestName): SnowbirdGroup {
-        return client.sendRequest<RequestName, SnowbirdGroup>(
+        return client.sendRequest<net.opendasharchive.openarchive.services.snowbird.service.db.RequestName, net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroup>(
             endpoint = GROUPS_PATH,
             method = HttpMethod.POST,
             body = groupName
@@ -80,21 +78,21 @@ class UnixSocketAPI(private var context: Context, private var client: UnixSocket
     }
 
     override suspend fun fetchGroup(key: String): SnowbirdGroup {
-        return client.sendRequest<EmptyRequest, SnowbirdGroup>(
+        return client.sendRequest<EmptyRequest, net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroup>(
             endpoint = "$GROUPS_PATH/$key",
             method = HttpMethod.GET
         )
     }
 
     override suspend fun fetchGroups(): SnowbirdGroupList {
-        return client.sendRequest<EmptyRequest, SnowbirdGroupList>(
+        return client.sendRequest<EmptyRequest, net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroupList>(
             endpoint = GROUPS_PATH,
             method = HttpMethod.GET
         )
     }
 
     override suspend fun joinGroup(request: MembershipRequest): JoinGroupResponse {
-        return client.sendRequest<MembershipRequest, JoinGroupResponse>(
+        return client.sendRequest<net.opendasharchive.openarchive.services.snowbird.service.db.MembershipRequest, net.opendasharchive.openarchive.services.snowbird.service.db.JoinGroupResponse>(
             endpoint = MEMBERSHIPS_PATH,
             method = HttpMethod.POST,
             body = request
@@ -102,14 +100,14 @@ class UnixSocketAPI(private var context: Context, private var client: UnixSocket
     }
 
     override suspend fun refreshGroupContent(groupKey: String): RefreshGroupResponse {
-        return client.sendRequest<EmptyRequest, RefreshGroupResponse>(
+        return client.sendRequest<EmptyRequest, net.opendasharchive.openarchive.services.snowbird.service.db.RefreshGroupResponse>(
             endpoint = FORCE_REFRESH.format(groupKey),
             method = HttpMethod.POST,
         )
     }
 
     override suspend fun createRepo(groupKey: String, repoName: RequestName): CreateRepoResponse {
-        return client.sendRequest<RequestName, CreateRepoResponse>(
+        return client.sendRequest<net.opendasharchive.openarchive.services.snowbird.service.db.RequestName, net.opendasharchive.openarchive.services.snowbird.service.db.CreateRepoResponse>(
             endpoint = REPOS_PATH.format(groupKey),
             HttpMethod.POST,
             body = repoName
@@ -117,7 +115,7 @@ class UnixSocketAPI(private var context: Context, private var client: UnixSocket
     }
 
     override suspend fun fetchRepos(groupKey: String): SnowbirdRepoList {
-        return client.sendRequest<EmptyRequest, SnowbirdRepoList>(
+        return client.sendRequest<EmptyRequest, net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdRepoList>(
             endpoint = REPOS_PATH.format(groupKey),
             method = HttpMethod.GET
         )

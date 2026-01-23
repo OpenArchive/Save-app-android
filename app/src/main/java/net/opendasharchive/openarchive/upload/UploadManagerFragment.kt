@@ -11,8 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentUploadManagerBinding
-import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.db.UploadMediaAdapter
+import net.opendasharchive.openarchive.db.sugar.Media
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog

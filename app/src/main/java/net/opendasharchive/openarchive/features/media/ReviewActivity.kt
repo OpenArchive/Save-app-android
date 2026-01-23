@@ -9,7 +9,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
-import androidx.compose.ui.graphics.Color
 import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
 import coil3.ImageLoader
@@ -29,7 +28,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivityReviewBinding
-import net.opendasharchive.openarchive.db.Media
+import net.opendasharchive.openarchive.db.sugar.Media
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.core.UiColor
 import net.opendasharchive.openarchive.features.core.UiImage

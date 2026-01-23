@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import net.opendasharchive.openarchive.databinding.RvSpacesRowBinding
-import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.db.sugar.Space
 import net.opendasharchive.openarchive.util.extensions.scaled
 import java.lang.ref.WeakReference
 

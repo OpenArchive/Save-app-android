@@ -1,6 +1,7 @@
-package net.opendasharchive.openarchive.db
+package net.opendasharchive.openarchive.db.sugar
 
 
+import net.opendasharchive.openarchive.db.sugar.Space
 import java.util.* // Needed for Date objects
 
 // --- 1. Spaces (Container) ---

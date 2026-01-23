@@ -8,8 +8,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.OneLineRowBinding
-import net.opendasharchive.openarchive.db.SnowbirdRepo
-import net.opendasharchive.openarchive.db.shortHash
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdRepo
+import net.opendasharchive.openarchive.services.snowbird.service.db.shortHash
 import net.opendasharchive.openarchive.extensions.scaled
 import net.opendasharchive.openarchive.util.TwoLetterDrawable
 import java.lang.ref.WeakReference

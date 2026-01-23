@@ -42,8 +42,8 @@ import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.domain.mappers.toDomain
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultBoxPreview
-import net.opendasharchive.openarchive.db.dummyProjectList
-import net.opendasharchive.openarchive.db.dummySpaceList
+import net.opendasharchive.openarchive.db.sugar.dummyProjectList
+import net.opendasharchive.openarchive.db.sugar.dummySpaceList
 import net.opendasharchive.openarchive.features.core.Accordion
 import net.opendasharchive.openarchive.features.core.AccordionState
 import net.opendasharchive.openarchive.features.core.rememberAccordionState

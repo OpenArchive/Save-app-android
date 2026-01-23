@@ -1,7 +1,7 @@
-package net.opendasharchive.openarchive.db
+package net.opendasharchive.openarchive.db.sugar
 
 import com.orm.SugarRecord
-import java.util.*
+import java.util.Date
 
 data class Collection(
     var projectId: Long? = null,

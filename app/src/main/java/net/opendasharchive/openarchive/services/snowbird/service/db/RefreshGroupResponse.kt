@@ -1,4 +1,4 @@
-package net.opendasharchive.openarchive.db
+package net.opendasharchive.openarchive.services.snowbird.service.db
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

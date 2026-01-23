@@ -6,7 +6,7 @@ import android.net.LocalSocketAddress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import net.opendasharchive.openarchive.db.SerializableMarker
+import net.opendasharchive.openarchive.services.snowbird.service.db.SerializableMarker
 import net.opendasharchive.openarchive.services.snowbird.service.ErrorResponse
 import net.opendasharchive.openarchive.services.snowbird.service.HttpLikeException
 import timber.log.Timber

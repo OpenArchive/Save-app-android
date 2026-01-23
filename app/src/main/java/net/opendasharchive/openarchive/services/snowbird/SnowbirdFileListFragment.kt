@@ -24,9 +24,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdListMediaBinding
-import net.opendasharchive.openarchive.db.FileUploadResult
-import net.opendasharchive.openarchive.db.SnowbirdError
-import net.opendasharchive.openarchive.db.SnowbirdFileItem
+import net.opendasharchive.openarchive.services.snowbird.service.db.FileUploadResult
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdError
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdFileItem
 import net.opendasharchive.openarchive.extensions.androidViewModel
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType

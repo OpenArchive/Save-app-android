@@ -1,9 +1,9 @@
 package net.opendasharchive.openarchive.services.snowbird
 
 import android.net.Uri
-import net.opendasharchive.openarchive.db.FileUploadResult
-import net.opendasharchive.openarchive.db.SnowbirdFileItem
-import net.opendasharchive.openarchive.db.toFile
+import net.opendasharchive.openarchive.services.snowbird.service.db.FileUploadResult
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdFileItem
+import net.opendasharchive.openarchive.services.snowbird.service.db.toFile
 import net.opendasharchive.openarchive.extensions.toSnowbirdError
 import net.opendasharchive.openarchive.services.snowbird.service.ISnowbirdAPI
 

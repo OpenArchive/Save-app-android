@@ -1,17 +1,16 @@
 package net.opendasharchive.openarchive.services.snowbird.service
 
 import android.net.Uri
-import net.opendasharchive.openarchive.db.CreateRepoResponse
-import net.opendasharchive.openarchive.db.FileUploadResult
-import net.opendasharchive.openarchive.db.JoinGroupResponse
-import net.opendasharchive.openarchive.db.MembershipRequest
-import net.opendasharchive.openarchive.db.RefreshGroupResponse
-import net.opendasharchive.openarchive.db.RequestName
-import net.opendasharchive.openarchive.db.SnowbirdFileList
-import net.opendasharchive.openarchive.db.SnowbirdGroup
-import net.opendasharchive.openarchive.db.SnowbirdGroupList
-import net.opendasharchive.openarchive.db.SnowbirdRepo
-import net.opendasharchive.openarchive.db.SnowbirdRepoList
+import net.opendasharchive.openarchive.services.snowbird.service.db.CreateRepoResponse
+import net.opendasharchive.openarchive.services.snowbird.service.db.FileUploadResult
+import net.opendasharchive.openarchive.services.snowbird.service.db.JoinGroupResponse
+import net.opendasharchive.openarchive.services.snowbird.service.db.MembershipRequest
+import net.opendasharchive.openarchive.services.snowbird.service.db.RefreshGroupResponse
+import net.opendasharchive.openarchive.services.snowbird.service.db.RequestName
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdFileList
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroup
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroupList
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdRepoList
 
 interface ISnowbirdAPI {
     // Media

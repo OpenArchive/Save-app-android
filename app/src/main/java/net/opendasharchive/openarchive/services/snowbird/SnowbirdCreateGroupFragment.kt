@@ -18,9 +18,9 @@ import net.opendasharchive.openarchive.BuildConfig
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdCreateGroupBinding
-import net.opendasharchive.openarchive.db.SnowbirdError
-import net.opendasharchive.openarchive.db.SnowbirdGroup
-import net.opendasharchive.openarchive.db.SnowbirdRepo
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdError
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroup
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdRepo
 import net.opendasharchive.openarchive.util.FullScreenOverlayCreateGroupManager
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 import java.io.File

@@ -21,11 +21,10 @@ import kotlinx.coroutines.SupervisorJob
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.RvMediaBoxBinding
-import net.opendasharchive.openarchive.db.Media
+import net.opendasharchive.openarchive.db.sugar.Media
 import net.opendasharchive.openarchive.util.PdfThumbnailLoader
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show
-import timber.log.Timber
 
 class MainMediaViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHolder(binding.root) {
 

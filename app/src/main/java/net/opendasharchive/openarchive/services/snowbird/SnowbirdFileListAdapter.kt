@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.SnowbirdMediaGridItemBinding
-import net.opendasharchive.openarchive.db.SnowbirdFileItem
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdFileItem
 import java.lang.ref.WeakReference
 
 class SnowbirdFileViewHolder(val binding: SnowbirdMediaGridItemBinding) : RecyclerView.ViewHolder(binding.root)

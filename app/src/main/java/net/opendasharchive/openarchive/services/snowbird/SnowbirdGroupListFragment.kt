@@ -17,8 +17,8 @@ import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdGroupListBinding
-import net.opendasharchive.openarchive.db.SnowbirdError
-import net.opendasharchive.openarchive.db.SnowbirdGroup
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdError
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroup
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog

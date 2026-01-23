@@ -18,9 +18,9 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.FragmentMainMediaBinding
 import net.opendasharchive.openarchive.databinding.ViewSectionBinding
-import net.opendasharchive.openarchive.db.Collection
-import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.db.sugar.Collection
+import net.opendasharchive.openarchive.db.sugar.Media
+import net.opendasharchive.openarchive.db.sugar.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType

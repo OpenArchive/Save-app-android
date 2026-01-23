@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.RvDrawerRowBinding
-import net.opendasharchive.openarchive.db.Project
+import net.opendasharchive.openarchive.db.sugar.Project
 
 
 interface FolderDrawerAdapterListener {

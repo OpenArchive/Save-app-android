@@ -11,8 +11,8 @@ import net.opendasharchive.openarchive.core.domain.Archive
 import net.opendasharchive.openarchive.core.domain.Submission
 import net.opendasharchive.openarchive.core.domain.mappers.toDomain
 import net.opendasharchive.openarchive.core.domain.mappers.toEntity
-import net.opendasharchive.openarchive.db.Project
-import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.db.sugar.Project
+import net.opendasharchive.openarchive.db.sugar.Space
 
 class SugarProjectRepository(private val io: CoroutineDispatcher = Dispatchers.IO) : ProjectRepository {
 

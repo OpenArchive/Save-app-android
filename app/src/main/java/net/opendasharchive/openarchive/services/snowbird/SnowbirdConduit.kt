@@ -2,7 +2,6 @@ package net.opendasharchive.openarchive.services.snowbird
 
 import android.content.Context
 import net.opendasharchive.openarchive.core.domain.Evidence
-import net.opendasharchive.openarchive.db.Media
 import net.opendasharchive.openarchive.services.Conduit
 import timber.log.Timber
 

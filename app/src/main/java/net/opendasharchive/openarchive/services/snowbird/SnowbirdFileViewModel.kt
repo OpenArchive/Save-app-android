@@ -17,9 +17,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.opendasharchive.openarchive.db.FileUploadResult
-import net.opendasharchive.openarchive.db.SnowbirdError
-import net.opendasharchive.openarchive.db.SnowbirdFileItem
+import net.opendasharchive.openarchive.services.snowbird.service.db.FileUploadResult
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdError
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdFileItem
 import net.opendasharchive.openarchive.util.BaseViewModel
 import net.opendasharchive.openarchive.util.trackProcessingWithTimeout
 import timber.log.Timber

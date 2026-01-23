@@ -1,10 +1,8 @@
-package net.opendasharchive.openarchive.db
+package net.opendasharchive.openarchive.db.sugar
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
@@ -50,8 +48,8 @@ data class Space(
         when (type) {
             Type.WEBDAV -> {}
             Type.INTERNET_ARCHIVE -> {
-                name = IaConduit.NAME
-                host = IaConduit.ARCHIVE_API_ENDPOINT
+                name = IaConduit.Companion.NAME
+                host = IaConduit.Companion.ARCHIVE_API_ENDPOINT
             }
 
             Type.RAVEN -> "Raven"
@@ -61,7 +59,7 @@ data class Space(
     @Serializable
     enum class Type(val id: Int, val friendlyName: String) {
         WEBDAV(0, "Private Server"),
-        INTERNET_ARCHIVE(1, IaConduit.NAME),
+        INTERNET_ARCHIVE(1, IaConduit.Companion.NAME),
         RAVEN(5, "DWeb Storage"),
     }
 

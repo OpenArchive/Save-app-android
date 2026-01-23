@@ -1,9 +1,10 @@
-package net.opendasharchive.openarchive.db
+package net.opendasharchive.openarchive.db.sugar
 
 
 import android.content.Context
 import com.orm.SugarRecord
 import net.opendasharchive.openarchive.BuildConfig
+import net.opendasharchive.openarchive.db.sugar.Space
 
 object DatabaseSeeder {
 

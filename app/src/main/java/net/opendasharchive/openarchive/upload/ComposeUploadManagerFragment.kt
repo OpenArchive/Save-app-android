@@ -8,7 +8,7 @@ import androidx.compose.ui.platform.ComposeView
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.db.Media
+import net.opendasharchive.openarchive.db.sugar.Media
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog

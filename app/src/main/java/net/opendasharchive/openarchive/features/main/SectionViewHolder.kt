@@ -2,8 +2,8 @@ package net.opendasharchive.openarchive.features.main
 
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ViewSectionBinding
-import net.opendasharchive.openarchive.db.Collection
-import net.opendasharchive.openarchive.db.Media
+import net.opendasharchive.openarchive.db.sugar.Collection
+import net.opendasharchive.openarchive.db.sugar.Media
 import java.text.DateFormat
 import java.text.NumberFormat
 import java.text.SimpleDateFormat

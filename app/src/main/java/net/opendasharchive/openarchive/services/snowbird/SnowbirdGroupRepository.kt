@@ -1,9 +1,9 @@
 package net.opendasharchive.openarchive.services.snowbird
 
-import net.opendasharchive.openarchive.db.JoinGroupResponse
-import net.opendasharchive.openarchive.db.MembershipRequest
-import net.opendasharchive.openarchive.db.RequestName
-import net.opendasharchive.openarchive.db.SnowbirdGroup
+import net.opendasharchive.openarchive.services.snowbird.service.db.JoinGroupResponse
+import net.opendasharchive.openarchive.services.snowbird.service.db.MembershipRequest
+import net.opendasharchive.openarchive.services.snowbird.service.db.RequestName
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroup
 import net.opendasharchive.openarchive.extensions.toSnowbirdError
 import net.opendasharchive.openarchive.services.snowbird.service.ISnowbirdAPI
 

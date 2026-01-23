@@ -10,8 +10,8 @@ import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.domain.mappers.toDomain
 import net.opendasharchive.openarchive.core.domain.mappers.toEntity
-import net.opendasharchive.openarchive.db.Collection
-import net.opendasharchive.openarchive.db.Media
+import net.opendasharchive.openarchive.db.sugar.Collection
+import net.opendasharchive.openarchive.db.sugar.Media
 
 class SugarMediaRepository(private val io: CoroutineDispatcher = Dispatchers.IO) : MediaRepository {
 

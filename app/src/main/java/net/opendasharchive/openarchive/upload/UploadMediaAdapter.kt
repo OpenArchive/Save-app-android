@@ -1,4 +1,4 @@
-package net.opendasharchive.openarchive.db
+package net.opendasharchive.openarchive.upload
 
 import android.app.Activity
 import android.view.LayoutInflater
@@ -8,8 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.RvMediaRowSmallBinding
-import net.opendasharchive.openarchive.upload.BroadcastManager
-import java.lang.ref.WeakReference
+import net.opendasharchive.openarchive.db.sugar.Media
 
 class UploadMediaAdapter(
     activity: Activity?,

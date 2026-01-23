@@ -1,7 +1,7 @@
 package net.opendasharchive.openarchive.features.internetarchive.domain.usecase
 
 import com.google.gson.Gson
-import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.db.sugar.Space
 import net.opendasharchive.openarchive.features.internetarchive.domain.model.InternetArchive
 import net.opendasharchive.openarchive.features.internetarchive.infrastructure.repository.InternetArchiveRepository
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager

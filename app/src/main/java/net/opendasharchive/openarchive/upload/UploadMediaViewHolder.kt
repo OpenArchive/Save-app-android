@@ -1,4 +1,4 @@
-package net.opendasharchive.openarchive.db
+package net.opendasharchive.openarchive.upload
 
 import android.content.res.ColorStateList
 import android.text.format.Formatter
@@ -19,6 +19,7 @@ import kotlinx.coroutines.SupervisorJob
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.RvMediaRowSmallBinding
+import net.opendasharchive.openarchive.db.sugar.Media
 import net.opendasharchive.openarchive.util.PdfThumbnailLoader
 import net.opendasharchive.openarchive.util.extensions.hide
 import net.opendasharchive.openarchive.util.extensions.show

@@ -14,9 +14,9 @@ import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdJoinGroupBinding
-import net.opendasharchive.openarchive.db.SnowbirdError
-import net.opendasharchive.openarchive.db.SnowbirdGroup
-import net.opendasharchive.openarchive.db.SnowbirdRepo
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdError
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroup
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdRepo
 import net.opendasharchive.openarchive.extensions.getQueryParameter
 import net.opendasharchive.openarchive.extensions.showKeyboard
 import net.opendasharchive.openarchive.features.core.UiText

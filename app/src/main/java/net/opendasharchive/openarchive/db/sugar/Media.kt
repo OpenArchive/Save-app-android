@@ -1,4 +1,4 @@
-package net.opendasharchive.openarchive.db
+package net.opendasharchive.openarchive.db.sugar
 
 import android.net.Uri
 import androidx.core.net.toFile
@@ -9,6 +9,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import androidx.core.net.toUri
+import net.opendasharchive.openarchive.db.sugar.Space
 
 data class Media(
     var originalFilePath: String = "",

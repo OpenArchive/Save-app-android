@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import net.opendasharchive.openarchive.databinding.RvMediaBoxBinding
-import net.opendasharchive.openarchive.db.Media
+import net.opendasharchive.openarchive.db.sugar.Media
 import net.opendasharchive.openarchive.features.media.adapter.PreviewViewHolder
 import java.lang.ref.WeakReference
 

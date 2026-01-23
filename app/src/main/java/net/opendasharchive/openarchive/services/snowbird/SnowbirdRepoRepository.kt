@@ -1,12 +1,10 @@
 package net.opendasharchive.openarchive.services.snowbird
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import net.opendasharchive.openarchive.db.RefreshGroupResponse
-import net.opendasharchive.openarchive.db.RequestName
-import net.opendasharchive.openarchive.db.SnowbirdGroup
-import net.opendasharchive.openarchive.db.SnowbirdRepo
-import net.opendasharchive.openarchive.db.toRepo
+import net.opendasharchive.openarchive.services.snowbird.service.db.RefreshGroupResponse
+import net.opendasharchive.openarchive.services.snowbird.service.db.RequestName
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroup
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdRepo
+import net.opendasharchive.openarchive.services.snowbird.service.db.toRepo
 import net.opendasharchive.openarchive.extensions.toSnowbirdError
 import net.opendasharchive.openarchive.services.snowbird.service.ISnowbirdAPI
 import timber.log.Timber

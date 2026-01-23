@@ -33,7 +33,7 @@ import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.core.domain.mappers.toDomain
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
-import net.opendasharchive.openarchive.db.dummySpaceList
+import net.opendasharchive.openarchive.db.sugar.dummySpaceList
 import net.opendasharchive.openarchive.features.main.ui.components.SpaceIcon
 
 

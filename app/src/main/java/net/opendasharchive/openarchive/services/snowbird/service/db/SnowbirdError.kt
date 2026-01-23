@@ -1,4 +1,4 @@
-package net.opendasharchive.openarchive.db
+package net.opendasharchive.openarchive.services.snowbird.service.db
 
 sealed class SnowbirdError: SerializableMarker {
     data class NetworkError(val code: Int, val message: String) : SnowbirdError()

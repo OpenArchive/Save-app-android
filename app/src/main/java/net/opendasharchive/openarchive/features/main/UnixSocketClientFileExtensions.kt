@@ -4,7 +4,7 @@ import android.net.LocalSocket
 import android.net.LocalSocketAddress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.opendasharchive.openarchive.db.SerializableMarker
+import net.opendasharchive.openarchive.services.snowbird.service.db.SerializableMarker
 import net.opendasharchive.openarchive.services.snowbird.service.HttpLikeException
 import timber.log.Timber
 import java.io.ByteArrayOutputStream

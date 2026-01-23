@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.navArgs
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdShareGroupBinding
-import net.opendasharchive.openarchive.db.SnowbirdGroup
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroup
 import net.opendasharchive.openarchive.extensions.asQRCode
 import net.opendasharchive.openarchive.extensions.urlEncode
 

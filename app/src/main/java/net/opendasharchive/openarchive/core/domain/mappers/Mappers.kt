@@ -1,20 +1,17 @@
 package net.opendasharchive.openarchive.core.domain.mappers
 
-import kotlinx.datetime.*
 import net.opendasharchive.openarchive.core.domain.Archive
 import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.domain.EvidenceStatus
 import net.opendasharchive.openarchive.core.domain.Submission
 import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.core.domain.VaultType
-import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.db.Project
-import net.opendasharchive.openarchive.db.Space
+import net.opendasharchive.openarchive.db.sugar.Media
+import net.opendasharchive.openarchive.db.sugar.Project
+import net.opendasharchive.openarchive.db.sugar.Space
 import net.opendasharchive.openarchive.util.toJavaDate
 import net.opendasharchive.openarchive.util.toKotlinLocalDateTime
-import net.opendasharchive.openarchive.db.Collection as SugarCollection
-import java.util.Date
-import kotlin.time.ExperimentalTime
+import net.opendasharchive.openarchive.db.sugar.Collection as SugarCollection
 
 /**
  * Extension mappers between SugarORM entities and clean domain models.

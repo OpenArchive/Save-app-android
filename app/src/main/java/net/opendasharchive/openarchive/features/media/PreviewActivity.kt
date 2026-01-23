@@ -14,8 +14,8 @@ import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.GridLayoutManager
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivityPreviewBinding
-import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.db.Project
+import net.opendasharchive.openarchive.db.sugar.Media
+import net.opendasharchive.openarchive.db.sugar.Project
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.core.UiColor
 import net.opendasharchive.openarchive.features.core.UiText

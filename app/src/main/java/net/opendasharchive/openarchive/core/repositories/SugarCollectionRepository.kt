@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.core.domain.Submission
 import net.opendasharchive.openarchive.core.domain.mappers.toDomain
-import net.opendasharchive.openarchive.db.Collection
+import net.opendasharchive.openarchive.db.sugar.Collection
 
 class SugarCollectionRepository(private val io: CoroutineDispatcher = Dispatchers.IO) : CollectionRepository {
 

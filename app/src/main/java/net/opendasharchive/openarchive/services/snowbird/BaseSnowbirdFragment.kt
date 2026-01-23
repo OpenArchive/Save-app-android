@@ -11,7 +11,7 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.db.SnowbirdError
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdError
 import net.opendasharchive.openarchive.extensions.androidViewModel
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
