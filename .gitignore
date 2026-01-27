@@ -67,3 +67,6 @@ fastlane/.env
 
 # C2PA Rust FFI compiled libraries (built during F-Droid build)
 app/src/main/jniLibs/**/*.so
+
+# OnionMasq build directory (build-time clone, cleaned after build)
+.onionmasq-build/

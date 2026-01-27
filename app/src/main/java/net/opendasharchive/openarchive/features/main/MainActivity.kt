@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.Point
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
+import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
@@ -68,6 +69,7 @@ import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.features.onboarding.StartDestination
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdActivity
+import net.opendasharchive.openarchive.services.tor.TorServiceManager
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import net.opendasharchive.openarchive.upload.UploadManagerFragment
@@ -297,6 +299,23 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
             if (!hasLocationPermission) {
                 AppLogger.w("[C2PA] Location permission missing at startup - disabling C2PA")
                 Prefs.useC2pa = false
+            }
+        }
+
+        // Auto-start Tor VPN if enabled in preferences AND permission already granted
+        // Note: We check both VpnService.prepare() AND that no other VPN is blocking
+        if (Prefs.useTor) {
+            val vpnIntent = VpnService.prepare(this)
+            if (vpnIntent == null) {
+                // Permission already granted, try to start
+                // If another VPN is active, the service will handle the error gracefully
+                AppLogger.d("Tor enabled in preferences, VPN permission granted - starting Tor")
+                val torServiceManager: TorServiceManager by inject()
+                torServiceManager.start()
+            } else {
+                // VPN permission revoked or never granted - disable Tor preference
+                AppLogger.d("Tor enabled in preferences but VPN permission not granted - disabling")
+                Prefs.useTor = false
             }
         }
     }

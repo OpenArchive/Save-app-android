@@ -43,7 +43,7 @@ gson = "2.13.2"
 guava = "31.0.1-jre"
 guava-listenablefuture = "9999.0-empty-to-avoid-conflict-with-guava"
 j2v8 = "6.2.1@aar"
-jtorctl = "0.4.5.7"
+onionmasq = "1.3.0Beta-local-release"
 junit = "4.13.2"
 junit-android = "1.3.0"
 koin = "4.2.0-alpha3"
@@ -73,6 +73,7 @@ serialization = "1.9.0"
 swiperefreshlayout = "1.2.0"
 timber = "5.0.1"
 tor-android = "0.4.8.21"
+jtorctl = "0.4.5.7"
 viewpager2 = "1.1.0"
 work = "2.11.0"
 zxing-core = "3.5.4"
@@ -143,6 +144,9 @@ androidx-navigation-fragment-compose = { group = "androidx.navigation", name = "
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
 androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
 androidx-navigationevent = { module = "androidx.navigationevent:navigationevent", version.ref = "navigationevent" }
+
+# AndroidX - LocalBroadcastManager (deprecated but still used)
+androidx-localbroadcastmanager = { group = "androidx.localbroadcastmanager", name = "localbroadcastmanager", version = "1.1.0" }
 
 # AndroidX - Other
 androidx-preferences = { group = "androidx.preference", name = "preference-ktx", version.ref = "preference" }
@@ -235,7 +239,8 @@ gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
 guava-listenablefuture = { group = "com.google.guava", name = "listenablefuture", version.ref = "guava-listenablefuture" }
 j2v8 = { group = "com.eclipsesource.j2v8", name = "j2v8", version.ref = "j2v8" }
-jtorctl = { group = "info.guardianproject", name = "jtorctl", version.ref = "jtorctl" }
+# OnionMasq - Tor Project's Arti-based VPN library
+onionmasq = { group = "org.torproject", name = "onionmasq", version.ref = "onionmasq" }
 mixpanel = { group = "com.mixpanel.android", name = "mixpanel-android", version.ref = "mixpanel" }
 netcipher = { group = "info.guardianproject.netcipher", name = "netcipher", version.ref = "netcipher" }
 permissionx = { group = "com.guolindev.permissionx", name = "permissionx", version.ref = "permissionx" }
@@ -244,6 +249,7 @@ jna = { group = "net.java.dev.jna", name = "jna", version.ref = "jna" }
 satyan-sugar = { group = "com.github.satyan", name = "sugar", version.ref = "satyan-sugar" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 tor-android = { group = "info.guardianproject", name = "tor-android", version.ref = "tor-android" }
+jtorctl = { group = "info.guardianproject", name = "jtorctl", version.ref = "jtorctl" }
 zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing-core" }
 zxing-android-embedded = { group = "com.journeyapps", name = "zxing-android-embedded", version.ref = "zxing-android-embedded" }
 

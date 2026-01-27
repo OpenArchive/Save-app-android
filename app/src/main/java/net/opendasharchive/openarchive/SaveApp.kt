@@ -14,6 +14,7 @@ import com.orm.SugarApp
 import net.opendasharchive.openarchive.core.di.torModule
 import net.opendasharchive.openarchive.services.tor.TorConstants
 import net.opendasharchive.openarchive.services.tor.TorServiceManager
+import org.torproject.onionmasq.OnionMasq
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
@@ -62,6 +63,9 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
         // Initialize logging first
         AppLogger.init(applicationContext, initDebugger = true)
 
+        // Initialize OnionMasq (Tor VPN library) early
+        OnionMasq.init(this)
+
         registerActivityLifecycleCallbacks(PasscodeManager())
 
         Prefs.load(this)
@@ -89,11 +93,8 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
 
         applyTheme()
 
-        // Start embedded Tor service if enabled
-        if (Prefs.useTor) {
-            val torServiceManager: TorServiceManager by inject()
-            torServiceManager.start()
-        }
+        // Note: Tor VPN auto-start is handled in MainActivity.onCreate()
+        // VpnService.prepare() must be called from an Activity context, not Application
 
         // Legacy CleanInsightsManager (kept for backwards compatibility)
         CleanInsightsManager.init(this)
@@ -144,9 +145,11 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
     override fun onTerminate() {
         super.onTerminate()
         // Clean up Tor service when app is terminated
-        if (Prefs.useTor) {
+        try {
             val torServiceManager: TorServiceManager by inject()
             torServiceManager.cleanup()
+        } catch (e: Exception) {
+            AppLogger.w("Error cleaning up Tor service", e)
         }
     }
 

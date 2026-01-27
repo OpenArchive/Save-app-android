@@ -1,44 +1,39 @@
 package net.opendasharchive.openarchive.services.tor
 
-import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.content.ServiceConnection
-import android.os.IBinder
-import androidx.core.content.ContextCompat
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.analytics.api.AnalyticsEvent
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import okhttp3.Authenticator
-import okhttp3.CertificatePinner
-import okhttp3.Credentials
+import net.opendasharchive.openarchive.services.tor.vpn.ConnectionState
+import net.opendasharchive.openarchive.services.tor.vpn.VpnServiceCommand
+import net.opendasharchive.openarchive.services.tor.vpn.VpnStatusObservable
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.Route
 import org.json.JSONObject
-import org.torproject.jni.TorService
-import java.net.InetSocketAddress
-import java.net.Proxy
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
 import kotlin.math.pow
 
 /**
- * Singleton manager for the embedded Tor service.
+ * Singleton manager for the Tor VPN service (OnionMasq).
+ *
+ * This implementation uses OnionMasq VPN to route app traffic through Tor.
+ * Unlike the previous SOCKS proxy approach, this routes all app traffic
+ * through Tor automatically via Android's VPN interface.
  *
  * Provides:
  * - StateFlow for observing Tor status changes
- * - Dynamic SOCKS port retrieval (for security)
  * - Service lifecycle management (start/stop)
+ * - Traffic verification via check.torproject.org
  *
  * Usage:
  * ```
@@ -53,9 +48,6 @@ import kotlin.math.pow
  *     }
  * }
  *
- * // Get dynamic SOCKS port (only valid when status is On)
- * val port = torManager.socksPort.value
- *
  * // Control service
  * torManager.start()
  * torManager.stop()
@@ -68,18 +60,19 @@ class TorServiceManager(
     private val _torStatus = MutableStateFlow<TorStatus>(TorStatus.Idle)
     val torStatus: StateFlow<TorStatus> = _torStatus.asStateFlow()
 
+    // For backwards compatibility - VPN mode doesn't use SOCKS ports
     private val _socksPort = MutableStateFlow(0)
     val socksPort: StateFlow<Int> = _socksPort.asStateFlow()
 
     private val _httpTunnelPort = MutableStateFlow(0)
     val httpTunnelPort: StateFlow<Int> = _httpTunnelPort.asStateFlow()
 
-    private var torService: TorService? = null
-    private var isBound = false
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + Job())
+    private var statusObserverJob: Job? = null
 
     /**
-     * Circuit isolation purposes - each gets a unique credential for stream isolation.
-     * Tor's IsolateSOCKSAuth ensures different credentials use different circuits.
+     * Circuit isolation purposes - maintained for API compatibility.
+     * In VPN mode, circuit isolation is handled by OnionMasq internally.
      */
     enum class CircuitPurpose {
         VERIFICATION,
@@ -88,156 +81,93 @@ class TorServiceManager(
         GENERAL
     }
 
-    private val serviceConnection =
-        object : ServiceConnection {
-            override fun onServiceConnected(
-                name: ComponentName?,
-                service: IBinder?,
-            ) {
-                AppLogger.d("TorServiceManager: Service connected")
-                torService = (service as? TorService.LocalBinder)?.service
-                isBound = true
-
-                // Get the dynamically allocated ports
-                torService?.let { svc ->
-                    _socksPort.value = svc.socksPort
-                    _httpTunnelPort.value = svc.httpTunnelPort
-                    AppLogger.d("TorServiceManager: SOCKS port = ${_socksPort.value}, HTTP tunnel port = ${_httpTunnelPort.value}")
-                }
-            }
-
-            override fun onServiceDisconnected(name: ComponentName?) {
-                AppLogger.d("TorServiceManager: Service disconnected")
-                torService = null
-                isBound = false
-                _socksPort.value = 0
-                _httpTunnelPort.value = 0
-            }
-        }
-
-    private val torStatusReceiver =
-        object : BroadcastReceiver() {
-            override fun onReceive(
-                context: Context?,
-                intent: Intent?,
-            ) {
-                if (intent?.action != TorService.ACTION_STATUS) return
-
-                val status = intent.getStringExtra(TorService.EXTRA_STATUS)
-                AppLogger.d("TorServiceManager: Received status broadcast: $status")
-
-                when (status) {
-                    TorService.STATUS_STARTING -> {
-                        _torStatus.value = TorStatus.Starting
-                    }
-
-                    TorService.STATUS_ON -> {
-                        // Update ports when Tor is connected
-                        torService?.let { svc ->
-                            _socksPort.value = svc.socksPort
-                            _httpTunnelPort.value = svc.httpTunnelPort
-                        }
-                        _torStatus.value = TorStatus.On
-                    }
-
-                    TorService.STATUS_OFF -> {
-                        _torStatus.value = TorStatus.Off
-                        _socksPort.value = 0
-                        _httpTunnelPort.value = 0
-                    }
-
-                    TorService.STATUS_STOPPING -> {
-                        _torStatus.value = TorStatus.Off
-                    }
-
-                    else -> {
-                        AppLogger.w("TorServiceManager: Unknown status: $status")
-                    }
-                }
-            }
-        }
-
     init {
-        // Register broadcast receiver for status updates
-        val filter = IntentFilter(TorService.ACTION_STATUS)
-        ContextCompat.registerReceiver(
-            context,
-            torStatusReceiver,
-            filter,
-            ContextCompat.RECEIVER_NOT_EXPORTED,
-        )
+        // Start observing VPN status changes
+        startStatusObserver()
+    }
+
+    private fun startStatusObserver() {
+        statusObserverJob?.cancel()
+        statusObserverJob = coroutineScope.launch {
+            VpnStatusObservable.statusLiveData.collect { connectionState ->
+                val newStatus = when (connectionState) {
+                    ConnectionState.INIT -> TorStatus.Idle
+                    ConnectionState.CONNECTING -> TorStatus.Starting
+                    ConnectionState.CONNECTED -> TorStatus.On
+                    ConnectionState.DISCONNECTING -> TorStatus.Off
+                    ConnectionState.DISCONNECTED -> TorStatus.Off
+                    ConnectionState.CONNECTION_ERROR -> TorStatus.Off
+                }
+                _torStatus.value = newStatus
+                AppLogger.d("TorServiceManager: Status changed to $newStatus (VPN: $connectionState)")
+            }
+        }
     }
 
     /**
-     * Starts the Tor service.
-     * The service runs as a foreground service to comply with Android restrictions.
+     * Starts the Tor VPN service.
+     * Requires VPN permission to be granted first.
+     * Call VpnServiceCommand.prepareVpn() to check/request permission.
      */
     fun start() {
-        AppLogger.d("TorServiceManager: Starting Tor service")
+        AppLogger.d("TorServiceManager: Starting Tor VPN service")
         _torStatus.value = TorStatus.Starting
-
-        val serviceIntent = Intent(context, TorForegroundService::class.java)
-
-        // Start as foreground service
-        ContextCompat.startForegroundService(context, serviceIntent)
-
-        // Bind to get service instance for port queries
-        context.bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+        VpnServiceCommand.startVpn(context)
     }
 
     /**
-     * Stops the Tor service.
+     * Stops the Tor VPN service.
      */
     fun stop() {
-        AppLogger.d("TorServiceManager: Stopping Tor service")
-
-        // Unbind if bound
-        if (isBound) {
-            try {
-                context.unbindService(serviceConnection)
-            } catch (e: IllegalArgumentException) {
-                AppLogger.w("TorServiceManager: Service not bound", e)
-            }
-            isBound = false
-        }
-
-        // Stop the service
-        val serviceIntent = Intent(context, TorForegroundService::class.java)
-        context.stopService(serviceIntent)
-
+        AppLogger.d("TorServiceManager: Stopping Tor VPN service")
+        VpnServiceCommand.stopVpn(context)
         _torStatus.value = TorStatus.Off
-        _socksPort.value = 0
-        _httpTunnelPort.value = 0
-        torService = null
     }
 
     /**
-     * Returns true if Tor is currently connected and ready for use.
+     * Returns true if Tor VPN is currently connected and ready for use.
      */
     fun isReady(): Boolean {
         val status = _torStatus.value
-        return (status == TorStatus.On || status is TorStatus.Verified) && _socksPort.value > 0
+        return status == TorStatus.On || status is TorStatus.Verified
+    }
+
+    /**
+     * Creates an OkHttpClient for network requests.
+     * In VPN mode, no proxy configuration is needed - traffic routes through VPN automatically.
+     *
+     * @param purpose The purpose of this client (for logging/analytics)
+     * @return Configured OkHttpClient, or null if Tor is not ready
+     */
+    fun createTorClient(purpose: CircuitPurpose = CircuitPurpose.GENERAL): OkHttpClient? {
+        if (!isReady()) return null
+
+        // In VPN mode, no SOCKS proxy needed - traffic routes through VPN
+        return OkHttpClient
+            .Builder()
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
+            .build()
     }
 
     /**
      * Fetches the country name for a given IP address using free geolocation APIs.
-     * Routes the request through Tor for privacy.
-     * Tries multiple HTTPS APIs as fallbacks since some have rate limits or block Tor.
+     * Routes the request through Tor automatically (via VPN).
      *
      * @param ip The IP address to look up
-     * @param torClient OkHttpClient configured to use Tor SOCKS proxy
+     * @param client OkHttpClient (traffic routed via VPN)
      * @return Country name or null if lookup fails
      */
     private suspend fun getExitCountry(
         ip: String,
-        torClient: OkHttpClient,
+        client: OkHttpClient,
     ): String? =
         withContext(Dispatchers.IO) {
             // Try primary API (ipwho.is - free, no rate limits, returns JSON)
             try {
                 val request = Request.Builder().url("https://ipwho.is/$ip").build()
-
-                val response = torClient.newCall(request).execute()
+                val response = client.newCall(request).execute()
                 val body = response.body?.string()
 
                 if (response.isSuccessful && body != null) {
@@ -250,200 +180,52 @@ class TorServiceManager(
                         }
                     }
                 }
-                AppLogger.d("TorServiceManager: Primary geolocation API failed: ${response.code}")
             } catch (e: Exception) {
                 AppLogger.w("TorServiceManager: ipwho.is country lookup failed", e)
             }
 
-            // Try secondary API (freeipapi.com - free, generous limits)
+            // Try secondary API (freeipapi.com)
             try {
                 val request = Request.Builder().url("https://freeipapi.com/api/json/$ip").build()
-
-                val response = torClient.newCall(request).execute()
+                val response = client.newCall(request).execute()
                 val body = response.body?.string()
 
                 if (response.isSuccessful && body != null) {
                     val json = JSONObject(body)
                     val country = json.optString("countryName", "")
                     if (country.isNotEmpty()) {
-                        AppLogger.d("TorServiceManager: Exit country resolved (fallback 1): $country")
                         return@withContext country
                     }
                 }
-                AppLogger.d("TorServiceManager: Secondary geolocation API failed: ${response.code}")
             } catch (e: Exception) {
                 AppLogger.w("TorServiceManager: freeipapi.com country lookup failed", e)
             }
 
-            // Try tertiary API (ipapi.co - returns plain text country name)
-            try {
-                val request = Request.Builder().url("https://ipapi.co/$ip/country_name/").build()
-
-                val response = torClient.newCall(request).execute()
-                val body = response.body?.string()?.trim()
-
-                if (response.isSuccessful && !body.isNullOrEmpty() && !body.startsWith("{") &&
-                    !body.contains(
-                        "error",
-                    )
-                ) {
-                    AppLogger.d("TorServiceManager: Exit country resolved (fallback 2): $body")
-                    return@withContext body
-                }
-                AppLogger.d("TorServiceManager: Tertiary geolocation API failed: ${response.code}")
-            } catch (e: Exception) {
-                AppLogger.w("TorServiceManager: Tertiary country lookup failed", e)
-            }
-
-            AppLogger.w("TorServiceManager: All geolocation APIs failed")
             null
         }
 
     /**
-     * Creates a SOCKS5 proxy authenticator for circuit isolation.
-     *
-     * SECURITY: Tor's IsolateSOCKSAuth feature ensures that connections with
-     * different username/password combinations use different circuits. This
-     * prevents traffic correlation between different app operations.
-     *
-     * @param purpose The purpose of this connection (determines circuit isolation)
-     * @return Authenticator that provides unique credentials per purpose
-     */
-    private fun createCircuitIsolatingAuthenticator(purpose: CircuitPurpose): Authenticator {
-        // Use purpose + UUID for unique circuit per request type
-        // Same purpose reuses circuit, different purposes get different circuits
-        val username = "save-${purpose.name.lowercase()}"
-        val password = UUID.randomUUID().toString()
-
-        return Authenticator { _: Route?, response: okhttp3.Response ->
-            if (response.request.header("Proxy-Authorization") != null) {
-                // Already attempted authentication, give up to avoid infinite loop
-                null
-            } else {
-                response.request.newBuilder()
-                    .header("Proxy-Authorization", Credentials.basic(username, password))
-                    .build()
-            }
-        }
-    }
-
-    /**
-     * Creates an OkHttpClient with circuit isolation and certificate pinning.
-     *
-     * SECURITY:
-     * - Certificate pinning for check.torproject.org prevents MITM attacks
-     * - Circuit isolation via IsolateSOCKSAuth prevents traffic correlation
-     *
-     * @param port The SOCKS5 proxy port
-     * @param purpose The purpose of this client (for circuit isolation)
-     * @return Configured OkHttpClient
-     */
-    private fun createIsolatedClient(port: Int, purpose: CircuitPurpose): OkHttpClient {
-        // Certificate pinning for check.torproject.org
-        // These are SHA-256 hashes of the certificate public keys
-        val certificatePinner =
-            CertificatePinner
-                .Builder()
-                .add(
-                    "check.torproject.org",
-                    // Primary certificate pin (Let's Encrypt)
-                    "sha256/jQJTbIh0grw0/1TkHSumWb+Fs0Ggogr621gT3PvPKG0=",
-                    // Backup pin (ISRG Root X1)
-                    "sha256/C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M=",
-                ).build()
-
-        return OkHttpClient
-            .Builder()
-            .proxy(
-                Proxy(
-                    Proxy.Type.SOCKS,
-                    InetSocketAddress(TorConstants.SOCKS5_PROXY_ADDRESS, port),
-                ),
-            )
-            .proxyAuthenticator(createCircuitIsolatingAuthenticator(purpose))
-            .certificatePinner(certificatePinner)
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .build()
-    }
-
-    /**
-     * Creates an OkHttpClient for geolocation lookups (no certificate pinning).
-     *
-     * @param port The SOCKS5 proxy port
-     * @return Configured OkHttpClient for geolocation APIs
-     */
-    private fun createGeolocationClient(port: Int): OkHttpClient {
-        return OkHttpClient
-            .Builder()
-            .proxy(
-                Proxy(
-                    Proxy.Type.SOCKS,
-                    InetSocketAddress(TorConstants.SOCKS5_PROXY_ADDRESS, port),
-                ),
-            )
-            .proxyAuthenticator(createCircuitIsolatingAuthenticator(CircuitPurpose.GEOLOCATION))
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .build()
-    }
-
-    /**
-     * Creates an OkHttpClient configured for Tor with circuit isolation.
-     *
-     * Use this method when making requests through Tor to ensure proper
-     * circuit isolation between different types of operations.
-     *
-     * @param purpose The purpose of this client (UPLOAD, GENERAL, etc.)
-     * @return Configured OkHttpClient, or null if Tor is not ready
-     */
-    fun createTorClient(purpose: CircuitPurpose = CircuitPurpose.GENERAL): OkHttpClient? {
-        val port = _socksPort.value
-        if (port <= 0) return null
-
-        return OkHttpClient
-            .Builder()
-            .proxy(
-                Proxy(
-                    Proxy.Type.SOCKS,
-                    InetSocketAddress(TorConstants.SOCKS5_PROXY_ADDRESS, port),
-                ),
-            )
-            .proxyAuthenticator(createCircuitIsolatingAuthenticator(purpose))
-            .connectTimeout(60, TimeUnit.SECONDS)
-            .readTimeout(60, TimeUnit.SECONDS)
-            .writeTimeout(60, TimeUnit.SECONDS)
-            .build()
-    }
-
-    /**
      * Verifies that traffic is actually routing through the Tor network.
      *
-     * This makes a request to check.torproject.org through the SOCKS proxy
+     * This makes a request to check.torproject.org through the VPN
      * to confirm the connection is working properly.
-     *
-     * Features:
-     * - Certificate pinning for check.torproject.org
-     * - Circuit isolation (verification uses dedicated circuit)
-     * - Exponential backoff retry on failure (up to MAX_VERIFICATION_RETRIES)
-     * - Metrics tracking for success/failure rates
      *
      * @return TorVerificationResult containing verification status and exit IP
      */
     suspend fun verifyTorConnection(): TorVerificationResult =
         withContext(Dispatchers.IO) {
             val startTime = System.currentTimeMillis()
-            val port = _socksPort.value
-            if (port <= 0) {
+
+            if (!isReady()) {
                 trackVerificationMetrics(
                     success = false,
                     retryCount = 0,
                     durationMs = System.currentTimeMillis() - startTime,
-                    errorType = "port_unavailable"
+                    errorType = "vpn_not_connected"
                 )
                 return@withContext TorVerificationResult(
                     isUsingTor = false,
-                    error = "Tor SOCKS port not available",
+                    error = "Tor VPN not connected",
                 )
             }
 
@@ -452,7 +234,7 @@ class TorServiceManager(
 
             while (attempt < MAX_VERIFICATION_RETRIES) {
                 try {
-                    val result = attemptVerification(port)
+                    val result = attemptVerification()
                     if (result.isUsingTor || result.error == null) {
                         trackVerificationMetrics(
                             success = result.isUsingTor,
@@ -470,14 +252,9 @@ class TorServiceManager(
 
                 attempt++
                 if (attempt < MAX_VERIFICATION_RETRIES) {
-                    // Exponential backoff: 1s, 2s, 4s, 8s... (capped at 30s)
-                    val delayMs =
-                        min(
-                            INITIAL_RETRY_DELAY_MS * 2.0.pow(attempt - 1).toLong(),
-                            MAX_RETRY_DELAY_MS,
-                        )
-                    AppLogger.d(
-                        "TorServiceManager: Retrying verification in ${delayMs}ms (attempt ${attempt + 1}/$MAX_VERIFICATION_RETRIES)",
+                    val delayMs = min(
+                        INITIAL_RETRY_DELAY_MS * 2.0.pow(attempt - 1).toLong(),
+                        MAX_RETRY_DELAY_MS,
                     )
                     delay(delayMs)
                 }
@@ -491,16 +268,12 @@ class TorServiceManager(
                 errorType = errorType
             )
 
-            AppLogger.e("TorServiceManager: Verification failed after $MAX_VERIFICATION_RETRIES attempts")
             return@withContext TorVerificationResult(
                 isUsingTor = false,
                 error = lastError ?: "Verification failed after $MAX_VERIFICATION_RETRIES attempts",
             )
         }
 
-    /**
-     * Categorizes error messages for analytics (GDPR-safe, no sensitive data).
-     */
     private fun categorizeError(error: String?): String {
         return when {
             error == null -> "unknown"
@@ -508,14 +281,10 @@ class TorServiceManager(
             error.contains("connect", ignoreCase = true) -> "connection_failed"
             error.contains("certificate", ignoreCase = true) -> "certificate_error"
             error.contains("SSL", ignoreCase = true) -> "ssl_error"
-            error.contains("proxy", ignoreCase = true) -> "proxy_error"
             else -> "other"
         }
     }
 
-    /**
-     * Tracks verification metrics via analytics.
-     */
     private suspend fun trackVerificationMetrics(
         success: Boolean,
         retryCount: Int,
@@ -536,17 +305,16 @@ class TorServiceManager(
         }
     }
 
-    /**
-     * Single verification attempt with certificate pinning and circuit isolation.
-     */
-    private suspend fun attemptVerification(port: Int): TorVerificationResult =
+    private suspend fun attemptVerification(): TorVerificationResult =
         withContext(Dispatchers.IO) {
-            // Use isolated client for verification (dedicated circuit)
-            val verificationClient = createIsolatedClient(port, CircuitPurpose.VERIFICATION)
+            // In VPN mode, traffic routes through Tor automatically
+            val client = OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .build()
 
             val request = Request.Builder().url(TOR_CHECK_API_URL).build()
-
-            val response = verificationClient.newCall(request).execute()
+            val response = client.newCall(request).execute()
             val body = response.body?.string()
 
             if (response.isSuccessful && body != null) {
@@ -554,29 +322,15 @@ class TorServiceManager(
                 val isTor = json.optBoolean("IsTor", false)
                 val ip = json.optString("IP", "")
 
-                AppLogger.d("TorServiceManager: Verification result - IsTor: $isTor")
+                AppLogger.d("TorServiceManager: Verification result - IsTor: $isTor, IP: $ip")
 
                 if (isTor && ip.isNotEmpty()) {
-                    // Lookup exit country using separate circuit (geolocation isolation)
-                    val geolocationClient = createGeolocationClient(port)
-                    val country = getExitCountry(ip, geolocationClient)
-
-                    // Create connection info with IP and country
-                    val connectionInfo =
-                        TorConnectionInfo(
-                            exitIp = ip,
-                            exitCountry = country,
-                        )
-
-                    // Update status to Verified with full connection info
+                    val country = getExitCountry(ip, client)
+                    val connectionInfo = TorConnectionInfo(
+                        exitIp = ip,
+                        exitCountry = country,
+                    )
                     _torStatus.value = TorStatus.Verified(connectionInfo)
-
-                    // Update the notification to show verified status
-                    val updateIntent =
-                        Intent(context, TorForegroundService::class.java).apply {
-                            action = TorForegroundService.ACTION_UPDATE_NOTIFICATION
-                        }
-                    context.startService(updateIntent)
 
                     return@withContext TorVerificationResult(
                         isUsingTor = true,
@@ -599,28 +353,16 @@ class TorServiceManager(
 
     /**
      * Cleanup resources when the manager is no longer needed.
-     * Call this in Application.onTerminate() or when shutting down.
      */
     fun cleanup() {
         stop()
-        try {
-            context.unregisterReceiver(torStatusReceiver)
-        } catch (e: IllegalArgumentException) {
-            AppLogger.w("TorServiceManager: Receiver not registered", e)
-        }
+        statusObserverJob?.cancel()
     }
 
     companion object {
-        /** Tor Project's official API to check if traffic is routing through Tor */
         private const val TOR_CHECK_API_URL = "https://check.torproject.org/api/ip"
-
-        /** Maximum number of verification retry attempts */
         private const val MAX_VERIFICATION_RETRIES = 3
-
-        /** Initial delay between retries (milliseconds) */
         private const val INITIAL_RETRY_DELAY_MS = 1000L
-
-        /** Maximum delay between retries (milliseconds) */
         private const val MAX_RETRY_DELAY_MS = 30000L
     }
 }

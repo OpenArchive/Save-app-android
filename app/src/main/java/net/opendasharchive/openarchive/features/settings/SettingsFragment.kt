@@ -3,6 +3,7 @@ package net.opendasharchive.openarchive.features.settings
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.net.VpnService
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -73,6 +74,22 @@ class SettingsFragment : PreferenceFragmentCompat() {
             notificationPermissionCallback?.invoke()
         }
         notificationPermissionCallback = null
+    }
+
+    // Launcher for VPN permission
+    private val vpnPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // VPN permission granted, start Tor
+            AppLogger.d("VPN permission granted, starting Tor")
+            startTorService()
+        } else {
+            // VPN permission denied
+            AppLogger.w("VPN permission denied")
+            Prefs.useTor = false
+            torPreference?.isChecked = false
+        }
     }
 
 //    override fun onCreateView(
@@ -175,6 +192,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
+        // TODO: Enable when OnionMasq supports pluggable transports (obfs4/snowflake)
+        // findPreference<Preference>("tor_bridge_settings")?.setOnPreferenceClickListener {
+        //     startActivity(Intent(context, TorBridgeSettingsActivity::class.java))
+        //     true
+        // }
+
         // Setup embedded Tor toggle
         torPreference = getPrefByKey<SwitchPreferenceCompat>(R.string.pref_key_use_tor)
         torPreference?.apply {
@@ -185,21 +208,19 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 val enabled = newValue as Boolean
 
                 if (enabled) {
-                    // Request notification permission first (Android 13+), then start Tor
+                    // Request notification permission first (Android 13+), then check VPN permission
                     checkNotificationPermission {
-                        Prefs.useTor = true
-
-                        // Add breadcrumb for crash analysis
-                        AppLogger.breadcrumb("Feature Toggled", "tor: true")
-
-                        // Track feature toggle
-                        lifecycleScope.launch {
-                            analyticsManager.trackFeatureToggled("tor", true)
+                        // Check VPN permission
+                        val vpnIntent = VpnService.prepare(requireContext())
+                        if (vpnIntent != null) {
+                            // Need to request VPN permission
+                            AppLogger.d("Requesting VPN permission")
+                            vpnPermissionLauncher.launch(vpnIntent)
+                        } else {
+                            // VPN permission already granted
+                            AppLogger.d("VPN permission already granted")
+                            startTorService()
                         }
-
-                        // Start the embedded Tor service
-                        // Toggle state will be updated by observeTorStatus() when verified
-                        torServiceManager.start()
                     }
                     // Return false - toggle state is controlled by status observer
                     false
@@ -396,6 +417,22 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 AppLogger.w("Tor verification failed: ${result.error}")
             }
         }
+    }
+
+    private fun startTorService() {
+        Prefs.useTor = true
+
+        // Add breadcrumb for crash analysis
+        AppLogger.breadcrumb("Feature Toggled", "tor: true")
+
+        // Track feature toggle
+        lifecycleScope.launch {
+            analyticsManager.trackFeatureToggled("tor", true)
+        }
+
+        // Start the embedded Tor service
+        // Toggle state will be updated by observeTorStatus() when verified
+        torServiceManager.start()
     }
 
         override fun onResume() {

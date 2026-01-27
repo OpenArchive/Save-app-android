@@ -237,6 +237,7 @@ dependencies {
     implementation(libs.google.material)
 
     // AndroidX Other
+    implementation(libs.androidx.localbroadcastmanager)
     implementation(libs.androidx.preferences)
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.security.crypto)
@@ -301,11 +302,12 @@ dependencies {
     implementation(libs.bouncycastle.bcprov)
     implementation(libs.bouncycastle.bcpkix)
     api(libs.bouncycastle.bcpg)
-    implementation(libs.netcipher)
+    // netcipher removed - OnionMasq VPN handles Tor routing automatically
 
-    // Tor & Bitcoin
-    implementation(libs.tor.android)
-    implementation(libs.jtorctl)
+    // Tor - OnionMasq (Arti-based VPN)
+    implementation(libs.onionmasq)
+
+    // Bitcoin
     implementation(libs.bitcoinj.core)
 
     // C2PA - Content Authenticity

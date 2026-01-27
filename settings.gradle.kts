@@ -85,6 +85,31 @@ dependencyResolutionManagement {
                 includeModule("com.github.guardianproject", "sardine-android")
             }
         }
+
+        // Tor Project GitLab Maven repository for OnionMasq
+        maven {
+            url = uri("https://gitlab.torproject.org/api/v4/projects/1192/packages/maven")
+            name = "GitLabTorProject"
+            content {
+                includeGroup("org.torproject")
+            }
+            credentials(HttpHeaderCredentials::class) {
+                // Token from local.properties or CI environment
+                val localPropsFile = file("local.properties")
+                val gitLabToken = if (localPropsFile.exists()) {
+                    java.util.Properties().apply {
+                        localPropsFile.inputStream().use { load(it) }
+                    }.getProperty("gitLabPrivateToken") ?: System.getenv("CI_JOB_TOKEN") ?: ""
+                } else {
+                    System.getenv("CI_JOB_TOKEN") ?: ""
+                }
+                name = if (System.getenv("CI_JOB_TOKEN") != null) "Job-Token" else "Private-Token"
+                value = gitLabToken
+            }
+            authentication {
+                create<HttpHeaderAuthentication>("header")
+            }
+        }
     }
 }
 rootProject.name = "save-android-old"

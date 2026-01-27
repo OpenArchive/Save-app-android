@@ -107,6 +107,18 @@
             android:widgetLayout="@layout/custom_preference_widget_switch"
             app:defaultValue="false"
             app:iconSpaceReserved="false" />
+
+        <!-- TODO: Enable when OnionMasq supports pluggable transports (obfs4/snowflake)
+        <Preference
+            android:iconSpaceReserved="false"
+            android:key="@string/pref_key_tor_bridge_settings"
+            android:layout="@layout/custom_preference"
+            android:singleLineTitle="false"
+            android:title="@string/tor_bridges_title"
+            android:summary="@string/use_bridges_summary"
+            android:dependency="@string/pref_key_use_tor"
+            app:iconSpaceReserved="false" />
+        -->
     </PreferenceCategory>
 
 

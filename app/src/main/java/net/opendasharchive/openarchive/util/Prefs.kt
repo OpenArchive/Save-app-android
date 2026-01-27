@@ -14,6 +14,8 @@ object Prefs {
     private const val NEARBY_USE_BLUETOOTH = "nearby_use_bluetooth"
     private const val NEARBY_USE_WIFI = "nearby_use_wifi"
     const val USE_TOR = "pref_use_tor"
+    const val USE_BRIDGES = "use_bridges"
+    const val BRIDGE_TYPE = "bridge_type"
     const val PROHIBIT_SCREENSHOTS = "prohibit_screenshots"
     const val USE_C2PA = "use_c2pa"
     private const val C2PA_SIGNING_KEY = "c2pa_signing_key"
@@ -117,6 +119,18 @@ object Prefs {
         get() = prefs?.getBoolean(USE_TOR, false) ?: false
         set(value) {
             prefs?.edit()?.putBoolean(USE_TOR, value)?.apply()
+        }
+
+    var useBridges: Boolean
+        get() = prefs?.getBoolean(USE_BRIDGES, false) ?: false
+        set(value) {
+            prefs?.edit()?.putBoolean(USE_BRIDGES, value)?.apply()
+        }
+
+    var bridgeType: String
+        get() = prefs?.getString(BRIDGE_TYPE, "obfs4") ?: "obfs4"
+        set(value) {
+            prefs?.edit()?.putString(BRIDGE_TYPE, value)?.apply()
         }
 
     var currentSpaceId: Long

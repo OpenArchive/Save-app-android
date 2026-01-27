@@ -24,12 +24,20 @@
     <string name="content_picker_label">Add media from</string>
     <string name="disable_passcode_dialog_title">Disable Passcode</string>
     <string name="disable_passcode_dialog_msg">Are you sure you want to disable the passcode?</string>
-    <!-- Embedded Tor Service Strings -->
+    <!-- Embedded Tor Service Strings (OnionMasq VPN-based) -->
     <string name="tor_notification_title">Tor Network</string>
+    <string name="tor_notification_idle">Tor VPN idle</string>
     <string name="tor_notification_connecting">Connecting to Tor network…</string>
+    <string name="tor_notification_bootstrap_progress">Bootstrapping Tor: %1$d%%</string>
     <string name="tor_notification_connected">Connected to Tor network</string>
+    <string name="tor_notification_connected_with_usage">Connected to Tor - %1$s</string>
+    <string name="tor_notification_no_internet">Connected to Tor - No internet</string>
+    <string name="tor_notification_disconnecting">Disconnecting from Tor…</string>
+    <string name="tor_notification_disconnected">Disconnected from Tor</string>
+    <string name="tor_notification_error">Tor connection error</string>
     <string name="tor_notification_channel_name">Tor Service</string>
-    <string name="tor_notification_channel_description">Notifications for the embedded Tor service</string>
+    <string name="tor_notification_channel_description">Notifications for the Tor VPN service</string>
+    <string name="tor_vpn_session_name">Save Tor Session</string>
     <string name="tor_status_connecting">Connecting to Tor…</string>
     <string name="tor_status_verifying">Connected, verifying routing…</string>
     <string name="tor_status_connected">Connected to Tor network</string>
@@ -38,6 +46,13 @@
     <string name="tor_status_error">Tor error: %1$s</string>
     <string name="tor_notification_permission_title">Notification Permission</string>
     <string name="tor_notification_permission_message">To show Tor connection status in your notification bar, Save needs notification permission. You can still use Tor without this permission.</string>
+
+    <!-- VPN Permission Strings -->
+    <string name="tor_vpn_permission_title">VPN Permission Required</string>
+    <string name="tor_vpn_permission_message">Save uses a VPN to route your app traffic through Tor for enhanced privacy.\n\nThis VPN only affects Save app traffic - all other apps on your device will continue using normal internet.\n\nYou\'ll see a VPN icon in your status bar when Tor is active.</string>
+    <string name="tor_vpn_permission_denied_title">VPN Permission Denied</string>
+    <string name="tor_vpn_permission_denied_message">Tor cannot be enabled without VPN permission. This permission is required to route Save app traffic through the Tor network.\n\nYou can enable Tor later by toggling it on in Settings.</string>
+    <string name="lbl_Continue">Continue</string>
 
     <!-- Legacy Tor strings (kept for backwards compatibility) -->
     <string name="tor_disabled_title">Onion routing under development</string>
@@ -73,6 +88,18 @@
 
     <string name="prefs_use_tor_title">Turn on Onion Routing</string>
     <string name="prefs_use_tor_summary">Transfer via the Tor Network only</string>
+
+    <!-- Tor Bridges -->
+    <string name="tor_bridges_title">Tor Bridges</string>
+    <string name="use_bridges">Use Bridges</string>
+    <string name="use_bridges_summary">Enable bridges to connect to Tor in restricted networks</string>
+    <string name="bridges_description">Bridges help you securely access the Tor network in places where Tor is blocked. Depending on where you are, one bridge may work better than another.</string>
+    <string name="bridge_type_obfs4">obfs4</string>
+    <string name="bridge_type_obfs4_description">Disguises your traffic as random data. Recommended for most users.</string>
+    <string name="bridge_type_snowflake">Snowflake</string>
+    <string name="bridge_type_snowflake_description">Disguises your traffic as a video call. Uses volunteer-run proxies.</string>
+    <string name="bridge_selection">Bridge Type</string>
+    <string name="pref_key_tor_bridge_settings" translatable="false">tor_bridge_settings</string>
 
     <string name="prefs_theme_system" translatable="false">System Controlled</string>
     <string name="prefs_theme_light" translatable="false">Light</string>
