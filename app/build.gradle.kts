@@ -305,7 +305,11 @@ dependencies {
     // netcipher removed - OnionMasq VPN handles Tor routing automatically
 
     // Tor - OnionMasq (Arti-based VPN)
-    implementation(libs.onionmasq)
+    // Exclude IPtProxy (Go-based pluggable transports) - saves ~77 MB
+    // PT support (obfs4/snowflake) is not yet functional in OnionMasq anyway
+    implementation(libs.onionmasq) {
+        exclude(group = "com.netzarchitekten", module = "IPtProxy")
+    }
 
     // Bitcoin
     implementation(libs.bitcoinj.core)
