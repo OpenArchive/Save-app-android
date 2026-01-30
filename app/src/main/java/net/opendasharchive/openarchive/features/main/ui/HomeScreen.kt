@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -50,6 +52,7 @@ import org.koin.compose.koinInject
 import net.opendasharchive.openarchive.features.main.CheckForInAppUpdates
 import net.opendasharchive.openarchive.features.main.CheckForInAppReview
 import net.opendasharchive.openarchive.features.media.MediaPicker
+import net.opendasharchive.openarchive.upload.UploadManagerScreen
 
 /**
  * IMPROVED HomeScreen:
@@ -380,6 +383,9 @@ fun HomeScreenContent(
                                     refreshToken = state.mediaRefreshToken,
                                     onNavigateToPreview = {
                                         onAction(HomeAction.NavigateToPreviewMedia)
+                                    },
+                                    onShowUploadManager = {
+                                        onAction(HomeAction.ShowUploadManager)
                                     }
                                 )
                             }
@@ -410,6 +416,24 @@ fun HomeScreenContent(
                 onAction(HomeAction.ContentPickerPicked(type))
             }
         )
+    }
+
+    // Upload Manager Bottom Sheet
+    if (state.showUploadManager) {
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(
+            onDismissRequest = {
+                onAction(HomeAction.HideUploadManager)
+            },
+            sheetState = sheetState
+        ) {
+            UploadManagerScreen(
+                viewModel = koinViewModel(),
+                onClose = {
+                    onAction(HomeAction.HideUploadManager)
+                }
+            )
+        }
     }
 }
 

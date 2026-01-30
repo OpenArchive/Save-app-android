@@ -63,6 +63,8 @@ import org.koin.compose.koinInject
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.core.net.toUri
+import coil3.toUri
 import net.opendasharchive.openarchive.features.core.BaseComposeActivity
 import net.opendasharchive.openarchive.features.core.UiColor
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
@@ -88,6 +90,8 @@ fun SettingsScreen(
 
     val coroutineScope = rememberCoroutineScope()
     val appVersion = remember { context.packageManager.getVersionName(context.packageName) }
+
+    val torUrl = stringResource(R.string.tor_url)
 
     ProvidePreferenceLocals(flow = preferenceFlow, theme = savePreferenceTheme()) {
         val settingStrings = SettingsStrings(
@@ -174,7 +178,7 @@ fun SettingsScreen(
                     message = UiText.Resource(R.string.tor_disabled_message)
                     positiveButton {
                         text = UiText.Resource(R.string.tor_download_btn_label)
-                        action = { context.startActivity(Intent(Intent.ACTION_VIEW, Prefs.TOR_DOWNLOAD_URL)) }
+                        action = { context.startActivity(Intent(Intent.ACTION_VIEW, torUrl.toUri())) }
                     }
                     neutralButton { text = UiText.Resource(android.R.string.cancel) }
                 }

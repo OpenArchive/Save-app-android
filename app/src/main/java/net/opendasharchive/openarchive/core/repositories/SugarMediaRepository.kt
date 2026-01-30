@@ -80,8 +80,11 @@ class SugarMediaRepository(private val io: CoroutineDispatcher = Dispatchers.IO)
 
     override suspend fun updateEvidence(evidence: Evidence) {
         withContext(io) {
-            evidence.toEntity().save()
-            InvalidationBus.invalidateMedia()
+            // Check if still exists before saving to avoid re-inserting deleted items
+            if (Media.get(evidence.id) != null) {
+                evidence.toEntity().save()
+                InvalidationBus.invalidateMedia()
+            }
         }
     }
 

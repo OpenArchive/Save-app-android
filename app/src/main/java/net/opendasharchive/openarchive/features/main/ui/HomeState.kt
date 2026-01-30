@@ -22,6 +22,7 @@ data class HomeState(
     val pagerIndex: Int = 0,
     val lastMediaIndex: Int = 0,
     val showContentPicker: Boolean = false,
+    val showUploadManager: Boolean = false,
     val mediaRefreshProjectId: Long? = null,
     val mediaRefreshToken: Long = 0L
 )

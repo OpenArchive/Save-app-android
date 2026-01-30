@@ -10,8 +10,9 @@ import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.core.repositories.SugarCollectionRepository
 import net.opendasharchive.openarchive.core.repositories.SugarMediaRepository
 import net.opendasharchive.openarchive.core.repositories.SugarProjectRepository
-import net.opendasharchive.openarchive.core.repositories.SugarSpaceRepository
+import net.opendasharchive.openarchive.core.repositories.*
 import net.opendasharchive.openarchive.features.main.ui.HomeViewModel
+import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.features.main.ui.MainMediaViewModel
 import net.opendasharchive.openarchive.features.media.PreviewMediaViewModel
 import net.opendasharchive.openarchive.features.media.ReviewMediaViewModel
@@ -58,9 +59,27 @@ val featuresModule = module {
 
     // Home/Main repositories (Sugar-backed)
     single<SpaceRepository> { SugarSpaceRepository(get(named("io"))) }
-    single<ProjectRepository> { SugarProjectRepository(get(named("io"))) }
-    single<CollectionRepository> { SugarCollectionRepository(get(named("io"))) }
-    single<MediaRepository> { SugarMediaRepository(get(named("io"))) }
+    //single<ProjectRepository> { SugarProjectRepository(get(named("io"))) }
+    //single<CollectionRepository> { SugarCollectionRepository(get(named("io"))) }
+    //single<MediaRepository> { SugarMediaRepository(get(named("io"))) }
+
+    // Home/Main repositories
+    single<SpaceRepository> {
+        if (Prefs.isRoomMigrated) get<VaultRepositoryImpl>()
+        else SugarSpaceRepository(get(named("io")))
+    }
+    single<ProjectRepository> {
+        if (Prefs.isRoomMigrated) get<ArchiveRepositoryImpl>()
+        else SugarProjectRepository(get(named("io")))
+    }
+    single<CollectionRepository> {
+        if (Prefs.isRoomMigrated) get<SubmissionRepositoryImpl>()
+        else SugarCollectionRepository(get(named("io")))
+    }
+    single<MediaRepository> {
+        if (Prefs.isRoomMigrated) get<EvidenceRepositoryImpl>()
+        else SugarMediaRepository(get(named("io")))
+    }
 
     viewModelOf(::SnowbirdGroupViewModel)
     viewModelOf(::SnowbirdFileViewModel)

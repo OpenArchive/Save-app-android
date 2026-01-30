@@ -35,14 +35,15 @@ kotlin {
         jvmTarget.set(JvmTarget.JVM_21)
         languageVersion.set(KotlinVersion.KOTLIN_2_3)
 
-        freeCompilerArgs.addAll(
-            "-Xcontext-sensitive-resolution",
-            "-opt-in=com.google.accompanist.permissions.ExperimentalPermissionsApi",
-            "-opt-in=kotlin.time.ExperimentalTime",
-            "-opt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
-        )
+        // ---- Experimental APIs ----
+        optIn.add("androidx.compose.material3.ExperimentalMaterial3Api",)
+        optIn.add("com.google.accompanist.permissions.ExperimentalPermissionsApi",)
+        optIn.add("kotlin.time.ExperimentalTime",)
+        optIn.add("kotlinx.coroutines.ExperimentalCoroutinesApi",)
 
+        // ---- Kotlin compiler feature flags ----
         freeCompilerArgs.add("-Xcontext-parameters")
+        freeCompilerArgs.add("-Xcontext-sensitive-resolution",)
     }
 }
 
@@ -234,6 +235,8 @@ dependencies {
 
     // AndroidX Other
     implementation(libs.androidx.preferences)
+    implementation(libs.androidx.datastore.core)
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.security.crypto)
     implementation(libs.androidx.work)

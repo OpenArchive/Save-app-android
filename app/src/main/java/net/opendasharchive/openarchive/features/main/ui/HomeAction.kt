@@ -14,6 +14,8 @@ sealed class HomeAction {
     data class TabSelected(val tab: HomeBottomTab) : HomeAction()
     data object ContentPickerDismissed : HomeAction()
     data class ContentPickerPicked(val type: AddMediaType) : HomeAction()
+    data object ShowUploadManager : HomeAction()
+    data object HideUploadManager : HomeAction()
     data class Navigate(val route: AppRoute) : HomeAction()
     data object NavigateToAddNewFolder : HomeAction()
     data object NavigateToArchivedFolders : HomeAction()

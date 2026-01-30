@@ -433,4 +433,6 @@
     <string name="grid" translatable="false">Grid</string>
     <string name="flash" translatable="false">Flash</string>
     <string name="camera_paused_message" translatable="false">Tap to wake camera</string>
+
+    <string name="tor_url" translatable="false">https://play.google.com/store/apps/details?id=org.torproject.android</string>
 </resources>

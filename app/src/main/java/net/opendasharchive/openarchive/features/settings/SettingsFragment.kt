@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -158,7 +159,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                         text = UiText.Resource(R.string.tor_download_btn_label)
                         action = {
                             // Launch the Tor download activity
-                            val intent = Intent(Intent.ACTION_VIEW, Prefs.TOR_DOWNLOAD_URL)
+                            val intent = Intent(Intent.ACTION_VIEW, getString(R.string.tor_url).toUri())
                             startActivity(intent)
                         }
                     }

@@ -22,6 +22,7 @@ import net.opendasharchive.openarchive.features.main.ui.HomeEvent.LaunchPicker
 import net.opendasharchive.openarchive.features.main.ui.components.HomeBottomTab
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
+import net.opendasharchive.openarchive.upload.UploadJobScheduler
 import net.opendasharchive.openarchive.util.Prefs
 
 /**
@@ -31,7 +32,8 @@ class HomeViewModel(
     private val route: AppRoute.HomeRoute,
     private val navigator: Navigator,
     private val spaceRepository: SpaceRepository,
-    private val projectRepository: ProjectRepository
+    private val projectRepository: ProjectRepository,
+    private val uploadJobScheduler: UploadJobScheduler
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeState())
@@ -99,6 +101,17 @@ class HomeViewModel(
             }
 
             is HomeAction.Navigate -> navigator.navigateTo(action.route)
+            
+            HomeAction.ShowUploadManager -> {
+                _uiState.update { it.copy(showUploadManager = true) }
+                uploadJobScheduler.cancel()
+            }
+            HomeAction.HideUploadManager -> {
+                _uiState.update { it.copy(showUploadManager = false) }
+                // In legacy, it resumes if there are pending uploads.
+                // UploadJobScheduler.schedule() usually checks internally, but we can also check here if needed.
+                uploadJobScheduler.schedule()
+            }
 
             HomeAction.NavigateToAddNewFolder -> {
                 val spaceId = uiState.value.currentSpace?.id ?: return
