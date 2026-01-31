@@ -50,7 +50,6 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.folders.Folder
 import net.opendasharchive.openarchive.util.DateUtils
-import java.util.Date
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

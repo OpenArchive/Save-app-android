@@ -2,6 +2,7 @@ package net.opendasharchive.openarchive.services.internetarchive
 
 import android.content.ContentResolver
 import android.net.Uri
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
@@ -34,7 +35,7 @@ object RequestBodyUtil {
                 return try {
                     contentLength ?: inputStream.available().toLong()
                 } catch (e: IOException) {
-                    Timber.i("BodyRequestUtil couldn't get contentLength, returning 0 instead", e)
+                    AppLogger.i("BodyRequestUtil couldn't get contentLength, returning 0 instead", e)
                     0
                 }
             }
@@ -70,7 +71,7 @@ object RequestBodyUtil {
                     ) else cr.openInputStream(uri)
                     mListener = listener
                 } catch (e: FileNotFoundException) {
-                    Timber.e("BodyRequest init failed", e)
+                    AppLogger.e("BodyRequest init failed", e)
                 }
             }
 
@@ -117,7 +118,7 @@ object RequestBodyUtil {
                 try {
                     inputStream = FileInputStream(fileSource)
                 } catch (e: FileNotFoundException) {
-                    Timber.e("RequestBody init failed", e)
+                    AppLogger.e("RequestBody init failed", e)
                 }
             }
 

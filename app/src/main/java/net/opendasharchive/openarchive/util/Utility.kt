@@ -7,14 +7,13 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.OpenableColumns
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
-import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 object Utility {
@@ -49,8 +48,7 @@ object Utility {
             }
         }
 
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-
+        val timeStamp = DateUtils.getTimestamp()
         return File(dir, "$timeStamp.$fileName")
     }
 
@@ -77,24 +75,24 @@ object Utility {
             success = true
         }
         catch (e: FileNotFoundException) {
-            Timber.e(e)
+            AppLogger.e(e)
         }
         catch (e: IOException) {
-            Timber.e(e)
+            AppLogger.e(e)
         }
         finally {
             try {
                 output?.close()
             }
             catch (e: IOException) {
-                Timber.e(e)
+                AppLogger.e(e)
             }
 
             try {
                 input.close()
             }
             catch (e: IOException) {
-                Timber.e(e)
+                AppLogger.e(e)
             }
         }
 

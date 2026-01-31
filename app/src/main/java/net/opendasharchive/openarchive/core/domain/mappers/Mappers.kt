@@ -6,25 +6,22 @@ import net.opendasharchive.openarchive.core.domain.EvidenceStatus
 import net.opendasharchive.openarchive.core.domain.Submission
 import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.core.domain.VaultType
-import net.opendasharchive.openarchive.db.sugar.Media
-import net.opendasharchive.openarchive.db.sugar.Project
-import net.opendasharchive.openarchive.db.sugar.Space
-import net.opendasharchive.openarchive.util.toJavaDate
-import net.opendasharchive.openarchive.util.toKotlinLocalDateTime
-import net.opendasharchive.openarchive.db.sugar.Collection as SugarCollection
+import net.opendasharchive.openarchive.db.*
+import net.opendasharchive.openarchive.util.*
 
 /**
- * Extension mappers between SugarORM entities and clean domain models.
+ * Extension mappers between Clean domain models and Room Entities.
  */
 
-// --- Vault / Space ---
+// --- Room Entity Mappers ---
 
-fun Space.toDomain(): Vault = Vault(
+fun VaultEntity.toDomain(): Vault = Vault(
     id = this.id,
-    type = when (this.tType) {
-        Space.Type.WEBDAV -> VaultType.PRIVATE_SERVER
-        Space.Type.INTERNET_ARCHIVE -> VaultType.INTERNET_ARCHIVE
-        Space.Type.RAVEN -> VaultType.DWEB_STORAGE
+    type = when (this.type) {
+        0 -> VaultType.PRIVATE_SERVER
+        1 -> VaultType.INTERNET_ARCHIVE
+        5 -> VaultType.DWEB_STORAGE
+        else -> VaultType.PRIVATE_SERVER
     },
     name = this.name,
     username = this.username,
@@ -32,77 +29,66 @@ fun Space.toDomain(): Vault = Vault(
     password = this.password,
     host = this.host,
     metaData = this.metaData,
-    licenseUrl = this.license
-)
-
-fun Vault.toEntity(): Space {
-    val space = Space()
-    if (this.id != 0L) space.id = this.id
-    space.tType = when (this.type) {
-        VaultType.PRIVATE_SERVER -> Space.Type.WEBDAV
-        VaultType.INTERNET_ARCHIVE -> Space.Type.INTERNET_ARCHIVE
-        VaultType.DWEB_STORAGE -> Space.Type.RAVEN
-    }
-    space.name = this.name
-    space.username = this.username
-    space.displayname = this.displayName
-    space.password = this.password
-    space.host = this.host
-    space.metaData = this.metaData
-    space.license = this.licenseUrl
-    return space
-}
-
-// --- Archive / Project ---
-
-fun Project.toDomain(): Archive = Archive(
-    id = this.id ?: 0L,
-    description = this.description,
-    created = this.created?.toKotlinLocalDateTime(),
-    vaultId = this.spaceId,
-    isArchived = this.isArchived,
     licenseUrl = this.licenseUrl
 )
 
-fun Archive.toEntity(): Project {
-    val project = Project()
-    if (this.id != 0L) project.id = this.id
-    project.description = this.description
-    project.created = this.created?.toJavaDate()
-    project.spaceId = this.vaultId
-    project.isArchived = this.isArchived
-    project.licenseUrl = this.licenseUrl
-    return project
-}
+fun Vault.toVaultEntity(): VaultEntity = VaultEntity(
+    id = this.id,
+    type = when (this.type) {
+        VaultType.PRIVATE_SERVER -> 0
+        VaultType.INTERNET_ARCHIVE -> 1
+        VaultType.DWEB_STORAGE -> 5
+    },
+    name = this.name,
+    username = this.username,
+    displayname = this.displayName,
+    password = this.password,
+    host = this.host,
+    metaData = this.metaData,
+    licenseUrl = this.licenseUrl
+)
 
-// --- Submission / Collection ---
+fun ArchiveEntity.toDomain(): Archive = Archive(
+    id = this.id,
+    description = this.description,
+    created = this.created?.toLocalDateTime(),
+    vaultId = this.spaceId,
+    isArchived = this.archived,
+    licenseUrl = this.licenseUrl
+)
 
-fun SugarCollection.toDomain(): Submission = Submission(
-    id = this.id ?: 0L,
-    archiveId = this.projectId ?: 0L,
-    vaultId = Project.getById(this.projectId)?.spaceId ?: 0L,
-    uploadDate = this.uploadDate?.toKotlinLocalDateTime(),
+fun Archive.toArchiveEntity(): ArchiveEntity = ArchiveEntity(
+    id = this.id,
+    description = this.description,
+    created = this.created?.toEpochMilliseconds(),
+    spaceId = this.vaultId ?: 0L,
+    archived = this.isArchived,
+    openCollectionId = -1, // This needs to be managed by the repository/DAO
+    licenseUrl = this.licenseUrl
+)
+
+fun SubmissionEntity.toDomain(): Submission = Submission(
+    id = this.id,
+    archiveId = this.projectId,
+    vaultId = 0L, // Will be resolved by repository if needed
+    uploadDate = this.uploadDate?.toLocalDateTime(),
     serverUrl = this.serverUrl
 )
 
-fun Submission.toEntity(): SugarCollection {
-    val collection = SugarCollection()
-    if (this.id != 0L) collection.id = this.id
-    collection.projectId = this.archiveId
-    collection.uploadDate = this.uploadDate?.toJavaDate()
-    collection.serverUrl = this.serverUrl
-    return collection
-}
+fun Submission.toSubmissionEntity(): SubmissionEntity = SubmissionEntity(
+    id = this.id,
+    projectId = this.archiveId,
+    uploadDate = this.uploadDate?.toEpochMilliseconds(),
+    serverUrl = this.serverUrl
+)
 
-// --- Evidence / Media ---
-
-fun Media.toDomain(): Evidence = Evidence(
-    id = this.id ?: 0L,
+fun EvidenceEntity.toDomain(vaultId: Long = 0L): Evidence = Evidence(
+    id = this.id,
     originalFilePath = this.originalFilePath,
     mimeType = this.mimeType,
-    createDate = this.createDate?.toKotlinLocalDateTime(),
-    updateDate = this.updateDate?.toKotlinLocalDateTime(),
-    uploadDate = this.uploadDate?.toKotlinLocalDateTime(),
+    createDate = this.createDate?.toLocalDateTime(),
+    updateDate = this.updateDate?.toLocalDateTime(),
+    uploadDate = this.uploadDate?.toLocalDateTime(),
     serverUrl = this.serverUrl,
     title = this.title,
     description = this.description,
@@ -112,59 +98,56 @@ fun Media.toDomain(): Evidence = Evidence(
     licenseUrl = this.licenseUrl,
     mediaHash = this.mediaHash,
     mediaHashString = this.mediaHashString,
-    status = when (this.sStatus) {
-        Media.Status.New -> EvidenceStatus.NEW
-        Media.Status.Local -> EvidenceStatus.LOCAL
-        Media.Status.Queued -> EvidenceStatus.QUEUED
-        Media.Status.Uploading -> EvidenceStatus.UPLOADING
-        Media.Status.Uploaded -> EvidenceStatus.UPLOADED
-        Media.Status.Published -> EvidenceStatus.UPLOADED
-        Media.Status.Error -> EvidenceStatus.ERROR
+    status = when (this.status) {
+        0 -> EvidenceStatus.NEW
+        1 -> EvidenceStatus.LOCAL
+        2 -> EvidenceStatus.QUEUED
+        4 -> EvidenceStatus.UPLOADING
+        5 -> EvidenceStatus.UPLOADED
+        9 -> EvidenceStatus.ERROR
         else -> EvidenceStatus.NEW
     },
     statusMessage = this.statusMessage,
-    vaultId = this.space?.id ?: 0L,
+    vaultId = vaultId, // Resolved by repository
     archiveId = this.projectId,
     submissionId = this.collectionId,
     contentLength = this.contentLength,
     progress = this.progress,
+    uploadPercentage = if (this.contentLength > 0) (this.progress.toFloat() / this.contentLength * 100).toInt() else null,
     isFlagged = this.flag,
     priority = this.priority,
-    isSelected = this.selected
+    isSelected = false // UI only
 )
 
-fun Evidence.toEntity(): Media {
-    val media = Media()
-    if (this.id != 0L) media.id = this.id
-    media.originalFilePath = this.originalFilePath
-    media.mimeType = this.mimeType
-    media.createDate = this.createDate?.toJavaDate()
-    media.updateDate = this.updateDate?.toJavaDate()
-    media.uploadDate = this.uploadDate?.toJavaDate()
-    media.serverUrl = this.serverUrl
-    media.title = this.title
-    media.description = this.description
-    media.author = this.author
-    media.location = this.location
-    media.tags = this.tags.joinToString(";")
-    media.licenseUrl = this.licenseUrl
-    media.mediaHash = this.mediaHash
-    media.mediaHashString = this.mediaHashString
-    media.sStatus = when (this.status) {
-        EvidenceStatus.NEW -> Media.Status.New
-        EvidenceStatus.LOCAL -> Media.Status.Local
-        EvidenceStatus.QUEUED -> Media.Status.Queued
-        EvidenceStatus.UPLOADING -> Media.Status.Uploading
-        EvidenceStatus.UPLOADED -> Media.Status.Uploaded
-        EvidenceStatus.ERROR -> Media.Status.Error
-    }
-    media.statusMessage = this.statusMessage
-    media.projectId = this.archiveId
-    media.collectionId = this.submissionId
-    media.contentLength = this.contentLength
-    media.progress = this.progress
-    media.flag = this.isFlagged
-    media.priority = this.priority
-    media.selected = this.isSelected
-    return media
-}
+fun Evidence.toEvidenceEntity(): EvidenceEntity = EvidenceEntity(
+    id = this.id,
+    originalFilePath = this.originalFilePath,
+    mimeType = this.mimeType,
+    createDate = this.createDate?.toEpochMilliseconds(),
+    updateDate = this.updateDate?.toEpochMilliseconds(),
+    uploadDate = this.uploadDate?.toEpochMilliseconds(),
+    serverUrl = this.serverUrl,
+    title = this.title,
+    description = this.description,
+    author = this.author,
+    location = this.location,
+    tags = this.tags.joinToString(";"),
+    licenseUrl = this.licenseUrl,
+    mediaHash = this.mediaHash,
+    mediaHashString = this.mediaHashString,
+    status = when (this.status) {
+        EvidenceStatus.NEW -> 0
+        EvidenceStatus.LOCAL -> 1
+        EvidenceStatus.QUEUED -> 2
+        EvidenceStatus.UPLOADING -> 4
+        EvidenceStatus.UPLOADED -> 5
+        EvidenceStatus.ERROR -> 9
+    },
+    statusMessage = this.statusMessage,
+    projectId = this.archiveId,
+    collectionId = this.submissionId,
+    contentLength = this.contentLength,
+    progress = this.progress,
+    flag = this.isFlagged,
+    priority = this.priority
+)

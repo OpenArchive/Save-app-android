@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.core.domain.Submission
 import net.opendasharchive.openarchive.core.domain.mappers.toDomain
+import net.opendasharchive.openarchive.core.domain.mappers.toSubmissionEntity
 import net.opendasharchive.openarchive.db.SubmissionDao
 
 class SubmissionRepositoryImpl(
@@ -20,6 +21,16 @@ class SubmissionRepositoryImpl(
     override fun observeCollections(projectId: Long): Flow<List<Submission>> = submissionDao.observeByProject(projectId)
         .map { entities -> entities.map { it.toDomain() } }
         .distinctUntilChanged()
+
+    override suspend fun getCollection(id: Long): Submission? = withContext(io) {
+        submissionDao.getById(id)?.toDomain()
+    }
+
+    override suspend fun updateCollection(submission: Submission) {
+        withContext(io) {
+            submissionDao.upsert(submission.toSubmissionEntity())
+        }
+    }
 
     override suspend fun deleteCollection(id: Long) {
         withContext(io) {

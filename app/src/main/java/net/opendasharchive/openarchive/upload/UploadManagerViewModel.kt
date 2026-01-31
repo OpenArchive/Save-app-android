@@ -9,10 +9,19 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.core.repositories.MediaRepository
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.UiImage
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.domain.EvidenceStatus
-import net.opendasharchive.openarchive.core.repositories.MediaRepository
+import net.opendasharchive.openarchive.features.core.dialog.ButtonData
 
 data class UploadManagerState(
     val mediaList: List<Evidence> = emptyList(),
@@ -21,11 +30,10 @@ data class UploadManagerState(
 
 sealed class UploadManagerAction {
     data object Refresh : UploadManagerAction()
-    data class UpdateItem(val mediaId: Long, val progress: Int = -1, val isUploaded: Boolean = false) :
-        UploadManagerAction()
-
+    data class UpdateItem(val mediaId: Long, val progress: Int = -1, val isUploaded: Boolean = false) : UploadManagerAction()
     data class RemoveItem(val mediaId: Long) : UploadManagerAction()
     data class DeleteItem(val position: Int) : UploadManagerAction()
+    data class RequestRetry(val evidence: Evidence, val position: Int) : UploadManagerAction()
     data class RetryItem(val evidence: Evidence) : UploadManagerAction()
     data class MoveItem(val fromPosition: Int, val toPosition: Int) : UploadManagerAction()
     data object Close : UploadManagerAction()
@@ -38,7 +46,9 @@ sealed class UploadManagerEvent {
 
 class UploadManagerViewModel(
     private val application: Application,
-    private val mediaRepository: MediaRepository
+    private val mediaRepository: MediaRepository,
+    private val dialogManager: DialogStateManager,
+    private val uploadJobScheduler: UploadJobScheduler
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UploadManagerState())
@@ -49,6 +59,27 @@ class UploadManagerViewModel(
 
     init {
         refresh()
+        observeUploadEvents()
+    }
+
+    private fun observeUploadEvents() {
+        UploadEventBus.events
+            .onEach { event ->
+                when (event) {
+                    is UploadEvent.Changed -> {
+                        if (event.isUploaded) {
+                            removeItem(event.mediaId)
+                        } else {
+                            updateItem(event.mediaId, event.progress, event.isUploaded)
+                        }
+                    }
+
+                    is UploadEvent.Deleted -> {
+                        removeItem(event.mediaId)
+                    }
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
     fun onAction(action: UploadManagerAction) {
@@ -57,6 +88,7 @@ class UploadManagerViewModel(
             is UploadManagerAction.UpdateItem -> updateItem(action.mediaId, action.progress, action.isUploaded)
             is UploadManagerAction.RemoveItem -> removeItem(action.mediaId)
             is UploadManagerAction.DeleteItem -> deleteItem(action.position)
+            is UploadManagerAction.RequestRetry -> showRetryDialog(action.evidence, action.position)
             is UploadManagerAction.RetryItem -> retryItem(action.evidence)
             is UploadManagerAction.MoveItem -> moveItem(action.fromPosition, action.toPosition)
             is UploadManagerAction.Close -> close()
@@ -127,6 +159,30 @@ class UploadManagerViewModel(
                 collectionId = item.submissionId,
                 mediaId = item.id
             )
+        }
+    }
+
+    private fun showRetryDialog(evidence: Evidence, position: Int) {
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Error
+            title = UiText.Resource(R.string.upload_unsuccessful)
+            message = UiText.Resource(R.string.upload_unsuccessful_description)
+            icon = UiImage.DrawableResource(R.drawable.ic_error)
+            positiveButton {
+                text = UiText.Resource(R.string.lbl_retry)
+                action = {
+                    retryItem(evidence)
+                    // Resume service since we have a new item to upload
+                    uploadJobScheduler.schedule()
+                }
+            }
+
+            destructiveButton {
+                text = UiText.Resource(R.string.btn_lbl_remove_media)
+                action = {
+                    deleteItem(position)
+                }
+            }
         }
     }
 

@@ -42,6 +42,8 @@ abstract class Conduit(
     protected val mContext: Context
 ) : KoinComponent {
 
+    val id: Long get() = mEvidence.id
+
     protected val mediaRepository: MediaRepository by inject()
     protected val projectRepository: ProjectRepository by inject()
     protected val spaceRepository: SpaceRepository by inject()
@@ -114,7 +116,7 @@ abstract class Conduit(
         try {
             // Here we are simply fetching the files. Don't generate proof here. This is only called during upload.
             // Generating Proof here won't make sense because the file can be created well before it could be uploaded.
-            var files = DefaultStorageProvider(mContext).getHashStorageDir(mEvidence.mediaHashString)
+            val files = DefaultStorageProvider(mContext).getHashStorageDir(mEvidence.mediaHashString)
                 ?.listFiles() ?: emptyArray()
             return files
         } catch (exception: FileNotFoundException) {
@@ -130,14 +132,14 @@ abstract class Conduit(
      * result is a site specific unique id that we can use to fetch the data,
      * build an embed tag, etc. for some sites this might be a URL
      */
-    fun jobSucceeded() {
+    suspend fun jobSucceeded() {
         mEvidence = mEvidence.copy(
             progress = mEvidence.contentLength,
-            status = EvidenceStatus.UPLOADED
+            status = EvidenceStatus.UPLOADED,
+            uploadPercentage = 100
         )
-        scope.launch {
-            mediaRepository.updateEvidence(mEvidence)
-            AppLogger.i("media item ${mEvidence.id} is uploaded and saved")
+        mediaRepository.updateEvidence(mEvidence)
+        AppLogger.i("media item ${mEvidence.id} is uploaded and saved")
 
             // Track successful upload analytics
             val uploadDuration = (System.currentTimeMillis() - uploadStartTime) / 1000
@@ -178,40 +180,38 @@ abstract class Conduit(
                 progress = 100,
                 isUploaded = true
             )
-        }
     }
 
-    fun jobFailed(exception: Throwable) {
-        scope.launch {
-            // If an upload was cancelled, track and return.
-            if (mCancelled) {
-                AppLogger.i("Upload cancelled", exception)
+    suspend fun jobFailed(exception: Throwable) {
+        // If an upload was cancelled, track and return.
+        if (mCancelled) {
+            AppLogger.i("Upload cancelled", exception)
 
-                // Add breadcrumb
-                val vault = spaceRepository.getSpaceById(mEvidence.vaultId)
-                val backendType = vault?.type?.friendlyName ?: "Unknown"
-                val fileType = getFileType(mEvidence.mimeType)
-                AppLogger.breadcrumb("Upload Cancelled", "$fileType to $backendType")
+            // Add breadcrumb
+            val vault = spaceRepository.getSpaceById(mEvidence.vaultId)
+            val backendType = vault?.type?.friendlyName ?: "Unknown"
+            val fileType = getFileType(mEvidence.mimeType)
+            AppLogger.breadcrumb("Upload Cancelled", "$fileType to $backendType")
 
-                // Track upload cancellation
-                analyticsManager.trackEvent(
-                    AnalyticsEvent.UploadCancelled(
-                        backendType = backendType,
-                        fileType = fileType,
-                        reason = "user_cancelled"
-                    )
+            // Track upload cancellation
+            analyticsManager.trackEvent(
+                AnalyticsEvent.UploadCancelled(
+                    backendType = backendType,
+                    fileType = fileType,
+                    reason = "user_cancelled"
                 )
-
-                return@launch
-            }
-
-            mEvidence = mEvidence.copy(
-                statusMessage = exception.localizedMessage ?: exception.message ?: exception.toString(),
-                status = EvidenceStatus.ERROR
             )
-            mediaRepository.updateEvidence(mEvidence)
 
-            AppLogger.e(exception)
+            return
+        }
+
+        mEvidence = mEvidence.copy(
+            statusMessage = exception.localizedMessage ?: exception.message ?: exception.toString(),
+            status = EvidenceStatus.ERROR
+        )
+        mediaRepository.updateEvidence(mEvidence)
+
+        AppLogger.e(exception)
 
             // Track failed upload analytics (GDPR-compliant - no PII)
             val vault = spaceRepository.getSpaceById(mEvidence.vaultId)
@@ -256,7 +256,13 @@ abstract class Conduit(
                 progress = -1,
                 isUploaded = false
             )
-        }
+    }
+
+    /**
+     * Non-suspend version of jobFailed for use in callbacks.
+     */
+    fun jobFailedAsync(exception: Throwable) {
+        scope.launch { jobFailed(exception) }
     }
 
     private var lastReportedProgress: Int? = null

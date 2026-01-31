@@ -23,6 +23,7 @@ import com.permissionx.guolindev.PermissionX
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.ActivitySettingsContainerBinding
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.util.Hbks
@@ -230,7 +231,7 @@ class ProofModeSettingsActivity : BaseActivity() {
                     activity.startActivity(intent)
                 }
             } catch (ioe: IOException) {
-                Timber.d("error publishing key")
+                AppLogger.d("error publishing key")
             }
         }
 

@@ -25,10 +25,12 @@ import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.domain.EvidenceStatus
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.main.MainActivity
+import net.opendasharchive.openarchive.core.repositories.CollectionRepository
 import net.opendasharchive.openarchive.core.repositories.MediaRepository
 import net.opendasharchive.openarchive.core.repositories.ProjectRepository
 import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.services.Conduit
+import net.opendasharchive.openarchive.util.DateUtils
 import net.opendasharchive.openarchive.util.Prefs
 import org.koin.android.ext.android.inject
 import java.io.IOException
@@ -40,6 +42,7 @@ class UploadService : JobService() {
     private val analyticsManager: AnalyticsManager by inject()
     private val mediaRepository: MediaRepository by inject()
     private val projectRepository: ProjectRepository by inject()
+    private val collectionRepository: CollectionRepository by inject()
     private val spaceRepository: SpaceRepository by inject()
 
     companion object {
@@ -63,6 +66,16 @@ class UploadService : JobService() {
         serviceJob.cancel()
         serviceJob = SupervisorJob()
         serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
+        
+        // Monitor for deletions to cancel active conduits
+        serviceScope.launch {
+            UploadEventBus.events.collect { event ->
+                if (event is UploadEvent.Deleted) {
+                    cancelConduitForMedia(event.mediaId)
+                }
+            }
+        }
+
         serviceScope.launch {
             upload {
                 jobFinished(params, false)
@@ -83,8 +96,10 @@ class UploadService : JobService() {
 
     override fun onStopJob(params: JobParameters): Boolean {
         mKeepUploading = false
-        for (conduit in mConduits) conduit.cancel()
-        mConduits.clear()
+        synchronized(mConduits) {
+            for (conduit in mConduits) conduit.cancel()
+            mConduits.clear()
+        }
         serviceJob.cancel()
 
         return true
@@ -135,7 +150,7 @@ class UploadService : JobService() {
                 .also { results = it }
                 .isNotEmpty()
         ) {
-            val datePublish = net.opendasharchive.openarchive.util.DateUtils.nowDateTime
+            val datePublish = DateUtils.nowDateTime
 
             for (media in results) {
                 totalCount++
@@ -150,14 +165,21 @@ class UploadService : JobService() {
                 }
 
                 val project = projectRepository.getProject(updatedMedia.archiveId)
-                updatedMedia = updatedMedia.copy(licenseUrl = project?.licenseUrl)
+                updatedMedia = updatedMedia.copy(
+                    licenseUrl = project?.licenseUrl,
+                    vaultId = project?.vaultId ?: 0L
+                )
 
                 // Persist updated state before starting upload
                 mediaRepository.updateEvidence(updatedMedia)
 
-                // TODO: Submission upload date update if needed.
-                // Original code was updating collection.uploadDate.
-                // We might need a CollectionRepository or add a method to ProjectRepository.
+                // Update submission upload date if not already set.
+                // This "closes" the submission bucket in the repository,
+                // ensuring that any subsequent imports start a new submission.
+                val submission = collectionRepository.getCollection(updatedMedia.submissionId)
+                if (submission != null && submission.uploadDate == null) {
+                    collectionRepository.updateCollection(submission.copy(uploadDate = datePublish))
+                }
 
                 try {
                     AppLogger.i("Started uploading", updatedMedia)
@@ -211,7 +233,7 @@ class UploadService : JobService() {
 
     @Throws(IOException::class)
     private suspend fun upload(media: Evidence): Boolean {
-        var updatedMedia = media.copy(status = EvidenceStatus.UPLOADING)
+        val updatedMedia = media.copy(status = EvidenceStatus.UPLOADING)
         AppLogger.i("${updatedMedia.id} - media status changed to uploading")
         mediaRepository.updateEvidence(updatedMedia)
 
@@ -230,20 +252,51 @@ class UploadService : JobService() {
             return false
         }
 
+        // Final check: if it was deleted from DB, don't start the upload
+        if (mediaRepository.getEvidence(updatedMedia.id) == null) {
+            AppLogger.i("Media ${updatedMedia.id} was deleted from database, skipping upload")
+            return false
+        }
+
         val vault = spaceRepository.getSpaceById(updatedMedia.vaultId)
         CleanInsightsManager.measureEvent("upload", "try_upload", vault?.type?.friendlyName)
 
-        mConduits.add(conduit)
+        synchronized(mConduits) {
+            mConduits.add(conduit)
+        }
+        
         conduit.upload()
-        mConduits.remove(conduit)
+        
+        synchronized(mConduits) {
+            mConduits.remove(conduit)
+        }
 
         return true
+    }
+
+    private fun cancelConduitForMedia(mediaId: Long) {
+        synchronized(mConduits) {
+            val iterator = mConduits.iterator()
+            while (iterator.hasNext()) {
+                val conduit = iterator.next()
+                if (conduit.id == mediaId) {
+                    AppLogger.i("Cancelling active conduit for media $mediaId due to deletion")
+                    conduit.cancel()
+                    iterator.remove()
+                }
+            }
+        }
     }
 
     /**
      * Check if online, and connected to the appropriate network type.
      */
     private fun shouldUpload(): Boolean {
+        if (Prefs.isMigrationInProgress) {
+            AppLogger.i("migration in progress, upload paused")
+            return false
+        }
+
         val requireUnmetered = Prefs.uploadWifiOnly
 
         if (isNetworkAvailable(requireUnmetered)) return true

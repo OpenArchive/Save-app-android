@@ -1,6 +1,5 @@
 package net.opendasharchive.openarchive.features.internetarchive.presentation.login
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
@@ -11,14 +10,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.core.domain.VaultType
-import net.opendasharchive.openarchive.db.sugar.Space
 import net.opendasharchive.openarchive.features.internetarchive.domain.usecase.InternetArchiveLoginUseCase
 import net.opendasharchive.openarchive.features.internetarchive.domain.usecase.ValidateLoginCredentialsUseCase
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import org.koin.core.parameter.parametersOf
 
 class InternetArchiveLoginViewModel(
     private val route: AppRoute.IALoginRoute,
@@ -26,11 +23,7 @@ class InternetArchiveLoginViewModel(
     private val validateLoginCredentials: ValidateLoginCredentialsUseCase,
 ) : ViewModel(), KoinComponent {
 
-    val space = Space(Space.Type.INTERNET_ARCHIVE)
-
-    private val loginUseCase: InternetArchiveLoginUseCase by inject {
-        parametersOf(space)
-    }
+    private val loginUseCase: InternetArchiveLoginUseCase by inject()
 
     private val _uiState = MutableStateFlow(InternetArchiveLoginState())
     val uiState: StateFlow<InternetArchiveLoginState> = _uiState.asStateFlow()
@@ -79,10 +72,10 @@ class InternetArchiveLoginViewModel(
         viewModelScope.launch {
             val currentState = _uiState.value
             loginUseCase.invoke(currentState.username, currentState.password)
-                .onSuccess { ia ->
+                .onSuccess { vaultId ->
                     _uiState.update { it.copy(isBusy = false) }
 
-                    navigator.navigateTo(AppRoute.SetupLicenseRoute(spaceId = space.id, spaceType = VaultType.INTERNET_ARCHIVE))
+                    navigator.navigateTo(AppRoute.SetupLicenseRoute(spaceId = vaultId, spaceType = VaultType.INTERNET_ARCHIVE))
                 }
                 .onFailure { error ->
                     _uiState.update { it.copy(isLoginError = true, isUsernameError = true, isPasswordError = true, isBusy = false) }

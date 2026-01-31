@@ -41,7 +41,6 @@ import net.opendasharchive.openarchive.databinding.ActivityMainBinding
 import net.opendasharchive.openarchive.databinding.PopupFolderOptionsBinding
 import net.opendasharchive.openarchive.db.sugar.Media
 import net.opendasharchive.openarchive.db.sugar.Project
-import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroup
 import net.opendasharchive.openarchive.db.sugar.Space
 import net.opendasharchive.openarchive.extensions.getMeasurments
 import net.opendasharchive.openarchive.features.core.BaseActivity
@@ -70,6 +69,7 @@ import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdActivity
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
+import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroup
 import net.opendasharchive.openarchive.upload.SKBottomSheetDialogFragment
 import net.opendasharchive.openarchive.upload.UploadManagerFragment
 import net.opendasharchive.openarchive.upload.UploadJobScheduler
@@ -164,7 +164,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
         installSplashScreen()
 
         // Set navigation bar color to match bottom bar color
-        window.navigationBarColor = ContextCompat.getColor(this, R.color.colorTertiary)
+        //window.navigationBarColor = ContextCompat.getColor(this, R.color.colorTertiary)
 
         // Check onboarding status early and redirect if needed
         if (!Prefs.didCompleteOnboarding) {
@@ -883,7 +883,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 binding.contentMain.folderEditContainer.visibility = View.GONE
 
                 if (Space.current != null) {
-                    if (Space.current?.projects?.isNotEmpty() == true) {
+                    if (mPagerAdapter.projects.isNotEmpty()) {
                         binding.contentMain.folderInfoContainerRight.visibility = View.VISIBLE
                     } else {
                         binding.contentMain.folderInfoContainerRight.visibility = View.INVISIBLE

@@ -30,6 +30,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -57,8 +60,7 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 @Composable
 fun UploadManagerScreen(
     viewModel: UploadManagerViewModel,
-    onClose: () -> Unit,
-    onShowRetryDialog: (Evidence, Int) -> Unit
+    onClose: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -66,33 +68,36 @@ fun UploadManagerScreen(
         viewModel.events.collectLatest { event ->
             when (event) {
                 is UploadManagerEvent.Close -> onClose()
-                is UploadManagerEvent.ShowRetryDialog -> onShowRetryDialog(
-                    event.evidence,
-                    event.position
-                )
+                is UploadManagerEvent.ShowRetryDialog -> {
+                    // Logic moved to ViewModel action but we keep the event for compatibility/other uses if needed
+                    // In this case, we prefer calling the action directly from the Screen to the ViewModel
+                }
             }
         }
     }
 
     // Auto-dismiss when all items are deleted
-    LaunchedEffect(state.mediaList.size) {
-        if (state.mediaList.isEmpty()) {
+    // UPDATED: Only auto-dismiss if we had items and now they are gone.
+    // We'll use a local state to track if we've ever seen items.
+    var hadItems by remember { mutableStateOf(false) }
+    LaunchedEffect(state.mediaList) {
+        if (state.mediaList.isNotEmpty()) {
+            hadItems = true
+        } else if (hadItems) {
             onClose()
         }
     }
 
     UploadManagerContent(
         state = state,
-        onAction = viewModel::onAction,
-        onShowRetryDialog = onShowRetryDialog
+        onAction = viewModel::onAction
     )
 }
 
 @Composable
 private fun UploadManagerContent(
     state: UploadManagerState,
-    onAction: (UploadManagerAction) -> Unit,
-    onShowRetryDialog: (Evidence, Int) -> Unit
+    onAction: (UploadManagerAction) -> Unit
 ) {
     val hapticFeedback = LocalHapticFeedback.current
     val lazyListState = rememberLazyListState()
@@ -110,23 +115,7 @@ private fun UploadManagerContent(
             )
             .windowInsetsPadding(WindowInsets.navigationBars)
     ) {
-        // Drag Handle (Material 3 style)
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(24.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .width(32.dp)
-                    .height(4.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                        shape = RoundedCornerShape(2.dp)
-                    )
-            )
-        }
+        // REMOVED custom drag handle - we'll use the one from ModalBottomSheet
 
         // Top Bar
         Box(
@@ -190,7 +179,7 @@ private fun UploadManagerContent(
                             isDragging = isDragging,
                             onDelete = {
                                 if (evidence.status == EvidenceStatus.ERROR) {
-                                    onShowRetryDialog(evidence, index)
+                                    onAction(UploadManagerAction.RequestRetry(evidence, index))
                                 } else {
                                     onAction(UploadManagerAction.DeleteItem(index))
                                 }
@@ -395,7 +384,6 @@ private fun UploadManagerContentPreview() {
         UploadManagerContent(
             state = UploadManagerState(mediaList = sampleMedia),
             onAction = {},
-            onShowRetryDialog = { _, _ -> }
         )
     }
 }

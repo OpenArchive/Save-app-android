@@ -77,8 +77,8 @@ data class MainMediaState(
     val totalMediaCount: Int = 0,
     val showFolderOptionsPopup: Boolean = false,
     val showRemoveProjectDialog: Boolean = false,
-
-    )
+    val transientProgress: Map<Long, Int> = emptyMap(),
+)
 
 /**
  * User actions scoped to MainMediaScreen.
@@ -177,37 +177,58 @@ class MainMediaViewModel(
         val pid = projectId
         if (pid < 0) return
 
-        combine(
+        val projectAndSpace = combine(
             projectRepository.observeProject(pid),
-            spaceRepository.observeCurrentSpace(),
+            spaceRepository.observeCurrentSpace()
+        ) { project, space -> project to space }
+
+        combine(
+            projectAndSpace,
             collectionRepository.observeCollections(pid),
             mediaRepository.observeMediaForProject(pid),
-            uiState.map { it.selectedMediaIds }.distinctUntilChanged()
-        ) { project, space, collections, media, selectedIds ->
+            uiState.map { it.selectedMediaIds }.distinctUntilChanged(),
+            uiState.map { it.transientProgress }.distinctUntilChanged()
+        ) { (project, space), collections, media, selectedIds, progressMap ->
             val sections = collections.map { collection ->
                 CollectionSection(
                     collection = collection,
                     media = media.filter { it.submissionId == collection.id }
-                        .map { it.copy(isSelected = selectedIds.contains(it.id)) }
+                        .map { item ->
+                            val progress = progressMap[item.id]
+                            item.copy(
+                                isSelected = selectedIds.contains(item.id),
+                                uploadPercentage = progress ?: item.uploadPercentage,
+                                status = if (progress != null) {
+                                    if (progress >= 100) EvidenceStatus.UPLOADED else EvidenceStatus.UPLOADING
+                                } else {
+                                    item.status
+                                }
+                            )
+                        }
                 )
             }.filter { it.media.isNotEmpty() }
 
-            project to space to sections
+            MainDataUpdate(project, space, sections)
         }
-            .onEach { (pair, sections) ->
-                val (project, space) = pair
-                val totalCount = sections.sumOf { it.media.size }
+            .onEach { update ->
+                val totalCount = update.sections.sumOf { it.media.size }
                 _uiState.update {
                     it.copy(
-                        currentProject = project,
-                        currentSpace = space,
-                        sections = sections,
+                        currentProject = update.project,
+                        currentSpace = update.space,
+                        sections = update.sections,
                         totalMediaCount = totalCount
                     )
                 }
             }
             .launchIn(viewModelScope)
     }
+
+    private data class MainDataUpdate(
+        val project: Archive?,
+        val space: Vault?,
+        val sections: List<CollectionSection>
+    )
 
     fun onAction(action: MainMediaAction) {
         when (action) {
@@ -427,42 +448,14 @@ class MainMediaViewModel(
         isUploaded: Boolean
     ) {
         viewModelScope.launch {
-            AppLogger.i("updateMediaItem: collectionId=$collectionId, mediaId=$mediaId, progress=$progress, isUploaded=$isUploaded")
-
             _uiState.update { state ->
-                val updatedSections = state.sections.map { section ->
-                    if (section.collection.id == collectionId) {
-                        val updatedMedia = section.media.map { media ->
-                            if (media.id == mediaId) {
-                                when {
-                                    isUploaded -> {
-                                        media.copy(
-                                            status = EvidenceStatus.UPLOADED,
-                                            uploadPercentage = 100
-                                        )
-                                    }
-
-                                    progress >= 0 -> {
-                                        media.copy(
-                                            status = EvidenceStatus.UPLOADING,
-                                            uploadPercentage = progress.coerceIn(0, 100)
-                                        )
-                                    }
-
-                                    else -> {
-                                        media.copy(status = EvidenceStatus.QUEUED)
-                                    }
-                                }
-                            } else {
-                                media
-                            }
-                        }
-                        section.copy(media = updatedMedia)
-                    } else {
-                        section
-                    }
+                val newProgress = if (isUploaded) 100 else progress
+                val updatedTransient = if (newProgress < 0) {
+                    state.transientProgress - mediaId
+                } else {
+                    state.transientProgress + (mediaId to newProgress)
                 }
-                state.copy(sections = updatedSections)
+                state.copy(transientProgress = updatedTransient)
             }
         }
     }

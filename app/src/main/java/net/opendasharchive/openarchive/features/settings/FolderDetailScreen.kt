@@ -19,7 +19,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -28,56 +27,17 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.features.core.BaseActivity
-import net.opendasharchive.openarchive.features.core.UiImage
-import net.opendasharchive.openarchive.features.core.UiText
-import net.opendasharchive.openarchive.features.core.dialog.ButtonData
-import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
-import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.internetarchive.presentation.login.CustomTextField
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun FolderDetailScreen(
-    viewModel: FolderDetailViewModel = koinViewModel(),
-    onNavigateBack: () -> Unit = {}
+    viewModel: FolderDetailViewModel,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-    val activity = context as? FragmentActivity
-    val dialogManager = (activity as? BaseActivity)?.dialogManager
-
-    LaunchedEffect(Unit) {
-        viewModel.events.collect { event ->
-            when (event) {
-                is FolderDetailEvent.NavigateBack -> {
-                    onNavigateBack()
-                }
-                is FolderDetailEvent.ShowRemoveConfirmDialog -> {
-                    dialogManager?.showDialog(
-                        DialogConfig(
-                            type = DialogType.Error,
-                            title = UiText.Resource(R.string.remove_from_app),
-                            message = UiText.Resource(R.string.action_remove_project),
-                            icon = UiImage.DrawableResource(R.drawable.ic_trash),
-                            destructiveButton = ButtonData(
-                                text = UiText.Resource(R.string.lbl_remove),
-                                action = { viewModel.onAction(FolderDetailAction.RemoveProject) }
-                            ),
-                            neutralButton = ButtonData(
-                                text = UiText.Resource(R.string.lbl_Cancel),
-                                action = {}
-                            )
-                        )
-                    )
-                }
-            }
-        }
-    }
 
     FolderDetailScreenContent(
         state = state,

@@ -60,13 +60,13 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
             // upload content synchronously for progress
             client.uploadContent(fileName, mimeType, vault)
 
-            // upload metadata and proofs async, and report failures
+            // upload metadata and proofs, and report failures
             client.uploadMetaData(metaJson, fileName, vault)
 
             // Commenting out proof generation - 17th April 2025
             // Upload ProofMode metadata, if enabled and successfully created.
             // for (file in proof) {
-            //      client.uploadProofFiles(file)
+            //      client.uploadProofFiles(file, vault) // Added vault parameter
             // }
 
             jobSucceeded()
@@ -111,7 +111,7 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
     }
 
     @Throws(IOException::class)
-    private fun OkHttpClient.uploadMetaData(content: String, fileName: String, vault: Vault) {
+    private suspend fun OkHttpClient.uploadMetaData(content: String, fileName: String, vault: Vault) {
         val requestBody = RequestBodyUtil.create(
             textMediaType,
             content.byteInputStream(),
@@ -127,12 +127,12 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
             .headers(metadataHeader(vault))
             .build()
 
-        enqueue(request)
+        execute(request)
     }
 
     /// upload proof mode
     @Throws(IOException::class)
-    private fun OkHttpClient.uploadProofFiles(uploadFile: File, vault: Vault) {
+    private suspend fun OkHttpClient.uploadProofFiles(uploadFile: File, vault: Vault) {
         val requestBody = RequestBodyUtil.create(
             mContext.contentResolver,
             Uri.fromFile(uploadFile),
@@ -148,7 +148,7 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
             .headers(metadataHeader(vault))
             .build()
 
-        enqueue(request)
+        execute(request)
     }
 
     private fun mainHeader(vault: Vault): Headers {
@@ -243,12 +243,12 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
         newCall(request)
             .enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    jobFailed(e)
+                    jobFailedAsync(e)
                 }
 
                 override fun onResponse(call: Call, response: Response) {
                     if (!response.isSuccessful) {
-                        jobFailed(Exception("${response.code}: ${response.message}"))
+                        jobFailedAsync(Exception("${response.code}: ${response.message}"))
                     }
                 }
 

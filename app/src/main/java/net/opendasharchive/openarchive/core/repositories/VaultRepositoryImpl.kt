@@ -28,21 +28,31 @@ class VaultRepositoryImpl(
 
     override suspend fun getCurrentSpace(): Vault? = withContext(io) {
         val id = settingsRepository.observeCurrentSpaceId().first()
-        if (id == -1L) {
-            vaultDao.getAll().firstOrNull()?.toDomain()
+        val entity = if (id == -1L) {
+            vaultDao.getAll().firstOrNull()
         } else {
-            vaultDao.getById(id)?.toDomain()
+            vaultDao.getById(id) ?: vaultDao.getAll().firstOrNull()
         }
+        entity?.toDomain()
     }
 
     override fun observeCurrentSpace(): Flow<Vault?> = settingsRepository.observeCurrentSpaceId()
         .flatMapLatest { id ->
             if (id == -1L) {
-                vaultDao.observeSpaces().map { it.firstOrNull()?.toDomain() }
+                vaultDao.observeSpaces().map { it.firstOrNull() }
             } else {
-                vaultDao.observeById(id).map { it?.toDomain() }
+                vaultDao.observeById(id).flatMapLatest { entity ->
+                    if (entity == null) vaultDao.observeSpaces().map { it.firstOrNull() }
+                    else flowOf(entity)
+                }
             }
-        }.distinctUntilChanged()
+        }
+        .map { it?.toDomain() }
+        .distinctUntilChanged()
+
+    override fun observeSpace(id: Long): Flow<Vault?> = vaultDao.observeById(id)
+        .map { it?.toDomain() }
+        .distinctUntilChanged()
 
     override suspend fun setCurrentSpace(id: Long) {
         withContext(io) {

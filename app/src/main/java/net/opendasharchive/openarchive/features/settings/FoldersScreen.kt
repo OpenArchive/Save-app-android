@@ -36,11 +36,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
-import net.opendasharchive.openarchive.db.sugar.Project
-import java.util.Date
+import net.opendasharchive.openarchive.core.domain.Archive
+import kotlinx.datetime.LocalDateTime
+import net.opendasharchive.openarchive.R
 
 @Composable
 fun FoldersScreen(
@@ -49,11 +49,6 @@ fun FoldersScreen(
     onNavigateToArchivedFolders: (Long) -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-
-    // Refresh data on resume
-    LaunchedEffect(Unit) {
-        viewModel.onAction(FoldersAction.RefreshFolders)
-    }
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
@@ -107,10 +102,10 @@ fun FoldersScreenContent(
                     }
                 )
             ) {
-                items(state.folders) { folder ->
+                items(state.folders) { archive ->
                     FolderItem(
-                        folder = folder,
-                        onClick = { onAction(FoldersAction.FolderClicked(folder)) }
+                        archive = archive,
+                        onClick = { onAction(FoldersAction.FolderClicked(archive)) }
                     )
                 }
 
@@ -152,7 +147,7 @@ fun FoldersScreenContent(
 
 @Composable
 fun FolderItem(
-    folder: Project,
+    archive: Archive,
     onClick: () -> Unit
 ) {
     Row(
@@ -171,7 +166,7 @@ fun FolderItem(
         )
 
         Text(
-            text = folder.description ?: "",
+            text = archive.description ?: "",
             style = MaterialTheme.typography.titleLarge,
             color = colorResource(R.color.colorOnBackground),
             modifier = Modifier.weight(1f).padding(horizontal = 10.dp)
@@ -187,9 +182,9 @@ private fun FoldersScreenPreview() {
         FoldersScreenContent(
             state = FoldersState(
                 folders = listOf(
-                    Project("Folder 1", Date(), 1L),
-                    Project("Folder 2", Date(), 1L),
-                    Project("Very Long Folder Name That Should Wrap", Date(), 1L)
+                    Archive(id = 1, description = "Folder 1", vaultId = 1L),
+                    Archive(id = 2, description = "Folder 2", vaultId = 1L),
+                    Archive(id = 3, description = "Very Long Folder Name That Should Wrap", vaultId = 1L)
                 ),
                 isArchived = true,
                 showArchivedMenuItem = true,

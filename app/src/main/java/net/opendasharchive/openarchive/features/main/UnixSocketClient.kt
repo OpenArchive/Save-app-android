@@ -6,6 +6,7 @@ import android.net.LocalSocketAddress
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.services.snowbird.service.db.SerializableMarker
 import net.opendasharchive.openarchive.services.snowbird.service.ErrorResponse
 import net.opendasharchive.openarchive.services.snowbird.service.HttpLikeException
@@ -66,13 +67,13 @@ class UnixSocketClient(context: Context) {
             if (files != null) {
                 Timber.d("Files in app directory (${files.size} total):")
                 files.forEach { file ->
-                    Timber.d("  - ${file.name} (${if (file.isDirectory()) "dir" else "file"}, ${file.length()} bytes)")
+                    AppLogger.d("  - ${file.name} (${if (file.isDirectory()) "dir" else "file"}, ${file.length()} bytes)")
                 }
             } else {
-                Timber.w("Unable to list files in directory: ${filesDir.absolutePath}")
+                AppLogger.w("Unable to list files in directory: ${filesDir.absolutePath}")
             }
         } catch (e: Exception) {
-            Timber.e(e, "Error checking file directory status")
+            AppLogger.e("Error checking file directory status", e)
         }
     }
 
@@ -108,7 +109,7 @@ class UnixSocketClient(context: Context) {
                 when (responseCode) {
                     in 200..299 -> parseSuccessResponse(responseBody, deserialize)
                     else -> {
-                        Timber.e("Error response body = $responseBody")
+                        AppLogger.e("Error response body = $responseBody")
                         // try to decode our {"error":"…","status":"error"} payload
                         val message = try {
                             json.decodeFromString<ErrorResponse>(responseBody).error
@@ -121,11 +122,11 @@ class UnixSocketClient(context: Context) {
                 }
             }
         } catch (e: SocketTimeoutException) {
-            Timber.e(e, "Socket timeout when connecting to Unix socket")
+            AppLogger.e("Socket timeout when connecting to Unix socket", e)
             logConnectionDiagnostics()
             throw IOException("Connection timeout to Unix socket at $socketPath. Check if the server is running.")
         } catch (e: IOException) {
-            Timber.e(e, "IO error when connecting to Unix socket")
+            AppLogger.e("IO error when connecting to Unix socket", e)
             logConnectionDiagnostics()
             
             val errorMessage = when {
@@ -138,7 +139,7 @@ class UnixSocketClient(context: Context) {
             }
             throw IOException(errorMessage)
         } catch (e: Exception) {
-            Timber.e(e, "Unexpected error during Unix socket communication")
+            AppLogger.e("Unexpected error during Unix socket communication", e)
             logConnectionDiagnostics()
             throw IOException("Unexpected error during Unix socket communication: ${e.message}")
         }
@@ -178,7 +179,7 @@ class UnixSocketClient(context: Context) {
         var line: String?
         while (reader.readLine().also { line = it } != null) {
             if (line.isNullOrBlank()) break
-            val (key, value) = line!!.split(": ", limit = 2)
+            val (key, value) = line.split(": ", limit = 2)
             headers[key] = value
         }
 
@@ -191,7 +192,7 @@ class UnixSocketClient(context: Context) {
         return try {
             deserialize(responseBody)
         } catch (e: Exception) {
-            Timber.e("error = $e")
+            AppLogger.e("error", e)
             throw e
         }
     }

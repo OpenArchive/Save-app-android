@@ -8,6 +8,7 @@ import android.util.Base64
 import androidx.preference.PreferenceManager
 import org.witness.proofmode.ProofMode
 import org.witness.proofmode.ProofModeConstants
+import androidx.core.net.toUri
 
 object Prefs {
     const val PASSCODE_ENABLED = "passcode_enabled"
@@ -32,8 +33,8 @@ object Prefs {
     private const val LICENSE_URL = "archive_pref_share_license_url"
     private const val PROOFMODE_ENCRYPTED_PASSPHRASE = "proof_mode_encrypted_passphrase"
     private const val DID_RUN_SEEDER = "did_run_seeder"
-
-    val TOR_DOWNLOAD_URL = Uri.parse("https://play.google.com/store/apps/details?id=org.torproject.android")
+    private const val IS_MIGRATION_IN_PROGRESS = "is_migration_in_progress"
+    private const val IS_ROOM_MIGRATED = "is_room_migrated"
 
     private var prefs: SharedPreferences? = null
 
@@ -236,5 +237,17 @@ object Prefs {
         set(value) {
             // Use commit() for synchronous write, crucial before app proceeds
             prefs?.edit()?.putBoolean(DID_RUN_SEEDER, value)?.commit()
+        }
+
+    var isMigrationInProgress: Boolean
+        get() = prefs?.getBoolean(IS_MIGRATION_IN_PROGRESS, false) ?: false
+        set(value) {
+            putBoolean(IS_MIGRATION_IN_PROGRESS, value)
+        }
+
+    var isRoomMigrated: Boolean
+        get() = prefs?.getBoolean(IS_ROOM_MIGRATED, false) ?: false
+        set(value) {
+            putBoolean(IS_ROOM_MIGRATED, value)
         }
 }

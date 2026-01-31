@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import net.opendasharchive.openarchive.core.domain.Archive
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.repositories.ProjectRepository
 import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.features.core.UiText
@@ -92,7 +93,7 @@ class BrowseFoldersViewModel(
                     )
                 }
             } catch (e: Throwable) {
-                Timber.e(e)
+                AppLogger.e(e)
                 _uiState.update {
                     it.copy(
                         folders = emptyList(),

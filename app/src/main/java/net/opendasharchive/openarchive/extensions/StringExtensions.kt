@@ -6,7 +6,7 @@ import android.util.Patterns
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
-import timber.log.Timber
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import java.io.File
 import java.io.InputStream
 import java.net.URI
@@ -41,7 +41,7 @@ fun String.createInputStream(): InputStream? {
     return try {
         File(this).inputStream()
     } catch (e: Exception) {
-        Timber.e(e, "Failed to create InputStream from path: $this")
+        AppLogger.e( "Failed to create InputStream from path: $this", e)
         null
     }
 }

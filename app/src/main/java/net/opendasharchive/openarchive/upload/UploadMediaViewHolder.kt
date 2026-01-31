@@ -135,7 +135,7 @@ class UploadMediaViewHolder(
                             media.save()
                         }
                     } catch (e: Throwable) {
-                        Timber.e(e)
+                        AppLogger.e(e)
                     } finally {
                         iStream?.close()
                     }

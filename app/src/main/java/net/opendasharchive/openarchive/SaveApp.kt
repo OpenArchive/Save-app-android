@@ -16,11 +16,16 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
 import net.opendasharchive.openarchive.analytics.di.analyticsModule
+import net.opendasharchive.openarchive.db.MigrationWorker
 import net.opendasharchive.openarchive.core.di.coreModule
+import net.opendasharchive.openarchive.core.di.databaseModule
 import net.opendasharchive.openarchive.core.di.featuresModule
 import net.opendasharchive.openarchive.core.di.passcodeModule
 import net.opendasharchive.openarchive.core.di.retrofitModule
@@ -73,11 +78,23 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
 
         // --- END DATABASE SEEDER LOGIC ---
 
+        // Trigger Room migration if needed
+        if (!Prefs.isRoomMigrated) {
+            val migrationRequest = OneTimeWorkRequestBuilder<MigrationWorker>()
+                .build()
+            WorkManager.getInstance(this).enqueueUniqueWork(
+                "RoomMigration",
+                ExistingWorkPolicy.KEEP,
+                migrationRequest
+            )
+        }
+
         // Initialize Koin DI
         startKoin {
             androidLogger(Level.DEBUG)
             androidContext(this@SaveApp)
             modules(
+                databaseModule,
                 coreModule,
                 passcodeModule,
                 featuresModule,
@@ -105,7 +122,9 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
             AppLogger.setAnalyticsManager(analyticsManager)
 
             // Set app version for session tracker
-            (sessionTracker as? net.opendasharchive.openarchive.analytics.api.session.SessionTrackerImpl)?.setAppVersion(BuildConfig.VERSION_NAME)
+            (sessionTracker as? net.opendasharchive.openarchive.analytics.api.session.SessionTrackerImpl)?.setAppVersion(
+                BuildConfig.VERSION_NAME
+            )
 
             // Set user properties (GDPR-compliant)
             analyticsManager.setUserProperty("app_version", BuildConfig.VERSION_NAME)

@@ -16,12 +16,13 @@ import net.opendasharchive.openarchive.db.sugar.Space
 
 class SugarProjectRepository(private val io: CoroutineDispatcher = Dispatchers.IO) : ProjectRepository {
 
-    override suspend fun getProjects(vaultId: Long): List<Archive> = withContext(io) {
-        Space.get(vaultId)?.projects?.map { it.toDomain() } ?: emptyList()
+    override suspend fun getProjects(vaultId: Long, archived: Boolean): List<Archive> = withContext(io) {
+        val projects = Space.get(vaultId)?.projects ?: emptyList()
+        projects.filter { it.isArchived == archived }.map { it.toDomain() }
     }
 
-    override fun observeProjects(vaultId: Long): Flow<List<Archive>> = InvalidationBus.projects
-        .map { getProjects(vaultId) }
+    override fun observeProjects(vaultId: Long, archived: Boolean): Flow<List<Archive>> = InvalidationBus.projects
+        .map { getProjects(vaultId, archived) }
         .distinctUntilChanged()
 
     override suspend fun getProject(id: Long): Archive? = withContext(io) {

@@ -5,24 +5,24 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.update
-import net.opendasharchive.openarchive.db.sugar.Project
-import net.opendasharchive.openarchive.db.sugar.Space
-import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.core.domain.Archive
 import net.opendasharchive.openarchive.features.main.ui.Navigator
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.*
+import net.opendasharchive.openarchive.core.repositories.ProjectRepository
+import net.opendasharchive.openarchive.core.repositories.SpaceRepository
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
 
 data class FoldersState(
-    val folders: List<Project> = emptyList(),
+    val folders: List<Archive> = emptyList(),
     val isArchived: Boolean = false,
     val showArchivedMenuItem: Boolean = false,
     val archivedCount: Int = 0
 )
 
 sealed interface FoldersAction {
-    data class FolderClicked(val project: Project) : FoldersAction
+    data class FolderClicked(val archive: Archive) : FoldersAction
     data object ViewArchivedClicked : FoldersAction
-    data object RefreshFolders : FoldersAction
 }
 
 sealed interface FoldersEvent {
@@ -33,6 +33,8 @@ sealed interface FoldersEvent {
 class FoldersViewModel(
     private val route: AppRoute.FolderListRoute,
     private val navigator: Navigator,
+    private val projectRepository: ProjectRepository,
+    private val spaceRepository: SpaceRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(FoldersState(isArchived = route.showArchived))
@@ -42,44 +44,46 @@ class FoldersViewModel(
     val events = _events.receiveAsFlow()
 
     init {
-        refreshFolders()
+        observeData()
     }
 
-    fun setArchived(archived: Boolean) {
+    private fun observeData() {
+        val spaceFlow = route.spaceId?.let { spaceRepository.observeSpace(it) }
+            ?: spaceRepository.observeCurrentSpace()
 
-        _uiState.update { it.copy(isArchived = archived) }
-        refreshFolders()
+        combine(
+            spaceFlow,
+            _uiState.map { it.isArchived }.distinctUntilChanged()
+        ) { space, isArchived ->
+            space to isArchived
+        }.flatMapLatest { (space, isArchived) ->
+            if (space == null) {
+                kotlinx.coroutines.flow.flowOf(emptyList<net.opendasharchive.openarchive.core.domain.Archive>() to 0)
+            } else {
+                combine(
+                    projectRepository.observeProjects(space.id, isArchived),
+                    projectRepository.observeProjects(space.id, true) // For archived count
+                ) { folders, archivedProjects ->
+                    folders to archivedProjects.size
+                }
+            }
+        }.onEach { (folders, archivedCount) ->
+            _uiState.update {
+                it.copy(
+                    folders = folders,
+                    archivedCount = archivedCount,
+                    showArchivedMenuItem = !_uiState.value.isArchived && archivedCount > 0
+                )
+            }
+        }.launchIn(viewModelScope)
     }
 
     fun onAction(action: FoldersAction) {
         when (action) {
-            is FoldersAction.FolderClicked -> navigator.navigateTo(AppRoute.FolderDetailRoute(action.project.id))
+            is FoldersAction.FolderClicked -> navigator.navigateTo(AppRoute.FolderDetailRoute(action.archive.id))
 
             is FoldersAction.ViewArchivedClicked -> navigator.navigateTo(AppRoute.FolderListRoute(showArchived = true, spaceId = route.spaceId))
-
-            is FoldersAction.RefreshFolders -> {
-                refreshFolders()
-            }
         }
     }
 
-    private fun refreshFolders() {
-        val space = Space.current
-
-        val folders = if (_uiState.value.isArchived) {
-            space?.archivedProjects ?: emptyList()
-        } else {
-            space?.projects?.filter { !it.isArchived } ?: emptyList()
-        }
-
-        val archivedCount = space?.archivedProjects?.size ?: 0
-
-        _uiState.update {
-            it.copy(
-                folders = folders,
-                archivedCount = archivedCount,
-                showArchivedMenuItem = !_uiState.value.isArchived && archivedCount > 0
-            )
-        }
-    }
 }

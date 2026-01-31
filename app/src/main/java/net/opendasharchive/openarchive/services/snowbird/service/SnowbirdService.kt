@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.SaveApp
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.extensions.RetryAttempt
 import net.opendasharchive.openarchive.extensions.retryWithScope
 import net.opendasharchive.openarchive.extensions.suspendToRetry
@@ -132,7 +133,7 @@ class SnowbirdService : Service() {
                 updateStatus(ServiceStatus.Stopped)
                 Timber.d("Server shutdown complete")
             } catch (e: Exception) {
-                Timber.e(e, "Error stopping server")
+                AppLogger.e( "Error stopping server", e)
                 updateStatus(ServiceStatus.Failed(e))
             }
         }
@@ -245,7 +246,7 @@ class SnowbirdService : Service() {
                         val errorMessage = attempt.error.message ?: "Unknown error"
                         updateStatus(ServiceStatus.Failed(attempt.error))
                         updateNotification("Connection Failed: $errorMessage")
-                        Timber.e(attempt.error)
+                        AppLogger.e(attempt.error)
                         stopPolling()
                     }
                 }

@@ -1,6 +1,5 @@
 package net.opendasharchive.openarchive.features.settings
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
@@ -10,7 +9,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.opendasharchive.openarchive.db.sugar.Project
+import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.domain.Archive
+import net.opendasharchive.openarchive.core.repositories.ProjectRepository
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.UiImage
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 
 data class FolderDetailState(
     val projectId: Long = -1L,
@@ -22,27 +30,21 @@ sealed interface FolderDetailAction {
     data class UpdateFolderName(val name: String) : FolderDetailAction
     data object ArchiveProject : FolderDetailAction
     data object UnarchiveProject : FolderDetailAction
-    data object RemoveProject : FolderDetailAction
     data object ShowRemoveDialog : FolderDetailAction
 }
 
-sealed interface FolderDetailEvent {
-    data object NavigateBack : FolderDetailEvent
-    data object ShowRemoveConfirmDialog : FolderDetailEvent
-}
-
 class FolderDetailViewModel(
-    private val savedStateHandle: SavedStateHandle
+    private val route: AppRoute.FolderDetailRoute,
+    private val navigator: Navigator,
+    private val projectRepository: ProjectRepository,
+    private val dialogManager: DialogStateManager
 ) : ViewModel() {
 
-    private var projectId: Long = savedStateHandle.get<Long>("currentProjectId") ?: -1L
-    private var project: Project? = null
+    private val projectId: Long = route.currentProjectId
+    private var archive: Archive? = null
 
     private val _uiState = MutableStateFlow(FolderDetailState(projectId = projectId))
     val uiState: StateFlow<FolderDetailState> = _uiState.asStateFlow()
-
-    private val _events = Channel<FolderDetailEvent>()
-    val events = _events.receiveAsFlow()
 
     init {
         if (projectId != -1L) {
@@ -50,19 +52,16 @@ class FolderDetailViewModel(
         }
     }
 
-    fun setProjectId(id: Long) {
-        projectId = id
-        loadProject()
-    }
-
     private fun loadProject() {
-        project = Project.getById(projectId)
-        project?.let { proj ->
-            _uiState.update {
-                it.copy(
-                    folderName = proj.description ?: "",
-                    isArchived = proj.isArchived
-                )
+        viewModelScope.launch {
+            archive = projectRepository.getProject(projectId)
+            archive?.let { arc ->
+                _uiState.update {
+                    it.copy(
+                        folderName = arc.description ?: "",
+                        isArchived = arc.isArchived
+                    )
+                }
             }
         }
     }
@@ -72,45 +71,63 @@ class FolderDetailViewModel(
             is FolderDetailAction.UpdateFolderName -> {
                 val name = action.name.trim()
                 if (name.isNotBlank()) {
-                    project?.let {
-                        it.description = name
-                        it.save()
-                        _uiState.update { state -> state.copy(folderName = name) }
+                    archive?.let {
+                        val updated = it.copy(description = name)
+                        viewModelScope.launch {
+                            projectRepository.addProject(updated)
+                            archive = updated
+                            _uiState.update { state -> state.copy(folderName = name) }
+                        }
                     }
                 }
             }
 
             is FolderDetailAction.ArchiveProject -> {
-                project?.let {
-                    it.isArchived = true
-                    it.save()
+                archive?.let {
                     viewModelScope.launch {
-                        _events.send(FolderDetailEvent.NavigateBack)
+                        projectRepository.archiveProject(it.id, isArchived = true)
+                        navigator.navigateBack()
                     }
                 }
             }
 
             is FolderDetailAction.UnarchiveProject -> {
-                project?.let {
-                    it.isArchived = false
-                    it.save()
+                archive?.let {
                     viewModelScope.launch {
-                        _events.send(FolderDetailEvent.NavigateBack)
+                        projectRepository.archiveProject(it.id, isArchived = false)
+                        navigator.navigateBack()
                     }
                 }
             }
 
             is FolderDetailAction.ShowRemoveDialog -> {
-                viewModelScope.launch {
-                    _events.send(FolderDetailEvent.ShowRemoveConfirmDialog)
-                }
+                showRemoveConfirmDialog()
             }
 
-            is FolderDetailAction.RemoveProject -> {
-                project?.delete()
-                viewModelScope.launch {
-                    _events.send(FolderDetailEvent.NavigateBack)
-                }
+        }
+    }
+
+    private fun removeProject() {
+        archive?.let {
+            viewModelScope.launch {
+                projectRepository.deleteProject(it.id)
+                navigator.navigateBack()
+            }
+        }
+    }
+
+    private fun showRemoveConfirmDialog() {
+        dialogManager.showDialog {
+            type = DialogType.Error
+            title = UiText.Resource(R.string.remove_from_app)
+            message = UiText.Resource(R.string.action_remove_project)
+            icon = UiImage.DrawableResource(R.drawable.ic_trash)
+            destructiveButton {
+                text = UiText.Resource(R.string.lbl_remove)
+                action = { removeProject() }
+            }
+            neutralButton {
+                text = UiText.Resource(R.string.lbl_Cancel)
             }
         }
     }

@@ -9,6 +9,7 @@ interface SpaceRepository {
     suspend fun getCurrentSpace(): Vault?
     fun observeCurrentSpace(): Flow<Vault?>
     suspend fun setCurrentSpace(id: Long)
+    fun observeSpace(id: Long): Flow<Vault?>
 
     suspend fun getSpaceById(id: Long): Vault?
     suspend fun updateSpace(vaultId: Long, vault: Vault): Boolean

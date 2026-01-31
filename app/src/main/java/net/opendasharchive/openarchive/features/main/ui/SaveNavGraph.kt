@@ -10,10 +10,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
@@ -45,6 +47,7 @@ import net.opendasharchive.openarchive.features.media.camera.CameraScreenWrapper
 import net.opendasharchive.openarchive.features.onboarding.OnboardingInstructionsScreen
 import net.opendasharchive.openarchive.features.onboarding.OnboardingWelcomeScreen
 import net.opendasharchive.openarchive.features.settings.FolderDetailScreen
+import net.opendasharchive.openarchive.features.settings.FolderDetailViewModel
 import net.opendasharchive.openarchive.features.settings.FoldersScreen
 import net.opendasharchive.openarchive.features.settings.FoldersViewModel
 import net.opendasharchive.openarchive.features.settings.ProofModeSettingsScreen
@@ -378,13 +381,20 @@ fun SaveNavGraph(
                         }
                     }
 
-                    entry<AppRoute.FolderDetailRoute> {
+                    entry<AppRoute.FolderDetailRoute> { route ->
+
+                        val viewModel = koinViewModel<FolderDetailViewModel> {
+                            parametersOf(navigator, route)
+                        }
+
+                        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
                         DefaultScaffold(
-                            title = "Edit Folder", //TODO: Add string resource
+                            title = uiState.folderName,
                             onNavigateBack = { navigator.navigateBack() }
                         ) {
                             FolderDetailScreen(
-                                onNavigateBack = { navigator.navigateBack() }
+                                viewModel = viewModel,
                             )
                         }
                     }

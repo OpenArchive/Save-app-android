@@ -20,11 +20,11 @@ class ArchiveRepositoryImpl(
     private val io: CoroutineDispatcher = Dispatchers.IO
 ) : ProjectRepository {
 
-    override suspend fun getProjects(vaultId: Long): List<Archive> = withContext(io) {
-        archiveDao.observeBySpace(vaultId).first().map { it.toDomain() }
+    override suspend fun getProjects(vaultId: Long, archived: Boolean): List<Archive> = withContext(io) {
+        archiveDao.observeBySpace(vaultId, archived).first().map { it.toDomain() }
     }
 
-    override fun observeProjects(vaultId: Long): Flow<List<Archive>> = archiveDao.observeBySpace(vaultId)
+    override fun observeProjects(vaultId: Long, archived: Boolean): Flow<List<Archive>> = archiveDao.observeBySpace(vaultId, archived)
         .map { entities -> entities.map { it.toDomain() } }
         .distinctUntilChanged()
 

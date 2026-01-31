@@ -71,11 +71,23 @@ class HomeViewModel(
                 val selectedProjectId =
                     it.selectedProjectId?.takeIf { id -> projects.any { it.id == id } }
                         ?: projects.firstOrNull()?.id
+
+                val currentSettingsIndex = settingsIndex(it.projects.size)
+                val wasOnSettings = it.pagerIndex == currentSettingsIndex
+
+                val newPagerIndex = if (wasOnSettings) {
+                    settingsIndex(projects.size)
+                } else {
+                    resolvePagerIndexForProject(selectedProjectId, projects)
+                }
+
                 it.copy(
                     spaces = spaces,
                     currentSpace = currentSpace,
                     projects = projects,
                     selectedProjectId = selectedProjectId,
+                    pagerIndex = newPagerIndex,
+                    lastMediaIndex = if (newPagerIndex < settingsIndex(projects.size)) newPagerIndex else it.lastMediaIndex
                 )
             }
         }.launchIn(viewModelScope)

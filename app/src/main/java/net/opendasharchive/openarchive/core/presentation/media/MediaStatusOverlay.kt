@@ -81,7 +81,8 @@ fun MediaStatusOverlay(
 
         EvidenceStatus.UPLOADING -> {
             if (showUploadingState) {
-                val progressValue = evidence.uploadPercentage ?: 0
+                val progressValue = evidence.uploadPercentage
+                    ?: if (evidence.contentLength > 0) (evidence.progress.toFloat() / evidence.contentLength * 100).toInt() else 0
                 Box(
                     modifier = modifier
                         .fillMaxSize()

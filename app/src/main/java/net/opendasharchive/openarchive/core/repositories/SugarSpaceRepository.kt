@@ -35,6 +35,10 @@ class SugarSpaceRepository(private val io: CoroutineDispatcher = Dispatchers.IO)
         getCurrentSpace() ?: getSpaces().firstOrNull()
     }.distinctUntilChanged()
 
+    override fun observeSpace(id: Long): Flow<Vault?> = InvalidationBus.spaces
+        .map { getSpaceById(id) }
+        .distinctUntilChanged()
+
     override suspend fun setCurrentSpace(id: Long) {
         withContext(io) {
             val space = Space.get(id)

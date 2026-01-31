@@ -48,12 +48,10 @@ import net.opendasharchive.openarchive.core.presentation.media.MediaThumbnail
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import java.text.NumberFormat
-import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
-import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.LocalDateTime
+import net.opendasharchive.openarchive.util.format
 import net.opendasharchive.openarchive.core.domain.VaultType
-import java.time.ZoneId
 
 /**
  * IMPROVED MainMediaScreen:
@@ -67,6 +65,7 @@ fun MainMediaScreen(
     refreshProjectId: Long?,
     refreshToken: Long,
     onNavigateToPreview: () -> Unit,
+    onShowUploadManager: () -> Unit,
 ) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -85,7 +84,9 @@ fun MainMediaScreen(
                     onNavigateToPreview()
                 }
 
-                is MainMediaEvent.ShowUploadManager -> Unit
+                is MainMediaEvent.ShowUploadManager -> {
+                    onShowUploadManager()
+                }
                 is MainMediaEvent.ShowErrorDialog -> Unit
                 is MainMediaEvent.SelectionModeChanged -> Unit
                 MainMediaEvent.FocusFolderNameInput -> Unit
@@ -220,13 +221,7 @@ private fun CollectionHeaderView(section: CollectionSection) {
             text = if (uploadingCount > 0) {
                 stringResource(R.string.uploading)
             } else {
-                section.collection.uploadDate?.let {
-                    formatUploadDate(
-                        Date.from(
-                            it.toJavaLocalDateTime().atZone(ZoneId.systemDefault()).toInstant()
-                        )
-                    )
-                }
+                section.collection.uploadDate?.let { formatUploadDate(it) }
                     ?: "Ready to upload"
             },
             style = MaterialTheme.typography.bodySmall.copy(fontFamily = MontserratFontFamily)
@@ -417,9 +412,8 @@ private fun EmptyStateView(
     }
 }
 
-private fun formatUploadDate(date: Date): String {
-    val dateFormat = SimpleDateFormat("MMM dd, yyyy | h:mma", Locale.ENGLISH)
-    val formatted = dateFormat.format(date)
+private fun formatUploadDate(dateTime: LocalDateTime): String {
+    val formatted = dateTime.format("MMM dd, yyyy | h:mma")
     return formatted.replace("AM", "am").replace("PM", "pm")
 }
 

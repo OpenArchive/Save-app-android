@@ -4,7 +4,10 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.toInstant
+import kotlinx.datetime.toJavaLocalDateTime
 import java.util.Date
+import java.util.Locale
+import java.time.format.DateTimeFormatter
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -15,6 +18,8 @@ object DateUtils {
     val now: Long get() = Clock.System.now().toEpochMilliseconds()
 
     val nowDateTime: LocalDateTime get() = Clock.System.now().toLocalDateTime(timezone)
+
+    fun getTimestamp(): String = nowDateTime.format("yyyyMMdd_HHmmss", Locale.US)
 }
 
 // Datetime Extension functions
@@ -28,4 +33,12 @@ fun Date.toKotlinLocalDateTime(): LocalDateTime {
 
 fun LocalDateTime.toJavaDate(): Date {
     return Date(this.toInstant(DateUtils.timezone).toEpochMilliseconds())
+}
+
+fun LocalDateTime.toEpochMilliseconds(): Long {
+    return this.toInstant(DateUtils.timezone).toEpochMilliseconds()
+}
+
+fun LocalDateTime.format(pattern: String, locale: Locale = Locale.ENGLISH): String {
+    return this.toJavaLocalDateTime().format(DateTimeFormatter.ofPattern(pattern, locale))
 }

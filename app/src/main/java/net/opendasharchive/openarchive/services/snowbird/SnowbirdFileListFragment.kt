@@ -23,6 +23,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.FragmentSnowbirdListMediaBinding
 import net.opendasharchive.openarchive.services.snowbird.service.db.FileUploadResult
 import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdError
@@ -231,7 +232,7 @@ class SnowbirdFileListFragment : BaseSnowbirdFragment() {
         try {
             filePickerLauncher.launch(arrayOf("image/*", "video/*", "audio/*"))
         } catch (e: Exception) {
-            Timber.e(e, "Error launching file picker")
+            AppLogger.e( "Error launching file picker", e)
             Toast.makeText(
                 requireContext(),
                 "Could not open file picker",
@@ -328,7 +329,7 @@ class SnowbirdFileListFragment : BaseSnowbirdFragment() {
         try {
             galleryLauncher.launch(request)
         } catch (e: Exception) {
-            Timber.e(e, "Error launching gallery picker")
+            AppLogger.e("Error launching gallery picker", e)
             // Fallback to file picker if gallery fails
             openFilePicker()
         }
@@ -464,7 +465,7 @@ class SnowbirdFileListFragment : BaseSnowbirdFragment() {
                 }
             }
         } catch (e: Exception) {
-            Timber.e(e, "Failed to open downloaded file")
+            AppLogger.e("Failed to open downloaded file", e)
             dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                 type = DialogType.Error
                 title = UiText.Dynamic("Error")

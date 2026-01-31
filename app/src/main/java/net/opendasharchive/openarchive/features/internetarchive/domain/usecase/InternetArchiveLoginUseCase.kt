@@ -1,7 +1,9 @@
 package net.opendasharchive.openarchive.features.internetarchive.domain.usecase
 
 import com.google.gson.Gson
-import net.opendasharchive.openarchive.db.sugar.Space
+import net.opendasharchive.openarchive.core.domain.Vault
+import net.opendasharchive.openarchive.core.domain.VaultType
+import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.features.internetarchive.domain.model.InternetArchive
 import net.opendasharchive.openarchive.features.internetarchive.infrastructure.repository.InternetArchiveRepository
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
@@ -9,36 +11,37 @@ import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 class InternetArchiveLoginUseCase(
     private val repository: InternetArchiveRepository,
     private val gson: Gson,
-    private val space: Space,
+    private val spaceRepository: SpaceRepository,
     private val analyticsManager: AnalyticsManager,
 ) {
 
-    suspend operator fun invoke(email: String, password: String): Result<InternetArchive> =
+    suspend operator fun invoke(email: String, password: String): Result<Long> =
         repository.login(email, password).mapCatching { response ->
 
-            response.auth.let { auth ->
-                repository.testConnection(auth).getOrThrow()
-                space.username = auth.access
-                space.password = auth.secret
-            }
+            val auth = response.auth
+            repository.testConnection(auth).getOrThrow()
 
-            // TODO: use local data source for database
-            space.metaData = gson.toJson(response.meta)
+            val metaDataJson = gson.toJson(response.meta)
 
-            // Check if this is a new backend or existing one
-            val isNewBackend = space.id == null || space.id == 0L
+            val vault = Vault(
+                type = VaultType.INTERNET_ARCHIVE,
+                username = auth.access,
+                password = auth.secret,
+                displayName = response.meta.screenName,
+                metaData = metaDataJson,
+                host = "https://archive.org"
+            )
 
-            space.save()
-
-            Space.current = space
+            val vaultId = spaceRepository.addSpace(vault)
+            spaceRepository.setCurrentSpace(vaultId)
 
             // Track backend configuration
             analyticsManager.trackBackendConfigured(
-                backendType = Space.Type.INTERNET_ARCHIVE.friendlyName,
-                isNew = isNewBackend
+                backendType = VaultType.INTERNET_ARCHIVE.friendlyName,
+                isNew = true
             )
 
-            response
+            vaultId
         }
 
 }

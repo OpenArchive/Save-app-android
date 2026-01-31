@@ -5,8 +5,8 @@ import net.opendasharchive.openarchive.core.domain.Archive
 import net.opendasharchive.openarchive.core.domain.Submission
 
 interface ProjectRepository {
-    suspend fun getProjects(vaultId: Long): List<Archive>
-    fun observeProjects(vaultId: Long): Flow<List<Archive>>
+    suspend fun getProjects(vaultId: Long, archived: Boolean = false): List<Archive>
+    fun observeProjects(vaultId: Long, archived: Boolean = false): Flow<List<Archive>>
     suspend fun getProject(id: Long): Archive?
     fun observeProject(id: Long): Flow<Archive?>
     suspend fun renameProject(id: Long, newName: String)

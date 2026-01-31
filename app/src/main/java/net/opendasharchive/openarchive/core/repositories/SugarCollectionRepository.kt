@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.core.domain.Submission
 import net.opendasharchive.openarchive.core.domain.mappers.toDomain
+import net.opendasharchive.openarchive.core.domain.mappers.toEntity
 import net.opendasharchive.openarchive.db.sugar.Collection
 
 class SugarCollectionRepository(private val io: CoroutineDispatcher = Dispatchers.IO) : CollectionRepository {
@@ -21,6 +22,17 @@ class SugarCollectionRepository(private val io: CoroutineDispatcher = Dispatcher
         return InvalidationBus.collections
             .map { getCollections(projectId) }
             .distinctUntilChanged()
+    }
+
+    override suspend fun getCollection(id: Long): Submission? = withContext(io) {
+        Collection.get(id)?.toDomain()
+    }
+
+    override suspend fun updateCollection(submission: Submission) {
+        withContext(io) {
+            submission.toEntity().save()
+            InvalidationBus.invalidateCollections()
+        }
     }
 
     override suspend fun deleteCollection(id: Long) {
