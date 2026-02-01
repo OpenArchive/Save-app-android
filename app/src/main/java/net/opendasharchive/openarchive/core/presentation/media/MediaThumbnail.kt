@@ -42,6 +42,7 @@ fun MediaThumbnail(
     modifier: Modifier = Modifier,
     isSelected: Boolean = false,
     alpha: Float = 1f,
+    contentScale: ContentScale = ContentScale.Crop,
     showStatusOverlay: Boolean = true,
     placeholderPadding: Dp = 24.dp,
     pdfMaxDimensionPx: Int = 400,
@@ -67,7 +68,7 @@ fun MediaThumbnail(
                     .error(R.drawable.ic_image)
                     .build(),
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
+                contentScale = contentScale,
                 modifier = modifier
                     .fillMaxSize()
                     .alpha(alpha)
@@ -85,7 +86,7 @@ fun MediaThumbnail(
                     .error(R.drawable.ic_video)
                     .build(),
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
+                contentScale = contentScale,
                 modifier = modifier
                     .fillMaxSize()
                     .alpha(alpha)
@@ -122,7 +123,7 @@ fun MediaThumbnail(
                 uri = evidence.fileUri,
                 placeholderRes = R.drawable.ic_pdf,
                 maxDimensionPx = pdfMaxDimensionPx,
-                contentScale = ContentScale.Crop,
+                contentScale = contentScale,
                 modifier = modifier
                     .fillMaxSize()
                     .alpha(alpha),

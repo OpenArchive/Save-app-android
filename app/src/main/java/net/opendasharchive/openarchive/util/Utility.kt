@@ -55,6 +55,22 @@ object Utility {
         return File(dir, "$timeStamp.$fileName")
     }
 
+    /**
+     * Temporary persistent storage solution using internal files directory.
+     * TODO: Review this storage strategy when implementing the new Evidence architecture.
+     */
+    fun getOutputMediaFile(context: Context, fileName: String): File? {
+        val dir = context.filesDir
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                return null
+            }
+        }
+
+        val timeStamp = DateUtils.getTimestamp()
+        return File(dir, "$timeStamp.$fileName")
+    }
+
     fun writeStreamToFile(input: InputStream?, file: File?): Boolean {
         @Suppress("NAME_SHADOWING")
         val input = input ?: return false

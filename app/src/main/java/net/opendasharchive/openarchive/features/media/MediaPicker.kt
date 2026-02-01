@@ -48,7 +48,9 @@ object MediaPicker {
     ): Evidence? {
 
         val title = Utility.getUriDisplayName(context, uri) ?: ""
-        val file = Utility.getOutputMediaFileByCache(context, title)
+        // TODO: This is a temporary persistent storage solution. 
+        // Review this when implementing the new Evidence architecture.
+        val file = Utility.getOutputMediaFile(context, title)
 
         // Use try-with-resources pattern for proper resource management
         try {

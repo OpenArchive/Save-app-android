@@ -135,7 +135,7 @@ private fun PreviewMediaContent(
                     .calculateBottomPadding()
             )
         ) {
-            items(state.mediaList, key = { it.id ?: it.hashCode().toLong() }) { media ->
+            items(state.mediaList, key = { it.id }) { media ->
                 MediaListItem(
                     media = media,
                     isInSelectionMode = state.isInSelectionMode,

@@ -233,7 +233,9 @@ fun rememberContentPickerLaunchers(
                 config = cameraConfig
             )
         } else {
-            val file: File? = Utility.getOutputMediaFileByCache(
+            // TODO: This is a temporary persistent storage solution. 
+            // Review this when implementing the new Evidence architecture.
+            val file: File? = Utility.getOutputMediaFile(
                 context,
                 "IMG_${System.currentTimeMillis()}.jpg"
             )

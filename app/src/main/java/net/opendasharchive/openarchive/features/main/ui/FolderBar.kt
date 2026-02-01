@@ -44,7 +44,9 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -309,7 +311,14 @@ private fun FolderBarEditMode(
     val focusManager = LocalFocusManager.current
     val keyboard = LocalSoftwareKeyboardController.current
     val view = LocalView.current
-    var folderName by remember { mutableStateOf(initialName) }
+    var folderName by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = initialName,
+                selection = TextRange(0, initialName.length)
+            )
+        )
+    }
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -360,7 +369,7 @@ private fun FolderBarEditMode(
             keyboardActions = KeyboardActions(
                 onDone = {
                     closeImeAndClearFocus()
-                    onSave(folderName)
+                    onSave(folderName.text)
                 }
             ),
             colors = TextFieldDefaults.colors(

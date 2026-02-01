@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -42,7 +41,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -53,14 +51,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.SubcomposeAsyncImage
-import coil3.request.ImageRequest
-import coil3.request.error
-import coil3.video.VideoFrameDecoder
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.domain.Evidence
+import net.opendasharchive.openarchive.core.presentation.media.MediaThumbnail
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
@@ -217,109 +211,25 @@ private fun MediaPreview(
     background: Color = MaterialTheme.colorScheme.background,
     contentScale: ContentScale = ContentScale.Fit
 ) {
-    val context = LocalContext.current
-
     Box(
         modifier = modifier
             .background(background),
         contentAlignment = Alignment.Center
     ) {
-        when {
-            media == null -> {
-                Icon(
-                    painter = painterResource(R.drawable.no_thumbnail),
-                    contentDescription = null,
-                    modifier = Modifier.size(64.dp),
-                    tint = Color.Gray
-                )
-            }
-
-            media.mimeType.startsWith("image") -> {
-                SubcomposeAsyncImage(
-                    model = ImageRequest.Builder(context)
-                        .data(media.fileUri)
-                        .error(R.drawable.ic_image)
-                        .build(),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = contentScale,
-                    loading = {
-                        CircularProgressIndicator(modifier = Modifier.size(32.dp))
-                    },
-                    error = {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_image),
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            tint = Color.Gray
-                        )
-                    }
-                )
-            }
-
-            media.mimeType.startsWith("video") -> {
-                val videoUri = when {
-                    !media.originalFilePath.isNullOrBlank() -> media.originalFilePath.toUri()
-                    else -> media.fileUri
-                }
-
-                SubcomposeAsyncImage(
-                    model = ImageRequest.Builder(context)
-                        .data(videoUri)
-                        .decoderFactory { result, options, _ ->
-                            VideoFrameDecoder(result.source, options)
-                        }
-                        .error(R.drawable.ic_video)
-                        .build(),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = contentScale,
-                    loading = {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_video),
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            tint = Color.Gray
-                        )
-                    },
-                    error = {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_video),
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            tint = Color.Gray
-                        )
-                    }
-                )
-            }
-
-            media.mimeType.startsWith("audio") -> {
-                Icon(
-                    painter = painterResource(R.drawable.ic_music),
-                    contentDescription = null,
-                    modifier = Modifier.size(64.dp),
-                    tint = Color.Gray
-                )
-            }
-
-            media.mimeType == "application/pdf" -> {
-                // TODO: Implement PDF preview using PdfThumbnailLoader
-                Icon(
-                    painter = painterResource(R.drawable.ic_pdf),
-                    contentDescription = null,
-                    modifier = Modifier.size(64.dp),
-                    tint = Color.Gray
-                )
-            }
-
-            else -> {
-                Icon(
-                    painter = painterResource(R.drawable.no_thumbnail),
-                    contentDescription = null,
-                    modifier = Modifier.size(64.dp),
-                    tint = Color.Gray
-                )
-            }
+        if (media == null) {
+            Icon(
+                painter = painterResource(R.drawable.no_thumbnail),
+                contentDescription = null,
+                modifier = Modifier.size(64.dp),
+                tint = Color.Gray
+            )
+        } else {
+            MediaThumbnail(
+                evidence = media,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = contentScale,
+                showStatusOverlay = false
+            )
         }
     }
 }
