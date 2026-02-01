@@ -99,6 +99,7 @@ class EvidenceRepositoryImpl(
 
     override suspend fun getQueue(): List<Evidence> = withContext(io) {
         val statuses = listOf(4, 2, 9) // UPLOADING, QUEUED, ERROR
+        // Sorting is handled by evidenceDao.getByStatus (priority DESC, id DESC)
         evidenceDao.getByStatus(statuses).map { mapToDomain(it) }
     }
 

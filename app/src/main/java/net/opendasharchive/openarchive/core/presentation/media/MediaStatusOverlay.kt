@@ -73,7 +73,7 @@ fun MediaStatusOverlay(
                     CircularProgressIndicator(
                         color = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier.size(progressIndicatorSize.dp),
-                        strokeWidth = 4.dp
+                        strokeWidth = 6.dp
                     )
                 }
             }
@@ -95,13 +95,13 @@ fun MediaStatusOverlay(
                             color = MaterialTheme.colorScheme.tertiary,
                             trackColor = MaterialTheme.colorScheme.surfaceVariant,
                             modifier = Modifier.size(progressIndicatorSize.dp),
-                            strokeWidth = 4.dp
+                            strokeWidth = 6.dp
                         )
                     } else {
                         CircularProgressIndicator(
                             color = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier.size(progressIndicatorSize.dp),
-                            strokeWidth = 4.dp
+                            strokeWidth = 6.dp
                         )
                     }
 

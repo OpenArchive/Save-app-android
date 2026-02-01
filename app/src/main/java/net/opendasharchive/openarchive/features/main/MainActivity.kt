@@ -91,7 +91,6 @@ import java.text.NumberFormat
 class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAdapterListener {
 
     private val appConfig by inject<AppConfig>()
-    private val viewModel by viewModel<MainViewModel>()
     private val uploadJobScheduler by inject<UploadJobScheduler>()
 
     private var mMenuDelete: MenuItem? = null

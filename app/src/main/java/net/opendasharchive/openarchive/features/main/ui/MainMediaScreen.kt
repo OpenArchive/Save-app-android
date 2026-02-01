@@ -87,7 +87,6 @@ fun MainMediaScreen(
                 is MainMediaEvent.ShowUploadManager -> {
                     onShowUploadManager()
                 }
-                is MainMediaEvent.ShowErrorDialog -> Unit
                 is MainMediaEvent.SelectionModeChanged -> Unit
                 MainMediaEvent.FocusFolderNameInput -> Unit
             }
@@ -337,7 +336,7 @@ private fun MediaGridItem(
             modifier = Modifier.fillMaxSize(),
             showProgressText = false,
             backgroundColor = colorResource(R.color.transparent_black),
-            progressIndicatorSize = 42,
+            progressIndicatorSize = 32,
             showQueuedState = true,
             showUploadingState = true
         )

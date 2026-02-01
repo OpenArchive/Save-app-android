@@ -50,7 +50,6 @@ class MainMediaFragment : BaseFragment() {
         }
     }
 
-    private val viewModel by activityViewModel<MainViewModel>()
     private val uploadJobScheduler: UploadJobScheduler by inject()
 
     private var mAdapters = HashMap<Long, MainMediaAdapter>()
@@ -119,7 +118,6 @@ class MainMediaFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.log("MainMediaFragment onCreateView called for project Id $mProjectId")
 
         val space = Space.current
         val text: String = if (space != null) {

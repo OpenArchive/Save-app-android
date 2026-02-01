@@ -115,6 +115,7 @@ sealed class MainMediaAction {
 
     data class ShowHideFolderOptionsPopup(val showPopup: Boolean) : MainMediaAction()
     data object OnArchiveProject : MainMediaAction()
+    data class ShowErrorRecovery(val media: Evidence) : MainMediaAction()
 }
 
 /**
@@ -125,7 +126,6 @@ sealed class MainMediaAction {
 sealed class MainMediaEvent {
     data class NavigateToPreview(val projectId: Long) : MainMediaEvent()
     data object ShowUploadManager : MainMediaEvent()
-    data class ShowErrorDialog(val media: Evidence, val position: Int) : MainMediaEvent()
     data class SelectionModeChanged(val isSelecting: Boolean, val count: Int) : MainMediaEvent()
     data object FocusFolderNameInput : MainMediaEvent()
 }
@@ -254,6 +254,7 @@ class MainMediaViewModel(
             ShowRemoveProjectDialog -> showConfirmRemoveProjectDialog()
             OnArchiveProject -> requestArchiveProject()
             is ShowHideFolderOptionsPopup -> _uiState.update { it.copy(showFolderOptionsPopup = action.showPopup) }
+            is MainMediaAction.ShowErrorRecovery -> showErrorRecoveryDialog(action.media)
         }
     }
 
@@ -318,8 +319,7 @@ class MainMediaViewModel(
                     EvidenceStatus.UPLOADING -> _uiEvent.emit(MainMediaEvent.ShowUploadManager)
 
                     EvidenceStatus.ERROR -> {
-                        val position = findMediaPosition(media)
-                        _uiEvent.emit(MainMediaEvent.ShowErrorDialog(media, position))
+                        showErrorRecoveryDialog(media)
                     }
 
                     else -> Unit
@@ -575,6 +575,33 @@ class MainMediaViewModel(
             neutralButton {
                 text = UiText.Resource(R.string.lbl_Cancel)
                 action = { dialogManager.dismissDialog() }
+            }
+        }
+    }
+
+    private fun showErrorRecoveryDialog(media: Evidence) {
+        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+            type = DialogType.Error
+            title = UiText.Resource(R.string.upload_unsuccessful)
+            message = UiText.Resource(R.string.upload_unsuccessful_description)
+            icon = UiImage.DrawableResource(R.drawable.ic_error)
+            positiveButton {
+                text = UiText.Resource(R.string.lbl_retry)
+                action = {
+                    viewModelScope.launch {
+                        mediaRepository.retryMedia(media.id)
+                        // Note: observeData will pick up the status change automatically
+                    }
+                }
+            }
+
+            destructiveButton {
+                text = UiText.Resource(R.string.btn_lbl_remove_media)
+                action = {
+                    viewModelScope.launch {
+                        mediaRepository.deleteMedia(media.id)
+                    }
+                }
             }
         }
     }
