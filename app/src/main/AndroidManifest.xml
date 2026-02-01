@@ -164,13 +164,6 @@
         </activity>
 
         <activity
-            android:name=".features.settings.ProofModeSettingsActivity"
-            android:exported="false"
-            android:label="@string/proofmode"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
             android:name=".features.media.PreviewActivity"
             android:exported="false"
             android:label="@string/preview_media"

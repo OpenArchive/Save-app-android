@@ -44,6 +44,7 @@ kotlin {
         // ---- Kotlin compiler feature flags ----
         freeCompilerArgs.add("-Xcontext-parameters")
         freeCompilerArgs.add("-Xcontext-sensitive-resolution",)
+        freeCompilerArgs.add("-Xexplicit-backing-fields")
     }
 }
 

@@ -1,9 +1,11 @@
 package net.opendasharchive.openarchive.features.settings
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
 import android.text.Spanned
 import android.text.style.URLSpan
@@ -122,7 +124,20 @@ fun ProofModeSettingsScreen(
                 }
 
                 is ProofModeSettingsEvent.EnrollBiometrics -> {
-                    enrollLauncher.launch(event.intent)
+                    val availability = Hbks.deviceAvailablity(context)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && availability is Hbks.Availability.Enroll) {
+                        enrollLauncher.launch(Hbks.enrollIntent(availability.type))
+                    } else {
+                        val fragmentActivity = context as? FragmentActivity
+                        val success = enableProofModeKeyEncryption(fragmentActivity)
+                        viewModel.setKeyEncryptionEnabled(success)
+                    }
+                }
+
+                is ProofModeSettingsEvent.RestartApp -> {
+                    (context as? Activity)?.let {
+                        ProofModeHelper.restartApp(it)
+                    }
                 }
             }
         }
@@ -158,6 +173,10 @@ fun ProofModeSettingsContent(
         key = Prefs.USE_PROOFMODE,
         defaultValue = state.isProofModeEnabled
     )
+    val keyEncryptionState = rememberPreferenceState(
+        key = Prefs.USE_PROOFMODE_KEY_ENCRYPTION,
+        defaultValue = state.isKeyEncryptionEnabled
+    )
 
     val spanStyles = TextLinkStyles(
         style = SpanStyle(
@@ -185,6 +204,18 @@ fun ProofModeSettingsContent(
                 state = useProofModeState,
                 onToggle = { onAction(ProofModeSettingsAction.ToggleProofMode(it)) },
             )
+        }
+
+        // Hidden for now as requested
+        val showKeyEncryption = false
+        if (showKeyEncryption) {
+            item(key = "key_encryption_switch") {
+                SwitchPreference(
+                    title = { PreferenceTitle(stringResource(state.biometricTitleResId)) },
+                    state = keyEncryptionState,
+                    onToggle = { onAction(ProofModeSettingsAction.ToggleKeyEncryption(it)) },
+                )
+            }
         }
 
         item {

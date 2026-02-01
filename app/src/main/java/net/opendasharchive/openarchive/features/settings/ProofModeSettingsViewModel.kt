@@ -23,6 +23,7 @@ data class ProofModeSettingsUiState(
 
 sealed interface ProofModeSettingsAction {
     data class ToggleProofMode(val enabled: Boolean) : ProofModeSettingsAction
+    data class ToggleKeyEncryption(val enabled: Boolean) : ProofModeSettingsAction
     data object NavigateBack : ProofModeSettingsAction
     data class OpenUrl(val url: String) : ProofModeSettingsAction
 }
@@ -31,6 +32,7 @@ sealed interface ProofModeSettingsEvent {
     data class ShowToast(val messageResId: Int) : ProofModeSettingsEvent
     data object RequestPermissions : ProofModeSettingsEvent
     data class EnrollBiometrics(val intent: android.content.Intent) : ProofModeSettingsEvent
+    data object RestartApp : ProofModeSettingsEvent
 }
 
 class ProofModeSettingsViewModel(
@@ -57,6 +59,7 @@ class ProofModeSettingsViewModel(
     fun onAction(action: ProofModeSettingsAction) {
         when (action) {
             is ProofModeSettingsAction.ToggleProofMode -> handleToggleProofMode(action.enabled)
+            is ProofModeSettingsAction.ToggleKeyEncryption -> handleToggleKeyEncryption(action.enabled)
             is ProofModeSettingsAction.NavigateBack -> navigator.navigateBack()
             is ProofModeSettingsAction.OpenUrl -> { /* Handled in Screen with LocalUriHandler or similar */ }
         }
@@ -92,5 +95,20 @@ class ProofModeSettingsViewModel(
     
     fun setKeyEncryptionEnabled(enabled: Boolean) {
         _uiState.update { it.copy(isKeyEncryptionEnabled = enabled) }
+    }
+
+    private fun handleToggleKeyEncryption(enabled: Boolean) {
+        viewModelScope.launch {
+            if (enabled) {
+                _uiEvent.emit(ProofModeSettingsEvent.EnrollBiometrics(android.content.Intent())) // Intent will be set in Screen
+            } else {
+                if (Prefs.proofModeEncryptedPassphrase != null) {
+                    Prefs.proofModeEncryptedPassphrase = null
+                    Hbks.removeKey()
+                    _uiEvent.emit(ProofModeSettingsEvent.RestartApp)
+                }
+                _uiState.update { it.copy(isKeyEncryptionEnabled = false) }
+            }
+        }
     }
 }
