@@ -20,8 +20,8 @@ import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.repositories.MediaRepository
 import net.opendasharchive.openarchive.core.repositories.ProjectRepository
 import net.opendasharchive.openarchive.core.repositories.SpaceRepository
-import net.opendasharchive.openarchive.services.internetarchive.IaConduit
-import net.opendasharchive.openarchive.services.webdav.WebDavConduit
+import net.opendasharchive.openarchive.services.internetarchive.data.IaConduit
+import net.opendasharchive.openarchive.services.webdav.data.WebDavConduit
 import net.opendasharchive.openarchive.upload.BroadcastManager
 import net.opendasharchive.openarchive.upload.UploadEventBus
 import net.opendasharchive.openarchive.util.Prefs

@@ -64,7 +64,7 @@ import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.CustomTextField
+import net.opendasharchive.openarchive.services.internetarchive.presentation.login.CustomTextField
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.CustomTextField
+import net.opendasharchive.openarchive.services.internetarchive.presentation.login.CustomTextField
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

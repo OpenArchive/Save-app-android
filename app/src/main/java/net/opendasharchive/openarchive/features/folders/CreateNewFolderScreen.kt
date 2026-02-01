@@ -54,7 +54,7 @@ import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.ButtonData
 import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.CustomTextField
+import net.opendasharchive.openarchive.services.internetarchive.presentation.login.CustomTextField
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

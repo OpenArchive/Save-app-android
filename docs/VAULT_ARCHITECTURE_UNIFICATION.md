@@ -1,97 +1,101 @@
 # Vault Architecture Unification
 
-This document outlines the technical plan to streamline backend service logic for **Internet Archive (IA)**, **WebDAV**, and future storage providers. The goal is to eliminate boilerplate in the IA feature and decouple protocol logic in WebDAV, creating a unified "Service Layer" for all Vault operations.
+This document outlines the technical plan to streamline backend service logic for **Internet Archive (IA)**, **WebDAV**, and future storage providers. The goal is to eliminate boilerplate and unify the architectural style and data serialization across the project.
+
+## Project Standardization
+
+To ensure consistency and type safety across all storage backends, we are adopting the following standards:
+
+1.  **Serialization**: `kotlinx.serialization` is the mandatory standard for all API models and metadata. **Gson is to be removed** from the backend service layer.
+2.  **Architecture**: Both IA and WebDAV will follow the **Service-Authenticator Pattern**, where authentication and service-specific metadata extraction are decoupled from UI and data persistence.
+
+## Unified Package Structure
+
+Both features will follow this exact structure, eliminating deep sub-packages like `datasource`, `mapping`, or `infrastructure`:
+
+```text
+net.opendasharchive.openarchive.features.[feature_name]
+├── data
+│   ├── [Feature]Authenticator.kt  # Authentication & Connection testing
+│   ├── [Feature]Repository.kt     # Data operations (e.g., listing folders)
+│   └── [Feature]Models.kt         # @Serializable API request/response models
+└── presentation                   # ViewModels, Screens, and States
+```
 
 ## Backend Core Interfaces
-
-To unify how the application interacts with different storage backends during authentication and configuration, we will introduce a standard `VaultAuthenticator`.
 
 ```kotlin
 /**
  * Standard interface for authenticating and validating server connections.
  */
 interface VaultAuthenticator {
-    /**
-     * Authenticates with the service and returns a Vault object populated with 
-     * necessary keys, display names, and metadata.
-     */
     suspend fun authenticate(credentials: Credentials): Result<Vault>
-
-    /**
-     * Validates an existing Vault connection (e.g., checking if keys are still valid).
-     */
     suspend fun testConnection(vault: Vault): Result<Unit>
 }
 
+@Serializable
 sealed class Credentials {
+    @Serializable
     data class WebDav(val url: String, val user: String, val pass: String) : Credentials()
+    @Serializable
     data class InternetArchive(val email: String, val pass: String) : Credentials()
 }
 ```
 
-## Standardizing Architectural Style
+## Data Serialization (Kotlinx)
 
-The project currently suffers from a "Style Mismatch": IA is overly formal (multi-layered Clean), while WebDAV is overly flat. We will adopt a unified **Service-Authenticator Pattern** for both.
-
-### Unified Package Structure
-We will move away from the deep nesting in IA and the flatness in WebDAV towards a standardized structure:
-
-| Feature | New Unified Structure | Old IA Style | Old WebDAV Style |
-| :--- | :--- | :--- | :--- |
-| **Authentication** | `.../data/service/XAuthenticator.kt` | `.../infrastructure/repository/XRepository.kt` | Logic inside `ViewModel` |
-| **Data Operations**| `.../data/repository/XRepository.kt` | `N/A` | `.../WebDavRepository.kt` |
-| **API Models** | `.../data/model/XModels.kt` | `.../infrastructure/model/XModels.kt` | `N/A` |
-
-### The "Authenticator" Pattern
-The `Authenticator` implementation for each backend will be responsible for:
-1.  **Protocol specifics**: Executing the raw OkHttp/Sardine calls.
-2.  **Domain mapping**: Mapping the raw response to a core `Vault` object.
-3.  **Validation**: Performing initial connection tests.
-
-## Streamlining Strategy
-
-### 1. Internet Archive (IA) Compression
-The current IA implementation is multi-layered with redundant entities. We will flatten this:
-- **Collapse Infrastructure**: Remove the `datasource/`, `mapping/`, and `repository/` sub-packages. Consolidate into a single `InternetArchiveAuthenticator` in a `data/` package.
-- **Eliminate Redundant Models**: Remove the internal `InternetArchive` domain model. Use the core `Vault` model directly.
-- **Unified Metadata**: Store IA-specific details (screen name, email) in the `Vault.metaData` JSON field.
-- **Remove LocalSource**: Eliminate the memory-only `InternetArchiveLocalSource`.
-
-### 2. WebDAV Protocol Decoupling
-- **Implement Authenticator**: Move login and "Fix URL" logic from `WebDavLoginViewModel` into a new `WebDavAuthenticator`.
-- **Standardize Repository**: Refactor `WebDavRepository` to use `Result<T>` and remove the dependency on `Context` where possible.
-
-### 3. Metadata Management
-Standardize how specialized backend data is stored in the `Vault` domain model.
+Models will move from Gson to Kotlinx Serialization. Example for IA:
 
 ```kotlin
-// Helper for managing IA metadata in Vault.metaData field
-data class InternetArchiveMetadata(
-    val screenName: String,
-    val email: String
+@Serializable
+data class InternetArchiveLoginResponse(
+    val success: Boolean,
+    val values: Values,
+    val version: Int
 ) {
-    fun toJson(gson: Gson): String = gson.toJson(this)
-    companion object {
-        fun fromVault(vault: Vault, gson: Gson): InternetArchiveMetadata = ...
-    }
+    @Serializable
+    data class Values(
+        val s3: S3? = null,
+        val screenname: String? = null,
+        val email: String? = null,
+        @SerialName("itemname") val itemName: String? = null,
+        val reason: String? = null
+    )
+
+    @Serializable
+    data class S3(
+        val access: String,
+        val secret: String
+    )
 }
 ```
 
+## Streamlining Strategy
+
+### 1. Internet Archive (IA) Flattening
+- **Consolidate Data Layer**: Remove `datasource/`, `mapping/`, `domain/model/`, and `infrastructure/repository/`. Move logic into `InternetArchiveAuthenticator` and `InternetArchiveRepository` directly under the `data/` package.
+- **Remove Redundant Entities**: Use the core `Vault` model directly. Store S3 keys and user details in `Vault.metaData` as a serialized JSON string.
+- **Stateless Authentication**: Remove `InternetArchiveLocalSource`. Use `SpaceRepository` as the single source of truth for accounts.
+
+### 2. WebDAV Clean-up
+- **Decouple Logic**: Extract auth logic from `WebDavLoginViewModel` into `WebDavAuthenticator`.
+- **Standardize Repository**: Refactor `WebDavRepository` to implement the same `data/Repository` pattern, removing direct dependencies on `Context`.
+
 ## Implementation Roadmap
 
-### Phase 1: Core Definitions
+### Phase 1: Core & Models
 - Define `VaultAuthenticator` and `Credentials`.
-- Move `CustomTextField` and shared UI components to a common package.
+- Migrate all IA and WebDAV models to `@Serializable`.
 
-### Phase 2: Implementation Consolidation
-- Create `WebDavAuthenticator` and `InternetArchiveAuthenticator`.
-- Simplify IA infrastructure by removing redundant layers.
+### Phase 2: Implementation Refactoring
+- Rename and move IA files to the new `data/` structure.
+- Implement `WebDavAuthenticator` and extract logic from WebDAV ViewModels.
 
-### Phase 3: Dependency Injection Setup
+### Phase 3: Dependency Injection
 Group all authenticators in a new `VaultModule` (Koin):
 ```kotlin
 val vaultModule = module {
-    single<WebDavAuthenticator> { WebDavAuthenticator(get(), get()) }
-    single<InternetArchiveAuthenticator> { InternetArchiveAuthenticator(get(), get()) }
+    single<VaultAuthenticator>(named("WebDav")) { WebDavAuthenticator(get(), get()) }
+    single<VaultAuthenticator>(named("IA")) { InternetArchiveAuthenticator(get(), get()) }
 }
 ```

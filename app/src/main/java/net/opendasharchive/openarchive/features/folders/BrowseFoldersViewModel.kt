@@ -15,9 +15,8 @@ import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.repositories.ProjectRepository
 import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.features.core.UiText
-import net.opendasharchive.openarchive.services.webdav.WebDavRepository
+import net.opendasharchive.openarchive.services.webdav.data.WebDavRepository
 import net.opendasharchive.openarchive.util.DateUtils
-import timber.log.Timber
 
 data class Folder(val name: String, val modified: LocalDateTime)
 

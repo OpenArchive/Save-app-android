@@ -14,7 +14,10 @@ import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
+import java.security.SecureRandom
 import java.util.Locale
+import java.util.Random
+import androidx.core.net.toUri
 
 object Utility {
 
@@ -100,13 +103,14 @@ object Utility {
     }
 
     fun openStore(context: Context, appId: String) {
-        var i = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${appId}"))
+        var i = Intent(Intent.ACTION_VIEW, "market://details?id=${appId}".toUri())
 
         val capableApps = context.packageManager.queryIntentActivities(i, 0)
 
         // If there are no app stores installed, send to the web.
-        if (capableApps.size < 1) {
-            i = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=${appId}"))
+        if (capableApps.isEmpty()) {
+            i = Intent(Intent.ACTION_VIEW,
+                "https://play.google.com/store/apps/details?id=${appId}".toUri())
         }
 
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
@@ -137,6 +141,24 @@ object Utility {
                     completion.invoke(false)
                 }
                 .show()
+        }
+    }
+
+    class RandomString(length: Int) {
+        private val random: Random = SecureRandom()
+        private val buf: CharArray
+        fun nextString(): String {
+            for (idx in buf.indices) buf[idx] = symbols[random.nextInt(symbols.length)]
+            return String(buf)
+        }
+
+        companion object {
+            private const val symbols = "abcdefghijklmnopqrstuvwxyz0123456789"
+        }
+
+        init {
+            require(length >= 1) { "length < 1: $length" }
+            buf = CharArray(length)
         }
     }
 }

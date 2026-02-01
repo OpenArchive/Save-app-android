@@ -38,10 +38,10 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.presentation.components.PrimaryButton
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.features.internetarchive.presentation.login.CustomTextField
-import net.opendasharchive.openarchive.services.webdav.CreativeCommonsLicenseContent
-import net.opendasharchive.openarchive.services.webdav.LicenseCallbacks
-import net.opendasharchive.openarchive.services.webdav.LicenseState
+import net.opendasharchive.openarchive.services.internetarchive.presentation.login.CustomTextField
+import net.opendasharchive.openarchive.services.common.license.CreativeCommonsLicenseContent
+import net.opendasharchive.openarchive.services.common.license.LicenseCallbacks
+import net.opendasharchive.openarchive.services.common.license.LicenseState
 
 @Composable
 fun SetupLicenseScreen(

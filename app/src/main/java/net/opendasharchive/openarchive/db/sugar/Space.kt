@@ -11,7 +11,7 @@ import com.orm.SugarRecord
 import kotlinx.serialization.Serializable
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.services.internetarchive.IaConduit
+import net.opendasharchive.openarchive.services.internetarchive.data.IaConduit
 import net.opendasharchive.openarchive.util.Prefs
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull

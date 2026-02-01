@@ -15,6 +15,13 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import java.util.concurrent.TimeUnit
 
 val retrofitModule = module {
+    single<Json> {
+        Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            encodeDefaults = true
+        }
+    }
 
     single<HttpLoggingInterceptor> {
         HttpLoggingInterceptor().apply {
@@ -35,7 +42,7 @@ val retrofitModule = module {
         Retrofit.Builder()
             .baseUrl("http://localhost:8080/api/")
             .client(get<OkHttpClient>())
-            .addConverterFactory(Json.asConverterFactory("application/json; charset=UTF8".toMediaType()))
+            .addConverterFactory(get<Json>().asConverterFactory("application/json; charset=UTF8".toMediaType()))
             .build()
     }
 
