@@ -11,6 +11,7 @@ import net.opendasharchive.openarchive.features.spaces.SpaceSetupViewModel
 import net.opendasharchive.openarchive.upload.JobSchedulerUploadJobScheduler
 import net.opendasharchive.openarchive.upload.UploadJobScheduler
 import net.opendasharchive.openarchive.upload.UploadManagerViewModel
+import net.opendasharchive.openarchive.features.settings.ProofModeSettingsViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -35,5 +36,6 @@ val featuresModule = module {
     viewModelOf(::PreviewMediaViewModel)
 
     viewModelOf(::UploadManagerViewModel)
+    viewModelOf(::ProofModeSettingsViewModel)
     single<UploadJobScheduler> { JobSchedulerUploadJobScheduler(androidApplication()) }
 }

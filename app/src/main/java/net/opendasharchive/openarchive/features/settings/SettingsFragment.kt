@@ -126,7 +126,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
 
         getPrefByKey<Preference>(R.string.pref_key_proof_mode)?.setOnPreferenceClickListener {
-            startActivity(Intent(context, ProofModeSettingsActivity::class.java))
+            //startActivity(Intent(context, ProofModeSettingsActivity::class.java))
             true
         }
 
