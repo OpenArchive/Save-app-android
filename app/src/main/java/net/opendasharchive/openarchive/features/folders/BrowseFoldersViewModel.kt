@@ -120,7 +120,8 @@ class BrowseFoldersViewModel(
                 description = folder.name,
                 created = DateUtils.nowDateTime,
                 vaultId = space.id,
-                licenseUrl = space.licenseUrl
+                licenseUrl = space.licenseUrl,
+                isRemote = true
             )
             val projectId = projectRepository.addProject(archive)
 

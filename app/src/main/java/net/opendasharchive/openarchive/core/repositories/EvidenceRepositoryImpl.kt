@@ -21,25 +21,26 @@ class EvidenceRepositoryImpl(
 ) : MediaRepository {
 
     override suspend fun getMediaForCollection(collectionId: Long): List<Evidence> = withContext(io) {
-        evidenceDao.observeByCollection(collectionId).first().map { mapToDomain(it) }
+        // Submission flow doesn't typically join DWeb metadata directly but could if needed
+        evidenceDao.observeBySubmission(collectionId).first().map { mapToDomain(it) }
     }
 
     override fun observeMediaForCollection(collectionId: Long): Flow<List<Evidence>> =
-        evidenceDao.observeByCollection(collectionId)
+        evidenceDao.observeBySubmission(collectionId)
             .map { entities -> entities.map { it.toDomain() } }
             .distinctUntilChanged()
 
     override suspend fun getMediaForProject(projectId: Long): List<Evidence> = withContext(io) {
-        evidenceDao.observeByProject(projectId).first().map { mapToDomain(it) }
+        evidenceDao.observeByArchive(projectId).first().map { mapToDomain(it) }
     }
 
     override fun observeMediaForProject(projectId: Long): Flow<List<Evidence>> =
-        evidenceDao.observeByProject(projectId)
+        evidenceDao.observeByArchive(projectId)
             .map { entities -> entities.map { it.toDomain() } }
             .distinctUntilChanged()
 
     override suspend fun getLocalMedia(): List<Evidence> = withContext(io) {
-        evidenceDao.getByStatus(listOf(1)).map { mapToDomain(it) } // 1 is LOCAL
+        evidenceDao.getByStatus(listOf(EvidenceStatus.LOCAL)).map { mapToDomain(it) }
     }
 
     override suspend fun getEvidence(id: Long): Evidence? = withContext(io) {
@@ -47,8 +48,8 @@ class EvidenceRepositoryImpl(
     }
 
     private suspend fun mapToDomain(entity: net.opendasharchive.openarchive.db.EvidenceEntity): Evidence {
-        val project = archiveDao.getById(entity.projectId)
-        return entity.toDomain(vaultId = project?.spaceId ?: 0L)
+        val project = archiveDao.getById(entity.archiveId)
+        return entity.toDomain(vaultId = project?.vaultId ?: 0L)
     }
 
     override suspend fun setSelected(mediaId: Long, selected: Boolean) {
@@ -58,11 +59,11 @@ class EvidenceRepositoryImpl(
     override suspend fun deleteMedia(mediaId: Long) {
         withContext(io) {
             evidenceDao.getById(mediaId)?.let { media ->
-                val collectionId = media.collectionId
-                val count = evidenceDao.getCountByCollection(collectionId)
+                val submissionId = media.submissionId
+                val count = evidenceDao.getCountBySubmission(submissionId)
 
                 if (count < 2) {
-                    submissionDao.getById(collectionId)?.let {
+                    submissionDao.getById(submissionId)?.let {
                         submissionDao.delete(it) // CASCADE will delete the media too
                     }
                 } else {
@@ -91,14 +92,14 @@ class EvidenceRepositoryImpl(
         withContext(io) {
             mediaIds.forEach { id ->
                 evidenceDao.getById(id)?.let {
-                    evidenceDao.upsert(it.copy(status = 2)) // 2 is QUEUED
+                    evidenceDao.upsert(it.copy(status = EvidenceStatus.QUEUED))
                 }
             }
         }
     }
 
     override suspend fun getQueue(): List<Evidence> = withContext(io) {
-        val statuses = listOf(4, 2, 9) // UPLOADING, QUEUED, ERROR
+        val statuses = listOf(EvidenceStatus.UPLOADING, EvidenceStatus.QUEUED, EvidenceStatus.ERROR)
         // Sorting is handled by evidenceDao.getByStatus (priority DESC, id DESC)
         evidenceDao.getByStatus(statuses).map { mapToDomain(it) }
     }
@@ -114,7 +115,7 @@ class EvidenceRepositoryImpl(
     override suspend fun retryMedia(mediaId: Long) {
         withContext(io) {
             evidenceDao.getById(mediaId)?.let {
-                evidenceDao.upsert(it.copy(status = 2, progress = 0, statusMessage = ""))
+                evidenceDao.upsert(it.copy(status = EvidenceStatus.QUEUED, progress = 0, statusMessage = ""))
             }
         }
     }

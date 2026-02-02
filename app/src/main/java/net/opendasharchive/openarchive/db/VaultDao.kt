@@ -1,17 +1,12 @@
 package net.opendasharchive.openarchive.db
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Upsert
+import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface VaultDao {
     @Query("SELECT * FROM vaults")
-    fun observeSpaces(): Flow<List<VaultEntity>>
+    fun observeVaults(): Flow<List<VaultEntity>>
 
     @Query("SELECT * FROM vaults WHERE id = :id")
     fun observeById(id: Long): Flow<VaultEntity?>
@@ -24,6 +19,8 @@ interface VaultDao {
 
     @Upsert
     suspend fun upsert(entity: VaultEntity): Long
+
+
 
     @Delete
     suspend fun delete(entity: VaultEntity)

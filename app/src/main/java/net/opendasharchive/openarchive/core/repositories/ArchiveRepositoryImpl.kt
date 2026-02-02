@@ -21,10 +21,10 @@ class ArchiveRepositoryImpl(
 ) : ProjectRepository {
 
     override suspend fun getProjects(vaultId: Long, archived: Boolean): List<Archive> = withContext(io) {
-        archiveDao.observeBySpace(vaultId, archived).first().map { it.toDomain() }
+        archiveDao.observeByVault(vaultId, archived).first().map { it.toDomain() }
     }
 
-    override fun observeProjects(vaultId: Long, archived: Boolean): Flow<List<Archive>> = archiveDao.observeBySpace(vaultId, archived)
+    override fun observeProjects(vaultId: Long, archived: Boolean): Flow<List<Archive>> = archiveDao.observeByVault(vaultId, archived)
         .map { entities -> entities.map { it.toDomain() } }
         .distinctUntilChanged()
 
@@ -39,7 +39,7 @@ class ArchiveRepositoryImpl(
     override suspend fun renameProject(id: Long, newName: String) {
         withContext(io) {
             archiveDao.getById(id)?.let {
-                archiveDao.upsert(it.copy(description = newName))
+                archiveDao.upsert(it.copy(description = newName, isRemote = false))
             }
         }
     }
@@ -50,7 +50,7 @@ class ArchiveRepositoryImpl(
 
             // Port legacy behavior: apply space license if unarchiving and license is null
             if (!isArchived) {
-                val space = vaultDao.getById(archive.spaceId)
+                val space = vaultDao.getById(archive.vaultId)
                 if (updatedArchive.licenseUrl.isNullOrBlank()) {
                     updatedArchive = updatedArchive.copy(licenseUrl = space?.licenseUrl)
                 }
@@ -69,13 +69,13 @@ class ArchiveRepositoryImpl(
 
     override suspend fun getActiveSubmission(projectId: Long): Submission = withContext(io) {
         val archive = archiveDao.getById(projectId) ?: throw IllegalStateException("Project not found")
-        var submission = submissionDao.getById(archive.openCollectionId)
+        var submission = submissionDao.getById(archive.openSubmissionId)
 
-        if (submission == null || submission.uploadDate != null) {
-            // Create new collection
+        if (submission == null || submission.uploadedAt != null) {
+            // Create new submission
             val newId =
-                submissionDao.upsert(SubmissionEntity(projectId = projectId, uploadDate = null, serverUrl = null))
-            archiveDao.upsert(archive.copy(openCollectionId = newId))
+                submissionDao.upsert(SubmissionEntity(archiveId = projectId, uploadedAt = null, serverUrl = null))
+            archiveDao.upsert(archive.copy(openSubmissionId = newId))
             submission = submissionDao.getById(newId)
         }
 

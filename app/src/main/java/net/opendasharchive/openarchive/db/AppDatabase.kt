@@ -10,7 +10,10 @@ import androidx.room.TypeConverters
         ArchiveEntity::class,
         SubmissionEntity::class,
         EvidenceEntity::class,
-        MigrationStateEntity::class
+        MigrationStateEntity::class,
+        VaultDwebEntity::class,
+        ArchiveDwebEntity::class,
+        EvidenceDwebEntity::class
     ],
     version = 1,
     exportSchema = true
@@ -22,4 +25,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun submissionDao(): SubmissionDao
     abstract fun evidenceDao(): EvidenceDao
     abstract fun migrationDao(): MigrationDao
+    abstract fun dwebDao(): DwebDao
 }

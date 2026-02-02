@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.core.domain
 
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -19,7 +20,9 @@ data class Vault(
     val password: String = "",
     val host: String = "",
     val metaData: String = "",
-    val licenseUrl: String? = null
+    val licenseUrl: String? = null,
+    val vaultKey: String? = null,
+    val createdAt: LocalDateTime? = null
 ) {
     val friendlyName: String
         get() {

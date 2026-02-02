@@ -17,68 +17,91 @@ import net.opendasharchive.openarchive.util.*
 
 fun VaultEntity.toDomain(): Vault = Vault(
     id = this.id,
-    type = when (this.type) {
-        0 -> VaultType.PRIVATE_SERVER
-        1 -> VaultType.INTERNET_ARCHIVE
-        5 -> VaultType.DWEB_STORAGE
-        else -> VaultType.PRIVATE_SERVER
-    },
+    type = this.type,
     name = this.name,
     username = this.username,
-    displayName = this.displayname,
+    displayName = this.displayName,
     password = this.password,
     host = this.host,
     metaData = this.metaData,
-    licenseUrl = this.licenseUrl
+    licenseUrl = this.licenseUrl,
+    createdAt = this.createdAt
+)
+
+fun VaultWithDweb.toDomain(): Vault = vault.toDomain().copy(
+    vaultKey = dwebMetadata?.vaultKey
 )
 
 fun Vault.toVaultEntity(): VaultEntity = VaultEntity(
     id = this.id,
-    type = when (this.type) {
-        VaultType.PRIVATE_SERVER -> 0
-        VaultType.INTERNET_ARCHIVE -> 1
-        VaultType.DWEB_STORAGE -> 5
-    },
+    type = this.type,
     name = this.name,
     username = this.username,
-    displayname = this.displayName,
+    displayName = this.displayName,
     password = this.password,
     host = this.host,
     metaData = this.metaData,
-    licenseUrl = this.licenseUrl
+    licenseUrl = this.licenseUrl,
+    createdAt = this.createdAt ?: DateUtils.now.toLocalDateTime()
 )
+
+fun Vault.toDwebEntity(): VaultDwebEntity? = vaultKey?.let {
+    VaultDwebEntity(
+        vaultId = id,
+        vaultKey = it
+    )
+}
 
 fun ArchiveEntity.toDomain(): Archive = Archive(
     id = this.id,
     description = this.description,
-    created = this.created?.toLocalDateTime(),
-    vaultId = this.spaceId,
+    created = this.createdAt,
+    vaultId = this.vaultId,
     isArchived = this.archived,
-    licenseUrl = this.licenseUrl
+    openSubmissionId = this.openSubmissionId,
+    licenseUrl = this.licenseUrl,
+    isRemote = this.isRemote
+)
+
+fun ArchiveWithDweb.toDomain(): Archive = archive.toDomain().copy(
+    archiveKey = dwebMetadata?.archiveKey,
+    archiveHash = dwebMetadata?.archiveHash,
+    permissions = dwebMetadata?.permissions
 )
 
 fun Archive.toArchiveEntity(): ArchiveEntity = ArchiveEntity(
     id = this.id,
     description = this.description,
-    created = this.created?.toEpochMilliseconds(),
-    spaceId = this.vaultId ?: 0L,
+    createdAt = this.created,
+    vaultId = this.vaultId ?: 0L,
     archived = this.isArchived,
-    openCollectionId = -1, // This needs to be managed by the repository/DAO
-    licenseUrl = this.licenseUrl
+    openSubmissionId = this.openSubmissionId,
+    licenseUrl = this.licenseUrl,
+    isRemote = this.isRemote
 )
+
+fun Archive.toDwebEntity(): ArchiveDwebEntity? =
+    if (archiveKey != null && archiveHash != null && permissions != null) {
+        ArchiveDwebEntity(
+            archiveId = id,
+            archiveKey = archiveKey,
+            archiveHash = archiveHash,
+            permissions = permissions
+        )
+    } else null
 
 fun SubmissionEntity.toDomain(): Submission = Submission(
     id = this.id,
-    archiveId = this.projectId,
-    vaultId = 0L, // Will be resolved by repository if needed
-    uploadDate = this.uploadDate?.toLocalDateTime(),
+    archiveId = this.archiveId,
+    vaultId = 0L, // Will be resolved by repository
+    uploadDate = this.uploadedAt,
     serverUrl = this.serverUrl
 )
 
 fun Submission.toSubmissionEntity(): SubmissionEntity = SubmissionEntity(
     id = this.id,
-    projectId = this.archiveId,
-    uploadDate = this.uploadDate?.toEpochMilliseconds(),
+    archiveId = this.archiveId,
+    uploadedAt = this.uploadDate,
     serverUrl = this.serverUrl
 )
 
@@ -86,9 +109,9 @@ fun EvidenceEntity.toDomain(vaultId: Long = 0L): Evidence = Evidence(
     id = this.id,
     originalFilePath = this.originalFilePath,
     mimeType = this.mimeType,
-    createDate = this.createDate?.toLocalDateTime(),
-    updateDate = this.updateDate?.toLocalDateTime(),
-    uploadDate = this.uploadDate?.toLocalDateTime(),
+    createdAt = this.createdAt,
+    updatedAt = this.updatedAt,
+    uploadedAt = this.uploadedAt,
     serverUrl = this.serverUrl,
     title = this.title,
     description = this.description,
@@ -96,21 +119,12 @@ fun EvidenceEntity.toDomain(vaultId: Long = 0L): Evidence = Evidence(
     location = this.location,
     tags = if (this.tags.isBlank()) emptyList() else this.tags.split(";"),
     licenseUrl = this.licenseUrl,
-    mediaHash = this.mediaHash,
     mediaHashString = this.mediaHashString,
-    status = when (this.status) {
-        0 -> EvidenceStatus.NEW
-        1 -> EvidenceStatus.LOCAL
-        2 -> EvidenceStatus.QUEUED
-        4 -> EvidenceStatus.UPLOADING
-        5 -> EvidenceStatus.UPLOADED
-        9 -> EvidenceStatus.ERROR
-        else -> EvidenceStatus.NEW
-    },
+    status = this.status,
     statusMessage = this.statusMessage,
-    vaultId = vaultId, // Resolved by repository
-    archiveId = this.projectId,
-    submissionId = this.collectionId,
+    vaultId = vaultId,
+    archiveId = this.archiveId,
+    submissionId = this.submissionId,
     contentLength = this.contentLength,
     progress = this.progress,
     uploadPercentage = if (this.contentLength > 0) (this.progress.toFloat() / this.contentLength * 100).toInt() else null,
@@ -119,13 +133,17 @@ fun EvidenceEntity.toDomain(vaultId: Long = 0L): Evidence = Evidence(
     isSelected = false // UI only
 )
 
+fun EvidenceWithDweb.toDomain(vaultId: Long = 0L): Evidence = evidence.toDomain(vaultId).copy(
+    isDownloaded = dwebMetadata?.isDownloaded ?: false
+)
+
 fun Evidence.toEvidenceEntity(): EvidenceEntity = EvidenceEntity(
     id = this.id,
     originalFilePath = this.originalFilePath,
     mimeType = this.mimeType,
-    createDate = this.createDate?.toEpochMilliseconds(),
-    updateDate = this.updateDate?.toEpochMilliseconds(),
-    uploadDate = this.uploadDate?.toEpochMilliseconds(),
+    createdAt = this.createdAt,
+    updatedAt = this.updatedAt,
+    uploadedAt = this.uploadedAt,
     serverUrl = this.serverUrl,
     title = this.title,
     description = this.description,
@@ -133,21 +151,18 @@ fun Evidence.toEvidenceEntity(): EvidenceEntity = EvidenceEntity(
     location = this.location,
     tags = this.tags.joinToString(";"),
     licenseUrl = this.licenseUrl,
-    mediaHash = this.mediaHash,
     mediaHashString = this.mediaHashString,
-    status = when (this.status) {
-        EvidenceStatus.NEW -> 0
-        EvidenceStatus.LOCAL -> 1
-        EvidenceStatus.QUEUED -> 2
-        EvidenceStatus.UPLOADING -> 4
-        EvidenceStatus.UPLOADED -> 5
-        EvidenceStatus.ERROR -> 9
-    },
+    status = this.status,
     statusMessage = this.statusMessage,
-    projectId = this.archiveId,
-    collectionId = this.submissionId,
+    archiveId = this.archiveId,
+    submissionId = this.submissionId,
     contentLength = this.contentLength,
     progress = this.progress,
     flag = this.isFlagged,
     priority = this.priority
+)
+
+fun Evidence.toDwebEntity(): EvidenceDwebEntity = EvidenceDwebEntity(
+    evidenceId = id,
+    isDownloaded = isDownloaded
 )

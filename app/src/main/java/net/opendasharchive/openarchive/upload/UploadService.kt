@@ -157,7 +157,7 @@ class UploadService : JobService() {
                 var updatedMedia = media
                 if (updatedMedia.status != EvidenceStatus.UPLOADING) {
                     updatedMedia = updatedMedia.copy(
-                        uploadDate = datePublish,
+                        uploadedAt = datePublish,
                         progress = 0,
                         status = EvidenceStatus.UPLOADING,
                         statusMessage = ""

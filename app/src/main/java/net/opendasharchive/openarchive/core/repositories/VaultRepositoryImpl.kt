@@ -9,7 +9,6 @@ import net.opendasharchive.openarchive.core.domain.mappers.toDomain
 import net.opendasharchive.openarchive.core.domain.mappers.toVaultEntity
 import net.opendasharchive.openarchive.db.ArchiveDao
 import net.opendasharchive.openarchive.db.VaultDao
-import net.opendasharchive.openarchive.util.Prefs
 
 class VaultRepositoryImpl(
     private val vaultDao: VaultDao,
@@ -22,7 +21,7 @@ class VaultRepositoryImpl(
         vaultDao.getAll().map { it.toDomain() }
     }
 
-    override fun observeSpaces(): Flow<List<Vault>> = vaultDao.observeSpaces()
+    override fun observeSpaces(): Flow<List<Vault>> = vaultDao.observeVaults()
         .map { entities -> entities.map { it.toDomain() } }
         .distinctUntilChanged()
 
@@ -39,10 +38,10 @@ class VaultRepositoryImpl(
     override fun observeCurrentSpace(): Flow<Vault?> = settingsRepository.observeCurrentSpaceId()
         .flatMapLatest { id ->
             if (id == -1L) {
-                vaultDao.observeSpaces().map { it.firstOrNull() }
+                vaultDao.observeVaults().map { it.firstOrNull() }
             } else {
                 vaultDao.observeById(id).flatMapLatest { entity ->
-                    if (entity == null) vaultDao.observeSpaces().map { it.firstOrNull() }
+                    if (entity == null) vaultDao.observeVaults().map { it.firstOrNull() }
                     else flowOf(entity)
                 }
             }
@@ -65,10 +64,14 @@ class VaultRepositoryImpl(
     }
 
     override suspend fun updateSpace(vaultId: Long, vault: Vault): Boolean = withContext(io) {
+        val oldVault = vaultDao.getById(vaultId)
         val entity = vault.toVaultEntity().copy(id = vaultId)
         val success = vaultDao.upsert(entity) > 0
         if (success) {
-            archiveDao.updateLicenseForSpace(vaultId, vault.licenseUrl)
+            if (oldVault?.host != entity.host || oldVault.username != entity.username) {
+                archiveDao.resetRemoteStatusForVault(vaultId)
+            }
+            archiveDao.updateLicenseForVault(vaultId, vault.licenseUrl)
         }
         success
     }

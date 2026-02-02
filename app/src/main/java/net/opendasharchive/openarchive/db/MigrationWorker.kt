@@ -9,10 +9,13 @@ import net.opendasharchive.openarchive.util.DateUtils
 import net.opendasharchive.openarchive.util.Prefs
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import net.opendasharchive.openarchive.core.domain.EvidenceStatus
+import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.db.sugar.Collection as SugarCollection
 import net.opendasharchive.openarchive.db.sugar.Media as SugarMedia
 import net.opendasharchive.openarchive.db.sugar.Project as SugarProject
 import net.opendasharchive.openarchive.db.sugar.Space as SugarSpace
+import net.opendasharchive.openarchive.util.toLocalDateTime
 
 class MigrationWorker(
     appContext: Context,
@@ -78,14 +81,19 @@ class MigrationWorker(
             vaultDao.upsert(
                 VaultEntity(
                     id = space.id,
-                    type = space.type,
+                    type = when (space.tType) {
+                        SugarSpace.Type.WEBDAV -> VaultType.PRIVATE_SERVER
+                        SugarSpace.Type.INTERNET_ARCHIVE -> VaultType.INTERNET_ARCHIVE
+                        SugarSpace.Type.RAVEN -> VaultType.DWEB_STORAGE
+                    },
                     name = space.name,
                     username = space.username,
-                    displayname = space.displayname,
+                    displayName = space.displayname,
                     password = space.password,
                     host = space.host,
                     metaData = space.metaData,
-                    licenseUrl = space.license
+                    licenseUrl = space.license,
+                    createdAt = DateUtils.now.toLocalDateTime()
                 )
             )
         }
@@ -101,14 +109,12 @@ class MigrationWorker(
                 ArchiveEntity(
                     id = project.id,
                     description = project.description,
-                    created = project.created?.time,
-                    spaceId = project.spaceId ?: -1,
+                    createdAt = project.created?.time?.toLocalDateTime(),
+                    vaultId = project.spaceId ?: -1,
                     archived = project.isArchived,
-                    // Accessing private field via reflection if needed, but wait, 
-                    // looking at Project.kt, openCollectionId is private.
-                    // I might need to add a public getter if I can't access it.
-                    openCollectionId = project.openCollectionId,
-                    licenseUrl = project.licenseUrl
+                    openSubmissionId = project.openCollectionId,
+                    licenseUrl = project.licenseUrl,
+                    isRemote = false
                 )
             )
         }
@@ -123,8 +129,8 @@ class MigrationWorker(
             submissionDao.upsert(
                 SubmissionEntity(
                     id = collection.id,
-                    projectId = collection.projectId ?: -1,
-                    uploadDate = collection.uploadDate?.time,
+                    archiveId = collection.projectId ?: -1,
+                    uploadedAt = collection.uploadDate?.time?.toLocalDateTime(),
                     serverUrl = collection.serverUrl
                 )
             )
@@ -142,9 +148,9 @@ class MigrationWorker(
                     id = media.id,
                     originalFilePath = media.originalFilePath,
                     mimeType = media.mimeType,
-                    createDate = media.createDate?.time,
-                    updateDate = media.updateDate?.time,
-                    uploadDate = media.uploadDate?.time,
+                    createdAt = media.createDate?.time?.toLocalDateTime(),
+                    updatedAt = media.updateDate?.time?.toLocalDateTime(),
+                    uploadedAt = media.uploadDate?.time?.toLocalDateTime(),
                     serverUrl = media.serverUrl,
                     title = media.title,
                     description = media.description,
@@ -152,12 +158,18 @@ class MigrationWorker(
                     location = media.location,
                     tags = media.tags,
                     licenseUrl = media.licenseUrl,
-                    mediaHash = media.mediaHash,
                     mediaHashString = media.mediaHashString,
-                    status = media.status,
+                    status = when (media.sStatus) {
+                        SugarMedia.Status.Local -> EvidenceStatus.LOCAL
+                        SugarMedia.Status.Queued -> EvidenceStatus.QUEUED
+                        SugarMedia.Status.Uploading -> EvidenceStatus.UPLOADING
+                        SugarMedia.Status.Uploaded -> EvidenceStatus.UPLOADED
+                        SugarMedia.Status.Error -> EvidenceStatus.ERROR
+                        else -> EvidenceStatus.NEW
+                    },
                     statusMessage = media.statusMessage,
-                    projectId = media.projectId,
-                    collectionId = media.collectionId,
+                    archiveId = media.projectId,
+                    submissionId = media.collectionId,
                     contentLength = media.contentLength,
                     progress = media.progress,
                     flag = media.flag,

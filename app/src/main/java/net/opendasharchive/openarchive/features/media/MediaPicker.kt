@@ -107,8 +107,8 @@ object MediaPicker {
             originalFilePath = originalFilePath,
             mimeType = mimeType,
             contentLength = contentLength,
-            createDate = createDate.toLocalDateTime(),
-            updateDate = createDate.toLocalDateTime(),
+            createdAt = createDate.toLocalDateTime(),
+            updatedAt = createDate.toLocalDateTime(),
             status = net.opendasharchive.openarchive.core.domain.EvidenceStatus.LOCAL,
             mediaHashString = mediaHashString
         )

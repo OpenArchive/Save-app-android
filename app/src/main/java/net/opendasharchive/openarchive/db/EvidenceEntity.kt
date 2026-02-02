@@ -4,6 +4,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.datetime.LocalDateTime
+import net.opendasharchive.openarchive.core.domain.EvidenceStatus
 
 @Entity(
     tableName = "evidence",
@@ -11,31 +13,31 @@ import androidx.room.PrimaryKey
         ForeignKey(
             entity = ArchiveEntity::class,
             parentColumns = ["id"],
-            childColumns = ["projectId"],
+            childColumns = ["archiveId"],
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = SubmissionEntity::class,
             parentColumns = ["id"],
-            childColumns = ["collectionId"],
+            childColumns = ["submissionId"],
             onDelete = ForeignKey.CASCADE
         )
     ],
     indices = [
-        Index("projectId"),
-        Index("collectionId"),
+        Index("archiveId"),
+        Index("submissionId"),
         Index("status"),
         Index("priority"),
-        Index("createDate")
+        Index("createdAt")
     ]
 )
 data class EvidenceEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val originalFilePath: String,
     val mimeType: String,
-    val createDate: Long?, // epoch ms
-    val updateDate: Long?,
-    val uploadDate: Long?,
+    val createdAt: LocalDateTime?,
+    val updatedAt: LocalDateTime?,
+    val uploadedAt: LocalDateTime?,
     val serverUrl: String,
     val title: String,
     val description: String,
@@ -43,14 +45,14 @@ data class EvidenceEntity(
     val location: String,
     val tags: String,
     val licenseUrl: String?,
-    val mediaHash: ByteArray,
     val mediaHashString: String,
-    val status: Int,
+    val status: EvidenceStatus,
     val statusMessage: String,
-    val projectId: Long,
-    val collectionId: Long,
+    val archiveId: Long,
+    val submissionId: Long,
     val contentLength: Long,
     val progress: Long,
     val flag: Boolean,
-    val priority: Int
+    val priority: Int,
+    val thumbnail: ByteArray? = null
 )

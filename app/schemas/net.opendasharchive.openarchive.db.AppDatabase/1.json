@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "6caed5c58f4fafe0c0afc8cc7a8da080",
+    "identityHash": "f0649f2c75baba064b3ad9a7575903d0",
     "entities": [
       {
         "tableName": "vaults",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `type` INTEGER NOT NULL, `name` TEXT NOT NULL, `username` TEXT NOT NULL, `displayname` TEXT NOT NULL, `password` TEXT NOT NULL, `host` TEXT NOT NULL, `metaData` TEXT NOT NULL, `licenseUrl` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `type` INTEGER NOT NULL, `name` TEXT NOT NULL, `username` TEXT NOT NULL, `displayName` TEXT NOT NULL, `password` TEXT NOT NULL, `host` TEXT NOT NULL, `metaData` TEXT NOT NULL, `licenseUrl` TEXT, `createdAt` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -33,8 +33,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "displayname",
-            "columnName": "displayname",
+            "fieldPath": "displayName",
+            "columnName": "displayName",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -60,6 +60,12 @@
             "fieldPath": "licenseUrl",
             "columnName": "licenseUrl",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -71,7 +77,7 @@
       },
       {
         "tableName": "archives",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `description` TEXT, `created` INTEGER, `spaceId` INTEGER NOT NULL, `archived` INTEGER NOT NULL, `openCollectionId` INTEGER NOT NULL, `licenseUrl` TEXT, FOREIGN KEY(`spaceId`) REFERENCES `vaults`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `description` TEXT, `createdAt` INTEGER, `vaultId` INTEGER NOT NULL, `archived` INTEGER NOT NULL, `openSubmissionId` INTEGER NOT NULL, `licenseUrl` TEXT, `isRemote` INTEGER NOT NULL, FOREIGN KEY(`vaultId`) REFERENCES `vaults`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -85,13 +91,13 @@
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "created",
-            "columnName": "created",
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
             "affinity": "INTEGER"
           },
           {
-            "fieldPath": "spaceId",
-            "columnName": "spaceId",
+            "fieldPath": "vaultId",
+            "columnName": "vaultId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -102,8 +108,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "openCollectionId",
-            "columnName": "openCollectionId",
+            "fieldPath": "openSubmissionId",
+            "columnName": "openSubmissionId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -111,6 +117,12 @@
             "fieldPath": "licenseUrl",
             "columnName": "licenseUrl",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "isRemote",
+            "columnName": "isRemote",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -121,13 +133,13 @@
         },
         "indices": [
           {
-            "name": "index_archives_spaceId",
+            "name": "index_archives_vaultId",
             "unique": false,
             "columnNames": [
-              "spaceId"
+              "vaultId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_archives_spaceId` ON `${TABLE_NAME}` (`spaceId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_archives_vaultId` ON `${TABLE_NAME}` (`vaultId`)"
           }
         ],
         "foreignKeys": [
@@ -136,7 +148,7 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "spaceId"
+              "vaultId"
             ],
             "referencedColumns": [
               "id"
@@ -146,7 +158,7 @@
       },
       {
         "tableName": "submissions",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `projectId` INTEGER NOT NULL, `uploadDate` INTEGER, `serverUrl` TEXT, FOREIGN KEY(`projectId`) REFERENCES `archives`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `archiveId` INTEGER NOT NULL, `uploadedAt` INTEGER, `serverUrl` TEXT, FOREIGN KEY(`archiveId`) REFERENCES `archives`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -155,14 +167,14 @@
             "notNull": true
           },
           {
-            "fieldPath": "projectId",
-            "columnName": "projectId",
+            "fieldPath": "archiveId",
+            "columnName": "archiveId",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "uploadDate",
-            "columnName": "uploadDate",
+            "fieldPath": "uploadedAt",
+            "columnName": "uploadedAt",
             "affinity": "INTEGER"
           },
           {
@@ -179,13 +191,13 @@
         },
         "indices": [
           {
-            "name": "index_submissions_projectId",
+            "name": "index_submissions_archiveId",
             "unique": false,
             "columnNames": [
-              "projectId"
+              "archiveId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_submissions_projectId` ON `${TABLE_NAME}` (`projectId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_submissions_archiveId` ON `${TABLE_NAME}` (`archiveId`)"
           }
         ],
         "foreignKeys": [
@@ -194,7 +206,7 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "projectId"
+              "archiveId"
             ],
             "referencedColumns": [
               "id"
@@ -204,7 +216,7 @@
       },
       {
         "tableName": "evidence",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `originalFilePath` TEXT NOT NULL, `mimeType` TEXT NOT NULL, `createDate` INTEGER, `updateDate` INTEGER, `uploadDate` INTEGER, `serverUrl` TEXT NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `author` TEXT NOT NULL, `location` TEXT NOT NULL, `tags` TEXT NOT NULL, `licenseUrl` TEXT, `mediaHash` BLOB NOT NULL, `mediaHashString` TEXT NOT NULL, `status` INTEGER NOT NULL, `statusMessage` TEXT NOT NULL, `projectId` INTEGER NOT NULL, `collectionId` INTEGER NOT NULL, `contentLength` INTEGER NOT NULL, `progress` INTEGER NOT NULL, `flag` INTEGER NOT NULL, `priority` INTEGER NOT NULL, FOREIGN KEY(`projectId`) REFERENCES `archives`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`collectionId`) REFERENCES `submissions`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `originalFilePath` TEXT NOT NULL, `mimeType` TEXT NOT NULL, `createdAt` INTEGER, `updatedAt` INTEGER, `uploadedAt` INTEGER, `serverUrl` TEXT NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `author` TEXT NOT NULL, `location` TEXT NOT NULL, `tags` TEXT NOT NULL, `licenseUrl` TEXT, `mediaHashString` TEXT NOT NULL, `status` INTEGER NOT NULL, `statusMessage` TEXT NOT NULL, `archiveId` INTEGER NOT NULL, `submissionId` INTEGER NOT NULL, `contentLength` INTEGER NOT NULL, `progress` INTEGER NOT NULL, `flag` INTEGER NOT NULL, `priority` INTEGER NOT NULL, `thumbnail` BLOB, FOREIGN KEY(`archiveId`) REFERENCES `archives`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`submissionId`) REFERENCES `submissions`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -225,18 +237,18 @@
             "notNull": true
           },
           {
-            "fieldPath": "createDate",
-            "columnName": "createDate",
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
             "affinity": "INTEGER"
           },
           {
-            "fieldPath": "updateDate",
-            "columnName": "updateDate",
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
             "affinity": "INTEGER"
           },
           {
-            "fieldPath": "uploadDate",
-            "columnName": "uploadDate",
+            "fieldPath": "uploadedAt",
+            "columnName": "uploadedAt",
             "affinity": "INTEGER"
           },
           {
@@ -281,12 +293,6 @@
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "mediaHash",
-            "columnName": "mediaHash",
-            "affinity": "BLOB",
-            "notNull": true
-          },
-          {
             "fieldPath": "mediaHashString",
             "columnName": "mediaHashString",
             "affinity": "TEXT",
@@ -305,14 +311,14 @@
             "notNull": true
           },
           {
-            "fieldPath": "projectId",
-            "columnName": "projectId",
+            "fieldPath": "archiveId",
+            "columnName": "archiveId",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "collectionId",
-            "columnName": "collectionId",
+            "fieldPath": "submissionId",
+            "columnName": "submissionId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -339,6 +345,11 @@
             "columnName": "priority",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "thumbnail",
+            "columnName": "thumbnail",
+            "affinity": "BLOB"
           }
         ],
         "primaryKey": {
@@ -349,22 +360,22 @@
         },
         "indices": [
           {
-            "name": "index_evidence_projectId",
+            "name": "index_evidence_archiveId",
             "unique": false,
             "columnNames": [
-              "projectId"
+              "archiveId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_evidence_projectId` ON `${TABLE_NAME}` (`projectId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_evidence_archiveId` ON `${TABLE_NAME}` (`archiveId`)"
           },
           {
-            "name": "index_evidence_collectionId",
+            "name": "index_evidence_submissionId",
             "unique": false,
             "columnNames": [
-              "collectionId"
+              "submissionId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_evidence_collectionId` ON `${TABLE_NAME}` (`collectionId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_evidence_submissionId` ON `${TABLE_NAME}` (`submissionId`)"
           },
           {
             "name": "index_evidence_status",
@@ -385,13 +396,13 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_evidence_priority` ON `${TABLE_NAME}` (`priority`)"
           },
           {
-            "name": "index_evidence_createDate",
+            "name": "index_evidence_createdAt",
             "unique": false,
             "columnNames": [
-              "createDate"
+              "createdAt"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_evidence_createDate` ON `${TABLE_NAME}` (`createDate`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_evidence_createdAt` ON `${TABLE_NAME}` (`createdAt`)"
           }
         ],
         "foreignKeys": [
@@ -400,7 +411,7 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "projectId"
+              "archiveId"
             ],
             "referencedColumns": [
               "id"
@@ -411,7 +422,7 @@
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "collectionId"
+              "submissionId"
             ],
             "referencedColumns": [
               "id"
@@ -459,11 +470,134 @@
             "id"
           ]
         }
+      },
+      {
+        "tableName": "vault_dweb_metadata",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`vaultId` INTEGER NOT NULL, `vaultKey` TEXT NOT NULL, PRIMARY KEY(`vaultId`), FOREIGN KEY(`vaultId`) REFERENCES `vaults`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "vaultId",
+            "columnName": "vaultId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vaultKey",
+            "columnName": "vaultKey",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "vaultId"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "vaults",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "vaultId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "archive_dweb_metadata",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`archiveId` INTEGER NOT NULL, `archiveKey` TEXT NOT NULL, `archiveHash` TEXT NOT NULL, `permissions` TEXT NOT NULL, PRIMARY KEY(`archiveId`), FOREIGN KEY(`archiveId`) REFERENCES `archives`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "archiveId",
+            "columnName": "archiveId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "archiveKey",
+            "columnName": "archiveKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "archiveHash",
+            "columnName": "archiveHash",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "permissions",
+            "columnName": "permissions",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "archiveId"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "archives",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "archiveId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "evidence_dweb_metadata",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`evidenceId` INTEGER NOT NULL, `isDownloaded` INTEGER NOT NULL, PRIMARY KEY(`evidenceId`), FOREIGN KEY(`evidenceId`) REFERENCES `evidence`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "evidenceId",
+            "columnName": "evidenceId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isDownloaded",
+            "columnName": "isDownloaded",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "evidenceId"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "evidence",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "evidenceId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6caed5c58f4fafe0c0afc8cc7a8da080')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f0649f2c75baba064b3ad9a7575903d0')"
     ]
   }
 }

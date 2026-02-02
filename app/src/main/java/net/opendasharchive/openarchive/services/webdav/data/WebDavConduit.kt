@@ -27,7 +27,8 @@ class WebDavConduit(evidence: Evidence, context: Context) : Conduit(evidence, co
         val fileName = getUploadFileName(mEvidence)
 
         try {
-            createFolders(base, path)
+            val archive = projectRepository.getProject(mEvidence.archiveId)
+            createFolders(base, path, archive?.isRemote ?: false)
 
             uploadMetadata(base, path, fileName)
         } catch (e: Throwable) {

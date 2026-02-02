@@ -323,7 +323,7 @@ abstract class Conduit(
 
         val submission = projectRepository.getActiveSubmission(mEvidence.archiveId)
         val collectionDate =
-            submission.uploadDate ?: mEvidence.createDate ?: net.opendasharchive.openarchive.util.DateUtils.nowDateTime
+            submission.uploadDate ?: mEvidence.createdAt ?: net.opendasharchive.openarchive.util.DateUtils.nowDateTime
 
         val javaDate = collectionDate.toJavaDate()
         val collectionName = mDateFormat.format(javaDate)
@@ -337,13 +337,31 @@ abstract class Conduit(
         return path
     }
 
-    protected suspend fun createFolders(base: HttpUrl?, path: List<String>) {
+    protected suspend fun createFolders(base: HttpUrl?, path: List<String>, isFirstSegmentRemote: Boolean = false) {
+        try {
+            createFoldersInternal(base, path, isFirstSegmentRemote)
+        } catch (e: Exception) {
+            if (isFirstSegmentRemote) {
+                AppLogger.w("Remote folder optimization failed, retrying with full check", e)
+                createFoldersInternal(base, path, false)
+            } else {
+                throw e
+            }
+        }
+    }
+
+    private suspend fun createFoldersInternal(base: HttpUrl?, path: List<String>, isFirstSegmentRemote: Boolean) {
         val tmp = mutableListOf<String>()
 
-        for (segment in path) {
+        for ((index, segment) in path.withIndex()) {
             tmp.add(segment)
 
             if (mCancelled) throw Exception("Cancelled")
+
+            if (index == 0 && isFirstSegmentRemote) {
+                AppLogger.i("Skipping remote folder check for first segment: $segment")
+                continue
+            }
 
             val url = construct(base, tmp)
 

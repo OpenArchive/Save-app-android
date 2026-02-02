@@ -14,5 +14,10 @@ data class Archive(
     val created: LocalDateTime? = null,
     val vaultId: Long? = null,
     val isArchived: Boolean = false,
-    val licenseUrl: String? = null
+    val openSubmissionId: Long = -1L,
+    val licenseUrl: String? = null,
+    val isRemote: Boolean = false,
+    val archiveKey: String? = null,
+    val archiveHash: String? = null,
+    val permissions: ArchivePermission? = null
 )

@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.datetime.LocalDateTime
 
 @Entity(
     tableName = "submissions",
@@ -11,15 +12,15 @@ import androidx.room.PrimaryKey
         ForeignKey(
             entity = ArchiveEntity::class,
             parentColumns = ["id"],
-            childColumns = ["projectId"],
+            childColumns = ["archiveId"],
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index("projectId")]
+    indices = [Index("archiveId")]
 )
 data class SubmissionEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val projectId: Long,
-    val uploadDate: Long?, // epoch ms
+    val archiveId: Long,
+    val uploadedAt: LocalDateTime?,
     val serverUrl: String?
 )

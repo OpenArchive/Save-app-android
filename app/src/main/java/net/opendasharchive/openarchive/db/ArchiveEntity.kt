@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.datetime.LocalDateTime
 
 @Entity(
     tableName = "archives",
@@ -11,18 +12,19 @@ import androidx.room.PrimaryKey
         ForeignKey(
             entity = VaultEntity::class,
             parentColumns = ["id"],
-            childColumns = ["spaceId"],
+            childColumns = ["vaultId"],
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index("spaceId")]
+    indices = [Index("vaultId")]
 )
 data class ArchiveEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val description: String?,
-    val created: Long?, // epoch ms
-    val spaceId: Long,
+    val createdAt: LocalDateTime?,
+    val vaultId: Long,
     val archived: Boolean,
-    val openCollectionId: Long,
-    val licenseUrl: String?
+    val openSubmissionId: Long,
+    val licenseUrl: String?,
+    val isRemote: Boolean
 )

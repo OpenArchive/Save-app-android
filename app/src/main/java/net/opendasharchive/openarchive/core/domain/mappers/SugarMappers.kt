@@ -31,7 +31,8 @@ fun Space.toDomain(): Vault = Vault(
     password = this.password,
     host = this.host,
     metaData = this.metaData,
-    licenseUrl = this.license
+    licenseUrl = this.license,
+    createdAt = DateUtils.now.toLocalDateTime()
 )
 
 fun Vault.toEntity(): Space {
@@ -60,7 +61,9 @@ fun Project.toDomain(): Archive = Archive(
     created = this.created?.toKotlinLocalDateTime(),
     vaultId = this.spaceId,
     isArchived = this.isArchived,
-    licenseUrl = this.licenseUrl
+    openSubmissionId = this.openCollectionId,
+    licenseUrl = this.licenseUrl,
+    isRemote = false
 )
 
 fun Archive.toEntity(): Project {
@@ -70,6 +73,7 @@ fun Archive.toEntity(): Project {
     project.created = this.created?.toJavaDate()
     project.spaceId = this.vaultId
     project.isArchived = this.isArchived
+    project.openCollectionId = this.openSubmissionId
     project.licenseUrl = this.licenseUrl
     return project
 }
@@ -99,9 +103,9 @@ fun Media.toDomain(): Evidence = Evidence(
     id = this.id ?: 0L,
     originalFilePath = this.originalFilePath,
     mimeType = this.mimeType,
-    createDate = this.createDate?.toKotlinLocalDateTime(),
-    updateDate = this.updateDate?.toKotlinLocalDateTime(),
-    uploadDate = this.uploadDate?.toKotlinLocalDateTime(),
+    createdAt = this.createDate?.toKotlinLocalDateTime(),
+    updatedAt = this.updateDate?.toKotlinLocalDateTime(),
+    uploadedAt = this.uploadDate?.toKotlinLocalDateTime(),
     serverUrl = this.serverUrl,
     title = this.title,
     description = this.description,
@@ -109,7 +113,6 @@ fun Media.toDomain(): Evidence = Evidence(
     location = this.location,
     tags = if (this.tags.isBlank()) emptyList() else this.tags.split(";"),
     licenseUrl = this.licenseUrl,
-    mediaHash = this.mediaHash,
     mediaHashString = this.mediaHashString,
     status = when (this.sStatus) {
         Media.Status.New -> EvidenceStatus.NEW
@@ -138,9 +141,9 @@ fun Evidence.toEntity(): Media {
     if (this.id != 0L) media.id = this.id
     media.originalFilePath = this.originalFilePath
     media.mimeType = this.mimeType
-    media.createDate = this.createDate?.toJavaDate()
-    media.updateDate = this.updateDate?.toJavaDate()
-    media.uploadDate = this.uploadDate?.toJavaDate()
+    media.createDate = this.createdAt?.toJavaDate()
+    media.updateDate = this.updatedAt?.toJavaDate()
+    media.uploadDate = this.uploadedAt?.toJavaDate()
     media.serverUrl = this.serverUrl
     media.title = this.title
     media.description = this.description
@@ -148,7 +151,6 @@ fun Evidence.toEntity(): Media {
     media.location = this.location
     media.tags = this.tags.joinToString(";")
     media.licenseUrl = this.licenseUrl
-    media.mediaHash = this.mediaHash
     media.mediaHashString = this.mediaHashString
     media.sStatus = when (this.status) {
         EvidenceStatus.NEW -> Media.Status.New

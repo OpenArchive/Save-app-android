@@ -15,10 +15,10 @@ class SubmissionRepositoryImpl(
 ) : CollectionRepository {
 
     override suspend fun getCollections(projectId: Long): List<Submission> = withContext(io) {
-        submissionDao.observeByProject(projectId).first().map { it.toDomain() }
+        submissionDao.observeByArchive(projectId).first().map { it.toDomain() }
     }
 
-    override fun observeCollections(projectId: Long): Flow<List<Submission>> = submissionDao.observeByProject(projectId)
+    override fun observeCollections(projectId: Long): Flow<List<Submission>> = submissionDao.observeByArchive(projectId)
         .map { entities -> entities.map { it.toDomain() } }
         .distinctUntilChanged()
 

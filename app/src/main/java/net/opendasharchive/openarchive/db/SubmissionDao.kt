@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SubmissionDao {
-    @Query("SELECT * FROM submissions WHERE projectId = :projectId ORDER BY id DESC")
-    fun observeByProject(projectId: Long): Flow<List<SubmissionEntity>>
+    @Query("SELECT * FROM submissions WHERE archiveId = :archiveId ORDER BY id DESC")
+    fun observeByArchive(archiveId: Long): Flow<List<SubmissionEntity>>
 
     @Query("SELECT * FROM submissions WHERE id = :id")
     suspend fun getById(id: Long): SubmissionEntity?
