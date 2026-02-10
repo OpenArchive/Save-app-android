@@ -34,8 +34,6 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.core.config.AppConfig
 import net.opendasharchive.openarchive.services.storacha.model.UploadEntry
-import net.opendasharchive.openarchive.services.storacha.util.CarFileCreator
-import net.opendasharchive.openarchive.services.storacha.util.CarFileResult
 import net.opendasharchive.openarchive.services.storacha.util.DidManager
 import net.opendasharchive.openarchive.services.storacha.viewModel.LoadingState
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaMediaViewModel
@@ -110,7 +108,6 @@ class StorachaMediaFragment :
     private data class FailedUploadData(
         val uri: Uri,
         val tempFile: File,
-        val carFile: File,
         val userDid: String,
         val spaceDid: String,
         val sessionId: String,
@@ -244,14 +241,13 @@ class StorachaMediaFragment :
             result?.fold(
                 onSuccess = { uploadResponse ->
                     Timber.d("Upload successful: CID=${uploadResponse.cid}, Size=${uploadResponse.size}")
-                    // Clean up temporary files after successful upload
+                    // Clean up temporary file after successful upload
                     lastFailedUpload?.let { failedUpload ->
                         try {
                             failedUpload.tempFile.delete()
-                            failedUpload.carFile.delete()
-                            Timber.d("Cleaned up temporary files after successful upload")
+                            Timber.d("Cleaned up temporary file after successful upload")
                         } catch (e: Exception) {
-                            Timber.e(e, "Failed to delete temporary files")
+                            Timber.e(e, "Failed to delete temporary file")
                         }
                     }
                     lastFailedUpload = null // Clear any previous failed upload
@@ -320,12 +316,8 @@ class StorachaMediaFragment :
                     failedUpload.tempFile.delete()
                     Timber.d("Cleaned up temp file: ${failedUpload.tempFile.name}")
                 }
-                if (failedUpload.carFile.exists()) {
-                    failedUpload.carFile.delete()
-                    Timber.d("Cleaned up CAR file: ${failedUpload.carFile.name}")
-                }
             } catch (e: Exception) {
-                Timber.e("Failed to clean up temp files: ${e.message}")
+                Timber.e("Failed to clean up temp file: ${e.message}")
             }
         }
     }
@@ -376,10 +368,6 @@ class StorachaMediaFragment :
                         if (previousFailedUpload.tempFile.exists()) {
                             previousFailedUpload.tempFile.delete()
                             Timber.d("Cleaned up previous failed upload temp file: ${previousFailedUpload.tempFile.name}")
-                        }
-                        if (previousFailedUpload.carFile.exists()) {
-                            previousFailedUpload.carFile.delete()
-                            Timber.d("Cleaned up previous failed upload CAR file: ${previousFailedUpload.carFile.name}")
                         }
                     } catch (e: Exception) {
                         Timber.e("Failed to clean up previous failed upload: ${e.message}")
@@ -471,12 +459,6 @@ class StorachaMediaFragment :
                     }
                 }
 
-                // Generate proper CAR file from the temporary file (writes directly to cache dir)
-                // This should also be done on IO thread as it involves file I/O
-                val carResult = withContext(Dispatchers.IO) {
-                    CarFileCreator.createCarFile(finalTempFile, requireContext().cacheDir)
-                }
-
                 val uploadSessionId = args.sessionId.ifEmpty { null }
 
                 // Store upload details for potential retry and cleanup
@@ -484,16 +466,15 @@ class StorachaMediaFragment :
                     FailedUploadData(
                         uri = uri,
                         tempFile = finalTempFile,
-                        carFile = carResult.carFile,
                         userDid = userDid,
                         spaceDid = spaceDid,
                         sessionId = uploadSessionId ?: "",
                         isAdmin = args.isAdmin,
                     )
 
+                // Upload file to backend - CAR file generation is handled server-side
                 viewModel.uploadFile(
                     finalTempFile,
-                    carResult,
                     userDid,
                     spaceDid,
                     uploadSessionId,
@@ -771,43 +752,16 @@ class StorachaMediaFragment :
         lastFailedUpload?.let { failedUpload ->
             Timber.d("Retrying upload for file: ${failedUpload.uri}")
 
-            // Launch coroutine to handle I/O operations off the main thread
-            lifecycleScope.launch {
-                try {
-                    // Clean up old CAR file if it exists
-                    withContext(Dispatchers.IO) {
-                        try {
-                            if (failedUpload.carFile.exists()) {
-                                failedUpload.carFile.delete()
-                                Timber.d("Deleted old CAR file before retry: ${failedUpload.carFile.name}")
-                            }
-                        } catch (e: Exception) {
-                            Timber.e("Failed to delete old CAR file: ${e.message}")
-                        }
-                    }
+            val retrySessionId = failedUpload.sessionId.ifEmpty { null }
 
-                    // Regenerate CAR file for retry
-                    val carResult = withContext(Dispatchers.IO) {
-                        CarFileCreator.createCarFile(failedUpload.tempFile, requireContext().cacheDir)
-                    }
-                    val retrySessionId = failedUpload.sessionId.ifEmpty { null }
-
-                    // Update lastFailedUpload with new CAR file
-                    lastFailedUpload = failedUpload.copy(carFile = carResult.carFile)
-
-                    viewModel.uploadFile(
-                        failedUpload.tempFile,
-                        carResult,
-                        failedUpload.userDid,
-                        failedUpload.spaceDid,
-                        retrySessionId,
-                        failedUpload.isAdmin,
-                    )
-                } catch (e: Exception) {
-                    Timber.e(e, "Error retrying upload: ${e.message}")
-                    showError("Failed to retry upload. Please try again.")
-                }
-            }
+            // Retry upload - CAR file generation is handled server-side
+            viewModel.uploadFile(
+                failedUpload.tempFile,
+                failedUpload.userDid,
+                failedUpload.spaceDid,
+                retrySessionId,
+                failedUpload.isAdmin,
+            )
         }
     }
 
