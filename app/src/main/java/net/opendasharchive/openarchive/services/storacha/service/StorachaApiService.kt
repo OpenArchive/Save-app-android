@@ -114,6 +114,7 @@ interface StorachaApiService {
         @Header("x-session-id") sessionId: String?,
         @Part file: MultipartBody.Part,
         @Part("spaceDid") spaceDid: RequestBody,
+        @Part("fileName") fileName: RequestBody?,
     ): UploadResponse
 
     @POST("bridge-tokens")
