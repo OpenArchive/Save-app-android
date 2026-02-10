@@ -124,10 +124,18 @@ class StorachaMediaViewModel(
      * Uploads a file to Storacha via the backend server.
      *
      * The backend handles CAR file generation and the complex blob workflow,
-     * so we just need to send the original file.
+     * so we just need to send the original file and filename.
+     *
+     * @param file The file to upload
+     * @param fileName The original filename (preserved in UnixFS directory structure)
+     * @param userDid The user's DID
+     * @param spaceDid The target space DID
+     * @param sessionId The session ID (for admin users)
+     * @param isAdmin Whether this is an admin upload
      */
     fun uploadFile(
         file: File,
+        fileName: String,
         userDid: String,
         spaceDid: String,
         sessionId: String?,
@@ -140,6 +148,7 @@ class StorachaMediaViewModel(
                 val bridgeResult =
                     bridgeUploader.uploadFile(
                         file = file,
+                        fileName = fileName,
                         spaceDid = spaceDid,
                         userDid = userDid,
                         sessionId = sessionId,

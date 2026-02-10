@@ -108,6 +108,7 @@ class StorachaMediaFragment :
     private data class FailedUploadData(
         val uri: Uri,
         val tempFile: File,
+        val fileName: String,
         val userDid: String,
         val spaceDid: String,
         val sessionId: String,
@@ -378,6 +379,10 @@ class StorachaMediaFragment :
                 val userDid = DidManager(requireContext()).getOrCreateDid()
                 val spaceDid = args.spaceId
 
+                // Get the original filename first
+                val originalFileName = Utility.getUriDisplayName(requireContext(), uri)
+                    ?: "IMG_${System.currentTimeMillis()}.jpg"
+
                 // Perform all I/O operations on IO dispatcher
                 val finalTempFile = withContext(Dispatchers.IO) {
                     // Check if URI is a FileProvider URI pointing to our cache directory
@@ -416,10 +421,7 @@ class StorachaMediaFragment :
                         tempFile
                     } else {
                         // Need to copy from URI (gallery, etc.)
-                        val title =
-                            Utility.getUriDisplayName(requireContext(), uri)
-                                ?: "IMG_${System.currentTimeMillis()}.jpg"
-                        val newTempFile = Utility.getOutputMediaFileByCacheNoTimestamp(requireContext(), title)
+                        val newTempFile = Utility.getOutputMediaFileByCacheNoTimestamp(requireContext(), originalFileName)
 
                         if (newTempFile == null) {
                             Timber.e("Failed to create temp file for URI: $uri")
@@ -466,15 +468,17 @@ class StorachaMediaFragment :
                     FailedUploadData(
                         uri = uri,
                         tempFile = finalTempFile,
+                        fileName = originalFileName,
                         userDid = userDid,
                         spaceDid = spaceDid,
                         sessionId = uploadSessionId ?: "",
                         isAdmin = args.isAdmin,
                     )
 
-                // Upload file to backend - CAR file generation is handled server-side
+                // Upload file to backend - backend wraps file in UnixFS directory with filename
                 viewModel.uploadFile(
                     finalTempFile,
+                    originalFileName,
                     userDid,
                     spaceDid,
                     uploadSessionId,
@@ -750,13 +754,14 @@ class StorachaMediaFragment :
 
     private fun retryLastUpload() {
         lastFailedUpload?.let { failedUpload ->
-            Timber.d("Retrying upload for file: ${failedUpload.uri}")
+            Timber.d("Retrying upload for file: ${failedUpload.fileName}")
 
             val retrySessionId = failedUpload.sessionId.ifEmpty { null }
 
-            // Retry upload - CAR file generation is handled server-side
+            // Retry upload - backend wraps file in UnixFS directory with filename
             viewModel.uploadFile(
                 failedUpload.tempFile,
+                failedUpload.fileName,
                 failedUpload.userDid,
                 failedUpload.spaceDid,
                 retrySessionId,

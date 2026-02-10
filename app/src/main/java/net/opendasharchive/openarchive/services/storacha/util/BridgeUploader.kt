@@ -53,6 +53,7 @@ class BridgeUploader(
      * - upload/add (register DAG root)
      *
      * @param file The original file to upload (not a CAR file)
+     * @param fileName The original filename (used by backend to create UnixFS directory structure)
      * @param spaceDid The DID of the target space
      * @param userDid The user's DID (for delegated access)
      * @param sessionId The session ID (for admin access)
@@ -61,6 +62,7 @@ class BridgeUploader(
      */
     suspend fun uploadFile(
         file: File,
+        fileName: String,
         spaceDid: String,
         userDid: String? = null,
         sessionId: String? = null,
@@ -68,21 +70,24 @@ class BridgeUploader(
     ): BridgeUploadResult =
         withContext(Dispatchers.IO) {
             val fileSize = file.length()
-            Timber.d("Starting backend upload - File: ${file.name}, Size: $fileSize bytes")
+            Timber.d("Starting backend upload - File: $fileName, Size: $fileSize bytes")
 
             try {
                 // Determine content type based on file extension
-                val contentType = getContentType(file.name)
+                val contentType = getContentType(fileName)
 
                 // Create multipart file part
                 val filePart = MultipartBody.Part.createFormData(
                     "file",
-                    file.name,
+                    fileName,
                     file.asRequestBody(contentType.toMediaType()),
                 )
 
                 // Create spaceDid part
                 val spaceDidPart = spaceDid.toRequestBody("text/plain".toMediaType())
+
+                // Create fileName part - backend uses this to wrap file in UnixFS directory
+                val fileNamePart = fileName.toRequestBody("text/plain".toMediaType())
 
                 // Upload through backend - use sessionId for admin, userDid for delegated users
                 val response = if (isAdmin && sessionId != null) {
@@ -91,6 +96,7 @@ class BridgeUploader(
                         sessionId = sessionId,
                         file = filePart,
                         spaceDid = spaceDidPart,
+                        fileName = fileNamePart,
                     )
                 } else {
                     storachaService.uploadFile(
@@ -98,6 +104,7 @@ class BridgeUploader(
                         sessionId = null,
                         file = filePart,
                         spaceDid = spaceDidPart,
+                        fileName = fileNamePart,
                     )
                 }
 
@@ -131,11 +138,11 @@ class BridgeUploader(
      * Legacy method signature for backwards compatibility.
      * Now delegates to the simpler uploadFile method.
      *
-     * @deprecated Use uploadFile(file, spaceDid, userDid, sessionId, isAdmin) instead
+     * @deprecated Use uploadFile(file, fileName, spaceDid, userDid, sessionId, isAdmin) instead
      */
     @Deprecated(
         "CAR file generation is now handled by the backend",
-        ReplaceWith("uploadFile(file, spaceDid, userDid, sessionId, isAdmin)"),
+        ReplaceWith("uploadFile(file, fileName, spaceDid, userDid, sessionId, isAdmin)"),
     )
     suspend fun uploadFile(
         carFile: File,
@@ -150,6 +157,7 @@ class BridgeUploader(
         Timber.w("Using deprecated uploadFile method with CAR parameters. Consider updating to the new API.")
         return uploadFile(
             file = carFile,
+            fileName = carFile.name,
             spaceDid = spaceDid,
             userDid = userDid,
             sessionId = sessionId,
