@@ -110,7 +110,8 @@ interface StorachaApiService {
     @Multipart
     @POST("upload")
     suspend fun uploadFile(
-        @Header("x-user-did") userDid: String,
+        @Header("x-user-did") userDid: String?,
+        @Header("x-session-id") sessionId: String?,
         @Part file: MultipartBody.Part,
         @Part("spaceDid") spaceDid: RequestBody,
     ): UploadResponse

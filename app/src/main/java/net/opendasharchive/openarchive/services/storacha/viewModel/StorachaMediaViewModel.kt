@@ -9,7 +9,6 @@ import net.opendasharchive.openarchive.services.storacha.model.UploadEntry
 import net.opendasharchive.openarchive.services.storacha.model.UploadResponse
 import net.opendasharchive.openarchive.services.storacha.service.StorachaApiService
 import net.opendasharchive.openarchive.services.storacha.util.BridgeUploader
-import net.opendasharchive.openarchive.services.storacha.util.CarFileResult
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.File
@@ -121,9 +120,14 @@ class StorachaMediaViewModel(
         }
     }
 
+    /**
+     * Uploads a file to Storacha via the backend server.
+     *
+     * The backend handles CAR file generation and the complex blob workflow,
+     * so we just need to send the original file.
+     */
     fun uploadFile(
         file: File,
-        carResult: CarFileResult,
         userDid: String,
         spaceDid: String,
         sessionId: String?,
@@ -135,9 +139,7 @@ class StorachaMediaViewModel(
             try {
                 val bridgeResult =
                     bridgeUploader.uploadFile(
-                        carFile = carResult.carFile,
-                        carCid = carResult.carCid,
-                        rootCid = carResult.rootCid,
+                        file = file,
                         spaceDid = spaceDid,
                         userDid = userDid,
                         sessionId = sessionId,
@@ -163,7 +165,6 @@ class StorachaMediaViewModel(
             } catch (e: Exception) {
                 _uploadResult.value = Result.failure(e)
             } finally {
-                cleanupCarFile(carResult.carFile)
                 _loading.value = false
                 _loadingState.value = LoadingState.NONE
             }
@@ -223,17 +224,6 @@ class StorachaMediaViewModel(
             paginationState.copy(
                 isRefreshing = false,
             )
-    }
-
-    private fun cleanupCarFile(carFile: File) {
-        try {
-            if (carFile.exists()) {
-                carFile.delete()
-                Timber.d("Deleted temporary CAR file: ${carFile.name}")
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to delete CAR file")
-        }
     }
 
     private data class PaginationState(
