@@ -38,14 +38,20 @@ android {
 
         create("dev") {
             dimension = "env"
+            // Enable enhanced analytics with user identification for dev builds
+            buildConfigField("boolean", "ENHANCED_ANALYTICS_ENABLED", "true")
         }
 
         create("staging") {
             dimension = "env"
+            // Enable enhanced analytics with user identification for staging builds
+            buildConfigField("boolean", "ENHANCED_ANALYTICS_ENABLED", "true")
         }
 
         create("prod") {
             dimension = "env"
+            // Disable enhanced analytics for production - anonymous only
+            buildConfigField("boolean", "ENHANCED_ANALYTICS_ENABLED", "false")
         }
     }
 
@@ -80,6 +86,7 @@ dependencies {
 
     // Analytics SDKs - flavor specific
     "gmsApi"(libs.mixpanel)
+    "gmsApi"(libs.mixpanel.session.replay)
     "gmsApi"(libs.firebase.analytics)
 
     // CleanInsights for both GMS and FOSS builds

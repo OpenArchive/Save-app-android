@@ -17,13 +17,17 @@ import org.koin.dsl.module
  * This module is used for F-Droid builds and only includes CleanInsights,
  * a privacy-focused, GDPR-compliant analytics provider.
  *
+ * Note: Enhanced analytics is NOT available in FOSS builds.
+ * The enhancedAnalyticsEnabled parameter is ignored.
+ *
  * Usage in app module:
  * ```kotlin
  * startKoin {
  *     modules(
  *         analyticsModule(
  *             mixpanelToken = getString(R.string.mixpanel_key),
- *             cleanInsightsConsentChecker = { CleanInsightsManager.hasConsent() }
+ *             cleanInsightsConsentChecker = { CleanInsightsManager.hasConsent() },
+ *             enhancedAnalyticsEnabled = BuildConfig.ENHANCED_ANALYTICS_ENABLED
  *         )
  *     )
  * }
@@ -31,7 +35,8 @@ import org.koin.dsl.module
  */
 fun analyticsModule(
     mixpanelToken: String,  // Ignored in FOSS build, kept for signature compatibility
-    cleanInsightsConsentChecker: () -> Boolean
+    cleanInsightsConsentChecker: () -> Boolean,
+    enhancedAnalyticsEnabled: Boolean = false  // Ignored in FOSS build
 ) = module {
 
     // CleanInsights Provider - Privacy-focused analytics

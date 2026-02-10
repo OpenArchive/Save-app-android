@@ -54,6 +54,7 @@ material = "1.13.0"
 material3 = "1.4.0"
 media3 = "1.8.0"
 mixpanel = "8.2.4"
+mixpanel-replay = "1.0.1"
 navigation = "2.9.6"
 navigation3 = "1.0.0"
 navigationevent = "1.0.1"
@@ -237,6 +238,7 @@ guava-listenablefuture = { group = "com.google.guava", name = "listenablefuture"
 j2v8 = { group = "com.eclipsesource.j2v8", name = "j2v8", version.ref = "j2v8" }
 jtorctl = { group = "info.guardianproject", name = "jtorctl", version.ref = "jtorctl" }
 mixpanel = { group = "com.mixpanel.android", name = "mixpanel-android", version.ref = "mixpanel" }
+mixpanel-session-replay = { group = "com.mixpanel.android", name = "mixpanel-android-session-replay", version.ref = "mixpanel-replay" }
 netcipher = { group = "info.guardianproject.netcipher", name = "netcipher", version.ref = "netcipher" }
 permissionx = { group = "com.guolindev.permissionx", name = "permissionx", version.ref = "permissionx" }
 simple-c2pa = { group = "org.witness", name = "simple-c2pa", version.ref = "simple-c2pa" }

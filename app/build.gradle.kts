@@ -120,17 +120,23 @@ android {
             dimension = "env"
             versionNameSuffix = "-dev"
             applicationIdSuffix = ".debug"
+            // Enable enhanced analytics with user identification for dev builds
+            buildConfigField("boolean", "ENHANCED_ANALYTICS_ENABLED", "true")
         }
 
         create("staging") {
             dimension = "env"
             versionNameSuffix = "-staging"
             applicationIdSuffix = ".debug"
+            // Enable enhanced analytics with user identification for staging builds
+            buildConfigField("boolean", "ENHANCED_ANALYTICS_ENABLED", "true")
         }
 
         create("prod") {
             dimension = "env"
             applicationIdSuffix = ".release"
+            // Disable enhanced analytics for production - anonymous only
+            buildConfigField("boolean", "ENHANCED_ANALYTICS_ENABLED", "false")
         }
     }
 

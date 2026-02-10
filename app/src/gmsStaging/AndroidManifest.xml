@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+    GET_ACCOUNTS permission is required for TesterEmailDialog to access
+    device accounts for email selection in staging builds.
+
+    This permission is ONLY included in staging/dev builds for tester identification.
+    It is NOT included in production builds.
+    -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+
+</manifest>

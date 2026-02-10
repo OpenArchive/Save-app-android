@@ -72,6 +72,7 @@ import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import net.opendasharchive.openarchive.upload.UploadManagerFragment
 import net.opendasharchive.openarchive.upload.UploadService
+import net.opendasharchive.openarchive.analytics.EnhancedAnalyticsHelper
 import net.opendasharchive.openarchive.util.InAppReviewHelper
 import net.opendasharchive.openarchive.util.PermissionManager
 import net.opendasharchive.openarchive.util.Prefs
@@ -298,6 +299,20 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                 AppLogger.w("[C2PA] Location permission missing at startup - disabling C2PA")
                 Prefs.useC2pa = false
             }
+        }
+
+        // Enhanced Analytics - User identification for staging/dev builds
+        // This helps track user journeys during testing
+        if (EnhancedAnalyticsHelper.isEnabled()) {
+            EnhancedAnalyticsHelper.instance.setupUserIdentification(
+                activity = this,
+                onIdentified = { email ->
+                    AppLogger.i("Enhanced Analytics: User identified as $email")
+                },
+                onSkipped = {
+                    AppLogger.w("Enhanced Analytics: User skipped identification")
+                }
+            )
         }
     }
 
