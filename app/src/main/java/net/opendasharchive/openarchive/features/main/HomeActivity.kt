@@ -18,10 +18,18 @@ import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import net.opendasharchive.openarchive.util.PermissionManager
 import org.koin.android.ext.android.inject
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
+import net.opendasharchive.openarchive.core.navigation.ResultEventBus
+import net.opendasharchive.openarchive.upload.UploadJobScheduler
+import net.opendasharchive.openarchive.util.ProofModeHelper
 
 class HomeActivity : BaseComposeActivity() {
 
     private val appConfig by inject<AppConfig>()
+    private val uploadJobScheduler by inject<UploadJobScheduler>()
     private lateinit var permissionManager: PermissionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,19 +47,6 @@ class HomeActivity : BaseComposeActivity() {
                 darkScrim = getColor(R.color.colorTertiary)
             )
         )
-
-        // Initialize the permission manager with this activity and its dialogManager.
-        //permissionManager = PermissionManager(this, dialogManager)
-
-        //if (appConfig.isDwebEnabled) {
-        //    permissionManager.checkNotificationPermission {
-        //        AppLogger.i("Notification permission granted")
-        //    }
-        //    SnowbirdBridge.getInstance().initialize()
-        //    startForegroundService(Intent(this, SnowbirdService::class.java))
-        //    handleIntent(intent)
-        //}
-
 
         // Set up your Compose UI and pass callbacks.
         setContent {
@@ -78,6 +73,25 @@ class HomeActivity : BaseComposeActivity() {
             handleIntent(intent)
         }
 
+        importSharedMedia(intent)
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        // Initialize ProofMode on background thread to avoid ANR during RSA key generation
+        lifecycleScope.launch(Dispatchers.IO) {
+            ProofModeHelper.init(this@HomeActivity) {
+                // Check for any queued uploads and restart, only after ProofMode is correctly initialized.
+                uploadJobScheduler.schedule()
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        importSharedMedia(intent)
     }
 
     // ----- Permissions & Intent Handling -----
@@ -91,5 +105,30 @@ class HomeActivity : BaseComposeActivity() {
         val path = uri.path
         val queryParams = uri.queryParameterNames.associateWith { uri.getQueryParameter(it) }
         AppLogger.d("Path: $path, QueryParams: $queryParams")
+    }
+
+    private fun importSharedMedia(intent: Intent?) {
+        if (intent == null) return
+        val action = intent.action
+        val type = intent.type
+
+        if ((Intent.ACTION_SEND == action || Intent.ACTION_SEND_MULTIPLE == action) && type != null) {
+            val uris = mutableListOf<Uri>()
+
+            if (Intent.ACTION_SEND == action) {
+                intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)?.let { uris.add(it) }
+            } else {
+                intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)?.let { uris.addAll(it) }
+            }
+
+            if (uris.isNotEmpty()) {
+                // Publish the shared media result via ResultEventBus.
+                // We'll use the same ResultEventBus key used in HomeScreen
+                ResultEventBus.sendResult(
+                    resultKey = NavigationResultKeys.SHARED_MEDIA_IMPORT,
+                    result = uris
+                )
+            }
+        }
     }
 }

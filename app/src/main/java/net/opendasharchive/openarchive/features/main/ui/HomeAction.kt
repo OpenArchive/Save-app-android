@@ -5,7 +5,6 @@ import net.opendasharchive.openarchive.features.media.AddMediaType
 
 sealed class HomeAction {
     data object Load : HomeAction()
-    data object Reload : HomeAction() // Force reload projects
     data class SelectSpace(val spaceId: Long) : HomeAction()
     data class SelectProject(val projectId: Long?) : HomeAction()
     data class UpdatePager(val page: Int) : HomeAction()

@@ -1,12 +1,8 @@
 package net.opendasharchive.openarchive.features.main.ui
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import kotlinx.serialization.builtins.ListSerializer
@@ -14,19 +10,20 @@ import kotlinx.serialization.json.Json
 import net.opendasharchive.openarchive.util.Prefs
 
 class Navigator(
-    initialBackstack: SnapshotStateList<AppRoute> = mutableListOf<AppRoute>(
-        if (Prefs.didCompleteOnboarding) AppRoute.HomeRoute else AppRoute.WelcomeRoute
-    ).toMutableStateList()
+    private val startDestination: AppRoute = defaultStartDestination(),
+    initialBackstack: List<AppRoute> = listOf(startDestination)
 ) {
-    var backstack: SnapshotStateList<AppRoute> by mutableStateOf(initialBackstack)
-        private set
+    val backstack: SnapshotStateList<AppRoute> =
+        initialBackstack.ifEmpty { listOf(startDestination) }.toMutableStateList()
 
     fun navigateTo(route: AppRoute) {
         backstack.add(route)
     }
 
     fun navigateBack() {
-        backstack.removeLastOrNull()
+        if (backstack.size > 1) {
+            backstack.removeLastOrNull()
+        }
     }
 
     fun popBackTo(route: AppRoute, inclusive: Boolean = false) {
@@ -36,11 +33,15 @@ class Navigator(
             if (targetIndex < backstack.size) {
                 backstack.subList(targetIndex, backstack.size).clear()
             }
+            if (backstack.isEmpty()) {
+                backstack.add(startDestination)
+            }
         }
     }
 
     fun navigateAndClear(route: AppRoute) {
-        backstack = mutableStateListOf(route)
+        backstack.clear()
+        backstack.add(route)
     }
 
     fun currentRoute(): AppRoute? {
@@ -61,19 +62,17 @@ class Navigator(
                 val routes = json.decodeFromString(
                     ListSerializer(AppRoute.serializer()),
                     saved
-                ).toMutableStateList()
+                )
 
                 Navigator(
-                    if (routes.isEmpty()) {
-                        val startDestination =
-                            if (Prefs.didCompleteOnboarding) AppRoute.HomeRoute else AppRoute.WelcomeRoute
-                        mutableStateListOf(startDestination)
-                    } else {
-                        routes.toMutableStateList()
-                    }
+                    initialBackstack = routes
                 )
             }
         )
+
+        private fun defaultStartDestination(): AppRoute {
+            return if (Prefs.didCompleteOnboarding) AppRoute.HomeRoute else AppRoute.WelcomeRoute
+        }
     }
 }
 

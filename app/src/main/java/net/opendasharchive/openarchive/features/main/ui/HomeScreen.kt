@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
 import net.opendasharchive.openarchive.core.navigation.ResultEffect
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
@@ -92,8 +93,6 @@ fun HomeScreen(
         },
         onMediaImported = { evidenceList ->
             // Handle imported media (refresh, show toast, etc.)
-            // For now, we'll just reload the projects to refresh media counts
-            viewModel.onAction(HomeAction.Reload)
             uiState.selectedProjectId?.let { projectId ->
                 viewModel.onAction(HomeAction.MediaImported(projectId))
             }
@@ -102,7 +101,7 @@ fun HomeScreen(
     val permissionManager = rememberComposePermissionManager()
 
     // Receive camera capture results from CameraScreen via ResultEventBus
-    ResultEffect<CameraCaptureResult>(resultKey = "camera_capture_result") { result ->
+    ResultEffect<CameraCaptureResult>(resultKey = NavigationResultKeys.CAMERA_CAPTURE_RESULT) { result ->
         scope.launch(Dispatchers.IO) {
             try {
                 val archive = projectRepository.getProject(result.projectId)
@@ -120,7 +119,6 @@ fun HomeScreen(
                     }
                     withContext(Dispatchers.Main) {
                         snackbarHostState.showSnackbar("${evidenceList.size} item(s) imported")
-                        viewModel.onAction(HomeAction.Reload)
                         viewModel.onAction(HomeAction.MediaImported(result.projectId))
                     }
                 }
@@ -132,8 +130,43 @@ fun HomeScreen(
         }
     }
 
+    // Receive shared media imports from HomeActivity via ResultEventBus
+    ResultEffect<List<android.net.Uri>>(resultKey = NavigationResultKeys.SHARED_MEDIA_IMPORT) { uris ->
+        scope.launch(Dispatchers.IO) {
+            try {
+                // Use the currently selected project for the import
+                val selectedProject = uiState.projects.getOrNull(uiState.pagerIndex)
+                if (selectedProject != null && uris.isNotEmpty()) {
+                    val submission = projectRepository.getActiveSubmission(selectedProject.id)
+                    val evidenceList = MediaPicker.import(
+                        context,
+                        selectedProject,
+                        submission.id,
+                        uris,
+                        generateProof = false // Shared media usually doesn't generate proof in legacy
+                    )
+                    evidenceList.forEach { evidence ->
+                        mediaRepository.addEvidence(evidence)
+                    }
+                    withContext(Dispatchers.Main) {
+                        snackbarHostState.showSnackbar("${evidenceList.size} item(s) imported")
+                        viewModel.onAction(HomeAction.NavigateToPreviewMedia)
+                    }
+                } else if (uris.isNotEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        snackbarHostState.showSnackbar("Please select a folder first")
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    snackbarHostState.showSnackbar("Failed to import: ${e.localizedMessage}")
+                }
+            }
+        }
+    }
+
     // Receive space added result to refresh space list after coming from space setup complete screen
-    ResultEffect<Boolean>(resultKey = "refresh_spaces") { success ->
+    ResultEffect<Boolean>(resultKey = NavigationResultKeys.REFRESH_SPACES) { success ->
         if (success) {
             viewModel.onAction(HomeAction.Load)
         }

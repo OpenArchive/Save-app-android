@@ -62,7 +62,6 @@ import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.ContentPickerFragment
 import net.opendasharchive.openarchive.features.media.MediaLaunchers
 import net.opendasharchive.openarchive.features.media.Picker
-import net.opendasharchive.openarchive.features.media.PreviewActivity
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.features.onboarding.Onboarding23Activity
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
@@ -1151,7 +1150,7 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
 
     private fun navigateToPreview() {
         val projectId = getSelectedProject()?.id ?: return
-        PreviewActivity.start(this, projectId)
+        //PreviewActivity.start(this, projectId)
     }
 
     // ----- Permissions & Intent Handling -----

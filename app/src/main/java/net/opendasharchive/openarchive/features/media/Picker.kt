@@ -84,25 +84,6 @@ object Picker {
             }
         }
 
-        val legacyCameraLauncher = activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == AppCompatActivity.RESULT_OK) {
-                currentPhotoUri?.let { uri ->
-
-                    val snackbar = showProgressSnackBar(activity, root, activity.getString(R.string.importing_media))
-
-                    activity.lifecycleScope.launch(Dispatchers.IO) {
-                        // We generate proof for in app capture Just because we toggle it true, it doesn't generate proof.
-                        // It should be on in the settings too. We check that inside import
-                        val media = import(activity, project(), listOf(uri),true)
-
-                        activity.lifecycleScope.launch(Dispatchers.Main) {
-                            snackbar.dismiss()
-                            completed(media)
-                        }
-                    }
-                }
-            }
-        }
 
         // Modern camera launcher using TakePicture contract
         val modernCameraLauncher = activity.registerForActivityResult(
@@ -175,7 +156,6 @@ object Picker {
         return MediaLaunchers(
             galleryLauncher = galleryLauncher,
             filePickerLauncher = filePickerLauncher,
-            cameraLauncher = legacyCameraLauncher,
             modernCameraLauncher = modernCameraLauncher,
             customCameraLauncher = customCameraLauncher
         )
@@ -280,35 +260,6 @@ object Picker {
         } catch (e: Exception) {
             AppLogger.e("Error setting up camera", e)
             Toast.makeText(activity, "Camera setup failed", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    /**
-     * Legacy camera photo capture (kept for backward compatibility).
-     * Use takePhotoModern() for new implementations.
-     */
-    @Deprecated("Use takePhotoModern() instead")
-    fun takePhoto(activity: Activity, launcher: ActivityResultLauncher<Intent>) {
-        val file = Utility.getOutputMediaFileByCache(activity, "IMG_${System.currentTimeMillis()}.jpg")
-
-        file?.let {
-            val uri = FileProvider.getUriForFile(
-                activity, "${activity.packageName}.provider",
-                it
-            )
-
-            currentPhotoUri = uri
-
-            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
-                putExtra(MediaStore.EXTRA_OUTPUT, uri)
-                addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION) // Ensure permission is granted
-            }
-
-            if (takePictureIntent.resolveActivity(activity.packageManager) != null) {
-                launcher.launch(takePictureIntent)
-            } else {
-                Toast.makeText(activity, "Camera not available", Toast.LENGTH_SHORT).show()
-            }
         }
     }
 

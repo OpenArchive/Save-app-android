@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.filterNotNull
  */
 @Composable
 inline fun <reified T> ResultEffect(
-    resultBus: ResultEventBus = LocalResultEventBus.current,
+    resultBus: ResultEventBus = ResultEventBus,
     resultKey: String = T::class.toString(),
     crossinline onResult: (T) -> Unit
 ) {

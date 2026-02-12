@@ -10,7 +10,6 @@ import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.RvMediaBoxBinding
 import net.opendasharchive.openarchive.db.sugar.Media
 import net.opendasharchive.openarchive.features.main.MainActivity
-import net.opendasharchive.openarchive.features.media.PreviewActivity
 import net.opendasharchive.openarchive.upload.BroadcastManager
 import java.lang.ref.WeakReference
 
@@ -128,7 +127,7 @@ class MainMediaAdapter(
         if (mediaStatus == Media.Status.Local) {
             if (supportedStatuses.contains(Media.Status.Local)) {
                 mActivity.get()?.let {
-                    PreviewActivity.start(it, item.projectId)
+                    //PreviewActivity.start(it, item.projectId)
                 }
             }
         } else if (mediaStatus == Media.Status.Queued || mediaStatus == Media.Status.Uploading) {

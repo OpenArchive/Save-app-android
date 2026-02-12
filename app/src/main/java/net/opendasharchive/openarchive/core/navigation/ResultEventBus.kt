@@ -13,22 +13,22 @@ import kotlinx.coroutines.flow.receiveAsFlow
  * Local for receiving results in a [ResultEventBus]
  */
 object LocalResultEventBus {
-    private val LocalResultEventBus: ProvidableCompositionLocal<ResultEventBus?> =
-        compositionLocalOf { null }
+    private val LocalResultEventBus: ProvidableCompositionLocal<ResultEventBus> =
+        compositionLocalOf { ResultEventBus }
 
     /**
      * The current [ResultEventBus]
      */
     val current: ResultEventBus
         @Composable
-        get() = LocalResultEventBus.current ?: error("No ResultEventBus has been provided")
+        get() = LocalResultEventBus.current
 
     /**
      * Provides a [ResultEventBus] to the composition
      */
     infix fun provides(
         bus: ResultEventBus
-    ): ProvidedValue<ResultEventBus?> {
+    ): ProvidedValue<ResultEventBus> {
         return LocalResultEventBus.provides(bus)
     }
 }
@@ -38,7 +38,7 @@ object LocalResultEventBus {
  *
  * It provides a solution for event based results.
  */
-class ResultEventBus {
+object ResultEventBus {
     /**
      * Map from the result key to a channel of results.
      */

@@ -196,7 +196,8 @@
             android:screenOrientation="portrait"
             android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden"
+            tools:ignore="DiscouragedApi" />
 
         <activity
             android:name=".features.settings.passcode.passcode_entry.PasscodeEntryActivity"
@@ -205,7 +206,8 @@
             android:noHistory="true"
             android:screenOrientation="portrait"
             android:theme="@style/SaveAppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden"
+            tools:ignore="DiscouragedApi" />
 
         <meta-data
             android:name="DOMAIN_PACKAGE_NAME"

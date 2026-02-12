@@ -15,12 +15,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.core.domain.Archive
 import net.opendasharchive.openarchive.core.repositories.ProjectRepository
 import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.features.main.ui.HomeEvent.LaunchPicker
 import net.opendasharchive.openarchive.features.main.ui.components.HomeBottomTab
 import net.opendasharchive.openarchive.features.media.AddMediaType
+import net.opendasharchive.openarchive.features.media.MediaPicker
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.upload.UploadJobScheduler
 import net.opendasharchive.openarchive.util.Prefs
@@ -96,7 +98,6 @@ class HomeViewModel(
     fun onAction(action: HomeAction) {
         when (action) {
             HomeAction.Load -> Unit // Already observing
-            HomeAction.Reload -> Unit // Already observing
             is HomeAction.SelectSpace -> selectSpace(action.spaceId)
             is HomeAction.SelectProject -> selectProject(action.projectId)
             is HomeAction.UpdatePager -> updatePager(action.page)
@@ -325,6 +326,7 @@ class HomeViewModel(
             emitEvent(HomeEvent.ShowMessage("Folder removed"))
         }
     }
+
 
     private fun emitEvent(event: HomeEvent) {
         viewModelScope.launch { _uiEvent.emit(event) }

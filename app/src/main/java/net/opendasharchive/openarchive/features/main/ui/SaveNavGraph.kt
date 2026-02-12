@@ -32,6 +32,7 @@ import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
 import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.navigation.LocalResultEventBus
+import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
 import net.opendasharchive.openarchive.core.navigation.ResultEventBus
 import net.opendasharchive.openarchive.core.navigation.rememberResultStore
 import net.opendasharchive.openarchive.db.sugar.Space
@@ -88,7 +89,7 @@ fun SaveNavGraph(
 ) {
     val analyticsManager: AnalyticsManager = koinInject()
     val sessionTracker: SessionTracker = koinInject()
-    val resultBus = remember { ResultEventBus() }
+    val resultBus = ResultEventBus
     val resultStore = rememberResultStore()
     val passcodeFlowState: PasscodeFlowState = koinInject()
 
@@ -298,7 +299,7 @@ fun SaveNavGraph(
                                 viewModel = viewModel,
                                 onNavigateBack = {
                                     resultBus.sendResult(
-                                        resultKey = "refresh_spaces",
+                                        resultKey = NavigationResultKeys.REFRESH_SPACES,
                                         result = true
                                     )
                                 }
@@ -485,7 +486,7 @@ fun SaveNavGraph(
                             onCaptureComplete = { uris ->
                                 // Send captured URIs via ResultEventBus
                                 resultBus.sendResult(
-                                    resultKey = "camera_capture_result",
+                                    resultKey = NavigationResultKeys.CAMERA_CAPTURE_RESULT,
                                     result = CameraCaptureResult(
                                         projectId = route.projectId,
                                         capturedUris = uris
@@ -502,7 +503,7 @@ fun SaveNavGraph(
                     // ==================== Snowbird Routes ====================
 
                     // Snowbird feature entries
-                    snowbirdEntries(navigator, resultBus)
+                    snowbirdEntries(navigator)
                 }
             )
         }

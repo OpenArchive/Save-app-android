@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
 import net.opendasharchive.openarchive.core.navigation.ResultEffect
 import net.opendasharchive.openarchive.core.navigation.ResultEventBus
 import net.opendasharchive.openarchive.core.presentation.components.LoadingOverlay
@@ -66,8 +67,7 @@ import net.opendasharchive.openarchive.services.snowbird.service.ServiceStatus
 
 @Composable
 fun SnowbirdDashboardScreen(
-    viewModel: SnowbirdDashboardViewModel,
-    resultBus: ResultEventBus
+    viewModel: SnowbirdDashboardViewModel
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -91,7 +91,7 @@ fun SnowbirdDashboardScreen(
     }
 
     // 3. Listen for results from QR Scanner screen
-    ResultEffect<String>(resultKey = "qr_scan_result", resultBus = resultBus) { result ->
+    ResultEffect<String>(resultKey = NavigationResultKeys.QR_SCAN_RESULT) { result ->
         viewModel.onAction(SnowbirdDashboardAction.QRResultScanned(result))
     }
 

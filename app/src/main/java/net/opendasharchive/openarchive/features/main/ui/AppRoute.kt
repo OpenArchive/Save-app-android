@@ -4,8 +4,6 @@ import android.net.Uri
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 import net.opendasharchive.openarchive.core.domain.VaultType
-import net.opendasharchive.openarchive.features.core.UiText
-import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 
 @Serializable
@@ -26,6 +24,7 @@ sealed class AppRoute(open val deeplink: String) : NavKey {
     @Serializable
     data object WebDavLoginRoute : AppRoute("webdav_login")
 
+    @Serializable
     data class WebDavDetailRoute(
         val spaceId: Long,
     ) : AppRoute("webdav_detail")

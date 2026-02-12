@@ -189,7 +189,6 @@ class ReviewMediaViewModel(
 
     private fun handleUpdateDescription(value: String) {
         viewModelScope.launch {
-            val state = _uiState.value
 
             _uiState.update { state ->
                 val updatedMediaList = state.mediaList.map { evidence ->
@@ -211,7 +210,6 @@ class ReviewMediaViewModel(
 
     private fun handleUpdateLocation(value: String) {
         viewModelScope.launch {
-            val state = _uiState.value
 
             _uiState.update { state ->
                 val updatedMediaList = state.mediaList.map { evidence ->

@@ -6,6 +6,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
 import net.opendasharchive.openarchive.core.navigation.ResultEventBus
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
@@ -37,8 +38,7 @@ import org.koin.core.parameter.parametersOf
  * Groups all DWeb/Snowbird screen entries for use in [net.opendasharchive.openarchive.features.main.ui.SaveNavGraph].
  */
 fun EntryProviderScope<AppRoute>.snowbirdEntries(
-    navigator: Navigator,
-    resultBus: ResultEventBus
+    navigator: Navigator
 ) {
     entry<AppRoute.SnowbirdDashboardRoute> { route ->
         val viewModel = koinViewModel<SnowbirdDashboardViewModel> {
@@ -50,8 +50,7 @@ fun EntryProviderScope<AppRoute>.snowbirdEntries(
             onNavigateBack = { navigator.navigateBack() }
         ) {
             SnowbirdDashboardScreen(
-                viewModel = viewModel,
-                resultBus = resultBus
+                viewModel = viewModel
             )
         }
     }
@@ -163,8 +162,8 @@ fun EntryProviderScope<AppRoute>.snowbirdEntries(
     entry<AppRoute.SnowbirdQRScannerRoute> { route ->
         QRScannerScreen(
             onQrCodeScanned = { result ->
-                resultBus.sendResult(
-                    resultKey = "qr_scan_result",
+                ResultEventBus.sendResult(
+                    resultKey = NavigationResultKeys.QR_SCAN_RESULT,
                     result = result
                 )
                 navigator.navigateBack()
