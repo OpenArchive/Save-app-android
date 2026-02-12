@@ -10,27 +10,30 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.db.DwebDao
 import net.opendasharchive.openarchive.extensions.urlEncode
 
 data class SnowbirdShareState(
     val isLoading: Boolean = false,
     val groupName: String = "",
+    val actualUri: String = "",
     val qrContent: String = ""
 )
 
 sealed interface SnowbirdShareAction {
-    data class LoadGroup(val groupKey: String) : SnowbirdShareAction
     data object ShareQrImage : SnowbirdShareAction
     data object Cancel : SnowbirdShareAction
 }
 
 sealed interface SnowbirdShareEvent {
-    data object NavigateBack : SnowbirdShareEvent
     data object ShareQrImageExternal : SnowbirdShareEvent
 }
 
 class SnowbirdShareViewModel(
+    private val navigator: Navigator,
+    private val route: AppRoute.SnowbirdShareRoute,
     private val dwebDao: DwebDao
 ) : ViewModel() {
 
@@ -40,18 +43,19 @@ class SnowbirdShareViewModel(
     private val _events = MutableSharedFlow<SnowbirdShareEvent>()
     val events = _events.asSharedFlow()
 
+    init {
+        loadGroup(route.groupKey)
+    }
+
     fun onAction(action: SnowbirdShareAction) {
         when (action) {
-            is SnowbirdShareAction.LoadGroup -> loadGroup(action.groupKey)
             is SnowbirdShareAction.ShareQrImage -> {
                 viewModelScope.launch {
                     _events.emit(SnowbirdShareEvent.ShareQrImageExternal)
                 }
             }
             is SnowbirdShareAction.Cancel -> {
-                viewModelScope.launch {
-                    _events.emit(SnowbirdShareEvent.NavigateBack)
-                }
+                navigator.navigateBack()
             }
         }
     }
@@ -62,7 +66,7 @@ class SnowbirdShareViewModel(
             val vaultWithDweb = dwebDao.getVaultWithDwebByKey(groupKey)
             val groupName = vaultWithDweb?.vault?.name ?: "Unknown Group"
             val actualUri = vaultWithDweb?.dwebMetadata?.vaultKey ?: groupKey
-            val qrContent = "$actualUri&name=${groupName.urlEncode()}"
+            val qrContent = "$actualUri?name=${groupName.urlEncode()}"
 
             _uiState.update {
                 it.copy(

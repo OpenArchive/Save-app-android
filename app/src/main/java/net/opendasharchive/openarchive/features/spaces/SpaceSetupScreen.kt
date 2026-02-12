@@ -32,20 +32,6 @@ fun SpaceSetupScreen(
     viewModel: SpaceSetupViewModel,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-
-    LaunchedEffect(Unit) {
-        viewModel.events.collect { event ->
-            when (event) {
-                SpaceSetupEvent.NavigateToDweb -> {
-                    context.startActivity(
-                        Intent(context, SnowbirdActivity::class.java)
-                    )
-                }
-
-            }
-        }
-    }
 
     SpaceSetupContent(
         state = state,

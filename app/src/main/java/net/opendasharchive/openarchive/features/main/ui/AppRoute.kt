@@ -94,6 +94,43 @@ sealed class AppRoute(open val deeplink: String) : NavKey {
 
     @Serializable
     data class CameraRoute(val projectId: Long, val config: CameraConfig) : AppRoute("camera")
+
+    // ── Snowbird Routes ──
+
+    @Serializable
+    data object SnowbirdDashboardRoute : AppRoute("snowbird_dashboard")
+
+    @Serializable
+    data object SnowbirdCreateGroupRoute : AppRoute("snowbird_create_group")
+
+    @Serializable
+    data class SnowbirdJoinGroupRoute(
+        val groupKey: String
+    ) : AppRoute("snowbird_join_group")
+
+    @Serializable
+    data object SnowbirdGroupListRoute : AppRoute("snowbird_group_list")
+
+    @Serializable
+    data class SnowbirdShareRoute(
+        val groupKey: String,
+    ) : AppRoute("snowbird_share")
+
+    @Serializable
+    data class SnowbirdRepoListRoute(
+        val vaultId: Long,
+        val groupKey: String
+    ) : AppRoute("snowbird_repo_list")
+
+    @Serializable
+    data class SnowbirdFileListRoute(
+        val archiveId: Long,
+        val groupKey: String,
+        val repoKey: String
+    ) : AppRoute("snowbird_file_list")
+
+    @Serializable
+    data object SnowbirdQRScannerRoute : AppRoute("snowbird_qr_scanner")
 }
 
 /**

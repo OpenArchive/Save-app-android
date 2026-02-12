@@ -20,6 +20,9 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.services.snowbird.presentation.base.BaseSnowbirdFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+// Legacy Fragment - commented out during Navigation3 migration.
+// Navigation is now handled via SaveNavGraph.kt entries.
+/*
 class SnowbirdRepoListFragment : BaseSnowbirdFragment() {
 
     private val snowbirdRepoViewModel: SnowbirdRepoViewModel by viewModel()
@@ -101,3 +104,4 @@ class SnowbirdRepoListFragment : BaseSnowbirdFragment() {
         const val RESULT_VAL_RAVEN_GROUP_KEY = "dweb_group_key"
     }
 }
+*/

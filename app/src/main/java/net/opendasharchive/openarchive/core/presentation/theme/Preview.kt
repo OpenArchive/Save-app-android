@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.core.presentation.theme
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -9,11 +10,34 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.opendasharchive.openarchive.core.di.passcodeModule
 import net.opendasharchive.openarchive.features.core.ComposeAppBar
 import org.koin.android.ext.koin.androidContext
 import org.koin.compose.KoinApplicationPreview
+
+@Preview(
+    name = "Light Mode",
+    group = "Themes",
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    showBackground = true,
+    locale = "en"
+)
+annotation class PreviewLight
+
+@Preview(
+    name = "Dark Mode",
+    group = "Themes",
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    showBackground = true,
+    locale = "en"
+)
+annotation class PreviewDark
+
+@PreviewLight
+@PreviewDark
+annotation class PreviewLightDark
 
 @Composable
 fun DefaultScaffoldPreview(

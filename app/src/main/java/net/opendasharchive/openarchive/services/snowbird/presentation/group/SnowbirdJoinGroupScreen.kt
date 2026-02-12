@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.services.snowbird.presentation.group
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -11,51 +12,27 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.components.LoadingOverlay
-import net.opendasharchive.openarchive.core.presentation.components.QRScanner
-import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLight
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
-import net.opendasharchive.openarchive.extensions.getQueryParameter
 import net.opendasharchive.openarchive.services.internetarchive.presentation.login.CustomTextField
-import org.koin.androidx.compose.koinViewModel
+
 
 @Composable
 fun SnowbirdJoinGroupScreen(
-    initialUri: String,
-    onCancel: () -> Unit,
-    viewModel: SnowbirdJoinGroupViewModel = koinViewModel()
+    viewModel: SnowbirdJoinGroupViewModel
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(initialUri) {
-        if (initialUri.isNotBlank()) {
-            viewModel.onAction(SnowbirdJoinGroupAction.UpdateJoinUri(initialUri))
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.events.collect { event ->
-            when (event) {
-                is SnowbirdJoinGroupEvent.GoBack -> onCancel()
-                else -> {}
-            }
-        }
-    }
 
     SnowbirdJoinGroupScreenContent(
         state = state,
@@ -81,21 +58,10 @@ fun SnowbirdJoinGroupScreenContent(
                 .padding(top = 8.dp, bottom = 100.dp)
         ) {
             // Header section (similar to WebDavHeader)
-            JoinGroupHeader(
+            DwebHeader(
                 modifier = Modifier
                     .padding(top = 48.dp, bottom = 24.dp)
                     .padding(end = 24.dp)
-            )
-
-            // Group Info Section
-            Text(
-                text = stringResource(R.string.dweb_join_group_group_name),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 18.sp
-                ),
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = 8.dp)
             )
 
             // Group Name field (Read-only extracted from URI)
@@ -111,17 +77,6 @@ fun SnowbirdJoinGroupScreenContent(
 
             Spacer(modifier = Modifier.height(ThemeDimensions.spacing.medium))
 
-            // Repository Info Section
-            Text(
-                text = stringResource(R.string.dweb_join_group_repo_name),
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
-                    fontSize = 18.sp
-                ),
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = 8.dp, top = 16.dp)
-            )
-
             // Repository Name field
             CustomTextField(
                 value = state.repoName,
@@ -131,7 +86,6 @@ fun SnowbirdJoinGroupScreenContent(
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Done,
                 onImeAction = { focusManager.clearFocus() },
-                modifier = Modifier.focusRequester(repoFocusRequester)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -210,7 +164,7 @@ fun SnowbirdJoinGroupScreenContent(
 }
 
 @Composable
-private fun JoinGroupHeader(modifier: Modifier = Modifier) {
+private fun DwebHeader(modifier: Modifier = Modifier) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
@@ -224,9 +178,9 @@ private fun JoinGroupHeader(modifier: Modifier = Modifier) {
                 .padding(8.dp),
             contentAlignment = Alignment.Center
         ) {
-            androidx.compose.foundation.Image(
+            Image(
                 modifier = Modifier.size(32.dp),
-                painter = painterResource(id = R.drawable.ic_private_server),
+                painter = painterResource(id = R.drawable.ic_dweb),
                 contentDescription = null,
                 colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(colorResource(R.color.colorTertiary))
             )
@@ -243,7 +197,7 @@ private fun JoinGroupHeader(modifier: Modifier = Modifier) {
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLight
 @Composable
 private fun SnowbirdJoinGroupScreenPreview() {
     SaveAppTheme {

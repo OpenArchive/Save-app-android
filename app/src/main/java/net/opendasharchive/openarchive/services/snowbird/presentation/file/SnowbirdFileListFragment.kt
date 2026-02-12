@@ -67,9 +67,6 @@ class SnowbirdFileListFragment : BaseSnowbirdFragment() {
             setContent {
                 SnowbirdFileListScreen(
                     viewModel = viewModel,
-                    archiveId = archiveId,
-                    groupKey = groupKey,
-                    repoKey = repoKey
                 )
             }
         }

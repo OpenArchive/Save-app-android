@@ -58,6 +58,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLight
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeColors
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.features.core.UiText
@@ -325,12 +327,7 @@ private fun WebDavHeader(modifier: Modifier = Modifier) {
 }
 
 // Previews
-@Preview(showBackground = true, name = "WebDav New Server")
-@Preview(
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "WebDav New Server Dark"
-)
+@PreviewLightDark
 @Composable
 private fun WebDavNewServerPreview() {
     DefaultScaffoldPreview {
@@ -345,7 +342,7 @@ private fun WebDavNewServerPreview() {
     }
 }
 
-@Preview(showBackground = true, name = "WebDav New Server Filled")
+@PreviewLight
 @Composable
 private fun WebDavNewServerFilledPreview() {
     DefaultScaffoldPreview {
@@ -360,7 +357,7 @@ private fun WebDavNewServerFilledPreview() {
     }
 }
 
-@Preview(showBackground = true, name = "WebDav New Server Error")
+@PreviewLight
 @Composable
 private fun WebDavNewServerErrorPreview() {
     DefaultScaffoldPreview {
@@ -379,7 +376,7 @@ private fun WebDavNewServerErrorPreview() {
 }
 
 
-@Preview(showBackground = true, name = "WebDav Loading")
+@PreviewLight
 @Composable
 private fun WebDavLoadingPreview() {
     DefaultScaffoldPreview {

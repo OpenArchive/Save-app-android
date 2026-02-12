@@ -27,20 +27,13 @@ import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles
-import org.koin.androidx.compose.koinViewModel
+
 
 @Composable
 fun SnowbirdFileListScreen(
-    archiveId: Long,
-    groupKey: String,
-    repoKey: String,
-    viewModel: SnowbirdFileViewModel = koinViewModel()
+    viewModel: SnowbirdFileViewModel
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(archiveId) {
-        viewModel.onAction(SnowbirdFileAction.Init(archiveId, groupKey, repoKey))
-    }
 
     SnowbirdFileListContent(
         state = state,

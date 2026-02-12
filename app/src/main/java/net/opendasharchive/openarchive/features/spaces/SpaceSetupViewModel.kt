@@ -75,7 +75,7 @@ class SpaceSetupViewModel(
 
             SpaceSetupAction.DwebClicked -> {
                 viewModelScope.launch {
-                    _events.send(SpaceSetupEvent.NavigateToDweb)
+                    navigator.navigateTo(AppRoute.SnowbirdDashboardRoute)
                 }
             }
         }

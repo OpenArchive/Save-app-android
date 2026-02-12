@@ -22,11 +22,11 @@ import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPr
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.services.internetarchive.presentation.login.CustomTextField
-import org.koin.androidx.compose.koinViewModel
+
 
 @Composable
 fun SnowbirdCreateGroupScreen(
-    viewModel: SnowbirdCreateGroupViewModel = koinViewModel()
+    viewModel: SnowbirdCreateGroupViewModel
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 

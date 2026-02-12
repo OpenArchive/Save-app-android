@@ -42,29 +42,6 @@ abstract class BaseSnowbirdFragment : Fragment(), ToolbarConfigurable {
         (requireActivity() as? BaseActivity)?.ensureComposeDialogHost()
     }
 
-    open fun dismissKeyboard(view: View) {
-        val imm = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(view.windowToken, 0)
-    }
-
-    open fun handleError(error: DomainError) {
-        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-            title = UiText.Dynamic("Oops")
-            message = UiText.Dynamic(error.friendlyMessage)
-            positiveButton {
-                text = UiText.Resource(R.string.lbl_ok)
-            }
-        }
-    }
-
-    open fun handleLoadingStatus(isLoading: Boolean) {
-        if (isLoading) {
-            FullScreenOverlayManager.show(this@BaseSnowbirdFragment)
-        } else {
-            FullScreenOverlayManager.hide()
-        }
-    }
-
     override fun onResume() {
         super.onResume()
         (activity as? SnowbirdActivity)?.updateToolbarFromFragment(this)

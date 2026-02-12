@@ -19,6 +19,9 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.services.snowbird.presentation.base.BaseSnowbirdFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+// Legacy Fragment - commented out during Navigation3 migration.
+// Navigation is now handled via SaveNavGraph.kt entries.
+/*
 class SnowbirdGroupListFragment : BaseSnowbirdFragment() {
 
     private val viewModel: SnowbirdGroupListViewModel by viewModel()
@@ -87,3 +90,4 @@ class SnowbirdGroupListFragment : BaseSnowbirdFragment() {
 
     override fun getToolbarTitle(): String = "My Groups"
 }
+*/

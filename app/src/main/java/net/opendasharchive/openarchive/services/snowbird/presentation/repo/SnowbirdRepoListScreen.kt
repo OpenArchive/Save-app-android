@@ -22,19 +22,13 @@ import net.opendasharchive.openarchive.core.domain.Archive
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles
-import org.koin.androidx.compose.koinViewModel
+
 
 @Composable
 fun SnowbirdRepoListScreen(
-    vaultId: Long,
-    groupKey: String,
-    viewModel: SnowbirdRepoViewModel = koinViewModel()
+    viewModel: SnowbirdRepoViewModel
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(vaultId) {
-        viewModel.onAction(SnowbirdRepoAction.Init(vaultId, groupKey))
-    }
 
     SnowbirdRepoListContent(
         state = state,

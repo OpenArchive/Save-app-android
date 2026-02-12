@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.core.domain.DomainResult
 import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.features.core.UiText
@@ -33,12 +35,11 @@ sealed interface SnowbirdGroupListAction {
     data object RefreshGroups : SnowbirdGroupListAction
 }
 
-sealed interface SnowbirdGroupListEvent {
-    data class NavigateToRepo(val vaultId: Long, val groupKey: String) : SnowbirdGroupListEvent
-    data class NavigateToShare(val groupKey: String) : SnowbirdGroupListEvent
-}
+
 
 class SnowbirdGroupListViewModel(
+    private val navigator: Navigator,
+    route: AppRoute.SnowbirdGroupListRoute,
     private val repository: ISnowbirdGroupRepository,
     private val dialogManager: DialogStateManager,
     private val processingTracker: ProcessingTracker = ProcessingTracker()
@@ -46,9 +47,6 @@ class SnowbirdGroupListViewModel(
 
     private val _uiState = MutableStateFlow(SnowbirdGroupListState())
     val uiState: StateFlow<SnowbirdGroupListState> = _uiState.asStateFlow()
-
-    private val _events = MutableSharedFlow<SnowbirdGroupListEvent>()
-    val events = _events.asSharedFlow()
 
     init {
         repository.observeGroups()
@@ -63,9 +61,12 @@ class SnowbirdGroupListViewModel(
     fun onAction(action: SnowbirdGroupListAction) {
         when (action) {
             is SnowbirdGroupListAction.SelectGroup -> {
-                viewModelScope.launch {
-                    _events.emit(SnowbirdGroupListEvent.NavigateToRepo(action.group.id, action.group.vaultKey ?: ""))
-                }
+                navigator.navigateTo(
+                    AppRoute.SnowbirdRepoListRoute(
+                        vaultId = action.group.id,
+                        groupKey = action.group.vaultKey ?: ""
+                    )
+                )
             }
             is SnowbirdGroupListAction.ShareGroup -> {
                 showShareConfirmation(action.group)
@@ -96,9 +97,9 @@ class SnowbirdGroupListViewModel(
             positiveButton {
                 text = UiText.Dynamic("Yes")
                 action = {
-                    viewModelScope.launch {
-                        _events.emit(SnowbirdGroupListEvent.NavigateToShare(group.vaultKey ?: ""))
-                    }
+                    navigator.navigateTo(
+                        AppRoute.SnowbirdShareRoute(groupKey = group.vaultKey ?: "")
+                    )
                 }
             }
             neutralButton {

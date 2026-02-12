@@ -298,8 +298,8 @@
     <string name="dweb_create_group_screen_description">A group on DWeb Storage is similar to a server, and a user name acts as your folder within this group. You\'ll be able to upload media under this user name</string>
     <string name="dweb_create_group_group_name"><i>Your group name</i></string>
     <string name="dweb_create_group_user_name"><i>Your name in this group</i></string>
-    <string name="dweb_join_group_screen_title">Pick a user name for this group</string>
-    <string name="dweb_join_group_screen_description">A group on DWeb Storage is similar to a server, and a user name acts as your folder within this group. You’ll be able to upload media under this user name.</string>
+    <string name="dweb_join_group_screen_title">Name your group and pick a user name</string>
+    <string name="dweb_join_group_screen_description">A group on DWeb Storage is similar to a server, and a username acts as your folder within this group. You’ll be able to upload media under this username.</string>
     <string name="dweb_join_group_group_name">Group Name</string>
     <string name="dweb_join_group_repo_name">You name in this group</string>
 
@@ -308,6 +308,15 @@
     <string name="qr_scanner_instruction" translatable="false">Open save.opendasharchive.net, desktop app, or other devices.</string>
     <string name="open_from_gallery" translatable="false">Open from gallery</string>
     <string name="joining_group_label" translatable="false">Joining Group: %1$s</string>
+
+    <!-- Snowbird Navigation Toolbar Titles -->
+    <string name="dweb_storage">DWeb Storage</string>
+    <string name="dweb_create_group">Create Group</string>
+    <string name="dweb_join_group">Join Group</string>
+    <string name="dweb_my_groups">My Groups</string>
+    <string name="dweb_share_group">Share Group</string>
+    <string name="dweb_repos">Repositories</string>
+    <string name="dweb_files">Files</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>

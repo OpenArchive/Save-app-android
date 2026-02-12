@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.core.domain.DomainResult
 import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.features.core.UiText
@@ -24,7 +26,6 @@ data class SnowbirdFileState(
 )
 
 sealed interface SnowbirdFileAction {
-    data class Init(val archiveId: Long, val groupKey: String, val repoKey: String) : SnowbirdFileAction
     data class DownloadFile(val evidence: Evidence) : SnowbirdFileAction
     data class UploadFile(val uri: Uri) : SnowbirdFileAction
     data object RefreshFiles : SnowbirdFileAction
@@ -35,25 +36,33 @@ sealed interface SnowbirdFileEvent {
 }
 
 class SnowbirdFileViewModel(
+    private val navigator: Navigator,
+    private val route: AppRoute.SnowbirdFileListRoute,
     private val repository: ISnowbirdFileRepository,
     private val fileStorage: SnowbirdFileStorage,
     private val dialogManager: DialogStateManager,
     private val processingTracker: ProcessingTracker = ProcessingTracker()
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SnowbirdFileState())
+    private val _uiState = MutableStateFlow(
+        SnowbirdFileState(
+            archiveId = route.archiveId,
+            groupKey = route.groupKey,
+            repoKey = route.repoKey
+        )
+    )
     val uiState: StateFlow<SnowbirdFileState> = _uiState.asStateFlow()
 
     private val _events = MutableSharedFlow<SnowbirdFileEvent>()
     val events = _events.asSharedFlow()
 
+    init {
+        observeFiles(route.archiveId)
+        fetchFiles()
+    }
+
     fun onAction(action: SnowbirdFileAction) {
         when (action) {
-            is SnowbirdFileAction.Init -> {
-                _uiState.update { it.copy(archiveId = action.archiveId, groupKey = action.groupKey, repoKey = action.repoKey) }
-                observeFiles(action.archiveId)
-                fetchFiles()
-            }
             is SnowbirdFileAction.DownloadFile -> downloadFile(action.evidence)
             is SnowbirdFileAction.UploadFile -> uploadFile(action.uri)
             is SnowbirdFileAction.RefreshFiles -> fetchFiles(forceRefresh = true)

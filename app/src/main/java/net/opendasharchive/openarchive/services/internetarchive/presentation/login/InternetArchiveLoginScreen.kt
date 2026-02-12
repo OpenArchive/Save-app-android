@@ -51,6 +51,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeColors
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.util.NetworkUtils
@@ -267,8 +268,7 @@ private fun InternetArchiveLoginContent(
 }
 
 @Composable
-@Preview
-@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@PreviewLightDark
 private fun InternetArchiveLoginPreview() {
     DefaultScaffoldPreview {
         InternetArchiveLoginContent(

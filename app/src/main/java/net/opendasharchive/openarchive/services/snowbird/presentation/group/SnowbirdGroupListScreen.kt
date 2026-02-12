@@ -22,11 +22,11 @@ import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles
-import org.koin.androidx.compose.koinViewModel
+
 
 @Composable
 fun SnowbirdGroupListScreen(
-    viewModel: SnowbirdGroupListViewModel = koinViewModel()
+    viewModel: SnowbirdGroupListViewModel
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 

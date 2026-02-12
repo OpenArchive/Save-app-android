@@ -16,10 +16,14 @@ import net.opendasharchive.openarchive.services.snowbird.service.repository.Mock
 import net.opendasharchive.openarchive.services.snowbird.service.repository.MockSnowbirdRepoRepository
 import net.opendasharchive.openarchive.services.snowbird.service.repository.SnowbirdFileRepository
 import net.opendasharchive.openarchive.services.snowbird.service.repository.SnowbirdGroupRepository
+import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdServiceController
+import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdServiceControllerImpl
 import net.opendasharchive.openarchive.services.snowbird.service.repository.SnowbirdRepoRepository
 import net.opendasharchive.openarchive.services.snowbird.util.SnowbirdFileStorage
 import net.opendasharchive.openarchive.util.ProcessingTracker
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -27,6 +31,9 @@ import org.koin.dsl.module
 val snowbirdModule = module {
     // Each ViewModel gets its own instance of ProcessingTracker
     factory { ProcessingTracker() }
+
+    singleOf(::SnowbirdServiceControllerImpl) { bind<SnowbirdServiceController>() }
+
 
     single<ISnowbirdFileRepository> {
         val appConfig = get<AppConfig>()

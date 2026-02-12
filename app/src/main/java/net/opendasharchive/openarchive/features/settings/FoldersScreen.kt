@@ -41,6 +41,7 @@ import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.core.domain.Archive
 import kotlinx.datetime.LocalDateTime
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
 
 @Composable
 fun FoldersScreen(
@@ -174,8 +175,7 @@ fun FolderItem(
     }
 }
 
-@Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@PreviewLightDark
 @Composable
 private fun FoldersScreenPreview() {
     SaveAppTheme {

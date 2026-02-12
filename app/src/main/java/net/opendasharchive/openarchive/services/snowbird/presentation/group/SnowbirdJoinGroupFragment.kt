@@ -14,6 +14,9 @@ import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.services.snowbird.presentation.base.BaseSnowbirdFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+// Legacy Fragment - commented out during Navigation3 migration.
+// Navigation is now handled via SaveNavGraph.kt entries.
+/*
 class SnowbirdJoinGroupFragment: BaseSnowbirdFragment() {
 
     private val snowbirdJoinGroupViewModel: SnowbirdJoinGroupViewModel by viewModel()
@@ -75,3 +78,4 @@ class SnowbirdJoinGroupFragment: BaseSnowbirdFragment() {
         const val DWEB_GROUP_KEY = "dweb_group_key"
     }
 }
+*/

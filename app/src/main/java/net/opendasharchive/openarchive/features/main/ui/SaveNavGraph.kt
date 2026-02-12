@@ -65,8 +65,6 @@ import net.opendasharchive.openarchive.features.settings.license.SetupLicenseScr
 import net.opendasharchive.openarchive.features.settings.license.SetupLicenseViewModel
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeFlowState
 import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
-import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupScreen
-import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupViewModel
 import net.opendasharchive.openarchive.features.spaces.SpaceListScreen
 import net.opendasharchive.openarchive.features.spaces.SpaceListViewModel
 import net.opendasharchive.openarchive.features.spaces.SpaceSetupScreen
@@ -75,6 +73,8 @@ import net.opendasharchive.openarchive.services.webdav.presentation.detail.WebDa
 import net.opendasharchive.openarchive.services.webdav.presentation.detail.WebDavDetailViewModel
 import net.opendasharchive.openarchive.services.webdav.presentation.login.WebDavLoginScreen
 import net.opendasharchive.openarchive.services.webdav.presentation.login.WebDavLoginViewModel
+import net.opendasharchive.openarchive.services.snowbird.presentation.snowbirdEntries
+
 import net.opendasharchive.openarchive.util.Prefs
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -498,6 +498,11 @@ fun SaveNavGraph(
                             }
                         )
                     }
+
+                    // ==================== Snowbird Routes ====================
+
+                    // Snowbird feature entries
+                    snowbirdEntries(navigator, resultBus)
                 }
             )
         }

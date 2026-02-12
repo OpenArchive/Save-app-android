@@ -30,13 +30,7 @@ class SnowbirdShareFragment: BaseSnowbirdFragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                SnowbirdShareScreen(
-                    groupKey = args.dwebGroupKey,
-                    onCancel = { activity?.onBackPressedDispatcher?.onBackPressed() },
-                    onShareQr = { qrContent, groupName ->
-                        shareQrExternally(qrContent, groupName)
-                    }
-                )
+
             }
         }
     }

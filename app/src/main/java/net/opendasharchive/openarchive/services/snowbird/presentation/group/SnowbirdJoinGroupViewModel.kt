@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.core.domain.VaultType
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.core.domain.DomainResult
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
@@ -36,12 +39,11 @@ sealed interface SnowbirdJoinGroupAction {
     data object Cancel : SnowbirdJoinGroupAction
 }
 
-sealed interface SnowbirdJoinGroupEvent {
-    data class NavigateToSuccess(val message: String, val groupKey: String) : SnowbirdJoinGroupEvent
-    data object GoBack : SnowbirdJoinGroupEvent
-}
+
 
 class SnowbirdJoinGroupViewModel(
+    private val navigator: Navigator,
+    private val route: AppRoute.SnowbirdJoinGroupRoute,
     private val repository: ISnowbirdGroupRepository,
     private val dialogManager: DialogStateManager,
     private val processingTracker: ProcessingTracker = ProcessingTracker()
@@ -50,8 +52,11 @@ class SnowbirdJoinGroupViewModel(
     private val _uiState = MutableStateFlow(SnowbirdJoinGroupState())
     val uiState: StateFlow<SnowbirdJoinGroupState> = _uiState.asStateFlow()
 
-    private val _events = MutableSharedFlow<SnowbirdJoinGroupEvent>()
-    val events = _events.asSharedFlow()
+    init {
+        // Auto-initialize from route arguments
+        val groupName = route.groupKey.getQueryParameter("name") ?: ""
+        _uiState.update { it.copy(scannedUri = route.groupKey, groupName = groupName) }
+    }
 
     fun onAction(action: SnowbirdJoinGroupAction) {
         when (action) {
@@ -68,9 +73,7 @@ class SnowbirdJoinGroupViewModel(
                 joinGroupWithRepo(state.scannedUri, state.repoName)
             }
             is SnowbirdJoinGroupAction.Cancel -> {
-                viewModelScope.launch {
-                    _events.emit(SnowbirdJoinGroupEvent.GoBack)
-                }
+                navigator.navigateBack()
             }
         }
     }
@@ -86,10 +89,9 @@ class SnowbirdJoinGroupViewModel(
                         // After joining, we refresh groups to get the new group in our state
                         repository.fetchGroups(forceRefresh = true)
                         _uiState.update { it.copy(isLoading = false) }
-                        _events.emit(SnowbirdJoinGroupEvent.NavigateToSuccess(
-                            "Successfully joined group",
-                            "" // We might not have the key yet if it's not in response
-                        ))
+                        navigator.navigateTo(
+                            AppRoute.SpaceSetupSuccessRoute(VaultType.DWEB_STORAGE)
+                        )
                     }
                     is DomainResult.Error -> {
                         _uiState.update { it.copy(isLoading = false) }

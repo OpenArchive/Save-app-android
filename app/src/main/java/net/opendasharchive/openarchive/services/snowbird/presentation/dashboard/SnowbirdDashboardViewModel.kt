@@ -17,9 +17,12 @@ import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.services.snowbird.service.ServiceStatus
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
+import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdServiceController
 import net.opendasharchive.openarchive.services.snowbird.util.SnowbirdQRDecoder
 import net.opendasharchive.openarchive.util.ProcessingTracker
 import net.opendasharchive.openarchive.util.trackProcessing
@@ -43,16 +46,14 @@ sealed interface SnowbirdDashboardAction {
 }
 
 sealed interface SnowbirdDashboardEvent {
-    data object NavigateToCreateGroup : SnowbirdDashboardEvent
-    data object NavigateToGroupList : SnowbirdDashboardEvent
-    data class NavigateToJoinGroup(val groupKey: String) : SnowbirdDashboardEvent
-    data object NavigateToScanner : SnowbirdDashboardEvent
-    data class ShowMessage(val message: UiText) : SnowbirdDashboardEvent
-    data class ToggleServer(val enabled: Boolean) : SnowbirdDashboardEvent
+    data class LaunchPicker(val type: AddMediaType) : SnowbirdDashboardEvent
 }
 
 class SnowbirdDashboardViewModel(
+    private val navigator: Navigator,
+    private val route: AppRoute.SnowbirdDashboardRoute,
     private val dialogManager: DialogStateManager,
+    private val serviceController: SnowbirdServiceController,
     private val processingTracker: ProcessingTracker = ProcessingTracker()
 ) : ViewModel() {
 
@@ -77,13 +78,17 @@ class SnowbirdDashboardViewModel(
                 _uiState.update { it.copy(showContentPicker = true) }
             }
             is SnowbirdDashboardAction.CreateGroupClick -> {
-                viewModelScope.launch { _events.emit(SnowbirdDashboardEvent.NavigateToCreateGroup) }
+                navigator.navigateTo(AppRoute.SnowbirdCreateGroupRoute)
             }
             is SnowbirdDashboardAction.MyGroupsClick -> {
-                viewModelScope.launch { _events.emit(SnowbirdDashboardEvent.NavigateToGroupList) }
+                navigator.navigateTo(AppRoute.SnowbirdGroupListRoute)
             }
             is SnowbirdDashboardAction.ToggleServer -> {
-                viewModelScope.launch { _events.emit(SnowbirdDashboardEvent.ToggleServer(action.enabled)) }
+                if (action.enabled) {
+                    serviceController.startService()
+                } else {
+                    serviceController.stopService()
+                }
             }
             is SnowbirdDashboardAction.ContentPickerDismissed -> {
                 _uiState.update { it.copy(showContentPicker = false) }
@@ -92,12 +97,14 @@ class SnowbirdDashboardViewModel(
                 _uiState.update { it.copy(showContentPicker = false) }
                 when (action.type) {
                     AddMediaType.CAMERA -> {
-                        viewModelScope.launch { _events.emit(SnowbirdDashboardEvent.NavigateToScanner) }
+                        navigator.navigateTo(AppRoute.SnowbirdQRScannerRoute)
                     }
                     AddMediaType.GALLERY -> {
-                        // Fragment triggers gallery picker launcher
+                        viewModelScope.launch { _events.emit(SnowbirdDashboardEvent.LaunchPicker(AddMediaType.GALLERY)) }
                     }
-                    else -> Unit
+                    AddMediaType.FILES -> {
+                        viewModelScope.launch { _events.emit(SnowbirdDashboardEvent.LaunchPicker(AddMediaType.FILES)) }
+                    }
                 }
             }
             is SnowbirdDashboardAction.QRResultScanned -> {
@@ -148,8 +155,7 @@ class SnowbirdDashboardViewModel(
             return
         }
 
-        viewModelScope.launch {
-            _events.emit(SnowbirdDashboardEvent.NavigateToJoinGroup(uriString))
-        }
+        navigator.navigateTo(AppRoute.SnowbirdJoinGroupRoute(uriString))
     }
 }
+

@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.core.domain.Archive
 import net.opendasharchive.openarchive.core.domain.DomainResult
 import net.opendasharchive.openarchive.features.core.UiText
@@ -21,40 +23,45 @@ data class SnowbirdRepoState(
 )
 
 sealed interface SnowbirdRepoAction {
-    data class Init(val vaultId: Long, val groupKey: String) : SnowbirdRepoAction
     data class SelectRepo(val repo: Archive) : SnowbirdRepoAction
     data class CreateRepo(val name: String) : SnowbirdRepoAction
     data object RefreshRepos : SnowbirdRepoAction
     data object RefreshGroupContent : SnowbirdRepoAction
 }
 
-sealed interface SnowbirdRepoEvent {
-    data class NavigateToFileList(val archiveId: Long, val repoKey: String) : SnowbirdRepoEvent
-}
+
 
 class SnowbirdRepoViewModel(
+    private val navigator: Navigator,
+    private val route: AppRoute.SnowbirdRepoListRoute,
     private val repository: ISnowbirdRepoRepository,
     private val dialogManager: DialogStateManager,
     private val processingTracker: ProcessingTracker = ProcessingTracker()
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SnowbirdRepoState())
+    private val _uiState = MutableStateFlow(
+        SnowbirdRepoState(
+            vaultId = route.vaultId,
+            groupKey = route.groupKey
+        )
+    )
     val uiState: StateFlow<SnowbirdRepoState> = _uiState.asStateFlow()
 
-    private val _events = MutableSharedFlow<SnowbirdRepoEvent>()
-    val events = _events.asSharedFlow()
+    init {
+        observeRepos(route.vaultId)
+        fetchRepos()
+    }
 
     fun onAction(action: SnowbirdRepoAction) {
         when (action) {
-            is SnowbirdRepoAction.Init -> {
-                _uiState.update { it.copy(vaultId = action.vaultId, groupKey = action.groupKey) }
-                observeRepos(action.vaultId)
-                fetchRepos()
-            }
             is SnowbirdRepoAction.SelectRepo -> {
-                viewModelScope.launch {
-                    _events.emit(SnowbirdRepoEvent.NavigateToFileList(action.repo.id, action.repo.archiveKey ?: ""))
-                }
+                navigator.navigateTo(
+                    AppRoute.SnowbirdFileListRoute(
+                        archiveId = action.repo.id,
+                        groupKey = _uiState.value.groupKey,
+                        repoKey = action.repo.archiveKey ?: ""
+                    )
+                )
             }
             is SnowbirdRepoAction.CreateRepo -> createRepo(action.name)
             is SnowbirdRepoAction.RefreshRepos -> fetchRepos(forceRefresh = true)

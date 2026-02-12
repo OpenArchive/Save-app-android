@@ -14,6 +14,9 @@ import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.services.snowbird.presentation.base.BaseSnowbirdFragment
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+// Legacy Fragment - commented out during Navigation3 migration.
+// Navigation is now handled via SaveNavGraph.kt entries.
+/*
 class SnowbirdCreateGroupFragment : BaseSnowbirdFragment() {
 
     private val viewModel: SnowbirdCreateGroupViewModel by viewModel()
@@ -63,3 +66,4 @@ class SnowbirdCreateGroupFragment : BaseSnowbirdFragment() {
         return "Create DWeb Storage Group"
     }
 }
+*/

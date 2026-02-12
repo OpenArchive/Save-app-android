@@ -2,14 +2,15 @@ package net.opendasharchive.openarchive.services.snowbird.presentation.group
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.core.domain.DomainResult
+import net.opendasharchive.openarchive.core.domain.VaultType
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
@@ -31,12 +32,11 @@ sealed interface SnowbirdCreateGroupAction {
     data object Cancel : SnowbirdCreateGroupAction
 }
 
-sealed interface SnowbirdCreateGroupEvent {
-    data class NavigateToSuccess(val message: String, val groupKey: String) : SnowbirdCreateGroupEvent
-    data object GoBack : SnowbirdCreateGroupEvent
-}
+
 
 class SnowbirdCreateGroupViewModel(
+    private val navigator: Navigator,
+    route: AppRoute.SnowbirdCreateGroupRoute,
     private val repository: ISnowbirdGroupRepository,
     private val repoRepository: ISnowbirdRepoRepository,
     private val dialogManager: DialogStateManager,
@@ -45,9 +45,6 @@ class SnowbirdCreateGroupViewModel(
 
     private val _uiState = MutableStateFlow(SnowbirdCreateGroupState())
     val uiState: StateFlow<SnowbirdCreateGroupState> = _uiState.asStateFlow()
-
-    private val _events = MutableSharedFlow<SnowbirdCreateGroupEvent>()
-    val events = _events.asSharedFlow()
 
     fun onAction(action: SnowbirdCreateGroupAction) {
         when (action) {
@@ -59,9 +56,7 @@ class SnowbirdCreateGroupViewModel(
             }
             is SnowbirdCreateGroupAction.CreateGroup -> createGroupWithRepo()
             is SnowbirdCreateGroupAction.Cancel -> {
-                viewModelScope.launch {
-                    _events.emit(SnowbirdCreateGroupEvent.GoBack)
-                }
+                navigator.navigateBack()
             }
         }
     }
@@ -86,10 +81,9 @@ class SnowbirdCreateGroupViewModel(
                         
                         when (repoResult) {
                             is DomainResult.Success -> {
-                                _events.emit(SnowbirdCreateGroupEvent.NavigateToSuccess(
-                                    "Successfully created group and repository",
-                                    group.vaultKey ?: ""
-                                ))
+                                navigator.navigateTo(
+                                    AppRoute.SpaceSetupSuccessRoute(VaultType.DWEB_STORAGE)
+                                )
                             }
                             is DomainResult.Error -> {
                                 dialogManager.showErrorDialog(message = UiText.Dynamic(repoResult.error.friendlyMessage))
