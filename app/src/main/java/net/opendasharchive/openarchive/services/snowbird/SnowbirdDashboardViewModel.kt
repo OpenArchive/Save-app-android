@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
+import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.services.snowbird.service.ServiceStatus
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
@@ -25,7 +27,6 @@ import net.opendasharchive.openarchive.extensions.getQueryParameter
 
 data class SnowbirdDashboardState(
     val isLoading: Boolean = false,
-    val error: SnowbirdError? = null,
     val serverStatus: ServiceStatus = ServiceStatus.Stopped,
     val showContentPicker: Boolean = false
 )
@@ -51,6 +52,7 @@ sealed interface SnowbirdDashboardEvent {
 }
 
 class SnowbirdDashboardViewModel(
+    private val dialogManager: DialogStateManager,
     private val processingTracker: ProcessingTracker = ProcessingTracker()
 ) : ViewModel() {
 
@@ -121,13 +123,13 @@ class SnowbirdDashboardViewModel(
                         if (qrContent != null) {
                             processScannedData(qrContent)
                         } else {
-                            _events.emit(SnowbirdDashboardEvent.ShowMessage(UiText.Dynamic("No QR code found in the image.")))
+                            showError(UiText.Dynamic("No QR code found in the image."))
                         }
                     } else {
-                        _events.emit(SnowbirdDashboardEvent.ShowMessage(UiText.Dynamic("Could not load selected image.")))
+                        showError(UiText.Dynamic("Could not load selected image."))
                     }
                 } catch (e: Exception) {
-                    _events.emit(SnowbirdDashboardEvent.ShowMessage(UiText.Dynamic("Error processing image: ${e.message}")))
+                    showError(UiText.Dynamic("Error processing image: ${e.message}"))
                 } finally {
                     _uiState.update { it.copy(isLoading = false) }
                 }
@@ -135,12 +137,14 @@ class SnowbirdDashboardViewModel(
         }
     }
 
+    private fun showError(message: UiText) {
+        dialogManager.showErrorDialog(message = message)
+    }
+
     private fun processScannedData(uriString: String) {
         val name = uriString.getQueryParameter("name")
         if (name == null) {
-            viewModelScope.launch {
-                _events.emit(SnowbirdDashboardEvent.ShowMessage(UiText.Dynamic("Unable to determine group name from QR code.")))
-            }
+            showError(UiText.Dynamic("Unable to determine group name from QR code."))
             return
         }
 

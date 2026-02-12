@@ -2,8 +2,6 @@ package net.opendasharchive.openarchive.services.snowbird
 
 import android.content.Intent
 import android.content.res.Configuration
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -57,52 +55,51 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.fragment.findNavController
-import com.google.zxing.integration.android.IntentIntegrator
 import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.core.logger.AppLogger
+import net.opendasharchive.openarchive.core.presentation.components.LoadingOverlay
+import net.opendasharchive.openarchive.core.presentation.theme.DefaultBoxPreview
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeColors
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
-import net.opendasharchive.openarchive.extensions.getQueryParameter
-import net.opendasharchive.openarchive.features.core.UiText
-import net.opendasharchive.openarchive.features.core.dialog.DialogType
-import net.opendasharchive.openarchive.features.core.dialog.showDialog
+import net.opendasharchive.openarchive.features.media.AddMediaType
+import net.opendasharchive.openarchive.features.media.ContentPickerSheet
 import net.opendasharchive.openarchive.services.snowbird.service.ServiceStatus
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import net.opendasharchive.openarchive.core.presentation.theme.DefaultBoxPreview
-import net.opendasharchive.openarchive.features.media.AddMediaType
-import net.opendasharchive.openarchive.features.media.ContentPickerSheet
-import net.opendasharchive.openarchive.features.media.rememberContentPickerLaunchers
 
 class SnowbirdFragment : BaseSnowbirdFragment() {
 
     private val viewModel: SnowbirdDashboardViewModel by viewModel()
 
-    private val qrCodeLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val scanResult = IntentIntegrator.parseActivityResult(result.resultCode, result.data)
-        if (scanResult?.contents != null) {
-            viewModel.onAction(SnowbirdDashboardAction.QRResultScanned(scanResult.contents))
-        }
-    }
-
     private val filePickerLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
-        uri?.let { viewModel.onAction(SnowbirdDashboardAction.ImagePickedForQR(it, requireContext())) }
+        uri?.let {
+            viewModel.onAction(
+                SnowbirdDashboardAction.ImagePickedForQR(
+                    it,
+                    requireContext()
+                )
+            )
+        }
     }
 
     private val imagePickerLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        uri?.let { viewModel.onAction(SnowbirdDashboardAction.ImagePickedForQR(it, requireContext())) }
+        uri?.let {
+            viewModel.onAction(
+                SnowbirdDashboardAction.ImagePickedForQR(
+                    it,
+                    requireContext()
+                )
+            )
+        }
     }
 
     override fun onCreateView(
@@ -115,30 +112,28 @@ class SnowbirdFragment : BaseSnowbirdFragment() {
             setContent {
                 SaveAppTheme {
                     val state by viewModel.uiState.collectAsStateWithLifecycle()
-                    
+
                     LaunchedEffect(Unit) {
                         viewModel.events.collectLatest { event ->
                             handleDashboardEvent(event)
                         }
                     }
 
-                    // Observe state for loading and errors
-                    LaunchedEffect(state.isLoading, state.error) {
-                        handleLoadingStatus(state.isLoading)
-                        state.error?.let { handleError(it) }
-                    }
-
                     // Observe QR Scanner result from navigation
                     val navController = findNavController()
-                    navController.currentBackStackEntry?.savedStateHandle?.getLiveData<String>(SnowbirdQRScannerFragment.QR_RESULT_KEY)
+                    navController.currentBackStackEntry?.savedStateHandle?.getLiveData<String>(
+                        SnowbirdQRScannerFragment.QR_RESULT_KEY
+                    )
                         ?.observe(viewLifecycleOwner) { result ->
                             if (result != null) {
                                 viewModel.onAction(SnowbirdDashboardAction.QRResultScanned(result))
-                                navController.currentBackStackEntry?.savedStateHandle?.remove<String>(SnowbirdQRScannerFragment.QR_RESULT_KEY)
+                                navController.currentBackStackEntry?.savedStateHandle?.remove<String>(
+                                    SnowbirdQRScannerFragment.QR_RESULT_KEY
+                                )
                             }
                         }
 
-                    SnowbirdScreen(
+                    SnowbirdDashboardScreen(
                         state = state,
                         onAction = viewModel::onAction
                     )
@@ -153,10 +148,12 @@ class SnowbirdFragment : BaseSnowbirdFragment() {
                                         imagePickerLauncher.launch("image/*")
                                         viewModel.onAction(SnowbirdDashboardAction.ContentPickerDismissed)
                                     }
+
                                     AddMediaType.FILES -> {
                                         filePickerLauncher.launch(arrayOf("image/*"))
                                         viewModel.onAction(SnowbirdDashboardAction.ContentPickerDismissed)
                                     }
+
                                     AddMediaType.CAMERA -> {
                                         // Use our dedicated QR Scanner for camera
                                         viewModel.onAction(SnowbirdDashboardAction.MediaPicked(type))
@@ -173,35 +170,46 @@ class SnowbirdFragment : BaseSnowbirdFragment() {
     private fun handleDashboardEvent(event: SnowbirdDashboardEvent) {
         when (event) {
             is SnowbirdDashboardEvent.NavigateToCreateGroup -> {
-                val action = SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdCreateGroup()
+                val action =
+                    SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdCreateGroup()
                 findNavController().navigate(action)
             }
+
             is SnowbirdDashboardEvent.NavigateToGroupList -> {
-                val action = SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdGroupList()
+                val action =
+                    SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdGroupList()
                 findNavController().navigate(action)
             }
+
             is SnowbirdDashboardEvent.NavigateToJoinGroup -> {
-                val action = SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdJoinGroup(dwebGroupKey = event.groupKey)
+                val action =
+                    SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdJoinGroup(
+                        dwebGroupKey = event.groupKey
+                    )
                 findNavController().navigate(action)
             }
+
             is SnowbirdDashboardEvent.NavigateToScanner -> {
                 val action = SnowbirdFragmentDirections.actionFragmentSnowbirdToSnowbirdQrScanner()
                 findNavController().navigate(action)
             }
-            is SnowbirdDashboardEvent.ShowMessage -> {
-                // Here we can use a Toast or specific dialog
-                // Since base fragment has handleError, we can adapt it or use dialogManager directly
-                dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-                    title = UiText.Dynamic("DWeb Storage")
-                    message = event.message
-                    positiveButton { text = UiText.Resource(R.string.lbl_ok) }
-                }
-            }
+
+            is SnowbirdDashboardEvent.ShowMessage -> Unit
             is SnowbirdDashboardEvent.ToggleServer -> {
                 if (event.enabled) {
-                    requireContext().startForegroundService(Intent(requireContext(), SnowbirdService::class.java))
+                    requireContext().startForegroundService(
+                        Intent(
+                            requireContext(),
+                            SnowbirdService::class.java
+                        )
+                    )
                 } else {
-                    requireContext().stopService(Intent(requireContext(), SnowbirdService::class.java))
+                    requireContext().stopService(
+                        Intent(
+                            requireContext(),
+                            SnowbirdService::class.java
+                        )
+                    )
                 }
             }
         }
@@ -211,67 +219,74 @@ class SnowbirdFragment : BaseSnowbirdFragment() {
 }
 
 @Composable
-fun SnowbirdScreen(
+fun SnowbirdDashboardScreen(
     state: SnowbirdDashboardState,
     onAction: (SnowbirdDashboardAction) -> Unit
 ) {
-    // Get navigation bar insets for edge-to-edge support
-    val navigationBarPadding = WindowInsets.navigationBars.asPaddingValues()
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Get navigation bar insets for edge-to-edge support
+        val navigationBarPadding = WindowInsets.navigationBars.asPaddingValues()
 
-    // Use a scrollable Column to mimic ScrollView + LinearLayout
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 32.dp)
-            .padding(horizontal = 24.dp)
-            .padding(bottom = navigationBarPadding.calculateBottomPadding() + 16.dp),
-    ) {
-
-        // Header texts
-        SpaceAuthHeader(
-            description = "Preserve your media on the decentralized web (DWeb) Storage.",
-            imagePainter = painterResource(R.drawable.ic_dweb),
+        // Use a Column for content
+        Column(
             modifier = Modifier
-                .padding(vertical = 48.dp)
-                .padding(end = 24.dp)
-        )
+                .fillMaxSize()
+                .padding(top = 32.dp)
+                .padding(horizontal = 24.dp)
+                .padding(bottom = navigationBarPadding.calculateBottomPadding() + 16.dp),
+        ) {
 
-        Spacer(modifier = Modifier.height(24.dp))
+            // Header texts
+            SpaceAuthHeader(
+                description = "Preserve your media on the decentralized web (DWeb) Storage.",
+                imagePainter = painterResource(R.drawable.ic_dweb),
+                modifier = Modifier
+                    .padding(vertical = 48.dp)
+                    .padding(end = 24.dp)
+            )
 
-        // WebDav option
-        DwebOptionItem(
-            title = "Join group",
-            subtitle = "Connect to existing group",
-            onClick = { onAction(SnowbirdDashboardAction.JoinGroupClick) }
-        )
+            Spacer(modifier = Modifier.height(24.dp))
 
-        DwebOptionItem(
-            title = "Create group",
-            subtitle = "Create a new group via Dweb",
-            onClick = { onAction(SnowbirdDashboardAction.CreateGroupClick) }
-        )
+            // WebDav option
+            DwebOptionItem(
+                title = "Join group",
+                subtitle = "Connect to existing group",
+                onClick = { onAction(SnowbirdDashboardAction.JoinGroupClick) }
+            )
 
-        DwebOptionItem(
-            title = "My groups",
-            subtitle = "View and manage your groups",
-            onClick = { onAction(SnowbirdDashboardAction.MyGroupsClick) }
-        )
+            DwebOptionItem(
+                title = "Create group",
+                subtitle = "Create a new group via Dweb",
+                onClick = { onAction(SnowbirdDashboardAction.CreateGroupClick) }
+            )
 
-        Spacer(modifier = Modifier.weight(1f))
+            DwebOptionItem(
+                title = "My groups",
+                subtitle = "View and manage your groups",
+                onClick = { onAction(SnowbirdDashboardAction.MyGroupsClick) }
+            )
 
-        HorizontalDivider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
-        )
+            Spacer(modifier = Modifier.weight(1f))
 
-        // Server Control Section at the bottom using custom preference style
-        DwebServerPreference(
-            serverStatus = state.serverStatus,
-            onToggle = { enabled -> onAction(SnowbirdDashboardAction.ToggleServer(enabled)) }
-        )
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+            )
 
+            // Server Control Section at the bottom using custom preference style
+            DwebServerPreference(
+                serverStatus = state.serverStatus,
+                onToggle = { enabled -> onAction(SnowbirdDashboardAction.ToggleServer(enabled)) }
+            )
+
+            // Native Loading Overlay
+            if (state.isLoading) {
+                LoadingOverlay()
+            }
+
+        }
     }
 }
 
@@ -351,12 +366,11 @@ fun DwebServerPreference(
 
 @Preview
 @Composable
-private fun SnowbirdScreenPreview() {
+private fun SnowbirdDashboardScreenPreview() {
     DefaultScaffoldPreview {
-        SnowbirdScreen(
+        SnowbirdDashboardScreen(
             state = SnowbirdDashboardState(
                 isLoading = false,
-                error = null,
                 serverStatus = ServiceStatus.Stopped
             ),
             onAction = {},
@@ -443,7 +457,7 @@ fun SpaceAuthHeader(
             modifier = Modifier
                 .size(50.dp)
                 .clip(CircleShape)
-                .background(ThemeColors.material.surfaceDim,)
+                .background(ThemeColors.material.surfaceDim)
                 .padding(8.dp),
             contentAlignment = Alignment.Center
         ) {
@@ -456,7 +470,10 @@ fun SpaceAuthHeader(
         }
 
         Column(
-            modifier = Modifier.padding(start = ThemeDimensions.spacing.medium, end = ThemeDimensions.spacing.xlarge)
+            modifier = Modifier.padding(
+                start = ThemeDimensions.spacing.medium,
+                end = ThemeDimensions.spacing.xlarge
+            )
         ) {
             Text(
                 text = description,
