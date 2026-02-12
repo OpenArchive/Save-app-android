@@ -164,27 +164,6 @@
         </activity>
 
         <activity
-            android:name=".features.media.PreviewActivity"
-            android:exported="false"
-            android:label="@string/preview_media"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.main.QRScannerActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/zxing_CaptureTheme"
-            android:windowSoftInputMode="stateAlwaysHidden" />
-
-        <activity
-            android:name=".features.media.ReviewActivity"
-            android:exported="false"
-            android:label="@string/edit_media_info"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
-
-        <activity
             android:name=".features.media.camera.CameraActivity"
             android:exported="false"
             android:screenOrientation="portrait"
