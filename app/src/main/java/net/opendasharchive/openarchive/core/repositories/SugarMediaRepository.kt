@@ -13,7 +13,11 @@ import net.opendasharchive.openarchive.core.domain.mappers.toEntity
 import net.opendasharchive.openarchive.db.sugar.Collection
 import net.opendasharchive.openarchive.db.sugar.Media
 
-class SugarMediaRepository(private val io: CoroutineDispatcher = Dispatchers.IO) : MediaRepository {
+
+class SugarMediaRepository(
+    private val fileCleanupHelper: FileCleanupHelper,
+    private val io: CoroutineDispatcher = Dispatchers.IO
+) : MediaRepository {
 
     override suspend fun getMediaForCollection(collectionId: Long): List<Evidence> =
         withContext(io) {
@@ -62,6 +66,7 @@ class SugarMediaRepository(private val io: CoroutineDispatcher = Dispatchers.IO)
     override suspend fun deleteMedia(mediaId: Long) {
         withContext(io) {
             Media.get(mediaId)?.let { media ->
+                // Perform DB deletion first
                 val collection = media.collection
                 if ((collection?.size ?: 0) < 2) {
                     collection?.delete()
@@ -69,6 +74,9 @@ class SugarMediaRepository(private val io: CoroutineDispatcher = Dispatchers.IO)
                     media.delete()
                 }
                 InvalidationBus.invalidateMedia()
+
+                // Clean up physical files after successful DB removal
+                fileCleanupHelper.deleteMediaFiles(media)
             }
         }
     }

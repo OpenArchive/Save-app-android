@@ -40,6 +40,8 @@ interface EvidenceDao {
     """)
     fun observeByArchive(archiveId: Long): Flow<List<EvidenceEntity>>
 
+    @Query("SELECT * FROM evidence WHERE archiveId = :archiveId")
+    suspend fun getByArchive(archiveId: Long): List<EvidenceEntity>
 
 
     @Query("SELECT * FROM evidence WHERE status IN (:statuses) ORDER BY priority DESC, id DESC")

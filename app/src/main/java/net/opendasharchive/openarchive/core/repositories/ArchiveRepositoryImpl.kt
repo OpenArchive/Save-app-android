@@ -11,12 +11,15 @@ import net.opendasharchive.openarchive.core.domain.mappers.toDomain
 import net.opendasharchive.openarchive.db.ArchiveDao
 import net.opendasharchive.openarchive.db.SubmissionDao
 import net.opendasharchive.openarchive.db.SubmissionEntity
+import net.opendasharchive.openarchive.db.EvidenceDao
 import net.opendasharchive.openarchive.db.VaultDao
 
 class ArchiveRepositoryImpl(
+    private val fileCleanupHelper: FileCleanupHelper,
     private val archiveDao: ArchiveDao,
     private val submissionDao: SubmissionDao,
     private val vaultDao: VaultDao,
+    private val evidenceDao: EvidenceDao,
     private val io: CoroutineDispatcher = Dispatchers.IO
 ) : ProjectRepository {
 
@@ -61,8 +64,18 @@ class ArchiveRepositoryImpl(
     }
 
     override suspend fun deleteProject(id: Long): Boolean = withContext(io) {
-        archiveDao.getById(id)?.let {
-            archiveDao.delete(it)
+        archiveDao.getById(id)?.let { archive ->
+            // 1. Fetch evidence association before DB deletion
+            val evidenceEntities = evidenceDao.getByArchive(id)
+            val evidenceList = evidenceEntities.map { it.toDomain(vaultId = archive.vaultId) }
+
+            // 2. Perform DB deletion first
+            archiveDao.delete(archive)
+            
+            // 3. Clean up physical files after successful DB removal
+            evidenceList.forEach { evidence ->
+                fileCleanupHelper.deleteMediaFiles(evidence)
+            }
             true
         } ?: false
     }

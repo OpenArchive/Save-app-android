@@ -10,10 +10,13 @@ import net.opendasharchive.openarchive.core.repositories.SugarProjectRepository
 import net.opendasharchive.openarchive.core.repositories.SugarSpaceRepository
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.core.repositories.*
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val repositoriesModule = module {
+    single { FileCleanupHelper(androidContext()) }
+
     // Home/Main repositories
     single<SpaceRepository> {
         if (Prefs.isRoomMigrated) get<VaultRepositoryImpl>()
@@ -21,7 +24,7 @@ val repositoriesModule = module {
     }
     single<ProjectRepository> {
         if (Prefs.isRoomMigrated) get<ArchiveRepositoryImpl>()
-        else SugarProjectRepository(get(named("io")))
+        else SugarProjectRepository(get(), get(named("io")))
     }
     single<CollectionRepository> {
         if (Prefs.isRoomMigrated) get<SubmissionRepositoryImpl>()
@@ -29,6 +32,6 @@ val repositoriesModule = module {
     }
     single<MediaRepository> {
         if (Prefs.isRoomMigrated) get<EvidenceRepositoryImpl>()
-        else SugarMediaRepository(get(named("io")))
+        else SugarMediaRepository(get(), get(named("io")))
     }
 }

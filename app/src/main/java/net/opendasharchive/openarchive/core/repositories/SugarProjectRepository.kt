@@ -14,7 +14,12 @@ import net.opendasharchive.openarchive.core.domain.mappers.toEntity
 import net.opendasharchive.openarchive.db.sugar.Project
 import net.opendasharchive.openarchive.db.sugar.Space
 
-class SugarProjectRepository(private val io: CoroutineDispatcher = Dispatchers.IO) : ProjectRepository {
+import net.opendasharchive.openarchive.db.sugar.Media
+
+class SugarProjectRepository(
+    private val fileCleanupHelper: FileCleanupHelper,
+    private val io: CoroutineDispatcher = Dispatchers.IO
+) : ProjectRepository {
 
     override suspend fun getProjects(vaultId: Long, archived: Boolean): List<Archive> = withContext(io) {
         val projects = Space.get(vaultId)?.projects ?: emptyList()
@@ -55,8 +60,24 @@ class SugarProjectRepository(private val io: CoroutineDispatcher = Dispatchers.I
     }
 
     override suspend fun deleteProject(id: Long): Boolean = withContext(io) {
-        val deleted = Project.getById(id)?.delete() ?: false
-        if (deleted) InvalidationBus.invalidateProjects()
+        val project = Project.getById(id) ?: return@withContext false
+        
+        // 1. Fetch media association before DB deletion
+        val mediaList = SugarRecord.find(
+            Media::class.java, "project_id = ?",
+            id.toString()
+        )
+        
+        // 2. Perform DB deletion first
+        val deleted = project.delete()
+        if (deleted) {
+            InvalidationBus.invalidateProjects()
+            
+            // 3. Clean up physical files after successful DB removal
+            mediaList.forEach { media ->
+                fileCleanupHelper.deleteMediaFiles(media)
+            }
+        }
         deleted
     }
 

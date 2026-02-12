@@ -14,6 +14,7 @@ import net.opendasharchive.openarchive.db.EvidenceDao
 import net.opendasharchive.openarchive.db.SubmissionDao
 
 class EvidenceRepositoryImpl(
+    private val fileCleanupHelper: FileCleanupHelper,
     private val evidenceDao: EvidenceDao,
     private val submissionDao: SubmissionDao,
     private val archiveDao: ArchiveDao,
@@ -65,10 +66,12 @@ class EvidenceRepositoryImpl(
 
     override suspend fun deleteMedia(mediaId: Long) {
         withContext(io) {
-            evidenceDao.getById(mediaId)?.let { media ->
-                val submissionId = media.submissionId
+            evidenceDao.getById(mediaId)?.let { entity ->
+                val evidence = mapToDomain(entity)
+                val submissionId = entity.submissionId
                 val count = evidenceDao.getCountBySubmission(submissionId)
 
+                // Perform DB deletion first
                 if (count < 2) {
                     submissionDao.getById(submissionId)?.let {
                         submissionDao.delete(it) // CASCADE will delete the media too
@@ -76,6 +79,9 @@ class EvidenceRepositoryImpl(
                 } else {
                     evidenceDao.deleteById(mediaId)
                 }
+
+                // Clean up physical files after successful DB removal
+                fileCleanupHelper.deleteMediaFiles(evidence)
             }
         }
     }

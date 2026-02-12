@@ -49,9 +49,6 @@ object MediaPicker {
         uri: Uri,
         generateProof: Boolean
     ): Evidence? {
-        if (BuildConfig.DEBUG && DEBUG_IMPORT_DELAY_MS > 0) {
-            Thread.sleep(DEBUG_IMPORT_DELAY_MS)
-        }
 
         val title = Utility.getUriDisplayName(context, uri) ?: ""
         // TODO: This is a temporary persistent storage solution. 
