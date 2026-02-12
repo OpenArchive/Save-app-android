@@ -7,34 +7,32 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.navigation.fragment.navArgs
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.databinding.FragmentSnowbirdListReposBinding
-import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdError
-import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdRepo
-import net.opendasharchive.openarchive.features.core.UiText
-import net.opendasharchive.openarchive.features.core.dialog.DialogType
-import net.opendasharchive.openarchive.features.core.dialog.showDialog
-import net.opendasharchive.openarchive.util.SpacingItemDecoration
-import timber.log.Timber
+import net.opendasharchive.openarchive.services.snowbird.SnowbirdRepoListFragmentArgs
+import net.opendasharchive.openarchive.services.snowbird.presentation.repo.SnowbirdRepoListScreen
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SnowbirdRepoListFragment : BaseSnowbirdFragment() {
 
-    private lateinit var viewBinding: FragmentSnowbirdListReposBinding
-    private lateinit var adapter: SnowbirdRepoListAdapter
+    private val snowbirdRepoViewModel: SnowbirdRepoViewModel by viewModel()
+    private val args: SnowbirdRepoListFragmentArgs by navArgs()
+    private var vaultId: Long = 0
     private lateinit var groupKey: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         arguments?.let {
             groupKey = it.getString(RESULT_VAL_RAVEN_GROUP_KEY, "")
+            vaultId = it.getLong("vault_id", 0L)
         }
     }
 
@@ -43,46 +41,22 @@ class SnowbirdRepoListFragment : BaseSnowbirdFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewBinding = FragmentSnowbirdListReposBinding.inflate(inflater)
-
-        return viewBinding.root
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                SnowbirdRepoListScreen(
+                    viewModel = snowbirdRepoViewModel,
+                    vaultId = vaultId,
+                    groupKey = groupKey
+                )
+            }
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setupMenu()
-        setupSwipeRefresh()
-        setupViewModel()
-        initializeViewModelObservers()
-    }
-
-    private fun handleRepoStateUpdate(state: SnowbirdRepoViewModel.RepoState) {
-        when (state) {
-            is SnowbirdRepoViewModel.RepoState.Loading -> handleLoadingStatus(true)
-            is SnowbirdRepoViewModel.RepoState.RepoFetchSuccess -> handleRepoUpdate(
-                state.repos,
-                state.isRefresh
-            )
-            is SnowbirdRepoViewModel.RepoState.Error -> handleError(state.error)
-            is SnowbirdRepoViewModel.RepoState.RefreshGroupContentSuccess -> handleLoadingStatus(false)
-            else -> Unit
-        }
-    }
-
-    private fun initializeViewModelObservers() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    snowbirdRepoViewModel.repoState.collect { state ->
-                        handleRepoStateUpdate(
-                            state
-                        )
-                    }
-                }
-                launch { snowbirdRepoViewModel.fetchRepos(groupKey, forceRefresh = false) }
-            }
-        }
+        observeEvents()
     }
 
     private fun setupMenu() {
@@ -94,104 +68,35 @@ class SnowbirdRepoListFragment : BaseSnowbirdFragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return when (menuItem.itemId) {
                     R.id.action_add -> {
-                        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-                            type = DialogType.Warning
-                            title = UiText.Dynamic("Oops!")
-                            message = UiText.Dynamic("Feature not implemented yet.")
-                            positiveButton {
-                                text = UiText.Resource(R.string.lbl_ok)
-                            }
-                        }
+                        // TODO: Implement create repo dialog
                         true
                     }
-
                     else -> false
                 }
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
-    private fun setupViewModel() {
-
-        adapter = SnowbirdRepoListAdapter { repoKey ->
-            val action =
-                SnowbirdRepoListFragmentDirections.actionFragmentSnowbirdListReposToFragmentSnowbirdListMedia(
-                    dwebGroupKey = groupKey,
-                    dwebRepoKey = repoKey
-                )
-            findNavController().navigate(action)
-        }
-
-        val spacingInPixels = resources.getDimensionPixelSize(R.dimen.list_item_spacing)
-        viewBinding.repoList.addItemDecoration(SpacingItemDecoration(spacingInPixels))
-
-        viewBinding.repoList.layoutManager = LinearLayoutManager(requireContext())
-        viewBinding.repoList.adapter = adapter
-
-        viewBinding.repoList.setEmptyView(R.layout.view_empty_state)
-    }
-
-    private fun handleRepoUpdate(repos: List<SnowbirdRepo>, isRefresh: Boolean) {
-        handleLoadingStatus(false)
-
-        if (isRefresh) {
-            Timber.d("Clearing SnowbirdRepos for group $groupKey")
-            SnowbirdRepo.clear(groupKey)
-            saveRepos(repos)
-        }
-
-        adapter.submitList(repos)
-
-        if (isRefresh && repos.isEmpty()) {
-            dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-                type = DialogType.Info
-                title = UiText.Resource(R.string.label_info_title)
-                message = UiText.Dynamic("No new repositories found.")
-                positiveButton {
-                    text = UiText.Resource(R.string.label_got_it)
-                    action = {
-                        parentFragmentManager.popBackStack()
+    private fun observeEvents() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                snowbirdRepoViewModel.events.collect { event ->
+                    when (event) {
+                        is SnowbirdRepoEvent.NavigateToFileList -> {
+                            val action = SnowbirdRepoListFragmentDirections.actionFragmentSnowbirdListReposToFragmentSnowbirdListMedia(
+                                dwebGroupKey = groupKey,
+                                dwebRepoKey = event.repoKey,
+                                archiveId = event.archiveId
+                            )
+                            findNavController().navigate(action)
+                        }
                     }
                 }
             }
         }
     }
 
-    override fun handleError(error: SnowbirdError) {
-        handleLoadingStatus(false)
-        viewBinding.swipeRefreshLayout.isRefreshing = false
-        super.handleError(error)
-    }
-
-    override fun handleLoadingStatus(isLoading: Boolean) {
-        super.handleLoadingStatus(isLoading)
-        viewBinding.swipeRefreshLayout.isRefreshing = false
-    }
-
-    private fun saveRepos(repos: List<SnowbirdRepo>) {
-        repos.forEach { repo ->
-            repo.groupKey = groupKey
-            repo.save()
-        }
-    }
-
-    private fun setupSwipeRefresh() {
-        viewBinding.swipeRefreshLayout.setOnRefreshListener {
-            lifecycleScope.launch {
-                //snowbirdRepoViewModel.fetchRepos(groupKey, forceRefresh = true)
-                snowbirdRepoViewModel.refreshGroups(groupKey)
-            }
-        }
-
-        viewBinding.swipeRefreshLayout.setColorSchemeResources(
-            R.color.colorPrimary, R.color.colorPrimaryDark
-        )
-    }
-
-    override fun getToolbarTitle(): String {
-        return "Repositories"
-    }
-
+    override fun getToolbarTitle(): String = "Repositories"
 
     companion object {
         const val RESULT_VAL_RAVEN_GROUP_KEY = "dweb_group_key"

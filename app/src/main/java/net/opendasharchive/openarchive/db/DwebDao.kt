@@ -17,6 +17,10 @@ interface DwebDao {
     fun observeVaultWithDwebById(id: Long): Flow<VaultWithDweb?>
 
     @Transaction
+    @Query("SELECT v.* FROM vaults v INNER JOIN vault_dweb_metadata m ON v.id = m.vaultId WHERE m.vaultKey = :key")
+    suspend fun getVaultWithDwebByKey(key: String): VaultWithDweb?
+
+    @Transaction
     @Query("SELECT * FROM vaults WHERE id = :id")
     suspend fun getVaultWithDwebById(id: Long): VaultWithDweb?
 

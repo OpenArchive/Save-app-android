@@ -5,7 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdError
+import net.opendasharchive.openarchive.services.snowbird.SnowbirdError
 
 open class BaseViewModel(application: Application) : AndroidViewModel(application) {
     protected val processingTracker = ProcessingTracker()

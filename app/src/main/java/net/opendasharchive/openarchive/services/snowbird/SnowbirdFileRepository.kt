@@ -1,37 +1,47 @@
 package net.opendasharchive.openarchive.services.snowbird
 
 import android.net.Uri
-import net.opendasharchive.openarchive.services.snowbird.service.db.FileUploadResult
-import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdFileItem
-import net.opendasharchive.openarchive.services.snowbird.service.db.toFile
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import net.opendasharchive.openarchive.core.domain.Evidence
+import net.opendasharchive.openarchive.db.DwebDao
+import net.opendasharchive.openarchive.db.EvidenceDao
 import net.opendasharchive.openarchive.extensions.toSnowbirdError
+import net.opendasharchive.openarchive.services.snowbird.data.toDwebEntity
+import net.opendasharchive.openarchive.services.snowbird.data.toDomain
+import net.opendasharchive.openarchive.services.snowbird.data.toEvidenceEntity
+import net.opendasharchive.openarchive.services.snowbird.data.*
 import net.opendasharchive.openarchive.services.snowbird.service.ISnowbirdAPI
 
 interface ISnowbirdFileRepository {
-    suspend fun fetchFiles(groupKey: String, repoKey: String, forceRefresh: Boolean = false): SnowbirdResult<List<SnowbirdFileItem>>
+    suspend fun fetchFiles(archiveId: Long, groupKey: String, repoKey: String, forceRefresh: Boolean = false): SnowbirdResult<Unit>
+    fun observeFiles(archiveId: Long): Flow<List<Evidence>>
     suspend fun downloadFile(groupKey: String, repoKey: String, filename: String): SnowbirdResult<ByteArray>
     suspend fun uploadFile(groupKey: String, repoKey: String, uri: Uri): SnowbirdResult<FileUploadResult>
 }
 
-class SnowbirdFileRepository(val api: ISnowbirdAPI) : ISnowbirdFileRepository {
+class SnowbirdFileRepository(
+    private val api: ISnowbirdAPI,
+    private val evidenceDao: EvidenceDao,
+    private val dwebDao: DwebDao
+) : ISnowbirdFileRepository {
 
-    override suspend fun fetchFiles(groupKey: String, repoKey: String, forceRefresh: Boolean): SnowbirdResult<List<SnowbirdFileItem>> {
-        return if (forceRefresh) {
-            fetchFilesFromNetwork(groupKey, repoKey)
-        } else {
-            fetchFilesFromCache(groupKey, repoKey)
+    override fun observeFiles(archiveId: Long): Flow<List<Evidence>> {
+        return dwebDao.observeEvidenceWithDweb(archiveId).map { evidenceList ->
+            evidenceList.map { it.toDomain() }
         }
     }
 
-    private fun fetchFilesFromCache(groupKey: String, repoKey: String): SnowbirdResult<List<SnowbirdFileItem>> {
-        return SnowbirdResult.Success(SnowbirdFileItem.findBy(groupKey, repoKey))
-    }
-
-    private suspend fun fetchFilesFromNetwork(groupKey: String, repoKey: String): SnowbirdResult<List<SnowbirdFileItem>> {
+    override suspend fun fetchFiles(archiveId: Long, groupKey: String, repoKey: String, forceRefresh: Boolean): SnowbirdResult<Unit> {
         return try {
             val response = api.fetchFiles(groupKey, repoKey)
-            val files = response.files.map { it.toFile(groupKey = groupKey, repoKey = repoKey) }
-            SnowbirdResult.Success(files)
+            response.files.forEach { fileDto ->
+                val evidenceEntity = fileDto.toEvidenceEntity(archiveId)
+                val evidenceId = evidenceDao.upsert(evidenceEntity)
+                val dwebEntity = fileDto.toDwebEntity(evidenceId)
+                dwebDao.upsertEvidenceMetadata(dwebEntity)
+            }
+            SnowbirdResult.Success(Unit)
         } catch (e: Exception) {
             SnowbirdResult.Error(e.toSnowbirdError())
         }

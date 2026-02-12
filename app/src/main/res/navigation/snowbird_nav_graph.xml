@@ -34,6 +34,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_fragment_snowbird_to_snowbird_qr_scanner"
+            app:destination="@id/snowbird_qr_scanner"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -123,6 +130,19 @@
                 android:defaultValue="null"
                 app:nullable="true" />
         </action>
+
+        <action
+            android:id="@+id/action_fragment_snowbird_join_group_to_snowbird_qr_scanner"
+            app:destination="@id/snowbird_qr_scanner"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/snowbird_qr_scanner"
+        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdQRScannerFragment">
     </fragment>
 
     <fragment
@@ -139,6 +159,9 @@
         <argument
             android:name="dweb_group_key"
             app:argType="string" />
+        <argument
+            android:name="vault_id"
+            app:argType="long" />
     </fragment>
 
     <fragment
@@ -164,19 +187,11 @@
         <argument
             android:name="dweb_repo_key"
             app:argType="string" />
+        <argument
+            android:name="archive_id"
+            app:argType="long" />
     </fragment>
 
-    <fragment
-        android:id="@+id/snowbird_group_overview"
-        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupOverviewFragment"
-        tools:layout="@layout/fragment_snowbird_group_overview">
-        <argument
-            android:name="dweb_group_key"
-            app:argType="string" />
-        <argument
-            android:name="dweb_repo_key"
-            app:argType="string" />
-    </fragment>
 
 
     <fragment

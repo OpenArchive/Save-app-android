@@ -1,147 +1,123 @@
 package net.opendasharchive.openarchive.services.snowbird
 
-import android.app.Application
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.services.snowbird.service.db.RefreshGroupResponse
-import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdError
-import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdFileItem
-import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdRepo
-import net.opendasharchive.openarchive.services.snowbird.service.db.toRepo
-import net.opendasharchive.openarchive.util.BaseViewModel
-import net.opendasharchive.openarchive.util.trackProcessingWithTimeout
+import net.opendasharchive.openarchive.core.domain.Archive
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
+import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
+import net.opendasharchive.openarchive.features.main.ui.Navigator
+import net.opendasharchive.openarchive.services.snowbird.ISnowbirdRepoRepository
+import net.opendasharchive.openarchive.services.snowbird.SnowbirdResult
+import net.opendasharchive.openarchive.util.ProcessingTracker
+import net.opendasharchive.openarchive.util.trackProcessing
+
+data class SnowbirdRepoState(
+    val repos: List<Archive> = emptyList(),
+    val isLoading: Boolean = false,
+    val vaultId: Long = 0,
+    val groupKey: String = ""
+)
+
+sealed interface SnowbirdRepoAction {
+    data class Init(val vaultId: Long, val groupKey: String) : SnowbirdRepoAction
+    data class SelectRepo(val repo: Archive) : SnowbirdRepoAction
+    data class CreateRepo(val name: String) : SnowbirdRepoAction
+    data object RefreshRepos : SnowbirdRepoAction
+    data object RefreshGroupContent : SnowbirdRepoAction
+}
+
+sealed interface SnowbirdRepoEvent {
+    data class NavigateToFileList(val archiveId: Long, val repoKey: String) : SnowbirdRepoEvent
+}
 
 class SnowbirdRepoViewModel(
-    application: Application,
-    private val repository: ISnowbirdRepoRepository
-) : BaseViewModel(application) {
+    private val repository: ISnowbirdRepoRepository,
+    private val dialogManager: DialogStateManager,
+    private val processingTracker: ProcessingTracker = ProcessingTracker()
+) : ViewModel() {
 
-    sealed class RepoState {
-        data object Idle : RepoState()
-        data object Loading : RepoState()
-        data class SingleRepoSuccess(val groupKey: String, val repo: SnowbirdRepo) : RepoState()
-        data class MultiRepoSuccess(val repos: List<SnowbirdRepo>) : RepoState()
-        data class RepoFetchSuccess(val repos: List<SnowbirdRepo>, val isRefresh: Boolean) : RepoState()
-        data object RefreshGroupContentSuccess: RepoState()
-        data class Error(val error: SnowbirdError) : RepoState()
+    private val _uiState = MutableStateFlow(SnowbirdRepoState())
+    val uiState: StateFlow<SnowbirdRepoState> = _uiState.asStateFlow()
+
+    private val _events = MutableSharedFlow<SnowbirdRepoEvent>()
+    val events = _events.asSharedFlow()
+
+    fun onAction(action: SnowbirdRepoAction) {
+        when (action) {
+            is SnowbirdRepoAction.Init -> {
+                _uiState.update { it.copy(vaultId = action.vaultId, groupKey = action.groupKey) }
+                observeRepos(action.vaultId)
+                fetchRepos()
+            }
+            is SnowbirdRepoAction.SelectRepo -> {
+                viewModelScope.launch {
+                    _events.emit(SnowbirdRepoEvent.NavigateToFileList(action.repo.id, action.repo.archiveKey ?: ""))
+                }
+            }
+            is SnowbirdRepoAction.CreateRepo -> createRepo(action.name)
+            is SnowbirdRepoAction.RefreshRepos -> fetchRepos(forceRefresh = true)
+            is SnowbirdRepoAction.RefreshGroupContent -> refreshGroupContent()
+        }
     }
 
-    private val _repoState = MutableStateFlow<RepoState>(RepoState.Idle)
-    val repoState: StateFlow<RepoState> = _repoState.asStateFlow()
+    private fun observeRepos(vaultId: Long) {
+        repository.observeRepos(vaultId)
+            .onEach { repos ->
+                _uiState.update { it.copy(repos = repos) }
+            }
+            .launchIn(viewModelScope)
+    }
 
-    fun createRepo(groupKey: String, repoName: String) {
+    private fun fetchRepos(forceRefresh: Boolean = false) {
+        val vaultId = _uiState.value.vaultId
+        val groupKey = _uiState.value.groupKey
+        if (vaultId == 0L || groupKey.isBlank()) return
+
         viewModelScope.launch {
-            _repoState.value = RepoState.Loading
-            try {
-                val result = processingTracker.trackProcessingWithTimeout(60_000, "create_repo") {
-                    repository.createRepo(groupKey, repoName)
-                }
+            processingTracker.trackProcessing("fetch_repos") {
+                _uiState.update { it.copy(isLoading = true) }
+                val result = repository.fetchRepos(vaultId, groupKey, forceRefresh)
+                _uiState.update { it.copy(isLoading = false) }
 
-                _repoState.value = when (result) {
-                    is SnowbirdResult.Success -> RepoState.SingleRepoSuccess(groupKey, result.value)
-                    is SnowbirdResult.Error -> RepoState.Error(result.error)
+                if (result is SnowbirdResult.Error) {
+                    dialogManager.showErrorDialog(message = UiText.Dynamic(result.error.friendlyMessage))
                 }
-            } catch (e: TimeoutCancellationException) {
-                _repoState.value = RepoState.Error(SnowbirdError.TimedOut)
             }
         }
     }
 
-    fun fetchRepos(groupKey: String, forceRefresh: Boolean = false) {
+    private fun createRepo(name: String) {
+        val vaultId = _uiState.value.vaultId
+        val groupKey = _uiState.value.groupKey
         viewModelScope.launch {
-            _repoState.value = RepoState.Loading
-            try {
-                val result = processingTracker.trackProcessingWithTimeout(60_000, "fetch_repos") {
-                    repository.fetchRepos(groupKey, forceRefresh)
-                }
+            processingTracker.trackProcessing("create_repo") {
+                _uiState.update { it.copy(isLoading = true) }
+                val result = repository.createRepo(vaultId, groupKey, name)
+                _uiState.update { it.copy(isLoading = false) }
 
-                _repoState.value = when (result) {
-                    is SnowbirdResult.Success -> RepoState.RepoFetchSuccess(
-                        result.value,
-                        forceRefresh
-                    )
-
-                    is SnowbirdResult.Error -> RepoState.Error(result.error)
+                if (result is SnowbirdResult.Error) {
+                    dialogManager.showErrorDialog(message = UiText.Dynamic(result.error.friendlyMessage))
                 }
-            } catch (e: TimeoutCancellationException) {
-                _repoState.value = RepoState.Error(SnowbirdError.TimedOut)
             }
         }
     }
 
-    fun refreshGroups(groupKey: String) {
+    private fun refreshGroupContent() {
+        val groupKey = _uiState.value.groupKey
         viewModelScope.launch {
-            _repoState.value = RepoState.Loading
-            try {
-                val result = processingTracker.trackProcessingWithTimeout(120_000, "fetch_groups") {
-                    repository.refreshGroupContent(groupKey)
+            processingTracker.trackProcessing("refresh_group_content") {
+                _uiState.update { it.copy(isLoading = true) }
+                val result = repository.refreshGroupContent(groupKey)
+                _uiState.update { it.copy(isLoading = false) }
+
+                if (result is SnowbirdResult.Error) {
+                    dialogManager.showErrorDialog(message = UiText.Dynamic(result.error.friendlyMessage))
+                } else {
+                    fetchRepos(forceRefresh = true)
                 }
-
-                when (result) {
-                    is SnowbirdResult.Error -> {
-                        AppLogger.e(result.error.friendlyMessage)
-                        _repoState.value = RepoState.Error(result.error)
-                    }
-
-                    is SnowbirdResult.Success<RefreshGroupResponse> -> {
-                        AppLogger.i("Group content refreshed successfully")
-                        //TODO: Save Repo List and Media List to DB
-
-                        // Get existing repos for group
-                        val existingRepos = SnowbirdRepo.getAllForGroupKey(groupKey)
-                        val existingReposMap = existingRepos.associateBy { it.key }
-
-                        result.value.refreshedRepos.forEach  { repoData ->
-
-                            // Log repo errors if any
-                            if (!repoData.error.isNullOrEmpty()) {
-                                AppLogger.e("Error refreshing repo ${repoData.repoId}: ${repoData.error}")
-                            }
-
-                            // Update or create repo
-                            val snowbirdRepo = existingReposMap[repoData.repoId] ?: repoData.toRepo().apply {
-                                this.groupKey = groupKey
-                            }
-                            snowbirdRepo.apply {
-                                name = repoData.name
-                                hash = repoData.hash ?: hash
-                                permissions = if (repoData.canWrite) "READ_WRITE" else "READ_ONLY"
-                            }.save()
-
-                            // Get existing files for this repo
-                            val existingFiles = SnowbirdFileItem.findBy(groupKey, repoData.repoId)
-                            val existingFilesMap = existingFiles.associateBy { it.name }
-
-                            // Process all files (not just refreshed ones)
-                            repoData.allFiles.forEach { fileName ->
-                                val existingFile = existingFilesMap[fileName]
-
-                                if (existingFile == null) {
-                                    // Create new file if it doesn't exist
-                                    SnowbirdFileItem(
-                                        name = fileName,
-                                        repoKey = repoData.repoId,
-                                        groupKey = groupKey,
-                                    ).save()
-                                } else {
-                                    // Update existing file without overwriting with null
-                                    // Note: The refresh API doesn't provide file details,
-                                    // so we just maintain the existing file record
-                                }
-                            }
-                        }
-                        _repoState.value = RepoState.RefreshGroupContentSuccess
-                        fetchRepos(groupKey = groupKey)
-                    }
-                }
-
-            } catch (e: TimeoutCancellationException) {
-                _repoState.value = RepoState.Error(SnowbirdError.TimedOut)
             }
         }
     }

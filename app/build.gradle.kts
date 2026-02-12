@@ -276,6 +276,7 @@ dependencies {
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.video)
     implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.camera.compose)
     implementation(libs.androidx.camera.extensions)
 
     // Media3 - ExoPlayer
@@ -323,6 +324,7 @@ dependencies {
     }
 
     // Barcode Scanning
+    implementation(libs.google.mlkit.barcode)
     implementation(libs.zxing.core)
     implementation(libs.zxing.android.embedded)
 

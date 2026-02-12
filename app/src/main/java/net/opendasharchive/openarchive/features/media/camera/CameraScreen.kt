@@ -3,10 +3,12 @@ package net.opendasharchive.openarchive.features.media.camera
 import android.content.Context
 import android.net.Uri
 import android.util.Size
+import androidx.camera.compose.CameraXViewfinder
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
+import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -14,7 +16,6 @@ import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
-import androidx.camera.view.PreviewView
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -67,7 +68,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.common.util.concurrent.ListenableFuture
@@ -183,33 +183,32 @@ fun CameraScreen(
                     }
                 }
         ) {
-            // Camera preview
-            var previewView by remember { mutableStateOf<PreviewView?>(null) }
-
+            // Camera preview state
+            var surfaceRequest by remember { mutableStateOf<SurfaceRequest?>(null) }
+            
             // ===== Camera Setup =====
-            // Setup camera when preview view is ready, camera switches, or idle state changes
-            // NOTE: Flash mode changes are handled separately to avoid unnecessary rebinding
-            LaunchedEffect(previewView, cameraState.isFrontCamera, isIdle) {
+            // Setup camera when camera switches or idle state changes
+            LaunchedEffect(cameraState.isFrontCamera, isIdle) {
                 // Only setup camera if not in idle state
                 if (!isIdle) {
-                    previewView?.let { preview ->
-                        setupCamera(
-                            context = context,
-                            config = config,
-                            previewView = preview,
-                            lifecycleOwner = lifecycleOwner,
-                            cameraState = cameraState,
-                            onCameraReady = { provider, cam, imgCapture, vidCapture ->
-                                cameraProvider = provider
-                                camera = cam
-                                imageCapture = imgCapture
-                                videoCapture = vidCapture
-                            },
-                            onFlashSupportChanged = { isSupported ->
-                                viewModel.updateFlashSupport(isSupported)
-                            }
-                        )
-                    }
+                    setupCamera(
+                        context = context,
+                        config = config,
+                        onSurfaceRequestReady = { request ->
+                            surfaceRequest = request
+                        },
+                        lifecycleOwner = lifecycleOwner,
+                        cameraState = cameraState,
+                        onCameraReady = { provider, cam, imgCapture, vidCapture ->
+                            cameraProvider = provider
+                            camera = cam
+                            imageCapture = imgCapture
+                            videoCapture = vidCapture
+                        },
+                        onFlashSupportChanged = { isSupported ->
+                            viewModel.updateFlashSupport(isSupported)
+                        }
+                    )
                 }
             }
 
@@ -286,26 +285,13 @@ fun CameraScreen(
                 }
             }
 
-            // ===== Preview View Configuration =====
-            // Uses configured implementation mode (PERFORMANCE or COMPATIBLE)
-            AndroidView(
-                factory = { ctx ->
-                    PreviewView(ctx).apply {
-                        scaleType = PreviewView.ScaleType.FILL_CENTER
-
-                        // Use configured implementation mode for optimal performance
-                        implementationMode = when (config.implementationMode) {
-                            ImplementationMode.PERFORMANCE -> PreviewView.ImplementationMode.PERFORMANCE
-                            ImplementationMode.COMPATIBLE -> PreviewView.ImplementationMode.COMPATIBLE
-                        }
-
-                        AppLogger.d("PreviewView initialized with ${config.implementationMode} mode")
-                    }.also { preview ->
-                        previewView = preview
-                    }
-                },
-                modifier = Modifier.fillMaxSize()
-            )
+            // CameraX viewfinder
+            surfaceRequest?.let { request ->
+                CameraXViewfinder(
+                    surfaceRequest = request,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
             
             // Grid overlay
             if (cameraState.showGrid && config.showGridToggle) {
@@ -585,7 +571,7 @@ private fun RecordingTimerCompact(
 private fun setupCamera(
     context: Context,
     config: CameraConfig,
-    previewView: PreviewView?,
+    onSurfaceRequestReady: (SurfaceRequest) -> Unit,
     lifecycleOwner: androidx.lifecycle.LifecycleOwner,
     cameraState: CameraState,
     onCameraReady: (ProcessCameraProvider, Camera, ImageCapture, VideoCapture<Recorder>) -> Unit,
@@ -598,7 +584,7 @@ private fun setupCamera(
             bindCamera(
                 cameraProvider,
                 config,
-                previewView,
+                onSurfaceRequestReady,
                 lifecycleOwner,
                 cameraState,
                 onCameraReady,
@@ -631,7 +617,7 @@ private fun setupCamera(
 private fun bindCamera(
     cameraProvider: ProcessCameraProvider,
     config: CameraConfig,
-    previewView: PreviewView?,
+    onSurfaceRequestReady: (SurfaceRequest) -> Unit,
     lifecycleOwner: androidx.lifecycle.LifecycleOwner,
     cameraState: CameraState,
     onCameraReady: (ProcessCameraProvider, Camera, ImageCapture, VideoCapture<Recorder>) -> Unit,
@@ -669,8 +655,8 @@ private fun bindCamera(
             .setResolutionSelector(resolutionSelector)
             .build()
             .also {
-                previewView?.let { pv ->
-                    it.surfaceProvider = pv.surfaceProvider
+                it.setSurfaceProvider { request ->
+                    onSurfaceRequestReady(request)
                 }
             }
 

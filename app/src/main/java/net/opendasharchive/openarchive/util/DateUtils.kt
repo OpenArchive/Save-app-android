@@ -5,6 +5,8 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
+import java.time.OffsetDateTime
 import java.util.Date
 import java.util.Locale
 import java.time.format.DateTimeFormatter
@@ -20,6 +22,14 @@ object DateUtils {
     val nowDateTime: LocalDateTime get() = Clock.System.now().toLocalDateTime(timezone)
 
     fun getTimestamp(): String = nowDateTime.format("yyyyMMdd_HHmmss", Locale.US)
+
+    fun parseDateTime(value: String): LocalDateTime {
+        return try {
+            OffsetDateTime.parse(value).toLocalDateTime().toKotlinLocalDateTime()
+        } catch (e: Exception) {
+            nowDateTime
+        }
+    }
 }
 
 // Datetime Extension functions

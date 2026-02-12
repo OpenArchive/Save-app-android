@@ -11,8 +11,7 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdError
-import net.opendasharchive.openarchive.extensions.androidViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import net.opendasharchive.openarchive.features.core.BaseActivity
 import net.opendasharchive.openarchive.features.core.ToolbarConfigurable
 import net.opendasharchive.openarchive.features.core.UiText
@@ -30,9 +29,6 @@ abstract class BaseSnowbirdFragment : Fragment(), ToolbarConfigurable {
 
     private var screenStartTime: Long = 0
     private var previousScreen: String = ""
-
-    val snowbirdGroupViewModel: SnowbirdGroupViewModel by androidViewModel()
-    val snowbirdRepoViewModel: SnowbirdRepoViewModel by androidViewModel()
 
     protected open fun getScreenName(): String = this::class.simpleName ?: "UnknownSnowbirdFragment"
 

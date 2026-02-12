@@ -66,6 +66,7 @@ import com.google.zxing.MultiFormatReader
 import com.google.zxing.RGBLuminanceSource
 import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.integration.android.IntentIntegrator
+import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
@@ -73,7 +74,6 @@ import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeColors
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
-import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroup
 import net.opendasharchive.openarchive.extensions.getQueryParameter
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
@@ -81,8 +81,11 @@ import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.main.QRScannerActivity
 import net.opendasharchive.openarchive.services.snowbird.service.ServiceStatus
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SnowbirdFragment : BaseSnowbirdFragment() {
+
+    private val snowbirdGroupViewModel: SnowbirdGroupViewModel by viewModel()
 
     private val qrCodeLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -131,12 +134,20 @@ class SnowbirdFragment : BaseSnowbirdFragment() {
                 SaveAppTheme {
 
                     LaunchedEffect(Unit) {
-                        snowbirdGroupViewModel.groupState.collect { state ->
-                            handleGroupStateUpdate(
-                                state
-                            )
+                        snowbirdGroupViewModel.uiState.collectLatest { state ->
+                            handleGroupStateUpdate(state)
                         }
                     }
+
+                    // Observe QR Scanner result
+                    val navController = findNavController()
+                    navController.currentBackStackEntry?.savedStateHandle?.getLiveData<String>(SnowbirdQRScannerFragment.QR_RESULT_KEY)
+                        ?.observe(viewLifecycleOwner) { result ->
+                            if (result != null) {
+                                processScannedData(result)
+                                navController.currentBackStackEntry?.savedStateHandle?.remove<String>(SnowbirdQRScannerFragment.QR_RESULT_KEY)
+                            }
+                        }
 
                     SnowbirdScreen(
                         onJoinGroup = onJoinGroup,
@@ -155,13 +166,11 @@ class SnowbirdFragment : BaseSnowbirdFragment() {
         }
     }
 
-    private fun handleGroupStateUpdate(state: SnowbirdGroupViewModel.GroupState) {
-        handleLoadingStatus(false)
+    private fun handleGroupStateUpdate(state: SnowbirdGroupState) {
+        handleLoadingStatus(state.isLoading)
         AppLogger.d("group state = $state")
-        when (state) {
-            is SnowbirdGroupViewModel.GroupState.Loading -> handleLoadingStatus(true)
-            is SnowbirdGroupViewModel.GroupState.Error -> handleError(state.error)
-            else -> Unit
+        state.error?.let { error ->
+            handleError(error)
         }
     }
 
@@ -186,17 +195,8 @@ class SnowbirdFragment : BaseSnowbirdFragment() {
     }
 
     private fun startQRScanner() {
-        val integrator = IntentIntegrator(requireActivity())
-        integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
-        integrator.setPrompt("Scan QR Code")
-        integrator.setCameraId(0)  // Use the rear camera
-        integrator.setBeepEnabled(false)
-        integrator.setBarcodeImageEnabled(true)
-        integrator.setCaptureActivity(QRScannerActivity::class.java)
-
-        val scanningIntent = integrator.createScanIntent()
-
-        qrCodeLauncher.launch(scanningIntent)
+        val action = SnowbirdFragmentDirections.actionFragmentSnowbirdToSnowbirdQrScanner()
+        findNavController().navigate(action)
     }
 
     private fun processImageForQR(imageUri: Uri) {
@@ -266,17 +266,6 @@ class SnowbirdFragment : BaseSnowbirdFragment() {
             return
         }
 
-        if (SnowbirdGroup.exists(name)) {
-            dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-                type = DialogType.Warning
-                title = UiText.Dynamic("Oops!")
-                message = UiText.Dynamic("You have already joined this group.")
-                positiveButton {
-                    text = UiText.Resource(R.string.lbl_ok)
-                }
-            }
-            return
-        }
 
         val action = SnowbirdFragmentDirections
             .actionFragmentSnowbirdToFragmentSnowbirdJoinGroup(dwebGroupKey = uriString)

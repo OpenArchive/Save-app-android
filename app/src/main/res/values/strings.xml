@@ -304,6 +304,10 @@
     <string name="dweb_join_group_repo_name">You name in this group</string>
 
     <string name="dweb_share_qr_code">Share QR Code</string>
+    <string name="scan_qr_code" translatable="false">Scan QR Code</string>
+    <string name="qr_scanner_instruction" translatable="false">Open save.opendasharchive.net, desktop app, or other devices.</string>
+    <string name="open_from_gallery" translatable="false">Open from gallery</string>
+    <string name="joining_group_label" translatable="false">Joining Group: %1$s</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>

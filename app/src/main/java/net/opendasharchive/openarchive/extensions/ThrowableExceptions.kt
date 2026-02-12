@@ -1,6 +1,6 @@
 package net.opendasharchive.openarchive.extensions
 
-import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdError
+import net.opendasharchive.openarchive.services.snowbird.SnowbirdError
 import net.opendasharchive.openarchive.services.snowbird.service.HttpLikeException
 import retrofit2.HttpException
 import java.net.SocketTimeoutException

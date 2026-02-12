@@ -1,110 +1,197 @@
 package net.opendasharchive.openarchive.services.snowbird
 
-import android.app.Application
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.opendasharchive.openarchive.services.snowbird.service.db.JoinGroupResponse
-import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdError
-import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroup
-import net.opendasharchive.openarchive.util.BaseViewModel
-import net.opendasharchive.openarchive.util.trackProcessingWithTimeout
+import net.opendasharchive.openarchive.core.domain.Vault
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
+import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
+import net.opendasharchive.openarchive.util.ProcessingTracker
+import net.opendasharchive.openarchive.util.trackProcessing
+
+data class SnowbirdGroupState(
+    val groups: List<Vault> = emptyList(),
+    val currentGroup: Vault? = null,
+    val isLoading: Boolean = false,
+    val error: SnowbirdError? = null,
+    val scannedUri: String = ""
+)
+
+sealed interface SnowbirdGroupAction {
+    data class SelectGroup(val group: Vault) : SnowbirdGroupAction
+    data class CreateGroup(val name: String) : SnowbirdGroupAction
+    data class CreateGroupWithRepo(val groupName: String, val repoName: String) : SnowbirdGroupAction
+    data class JoinGroupWithRepo(val uri: String, val repoName: String) : SnowbirdGroupAction
+    data class JoinGroup(val uri: String) : SnowbirdGroupAction
+    data class UpdateJoinUri(val uri: String) : SnowbirdGroupAction
+    data object RefreshGroups : SnowbirdGroupAction
+}
+
+sealed interface SnowbirdGroupEvent {
+    data class NavigateToRepo(val vaultId: Long, val groupKey: String) : SnowbirdGroupEvent
+    data class NavigateToSuccess(val message: String, val groupKey: String) : SnowbirdGroupEvent
+    data object GoBack : SnowbirdGroupEvent
+    data object NavigateToScanner : SnowbirdGroupEvent
+}
 
 class SnowbirdGroupViewModel(
-    application: Application,
-    private val repository: ISnowbirdGroupRepository
-) : BaseViewModel(application) {
+    private val repository: ISnowbirdGroupRepository,
+    private val repoRepository: ISnowbirdRepoRepository,
+    private val dialogManager: DialogStateManager,
+    private val processingTracker: ProcessingTracker = ProcessingTracker()
+) : ViewModel() {
 
-    sealed class GroupState {
-        data object Idle : GroupState()
-        data object Loading : GroupState()
-        data class JoinGroupSuccess(val group: JoinGroupResponse) : GroupState()
-        data class SingleGroupSuccess(val group: SnowbirdGroup) : GroupState()
-        data class MultiGroupSuccess(val groups: List<SnowbirdGroup>, val isRefresh: Boolean) : GroupState()
-        data class Error(val error: SnowbirdError) : GroupState()
+    private val _uiState = MutableStateFlow(SnowbirdGroupState())
+    val uiState: StateFlow<SnowbirdGroupState> = _uiState.asStateFlow()
+
+    private val _events = MutableSharedFlow<SnowbirdGroupEvent>()
+    val events = _events.asSharedFlow()
+
+    init {
+        repository.observeGroups()
+            .onEach { groups ->
+                _uiState.update { it.copy(groups = groups) }
+            }
+            .launchIn(viewModelScope)
+        
+        fetchGroups()
     }
 
-    private val _groupState = MutableStateFlow<GroupState>(GroupState.Idle)
-    val groupState: StateFlow<GroupState> = _groupState.asStateFlow()
-
-    private val _currentGroup = MutableStateFlow<SnowbirdGroup?>(null)
-    val currentGroup: StateFlow<SnowbirdGroup?> = _currentGroup.asStateFlow()
-
-    fun setCurrentGroup(group: SnowbirdGroup) {
-        _currentGroup.value = group
+    fun onAction(action: SnowbirdGroupAction) {
+        when (action) {
+            is SnowbirdGroupAction.SelectGroup -> {
+                _uiState.update { it.copy(currentGroup = action.group) }
+                viewModelScope.launch {
+                    _events.emit(SnowbirdGroupEvent.NavigateToRepo(action.group.id, action.group.vaultKey ?: ""))
+                }
+            }
+            is SnowbirdGroupAction.CreateGroup -> createGroup(action.name)
+            is SnowbirdGroupAction.CreateGroupWithRepo -> createGroupWithRepo(action.groupName, action.repoName)
+            is SnowbirdGroupAction.JoinGroupWithRepo -> joinGroupWithRepo(action.uri, action.repoName)
+            is SnowbirdGroupAction.JoinGroup -> joinGroup(action.uri)
+            is SnowbirdGroupAction.UpdateJoinUri -> {
+                _uiState.update { it.copy(scannedUri = action.uri) }
+            }
+            is SnowbirdGroupAction.RefreshGroups -> fetchGroups(forceRefresh = true)
+        }
     }
 
-    fun fetchGroup(groupKey: String) {
+    private fun fetchGroups(forceRefresh: Boolean = false) {
         viewModelScope.launch {
-            _groupState.value = GroupState.Loading
-            try {
-                val result = processingTracker.trackProcessingWithTimeout(60_000, "fetch_group") {
-                    repository.fetchGroup(groupKey)
+            processingTracker.trackProcessing("fetch_groups") {
+                _uiState.update { it.copy(isLoading = true) }
+                val result = repository.fetchGroups(forceRefresh)
+                _uiState.update { it.copy(isLoading = false) }
+                
+                if (result is SnowbirdResult.Error) {
+                    dialogManager.showErrorDialog(message = UiText.Dynamic(result.error.friendlyMessage))
                 }
-
-                _groupState.value = when (result) {
-                    is SnowbirdResult.Success -> GroupState.SingleGroupSuccess(result.value)
-                    is SnowbirdResult.Error -> GroupState.Error(result.error)
-                }
-            } catch (e: TimeoutCancellationException) {
-                _groupState.value = GroupState.Error(SnowbirdError.TimedOut)
             }
         }
     }
 
-    fun fetchGroups(forceRefresh: Boolean = false) {
+    private fun createGroup(name: String) {
         viewModelScope.launch {
-            _groupState.value = GroupState.Loading
-            try {
-                val result = processingTracker.trackProcessingWithTimeout(60_000, "fetch_groups") {
-                    repository.fetchGroups(forceRefresh)
-                }
+            processingTracker.trackProcessing("create_group") {
+                _uiState.update { it.copy(isLoading = true) }
+                val result = repository.createGroup(name)
+                _uiState.update { it.copy(isLoading = false) }
 
-                _groupState.value = when (result) {
-                    is SnowbirdResult.Success -> GroupState.MultiGroupSuccess(result.value, forceRefresh)
-                    is SnowbirdResult.Error -> GroupState.Error(result.error)
+                when (result) {
+                    is SnowbirdResult.Success -> {
+                        onAction(SnowbirdGroupAction.SelectGroup(result.value))
+                    }
+                    is SnowbirdResult.Error -> {
+                        dialogManager.showErrorDialog(message = UiText.Dynamic(result.error.friendlyMessage))
+                    }
                 }
-            } catch (e: TimeoutCancellationException) {
-                _groupState.value = GroupState.Error(SnowbirdError.TimedOut)
             }
         }
     }
 
-    fun createGroup(groupName: String) {
+    private fun createGroupWithRepo(groupName: String, repoName: String) {
         viewModelScope.launch {
-            _groupState.value = GroupState.Loading
-            try {
-                val result = processingTracker.trackProcessingWithTimeout(60_000, "create_group") {
-                    repository.createGroup(groupName)
+            processingTracker.trackProcessing("create_group_with_repo") {
+                _uiState.update { it.copy(isLoading = true) }
+                val groupResult = repository.createGroup(groupName)
+                
+                when (groupResult) {
+                    is SnowbirdResult.Success -> {
+                        val group = groupResult.value
+                        val repoResult = repoRepository.createRepo(group.id, group.vaultKey ?: "", repoName)
+                        _uiState.update { it.copy(isLoading = false) }
+                        
+                        when (repoResult) {
+                            is SnowbirdResult.Success -> {
+                                _events.emit(SnowbirdGroupEvent.NavigateToSuccess(
+                                    "Successfully created group and repository",
+                                    group.vaultKey ?: ""
+                                ))
+                            }
+                            is SnowbirdResult.Error -> {
+                                dialogManager.showErrorDialog(message = UiText.Dynamic(repoResult.error.friendlyMessage))
+                            }
+                        }
+                    }
+                    is SnowbirdResult.Error -> {
+                        _uiState.update { it.copy(isLoading = false) }
+                        dialogManager.showErrorDialog(message = UiText.Dynamic(groupResult.error.friendlyMessage))
+                    }
                 }
-
-                _groupState.value = when (result) {
-                    is SnowbirdResult.Success -> GroupState.SingleGroupSuccess(result.value)
-                    is SnowbirdResult.Error -> GroupState.Error(result.error)
-                }
-            } catch (e: TimeoutCancellationException) {
-                _groupState.value = GroupState.Error(SnowbirdError.TimedOut)
             }
         }
     }
 
-    fun joinGroup(uriString: String) {
+    private fun joinGroupWithRepo(uri: String, repoName: String) {
         viewModelScope.launch {
-            _groupState.value = GroupState.Loading
-            try {
-                val result = processingTracker.trackProcessingWithTimeout(60_000, "join_group") {
-                    repository.joinGroup(uriString)
+            processingTracker.trackProcessing("join_group_with_repo") {
+                _uiState.update { it.copy(isLoading = true) }
+                val joinResult = repository.joinGroup(uri)
+                
+                when (joinResult) {
+                    is SnowbirdResult.Success -> {
+                        // After joining, we refresh groups to get the new group in our state
+                        repository.fetchGroups(forceRefresh = true)
+                        // Group key might be in the URI or we just find the new one.
+                        // For now, let's just emit success since they are in the list now.
+                        _uiState.update { it.copy(isLoading = false) }
+                        _events.emit(SnowbirdGroupEvent.NavigateToSuccess(
+                            "Successfully joined group",
+                            "" // We might not have the key yet if it's not in response
+                        ))
+                    }
+                    is SnowbirdResult.Error -> {
+                        _uiState.update { it.copy(isLoading = false) }
+                        dialogManager.showErrorDialog(message = UiText.Dynamic(joinResult.error.friendlyMessage))
+                    }
                 }
+            }
+        }
+    }
 
-                _groupState.value = when (result) {
-                    is SnowbirdResult.Success -> GroupState.JoinGroupSuccess(result.value)
-                    is SnowbirdResult.Error -> GroupState.Error(result.error)
+    private fun joinGroup(uri: String) {
+        viewModelScope.launch {
+            processingTracker.trackProcessing("join_group") {
+                _uiState.update { it.copy(isLoading = true) }
+                val result = repository.joinGroup(uri)
+                _uiState.update { it.copy(isLoading = false) }
+
+                if (result is SnowbirdResult.Error) {
+                    dialogManager.showErrorDialog(message = UiText.Dynamic(result.error.friendlyMessage))
+                } else {
+                    fetchGroups(forceRefresh = true)
                 }
-            } catch (e: TimeoutCancellationException) {
-                _groupState.value = GroupState.Error(SnowbirdError.TimedOut)
             }
         }
     }

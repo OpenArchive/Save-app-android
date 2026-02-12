@@ -21,7 +21,7 @@ val coreModule = module {
     single<ResourceProvider> { DefaultResourceProvider(androidApplication()) }
 
     // Provide the DialogStateManager as a Singleton
-    single { DialogStateManager(resourceProvider = get()) }
+    single<DialogStateManager> { DialogStateManager(resourceProvider = get()) }
 
     // Dispatchers
     single<CoroutineDispatcher>(named("io")) { Dispatchers.IO }

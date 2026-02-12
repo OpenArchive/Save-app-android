@@ -1,76 +1,85 @@
 package net.opendasharchive.openarchive.services.snowbird
 
-import net.opendasharchive.openarchive.services.snowbird.service.db.JoinGroupResponse
-import net.opendasharchive.openarchive.services.snowbird.service.db.MembershipRequest
-import net.opendasharchive.openarchive.services.snowbird.service.db.RequestName
-import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroup
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import net.opendasharchive.openarchive.core.domain.Vault
+import net.opendasharchive.openarchive.db.DwebDao
+import net.opendasharchive.openarchive.db.VaultDao
 import net.opendasharchive.openarchive.extensions.toSnowbirdError
+import net.opendasharchive.openarchive.services.snowbird.data.toDwebEntity
+import net.opendasharchive.openarchive.services.snowbird.data.toDomain
+import net.opendasharchive.openarchive.services.snowbird.data.toVaultEntity
 import net.opendasharchive.openarchive.services.snowbird.service.ISnowbirdAPI
+import net.opendasharchive.openarchive.services.snowbird.data.*
 
 interface ISnowbirdGroupRepository {
-    suspend fun createGroup(groupName: String): SnowbirdResult<SnowbirdGroup>
-    suspend fun fetchGroup(groupKey: String): SnowbirdResult<SnowbirdGroup>
-    suspend fun fetchGroups(forceRefresh: Boolean = false): SnowbirdResult<List<SnowbirdGroup>>
+    suspend fun createGroup(groupName: String): SnowbirdResult<Vault>
+    suspend fun fetchGroups(forceRefresh: Boolean = false): SnowbirdResult<Unit>
+    fun observeGroups(): Flow<List<Vault>>
     suspend fun joinGroup(uriString: String): SnowbirdResult<JoinGroupResponse>
 }
 
-class SnowbirdGroupRepository(val api: ISnowbirdAPI) : ISnowbirdGroupRepository {
-    private var lastFetchTime: Long = 0
-    private val cacheValidityPeriod: Long = 5 * 60 * 1000
+class SnowbirdGroupRepository(
+    private val api: ISnowbirdAPI,
+    private val vaultDao: VaultDao,
+    private val dwebDao: DwebDao
+) : ISnowbirdGroupRepository {
 
-    override suspend fun createGroup(groupName: String): SnowbirdResult<SnowbirdGroup> {
+    override fun observeGroups(): Flow<List<Vault>> {
+        return dwebDao.observeVaultsWithDweb().map { vaultList ->
+            vaultList.map { it.toDomain() }
+        }
+    }
+
+    override suspend fun createGroup(groupName: String): SnowbirdResult<Vault> {
         return try {
-            val response = api.createGroup(
-                RequestName(groupName)
-            )
-            SnowbirdResult.Success(response)
+            val response = api.createGroup(RequestName(groupName))
+            // Map SnowbirdGroup to Vault entities and save to Room
+            val vaultEntity = response.toVaultEntity()
+            val vaultId = vaultDao.upsert(vaultEntity)
+            val dwebEntity = response.toDwebEntity(vaultId)
+            dwebDao.upsertVaultMetadata(dwebEntity)
+            
+            // Fetch the freshly saved vault with its metadata
+            val savedVaultWithDweb = dwebDao.getVaultWithDwebById(vaultId)
+            val savedVault = savedVaultWithDweb?.toDomain()
+            if (savedVault != null) {
+                SnowbirdResult.Success(savedVault)
+            } else {
+                SnowbirdResult.Error(SnowbirdError.GeneralError("Failed to retrieve saved group"))
+            }
         } catch (e: Exception) {
             SnowbirdResult.Error(e.toSnowbirdError())
         }
     }
 
-    override suspend fun fetchGroup(groupKey: String): SnowbirdResult<SnowbirdGroup> {
+    override suspend fun fetchGroups(forceRefresh: Boolean): SnowbirdResult<Unit> {
         return try {
-            val response = api.fetchGroup(groupKey)
-            SnowbirdResult.Success(response)
+            val response = api.fetchGroups()
+            // In a real implementation, we would sync/upsert these into Room
+            // For now, let's upsert them
+            response.groups.forEach { groupDto ->
+                // Check if already exists by key to avoid duplicates if possible, 
+                // but since we don't have a direct key-to-vault-id mapping easily, 
+                // we might need to handle this carefully.
+                // For simplicity now, just upsert.
+                val vaultEntity = groupDto.toVaultEntity()
+                val vaultId = vaultDao.upsert(vaultEntity)
+                val dwebEntity = groupDto.toDwebEntity(vaultId)
+                dwebDao.upsertVaultMetadata(dwebEntity)
+            }
+            SnowbirdResult.Success(Unit)
         } catch (e: Exception) {
             SnowbirdResult.Error(e.toSnowbirdError())
-        }
-    }
-
-    override suspend fun fetchGroups(forceRefresh: Boolean): SnowbirdResult<List<SnowbirdGroup>> {
-        val currentTime = System.currentTimeMillis()
-        val shouldFetchFromNetwork = forceRefresh || currentTime - lastFetchTime > cacheValidityPeriod
-
-        return if (forceRefresh) {
-            fetchFromNetwork()
-        } else {
-            fetchFromCache()
         }
     }
 
     override suspend fun joinGroup(uriString: String): SnowbirdResult<JoinGroupResponse> {
         return try {
-            val response = api.joinGroup(
-                MembershipRequest(uriString)
-            )
+            val response = api.joinGroup(MembershipRequest(uriString))
             SnowbirdResult.Success(response)
         } catch (e: Exception) {
-            e.printStackTrace()
             SnowbirdResult.Error(e.toSnowbirdError())
         }
-    }
-
-    private suspend fun fetchFromNetwork(): SnowbirdResult<List<SnowbirdGroup>> {
-        return try {
-            val response = api.fetchGroups()
-            SnowbirdResult.Success(response.groups)
-        } catch (e: Exception) {
-            SnowbirdResult.Error(e.toSnowbirdError())
-        }
-    }
-
-    private fun fetchFromCache(): SnowbirdResult<List<SnowbirdGroup>> {
-        return SnowbirdResult.Success(SnowbirdGroup.getAll())
     }
 }

@@ -31,6 +31,7 @@ val databaseModule = module {
     single { get<AppDatabase>().submissionDao() }
     single { get<AppDatabase>().evidenceDao() }
     single { get<AppDatabase>().migrationDao() }
+    single { get<AppDatabase>().dwebDao() }
 
     single {
         PreferenceDataStoreFactory.create(

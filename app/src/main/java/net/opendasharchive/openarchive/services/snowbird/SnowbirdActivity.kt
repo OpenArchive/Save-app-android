@@ -1,6 +1,7 @@
 package net.opendasharchive.openarchive.services.snowbird
 
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph
@@ -43,12 +44,18 @@ class SnowbirdActivity : BaseActivity() {
 
     fun updateToolbarFromFragment(fragment: Fragment) {
         if (fragment is ToolbarConfigurable) {
-            val title = fragment.getToolbarTitle()
-            val subtitle = fragment.getToolbarSubtitle()
-            val showBackButton = fragment.shouldShowBackButton()
-            setupToolbar(title = title, showBackButton = showBackButton)
-            supportActionBar?.subtitle = subtitle
+            val isVisible = fragment.isToolbarVisible()
+            binding.commonAppBar.root.visibility = if (isVisible) View.VISIBLE else View.GONE
+            
+            if (isVisible) {
+                val title = fragment.getToolbarTitle()
+                val subtitle = fragment.getToolbarSubtitle()
+                val showBackButton = fragment.shouldShowBackButton()
+                setupToolbar(title = title, showBackButton = showBackButton)
+                supportActionBar?.subtitle = subtitle
+            }
         } else {
+            binding.commonAppBar.root.visibility = View.VISIBLE
             setupToolbar(title = getString(R.string.dweb_title), showBackButton = true)
             supportActionBar?.subtitle = null
         }
