@@ -57,7 +57,6 @@ import net.opendasharchive.openarchive.features.main.adapters.FolderDrawerAdapte
 import net.opendasharchive.openarchive.features.main.adapters.FolderDrawerAdapterListener
 import net.opendasharchive.openarchive.features.main.adapters.SpaceDrawerAdapter
 import net.opendasharchive.openarchive.features.main.adapters.SpaceDrawerAdapterListener
-import net.opendasharchive.openarchive.features.media.AddMediaDialogFragment
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.ContentPickerFragment
 import net.opendasharchive.openarchive.features.media.MediaLaunchers
@@ -561,15 +560,6 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
                         openAddPickerSheet()
                     }
                 }
-                supportFragmentManager.setFragmentResultListener(
-                    AddMediaDialogFragment.RESP_TAKE_PHOTO, this@MainActivity
-                ) { _, _ -> addClicked(AddMediaType.CAMERA) }
-                supportFragmentManager.setFragmentResultListener(
-                    AddMediaDialogFragment.RESP_PHOTO_GALLERY, this@MainActivity
-                ) { _, _ -> addClicked(AddMediaType.GALLERY) }
-                supportFragmentManager.setFragmentResultListener(
-                    AddMediaDialogFragment.RESP_FILES, this@MainActivity
-                ) { _, _ -> addClicked(AddMediaType.FILES) }
             }
         }
     }

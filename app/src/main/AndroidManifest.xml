@@ -185,12 +185,6 @@
             android:theme="@style/SaveAppTheme.NoActionBar" />
 
         <activity
-            android:name=".features.settings.ConsentActivity"
-            android:label="@string/health_checks"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
             android:name=".features.settings.passcode.passcode_setup.PasscodeSetupActivity"
             android:label="@string/passcode_setup"
             android:screenOrientation="portrait"

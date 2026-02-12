@@ -35,6 +35,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.util.Date
 
+@Deprecated("Use ContentPickerLauncher or MediaPicker for modern Compose-based implementations.")
 object Picker {
 
     private var currentPhotoUri: Uri? = null

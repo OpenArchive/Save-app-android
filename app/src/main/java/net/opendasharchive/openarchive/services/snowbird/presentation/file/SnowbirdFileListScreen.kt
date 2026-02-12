@@ -43,7 +43,7 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.ContentPickerSheet
-import net.opendasharchive.openarchive.features.media.Picker
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.media.camera.CameraActivity
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
@@ -154,11 +154,7 @@ fun SnowbirdFileListScreen(
                                     showGridToggle = true,
                                     showCameraSwitch = true
                                 )
-                                Picker.launchCustomCamera(
-                                    activity = activity,
-                                    launcher = customCameraLauncher,
-                                    config = cameraConfig
-                                )
+                                customCameraLauncher.launch(CameraActivity.createIntent(activity, cameraConfig))
                             } else {
                                 val photoFile = Utility.getOutputMediaFile(context, "camera_${System.currentTimeMillis()}.jpg")
                                 if (photoFile != null) {

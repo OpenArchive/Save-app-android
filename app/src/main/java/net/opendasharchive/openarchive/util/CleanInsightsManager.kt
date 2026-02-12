@@ -3,7 +3,6 @@ package net.opendasharchive.openarchive.util
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import net.opendasharchive.openarchive.features.settings.ConsentActivity
 import org.cleaninsights.sdk.Campaign
 import org.cleaninsights.sdk.CleanInsights
 import org.cleaninsights.sdk.ConsentRequestUi
@@ -58,7 +57,8 @@ object CleanInsightsManager  {
             ) {
                 mCompleted = completed
 
-                context.startActivity(Intent(context, ConsentActivity::class.java))
+                //TODO: Request content?
+                //context.startActivity(Intent(context, ConsentActivity::class.java))
             }
 
             override fun show(feature: Feature, complete: ConsentRequestUiComplete) {

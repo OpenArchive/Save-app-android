@@ -55,6 +55,10 @@ fun rememberContentPickerLaunchers(
 
     // Keep last camera URI so we can import it
     var cameraUri by remember { mutableStateOf<Uri?>(null) }
+    
+    // Debouncing mechanism to prevent multiple rapid picker launches
+    var lastPickerLaunchTime by remember { mutableStateOf(0L) }
+    val debounceMs = 1000L
 
     // ---- Gallery picker ----
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -194,28 +198,38 @@ fun rememberContentPickerLaunchers(
 
     // ---- Launchers exposed to caller ----
     val launchGallery: () -> Unit = {
-        errorMessage = null
-        // Equivalent to Picker.pickMedia, but via Compose launcher
-        galleryLauncher.launch(
-            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
-        )
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastPickerLaunchTime >= debounceMs) {
+            lastPickerLaunchTime = currentTime
+            errorMessage = null
+            galleryLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
+            )
+        }
     }
 
     val launchFilePicker: () -> Unit = {
-        errorMessage = null
-        // Equivalent MIME setup to Picker.mFilePickerIntent
-        filePickerLauncher.launch(
-            arrayOf(
-                "application/pdf",
-                "image/*",
-                "video/*",
-                "audio/mpeg",
-                "audio/mp3"
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastPickerLaunchTime >= debounceMs) {
+            lastPickerLaunchTime = currentTime
+            errorMessage = null
+            filePickerLauncher.launch(
+                arrayOf(
+                    "application/pdf",
+                    "image/*",
+                    "video/*",
+                    "audio/mpeg",
+                    "audio/mp3"
+                )
             )
-        )
+        }
     }
 
     val launchCamera: () -> Unit = launchCamera@{
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastPickerLaunchTime < debounceMs) return@launchCamera
+        lastPickerLaunchTime = currentTime
+        
         errorMessage = null
         if (useCustomCamera) {
             val cameraConfig = CameraConfig(
@@ -227,11 +241,7 @@ fun rememberContentPickerLaunchers(
                 showGridToggle = true,
                 showCameraSwitch = true
             )
-            Picker.launchCustomCamera(
-                activity = activity,
-                launcher = customCameraLauncher,
-                config = cameraConfig
-            )
+            customCameraLauncher.launch(CameraActivity.createIntent(activity, cameraConfig))
         } else {
             // TODO: This is a temporary persistent storage solution. 
             // Review this when implementing the new Evidence architecture.

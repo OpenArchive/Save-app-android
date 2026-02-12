@@ -138,28 +138,6 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
-    fun setupToolbar(
-        title: String = "",
-        subtitle: String? = null,
-        showBackButton: Boolean = true
-    ) {
-        val toolbar: MaterialToolbar = findViewById(R.id.common_toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.title = title
-
-        if (subtitle != null) {
-            supportActionBar?.subtitle = subtitle
-        }
-
-        if (showBackButton) {
-            supportActionBar?.setDisplayHomeAsUpEnabled(true)
-            supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_arrow_back_ios)
-            toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
-        } else {
-            supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        }
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         dialogManager.dismissDialog()
