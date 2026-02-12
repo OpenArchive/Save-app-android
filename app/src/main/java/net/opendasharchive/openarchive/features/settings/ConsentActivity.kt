@@ -3,7 +3,7 @@ package net.opendasharchive.openarchive.features.settings
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.addCallback
-import net.opendasharchive.openarchive.CleanInsightsManager
+import net.opendasharchive.openarchive.util.CleanInsightsManager
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivityConsentBinding
 import net.opendasharchive.openarchive.features.core.BaseActivity

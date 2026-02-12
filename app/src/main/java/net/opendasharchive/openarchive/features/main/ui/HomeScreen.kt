@@ -412,7 +412,7 @@ fun HomeScreenContent(
             onDismiss = {
                 onAction(HomeAction.ContentPickerDismissed)
             },
-            onMediaPicked = { type ->
+            onMediaTypeSelected = { type ->
                 onAction(HomeAction.ContentPickerPicked(type))
             }
         )

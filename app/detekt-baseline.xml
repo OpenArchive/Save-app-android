@@ -1201,7 +1201,7 @@
     <ID>MaxLineLength:GDriveConduit.kt$GDriveConduit.Companion$"mimeType='application/vnd.google-apps.folder' and name = '$folderName' and trashed = false and '$parentId' in parents"</ID>
     <ID>MaxLineLength:Hbks.kt$Hbks$}</ID>
     <ID>MaxLineLength:IaConduit.kt$IaConduit$// TODO this should make sure we aren't accidentally using one of archive.org's metadata fields by accident</ID>
-    <ID>MaxLineLength:InternetArchiveDetailsScreen.kt$message = UiText.StringResource(R.string.are_you_sure_you_want_to_remove_this_server_from_the_app)</ID>
+    <ID>MaxLineLength:InternetArchiveDetailsScreen.kt$message = UiText.Resource(R.string.are_you_sure_you_want_to_remove_this_server_from_the_app)</ID>
     <ID>MaxLineLength:InternetArchiveFragment.kt$InternetArchiveFragment$val</ID>
     <ID>MaxLineLength:MediaAdapter.kt$MediaAdapter$// CleanInsightsManager.measureEvent("backend", "upload-error", media[pos].space?.friendlyName)</ID>
     <ID>MaxLineLength:PasscodeSetupScreen.kt$text = "Make sure you remember this pin. If you forget it, you will need to reset the app, and all data will be erased."</ID>

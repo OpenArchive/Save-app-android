@@ -1,10 +1,14 @@
-package net.opendasharchive.openarchive
+package net.opendasharchive.openarchive.util
 
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import net.opendasharchive.openarchive.features.settings.ConsentActivity
-import org.cleaninsights.sdk.*
+import org.cleaninsights.sdk.Campaign
+import org.cleaninsights.sdk.CleanInsights
+import org.cleaninsights.sdk.ConsentRequestUi
+import org.cleaninsights.sdk.ConsentRequestUiComplete
+import org.cleaninsights.sdk.Feature
 
 @Suppress("unused")
 object CleanInsightsManager  {
@@ -18,7 +22,8 @@ object CleanInsightsManager  {
     fun init(context: Context) {
         mCi = CleanInsights(
             context.assets.open("cleaninsights.json").reader().use { it.readText() },
-            context.filesDir)
+            context.filesDir
+        )
     }
 
     fun hasConsent(): Boolean {

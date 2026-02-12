@@ -66,7 +66,6 @@ import net.opendasharchive.openarchive.features.media.PreviewActivity
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.features.onboarding.Onboarding23Activity
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdActivity
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import net.opendasharchive.openarchive.services.snowbird.service.db.SnowbirdGroup
@@ -1239,8 +1238,8 @@ class MainActivity : BaseActivity(), SpaceDrawerAdapterListener, FolderDrawerAda
     override fun onNavigateToDwebGroups() {
         collapseSpacesList()
         closeDrawer()
-        val intent = Intent(this, SnowbirdActivity::class.java)
-        startActivity(intent)
+        //val intent = Intent(this, SnowbirdActivity::class.java)
+        //startActivity(intent)
     }
 
     /**

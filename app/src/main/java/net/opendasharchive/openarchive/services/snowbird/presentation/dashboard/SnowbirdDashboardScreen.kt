@@ -1,6 +1,5 @@
 package net.opendasharchive.openarchive.services.snowbird.presentation.dashboard
 
-import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -64,7 +63,6 @@ import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.ContentPickerSheet
 import net.opendasharchive.openarchive.services.snowbird.service.ServiceStatus
-import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 
 @Composable
 fun SnowbirdDashboardScreen(
@@ -139,7 +137,7 @@ fun SnowbirdDashboardContent(
             onDismiss = {
                 onAction(SnowbirdDashboardAction.ContentPickerDismissed)
             },
-            onMediaPicked = { type ->
+            onMediaTypeSelected = { type ->
                 onAction(SnowbirdDashboardAction.MediaPicked(type))
             }
         )

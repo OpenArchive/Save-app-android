@@ -191,13 +191,6 @@
             android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar" />
 
-        <activity
-            android:name=".services.snowbird.SnowbirdActivity"
-            android:exported="false"
-            android:label="@string/dweb_title"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan" />
 
         <activity
             android:name=".features.onboarding.Onboarding23Activity"

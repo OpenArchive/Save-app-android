@@ -13,7 +13,11 @@ import net.opendasharchive.openarchive.features.settings.passcode.components.Def
 import net.opendasharchive.openarchive.services.snowbird.presentation.dashboard.SnowbirdDashboardScreen
 import net.opendasharchive.openarchive.services.snowbird.presentation.dashboard.SnowbirdDashboardViewModel
 import net.opendasharchive.openarchive.services.snowbird.presentation.file.SnowbirdFileListScreen
+import net.opendasharchive.openarchive.services.snowbird.presentation.file.SnowbirdFileAction
 import net.opendasharchive.openarchive.services.snowbird.presentation.file.SnowbirdFileViewModel
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.res.painterResource
 import net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdCreateGroupScreen
 import net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdCreateGroupViewModel
 import net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdGroupListScreen
@@ -143,7 +147,12 @@ fun EntryProviderScope<AppRoute>.snowbirdEntries(
 
         DefaultScaffold(
             title = stringResource(id = R.string.dweb_files),
-            onNavigateBack = { navigator.navigateBack() }
+            onNavigateBack = { viewModel.onAction(SnowbirdFileAction.NavigateBack) },
+            actions = {
+                IconButton(onClick = { viewModel.onAction(SnowbirdFileAction.ShowContentPicker) }) {
+                    Icon(painter = painterResource(R.drawable.ic_add), contentDescription = "Add Files")
+                }
+            }
         ) {
             SnowbirdFileListScreen(
                 viewModel = viewModel

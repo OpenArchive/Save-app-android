@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdActivity
+
 
 @Composable
 fun SpaceSetupScreen(

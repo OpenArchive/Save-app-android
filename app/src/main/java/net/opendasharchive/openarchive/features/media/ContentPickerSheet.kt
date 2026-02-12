@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -31,7 +30,7 @@ import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 fun ContentPickerSheet(
     title: String? = null,
     onDismiss: () -> Unit,
-    onMediaPicked: (AddMediaType) -> Unit
+    onMediaTypeSelected: (AddMediaType) -> Unit
 ) {
 
     val shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
@@ -70,7 +69,7 @@ fun ContentPickerSheet(
                         iconRes = R.drawable.ic_photo_camera,
                         labelRes = R.string.camera
                     ) {
-                        onMediaPicked(AddMediaType.CAMERA)
+                        onMediaTypeSelected(AddMediaType.CAMERA)
                         onDismiss()
                     }
 
@@ -78,7 +77,7 @@ fun ContentPickerSheet(
                         iconRes = R.drawable.ic_image_gallery_line,
                         labelRes = R.string.photo_gallery
                     ) {
-                        onMediaPicked(AddMediaType.GALLERY)
+                        onMediaTypeSelected(AddMediaType.GALLERY)
                         onDismiss()
                     }
 
@@ -86,7 +85,7 @@ fun ContentPickerSheet(
                         iconRes = R.drawable.ic_description,
                         labelRes = R.string.files
                     ) {
-                        onMediaPicked(AddMediaType.FILES)
+                        onMediaTypeSelected(AddMediaType.FILES)
                         onDismiss()
                     }
                 }
@@ -129,6 +128,6 @@ private fun PickerItem(
 @Composable
 private fun ContentPickerSheetPreview() {
     SaveAppTheme {
-        ContentPickerSheet(onDismiss = {}, onMediaPicked = {})
+        ContentPickerSheet(onDismiss = {}, onMediaTypeSelected = {})
     }
 }

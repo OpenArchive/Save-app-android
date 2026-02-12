@@ -1,6 +1,5 @@
 package net.opendasharchive.openarchive.features.media
 
-import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -49,7 +48,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.collectLatest
@@ -180,7 +178,7 @@ private fun PreviewMediaContent(
             onDismiss = {
                 onAction(PreviewMediaAction.ContentPickerDismissed)
             },
-            onMediaPicked = { type ->
+            onMediaTypeSelected = { type ->
                 onAction(PreviewMediaAction.ContentPickerPicked(type))
             }
         )

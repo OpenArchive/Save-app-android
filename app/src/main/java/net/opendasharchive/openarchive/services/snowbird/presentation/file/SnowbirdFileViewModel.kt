@@ -12,6 +12,7 @@ import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
+import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.services.snowbird.service.repository.ISnowbirdFileRepository
 import net.opendasharchive.openarchive.services.snowbird.util.SnowbirdFileStorage
 import net.opendasharchive.openarchive.util.ProcessingTracker
@@ -22,17 +23,23 @@ data class SnowbirdFileState(
     val isLoading: Boolean = false,
     val archiveId: Long = 0,
     val groupKey: String = "",
-    val repoKey: String = ""
+    val repoKey: String = "",
+    val showContentPicker: Boolean = false
 )
 
 sealed interface SnowbirdFileAction {
     data class DownloadFile(val evidence: Evidence) : SnowbirdFileAction
     data class UploadFile(val uri: Uri) : SnowbirdFileAction
     data object RefreshFiles : SnowbirdFileAction
+    data object ShowContentPicker : SnowbirdFileAction
+    data object ContentPickerDismissed : SnowbirdFileAction
+    data class OnMediaTypeSelected(val type: AddMediaType) : SnowbirdFileAction
+    data object NavigateBack : SnowbirdFileAction
 }
 
 sealed interface SnowbirdFileEvent {
     data class FileDownloaded(val uri: Uri) : SnowbirdFileEvent
+    data class LaunchPicker(val type: AddMediaType) : SnowbirdFileEvent
 }
 
 class SnowbirdFileViewModel(
@@ -66,6 +73,21 @@ class SnowbirdFileViewModel(
             is SnowbirdFileAction.DownloadFile -> downloadFile(action.evidence)
             is SnowbirdFileAction.UploadFile -> uploadFile(action.uri)
             is SnowbirdFileAction.RefreshFiles -> fetchFiles(forceRefresh = true)
+            is SnowbirdFileAction.ShowContentPicker -> {
+                _uiState.update { it.copy(showContentPicker = true) }
+            }
+            is SnowbirdFileAction.ContentPickerDismissed -> {
+                _uiState.update { it.copy(showContentPicker = false) }
+            }
+            is SnowbirdFileAction.OnMediaTypeSelected -> {
+                _uiState.update { it.copy(showContentPicker = false) }
+                viewModelScope.launch {
+                    _events.emit(SnowbirdFileEvent.LaunchPicker(action.type))
+                }
+            }
+            is SnowbirdFileAction.NavigateBack -> {
+                navigator.navigateBack()
+            }
         }
     }
 
@@ -96,7 +118,7 @@ class SnowbirdFileViewModel(
 
     private fun downloadFile(evidence: Evidence) {
         val state = _uiState.value
-        val filename = evidence.title ?: "file_${evidence.id}"
+        val filename = evidence.title
         
         viewModelScope.launch {
             processingTracker.trackProcessing("download_file") {
