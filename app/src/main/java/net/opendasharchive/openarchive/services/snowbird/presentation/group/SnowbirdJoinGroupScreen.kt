@@ -35,7 +35,7 @@ fun SnowbirdJoinGroupScreen(
     initialUri: String,
     onScanQr: () -> Unit,
     onCancel: () -> Unit,
-    viewModel: SnowbirdGroupViewModel = koinViewModel()
+    viewModel: SnowbirdJoinGroupViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -51,9 +51,9 @@ fun SnowbirdJoinGroupScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SnowbirdJoinGroupScreenContent(
-    state: SnowbirdGroupState,
+    state: SnowbirdJoinGroupState,
     initialUri: String,
-    onAction: (SnowbirdGroupAction) -> Unit,
+    onAction: (SnowbirdJoinGroupAction) -> Unit,
     onScanQr: () -> Unit,
     onCancel: () -> Unit
 ) {
@@ -233,7 +233,7 @@ fun SnowbirdJoinGroupScreenContent(
                             disabledContentColor = colorResource(R.color.black),
                             contentColor = colorResource(R.color.black)
                         ),
-                        onClick = { onAction(SnowbirdGroupAction.JoinGroupWithRepo(uriString, repoName)) }
+                        onClick = { onAction(SnowbirdJoinGroupAction.JoinGroupWithRepo(uriString, repoName)) }
                     ) {
                         if (state.isLoading) {
                             CircularProgressIndicator(
@@ -259,7 +259,7 @@ fun SnowbirdJoinGroupScreenContent(
 private fun SnowbirdJoinGroupScreenPreview() {
     SaveAppTheme {
         SnowbirdJoinGroupScreenContent(
-            state = SnowbirdGroupState(),
+            state = SnowbirdJoinGroupState(),
             initialUri = "",
             onAction = {},
             onScanQr = {},
@@ -273,7 +273,7 @@ private fun SnowbirdJoinGroupScreenPreview() {
 private fun SnowbirdJoinGroupScreenLoadingPreview() {
     DefaultScaffoldPreview {
         SnowbirdJoinGroupScreenContent(
-            state = SnowbirdGroupState(isLoading = true),
+            state = SnowbirdJoinGroupState(isLoading = true),
             initialUri = "save-veilid://join?name=TestGroup",
             onAction = {},
             onScanQr = {},

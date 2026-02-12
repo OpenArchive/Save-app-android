@@ -14,8 +14,6 @@ import net.opendasharchive.openarchive.services.snowbird.presentation.base.BaseS
 
 class SnowbirdQRScannerFragment : BaseSnowbirdFragment() {
 
-    private val snowbirdGroupViewModel: SnowbirdGroupViewModel by viewModel()
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

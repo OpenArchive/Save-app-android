@@ -46,3 +46,7 @@ data class SnowbirdGroup(
         }
     }
 }
+
+fun SnowbirdGroup.shortHash(): String {
+    return key.take(10)
+}

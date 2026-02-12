@@ -24,7 +24,7 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SnowbirdGroupListScreen(
-    viewModel: SnowbirdGroupViewModel = koinViewModel()
+    viewModel: SnowbirdGroupListViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -37,12 +37,12 @@ fun SnowbirdGroupListScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SnowbirdGroupListContent(
-    state: SnowbirdGroupState,
-    onAction: (SnowbirdGroupAction) -> Unit
+    state: SnowbirdGroupListState,
+    onAction: (SnowbirdGroupListAction) -> Unit
 ) {
     PullToRefreshBox(
         isRefreshing = state.isLoading,
-        onRefresh = { onAction(SnowbirdGroupAction.RefreshGroups) },
+        onRefresh = { onAction(SnowbirdGroupListAction.RefreshGroups) },
         modifier = Modifier.fillMaxSize()
     ) {
         if (state.groups.isEmpty() && !state.isLoading) {
@@ -62,7 +62,7 @@ fun SnowbirdGroupListContent(
                 items(state.groups) { group ->
                     SnowbirdGroupItem(
                         group = group,
-                        onClick = { onAction(SnowbirdGroupAction.SelectGroup(group)) }
+                        onClick = { onAction(SnowbirdGroupListAction.SelectGroup(group)) }
                     )
                 }
             }
@@ -121,7 +121,7 @@ fun SnowbirdGroupItem(
 private fun SnowbirdGroupListScreenPreview() {
     SaveAppTheme {
         SnowbirdGroupListContent(
-            state = SnowbirdGroupState(
+            state = SnowbirdGroupListState(
                 groups = listOf(
                     Vault(name = "Personal Group", host = "veilid://host1", type = VaultType.DWEB_STORAGE),
                     Vault(name = "Work Group", host = "veilid://host2", type = VaultType.DWEB_STORAGE),
@@ -138,7 +138,7 @@ private fun SnowbirdGroupListScreenPreview() {
 private fun SnowbirdGroupListScreenEmptyPreview() {
     DefaultScaffoldPreview {
         SnowbirdGroupListContent(
-            state = SnowbirdGroupState(groups = emptyList()),
+            state = SnowbirdGroupListState(groups = emptyList()),
             onAction = {}
         )
     }
@@ -149,7 +149,7 @@ private fun SnowbirdGroupListScreenEmptyPreview() {
 private fun SnowbirdGroupListScreenLoadingPreview() {
     DefaultScaffoldPreview {
         SnowbirdGroupListContent(
-            state = SnowbirdGroupState(groups = emptyList(), isLoading = true),
+            state = SnowbirdGroupListState(groups = emptyList(), isLoading = true),
             onAction = {}
         )
     }

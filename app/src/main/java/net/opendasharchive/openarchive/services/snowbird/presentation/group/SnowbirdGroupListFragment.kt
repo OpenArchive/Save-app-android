@@ -21,7 +21,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SnowbirdGroupListFragment : BaseSnowbirdFragment() {
 
-    private val viewModel: SnowbirdGroupViewModel by viewModel()
+    private val viewModel: SnowbirdGroupListViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -66,19 +66,19 @@ class SnowbirdGroupListFragment : BaseSnowbirdFragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.events.collect { event ->
                     when (event) {
-                        is SnowbirdGroupEvent.NavigateToRepo -> {
+                        is SnowbirdGroupListEvent.NavigateToRepo -> {
                             val action = SnowbirdGroupListFragmentDirections.Companion.actionFragmentSnowbirdGroupListToFragmentSnowbirdListRepos(
                                 dwebGroupKey = event.groupKey,
                                 vaultId = event.vaultId
                             )
                             findNavController().navigate(action)
                         }
-                        is SnowbirdGroupEvent.GoBack -> {
-                            findNavController().navigateUp()
+                        is SnowbirdGroupListEvent.NavigateToShare -> {
+                            val action = SnowbirdGroupListFragmentDirections.Companion.actionFragmentSnowbirdGroupListToFragmentSnowbirdShareGroup(
+                                dwebGroupKey = event.groupKey
+                            )
+                            findNavController().navigate(action)
                         }
-
-                        is SnowbirdGroupEvent.NavigateToSuccess -> TODO()
-                        SnowbirdGroupEvent.NavigateToScanner -> TODO()
                     }
                 }
             }

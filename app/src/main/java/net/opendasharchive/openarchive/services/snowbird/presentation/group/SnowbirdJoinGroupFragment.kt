@@ -16,7 +16,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SnowbirdJoinGroupFragment: BaseSnowbirdFragment() {
 
-    private val snowbirdGroupViewModel: SnowbirdGroupViewModel by viewModel()
+    private val snowbirdJoinGroupViewModel: SnowbirdJoinGroupViewModel by viewModel()
 
     private val args: SnowbirdJoinGroupFragmentArgs by navArgs()
 
@@ -39,13 +39,13 @@ class SnowbirdJoinGroupFragment: BaseSnowbirdFragment() {
                 navController.currentBackStackEntry?.savedStateHandle?.getLiveData<String>(SnowbirdQRScannerFragment.QR_RESULT_KEY)
                     ?.observe(viewLifecycleOwner) { result ->
                         if (result != null) {
-                            snowbirdGroupViewModel.onAction(SnowbirdGroupAction.UpdateJoinUri(result))
+                            snowbirdJoinGroupViewModel.onAction(SnowbirdJoinGroupAction.UpdateJoinUri(result))
                             navController.currentBackStackEntry?.savedStateHandle?.remove<String>(SnowbirdQRScannerFragment.QR_RESULT_KEY)
                         }
                     }
 
                 SnowbirdJoinGroupScreen(
-                    viewModel = snowbirdGroupViewModel,
+                    viewModel = snowbirdJoinGroupViewModel,
                     initialUri = uriString,
                     onScanQr = {
                         val action = SnowbirdJoinGroupFragmentDirections.Companion.actionFragmentSnowbirdJoinGroupToSnowbirdQrScanner()
@@ -62,9 +62,9 @@ class SnowbirdJoinGroupFragment: BaseSnowbirdFragment() {
         
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                snowbirdGroupViewModel.events.collect { event ->
+                snowbirdJoinGroupViewModel.events.collect { event ->
                     when (event) {
-                        is SnowbirdGroupEvent.NavigateToSuccess -> {
+                        is SnowbirdJoinGroupEvent.NavigateToSuccess -> {
                             val action = SnowbirdJoinGroupFragmentDirections.Companion
                                 .actionFragmentSnowbirdJoinGroupToFragmentSnowbirdSetupSuccess(
                                     message = event.message,
@@ -72,14 +72,9 @@ class SnowbirdJoinGroupFragment: BaseSnowbirdFragment() {
                                 )
                             findNavController().navigate(action)
                         }
-                        is SnowbirdGroupEvent.GoBack -> {
+                        is SnowbirdJoinGroupEvent.GoBack -> {
                             findNavController().popBackStack()
                         }
-                        is SnowbirdGroupEvent.NavigateToScanner -> {
-                            val action = SnowbirdJoinGroupFragmentDirections.Companion.actionFragmentSnowbirdJoinGroupToSnowbirdQrScanner()
-                            findNavController().navigate(action)
-                        }
-                        else -> Unit
                     }
                 }
             }
