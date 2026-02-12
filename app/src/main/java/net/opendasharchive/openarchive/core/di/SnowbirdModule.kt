@@ -4,6 +4,9 @@ import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.services.snowbird.presentation.dashboard.SnowbirdDashboardViewModel
 import net.opendasharchive.openarchive.services.snowbird.presentation.file.SnowbirdFileViewModel
 import net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdCreateGroupViewModel
+import net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdGroupListViewModel
+import net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdJoinGroupViewModel
+import net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdShareViewModel
 import net.opendasharchive.openarchive.services.snowbird.presentation.repo.SnowbirdRepoViewModel
 import net.opendasharchive.openarchive.services.snowbird.service.repository.ISnowbirdFileRepository
 import net.opendasharchive.openarchive.services.snowbird.service.repository.ISnowbirdGroupRepository
@@ -89,4 +92,7 @@ val snowbirdModule = module {
     viewModelOf(::SnowbirdRepoViewModel)
     viewModelOf(::SnowbirdDashboardViewModel)
     viewModelOf(::SnowbirdCreateGroupViewModel)
+    viewModelOf(::SnowbirdGroupListViewModel)
+    viewModelOf(::SnowbirdJoinGroupViewModel)
+    viewModelOf(::SnowbirdShareViewModel)
 }

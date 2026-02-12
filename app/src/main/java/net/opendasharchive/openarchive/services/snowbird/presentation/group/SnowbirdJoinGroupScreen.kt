@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.services.snowbird.presentation.group
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,12 +16,15 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.presentation.components.LoadingOverlay
 import net.opendasharchive.openarchive.core.presentation.components.QRScanner
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
@@ -33,251 +37,223 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun SnowbirdJoinGroupScreen(
     initialUri: String,
-    onScanQr: () -> Unit,
     onCancel: () -> Unit,
     viewModel: SnowbirdJoinGroupViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(initialUri) {
+        if (initialUri.isNotBlank()) {
+            viewModel.onAction(SnowbirdJoinGroupAction.UpdateJoinUri(initialUri))
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is SnowbirdJoinGroupEvent.GoBack -> onCancel()
+                else -> {}
+            }
+        }
+    }
+
     SnowbirdJoinGroupScreenContent(
         state = state,
-        initialUri = initialUri,
-        onAction = viewModel::onAction,
-        onScanQr = onScanQr,
-        onCancel = onCancel
+        onAction = viewModel::onAction
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SnowbirdJoinGroupScreenContent(
     state: SnowbirdJoinGroupState,
-    initialUri: String,
-    onAction: (SnowbirdJoinGroupAction) -> Unit,
-    onScanQr: () -> Unit,
-    onCancel: () -> Unit
+    onAction: (SnowbirdJoinGroupAction) -> Unit
 ) {
-    var uriString by remember { mutableStateOf(initialUri) }
-    var repoName by remember { mutableStateOf("") }
-    var scannedGroupName by remember { mutableStateOf(initialUri.getQueryParameter("name") ?: "") }
     val focusManager = LocalFocusManager.current
     val repoFocusRequester = remember { FocusRequester() }
+    val scrollState = rememberScrollState()
 
-    // Update local state when scannedUri changes in ViewModel state
-    LaunchedEffect(state.scannedUri) {
-        if (state.scannedUri.isNotBlank()) {
-            uriString = state.scannedUri
-            scannedGroupName = state.scannedUri.getQueryParameter("name") ?: ""
-        }
-    }
-
-    // Launcher for picking QR image from gallery
-    val galleryLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
-    ) { uri: android.net.Uri? ->
-        uri?.let {
-            // TODO: Process image URI to decode QR code
-        }
-    }
-
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.dweb_join_group_screen_title),
-                        style = SaveTextStyles.titleMedium
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onCancel) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_arrow_back_ios),
-                            contentDescription = stringResource(R.string.back)
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    titleContentColor = MaterialTheme.colorScheme.onSurface,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface
-                )
-            )
-        }
-    ) { paddingValues ->
-        Box(
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .verticalScroll(scrollState)
+                .padding(horizontal = 24.dp)
+                .padding(top = 8.dp, bottom = 100.dp)
         ) {
-            Column(
+            // Header section (similar to WebDavHeader)
+            JoinGroupHeader(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top
+                    .padding(top = 48.dp, bottom = 24.dp)
+                    .padding(end = 24.dp)
+            )
+
+            // Group Info Section
+            Text(
+                text = stringResource(R.string.dweb_join_group_group_name),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 18.sp
+                ),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            // Group Name field (Read-only extracted from URI)
+            CustomTextField(
+                value = state.groupName,
+                onValueChange = {},
+                enabled = false,
+                placeholder = stringResource(R.string.dweb_join_group_group_name),
+                isLoading = state.isLoading,
+                imeAction = ImeAction.Next,
+                onImeAction = { repoFocusRequester.requestFocus() }
+            )
+
+            Spacer(modifier = Modifier.height(ThemeDimensions.spacing.medium))
+
+            // Repository Info Section
+            Text(
+                text = stringResource(R.string.dweb_join_group_repo_name),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                    fontSize = 18.sp
+                ),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 8.dp, top = 16.dp)
+            )
+
+            // Repository Name field
+            CustomTextField(
+                value = state.repoName,
+                onValueChange = { onAction(SnowbirdJoinGroupAction.UpdateRepoName(it)) },
+                placeholder = stringResource(R.string.dweb_join_group_repo_name),
+                isLoading = state.isLoading,
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Done,
+                onImeAction = { focusManager.clearFocus() },
+                modifier = Modifier.focusRequester(repoFocusRequester)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = stringResource(R.string.dweb_join_group_screen_description),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        // Action Buttons at the bottom
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            // Back button
+            TextButton(
+                modifier = Modifier
+                    .heightIn(ThemeDimensions.touchable)
+                    .weight(1f),
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = colorResource(R.color.colorOnBackground)
+                ),
+                enabled = !state.isLoading,
+                shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
+                onClick = { onAction(SnowbirdJoinGroupAction.Cancel) }
             ) {
-                Spacer(modifier = Modifier.height(24.dp))
-                
                 Text(
-                    text = stringResource(R.string.qr_scanner_instruction),
-                    style = SaveTextStyles.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = 24.dp)
+                    stringResource(R.string.back),
+                    style = MaterialTheme.typography.titleLarge
                 )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                // QR Scanner - Constrained window
-                Box(
-                    modifier = Modifier
-                        .size(280.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                ) {
-                    QRScanner(
-                        modifier = Modifier.fillMaxSize(),
-                        onQrCodeScanned = { result ->
-                            uriString = result
-                            scannedGroupName = result.getQueryParameter("name") ?: "Scanned Group"
-                        }
-                    )
-                }
-
-                if (scannedGroupName.isNotBlank()) {
-                    Text(
-                        text = stringResource(R.string.joining_group_label, scannedGroupName),
-                        style = SaveTextStyles.bodyLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(top = 16.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                CustomTextField(
-                    value = uriString,
-                    onValueChange = { 
-                        uriString = it
-                        scannedGroupName = it.getQueryParameter("name") ?: ""
-                    },
-                    placeholder = stringResource(R.string.dweb_join_group_group_name),
-                    isLoading = state.isLoading,
-                    keyboardType = KeyboardType.Uri,
-                    imeAction = ImeAction.Next,
-                    onImeAction = { repoFocusRequester.requestFocus() }
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                CustomTextField(
-                    value = repoName,
-                    onValueChange = { repoName = it },
-                    placeholder = stringResource(R.string.dweb_join_group_repo_name),
-                    isLoading = state.isLoading,
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Done,
-                    onImeAction = { focusManager.clearFocus() },
-                    modifier = Modifier.focusRequester(repoFocusRequester)
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = stringResource(R.string.dweb_join_group_screen_description),
-                    style = SaveTextStyles.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                
-                Spacer(modifier = Modifier.height(32.dp))
-
-                TextButton(
-                    onClick = { galleryLauncher.launch("image/*") },
-                    enabled = !state.isLoading
-                ) {
-                    Text(
-                        text = stringResource(R.string.open_from_gallery),
-                        style = SaveTextStyles.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(120.dp)) // Padding for bottom button bar
             }
 
-            // Bottom Action Bar
-            Surface(
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // Join Group button
+            Button(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter),
-                tonalElevation = 2.dp,
-                shadowElevation = 8.dp
+                    .heightIn(ThemeDimensions.touchable)
+                    .weight(1f),
+                enabled = !state.isLoading && state.isFormValid,
+                shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    disabledContainerColor = colorResource(R.color.grey_50),
+                    disabledContentColor = colorResource(R.color.black),
+                    contentColor = colorResource(R.color.black)
+                ),
+                onClick = { onAction(SnowbirdJoinGroupAction.Authenticate) }
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
-                        .padding(horizontal = 24.dp, vertical = 24.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Button(
-                        modifier = Modifier
-                            .height(ThemeDimensions.touchable)
-                            .weight(1f),
-                        enabled = !state.isLoading && uriString.isNotBlank() && repoName.isNotBlank(),
-                        shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.tertiary,
-                            disabledContainerColor = colorResource(R.color.grey_50),
-                            disabledContentColor = colorResource(R.color.black),
-                            contentColor = colorResource(R.color.black)
-                        ),
-                        onClick = { onAction(SnowbirdJoinGroupAction.JoinGroupWithRepo(uriString, repoName)) }
-                    ) {
-                        if (state.isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                color = MaterialTheme.colorScheme.onTertiary
-                            )
-                        } else {
-                            Text(
-                                stringResource(R.string.next),
-                                style = MaterialTheme.typography.titleLarge
-                            )
-                        }
-                    }
+                if (state.isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onTertiary
+                    )
+                } else {
+                    Text(
+                        stringResource(R.string.action_next),
+                        style = MaterialTheme.typography.titleLarge
+                    )
                 }
             }
+        }
+
+        // Loading Overlay
+        if (state.isLoading) {
+            LoadingOverlay()
         }
     }
 }
 
-@Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun SnowbirdJoinGroupScreenPreview() {
-    SaveAppTheme {
-        SnowbirdJoinGroupScreenContent(
-            state = SnowbirdJoinGroupState(),
-            initialUri = "",
-            onAction = {},
-            onScanQr = {},
-            onCancel = {}
+private fun JoinGroupHeader(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(androidx.compose.foundation.shape.CircleShape)
+                .background(colorResource(R.color.colorBackgroundSpaceIcon))
+                .padding(8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            androidx.compose.foundation.Image(
+                modifier = Modifier.size(32.dp),
+                painter = painterResource(id = R.drawable.ic_private_server),
+                contentDescription = null,
+                colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(colorResource(R.color.colorTertiary))
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Text(
+            text = stringResource(R.string.dweb_join_group_screen_title),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(end = 32.dp)
         )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun SnowbirdJoinGroupScreenLoadingPreview() {
-    DefaultScaffoldPreview {
+private fun SnowbirdJoinGroupScreenPreview() {
+    SaveAppTheme {
         SnowbirdJoinGroupScreenContent(
-            state = SnowbirdJoinGroupState(isLoading = true),
-            initialUri = "save-veilid://join?name=TestGroup",
-            onAction = {},
-            onScanQr = {},
-            onCancel = {}
+            state = SnowbirdJoinGroupState(
+                groupName = "Test Group",
+                repoName = "",
+                scannedUri = "save-veilid://join?name=TestGroup"
+            ),
+            onAction = {}
         )
     }
 }

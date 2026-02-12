@@ -69,7 +69,7 @@ import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.ContentPickerSheet
 import net.opendasharchive.openarchive.services.snowbird.presentation.base.BaseSnowbirdFragment
-import net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdQRScannerFragment
+import net.opendasharchive.openarchive.services.snowbird.presentation.qrscanner.SnowbirdQRScannerFragment
 import net.opendasharchive.openarchive.services.snowbird.service.ServiceStatus
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -152,8 +152,8 @@ class SnowbirdFragment : BaseSnowbirdFragment() {
                                     }
 
                                     AddMediaType.FILES -> {
-                                        filePickerLauncher.launch(arrayOf("image/*"))
                                         viewModel.onAction(SnowbirdDashboardAction.ContentPickerDismissed)
+                                        filePickerLauncher.launch(arrayOf("image/*"))
                                     }
 
                                     AddMediaType.CAMERA -> {

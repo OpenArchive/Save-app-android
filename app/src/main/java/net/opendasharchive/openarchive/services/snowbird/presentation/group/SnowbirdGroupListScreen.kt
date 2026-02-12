@@ -1,6 +1,8 @@
 package net.opendasharchive.openarchive.services.snowbird.presentation.group
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -34,7 +36,7 @@ fun SnowbirdGroupListScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SnowbirdGroupListContent(
     state: SnowbirdGroupListState,
@@ -62,7 +64,8 @@ fun SnowbirdGroupListContent(
                 items(state.groups) { group ->
                     SnowbirdGroupItem(
                         group = group,
-                        onClick = { onAction(SnowbirdGroupListAction.SelectGroup(group)) }
+                        onClick = { onAction(SnowbirdGroupListAction.SelectGroup(group)) },
+                        onLongClick = { onAction(SnowbirdGroupListAction.ShareGroup(group)) }
                     )
                 }
             }
@@ -70,15 +73,20 @@ fun SnowbirdGroupListContent(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SnowbirdGroupItem(
     group: Vault,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)

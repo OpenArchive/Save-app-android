@@ -34,23 +34,9 @@ class SnowbirdJoinGroupFragment: BaseSnowbirdFragment() {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                // Observe QR Scanner result
-                val navController = findNavController()
-                navController.currentBackStackEntry?.savedStateHandle?.getLiveData<String>(SnowbirdQRScannerFragment.QR_RESULT_KEY)
-                    ?.observe(viewLifecycleOwner) { result ->
-                        if (result != null) {
-                            snowbirdJoinGroupViewModel.onAction(SnowbirdJoinGroupAction.UpdateJoinUri(result))
-                            navController.currentBackStackEntry?.savedStateHandle?.remove<String>(SnowbirdQRScannerFragment.QR_RESULT_KEY)
-                        }
-                    }
-
                 SnowbirdJoinGroupScreen(
                     viewModel = snowbirdJoinGroupViewModel,
                     initialUri = uriString,
-                    onScanQr = {
-                        val action = SnowbirdJoinGroupFragmentDirections.Companion.actionFragmentSnowbirdJoinGroupToSnowbirdQrScanner()
-                        findNavController().navigate(action)
-                    },
                     onCancel = { findNavController().popBackStack() }
                 )
             }

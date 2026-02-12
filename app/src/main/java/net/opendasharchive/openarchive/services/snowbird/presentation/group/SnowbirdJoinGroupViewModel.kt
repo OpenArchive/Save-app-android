@@ -17,14 +17,23 @@ import net.opendasharchive.openarchive.services.snowbird.service.repository.ISno
 import net.opendasharchive.openarchive.util.ProcessingTracker
 import net.opendasharchive.openarchive.util.trackProcessing
 
+import net.opendasharchive.openarchive.extensions.getQueryParameter
+
 data class SnowbirdJoinGroupState(
     val isLoading: Boolean = false,
-    val scannedUri: String = ""
-)
+    val scannedUri: String = "",
+    val groupName: String = "",
+    val repoName: String = ""
+) {
+    val isFormValid: Boolean get() = scannedUri.isNotBlank() && repoName.isNotBlank()
+}
 
 sealed interface SnowbirdJoinGroupAction {
     data class JoinGroupWithRepo(val uri: String, val repoName: String) : SnowbirdJoinGroupAction
     data class UpdateJoinUri(val uri: String) : SnowbirdJoinGroupAction
+    data class UpdateRepoName(val name: String) : SnowbirdJoinGroupAction
+    data object Authenticate : SnowbirdJoinGroupAction
+    data object Cancel : SnowbirdJoinGroupAction
 }
 
 sealed interface SnowbirdJoinGroupEvent {
@@ -48,7 +57,20 @@ class SnowbirdJoinGroupViewModel(
         when (action) {
             is SnowbirdJoinGroupAction.JoinGroupWithRepo -> joinGroupWithRepo(action.uri, action.repoName)
             is SnowbirdJoinGroupAction.UpdateJoinUri -> {
-                _uiState.update { it.copy(scannedUri = action.uri) }
+                val groupName = action.uri.getQueryParameter("name") ?: ""
+                _uiState.update { it.copy(scannedUri = action.uri, groupName = groupName) }
+            }
+            is SnowbirdJoinGroupAction.UpdateRepoName -> {
+                _uiState.update { it.copy(repoName = action.name) }
+            }
+            is SnowbirdJoinGroupAction.Authenticate -> {
+                val state = _uiState.value
+                joinGroupWithRepo(state.scannedUri, state.repoName)
+            }
+            is SnowbirdJoinGroupAction.Cancel -> {
+                viewModelScope.launch {
+                    _events.emit(SnowbirdJoinGroupEvent.GoBack)
+                }
             }
         }
     }

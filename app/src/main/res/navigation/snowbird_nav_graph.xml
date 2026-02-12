@@ -142,7 +142,7 @@
 
     <fragment
         android:id="@+id/snowbird_qr_scanner"
-        android:name="net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdQRScannerFragment">
+        android:name="net.opendasharchive.openarchive.services.snowbird.presentation.qrscanner.SnowbirdQRScannerFragment">
     </fragment>
 
     <fragment
