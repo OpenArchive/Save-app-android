@@ -43,9 +43,9 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.ContentPickerSheet
-import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.features.media.camera.CameraActivity
-import net.opendasharchive.openarchive.features.media.camera.CameraConfig
+import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
+import net.opendasharchive.openarchive.core.navigation.ResultEffect
+import net.opendasharchive.openarchive.features.main.ui.CameraCaptureResult
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.util.Utility
 import org.koin.compose.koinInject
@@ -71,14 +71,11 @@ fun SnowbirdFileListScreen(
         }
     }
 
-    // 1b. Custom Camera Launcher (Handles both photo/video from CameraActivity)
-    val customCameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val capturedUris = result.data?.getStringArrayListExtra(CameraActivity.EXTRA_CAPTURED_URIS)
-            capturedUris?.forEach { uriString ->
-                viewModel.onAction(SnowbirdFileAction.UploadFile(Uri.parse(uriString)))
+    // Receive camera capture results from CameraScreen via ResultEventBus
+    ResultEffect<CameraCaptureResult>(resultKey = NavigationResultKeys.SNOWBIRD_CAMERA_RESULT) { result ->
+        if (result.projectId == state.archiveId) {
+            result.capturedUris.forEach { uri ->
+                viewModel.onAction(SnowbirdFileAction.UploadFile(uri))
             }
         }
     }
@@ -145,16 +142,7 @@ fun SnowbirdFileListScreen(
                     when (event.type) {
                         AddMediaType.CAMERA -> {
                             if (appConfig.useCustomCamera) {
-                                val cameraConfig = CameraConfig(
-                                    allowVideoCapture = true,
-                                    allowPhotoCapture = true,
-                                    allowMultipleCapture = false,
-                                    enablePreview = true,
-                                    showFlashToggle = true,
-                                    showGridToggle = true,
-                                    showCameraSwitch = true
-                                )
-                                customCameraLauncher.launch(CameraActivity.createIntent(activity, cameraConfig))
+                                viewModel.onAction(SnowbirdFileAction.NavigateToCamera)
                             } else {
                                 val photoFile = Utility.getOutputMediaFile(context, "camera_${System.currentTimeMillis()}.jpg")
                                 if (photoFile != null) {

@@ -1,13 +1,19 @@
 package net.opendasharchive.openarchive.features.media.camera
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
+import android.view.WindowManager
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.util.rememberComposePermissionManager
 
@@ -66,12 +72,6 @@ fun CameraScreenWrapper(
             // Camera permission was granted while we were showing permission screen
             showPermissionScreen = false
             isCameraPermissionPermanentlyDenied = false
-
-            // If camera permission is now granted, request audio permission for video if needed
-            if (config.allowVideoCapture) {
-                hasAudioPermissionBeenRequested = true
-                permissionManager.requestAudioPermissionIfNeeded(config.allowVideoCapture)
-            }
         } else if (!wasCameraPermissionGranted && !showPermissionScreen) {
             // Camera permission was revoked while we were showing camera
             // Only consider it permanently denied if we've already requested it before
@@ -80,17 +80,7 @@ fun CameraScreenWrapper(
             showPermissionScreen = true
         }
 
-        // Update audio permission state if video capture is enabled
-        if (config.allowVideoCapture) {
-            val isAudioGranted = permissionManager.isAudioGranted()
-
-            if (!isAudioGranted && hasAudioPermissionBeenRequested) {
-                // Only consider it permanently denied if we've already requested it before
-                isAudioPermissionPermanentlyDenied = !permissionManager.shouldShowAudioRationale()
-            } else if (isAudioGranted) {
-                isAudioPermissionPermanentlyDenied = false
-            }
-        }
+        // We no longer proactively check audio here as it's deferred to CameraScreen
     }
 
     LaunchedEffect(permissionManager.cameraStatus()) {
@@ -99,11 +89,6 @@ fun CameraScreenWrapper(
             hasCameraPermissionBeenRequested = true
             showPermissionScreen = false
             isCameraPermissionPermanentlyDenied = false
-
-            if (config.allowVideoCapture && !permissionManager.isAudioGranted()) {
-                hasAudioPermissionBeenRequested = true
-                permissionManager.requestAudioPermission()
-            }
         } else if (hasCameraPermissionBeenRequested) {
             AppLogger.d("Camera permission result: false")
             isCameraPermissionPermanentlyDenied = !permissionManager.shouldShowCameraRationale()
@@ -126,11 +111,6 @@ fun CameraScreenWrapper(
     LaunchedEffect(Unit) {
         if (permissionManager.isCameraGranted()) {
             showPermissionScreen = false
-            // If camera permission is granted, request audio permission for video if needed
-            if (config.allowVideoCapture) {
-                hasAudioPermissionBeenRequested = true
-                permissionManager.requestAudioPermissionIfNeeded(config.allowVideoCapture)
-            }
         } else {
             // For first launch, we don't know if it's permanently denied yet
             // Just show permission screen and let user try to grant
@@ -140,12 +120,59 @@ fun CameraScreenWrapper(
         }
     }
 
-    // Re-check permissions when composition becomes active (simulates onResume)
-    // This handles the case when user returns from settings
+    // Window management: Keep screen on, brightness override, and immersive mode
     DisposableEffect(Unit) {
-        onDispose { }
+        val activity = context as? Activity
+        val window = activity?.window
+
+        if (window != null) {
+            AppLogger.d("CameraScreenWrapper: Applying window flags and immersive mode")
+
+            // 1. Keep screen on
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+            // 2. Brightness override
+            val originalBrightness = window.attributes.screenBrightness
+            if (config.overrideScreenBrightness) {
+                val layoutParams = window.attributes
+                layoutParams.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL
+                window.attributes = layoutParams
+            }
+
+            // 3. Immersive mode setup
+            val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+            val originalSystemBarsBehavior = windowInsetsController.systemBarsBehavior
+
+            windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+
+            // Android 15+ handling if needed (though mostly handled by navigationBarsPadding in Compose)
+            if (Build.VERSION.SDK_INT >= 35) {
+                window.isNavigationBarContrastEnforced = false
+            }
+
+            onDispose {
+                AppLogger.d("CameraScreenWrapper: Resetting window flags and immersive mode")
+
+                // Reset keep screen on
+                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+                // Reset brightness
+                val layoutParams = window.attributes
+                layoutParams.screenBrightness = originalBrightness
+                window.attributes = layoutParams
+
+                // Reset immersive mode
+                windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
+                windowInsetsController.systemBarsBehavior = originalSystemBarsBehavior
+            }
+        } else {
+            onDispose { }
+        }
     }
 
+    // Re-check permissions when composition becomes active (simulates onResume)
+    // This handles the case when user returns from settings
     // Use a lifecycle observer to handle resume events
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -167,8 +194,8 @@ fun CameraScreenWrapper(
         if (showPermissionScreen) {
             CameraPermissionScreen(
                 isCameraPermissionPermanentlyDenied = isCameraPermissionPermanentlyDenied,
-                isAudioPermissionPermanentlyDenied = isAudioPermissionPermanentlyDenied,
-                needsAudioPermission = config.allowVideoCapture,
+                isAudioPermissionPermanentlyDenied = false, // Defer audio check
+                needsAudioPermission = false, // Don't mention audio in initial setup
                 onRequestPermissions = { requestCameraPermission() },
                 onOpenSettings = { openSettings() },
                 onCancel = onCancel
@@ -177,7 +204,8 @@ fun CameraScreenWrapper(
             CameraScreen(
                 config = config,
                 onCaptureComplete = onCaptureComplete,
-                onCancel = onCancel
+                onCancel = onCancel,
+                permissionManager = permissionManager
             )
         }
     }

@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 import net.opendasharchive.openarchive.core.domain.VaultType
+import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 
 @Serializable
@@ -92,7 +93,11 @@ sealed class AppRoute(open val deeplink: String) : NavKey {
     data object MediaCacheRoute : AppRoute("media_cache")
 
     @Serializable
-    data class CameraRoute(val projectId: Long, val config: CameraConfig) : AppRoute("camera")
+    data class CameraRoute(
+        val projectId: Long,
+        val config: CameraConfig,
+        val resultKey: String = NavigationResultKeys.CAMERA_CAPTURE_RESULT
+    ) : AppRoute("camera")
 
     // ── Snowbird Routes ──
 

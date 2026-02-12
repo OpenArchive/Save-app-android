@@ -486,7 +486,7 @@ fun SaveNavGraph(
                             onCaptureComplete = { uris ->
                                 // Send captured URIs via ResultEventBus
                                 resultBus.sendResult(
-                                    resultKey = NavigationResultKeys.CAMERA_CAPTURE_RESULT,
+                                    resultKey = route.resultKey,
                                     result = CameraCaptureResult(
                                         projectId = route.projectId,
                                         capturedUris = uris

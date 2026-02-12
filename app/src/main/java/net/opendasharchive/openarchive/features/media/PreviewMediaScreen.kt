@@ -446,17 +446,6 @@ private fun MediaListItem(
             onTitleVisibilityChanged = { showTitle = it }
         )
 
-        if (media.mimeType.startsWith("video")) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_videocam_black_24dp),
-                contentDescription = stringResource(R.string.is_video),
-                tint = colorResource(R.color.colorMediaOverlayIcon),
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(6.dp)
-            )
-        }
-
         if (showTitle && media.title.isNotEmpty()) {
             Text(
                 text = media.title,

@@ -74,6 +74,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.delay
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
+import net.opendasharchive.openarchive.util.ComposePermissionManager
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -83,6 +84,7 @@ fun CameraScreen(
     config: CameraConfig = CameraConfig(),
     onCaptureComplete: (List<Uri>) -> Unit,
     onCancel: () -> Unit,
+    permissionManager: ComposePermissionManager,
     viewModel: CameraViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -334,17 +336,21 @@ fun CameraScreen(
                     }
                 },
                 onVideoStart = {
-                    videoCapture?.let { capture ->
-                        viewModel.startVideoRecording(
-                            context = context,
-                            videoCapture = capture,
-                            onSuccess = { uri ->
-                                AppLogger.d("Video captured: $uri")
-                            },
-                            onError = { error ->
-                                AppLogger.e("Video capture failed", error)
-                            }
-                        )
+                    if (permissionManager.isAudioGranted()) {
+                        videoCapture?.let { capture ->
+                            viewModel.startVideoRecording(
+                                context = context,
+                                videoCapture = capture,
+                                onSuccess = { uri ->
+                                    AppLogger.d("Video captured: $uri")
+                                },
+                                onError = { error ->
+                                    AppLogger.e("Video capture failed", error)
+                                }
+                            )
+                        }
+                    } else {
+                        permissionManager.requestAudioPermission()
                     }
                 },
                 onVideoStop = {

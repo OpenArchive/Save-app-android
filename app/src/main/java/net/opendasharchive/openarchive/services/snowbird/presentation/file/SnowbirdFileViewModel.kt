@@ -12,7 +12,9 @@ import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
+import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
 import net.opendasharchive.openarchive.features.media.AddMediaType
+import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.services.snowbird.service.repository.ISnowbirdFileRepository
 import net.opendasharchive.openarchive.services.snowbird.util.SnowbirdFileStorage
 import net.opendasharchive.openarchive.util.ProcessingTracker
@@ -34,6 +36,7 @@ sealed interface SnowbirdFileAction {
     data object ShowContentPicker : SnowbirdFileAction
     data object ContentPickerDismissed : SnowbirdFileAction
     data class OnMediaTypeSelected(val type: AddMediaType) : SnowbirdFileAction
+    data object NavigateToCamera : SnowbirdFileAction
     data object NavigateBack : SnowbirdFileAction
 }
 
@@ -84,6 +87,24 @@ class SnowbirdFileViewModel(
                 viewModelScope.launch {
                     _events.emit(SnowbirdFileEvent.LaunchPicker(action.type))
                 }
+            }
+            is SnowbirdFileAction.NavigateToCamera -> {
+                val cameraConfig = CameraConfig(
+                    allowVideoCapture = true,
+                    allowPhotoCapture = true,
+                    allowMultipleCapture = false,
+                    enablePreview = true,
+                    showFlashToggle = true,
+                    showGridToggle = true,
+                    showCameraSwitch = true
+                )
+                navigator.navigateTo(
+                    AppRoute.CameraRoute(
+                        projectId = uiState.value.archiveId,
+                        config = cameraConfig,
+                        resultKey = NavigationResultKeys.SNOWBIRD_CAMERA_RESULT
+                    )
+                )
             }
             is SnowbirdFileAction.NavigateBack -> {
                 navigator.navigateBack()

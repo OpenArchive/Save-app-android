@@ -23,6 +23,8 @@ import android.os.Build
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.core.BaseComposeActivity
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
+import net.opendasharchive.openarchive.util.ComposePermissionManager
+import net.opendasharchive.openarchive.util.rememberComposePermissionManager
 
 class CameraActivity : BaseComposeActivity() {
     
@@ -179,6 +181,7 @@ class CameraActivity : BaseComposeActivity() {
         }
         
         setContent {
+
             SaveAppTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize()
@@ -199,6 +202,7 @@ class CameraActivity : BaseComposeActivity() {
                             onCancel = { finishWithResult(Activity.RESULT_CANCELED, emptyList()) }
                         )
                     } else {
+                        val permissionManager = rememberComposePermissionManager()
                         CameraScreen(
                             config = cameraConfig ?: CameraConfig(),
                             onCaptureComplete = { uris ->
@@ -206,7 +210,8 @@ class CameraActivity : BaseComposeActivity() {
                             },
                             onCancel = {
                                 finishWithResult(Activity.RESULT_CANCELED, emptyList())
-                            }
+                            },
+                            permissionManager = permissionManager
                         )
                     }
                 }

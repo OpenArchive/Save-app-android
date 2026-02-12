@@ -21,6 +21,8 @@ import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.repositories.ProjectRepository
 import net.opendasharchive.openarchive.core.repositories.MediaRepository
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import org.koin.compose.koinInject
 import net.opendasharchive.openarchive.features.media.camera.CameraActivity
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
@@ -37,6 +39,7 @@ data class ContentPickerLaunchers(
 
 @Composable
 fun rememberContentPickerLaunchers(
+    navigator: Navigator? = null,
     useCustomCamera: Boolean = true,
     projectProvider: () -> Archive?,
     onError: (String) -> Unit,
@@ -160,41 +163,7 @@ fun rememberContentPickerLaunchers(
         }
     }
 
-    // ---------- CUSTOM CAMERA (CameraActivity) ----------
-    val customCameraLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
-
-        val capturedUris = result.data?.getStringArrayListExtra(CameraActivity.EXTRA_CAPTURED_URIS)
-        if (capturedUris.isNullOrEmpty()) return@rememberLauncherForActivityResult
-
-        val uris = capturedUris.map(Uri::parse)
-
-        scope.launch {
-            isProcessing = true
-            errorMessage = null
-            try {
-                val archive = projectProvider() ?: run {
-                    onError("Project provider returned null")
-                    return@launch
-                }
-                val submission = projectRepository.getActiveSubmission(archive.id)
-                val evidenceList = withContext(Dispatchers.IO) {
-                    // Camera capture → generateProof = true (same as Picker.register custom camera)
-                    MediaPicker.import(context, archive, submission.id, uris, generateProof = true)
-                }
-                evidenceList.forEach { evidence ->
-                    mediaRepository.addEvidence(evidence)
-                }
-                onMediaImported(evidenceList)
-            } catch (e: Exception) {
-                errorMessage = "Failed to import from camera: ${e.localizedMessage}"
-            } finally {
-                isProcessing = false
-            }
-        }
-    }
+    // Custom camera launcher is no longer needed here as it's handled via navigation
 
     // ---- Launchers exposed to caller ----
     val launchGallery: () -> Unit = {
@@ -231,17 +200,22 @@ fun rememberContentPickerLaunchers(
         lastPickerLaunchTime = currentTime
         
         errorMessage = null
-        if (useCustomCamera) {
-            val cameraConfig = CameraConfig(
-                allowVideoCapture = true,
-                allowPhotoCapture = true,
-                allowMultipleCapture = false,
-                enablePreview = true,
-                showFlashToggle = true,
-                showGridToggle = true,
-                showCameraSwitch = true
-            )
-            customCameraLauncher.launch(CameraActivity.createIntent(activity, cameraConfig))
+        if (useCustomCamera && navigator != null) {
+            val archive = projectProvider()
+            if (archive != null) {
+                val cameraConfig = CameraConfig(
+                    allowVideoCapture = true,
+                    allowPhotoCapture = true,
+                    allowMultipleCapture = false,
+                    enablePreview = true,
+                    showFlashToggle = true,
+                    showGridToggle = true,
+                    showCameraSwitch = true
+                )
+                navigator.navigateTo(AppRoute.CameraRoute(projectId = archive.id, config = cameraConfig))
+            } else {
+                errorMessage = "No folder selected"
+            }
         } else {
             // TODO: This is a temporary persistent storage solution. 
             // Review this when implementing the new Evidence architecture.

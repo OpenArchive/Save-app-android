@@ -2,6 +2,7 @@ package net.opendasharchive.openarchive.features.media
 
 import android.content.Context
 import android.net.Uri
+import net.opendasharchive.openarchive.BuildConfig
 import net.opendasharchive.openarchive.core.domain.Archive
 import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.logger.AppLogger
@@ -16,6 +17,8 @@ import java.io.File
 import java.io.FileNotFoundException
 
 object MediaPicker {
+    // Debug-only artificial delay per media item import for UX/testing.
+    private const val DEBUG_IMPORT_DELAY_MS = 1200L
 
     fun import(
         context: Context,
@@ -46,6 +49,9 @@ object MediaPicker {
         uri: Uri,
         generateProof: Boolean
     ): Evidence? {
+        if (BuildConfig.DEBUG && DEBUG_IMPORT_DELAY_MS > 0) {
+            Thread.sleep(DEBUG_IMPORT_DELAY_MS)
+        }
 
         val title = Utility.getUriDisplayName(context, uri) ?: ""
         // TODO: This is a temporary persistent storage solution. 

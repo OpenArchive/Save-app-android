@@ -1,30 +1,43 @@
 package net.opendasharchive.openarchive.features.main.ui
 
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -78,6 +91,10 @@ fun HomeScreen(
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    var manualImportInProgress by remember { mutableStateOf(false) }
+    var importSnackbarJob by remember { mutableStateOf<Job?>(null) }
+    var pendingImportedCount by remember { mutableIntStateOf(-1) }
+    var pendingImportedProjectId by remember { mutableStateOf<Long?>(null) }
 
     val projectRepository: ProjectRepository = koinInject()
     val mediaRepository: MediaRepository = koinInject()
@@ -92,16 +109,50 @@ fun HomeScreen(
             }
         },
         onMediaImported = { evidenceList ->
-            // Handle imported media (refresh, show toast, etc.)
-            uiState.selectedProjectId?.let { projectId ->
-                viewModel.onAction(HomeAction.MediaImported(projectId))
-            }
+            pendingImportedCount = evidenceList.size
+            pendingImportedProjectId = uiState.selectedProjectId
         }
     )
+    val isImporting = pickerLaunchers.isProcessing || manualImportInProgress
+
+    LaunchedEffect(isImporting) {
+        if (isImporting) {
+            if (importSnackbarJob == null) {
+                importSnackbarJob = scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "Importing media...",
+                        duration = SnackbarDuration.Indefinite
+                    )
+                }
+            }
+        } else {
+            importSnackbarJob?.cancel()
+            importSnackbarJob = null
+            snackbarHostState.currentSnackbarData?.dismiss()
+        }
+    }
+
+    LaunchedEffect(pickerLaunchers.isProcessing, pendingImportedCount, pendingImportedProjectId) {
+        if (!pickerLaunchers.isProcessing && pendingImportedCount >= 0) {
+            if (pendingImportedCount > 0 && pendingImportedProjectId != null) {
+                scope.launch {
+                    snackbarHostState.showSnackbar("Media imported")
+                }
+                viewModel.onAction(HomeAction.MediaImported(pendingImportedProjectId!!))
+            } else {
+                scope.launch {
+                    snackbarHostState.showSnackbar("Import failed")
+                }
+            }
+            pendingImportedCount = -1
+            pendingImportedProjectId = null
+        }
+    }
     val permissionManager = rememberComposePermissionManager()
 
     // Receive camera capture results from CameraScreen via ResultEventBus
     ResultEffect<CameraCaptureResult>(resultKey = NavigationResultKeys.CAMERA_CAPTURE_RESULT) { result ->
+        manualImportInProgress = true
         scope.launch(Dispatchers.IO) {
             try {
                 val archive = projectRepository.getProject(result.projectId)
@@ -118,13 +169,25 @@ fun HomeScreen(
                         mediaRepository.addEvidence(evidence)
                     }
                     withContext(Dispatchers.Main) {
-                        snackbarHostState.showSnackbar("${evidenceList.size} item(s) imported")
-                        viewModel.onAction(HomeAction.MediaImported(result.projectId))
+                        if (evidenceList.isNotEmpty()) {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Media imported")
+                            }
+                            viewModel.onAction(HomeAction.MediaImported(result.projectId))
+                        } else {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Import failed")
+                            }
+                        }
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     snackbarHostState.showSnackbar("Failed to import: ${e.localizedMessage}")
+                }
+            } finally {
+                withContext(Dispatchers.Main) {
+                    manualImportInProgress = false
                 }
             }
         }
@@ -132,6 +195,7 @@ fun HomeScreen(
 
     // Receive shared media imports from HomeActivity via ResultEventBus
     ResultEffect<List<android.net.Uri>>(resultKey = NavigationResultKeys.SHARED_MEDIA_IMPORT) { uris ->
+        manualImportInProgress = true
         scope.launch(Dispatchers.IO) {
             try {
                 // Use the currently selected project for the import
@@ -149,8 +213,16 @@ fun HomeScreen(
                         mediaRepository.addEvidence(evidence)
                     }
                     withContext(Dispatchers.Main) {
-                        snackbarHostState.showSnackbar("${evidenceList.size} item(s) imported")
-                        viewModel.onAction(HomeAction.NavigateToPreviewMedia)
+                        if (evidenceList.isNotEmpty()) {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Media imported")
+                            }
+                            viewModel.onAction(HomeAction.NavigateToPreviewMedia)
+                        } else {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Import failed")
+                            }
+                        }
                     }
                 } else if (uris.isNotEmpty()) {
                     withContext(Dispatchers.Main) {
@@ -160,6 +232,10 @@ fun HomeScreen(
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     snackbarHostState.showSnackbar("Failed to import: ${e.localizedMessage}")
+                }
+            } finally {
+                withContext(Dispatchers.Main) {
+                    manualImportInProgress = false
                 }
             }
         }
@@ -205,7 +281,8 @@ fun HomeScreen(
     HomeScreenContent(
         state = uiState,
         onAction = viewModel::onAction,
-        snackbarHostState = snackbarHostState
+        snackbarHostState = snackbarHostState,
+        showImportLoading = isImporting
     )
 }
 
@@ -220,7 +297,8 @@ fun HomeScreen(
 fun HomeScreenContent(
     state: HomeState,
     onAction: (HomeAction) -> Unit,
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    showImportLoading: Boolean = false
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -342,7 +420,22 @@ fun HomeScreenContent(
                     },
 
                     snackbarHost = {
-                        SnackbarHost(snackbarHostState)
+                        SnackbarHost(hostState = snackbarHostState) { snackbarData ->
+                            if (showImportLoading) {
+                                Snackbar {
+                                    Row {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.size(16.dp),
+                                            strokeWidth = 2.dp
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(snackbarData.visuals.message)
+                                    }
+                                }
+                            } else {
+                                Snackbar(snackbarData = snackbarData)
+                            }
+                        }
                     }
 
                 ) { paddingValues ->
