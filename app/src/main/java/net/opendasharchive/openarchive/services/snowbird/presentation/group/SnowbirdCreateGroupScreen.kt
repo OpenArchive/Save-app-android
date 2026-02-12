@@ -22,33 +22,25 @@ import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPr
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.services.internetarchive.presentation.login.CustomTextField
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupAction
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupState
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SnowbirdCreateGroupScreen(
-    viewModel: SnowbirdGroupViewModel = koinViewModel(),
-    onCancel: () -> Unit
+    viewModel: SnowbirdCreateGroupViewModel = koinViewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     SnowbirdCreateGroupScreenContent(
         state = state,
-        onAction = viewModel::onAction,
-        onCancel = onCancel
+        onAction = viewModel::onAction
     )
 }
 
 @Composable
 fun SnowbirdCreateGroupScreenContent(
-    state: SnowbirdGroupState,
-    onAction: (SnowbirdGroupAction) -> Unit,
-    onCancel: () -> Unit
+    state: SnowbirdCreateGroupState,
+    onAction: (SnowbirdCreateGroupAction) -> Unit
 ) {
-    var groupName by remember { mutableStateOf("") }
-    var repoName by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
     val repoFocusRequester = remember { FocusRequester() }
 
@@ -76,8 +68,8 @@ fun SnowbirdCreateGroupScreenContent(
             Spacer(modifier = Modifier.height(30.dp))
 
             CustomTextField(
-                value = groupName,
-                onValueChange = { groupName = it },
+                value = state.groupName,
+                onValueChange = { onAction(SnowbirdCreateGroupAction.UpdateGroupName(it)) },
                 placeholder = stringResource(R.string.dweb_create_group_group_name),
                 isLoading = state.isLoading,
                 keyboardType = KeyboardType.Text,
@@ -88,8 +80,8 @@ fun SnowbirdCreateGroupScreenContent(
             Spacer(modifier = Modifier.height(30.dp))
 
             CustomTextField(
-                value = repoName,
-                onValueChange = { repoName = it },
+                value = state.repoName,
+                onValueChange = { onAction(SnowbirdCreateGroupAction.UpdateRepoName(it)) },
                 placeholder = stringResource(R.string.dweb_create_group_user_name),
                 isLoading = state.isLoading,
                 keyboardType = KeyboardType.Text,
@@ -129,7 +121,7 @@ fun SnowbirdCreateGroupScreenContent(
                 ),
                 enabled = !state.isLoading,
                 shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
-                onClick = onCancel
+                onClick = { onAction(SnowbirdCreateGroupAction.Cancel) }
             ) {
                 Text(
                     stringResource(R.string.back),
@@ -141,7 +133,7 @@ fun SnowbirdCreateGroupScreenContent(
                 modifier = Modifier
                     .heightIn(ThemeDimensions.touchable)
                     .weight(1f),
-                enabled = !state.isLoading && groupName.isNotBlank() && repoName.isNotBlank(),
+                enabled = !state.isLoading && state.groupName.isNotBlank() && state.repoName.isNotBlank(),
                 shape = RoundedCornerShape(ThemeDimensions.roundedCorner),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.tertiary,
@@ -149,7 +141,7 @@ fun SnowbirdCreateGroupScreenContent(
                     disabledContentColor = colorResource(R.color.black),
                     contentColor = colorResource(R.color.black)
                 ),
-                onClick = { onAction(SnowbirdGroupAction.CreateGroupWithRepo(groupName, repoName)) }
+                onClick = { onAction(SnowbirdCreateGroupAction.CreateGroup) }
             ) {
                 if (state.isLoading) {
                     CircularProgressIndicator(
@@ -173,9 +165,8 @@ fun SnowbirdCreateGroupScreenContent(
 private fun SnowbirdCreateGroupScreenPreview() {
     SaveAppTheme {
         SnowbirdCreateGroupScreenContent(
-            state = SnowbirdGroupState(),
-            onAction = {},
-            onCancel = {}
+            state = SnowbirdCreateGroupState(),
+            onAction = {}
         )
     }
 }
@@ -185,9 +176,8 @@ private fun SnowbirdCreateGroupScreenPreview() {
 private fun SnowbirdCreateGroupScreenLoadingPreview() {
     DefaultScaffoldPreview {
         SnowbirdCreateGroupScreenContent(
-            state = SnowbirdGroupState(isLoading = true),
-            onAction = {},
-            onCancel = {}
+            state = SnowbirdCreateGroupState(isLoading = true),
+            onAction = {}
         )
     }
 }

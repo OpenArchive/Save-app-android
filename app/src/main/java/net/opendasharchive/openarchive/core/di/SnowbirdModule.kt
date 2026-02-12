@@ -10,6 +10,7 @@ import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupRepository
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupViewModel
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdRepoRepository
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdRepoViewModel
+import net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdCreateGroupViewModel
 import net.opendasharchive.openarchive.services.snowbird.util.SnowbirdFileStorage
 import net.opendasharchive.openarchive.util.ProcessingTracker
 import org.koin.core.module.dsl.viewModelOf
@@ -48,4 +49,5 @@ val snowbirdModule = module {
     viewModelOf(::SnowbirdFileViewModel)
     viewModelOf(::SnowbirdRepoViewModel)
     viewModelOf(::SnowbirdDashboardViewModel)
+    viewModelOf(::SnowbirdCreateGroupViewModel)
 }
