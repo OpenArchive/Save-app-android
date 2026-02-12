@@ -3,6 +3,7 @@ package net.opendasharchive.openarchive.core.di
 import net.opendasharchive.openarchive.services.snowbird.ISnowbirdFileRepository
 import net.opendasharchive.openarchive.services.snowbird.ISnowbirdGroupRepository
 import net.opendasharchive.openarchive.services.snowbird.ISnowbirdRepoRepository
+import net.opendasharchive.openarchive.services.snowbird.SnowbirdDashboardViewModel
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdFileRepository
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdFileViewModel
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupRepository
@@ -46,4 +47,5 @@ val snowbirdModule = module {
     viewModelOf(::SnowbirdGroupViewModel)
     viewModelOf(::SnowbirdFileViewModel)
     viewModelOf(::SnowbirdRepoViewModel)
+    viewModelOf(::SnowbirdDashboardViewModel)
 }

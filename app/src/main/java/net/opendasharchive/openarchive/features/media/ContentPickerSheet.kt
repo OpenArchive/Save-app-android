@@ -29,6 +29,7 @@ import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContentPickerSheet(
+    title: String? = null,
     onDismiss: () -> Unit,
     onMediaPicked: (AddMediaType) -> Unit
 ) {
@@ -47,7 +48,7 @@ fun ContentPickerSheet(
                     .padding(horizontal = 8.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.content_picker_label),
+                    text = title ?: stringResource(R.string.content_picker_label),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp, vertical = 16.dp),

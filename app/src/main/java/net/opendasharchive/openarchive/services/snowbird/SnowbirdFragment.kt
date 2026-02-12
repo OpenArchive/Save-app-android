@@ -41,7 +41,6 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,12 +58,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.fragment.findNavController
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.BinaryBitmap
-import com.google.zxing.DecodeHintType
-import com.google.zxing.MultiFormatReader
-import com.google.zxing.RGBLuminanceSource
-import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.integration.android.IntentIntegrator
 import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
@@ -78,30 +71,38 @@ import net.opendasharchive.openarchive.extensions.getQueryParameter
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
-import net.opendasharchive.openarchive.features.main.QRScannerActivity
 import net.opendasharchive.openarchive.services.snowbird.service.ServiceStatus
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import net.opendasharchive.openarchive.core.presentation.theme.DefaultBoxPreview
+import net.opendasharchive.openarchive.features.media.AddMediaType
+import net.opendasharchive.openarchive.features.media.ContentPickerSheet
+import net.opendasharchive.openarchive.features.media.rememberContentPickerLaunchers
 
 class SnowbirdFragment : BaseSnowbirdFragment() {
 
-    private val snowbirdGroupViewModel: SnowbirdGroupViewModel by viewModel()
+    private val viewModel: SnowbirdDashboardViewModel by viewModel()
 
     private val qrCodeLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         val scanResult = IntentIntegrator.parseActivityResult(result.resultCode, result.data)
-        if (scanResult != null) {
-            if (scanResult.contents != null) {
-                processScannedData(scanResult.contents)
-            }
+        if (scanResult?.contents != null) {
+            viewModel.onAction(SnowbirdDashboardAction.QRResultScanned(scanResult.contents))
         }
+    }
+
+    private val filePickerLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        uri?.let { viewModel.onAction(SnowbirdDashboardAction.ImagePickedForQR(it, requireContext())) }
     }
 
     private val imagePickerLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        uri?.let { processImageForQR(it) }
+        uri?.let { viewModel.onAction(SnowbirdDashboardAction.ImagePickedForQR(it, requireContext())) }
     }
 
     override fun onCreateView(
@@ -109,185 +110,111 @@ class SnowbirdFragment : BaseSnowbirdFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-        val onJoinGroup: () -> Unit = {
-            showQRScanOptions()
-        }
-
-        val onCreateGroup = {
-            val action =
-                SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdCreateGroup()
-            findNavController().navigate(action)
-        }
-
-        val onMyGroups = {
-            val action =
-                SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdGroupList()
-            findNavController().navigate(action)
-        }
-
         return ComposeView(requireContext()).apply {
-            // Dispose of the Composition when the view's LifecycleOwner
-            // is destroyed
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 SaveAppTheme {
-
+                    val state by viewModel.uiState.collectAsStateWithLifecycle()
+                    
                     LaunchedEffect(Unit) {
-                        snowbirdGroupViewModel.uiState.collectLatest { state ->
-                            handleGroupStateUpdate(state)
+                        viewModel.events.collectLatest { event ->
+                            handleDashboardEvent(event)
                         }
                     }
 
-                    // Observe QR Scanner result
+                    // Observe state for loading and errors
+                    LaunchedEffect(state.isLoading, state.error) {
+                        handleLoadingStatus(state.isLoading)
+                        state.error?.let { handleError(it) }
+                    }
+
+                    // Observe QR Scanner result from navigation
                     val navController = findNavController()
                     navController.currentBackStackEntry?.savedStateHandle?.getLiveData<String>(SnowbirdQRScannerFragment.QR_RESULT_KEY)
                         ?.observe(viewLifecycleOwner) { result ->
                             if (result != null) {
-                                processScannedData(result)
+                                viewModel.onAction(SnowbirdDashboardAction.QRResultScanned(result))
                                 navController.currentBackStackEntry?.savedStateHandle?.remove<String>(SnowbirdQRScannerFragment.QR_RESULT_KEY)
                             }
                         }
 
                     SnowbirdScreen(
-                        onJoinGroup = onJoinGroup,
-                        onCreateGroup = onCreateGroup,
-                        onMyGroups = onMyGroups,
-                        onServerToggle = { enabled ->
-                            if (enabled) {
-                                requireContext().startForegroundService(Intent(requireContext(), SnowbirdService::class.java))
-                            } else {
-                                requireContext().stopService(Intent(requireContext(), SnowbirdService::class.java))
-                            }
-                        }
+                        state = state,
+                        onAction = viewModel::onAction
                     )
+
+                    if (state.showContentPicker) {
+                        ContentPickerSheet(
+                            title = "Scan QR Code",
+                            onDismiss = { viewModel.onAction(SnowbirdDashboardAction.ContentPickerDismissed) },
+                            onMediaPicked = { type ->
+                                when (type) {
+                                    AddMediaType.GALLERY -> {
+                                        imagePickerLauncher.launch("image/*")
+                                        viewModel.onAction(SnowbirdDashboardAction.ContentPickerDismissed)
+                                    }
+                                    AddMediaType.FILES -> {
+                                        filePickerLauncher.launch(arrayOf("image/*"))
+                                        viewModel.onAction(SnowbirdDashboardAction.ContentPickerDismissed)
+                                    }
+                                    AddMediaType.CAMERA -> {
+                                        // Use our dedicated QR Scanner for camera
+                                        viewModel.onAction(SnowbirdDashboardAction.MediaPicked(type))
+                                    }
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }
     }
 
-    private fun handleGroupStateUpdate(state: SnowbirdGroupState) {
-        handleLoadingStatus(state.isLoading)
-        AppLogger.d("group state = $state")
-        state.error?.let { error ->
-            handleError(error)
-        }
-    }
-
-    private fun showQRScanOptions() {
-        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-            type = DialogType.Info
-            title = UiText.Dynamic("Scan QR Code")
-            message = UiText.Dynamic("Choose how you want to scan the QR code")
-            positiveButton {
-                text = UiText.Dynamic("Camera")
-                action = { startQRScanner() }
+    private fun handleDashboardEvent(event: SnowbirdDashboardEvent) {
+        when (event) {
+            is SnowbirdDashboardEvent.NavigateToCreateGroup -> {
+                val action = SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdCreateGroup()
+                findNavController().navigate(action)
             }
-            neutralButton {
-                text = UiText.Dynamic("Gallery")
-                action = { startImagePicker() }
+            is SnowbirdDashboardEvent.NavigateToGroupList -> {
+                val action = SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdGroupList()
+                findNavController().navigate(action)
             }
-        }
-    }
-
-    private fun startImagePicker() {
-        imagePickerLauncher.launch("image/*")
-    }
-
-    private fun startQRScanner() {
-        val action = SnowbirdFragmentDirections.actionFragmentSnowbirdToSnowbirdQrScanner()
-        findNavController().navigate(action)
-    }
-
-    private fun processImageForQR(imageUri: Uri) {
-        try {
-            val inputStream = requireContext().contentResolver.openInputStream(imageUri)
-            val bitmap = BitmapFactory.decodeStream(inputStream)
-            inputStream?.close()
-
-            if (bitmap != null) {
-                val qrContent = decodeQRFromBitmap(bitmap)
-                if (qrContent != null) {
-                    processScannedData(qrContent)
+            is SnowbirdDashboardEvent.NavigateToJoinGroup -> {
+                val action = SnowbirdFragmentDirections.actionFragmentSnowbirdToFragmentSnowbirdJoinGroup(dwebGroupKey = event.groupKey)
+                findNavController().navigate(action)
+            }
+            is SnowbirdDashboardEvent.NavigateToScanner -> {
+                val action = SnowbirdFragmentDirections.actionFragmentSnowbirdToSnowbirdQrScanner()
+                findNavController().navigate(action)
+            }
+            is SnowbirdDashboardEvent.ShowMessage -> {
+                // Here we can use a Toast or specific dialog
+                // Since base fragment has handleError, we can adapt it or use dialogManager directly
+                dialogManager.showDialog(dialogManager.requireResourceProvider()) {
+                    title = UiText.Dynamic("DWeb Storage")
+                    message = event.message
+                    positiveButton { text = UiText.Resource(R.string.lbl_ok) }
+                }
+            }
+            is SnowbirdDashboardEvent.ToggleServer -> {
+                if (event.enabled) {
+                    requireContext().startForegroundService(Intent(requireContext(), SnowbirdService::class.java))
                 } else {
-                    showQRNotFoundDialog()
-                }
-            } else {
-                showQRNotFoundDialog()
-            }
-        } catch (e: Exception) {
-            AppLogger.e("Error processing image for QR: ${e.message}")
-            showQRNotFoundDialog()
-        }
-    }
-
-    private fun decodeQRFromBitmap(bitmap: Bitmap): String? {
-        val intArray = IntArray(bitmap.width * bitmap.height)
-        bitmap.getPixels(intArray, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
-        
-        val source = RGBLuminanceSource(bitmap.width, bitmap.height, intArray)
-        val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
-        
-        val reader = MultiFormatReader()
-        val hints = mapOf(DecodeHintType.POSSIBLE_FORMATS to listOf(BarcodeFormat.QR_CODE))
-        reader.setHints(hints)
-        
-        return try {
-            val result = reader.decode(binaryBitmap)
-            result.text
-        } catch (e: Exception) {
-            null
-        }
-    }
-
-    private fun showQRNotFoundDialog() {
-        dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-            type = DialogType.Warning
-            title = UiText.Dynamic("No QR Code Found")
-            message = UiText.Dynamic("Could not find a valid QR code in the selected image. Please try another image.")
-            positiveButton {
-                text = UiText.Resource(R.string.lbl_ok)
-            }
-        }
-    }
-
-    private fun processScannedData(uriString: String) {
-        val name = uriString.getQueryParameter("name")
-
-        if (name == null) {
-            dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-                type = DialogType.Warning
-                title = UiText.Dynamic("Oops!")
-                message = UiText.Dynamic("Unable to determine group name from QR code.")
-                positiveButton {
-                    text = UiText.Resource(R.string.lbl_ok)
+                    requireContext().stopService(Intent(requireContext(), SnowbirdService::class.java))
                 }
             }
-            return
         }
-
-
-        val action = SnowbirdFragmentDirections
-            .actionFragmentSnowbirdToFragmentSnowbirdJoinGroup(dwebGroupKey = uriString)
-        findNavController().navigate(action)
-
     }
 
-    override fun getToolbarTitle(): String {
-        return "DWeb Storage"
-    }
+    override fun getToolbarTitle(): String = "DWeb Storage"
 }
 
 @Composable
 fun SnowbirdScreen(
-    onJoinGroup: () -> Unit = {},
-    onCreateGroup: () -> Unit = {},
-    onMyGroups: () -> Unit = {},
-    onServerToggle: (Boolean) -> Unit = {}
+    state: SnowbirdDashboardState,
+    onAction: (SnowbirdDashboardAction) -> Unit
 ) {
-    // Observe server status
-    val serverStatus by SnowbirdService.serviceStatus.collectAsState()
-
     // Get navigation bar insets for edge-to-edge support
     val navigationBarPadding = WindowInsets.navigationBars.asPaddingValues()
 
@@ -315,19 +242,19 @@ fun SnowbirdScreen(
         DwebOptionItem(
             title = "Join group",
             subtitle = "Connect to existing group",
-            onClick = onJoinGroup
+            onClick = { onAction(SnowbirdDashboardAction.JoinGroupClick) }
         )
 
         DwebOptionItem(
             title = "Create group",
             subtitle = "Create a new group via Dweb",
-            onClick = onCreateGroup
+            onClick = { onAction(SnowbirdDashboardAction.CreateGroupClick) }
         )
 
         DwebOptionItem(
             title = "My groups",
             subtitle = "View and manage your groups",
-            onClick = onMyGroups
+            onClick = { onAction(SnowbirdDashboardAction.MyGroupsClick) }
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -341,8 +268,8 @@ fun SnowbirdScreen(
 
         // Server Control Section at the bottom using custom preference style
         DwebServerPreference(
-            serverStatus = serverStatus,
-            onToggle = onServerToggle
+            serverStatus = state.serverStatus,
+            onToggle = { enabled -> onAction(SnowbirdDashboardAction.ToggleServer(enabled)) }
         )
 
     }
@@ -426,7 +353,14 @@ fun DwebServerPreference(
 @Composable
 private fun SnowbirdScreenPreview() {
     DefaultScaffoldPreview {
-        SnowbirdScreen()
+        SnowbirdScreen(
+            state = SnowbirdDashboardState(
+                isLoading = false,
+                error = null,
+                serverStatus = ServiceStatus.Stopped
+            ),
+            onAction = {},
+        )
     }
 }
 
@@ -538,7 +472,7 @@ fun SpaceAuthHeader(
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 private fun SpaceAuthHeaderPreview() {
-    SaveAppTheme {
+    DefaultBoxPreview {
         SpaceAuthHeader()
     }
 }
@@ -546,7 +480,7 @@ private fun SpaceAuthHeaderPreview() {
 @Preview
 @Composable
 private fun DwebServerPreferencePreview() {
-    SaveAppTheme {
+    DefaultBoxPreview {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
