@@ -94,9 +94,7 @@ fun PreviewMediaScreen(
     }
 
     // Load the preview media items from here instead of viewModel.init
-    LaunchedEffect(Unit) {
-        viewModel.onAction(PreviewMediaAction.Refresh)
-    }
+    // Data loading is now handled reactively by the ViewModel's init block
 
     PreviewMediaContent(
         state = state,

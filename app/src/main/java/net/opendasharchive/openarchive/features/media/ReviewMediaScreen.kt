@@ -14,11 +14,14 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -57,6 +60,7 @@ import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.presentation.media.MediaThumbnail
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.services.internetarchive.presentation.login.CustomTextField
 import org.koin.androidx.compose.koinViewModel
@@ -87,6 +91,7 @@ private fun ReviewMediaContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .background(MaterialTheme.colorScheme.background)
     ) {
         // Top Preview Section (55% height)
@@ -364,7 +369,7 @@ private fun MetadataSection(
             .background(MaterialTheme.colorScheme.background)
             .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
             .padding(horizontal = 16.dp)
-            .padding(top = 16.dp, bottom = 16.dp)
+            .padding(top = 16.dp, bottom = 8.dp)
     ) {
         // Location field (single line)
         CustomTextField(
@@ -387,8 +392,7 @@ private fun MetadataSection(
             onValueChange = { onAction(ReviewMediaAction.UpdateDescription(it)) },
             placeholder = stringResource(R.string.add_notes_optional),
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.9f)
+                .fillMaxSize()
                 .focusRequester(descriptionFocusRequester)
         )
     }
@@ -428,9 +432,8 @@ private fun MultilineTextField(
     )
 }
 
-// Previews
-//@Preview(showBackground = true, name = "Single Media Mode")
-//@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Single Media Mode Dark")
+
+@PreviewLightDark
 @Composable
 private fun ReviewMediaSingleModePreview() {
     DefaultScaffoldPreview {
@@ -451,8 +454,7 @@ private fun ReviewMediaSingleModePreview() {
     }
 }
 
-@Preview(showBackground = true, name = "Batch Mode")
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Batch Mode Dark")
+@PreviewLightDark
 @Composable
 private fun ReviewMediaBatchModePreview() {
     DefaultScaffoldPreview {
@@ -473,7 +475,7 @@ private fun ReviewMediaBatchModePreview() {
     }
 }
 
-@Preview(showBackground = true, name = "Single Media with Data")
+@PreviewLightDark
 @Composable
 private fun ReviewMediaWithDataPreview() {
     DefaultScaffoldPreview {

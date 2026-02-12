@@ -41,6 +41,10 @@ class SugarMediaRepository(private val io: CoroutineDispatcher = Dispatchers.IO)
             .map { it.toDomain() }
     }
 
+    override fun observeLocalMedia(): Flow<List<Evidence>> = InvalidationBus.media
+        .map { getLocalMedia() }
+        .distinctUntilChanged()
+
     override suspend fun getEvidence(id: Long): Evidence? = withContext(io) {
         Media.get(id)?.toDomain()
     }

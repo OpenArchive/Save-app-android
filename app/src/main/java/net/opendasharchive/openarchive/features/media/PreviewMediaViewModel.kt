@@ -8,6 +8,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.domain.Archive
@@ -72,6 +76,10 @@ class PreviewMediaViewModel(
 
     private val _uiEvent = Channel<PreviewMediaEvent>(Channel.BUFFERED)
     val uiEvent = _uiEvent.receiveAsFlow()
+    
+    init {
+        observeData()
+    }
 
     fun onAction(action: PreviewMediaAction) {
         when (action) {
@@ -83,7 +91,7 @@ class PreviewMediaViewModel(
             PreviewMediaAction.BatchEdit -> handleBatchEdit()
             PreviewMediaAction.AddMore -> emitEvent(PreviewMediaEvent.LaunchPicker(AddMediaType.GALLERY))
             PreviewMediaAction.ShowAddMenu -> _uiState.update { it.copy(showContentPicker = true) }
-            PreviewMediaAction.Refresh -> loadProjectMedia()
+            PreviewMediaAction.Refresh -> { /* Flow handles this automatically */ }
             PreviewMediaAction.ContentPickerDismissed -> _uiState.update { it.copy(showContentPicker = false) }
             is PreviewMediaAction.ContentPickerPicked -> {
                 _uiState.update { it.copy(showContentPicker = false) }
@@ -92,31 +100,42 @@ class PreviewMediaViewModel(
         }
     }
 
-    private fun loadProjectMedia() = viewModelScope.launch {
+    private fun observeData() {
+        val projectId = route.projectId
 
-        val media = mediaRepository.getLocalMedia()
+        combine(
+            projectRepository.observeProject(projectId),
+            mediaRepository.observeLocalMedia(),
+            _uiState.map { it.selectedIds }.distinctUntilChanged()
+        ) { project, localMedia, selectedIds ->
+            
+            _uiState.update { state ->
+                state.copy(
+                    mediaList = localMedia.map { it.copy(isSelected = selectedIds.contains(it.id)) },
+                    isLoading = false,
+                    selectionCount = selectedIds.size,
+                    showAddMore = project != null,
+                    selectedProjectId = projectId,
+                    selectedProject = project
+                )
+            }
 
-        // Clear any lingering selection in the DB for these items
-        media.filter { it.isSelected }.forEach {
-            mediaRepository.setSelected(it.id, false)
-        }
-
-        val project = projectRepository.getProject(route.projectId)
-
-        _uiState.update {
-            it.copy(
-                mediaList = media,
-                isLoading = false,
-                selectionCount = 0,
-                showAddMore = project != null,
-                selectedIds = emptySet(),
-                selectedProjectId = route.projectId,
-                selectedProject = project
-            )
-        }
+            // Legacy-like behavior: auto-finish if we previously had media but now it's empty
+            if (localMedia.isEmpty() && !_uiState.value.isLoading) {
+                 navigator.navigateBack()
+            }
+            
+            // Initial cleanup of lingering selections in the DB (kept for safety)
+            if (localMedia.any { it.isSelected }) {
+                viewModelScope.launch {
+                    localMedia.filter { it.isSelected }.forEach {
+                        mediaRepository.setSelected(it.id, false)
+                    }
+                }
+            }
+        }.launchIn(viewModelScope)
 
         showFirstTimeBatch()
-
     }
 
     private fun handleMediaClicked(mediaId: Long) {
@@ -194,10 +213,10 @@ class PreviewMediaViewModel(
     private fun handleRemoveSelected() {
         viewModelScope.launch {
             val selectedIds = _uiState.value.selectedIds.toList()
+            _uiState.update { it.copy(selectedIds = emptySet()) } // Clear selection immediately
             selectedIds.forEach { id ->
                 mediaRepository.deleteMedia(id)
             }
-            loadProjectMedia()
         }
     }
 

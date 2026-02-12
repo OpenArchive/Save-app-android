@@ -9,6 +9,7 @@ interface MediaRepository {
     suspend fun getMediaForProject(projectId: Long): List<Evidence>
     fun observeMediaForProject(projectId: Long): Flow<List<Evidence>>
     suspend fun getLocalMedia(): List<Evidence>
+    fun observeLocalMedia(): Flow<List<Evidence>>
     suspend fun getEvidence(id: Long): Evidence?
     suspend fun setSelected(mediaId: Long, selected: Boolean)
     suspend fun deleteMedia(mediaId: Long)

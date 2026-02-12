@@ -45,6 +45,9 @@ interface EvidenceDao {
     @Query("SELECT * FROM evidence WHERE status IN (:statuses) ORDER BY priority DESC, id DESC")
     suspend fun getByStatus(statuses: List<EvidenceStatus>): List<EvidenceEntity>
 
+    @Query("SELECT * FROM evidence WHERE status IN (:statuses) ORDER BY priority DESC, id DESC")
+    fun observeByStatus(statuses: List<EvidenceStatus>): Flow<List<EvidenceEntity>>
+
     @Query("SELECT * FROM evidence WHERE id = :id")
     suspend fun getById(id: Long): EvidenceEntity?
 

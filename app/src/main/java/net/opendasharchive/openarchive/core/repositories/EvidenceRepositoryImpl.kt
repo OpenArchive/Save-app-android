@@ -43,6 +43,13 @@ class EvidenceRepositoryImpl(
         evidenceDao.getByStatus(listOf(EvidenceStatus.LOCAL)).map { mapToDomain(it) }
     }
 
+    override fun observeLocalMedia(): Flow<List<Evidence>> =
+        evidenceDao.observeByStatus(listOf(EvidenceStatus.LOCAL))
+            .map { entities ->
+                entities.map { mapToDomain(it) }
+            }
+            .distinctUntilChanged()
+
     override suspend fun getEvidence(id: Long): Evidence? = withContext(io) {
         evidenceDao.getById(id)?.let { mapToDomain(it) }
     }
