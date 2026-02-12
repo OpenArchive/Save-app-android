@@ -1,7 +1,6 @@
 package net.opendasharchive.openarchive.services.snowbird.service
 
 import net.opendasharchive.openarchive.services.snowbird.data.*
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdError
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response

@@ -51,6 +51,9 @@ interface EvidenceDao {
     @Query("SELECT COUNT(*) FROM evidence WHERE submissionId = :submissionId")
     suspend fun getCountBySubmission(submissionId: Long): Long
 
+    @Query("SELECT id FROM evidence WHERE archiveId = :archiveId AND mediaHashString = :hash LIMIT 1")
+    suspend fun getEvidenceIdByHash(archiveId: Long, hash: String): Long?
+
     @Upsert
     suspend fun upsert(entity: EvidenceEntity): Long
 

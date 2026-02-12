@@ -24,6 +24,9 @@ interface DwebDao {
     @Query("SELECT * FROM vaults WHERE id = :id")
     suspend fun getVaultWithDwebById(id: Long): VaultWithDweb?
 
+    @Query("SELECT vaultId FROM vault_dweb_metadata WHERE vaultKey = :key LIMIT 1")
+    suspend fun getVaultIdByKey(key: String): Long?
+
     @Upsert
     suspend fun upsertVaultMetadata(entity: VaultDwebEntity)
 
@@ -40,6 +43,9 @@ interface DwebDao {
     @Transaction
     @Query("SELECT * FROM archives WHERE id = :id")
     suspend fun getArchiveWithDwebById(id: Long): ArchiveWithDweb?
+
+    @Query("SELECT archiveId FROM archive_dweb_metadata WHERE archiveKey = :key LIMIT 1")
+    suspend fun getArchiveIdByKey(key: String): Long?
 
     @Upsert
     suspend fun upsertArchiveMetadata(entity: ArchiveDwebEntity)

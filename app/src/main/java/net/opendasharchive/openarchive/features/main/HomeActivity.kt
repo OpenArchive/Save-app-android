@@ -14,7 +14,7 @@ import net.opendasharchive.openarchive.features.core.BaseComposeActivity
 import net.opendasharchive.openarchive.features.main.ui.SaveNavGraph
 import net.opendasharchive.openarchive.features.main.ui.rememberNavigator
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
+import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import net.opendasharchive.openarchive.util.PermissionManager
 import org.koin.android.ext.android.inject

@@ -11,7 +11,7 @@
 
     <fragment
         android:id="@+id/snowbird_dashboard"
-        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdFragment"
+        android:name="net.opendasharchive.openarchive.services.snowbird.presentation.dashboard.SnowbirdFragment"
         tools:layout="@layout/fragment_snowbird">
         <action
             android:id="@+id/action_fragment_snowbird_to_fragment_snowbird_group_list"
@@ -45,7 +45,7 @@
 
     <fragment
         android:id="@+id/snowbird_group_list"
-        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupListFragment"
+        android:name="net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdGroupListFragment"
         tools:layout="@layout/fragment_snowbird_group_list">
         <action
             android:id="@+id/action_fragment_snowbird_group_list_to_fragment_snowbird_create_group"
@@ -72,7 +72,7 @@
 
     <fragment
         android:id="@+id/snowbird_create_group"
-        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdCreateGroupFragment"
+        android:name="net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdCreateGroupFragment"
         tools:layout="@layout/fragment_snowbird_create_group">
         <action
             android:id="@+id/action_fragment_snowbird_create_group_to_fragment_snowbird_share_group"
@@ -103,7 +103,7 @@
 
     <fragment
         android:id="@+id/snowbird_join_group"
-        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdJoinGroupFragment"
+        android:name="net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdJoinGroupFragment"
         tools:layout="@layout/fragment_snowbird_join_group">
         <argument
             android:name="dweb_group_key"
@@ -142,12 +142,12 @@
 
     <fragment
         android:id="@+id/snowbird_qr_scanner"
-        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdQRScannerFragment">
+        android:name="net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdQRScannerFragment">
     </fragment>
 
     <fragment
         android:id="@+id/snowbird_list_repos"
-        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdRepoListFragment"
+        android:name="net.opendasharchive.openarchive.services.snowbird.presentation.repo.SnowbirdRepoListFragment"
         tools:layout="@layout/fragment_snowbird_list_repos">
         <action
             android:id="@+id/action_fragment_snowbird_list_repos_to_fragment_snowbird_list_media"
@@ -166,7 +166,7 @@
 
     <fragment
         android:id="@+id/snowbird_share_group_fragment"
-        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdShareFragment"
+        android:name="net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdShareFragment"
         tools:layout="@layout/fragment_snowbird_share_group">
         <argument
             android:name="dweb_group_key"
@@ -179,7 +179,7 @@
 
     <fragment
         android:id="@+id/snowbird_list_media"
-        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdFileListFragment"
+        android:name="net.opendasharchive.openarchive.services.snowbird.presentation.file.SnowbirdFileListFragment"
         tools:layout="@layout/fragment_snowbird_list_media">
         <argument
             android:name="dweb_group_key"
@@ -196,7 +196,7 @@
 
     <fragment
         android:id="@+id/snowbird_setup_success"
-        android:name="net.opendasharchive.openarchive.services.snowbird.SnowbirdSetupSuccessFragment"
+        android:name="net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdSetupSuccessFragment"
         tools:layout="@layout/fragment_space_setup_success">
         <argument
             android:name="message"

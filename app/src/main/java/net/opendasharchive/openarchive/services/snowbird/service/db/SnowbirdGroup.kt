@@ -5,11 +5,6 @@ import com.orm.SugarRecord
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SnowbirdGroupList(
-    var groups: List<SnowbirdGroup>
-) : SerializableMarker
-
-@Serializable
 data class SnowbirdGroup(
     var key: String = "",
     var name: String? = null,
@@ -50,8 +45,4 @@ data class SnowbirdGroup(
                 null).firstOrNull()
         }
     }
-}
-
-fun SnowbirdGroup.shortHash(): String {
-    return key.take(10)
 }

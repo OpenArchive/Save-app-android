@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.domain.Vault
@@ -21,9 +20,6 @@ import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupAction
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupState
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -101,9 +97,9 @@ fun SnowbirdGroupItem(
                 text = group.name,
                 style = SaveTextStyles.titleMedium
             )
-            if (!group.host.isNullOrBlank()) {
+            if (group.host.isNotBlank()) {
                 Text(
-                    text = group.host!!,
+                    text = group.host,
                     style = SaveTextStyles.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -111,7 +107,7 @@ fun SnowbirdGroupItem(
         }
 
         Icon(
-            painter = painterResource(id = R.drawable.button_with_right_icon),
+            painter = painterResource(id = R.drawable.ic_arrow_right_ios),
             contentDescription = null,
             modifier = Modifier.size(24.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant

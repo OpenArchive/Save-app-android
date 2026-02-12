@@ -119,7 +119,7 @@ class MainMediaViewHolder(val binding: RvMediaBoxBinding) : RecyclerView.ViewHol
             // For videos, try both paths to find the file
             val fileExists = try {
                 // First try originalFilePath
-                val originalExists = media.originalFilePath?.let { File(it).exists() } ?: false
+                val originalExists = File(media.originalFilePath).exists()
                 // If not found, try fileUri path
                 val uriExists = if (!originalExists) {
                     media.fileUri.path?.let { File(it).exists() } ?: false

@@ -17,7 +17,7 @@ import net.opendasharchive.openarchive.db.VaultEntity
 import net.opendasharchive.openarchive.db.VaultWithDweb
 import net.opendasharchive.openarchive.util.DateUtils
 
-fun SnowbirdGroupDTO.toVaultEntity(): VaultEntity {
+fun SnowbirdGroupDTO.toVaultEntity(id: Long = 0): VaultEntity {
     return VaultEntity(
         type = VaultType.DWEB_STORAGE,
         name = name ?: "Untitled Group",
@@ -25,7 +25,7 @@ fun SnowbirdGroupDTO.toVaultEntity(): VaultEntity {
         username = "",
         password = "",
         displayName = name ?: "",
-        id = 0, // Auto-generated
+        id = id,
         metaData = "",
         licenseUrl = null,
         createdAt = DateUtils.nowDateTime
@@ -51,14 +51,15 @@ fun VaultWithDweb.toDomain(): Vault {
     )
 }
 
-fun SnowbirdRepoDTO.toArchiveEntity(vaultId: Long): ArchiveEntity {
+fun SnowbirdRepoDTO.toArchiveEntity(vaultId: Long, submissionId: Long, id: Long = 0): ArchiveEntity {
     return ArchiveEntity(
+        id = id,
         vaultId = vaultId,
         description = name ?: "Untitled Repo",
         createdAt = DateUtils.nowDateTime,
         isRemote = true,
         archived = false,
-        openSubmissionId = 0, // Default or handled elsewhere
+        openSubmissionId = submissionId,
         licenseUrl = null
     )
 }
@@ -85,8 +86,9 @@ fun ArchiveWithDweb.toDomain(): Archive {
     )
 }
 
-fun SnowbirdFileDTO.toEvidenceEntity(archiveId: Long): EvidenceEntity {
+fun SnowbirdFileDTO.toEvidenceEntity(archiveId: Long, submissionId: Long, id: Long = 0): EvidenceEntity {
     return EvidenceEntity(
+        id = id,
         originalFilePath = "", // Remote file
         mimeType = mimeType ?: "application/octet-stream",
         createdAt = createdAt?.let { DateUtils.parseDateTime(it) } ?: DateUtils.nowDateTime,
@@ -103,7 +105,7 @@ fun SnowbirdFileDTO.toEvidenceEntity(archiveId: Long): EvidenceEntity {
         status = EvidenceStatus.UPLOADED,
         statusMessage = "Remote",
         archiveId = archiveId,
-        submissionId = 0, // Should be associated with a submission if needed
+        submissionId = submissionId,
         contentLength = size,
         progress = 100,
         flag = false,

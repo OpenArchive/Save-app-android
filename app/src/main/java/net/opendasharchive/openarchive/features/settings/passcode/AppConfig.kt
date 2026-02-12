@@ -11,4 +11,7 @@ data class AppConfig(
     val useCustomCamera: Boolean = false,
     val useComposeUploadManager: Boolean = true,
     val autoVerifyPasscode: Boolean = false,
+    val useMocks: Boolean = false,
+    val simulateErrors: Boolean = false,
+    val mockDelayMs: Long = 500L,
 )

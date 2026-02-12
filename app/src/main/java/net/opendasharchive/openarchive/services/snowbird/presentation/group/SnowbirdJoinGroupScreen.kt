@@ -19,7 +19,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.components.QRScanner
@@ -29,10 +28,6 @@ import net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.extensions.getQueryParameter
 import net.opendasharchive.openarchive.services.internetarchive.presentation.login.CustomTextField
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupAction
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupState
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupViewModel
-import net.opendasharchive.openarchive.services.snowbird.presentation.qrscanner.QRScannerScreen
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

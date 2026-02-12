@@ -20,7 +20,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
@@ -28,9 +27,6 @@ import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdFileAction
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdFileState
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdFileViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

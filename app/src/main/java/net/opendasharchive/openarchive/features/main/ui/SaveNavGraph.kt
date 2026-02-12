@@ -9,12 +9,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntryDecorator
@@ -22,6 +27,8 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
+import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
 import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.navigation.LocalResultEventBus
@@ -69,6 +76,7 @@ import net.opendasharchive.openarchive.services.webdav.presentation.detail.WebDa
 import net.opendasharchive.openarchive.services.webdav.presentation.login.WebDavLoginScreen
 import net.opendasharchive.openarchive.services.webdav.presentation.login.WebDavLoginViewModel
 import net.opendasharchive.openarchive.util.Prefs
+import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -78,6 +86,8 @@ fun SaveNavGraph(
     dialogManager: DialogStateManager,
     navigator: Navigator
 ) {
+    val analyticsManager: AnalyticsManager = koinInject()
+    val sessionTracker: SessionTracker = koinInject()
     val resultBus = remember { ResultEventBus() }
     val resultStore = rememberResultStore()
     val passcodeFlowState: PasscodeFlowState = koinInject()
@@ -111,7 +121,7 @@ fun SaveNavGraph(
                 entryDecorators = listOf(
                     rememberSaveableStateHolderNavEntryDecorator(),
                     rememberViewModelStoreNavEntryDecorator(),
-                    remember { LoggingNavEntryDecorator() }
+                    rememberAnalyticsNavEntryDecorator(analyticsManager, sessionTracker)
                 ),
                 transitionSpec = {
                     // Slide in from right when navigating forward
@@ -494,16 +504,79 @@ fun SaveNavGraph(
 }
 
 
-class LoggingNavEntryDecorator<T : Any> : NavEntryDecorator<T>(
-    decorate = { entry ->
-        LaunchedEffect(entry.contentKey) {
-            AppLogger.d("EzzioNavigation", "Navigated to: ${entry.contentKey}")
-            // Analytics logging
-            //analytics.logScreenView(entry.key.toString())
+private fun <T : Any> AnalyticsNavEntryDecorator(
+    analyticsManager: AnalyticsManager,
+    sessionTracker: SessionTracker
+): NavEntryDecorator<T> {
+    val screenStartTimeByKey = mutableMapOf<Any, Long>()
+    var previousScreen = ""
+
+    return NavEntryDecorator(
+        decorate = { entry ->
+            val lifecycleOwner = LocalLifecycleOwner.current
+            val scope = rememberCoroutineScope()
+            val contentKey = entry.contentKey
+            val screenName = contentKey.toAnalyticsScreenName()
+
+            DisposableEffect(lifecycleOwner, contentKey) {
+                val observer = LifecycleEventObserver { _, event ->
+                    when (event) {
+                        Lifecycle.Event.ON_RESUME -> {
+                            screenStartTimeByKey[contentKey] = System.currentTimeMillis()
+                            AppLogger.setCurrentScreen(screenName)
+                            sessionTracker.setCurrentScreen(screenName)
+
+                            scope.launch {
+                                analyticsManager.trackScreenView(screenName, null, previousScreen)
+                                if (previousScreen.isNotEmpty() && previousScreen != screenName) {
+                                    analyticsManager.trackNavigation(previousScreen, screenName)
+                                }
+                            }
+                        }
+
+                        Lifecycle.Event.ON_PAUSE -> {
+                            val startTime = screenStartTimeByKey[contentKey] ?: 0L
+                            if (startTime > 0L) {
+                                val timeSpent = (System.currentTimeMillis() - startTime) / 1000
+                                scope.launch {
+                                    analyticsManager.trackScreenView(screenName, timeSpent, previousScreen)
+                                }
+                                previousScreen = screenName
+                            }
+                        }
+
+                        else -> Unit
+                    }
+                }
+
+                lifecycleOwner.lifecycle.addObserver(observer)
+                onDispose {
+                    lifecycleOwner.lifecycle.removeObserver(observer)
+                }
+            }
+
+            entry.Content()
+        },
+        onPop = { contentKey ->
+            screenStartTimeByKey.remove(contentKey)
+            AppLogger.d("EzzioNavigation", "Popped: $contentKey")
         }
-        entry.Content()
-    },
-    onPop = { contentKey ->
-        AppLogger.d("EzzioNavigation", "Popped: $contentKey")
+    )
+}
+
+@Composable
+private fun rememberAnalyticsNavEntryDecorator(
+    analyticsManager: AnalyticsManager,
+    sessionTracker: SessionTracker
+): NavEntryDecorator<AppRoute> {
+    return remember(analyticsManager, sessionTracker) {
+        AnalyticsNavEntryDecorator<AppRoute>(analyticsManager, sessionTracker)
     }
-)
+}
+
+private fun Any.toAnalyticsScreenName(): String {
+    return when (this) {
+        is AppRoute -> this::class.simpleName ?: deeplink
+        else -> this::class.simpleName ?: toString()
+    }
+}

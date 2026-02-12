@@ -9,12 +9,12 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.core.domain.DomainResult
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
-import net.opendasharchive.openarchive.services.snowbird.ISnowbirdGroupRepository
-import net.opendasharchive.openarchive.services.snowbird.ISnowbirdRepoRepository
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdResult
+import net.opendasharchive.openarchive.services.snowbird.service.repository.ISnowbirdGroupRepository
+import net.opendasharchive.openarchive.services.snowbird.service.repository.ISnowbirdRepoRepository
 import net.opendasharchive.openarchive.util.ProcessingTracker
 import net.opendasharchive.openarchive.util.trackProcessing
 
@@ -79,24 +79,24 @@ class SnowbirdCreateGroupViewModel(
                 val groupResult = repository.createGroup(groupName)
                 
                 when (groupResult) {
-                    is SnowbirdResult.Success -> {
-                        val group = groupResult.value
+                    is DomainResult.Success -> {
+                        val group = groupResult.data
                         val repoResult = repoRepository.createRepo(group.id, group.vaultKey ?: "", repoName)
                         _uiState.update { it.copy(isLoading = false) }
                         
                         when (repoResult) {
-                            is SnowbirdResult.Success -> {
+                            is DomainResult.Success -> {
                                 _events.emit(SnowbirdCreateGroupEvent.NavigateToSuccess(
                                     "Successfully created group and repository",
                                     group.vaultKey ?: ""
                                 ))
                             }
-                            is SnowbirdResult.Error -> {
+                            is DomainResult.Error -> {
                                 dialogManager.showErrorDialog(message = UiText.Dynamic(repoResult.error.friendlyMessage))
                             }
                         }
                     }
-                    is SnowbirdResult.Error -> {
+                    is DomainResult.Error -> {
                         _uiState.update { it.copy(isLoading = false) }
                         dialogManager.showErrorDialog(message = UiText.Dynamic(groupResult.error.friendlyMessage))
                     }

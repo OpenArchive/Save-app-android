@@ -26,6 +26,9 @@ val passcodeModule = module {
             maxFailedAttempts = 5,
             isDwebEnabled = true,
             useCustomCamera = true,
+            useMocks = true, // Default to true for now as requested for testing
+            simulateErrors = false,
+            mockDelayMs = 500L
         )
     }
 

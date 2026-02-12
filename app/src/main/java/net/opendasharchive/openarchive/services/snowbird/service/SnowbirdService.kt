@@ -24,7 +24,6 @@ import net.opendasharchive.openarchive.extensions.RetryAttempt
 import net.opendasharchive.openarchive.extensions.retryWithScope
 import net.opendasharchive.openarchive.extensions.suspendToRetry
 import net.opendasharchive.openarchive.features.main.MainActivity
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
@@ -32,8 +31,6 @@ import java.net.ConnectException
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import java.net.URL
-import java.nio.file.Files
-import kotlin.io.path.Path
 import kotlin.time.Duration.Companion.seconds
 
 class SnowbirdService : Service() {

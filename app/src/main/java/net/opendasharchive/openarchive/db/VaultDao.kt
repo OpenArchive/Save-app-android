@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface VaultDao {
-    @Query("SELECT * FROM vaults")
+    @Query("SELECT * FROM vaults WHERE type IN (0, 1)")
     fun observeVaults(): Flow<List<VaultEntity>>
 
     @Query("SELECT * FROM vaults WHERE id = :id")
@@ -14,7 +14,7 @@ interface VaultDao {
     @Query("SELECT * FROM vaults WHERE id = :id")
     suspend fun getById(id: Long): VaultEntity?
 
-    @Query("SELECT * FROM vaults")
+    @Query("SELECT * FROM vaults WHERE type IN (0, 1)")
     suspend fun getAll(): List<VaultEntity>
 
     @Upsert
