@@ -47,10 +47,10 @@ val storachaModule =
             SessionManager(get(), get(), get(named("keysStorage")))
         }
 
-        // Logging interceptor
+        // Logging interceptor for API calls (HEADERS level to avoid OOM on large files)
         single {
             HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
+                level = HttpLoggingInterceptor.Level.HEADERS
             }
         }
 
@@ -59,7 +59,7 @@ val storachaModule =
             AuthInterceptor { get() }
         }
 
-        // OkHttp client with interceptors
+        // OkHttp client with interceptors (for general API calls)
         single {
             OkHttpClient
                 .Builder()
@@ -68,6 +68,18 @@ val storachaModule =
                 .connectTimeout(60, TimeUnit.SECONDS)
                 .readTimeout(300, TimeUnit.SECONDS) // 5 minutes for large file uploads
                 .writeTimeout(300, TimeUnit.SECONDS) // 5 minutes for large file uploads
+                .build()
+        }
+
+        // OkHttp client for file uploads - NO body logging to prevent OOM
+        single(qualifier = named("uploadClient")) {
+            OkHttpClient
+                .Builder()
+                // No logging interceptor - prevents OOM on large file uploads
+                .addInterceptor(get<AuthInterceptor>())
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(300, TimeUnit.SECONDS)
+                .writeTimeout(300, TimeUnit.SECONDS)
                 .build()
         }
 
@@ -88,7 +100,8 @@ val storachaModule =
             get<Retrofit>().create(StorachaApiService::class.java)
         }
 
-        single { BridgeUploader(get()) }
+        // BridgeUploader uses the upload client without body logging
+        single { BridgeUploader(get(named("uploadClient"))) }
 
         viewModelOf(::StorachaLoginViewModel)
         viewModelOf(::StorachaBrowseSpacesViewModel)
