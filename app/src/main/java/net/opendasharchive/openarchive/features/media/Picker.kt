@@ -17,7 +17,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
-import net.opendasharchive.openarchive.features.media.camera.CameraActivity
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

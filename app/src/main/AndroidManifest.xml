@@ -123,13 +123,6 @@
         </activity>
 
         <activity
-            android:name=".features.media.camera.CameraActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
             android:name=".features.settings.passcode.passcode_setup.PasscodeSetupActivity"
             android:label="@string/passcode_setup"
             android:screenOrientation="portrait"

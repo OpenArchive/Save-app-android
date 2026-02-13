@@ -24,7 +24,6 @@ import net.opendasharchive.openarchive.core.repositories.MediaRepository
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import org.koin.compose.koinInject
-import net.opendasharchive.openarchive.features.media.camera.CameraActivity
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Utility
@@ -58,7 +57,7 @@ fun rememberContentPickerLaunchers(
 
     // Keep last camera URI so we can import it
     var cameraUri by remember { mutableStateOf<Uri?>(null) }
-    
+
     // Debouncing mechanism to prevent multiple rapid picker launches
     var lastPickerLaunchTime by remember { mutableStateOf(0L) }
     val debounceMs = 1000L
@@ -198,7 +197,7 @@ fun rememberContentPickerLaunchers(
         val currentTime = System.currentTimeMillis()
         if (currentTime - lastPickerLaunchTime < debounceMs) return@launchCamera
         lastPickerLaunchTime = currentTime
-        
+
         errorMessage = null
         if (useCustomCamera && navigator != null) {
             val archive = projectProvider()
@@ -217,7 +216,7 @@ fun rememberContentPickerLaunchers(
                 errorMessage = "No folder selected"
             }
         } else {
-            // TODO: This is a temporary persistent storage solution. 
+            // TODO: This is a temporary persistent storage solution.
             // Review this when implementing the new Evidence architecture.
             val file: File? = Utility.getOutputMediaFile(
                 context,
