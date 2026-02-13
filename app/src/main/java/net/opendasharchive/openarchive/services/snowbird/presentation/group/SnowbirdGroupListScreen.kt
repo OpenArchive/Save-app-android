@@ -20,6 +20,8 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLight
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles
 
@@ -123,8 +125,7 @@ fun SnowbirdGroupItem(
     }
 }
 
-@Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@PreviewLightDark
 @Composable
 private fun SnowbirdGroupListScreenPreview() {
     SaveAppTheme {
@@ -141,7 +142,7 @@ private fun SnowbirdGroupListScreenPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLight
 @Composable
 private fun SnowbirdGroupListScreenEmptyPreview() {
     DefaultScaffoldPreview {
@@ -152,7 +153,7 @@ private fun SnowbirdGroupListScreenEmptyPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLight
 @Composable
 private fun SnowbirdGroupListScreenLoadingPreview() {
     DefaultScaffoldPreview {

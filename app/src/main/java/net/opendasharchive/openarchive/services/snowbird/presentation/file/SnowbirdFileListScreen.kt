@@ -47,6 +47,8 @@ import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
 import net.opendasharchive.openarchive.core.navigation.ResultEffect
 import net.opendasharchive.openarchive.features.main.ui.CameraCaptureResult
 import net.opendasharchive.openarchive.core.config.AppConfig
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLight
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
 import net.opendasharchive.openarchive.util.Utility
 import org.koin.compose.koinInject
 import java.io.File
@@ -352,8 +354,7 @@ private fun isImageFile(extension: String) = extension in listOf("jpg", "jpeg", 
 private fun isVideoFile(extension: String) = extension in listOf("mp4", "avi", "mkv", "mov", "wmv", "flv", "webm", "3gp")
 private fun isAudioFile(extension: String) = extension in listOf("mp3", "wav", "ogg", "m4a", "flac", "aac", "wma")
 
-@Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@PreviewLightDark
 @Composable
 private fun SnowbirdFileListScreenPreview() {
     SaveAppTheme {
@@ -372,7 +373,7 @@ private fun SnowbirdFileListScreenPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLight
 @Composable
 private fun SnowbirdFileListScreenEmptyPreview() {
     DefaultScaffoldPreview {
@@ -383,7 +384,7 @@ private fun SnowbirdFileListScreenEmptyPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLight
 @Composable
 private fun SnowbirdFileListScreenLoadingPreview() {
     DefaultScaffoldPreview {

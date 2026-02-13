@@ -621,7 +621,7 @@
     <ID>FunctionNaming:BrowseFolderScreen.kt$@Composable fun BrowseFolderItem( folder: Folder, isSelected: Boolean, onClick: () -&gt; Unit )</ID>
     <ID>FunctionNaming:BrowseFolderScreen.kt$@Composable fun BrowseFolderScreen( viewModel: BrowseFoldersViewModel = koinViewModel(), onNavigateBackWithResult: (Long) -&gt; Unit = {}, onFolderSelected: (Folder?) -&gt; Unit = {} )</ID>
     <ID>FunctionNaming:BrowseFolderScreen.kt$@Composable fun BrowseFolderScreenContent( state: BrowseFoldersState, onAction: (BrowseFoldersAction) -&gt; Unit )</ID>
-    <ID>FunctionNaming:BrowseFolderScreen.kt$@Preview(showBackground = true) @Composable private fun BrowseFolderScreenEmptyPreview()</ID>
+    <ID>FunctionNaming:BrowseFolderScreen.kt$@PreviewLight @Composable private fun BrowseFolderScreenEmptyPreview()</ID>
     <ID>FunctionNaming:BrowseFolderScreen.kt$@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun BrowseFolderScreenLoadingPreview()</ID>
     <ID>FunctionNaming:BrowseFolderScreen.kt$@PreviewLightDark @Composable private fun BrowseFolderScreenPreview()</ID>
     <ID>FunctionNaming:ButtonBar.kt$@Composable fun ButtonBar( modifier: Modifier = Modifier, backButtonText: UiText = UiText.Resource(R.string.back), nextButtonText: UiText = UiText.Resource(R.string.next), isBackEnabled: Boolean = false, isNextEnabled: Boolean = false, isLoading: Boolean = false, onBack: () -&gt; Unit, onNext: () -&gt; Unit )</ID>
@@ -647,7 +647,7 @@
     <ID>FunctionNaming:ContentPickerSheet.kt$@Preview @Composable private fun ContentPickerSheetPreview()</ID>
     <ID>FunctionNaming:CreateNewFolderScreen.kt$@Composable fun CreateNewFolderScreen( viewModel: CreateNewFolderViewModel, )</ID>
     <ID>FunctionNaming:CreateNewFolderScreen.kt$@Composable fun CreateNewFolderScreenContent( state: CreateNewFolderState, onAction: (CreateNewFolderAction) -&gt; Unit )</ID>
-    <ID>FunctionNaming:CreateNewFolderScreen.kt$@Preview(showBackground = true) @Composable private fun CreateNewFolderScreenEmptyPreview()</ID>
+    <ID>FunctionNaming:CreateNewFolderScreen.kt$@PreviewLight @Composable private fun CreateNewFolderScreenEmptyPreview()</ID>
     <ID>FunctionNaming:CreateNewFolderScreen.kt$@PreviewLightDark @Composable private fun CreateNewFolderScreenPreview()</ID>
     <ID>FunctionNaming:CreativeCommonsLicenseContent.kt$@Composable fun CreativeCommonsLicenseContent( modifier: Modifier = Modifier, licenseState: LicenseState, licenseCallbacks: LicenseCallbacks, enabled: Boolean = true, ccLabelText: String = "" )</ID>
     <ID>FunctionNaming:CreativeCommonsLicenseContent.kt$@Composable private fun LicenseOptionRow( text: String, checked: Boolean, onCheckedChange: (Boolean) -&gt; Unit, modifier: Modifier = Modifier, enabled: Boolean = true )</ID>
@@ -677,7 +677,7 @@
     <ID>FunctionNaming:HomeScreen.kt$@Composable fun HomeScreenContent( state: HomeState, onAction: (HomeAction) -&gt; Unit, snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }, showImportLoading: Boolean = false )</ID>
     <ID>FunctionNaming:HomeScreen.kt$@Preview @Composable private fun MainContentPreview()</ID>
     <ID>FunctionNaming:HtmlText.kt$@Composable fun HtmlText( textRes: Int, modifier: Modifier = Modifier, linkRes: Int? = null, color: Color = MaterialTheme.colorScheme.onBackground, linkColor: Color = MaterialTheme.colorScheme.onBackground, fontSize: TextUnit = 16.sp, )</ID>
-    <ID>FunctionNaming:InternetArchiveDetailsScreen.kt$@Composable @Preview(showBackground = true) @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES) private fun InternetArchiveScreenPreview()</ID>
+    <ID>FunctionNaming:InternetArchiveDetailsScreen.kt$@Composable @PreviewLight @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES) private fun InternetArchiveScreenPreview()</ID>
     <ID>FunctionNaming:InternetArchiveDetailsScreen.kt$@Composable fun InternetArchiveDetailsScreen( viewModel: InternetArchiveDetailsViewModel, dialogManager: DialogStateManager, )</ID>
     <ID>FunctionNaming:InternetArchiveDetailsScreen.kt$@Composable private fun InternetArchiveDetailsContent( state: InternetArchiveDetailsState, onAction: (InternetArchiveDetailsAction) -&gt; Unit, )</ID>
     <ID>FunctionNaming:InternetArchiveHeader.kt$@Composable @PreviewLightDark private fun InternetArchiveHeaderPreview()</ID>
@@ -704,9 +704,9 @@
     <ID>FunctionNaming:MainMediaScreen.kt$@Composable private fun CollectionSectionView( section: CollectionSection, isInSelectionMode: Boolean, selectedMediaIds: Set&lt;Long&gt;, onMediaClick: (Evidence) -&gt; Unit, onMediaLongPress: (Evidence) -&gt; Unit )</ID>
     <ID>FunctionNaming:MainMediaScreen.kt$@Composable private fun EmptyStateView( showWelcome: Boolean, title: String, message: String, )</ID>
     <ID>FunctionNaming:MainMediaScreen.kt$@OptIn(ExperimentalFoundationApi::class) @Composable private fun MediaGridItem( evidence: Evidence, isInSelectionMode: Boolean, isSelected: Boolean, onClick: () -&gt; Unit, onLongClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
-    <ID>FunctionNaming:MainMediaScreen.kt$@Preview(showBackground = true) @Composable private fun MainMediaScreenNoFolderPreview()</ID>
-    <ID>FunctionNaming:MainMediaScreen.kt$@Preview(showBackground = true) @Composable private fun MainMediaScreenNoServerPreview()</ID>
-    <ID>FunctionNaming:MainMediaScreen.kt$@Preview(showBackground = true) @Composable private fun MainMediaScreenPreview()</ID>
+    <ID>FunctionNaming:MainMediaScreen.kt$@PreviewLight @Composable private fun MainMediaScreenNoFolderPreview()</ID>
+    <ID>FunctionNaming:MainMediaScreen.kt$@PreviewLight @Composable private fun MainMediaScreenNoServerPreview()</ID>
+    <ID>FunctionNaming:MainMediaScreen.kt$@PreviewLight @Composable private fun MainMediaScreenPreview()</ID>
     <ID>FunctionNaming:MediaCacheScreen.kt$@Composable fun CacheFileItem(file: MediaFile)</ID>
     <ID>FunctionNaming:MediaCacheScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MediaCacheScreen(onNavigateBack: () -&gt; Unit)</ID>
     <ID>FunctionNaming:MediaStatusOverlay.kt$@Composable fun MediaStatusOverlay( evidence: Evidence, modifier: Modifier = Modifier, showProgressText: Boolean = true, backgroundColor: Color = colorResource(R.color.transparent_loading_overlay), progressIndicatorSize: Int = 42, showQueuedState: Boolean = true, showUploadingState: Boolean = true )</ID>
@@ -786,11 +786,11 @@
     <ID>FunctionNaming:SettingsScreen.kt$@Preview @Composable private fun SettingsScreenPreview()</ID>
     <ID>FunctionNaming:SetupLicenseScreen.kt$@Composable fun SetupLicenseScreen( viewModel: SetupLicenseViewModel, )</ID>
     <ID>FunctionNaming:SetupLicenseScreen.kt$@Composable private fun SetupLicenseScreenContent( state: SetupLicenseState, onAction: (SetupLicenseAction) -&gt; Unit )</ID>
-    <ID>FunctionNaming:SetupLicenseScreen.kt$@Preview(showBackground = true) @Composable private fun WebDavSetupLicenseScreenPreview()</ID>
+    <ID>FunctionNaming:SetupLicenseScreen.kt$@PreviewLight @Composable private fun WebDavSetupLicenseScreenPreview()</ID>
     <ID>FunctionNaming:SnowbirdCreateGroupScreen.kt$@Composable fun SnowbirdCreateGroupScreen( viewModel: SnowbirdCreateGroupViewModel )</ID>
     <ID>FunctionNaming:SnowbirdCreateGroupScreen.kt$@Composable fun SnowbirdCreateGroupScreenContent( state: SnowbirdCreateGroupState, onAction: (SnowbirdCreateGroupAction) -&gt; Unit )</ID>
-    <ID>FunctionNaming:SnowbirdCreateGroupScreen.kt$@Preview(showBackground = true) @Composable private fun SnowbirdCreateGroupScreenLoadingPreview()</ID>
-    <ID>FunctionNaming:SnowbirdCreateGroupScreen.kt$@Preview(showBackground = true) @Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES) @Composable private fun SnowbirdCreateGroupScreenPreview()</ID>
+    <ID>FunctionNaming:SnowbirdCreateGroupScreen.kt$@PreviewLight @Composable private fun SnowbirdCreateGroupScreenLoadingPreview()</ID>
+    <ID>FunctionNaming:SnowbirdCreateGroupScreen.kt$@PreviewLight @Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES) @Composable private fun SnowbirdCreateGroupScreenPreview()</ID>
     <ID>FunctionNaming:SnowbirdDashboardScreen.kt$@Composable fun DwebOptionItem( title: String, subtitle: String, onClick: () -&gt; Unit )</ID>
     <ID>FunctionNaming:SnowbirdDashboardScreen.kt$@Composable fun DwebServerPreference( serverStatus: ServiceStatus, onToggle: (Boolean) -&gt; Unit )</ID>
     <ID>FunctionNaming:SnowbirdDashboardScreen.kt$@Composable fun SnowbirdDashboardContent( state: SnowbirdDashboardState, onAction: (SnowbirdDashboardAction) -&gt; Unit )</ID>
@@ -801,15 +801,15 @@
     <ID>FunctionNaming:SnowbirdFileListScreen.kt$@Composable fun SnowbirdFileItem( evidence: Evidence, onClick: () -&gt; Unit )</ID>
     <ID>FunctionNaming:SnowbirdFileListScreen.kt$@Composable fun SnowbirdFileListScreen( viewModel: SnowbirdFileViewModel )</ID>
     <ID>FunctionNaming:SnowbirdFileListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SnowbirdFileListContent( state: SnowbirdFileState, onAction: (SnowbirdFileAction) -&gt; Unit )</ID>
-    <ID>FunctionNaming:SnowbirdFileListScreen.kt$@Preview(showBackground = true) @Composable private fun SnowbirdFileListScreenEmptyPreview()</ID>
-    <ID>FunctionNaming:SnowbirdFileListScreen.kt$@Preview(showBackground = true) @Composable private fun SnowbirdFileListScreenLoadingPreview()</ID>
-    <ID>FunctionNaming:SnowbirdFileListScreen.kt$@Preview(showBackground = true) @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun SnowbirdFileListScreenPreview()</ID>
+    <ID>FunctionNaming:SnowbirdFileListScreen.kt$@PreviewLight @Composable private fun SnowbirdFileListScreenEmptyPreview()</ID>
+    <ID>FunctionNaming:SnowbirdFileListScreen.kt$@PreviewLight @Composable private fun SnowbirdFileListScreenLoadingPreview()</ID>
+    <ID>FunctionNaming:SnowbirdFileListScreen.kt$@PreviewLight @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun SnowbirdFileListScreenPreview()</ID>
     <ID>FunctionNaming:SnowbirdGroupListScreen.kt$@Composable fun SnowbirdGroupListScreen( viewModel: SnowbirdGroupListViewModel )</ID>
     <ID>FunctionNaming:SnowbirdGroupListScreen.kt$@OptIn(ExperimentalFoundationApi::class) @Composable fun SnowbirdGroupItem( group: Vault, onClick: () -&gt; Unit, onLongClick: () -&gt; Unit )</ID>
     <ID>FunctionNaming:SnowbirdGroupListScreen.kt$@OptIn(ExperimentalFoundationApi::class) @Composable fun SnowbirdGroupListContent( state: SnowbirdGroupListState, onAction: (SnowbirdGroupListAction) -&gt; Unit )</ID>
-    <ID>FunctionNaming:SnowbirdGroupListScreen.kt$@Preview(showBackground = true) @Composable private fun SnowbirdGroupListScreenEmptyPreview()</ID>
-    <ID>FunctionNaming:SnowbirdGroupListScreen.kt$@Preview(showBackground = true) @Composable private fun SnowbirdGroupListScreenLoadingPreview()</ID>
-    <ID>FunctionNaming:SnowbirdGroupListScreen.kt$@Preview(showBackground = true) @Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES) @Composable private fun SnowbirdGroupListScreenPreview()</ID>
+    <ID>FunctionNaming:SnowbirdGroupListScreen.kt$@PreviewLight @Composable private fun SnowbirdGroupListScreenEmptyPreview()</ID>
+    <ID>FunctionNaming:SnowbirdGroupListScreen.kt$@PreviewLight @Composable private fun SnowbirdGroupListScreenLoadingPreview()</ID>
+    <ID>FunctionNaming:SnowbirdGroupListScreen.kt$@PreviewLight @Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES) @Composable private fun SnowbirdGroupListScreenPreview()</ID>
     <ID>FunctionNaming:SnowbirdJoinGroupScreen.kt$@Composable fun SnowbirdJoinGroupScreen( viewModel: SnowbirdJoinGroupViewModel )</ID>
     <ID>FunctionNaming:SnowbirdJoinGroupScreen.kt$@Composable fun SnowbirdJoinGroupScreenContent( state: SnowbirdJoinGroupState, onAction: (SnowbirdJoinGroupAction) -&gt; Unit )</ID>
     <ID>FunctionNaming:SnowbirdJoinGroupScreen.kt$@Composable private fun DwebHeader(modifier: Modifier = Modifier)</ID>
@@ -817,9 +817,9 @@
     <ID>FunctionNaming:SnowbirdRepoListScreen.kt$@Composable fun SnowbirdRepoItem( repo: Archive, onClick: () -&gt; Unit )</ID>
     <ID>FunctionNaming:SnowbirdRepoListScreen.kt$@Composable fun SnowbirdRepoListScreen( viewModel: SnowbirdRepoViewModel )</ID>
     <ID>FunctionNaming:SnowbirdRepoListScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SnowbirdRepoListContent( state: SnowbirdRepoState, onAction: (SnowbirdRepoAction) -&gt; Unit )</ID>
-    <ID>FunctionNaming:SnowbirdRepoListScreen.kt$@Preview(showBackground = true) @Composable private fun SnowbirdRepoListScreenEmptyPreview()</ID>
-    <ID>FunctionNaming:SnowbirdRepoListScreen.kt$@Preview(showBackground = true) @Composable private fun SnowbirdRepoListScreenLoadingPreview()</ID>
-    <ID>FunctionNaming:SnowbirdRepoListScreen.kt$@Preview(showBackground = true) @Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES) @Composable private fun SnowbirdRepoListScreenPreview()</ID>
+    <ID>FunctionNaming:SnowbirdRepoListScreen.kt$@PreviewLight @Composable private fun SnowbirdRepoListScreenEmptyPreview()</ID>
+    <ID>FunctionNaming:SnowbirdRepoListScreen.kt$@PreviewLight @Composable private fun SnowbirdRepoListScreenLoadingPreview()</ID>
+    <ID>FunctionNaming:SnowbirdRepoListScreen.kt$@PreviewLight @Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES) @Composable private fun SnowbirdRepoListScreenPreview()</ID>
     <ID>FunctionNaming:SnowbirdShareScreen.kt$@Composable fun SnowbirdShareScreen( viewModel: SnowbirdShareViewModel, onShareQr: (String, String) -&gt; Unit // qrContent, groupName — handled at SaveNavGraph level )</ID>
     <ID>FunctionNaming:SnowbirdShareScreen.kt$@Composable fun SnowbirdShareScreenContent( state: SnowbirdShareState, onAction: (SnowbirdShareAction) -&gt; Unit )</ID>
     <ID>FunctionNaming:SnowbirdShareScreen.kt$@PreviewLight @Composable private fun SnowbirdShareScreenPreview()</ID>
@@ -2716,12 +2716,12 @@
     <ID>UnusedPrivateMember:BaseDialog.kt$@Preview @Preview(uiMode = UI_MODE_NIGHT_YES) @Composable private fun ErrorDialogPreview()</ID>
     <ID>UnusedPrivateMember:BaseDialog.kt$@Preview @Preview(uiMode = UI_MODE_NIGHT_YES) @Composable private fun TorWarningDialogPreview()</ID>
     <ID>UnusedPrivateMember:BaseDialog.kt$@Preview @Preview(uiMode = UI_MODE_NIGHT_YES) @Composable private fun WarningDialogPreview()</ID>
-    <ID>UnusedPrivateMember:BrowseFolderScreen.kt$@Preview(showBackground = true) @Composable private fun BrowseFolderScreenEmptyPreview()</ID>
+    <ID>UnusedPrivateMember:BrowseFolderScreen.kt$@PreviewLight @Composable private fun BrowseFolderScreenEmptyPreview()</ID>
     <ID>UnusedPrivateMember:BrowseFolderScreen.kt$@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun BrowseFolderScreenLoadingPreview()</ID>
     <ID>UnusedPrivateMember:BrowseFolderScreen.kt$@PreviewLightDark @Composable private fun BrowseFolderScreenPreview()</ID>
     <ID>UnusedPrivateMember:CameraPermissionScreen.kt$@Preview @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun CameraPermissionScreenPreview()</ID>
     <ID>UnusedPrivateMember:ContentPickerSheet.kt$@Preview @Composable private fun ContentPickerSheetPreview()</ID>
-    <ID>UnusedPrivateMember:CreateNewFolderScreen.kt$@Preview(showBackground = true) @Composable private fun CreateNewFolderScreenEmptyPreview()</ID>
+    <ID>UnusedPrivateMember:CreateNewFolderScreen.kt$@PreviewLight @Composable private fun CreateNewFolderScreenEmptyPreview()</ID>
     <ID>UnusedPrivateMember:CreateNewFolderScreen.kt$@PreviewLightDark @Composable private fun CreateNewFolderScreenPreview()</ID>
     <ID>UnusedPrivateMember:CustomDotsIndicator.kt$@Preview(name = "Dots Indicator", showBackground = true) @Composable private fun CustomDotsIndicatorPreview()</ID>
     <ID>UnusedPrivateMember:FolderDetailScreen.kt$@PreviewLightDark @Composable private fun FolderDetailScreenPreview()</ID>
@@ -2729,16 +2729,16 @@
     <ID>UnusedPrivateMember:FoldersScreen.kt$@PreviewLightDark @Composable private fun FoldersScreenPreview()</ID>
     <ID>UnusedPrivateMember:HomeScreen.kt$@Preview @Composable private fun MainContentPreview()</ID>
     <ID>UnusedPrivateMember:IaConduit.kt$IaConduit$@Throws(IOException::class) private suspend fun OkHttpClient.uploadProofFiles(uploadFile: File, vault: Vault)</ID>
-    <ID>UnusedPrivateMember:InternetArchiveDetailsScreen.kt$@Composable @Preview(showBackground = true) @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES) private fun InternetArchiveScreenPreview()</ID>
+    <ID>UnusedPrivateMember:InternetArchiveDetailsScreen.kt$@Composable @PreviewLight @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES) private fun InternetArchiveScreenPreview()</ID>
     <ID>UnusedPrivateMember:InternetArchiveHeader.kt$@Composable @PreviewLightDark private fun InternetArchiveHeaderPreview()</ID>
     <ID>UnusedPrivateMember:InternetArchiveLoginScreen.kt$@Composable @PreviewLightDark private fun InternetArchiveLoginPreview()</ID>
     <ID>UnusedPrivateMember:MainBottomBar.kt$@Preview @Composable private fun MainBottomBarPreview()</ID>
     <ID>UnusedPrivateMember:MainDrawerContent.kt$@Composable private fun SpaceListItem( space: Vault, isSelected: Boolean, onSpaceSelected: (Vault) -&gt; Unit )</ID>
     <ID>UnusedPrivateMember:MainDrawerContent.kt$@Preview @Composable private fun MainDrawerContentPreview()</ID>
     <ID>UnusedPrivateMember:MainDrawerContent.kt$@Preview(uiMode = UI_MODE_NIGHT_YES) @Composable private fun ExpandableSpaceListPreview()</ID>
-    <ID>UnusedPrivateMember:MainMediaScreen.kt$@Preview(showBackground = true) @Composable private fun MainMediaScreenNoFolderPreview()</ID>
-    <ID>UnusedPrivateMember:MainMediaScreen.kt$@Preview(showBackground = true) @Composable private fun MainMediaScreenNoServerPreview()</ID>
-    <ID>UnusedPrivateMember:MainMediaScreen.kt$@Preview(showBackground = true) @Composable private fun MainMediaScreenPreview()</ID>
+    <ID>UnusedPrivateMember:MainMediaScreen.kt$@PreviewLight @Composable private fun MainMediaScreenNoFolderPreview()</ID>
+    <ID>UnusedPrivateMember:MainMediaScreen.kt$@PreviewLight @Composable private fun MainMediaScreenNoServerPreview()</ID>
+    <ID>UnusedPrivateMember:MainMediaScreen.kt$@PreviewLight @Composable private fun MainMediaScreenPreview()</ID>
     <ID>UnusedPrivateMember:MainMediaViewModel.kt$MainMediaViewModel$private fun findMediaPosition(media: Evidence): Int</ID>
     <ID>UnusedPrivateMember:NumericKeypad.kt$@Preview @Composable private fun NumericKeypadPreview()</ID>
     <ID>UnusedPrivateMember:OnboardingInstructionsScreen.kt$@Preview(name = "Light Mode", showBackground = true) @Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun OnboardingInstructionsScreenPreview()</ID>
@@ -2757,21 +2757,21 @@
     <ID>UnusedPrivateMember:ServerOptionItem.kt$@PreviewLightDark @Composable private fun ServerOptionItemPreview()</ID>
     <ID>UnusedPrivateMember:ServerOptionItem.kt$@PreviewLightDark @Composable private fun ServerOptionsItemPreview()</ID>
     <ID>UnusedPrivateMember:SettingsScreen.kt$@Preview @Composable private fun SettingsScreenPreview()</ID>
-    <ID>UnusedPrivateMember:SetupLicenseScreen.kt$@Preview(showBackground = true) @Composable private fun WebDavSetupLicenseScreenPreview()</ID>
-    <ID>UnusedPrivateMember:SnowbirdCreateGroupScreen.kt$@Preview(showBackground = true) @Composable private fun SnowbirdCreateGroupScreenLoadingPreview()</ID>
-    <ID>UnusedPrivateMember:SnowbirdCreateGroupScreen.kt$@Preview(showBackground = true) @Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES) @Composable private fun SnowbirdCreateGroupScreenPreview()</ID>
+    <ID>UnusedPrivateMember:SetupLicenseScreen.kt$@PreviewLight @Composable private fun WebDavSetupLicenseScreenPreview()</ID>
+    <ID>UnusedPrivateMember:SnowbirdCreateGroupScreen.kt$@PreviewLight @Composable private fun SnowbirdCreateGroupScreenLoadingPreview()</ID>
+    <ID>UnusedPrivateMember:SnowbirdCreateGroupScreen.kt$@PreviewLight @Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES) @Composable private fun SnowbirdCreateGroupScreenPreview()</ID>
     <ID>UnusedPrivateMember:SnowbirdDashboardScreen.kt$@PreviewLight @Composable private fun DwebServerPreferencePreview()</ID>
     <ID>UnusedPrivateMember:SnowbirdDashboardScreen.kt$@PreviewLight @Composable private fun SnowbirdDashboardContentPreview()</ID>
-    <ID>UnusedPrivateMember:SnowbirdFileListScreen.kt$@Preview(showBackground = true) @Composable private fun SnowbirdFileListScreenEmptyPreview()</ID>
-    <ID>UnusedPrivateMember:SnowbirdFileListScreen.kt$@Preview(showBackground = true) @Composable private fun SnowbirdFileListScreenLoadingPreview()</ID>
-    <ID>UnusedPrivateMember:SnowbirdFileListScreen.kt$@Preview(showBackground = true) @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun SnowbirdFileListScreenPreview()</ID>
-    <ID>UnusedPrivateMember:SnowbirdGroupListScreen.kt$@Preview(showBackground = true) @Composable private fun SnowbirdGroupListScreenEmptyPreview()</ID>
-    <ID>UnusedPrivateMember:SnowbirdGroupListScreen.kt$@Preview(showBackground = true) @Composable private fun SnowbirdGroupListScreenLoadingPreview()</ID>
-    <ID>UnusedPrivateMember:SnowbirdGroupListScreen.kt$@Preview(showBackground = true) @Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES) @Composable private fun SnowbirdGroupListScreenPreview()</ID>
+    <ID>UnusedPrivateMember:SnowbirdFileListScreen.kt$@PreviewLight @Composable private fun SnowbirdFileListScreenEmptyPreview()</ID>
+    <ID>UnusedPrivateMember:SnowbirdFileListScreen.kt$@PreviewLight @Composable private fun SnowbirdFileListScreenLoadingPreview()</ID>
+    <ID>UnusedPrivateMember:SnowbirdFileListScreen.kt$@PreviewLight @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES) @Composable private fun SnowbirdFileListScreenPreview()</ID>
+    <ID>UnusedPrivateMember:SnowbirdGroupListScreen.kt$@PreviewLight @Composable private fun SnowbirdGroupListScreenEmptyPreview()</ID>
+    <ID>UnusedPrivateMember:SnowbirdGroupListScreen.kt$@PreviewLight @Composable private fun SnowbirdGroupListScreenLoadingPreview()</ID>
+    <ID>UnusedPrivateMember:SnowbirdGroupListScreen.kt$@PreviewLight @Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES) @Composable private fun SnowbirdGroupListScreenPreview()</ID>
     <ID>UnusedPrivateMember:SnowbirdJoinGroupScreen.kt$@PreviewLight @Composable private fun SnowbirdJoinGroupScreenPreview()</ID>
-    <ID>UnusedPrivateMember:SnowbirdRepoListScreen.kt$@Preview(showBackground = true) @Composable private fun SnowbirdRepoListScreenEmptyPreview()</ID>
-    <ID>UnusedPrivateMember:SnowbirdRepoListScreen.kt$@Preview(showBackground = true) @Composable private fun SnowbirdRepoListScreenLoadingPreview()</ID>
-    <ID>UnusedPrivateMember:SnowbirdRepoListScreen.kt$@Preview(showBackground = true) @Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES) @Composable private fun SnowbirdRepoListScreenPreview()</ID>
+    <ID>UnusedPrivateMember:SnowbirdRepoListScreen.kt$@PreviewLight @Composable private fun SnowbirdRepoListScreenEmptyPreview()</ID>
+    <ID>UnusedPrivateMember:SnowbirdRepoListScreen.kt$@PreviewLight @Composable private fun SnowbirdRepoListScreenLoadingPreview()</ID>
+    <ID>UnusedPrivateMember:SnowbirdRepoListScreen.kt$@PreviewLight @Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES) @Composable private fun SnowbirdRepoListScreenPreview()</ID>
     <ID>UnusedPrivateMember:SnowbirdShareScreen.kt$@PreviewLight @Composable private fun SnowbirdShareScreenPreview()</ID>
     <ID>UnusedPrivateMember:SpaceListScreen.kt$@Preview(uiMode = UI_MODE_NIGHT_YES) @Composable private fun SpaceListEmptyScreenPreview()</ID>
     <ID>UnusedPrivateMember:SpaceListScreen.kt$@Preview(uiMode = UI_MODE_NIGHT_YES) @Composable private fun SpaceListScreenPreview()</ID>

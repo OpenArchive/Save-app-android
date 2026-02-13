@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.presentation.components.PrimaryButton
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLight
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.services.internetarchive.presentation.login.CustomTextField
 import net.opendasharchive.openarchive.services.common.license.CreativeCommonsLicenseContent
@@ -171,7 +172,7 @@ private fun SetupLicenseScreenContent(
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLight
 @Composable
 private fun WebDavSetupLicenseScreenPreview() {
     SaveAppTheme {

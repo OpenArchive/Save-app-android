@@ -20,6 +20,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.domain.Archive
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLight
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles
 
@@ -121,8 +123,7 @@ fun SnowbirdRepoItem(
     }
 }
 
-@Preview(showBackground = true)
-@Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
+@PreviewLightDark
 @Composable
 private fun SnowbirdRepoListScreenPreview() {
     SaveAppTheme {
@@ -139,7 +140,7 @@ private fun SnowbirdRepoListScreenPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLight
 @Composable
 private fun SnowbirdRepoListScreenEmptyPreview() {
     DefaultScaffoldPreview {
@@ -150,7 +151,7 @@ private fun SnowbirdRepoListScreenEmptyPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLight
 @Composable
 private fun SnowbirdRepoListScreenLoadingPreview() {
     DefaultScaffoldPreview {

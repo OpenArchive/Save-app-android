@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLight
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.services.internetarchive.presentation.login.CustomTextField
@@ -159,7 +160,7 @@ fun SnowbirdCreateGroupScreenContent(
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLight
 @Preview(showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun SnowbirdCreateGroupScreenPreview() {
@@ -171,7 +172,7 @@ private fun SnowbirdCreateGroupScreenPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLight
 @Composable
 private fun SnowbirdCreateGroupScreenLoadingPreview() {
     DefaultScaffoldPreview {

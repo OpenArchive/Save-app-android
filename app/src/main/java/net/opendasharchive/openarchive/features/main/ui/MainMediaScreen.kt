@@ -52,6 +52,7 @@ import java.util.Locale
 import kotlinx.datetime.LocalDateTime
 import net.opendasharchive.openarchive.util.format
 import net.opendasharchive.openarchive.core.domain.VaultType
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLight
 
 /**
  * IMPROVED MainMediaScreen:
@@ -416,7 +417,7 @@ private fun formatUploadDate(dateTime: LocalDateTime): String {
     return formatted.replace("AM", "am").replace("PM", "pm")
 }
 
-@Preview(showBackground = true)
+@PreviewLight
 @Composable
 private fun MainMediaScreenPreview() {
     SaveAppTheme {
@@ -432,7 +433,7 @@ private fun MainMediaScreenPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLight
 @Composable
 private fun MainMediaScreenNoFolderPreview() {
     SaveAppTheme {
@@ -447,7 +448,7 @@ private fun MainMediaScreenNoFolderPreview() {
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLight
 @Composable
 private fun MainMediaScreenNoServerPreview() {
     SaveAppTheme {
