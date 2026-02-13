@@ -23,7 +23,7 @@ import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.extensions.RetryAttempt
 import net.opendasharchive.openarchive.extensions.retryWithScope
 import net.opendasharchive.openarchive.extensions.suspendToRetry
-import net.opendasharchive.openarchive.features.main.MainActivity
+import net.opendasharchive.openarchive.features.main.HomeActivity
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import timber.log.Timber
 import java.io.File
@@ -181,7 +181,7 @@ class SnowbirdService : Service() {
 
         val pendingIntent: PendingIntent = Intent(
             this,
-            MainActivity::class.java
+            HomeActivity::class.java
         ).let { notificationIntent ->
             PendingIntent.getActivity(
                 this,
