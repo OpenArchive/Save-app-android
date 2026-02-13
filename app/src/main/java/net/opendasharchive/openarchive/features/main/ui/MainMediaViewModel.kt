@@ -67,7 +67,7 @@ data class MainMediaState(
     val sections: List<CollectionSection> = emptyList(),
     val isInSelectionMode: Boolean = false,
     val selectedMediaIds: Set<Long> = emptySet(),
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
 
     val showDeleteSelectedMediaDialog: Boolean = false,
 
@@ -217,7 +217,8 @@ class MainMediaViewModel(
                         currentProject = update.project,
                         currentSpace = update.space,
                         sections = update.sections,
-                        totalMediaCount = totalCount
+                        totalMediaCount = totalCount,
+                        isLoading = false
                     )
                 }
             }

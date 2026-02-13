@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -167,7 +168,9 @@ fun MainMediaContent(
 
         // Main Content
         Box(modifier = Modifier.fillMaxSize()) {
-            if (state.sections.isEmpty()) {
+            if (state.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else if (state.sections.isEmpty()) {
                 EmptyStateView(
                     title = stringResource(R.string.title_welcome),
                     showWelcome = state.currentSpace == null,
