@@ -6,13 +6,13 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.features.core.BaseComposeActivity
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.android.ext.android.inject
 
-class PasscodeEntryActivity : BaseActivity() {
+class PasscodeEntryActivity : BaseComposeActivity() {
 
     private val viewModel: PasscodeEntryViewModel by viewModel()
     private val repository: PasscodeRepository by inject()

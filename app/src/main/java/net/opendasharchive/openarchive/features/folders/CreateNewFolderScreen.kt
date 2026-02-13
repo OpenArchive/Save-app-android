@@ -1,6 +1,5 @@
 package net.opendasharchive.openarchive.features.folders
 
-import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,21 +41,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
-import net.opendasharchive.openarchive.features.core.BaseActivity
-import net.opendasharchive.openarchive.features.core.UiImage
-import net.opendasharchive.openarchive.features.core.UiText
-import net.opendasharchive.openarchive.features.core.dialog.ButtonData
-import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
-import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.services.internetarchive.presentation.login.CustomTextField
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun CreateNewFolderScreen(
@@ -64,8 +55,6 @@ fun CreateNewFolderScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val activity = context as? FragmentActivity
-    val dialogManager = (activity as? BaseActivity)?.dialogManager
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->

@@ -21,14 +21,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -37,68 +34,23 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.features.core.BaseActivity
-import net.opendasharchive.openarchive.features.core.UiImage
-import net.opendasharchive.openarchive.features.core.UiText
-import net.opendasharchive.openarchive.features.core.dialog.ButtonData
-import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
-import net.opendasharchive.openarchive.features.core.dialog.DialogType
-import net.opendasharchive.openarchive.features.folders.Folder
 import net.opendasharchive.openarchive.util.DateUtils
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun BrowseFolderScreen(
-    viewModel: BrowseFoldersViewModel = koinViewModel(),
-    onNavigateBackWithResult: (Long) -> Unit = {},
-    onFolderSelected: (Folder?) -> Unit = {}
+    state: BrowseFoldersState,
+    viewModel: BrowseFoldersViewModel
 ) {
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-    val activity = context as? FragmentActivity
-    val dialogManager = (activity as? BaseActivity)?.dialogManager
-
-    LaunchedEffect(Unit) {
-        viewModel.events.collect { event ->
-            when (event) {
-                is BrowseFoldersEvent.ShowSuccessDialog -> {
-                    dialogManager?.showDialog(
-                        DialogConfig(
-                            type = DialogType.Success,
-                            title = UiText.Resource(R.string.label_success_title),
-                            message = UiText.Resource(R.string.create_folder_ok_message),
-                            icon = UiImage.DrawableResource(R.drawable.ic_done),
-                            positiveButton = ButtonData(
-                                text = UiText.Resource(R.string.label_got_it),
-                                action = { viewModel.navigateBackWithResult(event.projectId) }
-                            ),
-                            onDismissAction = { viewModel.navigateBackWithResult(event.projectId) }
-                        )
-                    )
-                }
-
-                is BrowseFoldersEvent.NavigateBackWithResult -> {
-                    onNavigateBackWithResult(event.projectId)
-                }
-            }
-        }
-    }
-
-    // Notify parent about selected folder for toolbar menu
-    LaunchedEffect(state.selectedFolder) {
-        onFolderSelected(state.selectedFolder)
-    }
 
     BrowseFolderScreenContent(
         state = state,
         onAction = viewModel::onAction
     )
+
 }
 
 @Composable

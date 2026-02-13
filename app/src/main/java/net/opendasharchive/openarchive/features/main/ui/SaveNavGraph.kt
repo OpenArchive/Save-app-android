@@ -5,6 +5,8 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -16,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -78,6 +81,9 @@ import net.opendasharchive.openarchive.services.snowbird.presentation.snowbirdEn
 
 import net.opendasharchive.openarchive.util.Prefs
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.features.folders.BrowseFolderScreenContent
+import net.opendasharchive.openarchive.features.folders.BrowseFoldersAction
+import net.opendasharchive.openarchive.features.folders.BrowseFoldersViewModel
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -336,16 +342,31 @@ fun SaveNavGraph(
                         )
                     }
 
-                    entry<AppRoute.BrowseExistingFoldersRoute> {
+                    entry<AppRoute.BrowseExistingFoldersRoute> { route ->
+                        val viewModel = koinViewModel<BrowseFoldersViewModel> {
+                            parametersOf(navigator, route)
+                        }
+
+                        val state by viewModel.uiState.collectAsStateWithLifecycle()
+
                         DefaultScaffold(
-                            title = stringResource(id = R.string.browse_existing),
-                            onNavigateBack = { navigator.navigateBack() }
+                            title = stringResource(R.string.browse_existing),
+                            onNavigateBack = { viewModel.onBack() },
+                            actions = {
+                                if (state.selectedFolder != null) {
+                                    IconButton(onClick = { viewModel.onAction(BrowseFoldersAction.AddFolder) }) {
+                                        Icon(
+                                            painter = painterResource(R.drawable.ic_add),
+                                            contentDescription = stringResource(R.string.add_a_folder),
+                                            tint = Color.White
+                                        )
+                                    }
+                                }
+                            }
                         ) {
                             BrowseFolderScreen(
-                                onNavigateBackWithResult = { projectId ->
-                                    //onFolderSelected(projectId)
-                                    navigator.navigateBack()
-                                }
+                                state = state,
+                                viewModel = viewModel
                             )
                         }
                     }

@@ -77,54 +77,6 @@
         tools:ignore="UnusedAttribute,LockedOrientationActivity"
         tools:replace="android:icon,android:allowBackup">
 
-        <!--TODO: task affinity lets us define within which 'task' does a activity belong to.
-        By default, the activity has the same task affinity as its root
-        Trail of bits ticket: https://github.com/OpenArchive/OA-Trail-of-Bits/issues/23
-        -->
-        <activity
-            android:name=".features.main.MainActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.SaveApp.Starting"
-            android:windowSoftInputMode="adjustPan"
-            tools:ignore="DiscouragedApi">
-            <!--            <intent-filter>-->
-            <!--                <action android:name="android.intent.action.MAIN" />-->
-
-            <!--                <category android:name="android.intent.category.LAUNCHER" />-->
-            <!--            </intent-filter>-->
-
-            <!-- filter for sending text or images; accepts SEND action and audio/photo/video data -->
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="*/*" />
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="application/*" />
-                <data android:mimeType="audio/*" />
-                <data android:mimeType="image/*" />
-                <data android:mimeType="message/*" />
-                <data android:mimeType="multipart/*" />
-                <data android:mimeType="text/*" />
-                <data android:mimeType="video/*" />
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="save+dweb" />
-            </intent-filter>
-
-        </activity>
-
         <activity
             android:name=".features.main.HomeActivity"
             android:exported="true"
@@ -174,20 +126,6 @@
             android:name=".features.media.camera.CameraActivity"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-
-        <activity
-            android:name=".features.onboarding.Onboarding23Activity"
-            android:exported="false"
-            android:noHistory="true"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar.Onboarding" />
-
-        <activity
-            android:name=".features.onboarding.Onboarding23InstructionsActivity"
-            android:exported="false"
             android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar" />
 

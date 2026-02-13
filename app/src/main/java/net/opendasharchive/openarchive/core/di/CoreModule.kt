@@ -2,7 +2,10 @@ package net.opendasharchive.openarchive.core.di
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import android.content.SharedPreferences
+import androidx.preference.PreferenceManager
 import net.opendasharchive.openarchive.core.config.AppConfig
+import net.opendasharchive.openarchive.core.security.SecurityManager
 import net.opendasharchive.openarchive.features.core.dialog.DefaultResourceProvider
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.ResourceProvider
@@ -55,6 +58,14 @@ val coreModule = module {
     viewModelOf(::FoldersViewModel)
 
     viewModelOf(::FolderDetailViewModel)
+
+    // Default SharedPreferences for general settings
+    single<SharedPreferences>(named("default_prefs")) {
+        PreferenceManager.getDefaultSharedPreferences(androidApplication())
+    }
+
+    // Centrally managed security flags
+    single { SecurityManager(get(named("default_prefs"))) }
 }
 
 

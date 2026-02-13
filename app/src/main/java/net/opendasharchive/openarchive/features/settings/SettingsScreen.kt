@@ -124,6 +124,7 @@ fun SettingsScreen(
         val torState = rememberPreferenceState(key = Prefs.USE_TOR, defaultValue = Prefs.useTor)
         val darkModeKey = stringResource(R.string.pref_key_use_dark_mode)
         val darkModeState = rememberPreferenceState(key = darkModeKey, defaultValue = Prefs.getBoolean(darkModeKey, false))
+        val prohibitScreenshotsState = rememberPreferenceState(key = Prefs.PROHIBIT_SCREENSHOTS, defaultValue = Prefs.prohibitScreenshots)
 
         val passcodeLauncher =
             rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -141,6 +142,7 @@ fun SettingsScreen(
             wifiOnlyState = wifiOnlyState,
             torState = torState,
             darkModeState = darkModeState,
+            prohibitScreenshotsState = prohibitScreenshotsState,
             onPasscodeToggle = { newValue ->
                 if (newValue) {
                     passcodeState.value = true
@@ -163,6 +165,12 @@ fun SettingsScreen(
                         neutralButton { action = { passcodeState.value = true } }
                     }
                 }
+            },
+            onProhibitScreenshotsToggle = { newValue ->
+                prohibitScreenshotsState.value = newValue
+                Prefs.prohibitScreenshots = newValue
+                AppLogger.breadcrumb("Feature Toggled", "screenshot_prevention: $newValue")
+                coroutineScope.launch { analyticsManager.trackFeatureToggled("screenshot_prevention", newValue) }
             },
             onWifiOnlyToggle = { newValue ->
                 wifiOnlyState.value = newValue
@@ -215,7 +223,9 @@ private fun SettingsScreenContent(
     wifiOnlyState: MutableState<Boolean>,
     torState: MutableState<Boolean>,
     darkModeState: MutableState<Boolean>,
+    prohibitScreenshotsState: MutableState<Boolean>,
     onPasscodeToggle: (Boolean) -> Unit,
+    onProhibitScreenshotsToggle: (Boolean) -> Unit,
     onWifiOnlyToggle: (Boolean) -> Unit,
     onTorToggle: () -> Unit,
     onDarkModeToggle: (Boolean) -> Unit,
@@ -364,7 +374,7 @@ private data class SettingsStrings(
 
 // Helper function for opening URLs
 private fun openUrl(context: Context, url: String) {
-    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
     context.startActivity(intent)
 }
 
@@ -570,7 +580,9 @@ private fun PreviewSettingsScreen() {
             wifiOnlyState = rememberPreferenceState(key = Prefs.UPLOAD_WIFI_ONLY, defaultValue = true),
             torState = rememberPreferenceState(key = Prefs.USE_TOR, defaultValue = false),
             darkModeState = rememberPreferenceState(key = "pref_key_use_dark_mode", defaultValue = false),
+            prohibitScreenshotsState = rememberPreferenceState(key = Prefs.PROHIBIT_SCREENSHOTS, defaultValue = false),
             onPasscodeToggle = {},
+            onProhibitScreenshotsToggle = {},
             onWifiOnlyToggle = {},
             onTorToggle = {},
             onDarkModeToggle = {},

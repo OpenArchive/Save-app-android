@@ -14,7 +14,14 @@ import net.opendasharchive.openarchive.core.domain.Archive
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.repositories.ProjectRepository
 import net.opendasharchive.openarchive.core.repositories.SpaceRepository
+import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.ButtonData
+import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.services.webdav.data.WebDavRepository
 import net.opendasharchive.openarchive.util.DateUtils
 
@@ -34,14 +41,15 @@ sealed interface BrowseFoldersAction {
 }
 
 sealed interface BrowseFoldersEvent {
-    data class NavigateBackWithResult(val projectId: Long) : BrowseFoldersEvent
-    data class ShowSuccessDialog(val projectId: Long) : BrowseFoldersEvent
+    // No more UI events needed
 }
 
 class BrowseFoldersViewModel(
     private val webDavRepository: WebDavRepository,
     private val spaceRepository: SpaceRepository,
-    private val projectRepository: ProjectRepository
+    private val projectRepository: ProjectRepository,
+    private val navigator: Navigator,
+    private val dialogManager: DialogStateManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(BrowseFoldersState())
@@ -123,16 +131,26 @@ class BrowseFoldersViewModel(
                 licenseUrl = space.licenseUrl,
                 isRemote = true
             )
+
             val projectId = projectRepository.addProject(archive)
 
-            _events.send(BrowseFoldersEvent.ShowSuccessDialog(projectId))
+            dialogManager.showDialog(
+                DialogConfig(
+                    type = DialogType.Success,
+                    title = UiText.Resource(net.opendasharchive.openarchive.R.string.label_success_title),
+                    message = UiText.Resource(net.opendasharchive.openarchive.R.string.create_folder_ok_message),
+                    icon = UiImage.DrawableResource(net.opendasharchive.openarchive.R.drawable.ic_done),
+                    positiveButton = ButtonData(
+                        text = UiText.Resource(net.opendasharchive.openarchive.R.string.label_got_it),
+                        action = { navigator.navigateBack() }
+                    ),
+                    onDismissAction = { navigator.navigateBack() }
+                )
+            )
         }
     }
 
-    fun navigateBackWithResult(projectId: Long) {
-        viewModelScope.launch {
-            _events.send(BrowseFoldersEvent.NavigateBackWithResult(projectId))
-        }
+    fun onBack() {
+        navigator.navigateBack()
     }
-
 }
