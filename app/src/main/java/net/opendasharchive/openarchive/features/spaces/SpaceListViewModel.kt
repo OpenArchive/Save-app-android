@@ -46,18 +46,10 @@ class SpaceListViewModel(
 
     private fun navigateToSpaceDetail(spaceId: Long, spaceType: VaultType) {
         when (spaceType) {
-            VaultType.PRIVATE_SERVER -> navigateToWebDavDetail(spaceId)
-            VaultType.INTERNET_ARCHIVE -> navigateToInternetArchiveDetail(spaceId)
-            VaultType.DWEB_STORAGE -> TODO("Not implemented yet")
+            VaultType.PRIVATE_SERVER -> navigator.navigateTo(AppRoute.WebDavDetailRoute(spaceId))
+            VaultType.INTERNET_ARCHIVE -> navigator.navigateTo(AppRoute.IADetailRoute(spaceId))
+            VaultType.DWEB_STORAGE -> navigator.navigateTo(AppRoute.SnowbirdDashboardRoute)
         }
-    }
-
-    private fun navigateToWebDavDetail(spaceId: Long) {
-        navigator.navigateTo(AppRoute.WebDavDetailRoute(spaceId))
-    }
-
-    private fun navigateToInternetArchiveDetail(spaceId: Long) {
-        navigator.navigateTo(AppRoute.IADetailRoute(spaceId))
     }
 }
 

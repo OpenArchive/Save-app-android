@@ -25,10 +25,6 @@ sealed interface SpaceSetupAction {
     data object DwebClicked : SpaceSetupAction
 }
 
-sealed interface SpaceSetupEvent {
-    data object NavigateToDweb : SpaceSetupEvent
-}
-
 class SpaceSetupViewModel(
     private val appConfig: AppConfig,
     private val navigator: Navigator,
@@ -37,9 +33,6 @@ class SpaceSetupViewModel(
 
     private val _uiState = MutableStateFlow(SpaceSetupState())
     val uiState: StateFlow<SpaceSetupState> = _uiState.asStateFlow()
-
-    private val _events = Channel<SpaceSetupEvent>(Channel.BUFFERED)
-    val events = _events.receiveAsFlow()
 
     init {
         loadInitialState()
@@ -62,14 +55,12 @@ class SpaceSetupViewModel(
             SpaceSetupAction.WebDavClicked -> {
                 viewModelScope.launch {
                     navigator.navigateTo(AppRoute.WebDavLoginRoute)
-                    //_events.send(SpaceSetupEvent.NavigateToWebDav)
                 }
             }
 
             SpaceSetupAction.InternetArchiveClicked -> {
                 viewModelScope.launch {
                     navigator.navigateTo(AppRoute.IALoginRoute)
-                    //_events.send(SpaceSetupEvent.NavigateToInternetArchive)
                 }
             }
 

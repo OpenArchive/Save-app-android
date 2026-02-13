@@ -1,6 +1,5 @@
 package net.opendasharchive.openarchive.features.settings
 
-import android.content.res.Configuration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -32,16 +31,14 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.domain.Archive
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
-import net.opendasharchive.openarchive.core.domain.Archive
-import kotlinx.datetime.LocalDateTime
-import net.opendasharchive.openarchive.R
-import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
 
 @Composable
 fun FoldersScreen(

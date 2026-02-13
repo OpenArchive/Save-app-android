@@ -46,7 +46,6 @@ fun rememberContentPickerLaunchers(
 ): ContentPickerLaunchers {
 
     val context = LocalContext.current
-    val activity = context as Activity
     val scope = rememberCoroutineScope()
 
     val projectRepository: ProjectRepository = koinInject()
