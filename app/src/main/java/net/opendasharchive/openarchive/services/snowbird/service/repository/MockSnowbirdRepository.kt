@@ -6,7 +6,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
-import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
+import net.opendasharchive.openarchive.core.config.AppConfig
 import net.opendasharchive.openarchive.core.domain.Archive
 import net.opendasharchive.openarchive.core.domain.DomainError
 import net.opendasharchive.openarchive.core.domain.DomainResult

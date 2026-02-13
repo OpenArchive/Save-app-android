@@ -11,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.util.Prefs
 import com.google.crypto.tink.RegistryConfiguration
+import net.opendasharchive.openarchive.core.config.AppConfig
 
 class PasscodeRepository(
     private val prefs: SharedPreferences,

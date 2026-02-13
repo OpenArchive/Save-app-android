@@ -3,6 +3,7 @@ package net.opendasharchive.openarchive.features.settings.passcode
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+import net.opendasharchive.openarchive.core.config.AppConfig
 import net.opendasharchive.openarchive.features.core.BaseActivity
 
 class BiometricAuthenticator(

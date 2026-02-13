@@ -2,7 +2,7 @@ package net.opendasharchive.openarchive.core.di
 
 import android.content.Context
 import android.content.SharedPreferences
-import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
+import net.opendasharchive.openarchive.core.config.AppConfig
 import net.opendasharchive.openarchive.features.settings.passcode.HapticManager
 import net.opendasharchive.openarchive.features.settings.passcode.HashingStrategy
 import net.opendasharchive.openarchive.features.settings.passcode.PBKDF2HashingStrategy
@@ -16,21 +16,6 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val passcodeModule = module {
-
-    single {
-        AppConfig(
-            passcodeLength = 6,
-            enableHapticFeedback = true,
-            maxRetryLimitEnabled = false,
-            biometricAuthEnabled = false,
-            maxFailedAttempts = 5,
-            isDwebEnabled = true,
-            useCustomCamera = true,
-            useMocks = false, // Default to true for now as requested for testing
-            simulateErrors = false,
-            mockDelayMs = 500L
-        )
-    }
 
     single {
         HapticManager(

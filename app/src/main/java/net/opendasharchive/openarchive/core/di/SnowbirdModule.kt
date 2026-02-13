@@ -1,6 +1,6 @@
 package net.opendasharchive.openarchive.core.di
 
-import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
+import net.opendasharchive.openarchive.core.config.AppConfig
 import net.opendasharchive.openarchive.services.snowbird.presentation.dashboard.SnowbirdDashboardViewModel
 import net.opendasharchive.openarchive.services.snowbird.presentation.file.SnowbirdFileViewModel
 import net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdCreateGroupViewModel

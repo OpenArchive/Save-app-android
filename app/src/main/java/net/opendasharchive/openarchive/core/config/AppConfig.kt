@@ -1,4 +1,4 @@
-package net.opendasharchive.openarchive.features.settings.passcode
+package net.opendasharchive.openarchive.core.config
 
 data class AppConfig(
     val passcodeLength: Int = 6,

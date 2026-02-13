@@ -46,7 +46,7 @@ import net.opendasharchive.openarchive.features.media.ContentPickerSheet
 import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
 import net.opendasharchive.openarchive.core.navigation.ResultEffect
 import net.opendasharchive.openarchive.features.main.ui.CameraCaptureResult
-import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
+import net.opendasharchive.openarchive.core.config.AppConfig
 import net.opendasharchive.openarchive.util.Utility
 import org.koin.compose.koinInject
 import java.io.File
