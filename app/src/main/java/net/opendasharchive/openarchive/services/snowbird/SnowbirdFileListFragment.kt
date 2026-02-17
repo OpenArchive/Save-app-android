@@ -519,13 +519,16 @@ class SnowbirdFileListFragment : BaseSnowbirdFragment() {
     private fun onFileUploaded(result: FileUploadResult) {
         handleLoadingStatus(false)
         Timber.d("File successfully uploaded: $result")
-        SnowbirdFileItem(
-            name = result.name,
-            hash = result.updatedCollectionHash,
-            groupKey = groupKey,
-            repoKey = repoKey,
-            isDownloaded = true
-        ).save()
+        val uploadedHash = result.fileHash
+        if (!uploadedHash.isNullOrBlank()) {
+            SnowbirdFileItem(
+                name = result.name,
+                hash = uploadedHash,
+                groupKey = groupKey,
+                repoKey = repoKey,
+                isDownloaded = true
+            ).save()
+        }
         snowbirdFileViewModel.fetchFiles(groupKey, repoKey, forceRefresh = false)
     }
 
