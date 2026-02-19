@@ -20,6 +20,7 @@ enum class StartDestination {
     SPACE_LIST,
     ADD_FOLDER,
     ADD_NEW_FOLDER,
+    STORACHA,
     ARCHIVED_FOLDER_LIST
 }
 
@@ -84,6 +85,9 @@ class SpaceSetupActivity : BaseActivity() {
             }
             StartDestination.ADD_NEW_FOLDER -> {
                 navGraph.setStartDestination(R.id.fragment_create_new_folder)
+            }
+            StartDestination.STORACHA -> {
+                navGraph.setStartDestination(R.id.fragment_storacha)
             }
             StartDestination.ARCHIVED_FOLDER_LIST -> {
                 navGraph.setStartDestination(R.id.fragment_folders)

@@ -62,7 +62,7 @@ android {
         applicationId = "net.opendasharchive.openarchive"
         minSdk = 29
         targetSdk = 36
-        versionCode = 30023
+        versionCode = 30028
         versionName = "4.0.5"
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
@@ -152,9 +152,13 @@ android {
         resources {
             excludes.addAll(
                 listOf(
-                    "META-INF/LICENSE.txt", "META-INF/NOTICE.txt", "META-INF/LICENSE",
-                    "META-INF/NOTICE", "META-INF/DEPENDENCIES", "LICENSE.txt"
-                )
+                    "META-INF/LICENSE.txt",
+                    "META-INF/NOTICE.txt",
+                    "META-INF/LICENSE",
+                    "META-INF/NOTICE",
+                    "META-INF/DEPENDENCIES",
+                    "LICENSE.txt",
+                ),
             )
         }
     }
@@ -263,12 +267,14 @@ dependencies {
     implementation(libs.retrofit.gson)
     implementation(libs.retrofit.kotlinx.serialization)
     implementation(libs.guardianproject.sardine)
+    implementation(libs.jsoup)
 
     // Images & Media
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
     implementation(libs.coil.network)
+    implementation(libs.picasso)
 
     // CameraX
     implementation(libs.androidx.camera.core)
@@ -277,6 +283,10 @@ dependencies {
     implementation(libs.androidx.camera.video)
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.camera.extensions)
+
+    // Barcode Scanning
+    implementation(libs.zxing.core)
+    implementation(libs.zxing.android.embedded)
 
     // Media3 - ExoPlayer
     implementation(libs.androidx.media3.exoplayer)

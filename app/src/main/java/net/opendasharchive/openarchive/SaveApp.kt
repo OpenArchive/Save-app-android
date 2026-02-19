@@ -2,10 +2,12 @@ package net.opendasharchive.openarchive
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.UiModeManager
 import android.content.Context
-import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
@@ -14,10 +16,6 @@ import com.orm.SugarApp
 import net.opendasharchive.openarchive.core.di.torModule
 import net.opendasharchive.openarchive.services.tor.TorConstants
 import net.opendasharchive.openarchive.services.tor.TorServiceManager
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ProcessLifecycleOwner
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
@@ -29,11 +27,12 @@ import net.opendasharchive.openarchive.core.di.retrofitModule
 import net.opendasharchive.openarchive.core.di.unixSocketModule
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeManager
+import net.opendasharchive.openarchive.services.storacha.di.storachaModule
 import net.opendasharchive.openarchive.util.C2paHelper
 import net.opendasharchive.openarchive.util.Prefs
+import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
-import org.koin.android.ext.android.inject
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 
@@ -80,6 +79,7 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
                 unixSocketModule,
                 passcodeModule,
                 torModule,
+                storachaModule,
                 analyticsModule(
                     mixpanelToken = getString(R.string.mixpanel_key),
                     cleanInsightsConsentChecker = { CleanInsightsManager.hasConsent() }

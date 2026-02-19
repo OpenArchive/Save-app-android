@@ -76,8 +76,11 @@ class SpaceListFragment : BaseFragment() {
                 findNavController().navigate(action)
             }
 
-
             Space.Type.RAVEN -> {
+                // Do nothing
+            }
+
+            Space.Type.STORACHA -> {
                 // Do nothing
             }
         }
