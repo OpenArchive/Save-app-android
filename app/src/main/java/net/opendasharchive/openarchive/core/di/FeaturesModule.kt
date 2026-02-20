@@ -1,64 +1,41 @@
 package net.opendasharchive.openarchive.core.di
 
 import android.app.Application
-import net.opendasharchive.openarchive.features.internetarchive.internetArchiveModule
+import android.content.ContentResolver
+import net.opendasharchive.openarchive.features.main.ui.HomeViewModel
+import net.opendasharchive.openarchive.features.main.ui.MainMediaViewModel
+import net.opendasharchive.openarchive.features.media.PreviewMediaViewModel
+import net.opendasharchive.openarchive.features.media.ReviewMediaViewModel
 import net.opendasharchive.openarchive.features.spaces.SpaceListViewModel
-import net.opendasharchive.openarchive.services.SaveClientFactory
-import net.opendasharchive.openarchive.services.SaveClientFactoryImpl
-import net.opendasharchive.openarchive.services.webdav.WebDavRepository
-import net.opendasharchive.openarchive.services.webdav.WebDavViewModel
-import net.opendasharchive.openarchive.services.snowbird.ISnowbirdFileRepository
-import net.opendasharchive.openarchive.services.snowbird.ISnowbirdGroupRepository
-import net.opendasharchive.openarchive.services.snowbird.ISnowbirdRepoRepository
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdFileRepository
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdFileViewModel
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupRepository
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdGroupViewModel
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdRepoRepository
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdRepoViewModel
-import org.koin.core.module.dsl.viewModel
+import net.opendasharchive.openarchive.features.spaces.SpaceSetupViewModel
+import net.opendasharchive.openarchive.upload.JobSchedulerUploadJobScheduler
+import net.opendasharchive.openarchive.upload.UploadJobScheduler
+import net.opendasharchive.openarchive.upload.UploadManagerViewModel
+import net.opendasharchive.openarchive.features.settings.ProofModeSettingsViewModel
+import org.koin.android.ext.koin.androidApplication
 import org.koin.core.module.dsl.viewModelOf
-import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val featuresModule = module {
-    includes(internetArchiveModule)
-    // TODO: have some registry of feature modules
+    includes(
+        internetArchiveModule,
+        webDavModule,
+        snowbirdModule,
+        repositoriesModule
+    )
 
-
-    single<ISnowbirdFileRepository> { SnowbirdFileRepository(get(named("retrofit"))) }
-    single<ISnowbirdGroupRepository> { SnowbirdGroupRepository(get(named("retrofit"))) }
-    single<ISnowbirdRepoRepository> { SnowbirdRepoRepository(get(named("retrofit"))) }
-
-//    single<ISnowbirdFileRepository> { SnowbirdFileRepository(get(named("unixSocket"))) }
-//    single<ISnowbirdGroupRepository> { SnowbirdGroupRepository(get(named("unixSocket"))) }
-//    single<ISnowbirdRepoRepository> { SnowbirdRepoRepository(get(named("unixSocket"))) }
-
-    viewModel { (application: Application) ->
-        SnowbirdGroupViewModel(
-            application = application,
-            repository = get()
-        )
-    }
-
-    viewModel { (application: Application) ->
-        SnowbirdFileViewModel(
-            application = application,
-            repository = get()
-        )
-    }
-
-    viewModel { (application: Application) ->
-        SnowbirdRepoViewModel(
-            application = application,
-            repository = get()
-        )
-    }
-
+    viewModelOf(::HomeViewModel)
     viewModelOf(::SpaceListViewModel)
+    viewModelOf(::SpaceSetupViewModel)
+    viewModelOf(::MainMediaViewModel)
 
-    // WebDAV
-    single<SaveClientFactory> { SaveClientFactoryImpl(get()) }
-    single { WebDavRepository(get()) }
-    viewModel { WebDavViewModel(get(), get(), get()) }
+    single<ContentResolver> {
+        get<Application>().contentResolver
+    }
+    viewModelOf(::ReviewMediaViewModel)
+    viewModelOf(::PreviewMediaViewModel)
+
+    viewModelOf(::UploadManagerViewModel)
+    viewModelOf(::ProofModeSettingsViewModel)
+    single<UploadJobScheduler> { JobSchedulerUploadJobScheduler(androidApplication()) }
 }

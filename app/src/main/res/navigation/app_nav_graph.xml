@@ -101,7 +101,7 @@
             app:argType="boolean" />
         <argument
             android:name="space_type"
-            app:argType="net.opendasharchive.openarchive.db.Space$Type" />
+            app:argType="net.opendasharchive.openarchive.db.sugar.Space$Type" />
     </fragment>
 
 
@@ -360,7 +360,7 @@
             app:argType="string" />
         <argument
             android:name="space_type"
-            app:argType="net.opendasharchive.openarchive.db.Space$Type" />
+            app:argType="net.opendasharchive.openarchive.db.sugar.Space$Type" />
 
 
     </fragment>

@@ -4,4 +4,5 @@ interface ToolbarConfigurable {
     fun getToolbarTitle(): String
     fun getToolbarSubtitle(): String? = null
     fun shouldShowBackButton(): Boolean = true
+    fun isToolbarVisible(): Boolean = true
 }

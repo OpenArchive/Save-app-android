@@ -13,7 +13,6 @@ import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
-import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
 import net.opendasharchive.openarchive.services.storacha.util.SessionManager
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -40,14 +39,14 @@ abstract class BaseFragment : Fragment(), ToolbarConfigurable {
     }
 
     private fun ensureComposeDialogHost() {
-        (requireActivity() as? BaseActivity)?.ensureComposeDialogHost()
+        // Dialog host is managed by BaseComposeActivity in the Compose architecture
     }
 
 
 
     override fun onResume() {
         super.onResume()
-        (activity as? SpaceSetupActivity)?.updateToolbarFromFragment(this)
+        // Toolbar updates are handled by the Compose host in the new architecture
 
         // Track screen view
         screenStartTime = System.currentTimeMillis()
@@ -92,10 +91,10 @@ abstract class BaseFragment : Fragment(), ToolbarConfigurable {
     protected fun showSessionExpiredDialog() {
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Warning
-            title = UiText.StringResource(R.string.session_expired_title)
-            message = UiText.StringResource(R.string.session_expired_message)
+            title = UiText.Resource(R.string.session_expired_title)
+            message = UiText.Resource(R.string.session_expired_message)
             positiveButton {
-                text = UiText.StringResource(R.string.lbl_ok)
+                text = UiText.Resource(R.string.lbl_ok)
                 action = {
                     try {
                         // Remove invalid account
@@ -130,10 +129,10 @@ abstract class BaseFragment : Fragment(), ToolbarConfigurable {
     protected fun showSessionExpiredWithStayOption(onStayHere: () -> Unit = {}) {
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Warning
-            title = UiText.StringResource(R.string.session_expired_title)
-            message = UiText.StringResource(R.string.session_expired_can_continue_message)
+            title = UiText.Resource(R.string.session_expired_title)
+            message = UiText.Resource(R.string.session_expired_can_continue_message)
             positiveButton {
-                text = UiText.StringResource(R.string.login)
+                text = UiText.Resource(R.string.login)
                 action = {
                     try {
                         // Remove invalid account
@@ -156,7 +155,7 @@ abstract class BaseFragment : Fragment(), ToolbarConfigurable {
                 }
             }
             neutralButton {
-                text = UiText.StringResource(R.string.stay_here)
+                text = UiText.Resource(R.string.stay_here)
                 action = {
                     // Remove invalid account but don't navigate to login
                     // User can continue browsing delegated spaces without authentication

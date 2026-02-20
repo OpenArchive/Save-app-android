@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/storacha_nav_graph"
+    app:startDestination="@id/fragment_storacha">
+
+    <fragment
+        android:id="@+id/fragment_storacha"
+        android:name="net.opendasharchive.openarchive.services.storacha.StorachaFragment"
+        tools:layout="@layout/fragment_storacha">
+        <action
+            android:id="@+id/action_fragment_storacha_to_fragment_storacha_login"
+            app:destination="@id/fragment_storacha_login"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_fragment_storacha_to_fragment_storacha_accounts"
+            app:destination="@id/fragment_storacha_accounts"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_fragment_storacha_to_fragment_storacha_browse_spaces"
+            app:destination="@id/fragment_storacha_browse_spaces"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_fragment_storacha_to_fragment_storacha_client_qr"
+            app:destination="@id/fragment_storacha_client_qr"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_storacha_login"
+        android:name="net.opendasharchive.openarchive.services.storacha.StorachaLoginFragment"
+        tools:layout="@layout/fragment_storacha_login">
+        <action
+            android:id="@+id/action_fragment_storacha_login_to_fragment_storacha_space_setup_success"
+            app:destination="@id/fragment_storacha_space_setup_success"
+            app:popUpTo="@id/fragment_storacha_login"
+            app:popUpToInclusive="true"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_fragment_storacha_login_to_fragment_storacha_email_verification_sent"
+            app:destination="@id/fragment_storacha_email_verification_sent"
+            app:popUpToInclusive="true"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_storacha_accounts"
+        android:name="net.opendasharchive.openarchive.services.storacha.StorachaViewAccountsFragment"
+        tools:layout="@layout/fragment_storacha_accounts">
+        <action
+            android:id="@+id/fragment_storacha_accounts_to_fragment_storacha_account_details"
+            app:destination="@id/fragment_storacha_account_details"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_fragment_storacha_accounts_to_fragment_storacha_login"
+            app:destination="@id/fragment_storacha_login"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_storacha_browse_spaces"
+        android:name="net.opendasharchive.openarchive.services.storacha.StorachaBrowseSpacesFragment"
+        tools:layout="@layout/fragment_storacha_browse_spaces">
+        <action
+            android:id="@+id/action_fragment_storacha_browse_spaces_to_fragment_storacha_media"
+            app:destination="@id/fragment_storacha_media"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_storacha_client_qr"
+        android:name="net.opendasharchive.openarchive.services.storacha.StorachaClientQRFragment"
+        tools:layout="@layout/fragment_storacha_client_qr">
+        <action
+            android:id="@+id/action_fragment_storacha_client_qr_to_fragment_storacha_browse_spaces"
+            app:destination="@id/fragment_storacha_browse_spaces"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <argument
+            android:name="raven_join_group_argument_uri"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_storacha_account_details"
+        android:name="net.opendasharchive.openarchive.services.storacha.StorachaAccountDetailsFragment"
+        tools:layout="@layout/fragment_storacha_account_details">
+        <argument
+            android:name="email"
+            app:argType="string" />
+        <argument
+            android:name="session_id"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_fragment_storacha_account_details_to_fragment_storacha"
+            app:destination="@id/fragment_storacha"
+            app:popUpTo="@id/fragment_storacha"
+            app:popUpToInclusive="true"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_storacha_space_setup_success"
+        android:name="net.opendasharchive.openarchive.services.storacha.StorachaSpaceSetupSuccessFragment"
+        tools:layout="@layout/fragment_storacha_space_setup_success">
+        <action
+            android:id="@+id/action_fragment_storacha_space_setup_success_to_fragment_storacha_browse_spaces"
+            app:destination="@id/fragment_storacha_browse_spaces"
+            app:popUpTo="@id/fragment_storacha"
+            app:popUpToInclusive="false"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_storacha_email_verification_sent"
+        android:name="net.opendasharchive.openarchive.services.storacha.StorachaEmailVerificationSentFragment"
+        tools:layout="@layout/fragment_storacha_email_verification_sent">
+        <argument
+            android:name="email"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_fragment_storacha_email_verification_sent_to_fragment_storacha_space_setup_success"
+            app:destination="@id/fragment_storacha_space_setup_success"
+            app:popUpTo="@id/fragment_storacha_email_verification_sent"
+            app:popUpToInclusive="true"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_fragment_storacha_email_verification_sent_to_fragment_storacha_login"
+            app:destination="@id/fragment_storacha_login"
+            app:popUpTo="@id/fragment_storacha_login"
+            app:popUpToInclusive="true"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_storacha_view_dids"
+        android:name="net.opendasharchive.openarchive.services.storacha.StorachaViewDIDsFragment"
+        tools:layout="@layout/fragment_storacha_view_dids">
+        <argument
+            android:name="space_id"
+            app:argType="string" />
+        <argument
+            android:name="session_id"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_fragment_storacha_view_dids_to_fragment_storacha_did_access"
+            app:destination="@id/fragment_storacha_did_access"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_storacha_did_access"
+        android:name="net.opendasharchive.openarchive.services.storacha.StorachaDIDAccessFragment"
+        tools:layout="@layout/fragment_storacha_did_access">
+        <argument
+            android:name="space_id"
+            app:argType="string" />
+        <argument
+            android:name="session_id"
+            app:argType="string" />
+        <argument
+            android:name="existing_dids"
+            app:argType="string[]"
+            android:defaultValue="@null"
+            app:nullable="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_storacha_media"
+        android:name="net.opendasharchive.openarchive.services.storacha.StorachaMediaFragment"
+        tools:layout="@layout/fragment_storacha_media">
+        <argument
+            android:name="space_id"
+            app:argType="string" />
+        <argument
+            android:name="space_name"
+            app:argType="string" />
+        <argument
+            android:name="session_id"
+            app:argType="string" />
+        <argument
+            android:name="is_admin"
+            app:argType="boolean" />
+        <action
+            android:id="@+id/action_fragment_storacha_media_to_fragment_storacha_view_dids"
+            app:destination="@id/fragment_storacha_view_dids" />
+    </fragment>
+
+</navigation>

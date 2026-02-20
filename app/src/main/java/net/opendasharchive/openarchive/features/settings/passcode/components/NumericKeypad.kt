@@ -19,12 +19,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -32,16 +31,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
-import net.opendasharchive.openarchive.features.settings.passcode.AppHapticFeedbackType
-import net.opendasharchive.openarchive.features.settings.passcode.HapticManager
-import org.koin.compose.koinInject
 
 private val keys = listOf(
     "1", "2", "3",
@@ -55,7 +48,8 @@ fun NumericKeypad(
     isEnabled: Boolean = true,
     onNumberClick: (String) -> Unit,
     onDeleteClick: () -> Unit,
-    onSubmitClick: () -> Unit
+    onSubmitClick: () -> Unit,
+    onHaptic: () -> Unit = {},
 ) {
 
     Box(
@@ -85,7 +79,8 @@ fun NumericKeypad(
                                     "submit" -> onSubmitClick()
                                     else -> onNumberClick(label)
                                 }
-                            }
+                            },
+                            onHaptic = onHaptic
                         )
                     } else {
                         Spacer(modifier = Modifier.size(72.dp))
@@ -133,11 +128,17 @@ private fun NumberButton(
     label: String,
     enabled: Boolean = true,
     onClick: () -> Unit,
-    hapticManager: HapticManager = koinInject()
+    onHaptic: () -> Unit = {},
 ) {
 
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
+
+    LaunchedEffect(isPressed) {
+        if (isPressed && enabled) {
+            onHaptic()
+        }
+    }
 
     // Determine background color based on button type and pressed state
     val backgroundColor by animateColorAsState(
@@ -184,10 +185,7 @@ private fun NumberButton(
                 interactionSource = interactionSource,
                 indication = null,
                 enabled = enabled,
-                onClick = {
-                    hapticManager?.performHapticFeedback(AppHapticFeedbackType.KeyPress)
-                    onClick()
-                }
+                onClick = onClick
             )
             .border(width = 2.dp, color = borderColor, shape = CircleShape)
             .size(72.dp),
@@ -209,8 +207,7 @@ private fun NumberButton(
 
             else -> Text(
                 text = label,
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.titleLarge.copy(
                     color = MaterialTheme.colorScheme.onBackground
                 )
             )

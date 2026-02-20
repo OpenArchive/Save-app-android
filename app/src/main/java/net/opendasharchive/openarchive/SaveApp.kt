@@ -13,6 +13,9 @@ import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import coil3.video.VideoFrameDecoder
 import com.orm.SugarApp
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import net.opendasharchive.openarchive.core.di.torModule
 import net.opendasharchive.openarchive.services.tor.TorConstants
 import net.opendasharchive.openarchive.services.tor.TorServiceManager
@@ -20,15 +23,17 @@ import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
 import net.opendasharchive.openarchive.analytics.di.analyticsModule
+import net.opendasharchive.openarchive.db.MigrationWorker
 import net.opendasharchive.openarchive.core.di.coreModule
+import net.opendasharchive.openarchive.core.di.databaseModule
 import net.opendasharchive.openarchive.core.di.featuresModule
 import net.opendasharchive.openarchive.core.di.passcodeModule
 import net.opendasharchive.openarchive.core.di.retrofitModule
-import net.opendasharchive.openarchive.core.di.unixSocketModule
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeManager
 import net.opendasharchive.openarchive.services.storacha.di.storachaModule
 import net.opendasharchive.openarchive.util.C2paHelper
+import net.opendasharchive.openarchive.util.CleanInsightsManager
 import net.opendasharchive.openarchive.util.Prefs
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
@@ -68,16 +73,27 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
         // Initialize C2PA Helper
         C2paHelper.init(this)
 
+        // Trigger Room migration if needed (SugarORM → Room)
+        if (!Prefs.isRoomMigrated) {
+            val migrationRequest = OneTimeWorkRequestBuilder<MigrationWorker>()
+                .build()
+            WorkManager.getInstance(this).enqueueUniqueWork(
+                "RoomMigration",
+                ExistingWorkPolicy.KEEP,
+                migrationRequest
+            )
+        }
+
         // Initialize Koin DI
         startKoin {
             androidLogger(Level.DEBUG)
             androidContext(this@SaveApp)
             modules(
+                databaseModule,
                 coreModule,
+                passcodeModule,
                 featuresModule,
                 retrofitModule,
-                unixSocketModule,
-                passcodeModule,
                 torModule,
                 storachaModule,
                 analyticsModule(
@@ -106,7 +122,9 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
             AppLogger.setAnalyticsManager(analyticsManager)
 
             // Set app version for session tracker
-            (sessionTracker as? net.opendasharchive.openarchive.analytics.api.session.SessionTrackerImpl)?.setAppVersion(BuildConfig.VERSION_NAME)
+            (sessionTracker as? net.opendasharchive.openarchive.analytics.api.session.SessionTrackerImpl)?.setAppVersion(
+                BuildConfig.VERSION_NAME
+            )
 
             // Set user properties (GDPR-compliant)
             analyticsManager.setUserProperty("app_version", BuildConfig.VERSION_NAME)

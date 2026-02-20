@@ -4,19 +4,40 @@ import android.content.Context
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.displayCutoutPadding
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,7 +49,6 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
-import androidx.compose.ui.res.stringResource
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 
@@ -42,7 +62,7 @@ fun CameraPreviewScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -61,6 +81,7 @@ fun CameraPreviewScreen(
                     contentScale = ContentScale.Fit
                 )
             }
+
             CameraCaptureMode.VIDEO -> {
                 // Video preview with playback capability
                 // Uses optimized buffer settings from config
@@ -77,7 +98,7 @@ fun CameraPreviewScreen(
                 )
             }
         }
-        
+
         // Top controls
         Row(
             modifier = Modifier
@@ -97,14 +118,14 @@ fun CameraPreviewScreen(
                     .background(Color.Black.copy(alpha = 0.6f), CircleShape)
             ) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    painter = painterResource(R.drawable.ic_arrow_back),
                     contentDescription = stringResource(R.string.back),
                     tint = Color.White
                 )
             }
-            
+
             Spacer(modifier = Modifier.weight(1f))
-            
+
             // Media type indicator
             Row(
                 modifier = Modifier
@@ -114,9 +135,9 @@ fun CameraPreviewScreen(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Icon(
-                    imageVector = when (item.type) {
-                        CameraCaptureMode.PHOTO -> Icons.Default.Photo
-                        CameraCaptureMode.VIDEO -> Icons.Default.Videocam
+                    painter = when (item.type) {
+                        CameraCaptureMode.PHOTO -> painterResource(R.drawable.ic_photo_camera)
+                        CameraCaptureMode.VIDEO -> painterResource(R.drawable.ic_videocam)
                     },
                     contentDescription = item.type.name,
                     tint = Color.White,
@@ -133,7 +154,7 @@ fun CameraPreviewScreen(
                 )
             }
         }
-        
+
         // Bottom controls - positioned above video player controls
         Row(
             modifier = Modifier
@@ -153,8 +174,10 @@ fun CameraPreviewScreen(
                     containerColor = Color.Transparent,
                     contentColor = Color.White
                 ),
-                border = ButtonDefaults.outlinedButtonBorder.copy(
-                    brush = androidx.compose.ui.graphics.SolidColor(Color.White)
+                border = ButtonDefaults.outlinedButtonBorder(
+                    enabled = true
+                ).copy(
+                    brush = SolidColor(Color.White)
                 ),
                 shape = RoundedCornerShape(28.dp)
             ) {
@@ -163,7 +186,7 @@ fun CameraPreviewScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Refresh,
+                        painter = painterResource(R.drawable.refresh),
                         contentDescription = stringResource(R.string.retake),
                         modifier = Modifier.size(20.dp)
                     )
@@ -174,7 +197,7 @@ fun CameraPreviewScreen(
                     )
                 }
             }
-            
+
             // Confirm/Use button
             Button(
                 onClick = { onConfirm(item) },
@@ -190,12 +213,17 @@ fun CameraPreviewScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = if (config.allowMultipleCapture) stringResource(R.string.use) else stringResource(R.string.done),
+                        painter = painterResource(R.drawable.ic_done),
+                        tint = Color.White,
+                        contentDescription = if (config.allowMultipleCapture) stringResource(R.string.use) else stringResource(
+                            R.string.done
+                        ),
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
-                        text = if (config.allowMultipleCapture) stringResource(R.string.use) else stringResource(R.string.done),
+                        text = if (config.allowMultipleCapture) stringResource(R.string.use) else stringResource(
+                            R.string.done
+                        ),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium
                     )
@@ -212,24 +240,25 @@ private fun VideoDurationOverlay(
 ) {
     val context = LocalContext.current
     var duration by remember { mutableLongStateOf(0L) }
-    
+
     LaunchedEffect(uri) {
         try {
             val retriever = MediaMetadataRetriever()
             retriever.setDataSource(context, uri)
-            duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L
+            duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+                ?.toLongOrNull() ?: 0L
             retriever.release()
         } catch (e: Exception) {
             AppLogger.e("Error getting video duration", e)
             duration = 0L
         }
     }
-    
+
     if (duration > 0) {
         val seconds = duration / 1000
         val minutes = seconds / 60
         val remainingSeconds = seconds % 60
-        
+
         Text(
             text = String.format("%02d:%02d", minutes, remainingSeconds),
             modifier = modifier
@@ -340,8 +369,10 @@ private fun createExoPlayer(
         )
         .build()
 
-    AppLogger.d("Creating ExoPlayer with buffer config: min=${config.minVideoBufferMs}ms, " +
-            "max=${config.maxVideoBufferMs}ms, target=${config.videoBufferMs}ms")
+    AppLogger.d(
+        "Creating ExoPlayer with buffer config: min=${config.minVideoBufferMs}ms, " +
+                "max=${config.maxVideoBufferMs}ms, target=${config.videoBufferMs}ms"
+    )
 
     // ===== Player Creation =====
     return ExoPlayer.Builder(context)

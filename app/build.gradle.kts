@@ -5,7 +5,6 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
@@ -32,18 +31,21 @@ fun loadLocalProperties(): Properties = Properties().apply {
 }
 
 kotlin {
-
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_17)
-        languageVersion.set(KotlinVersion.KOTLIN_2_2)
-    }
-}
-
-kotlin {
     compilerOptions {
 
-        jvmTarget.set(JvmTarget.JVM_17)
-        languageVersion.set(KotlinVersion.KOTLIN_2_2)
+        jvmTarget.set(JvmTarget.JVM_21)
+        languageVersion.set(KotlinVersion.KOTLIN_2_3)
+
+        // ---- Experimental APIs ----
+        optIn.add("androidx.compose.material3.ExperimentalMaterial3Api",)
+        optIn.add("com.google.accompanist.permissions.ExperimentalPermissionsApi",)
+        optIn.add("kotlin.time.ExperimentalTime",)
+        optIn.add("kotlinx.coroutines.ExperimentalCoroutinesApi",)
+
+        // ---- Kotlin compiler feature flags ----
+        freeCompilerArgs.add("-Xcontext-parameters")
+        freeCompilerArgs.add("-Xcontext-sensitive-resolution",)
+        freeCompilerArgs.add("-Xexplicit-backing-fields")
     }
 }
 
@@ -54,8 +56,8 @@ android {
     compileSdk = 36
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     defaultConfig {
@@ -71,14 +73,11 @@ android {
         resValue("string", "mixpanel_key", localProps.getProperty("MIXPANELKEY") ?: "")
     }
 
-    base {
-        archivesName.set("save-${project.version}")
-    }
-
     buildFeatures {
         viewBinding = true
         buildConfig = true
         compose = true
+        resValues = true
     }
 
     buildTypes {
@@ -173,6 +172,10 @@ android {
         }
     }
 
+    androidResources {
+        generateLocaleConfig = true
+    }
+
 
     configurations.all {
         resolutionStrategy {
@@ -180,10 +183,14 @@ android {
             exclude(group = "org.bouncycastle", module = "bcprov-jdk15on")
         }
     }
+}
 
-    room {
-        schemaDirectory("$projectDir/schemas")
-    }
+base {
+    archivesName.set("save-${project.version}")
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {
@@ -191,6 +198,8 @@ dependencies {
     // Kotlin Core
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.collections.immutable)
+    implementation(libs.kotlinx.datetime)
 
     // AndroidX Core
     implementation(libs.androidx.core.ktx)
@@ -226,22 +235,34 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.navigation.fragment.compose)
 
+    // AndroidX Navigation3
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+    implementation(libs.koin.compose.navigation3)
+    implementation(libs.androidx.navigationevent)
+
     // Compose UI
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.tooling.preview)
     debugImplementation(libs.androidx.compose.ui.tooling)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.icons.extended)
+    implementation(libs.androidx.compose.material3.adaptive)
+    //implementation(libs.androidx.compose.icons.extended)
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.compose.preferences)
+    implementation(libs.reorderable)
+    implementation(libs.accompanist.permissions)
 
     // Material Design
     implementation(libs.google.material)
 
     // AndroidX Other
     implementation(libs.androidx.preferences)
+    implementation(libs.androidx.datastore.core)
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.security.crypto)
     implementation(libs.androidx.work)
@@ -282,6 +303,7 @@ dependencies {
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.video)
     implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.camera.compose)
     implementation(libs.androidx.camera.extensions)
 
     // Barcode Scanning
@@ -308,6 +330,7 @@ dependencies {
     //implementation(libs.google.drive.api)
 
     // Security & Cryptography
+    implementation("com.google.crypto.tink:tink-android:1.20.0")
     implementation(libs.bouncycastle.bcprov)
     implementation(libs.bouncycastle.bcpkix)
     api(libs.bouncycastle.bcpg)
@@ -330,6 +353,7 @@ dependencies {
     // implementation(libs.jna)
 
     // Barcode Scanning
+    implementation(libs.google.mlkit.barcode)
     implementation(libs.zxing.core)
     implementation(libs.zxing.android.embedded)
 
@@ -585,13 +609,8 @@ val buildC2paRustLibs by tasks.registering {
 
 // ─── Wire buildC2paRustLibs into ALL variant builds (GMS + FOSS) ─────────────
 afterEvaluate {
-    android.applicationVariants.forEach { variant ->
-        val cap = variant.name.replaceFirstChar { it.titlecase() }
-        // mergeJniLibFolders collects .so files just before APK packaging
-        tasks.findByName("merge${cap}JniLibFolders")
-            ?.dependsOn(buildC2paRustLibs)
-            ?: logger.warn("[C2PA] Could not find merge${cap}JniLibFolders — .so may be absent at runtime")
-    }
+    tasks.matching { it.name.startsWith("merge") && it.name.endsWith("JniLibFolders") }
+        .configureEach { dependsOn(buildC2paRustLibs) }
 }
 
 // Conditionally apply Google Services plugins only for GMS builds

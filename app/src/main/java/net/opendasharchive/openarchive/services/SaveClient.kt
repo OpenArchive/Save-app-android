@@ -2,10 +2,9 @@ package net.opendasharchive.openarchive.services
 
 import android.content.Context
 import com.thegrizzlylabs.sardineandroid.impl.OkHttpSardine
-import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.services.tor.TorConstants
 import net.opendasharchive.openarchive.services.tor.TorServiceManager
-import net.opendasharchive.openarchive.services.webdav.BasicAuthInterceptor
+import net.opendasharchive.openarchive.services.common.auth.BasicAuthInterceptor
 import net.opendasharchive.openarchive.util.Prefs
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -143,9 +142,9 @@ object SaveClient : KoinComponent {
      * @return Configured OkHttpSardine instance
      * @throws TorNotReadyException if Tor is enabled but not yet connected
      */
-    suspend fun getSardine(context: Context, space: Space): OkHttpSardine {
+    suspend fun getSardine(context: Context, user: String, pass: String): OkHttpSardine {
         val sardine = OkHttpSardine(get(context))
-        sardine.setCredentials(space.username, space.password)
+        sardine.setCredentials(user, pass)
         return sardine
     }
 }

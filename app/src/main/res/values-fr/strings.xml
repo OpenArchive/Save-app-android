@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="title_activity_first_start">Lancement initial</string>
     <string name="action_settings">Paramètres</string>
-    <string name="internet_archive">« Internet Archive »</string>
+    <string name="internet_archive">Internet Archive</string>
     <string name="internet_archive_description">Téléversez vos médias vers un compte public gratuit sur internet Archive.</string>
     <string name="dweb_title">Service DWeb</string>
     <string name="dweb_description">Connectez-vous\nau web décentralisé</string>
@@ -227,7 +227,10 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="press_and_hold_options_media_screen_message">Touchez + pour choisir dans la photothèque ou touchez et maintenez pour ajouter des médias d’autres applis.</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">Maintenez la touche enfoncée pour sélectionner et modifier plusieurs contenus multimédias.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Une fois téléversé, vous ne pourrez plus le modifier.</string>
+    <string name="proceed_to_upload">Procéder au téléversement</string>
+    <string name="actually_let_me_edit">En fait, laissez-moi éditer</string>
     <string name="edit_media_info">Modifier les renseignements du média</string>
+    <string name="bulk_edit_media_info">Modifier en masse les infos relatives aux médias</string>
     <string name="add_a_location_optional"><i>Ajouter un emplacement (facultatif)</i></string>
     <string name="add_notes_optional"><i>Ajouter des notes (facultatif)</i></string>
     <string name="skip">Ignorer</string>

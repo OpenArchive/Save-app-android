@@ -13,7 +13,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.features.main.MainActivity
+import net.opendasharchive.openarchive.features.main.HomeActivity
 import org.torproject.jni.TorService
 
 /**
@@ -119,7 +119,7 @@ class TorForegroundService : TorService() {
             PendingIntent.getActivity(
                 this,
                 0,
-                Intent(this, MainActivity::class.java).apply {
+                Intent(this, HomeActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 },
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,

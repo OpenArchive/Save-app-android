@@ -19,10 +19,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.SaveApp
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.extensions.RetryAttempt
 import net.opendasharchive.openarchive.extensions.retryWithScope
 import net.opendasharchive.openarchive.extensions.suspendToRetry
-import net.opendasharchive.openarchive.features.main.MainActivity
+import net.opendasharchive.openarchive.features.main.HomeActivity
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import timber.log.Timber
 import java.io.File
@@ -31,8 +32,6 @@ import java.net.ConnectException
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import java.net.URL
-import java.nio.file.Files
-import kotlin.io.path.Path
 import kotlin.time.Duration.Companion.seconds
 
 class SnowbirdService : Service() {
@@ -132,7 +131,7 @@ class SnowbirdService : Service() {
                 updateStatus(ServiceStatus.Stopped)
                 Timber.d("Server shutdown complete")
             } catch (e: Exception) {
-                Timber.e(e, "Error stopping server")
+                AppLogger.e( "Error stopping server", e)
                 updateStatus(ServiceStatus.Failed(e))
             }
         }
@@ -182,7 +181,7 @@ class SnowbirdService : Service() {
 
         val pendingIntent: PendingIntent = Intent(
             this,
-            MainActivity::class.java
+            HomeActivity::class.java
         ).let { notificationIntent ->
             PendingIntent.getActivity(
                 this,
@@ -245,7 +244,7 @@ class SnowbirdService : Service() {
                         val errorMessage = attempt.error.message ?: "Unknown error"
                         updateStatus(ServiceStatus.Failed(attempt.error))
                         updateNotification("Connection Failed: $errorMessage")
-                        Timber.e(attempt.error)
+                        AppLogger.e(attempt.error)
                         stopPolling()
                     }
                 }

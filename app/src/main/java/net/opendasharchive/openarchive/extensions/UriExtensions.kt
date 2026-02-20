@@ -5,10 +5,6 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import java.io.InputStream
 
-fun Uri.createInputStream(applicationContext: Context): InputStream? {
-    return applicationContext.contentResolver.openInputStream(this)
-}
-
 fun Uri.getFilename(applicationContext: Context): String? {
         var result: String? = null
         if (this.scheme == "content") {

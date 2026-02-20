@@ -1,69 +1,156 @@
 package net.opendasharchive.openarchive.features.folders
 
-import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import net.opendasharchive.openarchive.db.Space
-import net.opendasharchive.openarchive.services.SaveClient
-import timber.log.Timber
-import java.io.IOException
-import java.util.Date
+import kotlinx.datetime.LocalDateTime
+import net.opendasharchive.openarchive.core.domain.Archive
+import net.opendasharchive.openarchive.core.logger.AppLogger
+import net.opendasharchive.openarchive.core.repositories.ProjectRepository
+import net.opendasharchive.openarchive.core.repositories.SpaceRepository
+import net.opendasharchive.openarchive.features.core.UiImage
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.dialog.ButtonData
+import net.opendasharchive.openarchive.features.core.dialog.DialogConfig
+import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
+import net.opendasharchive.openarchive.services.webdav.data.WebDavRepository
+import net.opendasharchive.openarchive.util.DateUtils
 
+data class Folder(val name: String, val modified: LocalDateTime)
 
+data class BrowseFoldersState(
+    val folders: List<Folder> = emptyList(),
+    val selectedFolder: Folder? = null,
+    val isLoading: Boolean = false,
+    val error: UiText? = null
+)
 
-data class Folder(val name: String, val modified: Date)
+sealed interface BrowseFoldersAction {
+    data class SelectFolder(val folder: Folder) : BrowseFoldersAction
+    data object AddFolder : BrowseFoldersAction
+    data object LoadFolders : BrowseFoldersAction
+}
 
-class BrowseFoldersViewModel(private val context: Context) : ViewModel() {
+sealed interface BrowseFoldersEvent {
+    // No more UI events needed
+}
 
-    private val mFolders = MutableLiveData<List<Folder>>()
+class BrowseFoldersViewModel(
+    private val webDavRepository: WebDavRepository,
+    private val spaceRepository: SpaceRepository,
+    private val projectRepository: ProjectRepository,
+    private val navigator: Navigator,
+    private val dialogManager: DialogStateManager
+) : ViewModel() {
 
-    val folders: LiveData<List<Folder>>
-        get() = mFolders
+    private val _uiState = MutableStateFlow(BrowseFoldersState())
+    val uiState: StateFlow<BrowseFoldersState> = _uiState.asStateFlow()
 
-    val progressBarFlag = MutableLiveData(false)
+    private val _events = Channel<BrowseFoldersEvent>()
+    val events = _events.receiveAsFlow()
 
-    fun getFiles(space: Space) {
-        viewModelScope.launch {
-            progressBarFlag.value = true
+    init {
+        loadFolders()
+    }
 
-            try {
-                val value = withContext(Dispatchers.IO) {
-                    when (space.tType) {
-                        Space.Type.WEBDAV -> getWebDavFolders(context, space)
-
-                        else -> emptyList()
-                    }
-                }
-
-                mFolders.value = value.filter { !space.hasProject(it.name) }
-                progressBarFlag.value = false
+    fun onAction(action: BrowseFoldersAction) {
+        when (action) {
+            is BrowseFoldersAction.SelectFolder -> {
+                _uiState.update { it.copy(selectedFolder = action.folder) }
             }
-            // Dropbox might throw all sorts of non-IOExceptions.
-            catch (e: Throwable) {
-                progressBarFlag.value = false
-                mFolders.value = arrayListOf()
 
-                Timber.e(e)
+            is BrowseFoldersAction.AddFolder -> {
+                addFolder()
+            }
+
+            is BrowseFoldersAction.LoadFolders -> {
+                loadFolders()
             }
         }
     }
 
-    @Throws(IOException::class)
-    private suspend fun getWebDavFolders(context: Context, space: Space): List<Folder> {
-        val root = space.hostUrl?.encodedPath
+    private fun loadFolders() {
+        viewModelScope.launch {
+            val space = spaceRepository.getCurrentSpace() ?: return@launch
 
-        return SaveClient.getSardine(context, space).list(space.host)?.mapNotNull {
-            if (it?.isDirectory == true && it.path != root) {
-                Folder(it.name, it.modified ?: Date())
+            _uiState.update { it.copy(isLoading = true, error = null) }
+
+            try {
+                val folderList = webDavRepository.getFolders(space)
+
+                // Filter out folders that are already tracked as projects
+                val filteredFolders = folderList.filter { folder ->
+                    projectRepository.getProjectByName(space.id, folder.name) == null
+                }
+
+                _uiState.update {
+                    it.copy(
+                        folders = filteredFolders,
+                        isLoading = false,
+                        error = null
+                    )
+                }
+            } catch (e: Throwable) {
+                AppLogger.e(e)
+                _uiState.update {
+                    it.copy(
+                        folders = emptyList(),
+                        isLoading = false,
+                        error = if (e.message != null) {
+                            UiText.Dynamic(e.message!!)
+                        } else {
+                            UiText.Resource(net.opendasharchive.openarchive.R.string.error)
+                        }
+                    )
+                }
+
             }
-            else {
-                null
-            }
-        } ?: emptyList()
+        }
+    }
+
+    private fun addFolder() {
+        viewModelScope.launch {
+            val folder = _uiState.value.selectedFolder ?: return@launch
+            val space = spaceRepository.getCurrentSpace() ?: return@launch
+
+            if (projectRepository.getProjectByName(space.id, folder.name) != null) return@launch
+
+            val archive = Archive(
+                description = folder.name,
+                created = DateUtils.nowDateTime,
+                vaultId = space.id,
+                licenseUrl = space.licenseUrl,
+                isRemote = true
+            )
+
+            val projectId = projectRepository.addProject(archive)
+
+            dialogManager.showDialog(
+                DialogConfig(
+                    type = DialogType.Success,
+                    title = UiText.Resource(net.opendasharchive.openarchive.R.string.label_success_title),
+                    message = UiText.Resource(net.opendasharchive.openarchive.R.string.create_folder_ok_message),
+                    icon = UiImage.DrawableResource(net.opendasharchive.openarchive.R.drawable.ic_done),
+                    positiveButton = ButtonData(
+                        text = UiText.Resource(net.opendasharchive.openarchive.R.string.label_got_it),
+                        action = { navigator.navigateBack() }
+                    ),
+                    onDismissAction = { navigator.navigateBack() }
+                )
+            )
+        }
+    }
+
+    fun onBack() {
+        navigator.navigateBack()
     }
 }

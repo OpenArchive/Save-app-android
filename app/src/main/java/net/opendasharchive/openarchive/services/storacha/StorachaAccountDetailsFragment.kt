@@ -283,16 +283,16 @@ class StorachaAccountDetailsFragment : BaseFragment() {
     private fun performLogout() {
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Warning
-            title = UiText.StringResource(R.string.logout)
-            message = UiText.StringResource(R.string.logout_confirmation)
+            title = UiText.Resource(R.string.logout)
+            message = UiText.Resource(R.string.logout_confirmation)
             positiveButton {
-                text = UiText.StringResource(R.string.logout)
+                text = UiText.Resource(R.string.logout)
                 action = {
                     viewModel.logout(args.sessionId)
                 }
             }
             neutralButton {
-                text = UiText.StringResource(R.string.action_cancel)
+                text = UiText.Resource(R.string.action_cancel)
             }
         }
     }

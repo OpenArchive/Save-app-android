@@ -6,17 +6,16 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.setContent
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.features.core.BaseActivity
-import net.opendasharchive.openarchive.features.settings.passcode.HapticManager
+import net.opendasharchive.openarchive.features.core.BaseComposeActivity
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.android.ext.android.inject
 
-class PasscodeEntryActivity : BaseActivity() {
+class PasscodeEntryActivity : BaseComposeActivity() {
 
+    private val viewModel: PasscodeEntryViewModel by viewModel()
     private val repository: PasscodeRepository by inject()
-    private val hapticManager: HapticManager by inject()
-
     private val onBackPressedCallback = object : OnBackPressedCallback(enabled = true) {
         override fun handleOnBackPressed() {
             // Do nothing to prevent back navigation
@@ -46,20 +45,19 @@ class PasscodeEntryActivity : BaseActivity() {
             SaveAppTheme {
                 DefaultScaffold {
                     PasscodeEntryScreen(
-                        onPasscodeSuccess = {
+                        viewModel = viewModel,
+                        onSuccess = {
                             finish()
                         },
+                        onLockedOut = {
+                            finishAndRemoveTask()
+                        },
                         onExit = {
-                            finishAffinity()
+                            moveTaskToBack(true)
                         }
                     )
                 }
             }
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        hapticManager.clear() // Clear the reference to prevent leaks
     }
 }

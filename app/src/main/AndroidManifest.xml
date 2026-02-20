@@ -26,7 +26,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
 
     <!-- Explicitly remove advertising ID permissions added by analytics SDKs -->
@@ -62,7 +63,7 @@
     <application
         android:usesCleartextTraffic="true"
         android:name=".SaveApp"
-        android:allowBackup="false"
+        android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="false"
@@ -75,31 +76,27 @@
         tools:ignore="UnusedAttribute,LockedOrientationActivity"
         tools:replace="android:icon,android:allowBackup">
 
-        <!--TODO: task affinity lets us define within which 'task' does a activity belong to.
-        By default, the activity has the same task affinity as its root
-        Trail of bits ticket: https://github.com/OpenArchive/OA-Trail-of-Bits/issues/23
-        -->
         <activity
-            android:name=".features.main.MainActivity"
+            android:name=".features.main.HomeActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan"
             android:theme="@style/Theme.SaveApp.Starting"
+            android:windowSoftInputMode="adjustPan"
             tools:ignore="DiscouragedApi">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- filter for sending text or images; accepts SEND action and audio/photo/video data -->
+            <!-- Intent filter for sending text or images; accepts SEND action and various data types -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:mimeType="*/*" />
             </intent-filter>
+
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -112,6 +109,7 @@
                 <data android:mimeType="text/*" />
                 <data android:mimeType="video/*" />
             </intent-filter>
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -120,77 +118,8 @@
 
                 <data android:scheme="save+dweb" />
             </intent-filter>
+
         </activity>
-
-        <activity
-            android:name=".features.media.PreviewActivity"
-            android:exported="false"
-            android:label="@string/preview_media"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.main.QRScannerActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/zxing_CaptureTheme"
-            android:windowSoftInputMode="stateAlwaysHidden" />
-
-        <activity
-            android:name=".features.media.ReviewActivity"
-            android:exported="false"
-            android:label="@string/edit_media_info"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
-
-        <activity
-            android:name=".features.media.camera.CameraActivity"
-            android:exported="false"
-            android:screenOrientation="portrait"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.onboarding.SpaceSetupActivity"
-            android:exported="false"
-            android:label="@string/title_activity_first_start"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan" />
-
-        <activity
-            android:name=".services.snowbird.SnowbirdActivity"
-            android:exported="false"
-            android:label="@string/dweb_title"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan" />
-
-        <activity
-            android:name=".features.onboarding.Onboarding23Activity"
-            android:exported="false"
-            android:noHistory="true"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar.Onboarding" />
-
-        <activity
-            android:name=".features.onboarding.Onboarding23InstructionsActivity"
-            android:exported="false"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.settings.ConsentActivity"
-            android:label="@string/health_checks"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
-
-        <activity
-            android:name=".features.settings.C2paSettingsActivity"
-            android:exported="false"
-            android:label="@string/c2pa_content_authenticity"
-            android:taskAffinity=""
-            android:theme="@style/SaveAppTheme.NoActionBar" />
 
         <activity
             android:name=".features.settings.passcode.passcode_setup.PasscodeSetupActivity"
@@ -198,7 +127,8 @@
             android:screenOrientation="portrait"
             android:taskAffinity=""
             android:theme="@style/SaveAppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden"
+            tools:ignore="DiscouragedApi" />
 
         <activity
             android:name=".features.settings.passcode.passcode_entry.PasscodeEntryActivity"
@@ -207,7 +137,8 @@
             android:noHistory="true"
             android:screenOrientation="portrait"
             android:theme="@style/SaveAppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="stateHidden"
+            tools:ignore="DiscouragedApi" />
 
         <activity
             android:name=".services.storacha.PortraitCaptureActivity"

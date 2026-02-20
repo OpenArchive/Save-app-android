@@ -6,13 +6,14 @@ import android.util.Patterns
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
-import timber.log.Timber
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import java.io.File
 import java.io.InputStream
 import java.net.URI
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import androidx.core.graphics.createBitmap
 
 /**
  * Generates a QR code bitmap from a given string.
@@ -37,12 +38,28 @@ fun String.asQRCode(size: Int = 512, quietZone: Int = 4): Bitmap {
     }
 }
 
-fun String.createInputStream(): InputStream? {
-    return try {
-        File(this).inputStream()
-    } catch (e: Exception) {
-        Timber.e(e, "Failed to create InputStream from path: $this")
-        null
+fun String.asQRCode(
+    size: Int = 512,
+    onColor: Int = Color.BLACK,
+    offColor: Int = Color.WHITE,
+    quietZone: Int = 4
+): Bitmap {
+    val hints = hashMapOf<EncodeHintType, Any>().apply {
+        put(EncodeHintType.MARGIN, quietZone)
+    }
+    val bits = QRCodeWriter().encode(this, BarcodeFormat.QR_CODE, size, size, hints)
+
+    // Optimized: Use setPixels (plural) to push the whole array at once
+    val pixels = IntArray(size * size)
+    for (y in 0 until size) {
+        val offset = y * size
+        for (x in 0 until size) {
+            pixels[offset + x] = if (bits[x, y]) onColor else offColor
+        }
+    }
+
+    return createBitmap(size, size).apply {
+        setPixels(pixels, 0, size, 0, 0, size, size)
     }
 }
 

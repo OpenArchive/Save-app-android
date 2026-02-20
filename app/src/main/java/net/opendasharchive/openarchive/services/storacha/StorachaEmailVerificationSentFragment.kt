@@ -107,17 +107,17 @@ class StorachaEmailVerificationSentFragment : BaseFragment() {
     private fun showTimeoutDialog() {
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Warning
-            title = UiText.DynamicString("Verification Timeout")
+            title = UiText.Dynamic("Verification Timeout")
             message =
-                UiText.DynamicString(
+                UiText.Dynamic(
                     "We didn't receive confirmation of your email verification. Please check your email and try again, or return to login.",
                 )
             positiveButton {
-                text = UiText.DynamicString("Try Again")
+                text = UiText.Dynamic("Try Again")
                 action = { viewModel.tryAgain() }
             }
             neutralButton {
-                text = UiText.DynamicString("Back to Login")
+                text = UiText.Dynamic("Back to Login")
                 action = { navigateBackToLogin() }
             }
         }

@@ -90,21 +90,6 @@
 
 
 
-    <!--    This is hidden since we are gonna set Creative Commons License in folder level-->
-    <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="@dimen/activity_vertical_margin"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/label">
-
-        <include
-            android:id="@+id/cc"
-            layout="@layout/content_cc" />
-
-    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/button_bar"

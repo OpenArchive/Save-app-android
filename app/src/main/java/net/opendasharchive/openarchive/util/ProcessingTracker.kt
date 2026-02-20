@@ -4,11 +4,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withTimeout
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.extensions.formatToDecimalPlaces
 import timber.log.Timber
 import kotlin.time.measureTimedValue
 
-class ProcessingTracker(private val logger: (String) -> Unit = { Timber.d(it) }) {
+class ProcessingTracker(private val logger: (String) -> Unit = { AppLogger.d(it) }) {
     private val _isProcessing = MutableStateFlow(false)
     val isProcessing: StateFlow<Boolean> = _isProcessing.asStateFlow()
 

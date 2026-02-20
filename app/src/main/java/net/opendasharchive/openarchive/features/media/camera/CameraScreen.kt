@@ -3,10 +3,12 @@ package net.opendasharchive.openarchive.features.media.camera
 import android.content.Context
 import android.net.Uri
 import android.util.Size
+import androidx.camera.compose.CameraXViewfinder
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
+import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -14,7 +16,6 @@ import androidx.camera.video.Quality
 import androidx.camera.video.QualitySelector
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
-import androidx.camera.view.PreviewView
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -42,14 +43,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FlashAuto
-import androidx.compose.material.icons.filled.FlashOff
-import androidx.compose.material.icons.filled.FlashOn
-import androidx.compose.material.icons.filled.GridOff
-import androidx.compose.material.icons.filled.GridOn
-import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -69,18 +62,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.delay
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
+import net.opendasharchive.openarchive.util.ComposePermissionManager
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -90,6 +84,7 @@ fun CameraScreen(
     config: CameraConfig = CameraConfig(),
     onCaptureComplete: (List<Uri>) -> Unit,
     onCancel: () -> Unit,
+    permissionManager: ComposePermissionManager,
     viewModel: CameraViewModel = viewModel()
 ) {
     val context = LocalContext.current
@@ -190,33 +185,32 @@ fun CameraScreen(
                     }
                 }
         ) {
-            // Camera preview
-            var previewView by remember { mutableStateOf<PreviewView?>(null) }
-
+            // Camera preview state
+            var surfaceRequest by remember { mutableStateOf<SurfaceRequest?>(null) }
+            
             // ===== Camera Setup =====
-            // Setup camera when preview view is ready, camera switches, or idle state changes
-            // NOTE: Flash mode changes are handled separately to avoid unnecessary rebinding
-            LaunchedEffect(previewView, cameraState.isFrontCamera, isIdle) {
+            // Setup camera when camera switches or idle state changes
+            LaunchedEffect(cameraState.isFrontCamera, isIdle) {
                 // Only setup camera if not in idle state
                 if (!isIdle) {
-                    previewView?.let { preview ->
-                        setupCamera(
-                            context = context,
-                            config = config,
-                            previewView = preview,
-                            lifecycleOwner = lifecycleOwner,
-                            cameraState = cameraState,
-                            onCameraReady = { provider, cam, imgCapture, vidCapture ->
-                                cameraProvider = provider
-                                camera = cam
-                                imageCapture = imgCapture
-                                videoCapture = vidCapture
-                            },
-                            onFlashSupportChanged = { isSupported ->
-                                viewModel.updateFlashSupport(isSupported)
-                            }
-                        )
-                    }
+                    setupCamera(
+                        context = context,
+                        config = config,
+                        onSurfaceRequestReady = { request ->
+                            surfaceRequest = request
+                        },
+                        lifecycleOwner = lifecycleOwner,
+                        cameraState = cameraState,
+                        onCameraReady = { provider, cam, imgCapture, vidCapture ->
+                            cameraProvider = provider
+                            camera = cam
+                            imageCapture = imgCapture
+                            videoCapture = vidCapture
+                        },
+                        onFlashSupportChanged = { isSupported ->
+                            viewModel.updateFlashSupport(isSupported)
+                        }
+                    )
                 }
             }
 
@@ -257,7 +251,7 @@ fun CameraScreen(
             // This provides continuous light during video recording or video mode preview
             LaunchedEffect(cameraState.flashMode, cameraState.captureMode, camera) {
                 // Wait a bit for camera to be fully ready
-                kotlinx.coroutines.delay(100)
+                delay(100)
 
                 camera?.let { cam ->
                     try {
@@ -293,26 +287,13 @@ fun CameraScreen(
                 }
             }
 
-            // ===== Preview View Configuration =====
-            // Uses configured implementation mode (PERFORMANCE or COMPATIBLE)
-            AndroidView(
-                factory = { ctx ->
-                    PreviewView(ctx).apply {
-                        scaleType = PreviewView.ScaleType.FILL_CENTER
-
-                        // Use configured implementation mode for optimal performance
-                        implementationMode = when (config.implementationMode) {
-                            ImplementationMode.PERFORMANCE -> PreviewView.ImplementationMode.PERFORMANCE
-                            ImplementationMode.COMPATIBLE -> PreviewView.ImplementationMode.COMPATIBLE
-                        }
-
-                        AppLogger.d("PreviewView initialized with ${config.implementationMode} mode")
-                    }.also { preview ->
-                        previewView = preview
-                    }
-                },
-                modifier = Modifier.fillMaxSize()
-            )
+            // CameraX viewfinder
+            surfaceRequest?.let { request ->
+                CameraXViewfinder(
+                    surfaceRequest = request,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
             
             // Grid overlay
             if (cameraState.showGrid && config.showGridToggle) {
@@ -356,18 +337,22 @@ fun CameraScreen(
                     }
                 },
                 onVideoStart = {
-                    videoCapture?.let { capture ->
-                        viewModel.startVideoRecording(
-                            context = context,
-                            videoCapture = capture,
-                            useCleanFilenames = config.useCleanFilenames,
-                            onSuccess = { uri ->
-                                AppLogger.d("Video captured: $uri")
-                            },
-                            onError = { error ->
-                                AppLogger.e("Video capture failed", error)
-                            }
-                        )
+                    if (permissionManager.isAudioGranted()) {
+                        videoCapture?.let { capture ->
+                            viewModel.startVideoRecording(
+                                context = context,
+                                videoCapture = capture,
+                                useCleanFilenames = config.useCleanFilenames,
+                                onSuccess = { uri ->
+                                    AppLogger.d("Video captured: $uri")
+                                },
+                                onError = { error ->
+                                    AppLogger.e("Video capture failed", error)
+                                }
+                            )
+                        }
+                    } else {
+                        permissionManager.requestAudioPermission()
                     }
                 },
                 onVideoStop = {
@@ -403,7 +388,7 @@ fun CameraScreen(
                     ) {
                         // Pause icon
                         Icon(
-                            imageVector = Icons.Default.Pause,
+                            painter = painterResource(R.drawable.ic_pause),
                             contentDescription = null,
                             tint = Color.White,
                             modifier = Modifier.size(64.dp)
@@ -447,7 +432,7 @@ private fun CameraTopControls(
                 .background(Color.Black.copy(alpha = 0.3f), CircleShape)
         ) {
             Icon(
-                imageVector = Icons.Default.Close,
+                painter = painterResource(R.drawable.ic_close),
                 contentDescription = stringResource(R.string.close),
                 tint = Color.White
             )
@@ -479,7 +464,7 @@ private fun CameraTopControls(
                             .background(Color.Black.copy(alpha = 0.3f), CircleShape)
                     ) {
                         Icon(
-                            imageVector = if (cameraState.showGrid) Icons.Default.GridOn else Icons.Default.GridOff,
+                            painter = if (cameraState.showGrid) painterResource(R.drawable.ic_grid_on) else painterResource(R.drawable.ic_grid_off),
                             contentDescription = stringResource(R.string.grid),
                             tint = if (cameraState.showGrid) Color.Yellow else Color.White
                         )
@@ -500,12 +485,12 @@ private fun CameraTopControls(
                     .background(Color.Black.copy(alpha = 0.3f), CircleShape)
             ) {
                 val flashIcon = when (cameraState.flashMode) {
-                    ImageCapture.FLASH_MODE_ON -> Icons.Default.FlashOn
-                    ImageCapture.FLASH_MODE_AUTO -> Icons.Default.FlashAuto
-                    else -> Icons.Default.FlashOff
+                    ImageCapture.FLASH_MODE_ON -> painterResource(R.drawable.ic_flash_on)
+                    ImageCapture.FLASH_MODE_AUTO -> painterResource(R.drawable.ic_flash_auto)
+                    else -> painterResource(R.drawable.ic_flash_off)
                 }
                 Icon(
-                    imageVector = flashIcon,
+                    painter = flashIcon,
                     contentDescription = stringResource(R.string.flash),
                     tint = Color.White
                 )
@@ -594,7 +579,7 @@ private fun RecordingTimerCompact(
 private fun setupCamera(
     context: Context,
     config: CameraConfig,
-    previewView: PreviewView?,
+    onSurfaceRequestReady: (SurfaceRequest) -> Unit,
     lifecycleOwner: androidx.lifecycle.LifecycleOwner,
     cameraState: CameraState,
     onCameraReady: (ProcessCameraProvider, Camera, ImageCapture, VideoCapture<Recorder>) -> Unit,
@@ -607,7 +592,7 @@ private fun setupCamera(
             bindCamera(
                 cameraProvider,
                 config,
-                previewView,
+                onSurfaceRequestReady,
                 lifecycleOwner,
                 cameraState,
                 onCameraReady,
@@ -640,7 +625,7 @@ private fun setupCamera(
 private fun bindCamera(
     cameraProvider: ProcessCameraProvider,
     config: CameraConfig,
-    previewView: PreviewView?,
+    onSurfaceRequestReady: (SurfaceRequest) -> Unit,
     lifecycleOwner: androidx.lifecycle.LifecycleOwner,
     cameraState: CameraState,
     onCameraReady: (ProcessCameraProvider, Camera, ImageCapture, VideoCapture<Recorder>) -> Unit,
@@ -678,8 +663,8 @@ private fun bindCamera(
             .setResolutionSelector(resolutionSelector)
             .build()
             .also {
-                previewView?.let { pv ->
-                    it.surfaceProvider = pv.surfaceProvider
+                it.setSurfaceProvider { request ->
+                    onSurfaceRequestReady(request)
                 }
             }
 

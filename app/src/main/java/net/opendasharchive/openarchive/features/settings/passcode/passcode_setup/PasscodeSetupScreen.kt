@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -30,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
+import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.settings.passcode.AppHapticFeedbackType
 import net.opendasharchive.openarchive.features.settings.passcode.HapticManager
 import net.opendasharchive.openarchive.features.settings.passcode.components.MessageManager
@@ -40,32 +42,25 @@ import org.koin.compose.koinInject
 
 @Composable
 fun PasscodeSetupScreen(
+    viewModel: PasscodeSetupViewModel,
+    hapticManager: HapticManager = koinInject(),
     onPasscodeSet: () -> Unit,
     onCancel: () -> Unit,
-    viewModel: PasscodeSetupViewModel = koinViewModel(),
-    hapticManager: HapticManager = koinInject()
 ) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val context = LocalContext.current
-
     val hapticFeedback = LocalHapticFeedback.current
-
-    LaunchedEffect(Unit) {
-        hapticManager.init(hapticFeedback)
-    }
 
     // Function to handle UI events
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collectLatest { event ->
             when (event) {
-                PasscodeSetupUiEvent.PasscodeSet -> onPasscodeSet()
                 PasscodeSetupUiEvent.PasscodeDoNotMatch -> {
-                    hapticManager.performHapticFeedback(AppHapticFeedbackType.Error)
-                    MessageManager.showMessage(context.getString(R.string.passcode_do_not_match))
+                    hapticManager.perform(hapticFeedback, AppHapticFeedbackType.Error)
+                    MessageManager.showMessage(UiText.Resource(R.string.passcode_do_not_match))
                 }
-
+                PasscodeSetupUiEvent.PasscodeSet -> onPasscodeSet()
                 PasscodeSetupUiEvent.PasscodeCancelled -> onCancel()
             }
         }
@@ -75,13 +70,17 @@ fun PasscodeSetupScreen(
     PasscodeSetupScreenContent(
         state = uiState,
         onAction = viewModel::onAction,
+        onHaptic = {
+            hapticManager.perform(hapticFeedback, AppHapticFeedbackType.Error)
+        }
     )
 }
 
 @Composable
 private fun PasscodeSetupScreenContent(
     state: PasscodeSetupUiState,
-    onAction: (PasscodeSetupUiAction) -> Unit
+    onAction: (PasscodeSetupUiAction) -> Unit,
+    onHaptic: () -> Unit = {}
 ) {
 
 
@@ -154,7 +153,9 @@ private fun PasscodeSetupScreenContent(
                 },
                 onSubmitClick = {
                     onAction(PasscodeSetupUiAction.OnSubmit)
-                }
+                },
+                onHaptic = onHaptic
+
             )
 
             Spacer(modifier = Modifier.height(64.dp))

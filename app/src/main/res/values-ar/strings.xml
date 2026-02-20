@@ -227,7 +227,10 @@
     <string name="press_and_hold_options_media_screen_message">‫المس علامة + للاختيار من مَعْرِض الصور أو اضغط مع الاستمرار في ذلك لإضافة الوسائط من تطبيقات أخرى.</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">اضغط مع الإبقاء لتحديد وتعديل عناصر وسائط متعددة.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">بمجرد التحميل، لن تتمكن من تعديل الوسائط.</string>
+    <string name="proceed_to_upload">تابع للتحميل</string>
+    <string name="actually_let_me_edit">في الحقيقة، أريد التعديل</string>
     <string name="edit_media_info">تعديل معلومات الوسائط</string>
+    <string name="bulk_edit_media_info">تعديل متعدد لمعلومات الوسائط</string>
     <string name="add_a_location_optional"><i>إضافة موقع (اختياري)</i></string>
     <string name="add_notes_optional"><i>إضافة ملاحظات (اختياري)</i></string>
     <string name="skip">تخطي</string>

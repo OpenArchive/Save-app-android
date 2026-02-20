@@ -281,7 +281,11 @@
     <string name="press_and_hold_options_media_screen_message">Tap + to pick from image gallery or press and hold to add media from other apps.</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">Press and hold to select and edit multiple media items.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Once uploaded, you will not be able to edit media.</string>
+    <string name="proceed_to_upload">Proceed to upload</string>
+    <string name="actually_let_me_edit">Actually, let me edit</string>
     <string name="edit_media_info">Edit Media Info</string>
+    <string name="bulk_edit_media_info" translatable="false">Bulk Edit Media Info</string>
+    <string name="previous" translatable="false">Previous</string>
     <string name="counter" translatable="false">%1$d/%2$d</string>
     <string name="add_a_location_optional"><i>Add a location (optional)</i></string>
     <string name="add_notes_optional"><i>Add notes (optional)</i></string>
@@ -311,12 +315,25 @@
     <string name="dweb_create_group_screen_description">A group on DWeb Storage is similar to a server, and a user name acts as your folder within this group. You\'ll be able to upload media under this user name</string>
     <string name="dweb_create_group_group_name"><i>Your group name</i></string>
     <string name="dweb_create_group_user_name"><i>Your name in this group</i></string>
-    <string name="dweb_join_group_screen_title">Pick a user name for this group</string>
-    <string name="dweb_join_group_screen_description">A group on DWeb Storage is similar to a server, and a user name acts as your folder within this group. You’ll be able to upload media under this user name.</string>
+    <string name="dweb_join_group_screen_title">Name your group and pick a user name</string>
+    <string name="dweb_join_group_screen_description">A group on DWeb Storage is similar to a server, and a username acts as your folder within this group. You’ll be able to upload media under this username.</string>
     <string name="dweb_join_group_group_name">Group Name</string>
     <string name="dweb_join_group_repo_name">You name in this group</string>
 
     <string name="dweb_share_qr_code">Share QR Code</string>
+    <string name="scan_qr_code" translatable="false">Scan QR Code</string>
+    <string name="qr_scanner_instruction" translatable="false">Open save.opendasharchive.net, desktop app, or other devices.</string>
+    <string name="open_from_gallery" translatable="false">Open from gallery</string>
+    <string name="joining_group_label" translatable="false">Joining Group: %1$s</string>
+
+    <!-- Snowbird Navigation Toolbar Titles -->
+    <string name="dweb_storage">DWeb Storage</string>
+    <string name="dweb_create_group">Create Group</string>
+    <string name="dweb_join_group">Join Group</string>
+    <string name="dweb_my_groups">My Groups</string>
+    <string name="dweb_share_group">Share Group</string>
+    <string name="dweb_repos">Repositories</string>
+    <string name="dweb_files">Files</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
@@ -337,7 +354,11 @@
     <string name="pref_title_media_folders">Archived Folders</string>
     <string name="pref_summary_media_servers">Manage your servers</string>
     <string name="pref_summary_media_folders">Manage your archived folders</string>
-    <string name="pref_summary_privacy_policy">Read our Terms &amp; Privacy Policy</string>
+    <string name="pref_summary_privacy_policy">Tap to view our Terms &amp; Privacy Policy</string>
+    <string name="pref_title_version" translatable="false">Version</string>
+    <string name="pref_title_dark_mode" translatable="false">Switch to dark mode</string>
+    <string name="pref_title_language">App language</string>
+    <string name="pref_summary_language">Change the language for this app</string>
 
     <!-- General -->
     <string name="label_success_title">Success!</string>
@@ -557,4 +578,6 @@
     <string name="c2pa_enabled">C2PA content provenance enabled</string>
     <string name="c2pa_location_permission_denied">C2PA disabled - location permission is required for content provenance</string>
     <string name="c2pa_auto_disabled">C2PA has been automatically disabled because location permission was removed</string>
+
+    <string name="tor_url" translatable="false">https://play.google.com/store/apps/details?id=org.torproject.android</string>
 </resources>

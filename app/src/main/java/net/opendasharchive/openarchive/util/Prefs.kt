@@ -29,6 +29,12 @@ object Prefs {
     private const val IA_HINT_SHOWN = "ft.ia"
     private const val ADD_FOLDER_HINT_SHOWN = "ft.add_folder"
     private const val LICENSE_URL = "archive_pref_share_license_url"
+    private const val PROOFMODE_ENCRYPTED_PASSPHRASE = "proof_mode_encrypted_passphrase"
+    const val USE_PROOFMODE = "use_proofmode"
+    const val USE_PROOFMODE_KEY_ENCRYPTION = "use_proofmode_key_encryption"
+    private const val DID_RUN_SEEDER = "did_run_seeder"
+    private const val IS_MIGRATION_IN_PROGRESS = "is_migration_in_progress"
+    private const val IS_ROOM_MIGRATED = "is_room_migrated"
 
     val TOR_DOWNLOAD_URL = Uri.parse("https://play.google.com/store/apps/details?id=org.torproject.android")
 
@@ -203,5 +209,60 @@ object Prefs {
         get() = prefs?.getBoolean(PROHIBIT_SCREENSHOTS, false) ?: false
         set(value) {
             prefs?.edit()?.putBoolean(PROHIBIT_SCREENSHOTS, value)?.apply()
+        }
+
+    var didRunSeeder: Boolean
+        get() = prefs?.getBoolean(DID_RUN_SEEDER, false) ?: false
+        set(value) {
+            // Use commit() for synchronous write, crucial before app proceeds
+            prefs?.edit()?.putBoolean(DID_RUN_SEEDER, value)?.commit()
+        }
+
+    var isMigrationInProgress: Boolean
+        get() = prefs?.getBoolean(IS_MIGRATION_IN_PROGRESS, false) ?: false
+        set(value) {
+            putBoolean(IS_MIGRATION_IN_PROGRESS, value)
+        }
+
+    var isRoomMigrated: Boolean
+        get() = prefs?.getBoolean(IS_ROOM_MIGRATED, false) ?: false
+        set(value) {
+            putBoolean(IS_ROOM_MIGRATED, value)
+        }
+
+    /** ProofMode is not available in FOSS/stub builds — always returns false. */
+    var useProofMode: Boolean
+        get() = prefs?.getBoolean(USE_PROOFMODE, false) ?: false
+        set(value) {
+            prefs?.edit()?.putBoolean(USE_PROOFMODE, value)?.apply()
+        }
+
+    var useProofModeKeyEncryption: Boolean
+        get() = prefs?.getBoolean(USE_PROOFMODE_KEY_ENCRYPTION, false) ?: false
+        set(value) {
+            prefs?.edit()?.putBoolean(USE_PROOFMODE_KEY_ENCRYPTION, value)?.apply()
+        }
+
+    var proofModeLocation: Boolean
+        get() = prefs?.getBoolean("proofmode_location", false) ?: false
+        set(value) {
+            prefs?.edit()?.putBoolean("proofmode_location", value)?.apply()
+        }
+
+    var proofModeNetwork: Boolean
+        get() = prefs?.getBoolean("proofmode_network", false) ?: false
+        set(value) {
+            prefs?.edit()?.putBoolean("proofmode_network", value)?.apply()
+        }
+
+    var proofModeEncryptedPassphrase: ByteArray?
+        get() {
+            val s = prefs?.getString(PROOFMODE_ENCRYPTED_PASSPHRASE, null) ?: return null
+            return android.util.Base64.decode(s, android.util.Base64.DEFAULT)
+        }
+        set(value) {
+            val encoded = if (value == null) null
+            else android.util.Base64.encodeToString(value, android.util.Base64.DEFAULT)
+            prefs?.edit()?.putString(PROOFMODE_ENCRYPTED_PASSPHRASE, encoded)?.apply()
         }
 }

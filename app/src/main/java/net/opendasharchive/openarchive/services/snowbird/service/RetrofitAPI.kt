@@ -2,35 +2,64 @@ package net.opendasharchive.openarchive.services.snowbird.service
 
 import android.content.Context
 import android.net.Uri
-import net.opendasharchive.openarchive.db.CreateRepoResponse
-import net.opendasharchive.openarchive.db.FileUploadResult
-import net.opendasharchive.openarchive.db.JoinGroupResponse
-import net.opendasharchive.openarchive.db.MembershipRequest
-import net.opendasharchive.openarchive.db.RefreshGroupResponse
-import net.opendasharchive.openarchive.db.RequestName
-import net.opendasharchive.openarchive.db.SnowbirdFileList
-import net.opendasharchive.openarchive.db.SnowbirdGroup
-import net.opendasharchive.openarchive.db.SnowbirdGroupList
-import net.opendasharchive.openarchive.db.SnowbirdRepo
-import net.opendasharchive.openarchive.db.SnowbirdRepoList
+import kotlinx.serialization.json.Json
 import net.opendasharchive.openarchive.extensions.getFilename
+import net.opendasharchive.openarchive.services.snowbird.data.FileUploadResult
+import net.opendasharchive.openarchive.services.snowbird.data.JoinGroupResponse
+import net.opendasharchive.openarchive.services.snowbird.data.MembershipRequest
+import net.opendasharchive.openarchive.services.snowbird.data.RefreshGroupResponse
+import net.opendasharchive.openarchive.services.snowbird.data.RequestName
+import net.opendasharchive.openarchive.services.snowbird.data.SnowbirdFileListDTO
+import net.opendasharchive.openarchive.services.snowbird.data.SnowbirdGroupDTO
+import net.opendasharchive.openarchive.services.snowbird.data.SnowbirdGroupListDTO
+import net.opendasharchive.openarchive.services.snowbird.data.SnowbirdRepoListDTO
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okio.BufferedSink
 import okio.source
+import retrofit2.Response
+import java.io.IOException
 
 class RetrofitAPI(private var context: Context, private val client: RetrofitClient) : ISnowbirdAPI {
 
+    private val json = Json { ignoreUnknownKeys = true }
+
+    private suspend fun <T> safeApiCall(call: suspend () -> Response<T>): T {
+        try {
+            val response = call()
+            if (response.isSuccessful) {
+                return response.body() ?: throw IOException("Empty response body")
+            } else {
+                val errorBody = response.errorBody()?.string()
+                val errorMessage = parseError(errorBody) ?: "Unknown error occurred (Code: ${response.code()})"
+                throw IOException(errorMessage)
+            }
+        } catch (e: Exception) {
+            if (e is IOException) throw e
+            throw IOException("Network error: ${e.localizedMessage ?: "Unknown error"}", e)
+        }
+    }
+
+    private fun parseError(errorBody: String?): String? {
+        if (errorBody == null) return null
+        return try {
+            // Try to parse as JSON string (it's often quoted like "Error message")
+            json.decodeFromString<String>(errorBody)
+        } catch (e: Exception) {
+            // If it's not a valid JSON string, just return it as is (stripped of whitespace)
+            errorBody.trim().removeSurrounding("\"")
+        }
+    }
 
     // Groups
     // Create group
-    override suspend fun createGroup(groupName: RequestName): SnowbirdGroup {
-        return client.createGroup(groupName)
+    override suspend fun createGroup(groupName: RequestName): SnowbirdGroupDTO {
+        return safeApiCall { client.createGroup(groupName) }
     }
 
-    override suspend fun fetchFiles(groupKey: String, repoKey: String): SnowbirdFileList {
-        return client.fetchFiles(groupKey, repoKey)
+    override suspend fun fetchFiles(groupKey: String, repoKey: String): SnowbirdFileListDTO {
+        return safeApiCall { client.fetchFiles(groupKey, repoKey) }
     }
 
     override suspend fun downloadFile(groupKey: String, repoKey: String, filename: String): ByteArray {
@@ -59,37 +88,39 @@ class RetrofitAPI(private var context: Context, private val client: RetrofitClie
         // Encode for the path segment Rust expects as {file_name}
         val encodedFilename = Uri.encode(uri.getFilename(context) ?: "upload.bin")
 
-        return client.uploadFile(
-            groupKey = groupKey,
-            repoKey = repoKey,
-            filename = encodedFilename,
-            imageData = requestBody
-        )
+        return safeApiCall {
+            client.uploadFile(
+                groupKey = groupKey,
+                repoKey = repoKey,
+                filename = encodedFilename,
+                imageData = requestBody
+            )
+        }
     }
 
 
-    override suspend fun fetchGroup(key: String): SnowbirdGroup {
-        return client.fetchGroup(key)
+    override suspend fun fetchGroup(key: String): SnowbirdGroupDTO {
+        return safeApiCall { client.fetchGroup(key) }
     }
 
-    override suspend fun fetchGroups(): SnowbirdGroupList {
-        return client.fetchGroups()
+    override suspend fun fetchGroups(): SnowbirdGroupListDTO {
+        return safeApiCall { client.fetchGroups() }
     }
 
     override suspend fun joinGroup(request: MembershipRequest): JoinGroupResponse {
-        return client.joinGroup(request)
+        return safeApiCall { client.joinGroup(request) }
     }
 
     override suspend fun refreshGroupContent(groupKey: String): RefreshGroupResponse {
-        return client.refreshGroup(groupKey)
+        return safeApiCall { client.refreshGroup(groupKey) }
     }
 
-    override suspend fun createRepo(groupKey: String, repoName: RequestName): CreateRepoResponse {
-        return client.createRepo(groupKey, repoName)
+    override suspend fun createRepo(groupKey: String, repoName: RequestName): net.opendasharchive.openarchive.services.snowbird.data.CreateRepoResponse {
+        return safeApiCall { client.createRepo(groupKey, repoName) }
     }
 
-    override suspend fun fetchRepos(groupKey: String): SnowbirdRepoList {
-        return client.fetchRepos(groupKey)
+    override suspend fun fetchRepos(groupKey: String): SnowbirdRepoListDTO {
+        return safeApiCall { client.fetchRepos(groupKey) }
     }
 
 }

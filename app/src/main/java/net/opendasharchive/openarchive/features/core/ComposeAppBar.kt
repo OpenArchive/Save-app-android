@@ -1,6 +1,8 @@
 package net.opendasharchive.openarchive.features.core
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -13,13 +15,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import net.opendasharchive.openarchive.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ComposeAppBar(
     title: String = "",
-    onNavigationAction: () -> Unit = {}
+    actions: @Composable (RowScope.() -> Unit) = {},
+    onNavigateBack: () -> Unit = {},
+    showNavigationIcon: Boolean = true
 ) {
     TopAppBar(
         modifier = Modifier.fillMaxWidth(),
@@ -32,13 +37,16 @@ fun ComposeAppBar(
             )
         },
         navigationIcon = {
-            IconButton(onClick = onNavigationAction) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_arrow_back_ios),
-                    contentDescription = null
-                )
+            if (showNavigationIcon) {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_arrow_back_ios),
+                        contentDescription = null
+                    )
+                }
             }
         },
+        actions = actions,
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.tertiary,
             navigationIconContentColor = Color.White,

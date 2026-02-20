@@ -32,10 +32,7 @@ import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
-import net.opendasharchive.openarchive.features.media.Picker
-import net.opendasharchive.openarchive.features.media.camera.CameraActivity
-import net.opendasharchive.openarchive.features.media.camera.CameraConfig
-import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
+import net.opendasharchive.openarchive.core.config.AppConfig
 import net.opendasharchive.openarchive.services.storacha.model.UploadEntry
 import net.opendasharchive.openarchive.services.storacha.util.CarFileCreator
 import net.opendasharchive.openarchive.services.storacha.util.CarFileResult
@@ -90,20 +87,17 @@ class StorachaMediaFragment :
             }
         }
 
-    // Custom camera launcher for video and photo with multiple capture
+    // Custom camera launcher is unused — CameraActivity replaced by Compose CameraScreen.
+    // Keeping the launcher registration to avoid lifecycle issues if referenced; it will never fire.
     private val customCameraLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == android.app.Activity.RESULT_OK) {
                 val capturedUris =
-                    result.data?.getStringArrayListExtra(CameraActivity.EXTRA_CAPTURED_URIS)
+                    result.data?.getStringArrayListExtra("extra_captured_uris")
                 if (!capturedUris.isNullOrEmpty()) {
                     val uris = capturedUris.map { Uri.parse(it) }
                     handleSelectedFiles(uris)
-                } else {
-                    Timber.w("No captures returned from custom camera")
                 }
-            } else {
-                Timber.w("Custom camera capture cancelled or failed")
             }
         }
 
@@ -558,17 +552,17 @@ class StorachaMediaFragment :
                 // Show rationale dialog
                 dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                     type = DialogType.Warning
-                    title = UiText.DynamicString(getString(R.string.camera_permission))
+                    title = UiText.Dynamic(getString(R.string.camera_permission))
                     message =
-                        UiText.DynamicString(getString(R.string.camera_access_is_needed_to_take_pictures_please_grant_permission))
+                        UiText.Dynamic(getString(R.string.camera_access_is_needed_to_take_pictures_please_grant_permission))
                     positiveButton {
-                        text = UiText.DynamicString(getString(R.string.accept))
+                        text = UiText.Dynamic(getString(R.string.accept))
                         action = {
                             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                         }
                     }
                     neutralButton {
-                        text = UiText.DynamicString(getString(R.string.cancel))
+                        text = UiText.Dynamic(getString(R.string.cancel))
                     }
                 }
             }
@@ -580,50 +574,28 @@ class StorachaMediaFragment :
     }
 
     private fun launchCamera() {
-        if (appConfig.useCustomCamera) {
-            // Use custom camera with photo and video support
-            val cameraConfig =
-                CameraConfig(
-                    allowVideoCapture = true,
-                    allowPhotoCapture = true,
-                    allowMultipleCapture = false,
-                    enablePreview = true,
-                    showFlashToggle = true,
-                    showGridToggle = true,
-                    showCameraSwitch = true,
-                    useCleanFilenames = true, // Use IMG_123.jpg instead of 20250119_143045.IMG_123.jpg
-                )
-            Picker.launchCustomCamera(
-                requireActivity(),
-                customCameraLauncher,
-                cameraConfig,
-            )
-        } else {
-            // Use modern camera launcher (photo only) with custom filename format
-            // File will be named: IMG_1234567890.jpg (without double timestamp)
-            try {
-                val fileName = "IMG_${System.currentTimeMillis()}.jpg"
-                val file = Utility.getOutputMediaFileByCacheNoTimestamp(requireContext(), fileName)
+        // Use system camera launcher (photo only).
+        // Custom CameraActivity replaced by Compose CameraScreen in the new architecture.
+        try {
+            val fileName = "IMG_${System.currentTimeMillis()}.jpg"
+            val file = Utility.getOutputMediaFileByCacheNoTimestamp(requireContext(), fileName)
 
-                file?.let {
-                    currentPhotoUri =
-                        androidx.core.content.FileProvider.getUriForFile(
-                            requireContext(),
-                            "${requireContext().packageName}.provider",
-                            it,
-                        )
-                    Timber.d("Launching modern camera with URI: $currentPhotoUri, filename: $fileName")
-                    modernCameraLauncher.launch(currentPhotoUri)
-                } ?: run {
-                    Timber.e("Failed to create temp file for camera")
-                    Toast
-                        .makeText(requireContext(), "Failed to prepare camera", Toast.LENGTH_SHORT)
-                        .show()
-                }
-            } catch (e: Exception) {
-                Timber.e(e, "Error setting up camera")
-                Toast.makeText(requireContext(), "Camera setup failed", Toast.LENGTH_SHORT).show()
+            file?.let {
+                currentPhotoUri =
+                    androidx.core.content.FileProvider.getUriForFile(
+                        requireContext(),
+                        "${requireContext().packageName}.provider",
+                        it,
+                    )
+                Timber.d("Launching modern camera with URI: $currentPhotoUri, filename: $fileName")
+                modernCameraLauncher.launch(currentPhotoUri)
+            } ?: run {
+                Timber.e("Failed to create temp file for camera")
+                Toast.makeText(requireContext(), "Failed to prepare camera", Toast.LENGTH_SHORT).show()
             }
+        } catch (e: Exception) {
+            Timber.e(e, "Error setting up camera")
+            Toast.makeText(requireContext(), "Camera setup failed", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -648,15 +620,15 @@ class StorachaMediaFragment :
     ) {
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Success
-            title = UiText.DynamicString("Success!")
+            title = UiText.Dynamic("Success!")
             message =
-                UiText.DynamicString(
+                UiText.Dynamic(
                     "File uploaded successfully!\nCID:\n$cid\nSize: ${
                         formatFileSize(size)
                     }",
                 )
             positiveButton {
-                text = UiText.DynamicString("Got it")
+                text = UiText.Dynamic("Got it")
                 action = { }
             }
         }
@@ -668,14 +640,14 @@ class StorachaMediaFragment :
 
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Error
-            title = UiText.DynamicString("Upload Failed")
-            message = UiText.DynamicString(userFriendlyMessage)
+            title = UiText.Dynamic("Upload Failed")
+            message = UiText.Dynamic(userFriendlyMessage)
             positiveButton {
-                text = UiText.DynamicString("Try Again")
+                text = UiText.Dynamic("Try Again")
                 action = { retryLastUpload() }
             }
             neutralButton {
-                text = UiText.DynamicString("Cancel")
+                text = UiText.Dynamic("Cancel")
                 action = {
                     lastFailedUpload = null // Clear failed upload data
                 }

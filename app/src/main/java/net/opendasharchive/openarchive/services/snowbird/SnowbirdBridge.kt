@@ -3,9 +3,14 @@ package net.opendasharchive.openarchive.services.snowbird
 import android.content.Context
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdServiceStatus
 
+/**
+ * Java_net_opendasharchive_openarchive_services_snowbird_SnowbirdBridge_initializeRustService
+ */
 class SnowbirdBridge {
-    private val _status = MutableStateFlow<SnowbirdServiceStatus>(SnowbirdServiceStatus.BackendInitializing)
+    private val _status =
+        MutableStateFlow<SnowbirdServiceStatus>(SnowbirdServiceStatus.BackendInitializing)
     val status = _status.asStateFlow()
 
     fun initialize() {
@@ -28,7 +33,7 @@ class SnowbirdBridge {
 
         @JvmStatic
         fun updateStatusFromRust(code: Int, message: String) {
-            instance?._status?.value = SnowbirdServiceStatus.fromCode(code)
+            instance?._status?.value = SnowbirdServiceStatus.Companion.fromCode(code)
         }
     }
 

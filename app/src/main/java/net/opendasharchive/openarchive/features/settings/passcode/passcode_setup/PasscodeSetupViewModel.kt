@@ -10,7 +10,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
+import net.opendasharchive.openarchive.core.config.AppConfig
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 
 class PasscodeSetupViewModel(
@@ -29,7 +31,9 @@ class PasscodeSetupViewModel(
         when (action) {
             is PasscodeSetupUiAction.OnNumberClick -> onNumberClick(action.number)
             PasscodeSetupUiAction.OnBackspaceClick -> onBackspaceClick()
-            PasscodeSetupUiAction.OnCancel -> onCancel()
+            PasscodeSetupUiAction.OnCancel -> viewModelScope.launch {
+                _uiEvent.send(PasscodeSetupUiEvent.PasscodeCancelled)
+        }
             PasscodeSetupUiAction.OnSubmit -> onSubmit()
         }
     }
@@ -130,10 +134,6 @@ class PasscodeSetupViewModel(
             )
         }
     }
-
-    private fun onCancel() = viewModelScope.launch {
-        _uiEvent.send(PasscodeSetupUiEvent.PasscodeCancelled)
-    }
 }
 
 data class PasscodeSetupUiState(
@@ -154,6 +154,6 @@ sealed class PasscodeSetupUiAction {
 
 sealed class PasscodeSetupUiEvent {
     data object PasscodeSet : PasscodeSetupUiEvent()
-    data object PasscodeDoNotMatch : PasscodeSetupUiEvent()
     data object PasscodeCancelled : PasscodeSetupUiEvent()
+    data object PasscodeDoNotMatch : PasscodeSetupUiEvent()
 }

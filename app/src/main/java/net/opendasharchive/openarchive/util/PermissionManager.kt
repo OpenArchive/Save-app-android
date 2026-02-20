@@ -51,16 +51,16 @@ class PermissionManager(
             dialogManager.showDialog(
                 config = DialogConfig(
                     type = DialogType.Warning,
-                    title = UiText.DynamicString("Camera Permission"),
-                    message = UiText.DynamicString("Camera access is needed to take pictures. Please grant permission."),
+                    title = UiText.Dynamic("Camera Permission"),
+                    message = UiText.Dynamic("Camera access is needed to take pictures. Please grant permission."),
                     positiveButton = ButtonData(
-                        text = UiText.DynamicString("Accept"),
+                        text = UiText.Dynamic("Accept"),
                         action = {
                             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
                         }
                     ),
                     neutralButton = ButtonData(
-                        text = UiText.DynamicString("Cancel")
+                        text = UiText.Dynamic("Cancel")
                     )
                 )
             )
@@ -88,16 +88,16 @@ class PermissionManager(
                 dialogManager.showDialog(
                     config = DialogConfig(
                         type = DialogType.Warning,
-                        title = UiText.DynamicString("Notification Permission"),
-                        message = UiText.DynamicString("We need permission to post notifications."),
+                        title = UiText.Dynamic("Notification Permission"),
+                        message = UiText.Dynamic("We need permission to post notifications."),
                         positiveButton = ButtonData(
-                            text = UiText.DynamicString("Accept"),
+                            text = UiText.Dynamic("Accept"),
                             action = {
                                 notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                             }
                         ),
                         neutralButton = ButtonData(
-                            text = UiText.DynamicString("Cancel")
+                            text = UiText.Dynamic("Cancel")
                         )
                     )
                 )
@@ -133,10 +133,10 @@ class PermissionManager(
                 dialogManager.showDialog(
                     config = DialogConfig(
                         type = DialogType.Warning,
-                        title = UiText.DynamicString("Media Permission"),
-                        message = UiText.DynamicString("Access to your media is required to pick images and videos."),
+                        title = UiText.Dynamic("Media Permission"),
+                        message = UiText.Dynamic("Access to your media is required to pick images and videos."),
                         positiveButton = ButtonData(
-                            text = UiText.DynamicString("Accept"),
+                            text = UiText.Dynamic("Accept"),
                             action = {
                                 mediaPermissionCallback = { granted ->
                                     if (granted) onGranted()
@@ -150,7 +150,7 @@ class PermissionManager(
                             }
                         ),
                         neutralButton = ButtonData(
-                            text = UiText.DynamicString("Cancel")
+                            text = UiText.Dynamic("Cancel")
                         )
                     )
                 )

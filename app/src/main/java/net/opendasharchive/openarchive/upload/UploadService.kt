@@ -12,19 +12,25 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import androidx.work.Configuration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import net.opendasharchive.openarchive.CleanInsightsManager
+import net.opendasharchive.openarchive.util.CleanInsightsManager
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.analytics.api.AnalyticsEvent
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
+import net.opendasharchive.openarchive.core.domain.Evidence
+import net.opendasharchive.openarchive.core.domain.EvidenceStatus
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.features.main.MainActivity
+import net.opendasharchive.openarchive.core.repositories.CollectionRepository
+import net.opendasharchive.openarchive.core.repositories.MediaRepository
+import net.opendasharchive.openarchive.core.repositories.ProjectRepository
+import net.opendasharchive.openarchive.core.repositories.SpaceRepository
+import net.opendasharchive.openarchive.features.main.HomeActivity
 import net.opendasharchive.openarchive.services.Conduit
+import net.opendasharchive.openarchive.util.DateUtils
 import net.opendasharchive.openarchive.util.Prefs
 import org.koin.android.ext.android.inject
 import java.io.IOException
@@ -34,34 +40,20 @@ class UploadService : JobService() {
 
     // Inject analytics manager
     private val analyticsManager: AnalyticsManager by inject()
+    private val mediaRepository: MediaRepository by inject()
+    private val projectRepository: ProjectRepository by inject()
+    private val collectionRepository: CollectionRepository by inject()
+    private val spaceRepository: SpaceRepository by inject()
 
     companion object {
-        private const val MY_BACKGROUND_JOB = 0
         private const val NOTIFICATION_CHANNEL_ID = "oasave_channel_1"
-
-        fun startUploadService(activity: Activity) {
-            val jobScheduler =
-                ContextCompat.getSystemService(activity, JobScheduler::class.java) ?: return
-            var jobBuilder = JobInfo.Builder(
-                MY_BACKGROUND_JOB,
-                ComponentName(activity, UploadService::class.java)
-            ).setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                jobBuilder = jobBuilder.setUserInitiated(true)
-            }
-            jobScheduler.schedule(jobBuilder.build())
-        }
-
-        fun stopUploadService(context: Context) {
-            val jobScheduler =
-                ContextCompat.getSystemService(context, JobScheduler::class.java) ?: return
-            jobScheduler.cancel(MY_BACKGROUND_JOB)
-        }
     }
 
     private var mRunning = false
     private var mKeepUploading = true
     private val mConduits = ArrayList<Conduit>()
+    private var serviceJob = SupervisorJob()
+    private var serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
 
     override fun onCreate() {
         super.onCreate()
@@ -70,7 +62,21 @@ class UploadService : JobService() {
     }
 
     override fun onStartJob(params: JobParameters): Boolean {
-        CoroutineScope(Dispatchers.IO).launch {
+        mKeepUploading = true
+        serviceJob.cancel()
+        serviceJob = SupervisorJob()
+        serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
+        
+        // Monitor for deletions to cancel active conduits
+        serviceScope.launch {
+            UploadEventBus.events.collect { event ->
+                if (event is UploadEvent.Deleted) {
+                    cancelConduitForMedia(event.mediaId)
+                }
+            }
+        }
+
+        serviceScope.launch {
             upload {
                 jobFinished(params, false)
             }
@@ -90,8 +96,11 @@ class UploadService : JobService() {
 
     override fun onStopJob(params: JobParameters): Boolean {
         mKeepUploading = false
-        for (conduit in mConduits) conduit.cancel()
-        mConduits.clear()
+        synchronized(mConduits) {
+            for (conduit in mConduits) conduit.cancel()
+            mConduits.clear()
+        }
+        serviceJob.cancel()
 
         return true
     }
@@ -115,17 +124,14 @@ class UploadService : JobService() {
             return completed()
         }
 
-        // Get all media items that are set into queued state.
-        var results = emptyList<Media>()
+        // Get items that are set into queued state.
+        var results = emptyList<Evidence>()
         var successCount = 0
         var failedCount = 0
         var totalCount = 0
 
         // Get initial batch
-        val initialBatch = Media.getByStatus(
-            listOf(Media.Status.Queued, Media.Status.Uploading),
-            Media.ORDER_PRIORITY
-        )
+        val initialBatch = mediaRepository.getQueue()
 
         if (initialBatch.isNotEmpty()) {
             // Track upload session started (1+ files)
@@ -140,36 +146,44 @@ class UploadService : JobService() {
         }
 
         while (mKeepUploading &&
-            Media.getByStatus(
-                listOf(Media.Status.Queued, Media.Status.Uploading),
-                Media.ORDER_PRIORITY
-            )
+            mediaRepository.getQueue()
                 .also { results = it }
                 .isNotEmpty()
         ) {
-            val datePublish = Date()
+            val datePublish = DateUtils.nowDateTime
 
             for (media in results) {
                 totalCount++
-                if (media.sStatus != Media.Status.Uploading) {
-                    media.uploadDate = datePublish
-                    media.progress = 0 // Should we reset this?
-                    media.sStatus = Media.Status.Uploading
-                    media.statusMessage = ""
+                var updatedMedia = media
+                if (updatedMedia.status != EvidenceStatus.UPLOADING) {
+                    updatedMedia = updatedMedia.copy(
+                        uploadedAt = datePublish,
+                        progress = 0,
+                        status = EvidenceStatus.UPLOADING,
+                        statusMessage = ""
+                    )
                 }
 
-                media.licenseUrl = media.project?.licenseUrl
+                val project = projectRepository.getProject(updatedMedia.archiveId)
+                updatedMedia = updatedMedia.copy(
+                    licenseUrl = project?.licenseUrl,
+                    vaultId = project?.vaultId ?: 0L
+                )
 
-                val collection = media.collection
+                // Persist updated state before starting upload
+                mediaRepository.updateEvidence(updatedMedia)
 
-                if (collection?.uploadDate == null) {
-                    collection?.uploadDate = datePublish
-                    collection?.save()
+                // Update submission upload date if not already set.
+                // This "closes" the submission bucket in the repository,
+                // ensuring that any subsequent imports start a new submission.
+                val submission = collectionRepository.getCollection(updatedMedia.submissionId)
+                if (submission != null && submission.uploadDate == null) {
+                    collectionRepository.updateCollection(submission.copy(uploadDate = datePublish))
                 }
 
                 try {
-                    AppLogger.i("Started uploading", media)
-                    val uploadSuccess = upload(media)
+                    AppLogger.i("Started uploading", updatedMedia)
+                    val uploadSuccess = upload(updatedMedia)
                     if (uploadSuccess) {
                         successCount++
                     } else {
@@ -178,9 +192,19 @@ class UploadService : JobService() {
                 } catch (ioe: IOException) {
                     AppLogger.e(ioe)
 
-                    media.statusMessage = "error in uploading media: " + ioe.message
-                    media.sStatus = Media.Status.Error
-                    media.save()
+                    updatedMedia = updatedMedia.copy(
+                        statusMessage = "error in uploading media: " + ioe.message,
+                        status = EvidenceStatus.ERROR
+                    )
+                    mediaRepository.updateEvidence(updatedMedia)
+
+                    UploadEventBus.emitChanged(
+                        projectId = updatedMedia.archiveId,
+                        collectionId = updatedMedia.submissionId,
+                        mediaId = updatedMedia.id,
+                        progress = -1,
+                        isUploaded = false
+                    )
                     failedCount++
                 }
 
@@ -208,31 +232,71 @@ class UploadService : JobService() {
     }
 
     @Throws(IOException::class)
-    private suspend fun upload(media: Media): Boolean {
-        media.sStatus = Media.Status.Uploading
-        AppLogger.i("${media.id} - media status changed to uploading")
-        media.save()
-        BroadcastManager.postChange(this, media.collectionId, media.id)
+    private suspend fun upload(media: Evidence): Boolean {
+        val updatedMedia = media.copy(status = EvidenceStatus.UPLOADING)
+        AppLogger.i("${updatedMedia.id} - media status changed to uploading")
+        mediaRepository.updateEvidence(updatedMedia)
 
-        val conduit = Conduit.get(media, this)
+        BroadcastManager.postChange(this, updatedMedia.submissionId, updatedMedia.id)
+        UploadEventBus.emitChanged(
+            projectId = updatedMedia.archiveId,
+            collectionId = updatedMedia.submissionId,
+            mediaId = updatedMedia.id,
+            progress = 0,
+            isUploaded = false
+        )
+
+        val conduit = Conduit.get(updatedMedia, this)
         if (conduit == null) {
             AppLogger.e("Conduit is null")
             return false
         }
 
-        CleanInsightsManager.measureEvent("upload", "try_upload", media.space?.tType?.friendlyName)
+        // Final check: if it was deleted from DB, don't start the upload
+        if (mediaRepository.getEvidence(updatedMedia.id) == null) {
+            AppLogger.i("Media ${updatedMedia.id} was deleted from database, skipping upload")
+            return false
+        }
 
-        mConduits.add(conduit)
+        val vault = spaceRepository.getSpaceById(updatedMedia.vaultId)
+        CleanInsightsManager.measureEvent("upload", "try_upload", vault?.type?.friendlyName)
+
+        synchronized(mConduits) {
+            mConduits.add(conduit)
+        }
+        
         conduit.upload()
-        mConduits.remove(conduit)
+        
+        synchronized(mConduits) {
+            mConduits.remove(conduit)
+        }
 
         return true
+    }
+
+    private fun cancelConduitForMedia(mediaId: Long) {
+        synchronized(mConduits) {
+            val iterator = mConduits.iterator()
+            while (iterator.hasNext()) {
+                val conduit = iterator.next()
+                if (conduit.id == mediaId) {
+                    AppLogger.i("Cancelling active conduit for media $mediaId due to deletion")
+                    conduit.cancel()
+                    iterator.remove()
+                }
+            }
+        }
     }
 
     /**
      * Check if online, and connected to the appropriate network type.
      */
     private fun shouldUpload(): Boolean {
+        if (Prefs.isMigrationInProgress) {
+            AppLogger.i("migration in progress, upload paused")
+            return false
+        }
+
         val requireUnmetered = Prefs.uploadWifiOnly
 
         if (isNetworkAvailable(requireUnmetered)) return true
@@ -242,7 +306,7 @@ class UploadService : JobService() {
 
         // Try again when there is a network.
         val job = JobInfo.Builder(
-            MY_BACKGROUND_JOB,
+            UploadJobConfig.JOB_ID,
             ComponentName(this, UploadService::class.java)
         )
             .setRequiredNetworkType(type)
@@ -297,7 +361,7 @@ class UploadService : JobService() {
 
         val pendingIntent = PendingIntent.getActivity(
             this, 0,
-            Intent(this, MainActivity::class.java),
+            Intent(this, HomeActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE
         )
 

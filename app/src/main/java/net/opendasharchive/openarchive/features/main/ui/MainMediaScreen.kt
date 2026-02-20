@@ -1,13 +1,10 @@
 package net.opendasharchive.openarchive.features.main.ui
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.os.Handler
-import android.os.Looper
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,390 +15,449 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Error
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import net.opendasharchive.openarchive.db.Collection
-import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.upload.BroadcastManager
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.collectLatest
+import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.domain.Archive
+import net.opendasharchive.openarchive.core.domain.Vault
+import net.opendasharchive.openarchive.core.domain.Evidence
+import net.opendasharchive.openarchive.core.domain.EvidenceStatus
+import net.opendasharchive.openarchive.core.presentation.media.MediaStatusOverlay
+import net.opendasharchive.openarchive.core.presentation.media.MediaThumbnail
+import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
+import java.text.NumberFormat
+import java.util.Locale
+import kotlinx.datetime.LocalDateTime
+import net.opendasharchive.openarchive.util.format
+import net.opendasharchive.openarchive.core.domain.VaultType
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLight
 
 /**
- * A data class representing one “section” (i.e. one Collection and its list of Media).
- * (Here we wrap the list of media in a mutableStateListOf so that updates trigger recomposition.)
+ * IMPROVED MainMediaScreen:
+ * - Receives space and project from parent (HomeScreen)
+ * - No longer needs homeState
+ * - Cleaner data flow
  */
-data class CollectionSection(
-    val collection: Collection,
-    val media: SnapshotStateList<Media> = mutableStateListOf<Media>().apply { addAll(collection.media) }
-)
-
 @Composable
 fun MainMediaScreen(
-    projectId: Long,
+    viewModel: MainMediaViewModel,
+    refreshProjectId: Long?,
+    refreshToken: Long,
+    onNavigateToPreview: () -> Unit,
+    onShowUploadManager: () -> Unit,
 ) {
-    val context = LocalContext.current
 
-    // State holding our list of sections (each collection with its media)
-    val sections = remember { mutableStateListOf<CollectionSection>() }
-    // Flag to track if any media is “selected” (for deletion)
-    var isSelecting by remember { mutableStateOf(false) }
-    // State to control showing the “delete confirmation” dialog.
-    var showDeleteDialog by remember { mutableStateOf(false) }
-    // State to control showing an error/retry dialog for a media item.
-    var errorDialogData by remember { mutableStateOf<Media?>(null) }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(refreshToken, uiState.projectId, refreshProjectId) {
+        val projectId = uiState.projectId ?: return@LaunchedEffect
+        if (refreshProjectId == projectId) {
+            viewModel.onAction(MainMediaAction.Refresh(projectId))
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEvent.collectLatest { event ->
+            when (event) {
+                is MainMediaEvent.NavigateToPreview -> {
+                    onNavigateToPreview()
+                }
+
+                is MainMediaEvent.ShowUploadManager -> {
+                    onShowUploadManager()
+                }
+                is MainMediaEvent.SelectionModeChanged -> Unit
+                MainMediaEvent.FocusFolderNameInput -> Unit
+            }
+        }
+    }
+
+    MainMediaContent(
+        state = uiState,
+        onAction = viewModel::onAction,
+    )
+}
+
+/**
+ * IMPROVED MainMediaContent:
+ * - Reads space and project from state
+ * - Archive/delete handled via ViewModel methods that emit events
+ * - No direct Sugar ORM calls
+ */
+@Composable
+fun MainMediaContent(
+    state: MainMediaState,
+    onAction: (MainMediaAction) -> Unit,
+) {
 
 
-    // Handle broadcast messages
-    DisposableEffect(Unit) {
-        val handler = Handler(Looper.getMainLooper())
-        val receiver = object : BroadcastReceiver() {
-            override fun onReceive(context: Context, intent: Intent) {
-                val action = BroadcastManager.getAction(intent) ?: return
-                when (action) {
-                    BroadcastManager.Action.Change -> {
-                        // Extract extras from the intent (assuming these keys are provided)
-                        val collectionId = intent.getLongExtra("collectionId", -1)
-                        val mediaId = intent.getLongExtra("mediaId", -1)
-                        val progress = intent.getIntExtra("progress", 0)
-                        val isUploaded = intent.getBooleanExtra("isUploaded", false)
-                        if (collectionId != -1L && mediaId != -1L) {
-                            handler.post {
-                                updateMediaItem(
-                                    sections = sections,
-                                    collectionId = collectionId,
-                                    mediaId = mediaId,
-                                    progress = progress,
-                                    isUploaded = isUploaded
-                                )
-                            }
+    LaunchedEffect(state.folderBarMode) {
+        if (state.folderBarMode != FolderBarMode.INFO) {
+            onAction(MainMediaAction.ShowHideFolderOptionsPopup(false))
+        }
+    }
+
+
+    val folderBarState = remember(
+        state.folderBarMode,
+        state.totalMediaCount,
+        state.selectedMediaIds,
+        state.showFolderOptionsPopup,
+        state.currentProject,
+        state.currentSpace
+    ) {
+        FolderBarState(
+            mode = state.folderBarMode,
+            spaceType = state.currentSpace?.type,
+            projectName = state.currentProject?.description,
+            totalMediaCount = state.totalMediaCount,
+            selectedCount = state.selectedMediaIds.size,
+            showOptionsPopup = state.showFolderOptionsPopup,
+            canShowOptions = state.currentProject != null
+        )
+    }
+
+    fun handleFolderIntent(intent: FolderBarIntent) {
+        when (intent) {
+            OptionsOpened -> onAction(MainMediaAction.ShowHideFolderOptionsPopup(true))
+            OptionsDismissed -> onAction(MainMediaAction.ShowHideFolderOptionsPopup(false))
+
+            SelectMedia -> onAction(MainMediaAction.EnterSelectionMode)
+            RenameFolder -> onAction(MainMediaAction.EditFolderClicked)
+            ToggleArchive -> onAction(MainMediaAction.OnArchiveProject)
+
+            RemoveFolder -> onAction(MainMediaAction.ShowRemoveProjectDialog)
+
+            CancelSelection -> onAction(MainMediaAction.CancelSelection)
+            DeleteSelectedMediaRequest -> onAction(MainMediaAction.ShowDeleteSelectedMediaDialog)
+
+            CancelEdit -> onAction(MainMediaAction.CancelEditMode)
+            is SaveName -> onAction(MainMediaAction.SaveFolderName(intent.name))
+        }
+    }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Folder Bar
+        FolderBar(
+            state = folderBarState,
+            onIntent = ::handleFolderIntent,
+        )
+
+        // Main Content
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (state.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else if (state.sections.isEmpty()) {
+                EmptyStateView(
+                    title = stringResource(R.string.title_welcome),
+                    showWelcome = state.currentSpace == null,
+                    message = when {
+                        state.currentSpace == null -> stringResource(R.string.tap_to_add_server)
+                        state.currentProject == null -> stringResource(R.string.tap_to_add_folder)
+                        else -> stringResource(R.string.tap_to_add)
+                    },
+                )
+            } else {
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    state.sections.forEach { section ->
+                        item(key = "header_${section.collection.id}") {
+                            CollectionHeaderView(section)
                         }
-                    }
 
-                    BroadcastManager.Action.Delete -> {
-                        handler.post { refreshSections(projectId, sections) }
+                        item(key = "grid_${section.collection.id}") {
+                            CollectionSectionView(
+                                section = section,
+                                isInSelectionMode = state.isInSelectionMode,
+                                selectedMediaIds = state.selectedMediaIds,
+                                onMediaClick = { media ->
+                                    onAction(MainMediaAction.MediaClicked(media))
+                                },
+                                onMediaLongPress = { media ->
+                                    onAction(MainMediaAction.MediaLongPressed(media))
+                                }
+                            )
+                        }
                     }
                 }
             }
         }
-
-        BroadcastManager.register(context, receiver)
-        onDispose { BroadcastManager.unregister(context, receiver) }
-    }
-
-    LaunchedEffect(projectId) {
-        refreshSections(projectId, sections)
-    }
-
-    Box(modifier = Modifier.fillMaxSize()) {
-        if (sections.isEmpty()) {
-            WelcomeMessage()
-        } else {
-            // Use a LazyColumn to list each collection section vertically.
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(sections, key = { it.collection.id }) { section ->
-                    CollectionSectionView(
-                        section = section,
-                        onMediaClick = { media ->
-                            handleMediaClick(context, media) { errorMedia ->
-                                errorDialogData = errorMedia
-                            }
-                        },
-                        onMediaLongPress = { media ->
-                            // For selection (if needed)
-                            toggleMediaSelection(media)
-                        }
-                    )
-                }
-            }
-        }
-
-        // Add floating action button or other UI elements if needed
     }
 }
 
-/** Shows a header with the collection’s upload date and media count */
 @Composable
-fun CollectionHeaderView(section: CollectionSection) {
-    // For example, showing date and item count side by side:
+private fun CollectionHeaderView(section: CollectionSection) {
+    val uploadingCount = section.media.count { it.isUploading }
+    val uploadedCount = section.media.count { it.status == EvidenceStatus.UPLOADED }
+    val totalCount = section.media.size
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        val dateText = section.collection.uploadDate?.toGMTString() ?: "Unknown Date"
-        Text(text = dateText, style = MaterialTheme.typography.titleMedium)
+        // Left: Upload date or "Uploading"
         Text(
-            text = "${section.media.size} items",
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.Gray
+            text = if (uploadingCount > 0) {
+                stringResource(R.string.uploading)
+            } else {
+                section.collection.uploadDate?.let { formatUploadDate(it) }
+                    ?: "Ready to upload"
+            },
+            style = MaterialTheme.typography.bodySmall.copy(fontFamily = MontserratFontFamily)
         )
+
+        // Right: Count in pill shape
+        Box(
+            modifier = Modifier
+                .background(colorResource(R.color.colorPillTransparent), RoundedCornerShape(12.dp))
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+        ) {
+            Text(
+                text = if (uploadingCount > 0) "$uploadedCount/$totalCount"
+                else NumberFormat.getInstance().format(totalCount),
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
     }
 }
 
-/** Renders one collection section: header and grid of media items. */
 @Composable
-fun CollectionSectionView(
+private fun CollectionSectionView(
     section: CollectionSection,
-    onMediaClick: (Media) -> Unit,
-    onMediaLongPress: (Media) -> Unit
+    isInSelectionMode: Boolean,
+    selectedMediaIds: Set<Long>,
+    onMediaClick: (Evidence) -> Unit,
+    onMediaLongPress: (Evidence) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(vertical = 4.dp)
     ) {
-        CollectionHeaderView(section)
-        // Render the media items as a grid of 4 columns.
-        // We use a simple approach: chunk the media list into rows of 4.
-        val rows = section.media.chunked(4)
+        // 3-column grid (not 4!)
+        val rows = section.media.chunked(3)
         rows.forEach { rowItems ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
-                rowItems.forEach { media ->
-                    MediaItemView(
-                        media = media,
-                        isSelected = media.selected,
-                        onClick = { onMediaClick(media) },
-                        onLongClick = { onMediaLongPress(media) },
+                rowItems.forEach { evidence ->
+                    MediaGridItem(
+                        evidence = evidence,
+                        isInSelectionMode = isInSelectionMode,
+                        isSelected = selectedMediaIds.contains(evidence.id),
+                        onClick = { onMediaClick(evidence) },
+                        onLongClick = { onMediaLongPress(evidence) },
                         modifier = Modifier
                             .weight(1f)
                             .aspectRatio(1f)
                     )
                 }
-                // Fill out the remaining cells (if any) in this row
-                if (rowItems.size < 4) {
-                    repeat(4 - rowItems.size) {
+                if (rowItems.size < 3) {
+                    repeat(3 - rowItems.size) {
                         Spacer(modifier = Modifier.weight(1f))
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(3.dp))
         }
     }
 }
 
-/** Renders one media item as an image filling its box. */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MediaItemView(
-    media: Media,
+private fun MediaGridItem(
+    evidence: Evidence,
+    isInSelectionMode: Boolean,
     isSelected: Boolean,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val thumbnailAlpha = if (evidence.status == EvidenceStatus.UPLOADED) 1f else 0.5f
+
     Box(
         modifier = modifier
-            .border(
-                width = if (isSelected) 4.dp else 0.dp,
-                color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
+            .background(MaterialTheme.colorScheme.background)
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+    ) {
+        // Use shared MediaThumbnail component
+        MediaThumbnail(
+            evidence = evidence,
+            isSelected = isInSelectionMode && isSelected,
+            alpha = thumbnailAlpha,
+            placeholderPadding = 28.dp,
+            pdfMaxDimensionPx = 512,
+            showStatusOverlay = false
+        )
+
+        // Selection border and background overlay (goes on top of thumbnail)
+        if (isInSelectionMode && isSelected) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .border(
+                        width = 2.dp,
+                        color = colorResource(R.color.c23_teal),
+                        shape = RoundedCornerShape(4.dp)
+                    )
+                    .background(
+                        color = Color(0x4D00B4A6),
+                        shape = RoundedCornerShape(4.dp)
+                    )
             )
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = { onClick() },
-                    onLongPress = { onLongClick() }
+        }
+
+        // Use shared MediaStatusOverlay component (goes on top of everything)
+        MediaStatusOverlay(
+            evidence = evidence,
+            modifier = Modifier.fillMaxSize(),
+            showProgressText = false,
+            backgroundColor = colorResource(R.color.transparent_black),
+            progressIndicatorSize = 32,
+            showQueuedState = true,
+            showUploadingState = true
+        )
+    }
+}
+
+@Composable
+private fun EmptyStateView(
+    showWelcome: Boolean,
+    title: String,
+    message: String,
+) {
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 8.dp),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Welcome title (only for no space state)
+            if (showWelcome) {
+                Spacer(modifier = Modifier.height(120.dp))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.displayLarge,
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = colorResource(R.color.colorOnSurface),
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            } else {
+                Spacer(modifier = Modifier.height(136.dp))
+            }
+
+            // Description text
+            Text(
+                text = message,
+                style = MaterialTheme.typography.headlineSmall,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = colorResource(R.color.c23_medium_grey),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 50.dp)
+            )
+
+            // Arrow pointing to add button
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                Spacer(modifier = Modifier.weight(1f))
+                Image(
+                    painter = painterResource(R.drawable.welcome_arrow),
+                    contentDescription = stringResource(R.string.title_welcome),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(2f)
+                        .padding(horizontal = 48.dp, vertical = 8.dp),
+                    contentScale = ContentScale.Fit,
+                    colorFilter = ColorFilter.tint(colorResource(R.color.c23_medium_grey))
                 )
             }
-    ) {
-        AsyncImage(
-            model = media.fileUri,
-            contentDescription = media.title,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
-        when (media.sStatus) {
-            Media.Status.Uploading -> UploadProgress(media.uploadPercentage ?: 0)
-            Media.Status.Error -> ErrorIndicator()
-            else -> Unit
         }
     }
 }
 
+private fun formatUploadDate(dateTime: LocalDateTime): String {
+    val formatted = dateTime.format("MMM dd, yyyy | h:mma")
+    return formatted.replace("AM", "am").replace("PM", "pm")
+}
 
+@PreviewLight
 @Composable
-fun UploadProgress(progress: Int) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.6f)),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator(
-            progress = progress / 100f,
-            modifier = Modifier.size(48.dp),
-            color = Color.White
-        )
-        Text(
-            text = "$progress%",
-            color = Color.White,
-            modifier = Modifier.padding(top = 56.dp)
+private fun MainMediaScreenPreview() {
+    SaveAppTheme {
+        MainMediaContent(
+            state = MainMediaState(
+                currentSpace = Vault(id = 1, name = "My Vault", type = VaultType.PRIVATE_SERVER),
+                currentProject = Archive(id = 1, description = "My Project", vaultId = 1),
+                folderBarMode = FolderBarMode.INFO,
+                totalMediaCount = 24
+            ),
+            onAction = {},
         )
     }
 }
 
+@PreviewLight
 @Composable
-fun ErrorIndicator() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Red.copy(alpha = 0.6f)),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = Icons.Default.Error,
-            contentDescription = null,
-            tint = Color.White,
-            modifier = Modifier.size(48.dp)
+private fun MainMediaScreenNoFolderPreview() {
+    SaveAppTheme {
+        MainMediaContent(
+            state = MainMediaState(
+                currentSpace = Vault(id = 1, name = "My Vault", type = VaultType.PRIVATE_SERVER),
+                folderBarMode = FolderBarMode.INFO,
+                totalMediaCount = 24
+            ),
+            onAction = {},
         )
     }
 }
 
+@PreviewLight
 @Composable
-fun WelcomeMessage() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Welcome",
-            style = MaterialTheme.typography.displayMedium
+private fun MainMediaScreenNoServerPreview() {
+    SaveAppTheme {
+        MainMediaContent(
+            state = MainMediaState(),
+            onAction = {},
         )
-        Text(
-            text = "Tap the button below to add media",
-            style = MaterialTheme.typography.titleMedium
-        )
-    }
-}
-
-/** Refreshes the list of collections (with nonempty media) for the given project.
- * This runs on IO and updates the [sections] state on the main thread.
- */
-private fun refreshSections(projectId: Long, sections: MutableList<CollectionSection>) {
-    kotlinx.coroutines.GlobalScope.launch(Dispatchers.IO) {
-        val collections = Collection.getByProject(projectId)
-        val newSections = collections.filter { it.media.isNotEmpty() }
-            .map { CollectionSection(it) }
-        withContext(Dispatchers.Main) {
-            sections.clear()
-            sections.addAll(newSections)
-        }
-    }
-}
-
-
-/** Updates one media item in one section (called when a broadcast “change” is received). */
-private fun updateMediaItem(
-    sections: List<CollectionSection>,
-    collectionId: Long,
-    mediaId: Long,
-    progress: Int,
-    isUploaded: Boolean
-) {
-    sections.find { it.collection.id == collectionId }?.let { section ->
-        val idx = section.media.indexOfFirst { it.id == mediaId }
-        if (idx != -1) {
-            val media = section.media[idx]
-            if (isUploaded) {
-                media.status = Media.Status.Uploaded.id
-            } else {
-                media.uploadPercentage = progress
-                media.status = Media.Status.Uploading.id
-            }
-            // Replace to trigger recomposition
-            section.media[idx] = media
-        }
-    }
-}
-
-/** Toggles the selected state of the media item and saves it. */
-private fun toggleMediaSelection(media: Media) {
-    media.selected = !media.selected
-    media.save()
-}
-
-/** Deletes any media items that are selected from all sections.
- * Also deletes the media from the database and posts a delete broadcast.
- */
-private fun deleteSelected(sections: MutableList<CollectionSection>, context: Context) {
-    sections.forEach { section ->
-        // Work on a copy so we can remove items safely
-        section.media.filter { it.selected }.toList().forEach { media ->
-            section.media.remove(media)
-            media.delete() // delete from database
-            BroadcastManager.postDelete(context, media.id)
-        }
-    }
-    // Remove sections that are now empty (do not delete the collection from DB here)
-    sections.removeAll { it.media.isEmpty() }
-}
-
-/** Deletes a single media item (used when “remove” is chosen from the error dialog). */
-private fun deleteMediaItem(sections: MutableList<CollectionSection>, media: Media) {
-    sections.find { it.collection.id == media.collectionId }?.let { section ->
-        section.media.remove(media)
-        media.delete()
-        // In a real app, you might also post a broadcast here
-    }
-}
-
-/** Handles what happens when a media item is clicked (when not in selection mode).
- * Depending on its status and mime type, this either launches a preview, an upload manager,
- * or shows an error dialog.
- *
- * The onError lambda is called if the media is in an error state.
- */
-private fun handleMediaClick(context: Context, media: Media, onError: (Media) -> Unit) {
-    when (media.sStatus) {
-        Media.Status.Local -> {
-            // For images, start a preview
-            if (media.mimeType.startsWith("image")) {
-                //PreviewActivity.start(context, media.projectId)
-            }
-        }
-
-        Media.Status.Queued, Media.Status.Uploading -> {
-            // Start the upload manager activity
-            //context.startActivity(Intent(context, UploadManagerActivity::class.java))
-            TODO("Integrate the UploadFragment BottomSheet here using compose")
-        }
-
-        Media.Status.Error -> {
-            // Show error dialog (retry/remove)
-            onError(media)
-        }
-
-        else -> { /* no op */
-        }
     }
 }

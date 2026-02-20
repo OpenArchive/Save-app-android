@@ -14,28 +14,39 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.analytics.api.AnalyticsEvent
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
+import net.opendasharchive.openarchive.core.domain.Evidence
+import net.opendasharchive.openarchive.core.domain.EvidenceStatus
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.db.Media
-import net.opendasharchive.openarchive.db.Space
-import net.opendasharchive.openarchive.services.internetarchive.IaConduit
-import net.opendasharchive.openarchive.services.webdav.WebDavConduit
+import net.opendasharchive.openarchive.core.repositories.MediaRepository
+import net.opendasharchive.openarchive.core.repositories.ProjectRepository
+import net.opendasharchive.openarchive.core.repositories.SpaceRepository
+import net.opendasharchive.openarchive.services.internetarchive.data.IaConduit
+import net.opendasharchive.openarchive.services.webdav.data.WebDavConduit
 import net.opendasharchive.openarchive.upload.BroadcastManager
+import net.opendasharchive.openarchive.upload.UploadEventBus
 import net.opendasharchive.openarchive.util.C2paHelper
 import net.opendasharchive.openarchive.util.Prefs
+import net.opendasharchive.openarchive.util.toJavaDate
 import okhttp3.HttpUrl
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import org.koin.core.context.GlobalContext
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 abstract class Conduit(
-    protected val mMedia: Media,
+    protected var mEvidence: Evidence,
     protected val mContext: Context
 ) : KoinComponent {
+
+    val id: Long get() = mEvidence.id
+
+    protected val mediaRepository: MediaRepository by inject()
+    protected val projectRepository: ProjectRepository by inject()
+    protected val spaceRepository: SpaceRepository by inject()
 
     protected val analyticsManager: AnalyticsManager by inject()
     protected val sessionTracker: SessionTracker by inject()
@@ -57,14 +68,15 @@ abstract class Conduit(
     private fun trackUploadStarted() {
         uploadStartTime = System.currentTimeMillis()
 
-        val backendType = mMedia.space?.tType?.friendlyName ?: "Unknown"
-        val fileSizeKB = mMedia.contentLength / 1024
-        val fileType = getFileType(mMedia.mimeType)
-
-        // Add breadcrumb for crash analysis
-        AppLogger.breadcrumb("Upload Started", "$fileType to $backendType (${fileSizeKB}KB)")
-
         scope.launch {
+            val vault = spaceRepository.getSpaceById(mEvidence.vaultId)
+            val backendType = vault?.type?.friendlyName ?: "Unknown"
+            val fileSizeKB = mEvidence.contentLength / 1024
+            val fileType = getFileType(mEvidence.mimeType)
+
+            // Add breadcrumb for crash analysis
+            AppLogger.breadcrumb("Upload Started", "$fileType to $backendType (${fileSizeKB}KB)")
+
             analyticsManager.trackUploadStarted(
                 backendType = backendType,
                 fileType = fileType,
@@ -110,13 +122,13 @@ abstract class Conduit(
         }
 
         try {
-            val manifestFile = C2paHelper.getC2paFile(mContext, mMedia.mediaHashString)
+            val manifestFile = C2paHelper.getC2paFile(mContext, mEvidence.mediaHashString)
 
             if (manifestFile.exists()) {
                 AppLogger.d("[C2PA] Manifest found: ${manifestFile.absolutePath}")
                 return manifestFile
             } else {
-                AppLogger.w("[C2PA] Manifest not found for ${mMedia.mediaHashString}")
+                AppLogger.w("[C2PA] Manifest not found for ${mEvidence.mediaHashString}")
                 return null
             }
         } catch (exception: Exception) {
@@ -129,25 +141,31 @@ abstract class Conduit(
      * result is a site specific unique id that we can use to fetch the data,
      * build an embed tag, etc. for some sites this might be a URL
      */
-    fun jobSucceeded() {
-        mMedia.progress = mMedia.contentLength
-        mMedia.sStatus = Media.Status.Uploaded
-        mMedia.save()
-        AppLogger.i("media item ${mMedia.id} is uploaded and saved")
+    suspend fun jobSucceeded() {
+        mEvidence = mEvidence.copy(
+            progress = mEvidence.contentLength,
+            status = EvidenceStatus.UPLOADED,
+            uploadPercentage = 100
+        )
+        mediaRepository.updateEvidence(mEvidence)
+        AppLogger.i("media item ${mEvidence.id} is uploaded and saved")
 
-        // Track successful upload analytics
-        val uploadDuration = (System.currentTimeMillis() - uploadStartTime) / 1000
-        val fileSizeKB = mMedia.contentLength / 1024
-        val backendType = mMedia.space?.tType?.friendlyName ?: "Unknown"
-        val fileType = getFileType(mMedia.mimeType)
+            // Track successful upload analytics
+            val uploadDuration = (System.currentTimeMillis() - uploadStartTime) / 1000
+            val fileSizeKB = mEvidence.contentLength / 1024
+            val vault = spaceRepository.getSpaceById(mEvidence.vaultId)
+            val backendType = vault?.type?.friendlyName ?: "Unknown"
+            val fileType = getFileType(mEvidence.mimeType)
 
-        // Calculate upload speed
-        val uploadSpeedKBps = if (uploadDuration > 0) fileSizeKB / uploadDuration else 0
+            // Calculate upload speed
+            val uploadSpeedKBps = if (uploadDuration > 0) fileSizeKB / uploadDuration else 0
 
-        // Add breadcrumb for crash analysis
-        AppLogger.breadcrumb("Upload Completed", "$fileType (${uploadDuration}s, ${uploadSpeedKBps}KB/s)")
+            // Add breadcrumb for crash analysis
+            AppLogger.breadcrumb(
+                "Upload Completed",
+                "$fileType (${uploadDuration}s, ${uploadSpeedKBps}KB/s)"
+            )
 
-        scope.launch {
             analyticsManager.trackUploadCompleted(
                 backendType = backendType,
                 fileType = fileType,
@@ -155,103 +173,127 @@ abstract class Conduit(
                 durationSeconds = uploadDuration,
                 uploadSpeedKBps = uploadSpeedKBps
             )
-        }
 
-        // Track in session
-        sessionTracker.trackUploadCompleted()
+            // Track in session
+            sessionTracker.trackUploadCompleted()
 
-        BroadcastManager.postSuccess(
-            context = mContext,
-            collectionId = mMedia.collectionId,
-            mediaId = mMedia.id
-        )
+            BroadcastManager.postSuccess(
+                context = mContext,
+                collectionId = mEvidence.submissionId,
+                mediaId = mEvidence.id
+            )
+            UploadEventBus.emitChanged(
+                projectId = mEvidence.archiveId,
+                collectionId = mEvidence.submissionId,
+                mediaId = mEvidence.id,
+                progress = 100,
+                isUploaded = true
+            )
     }
 
-    fun jobFailed(exception: Throwable) {
+    suspend fun jobFailed(exception: Throwable) {
         // If an upload was cancelled, track and return.
         if (mCancelled) {
             AppLogger.i("Upload cancelled", exception)
 
             // Add breadcrumb
-            val backendType = mMedia.space?.tType?.friendlyName ?: "Unknown"
-            val fileType = getFileType(mMedia.mimeType)
+            val vault = spaceRepository.getSpaceById(mEvidence.vaultId)
+            val backendType = vault?.type?.friendlyName ?: "Unknown"
+            val fileType = getFileType(mEvidence.mimeType)
             AppLogger.breadcrumb("Upload Cancelled", "$fileType to $backendType")
 
             // Track upload cancellation
-            scope.launch {
-                analyticsManager.trackEvent(
-                    AnalyticsEvent.UploadCancelled(
-                        backendType = backendType,
-                        fileType = fileType,
-                        reason = "user_cancelled"
-                    )
+            analyticsManager.trackEvent(
+                AnalyticsEvent.UploadCancelled(
+                    backendType = backendType,
+                    fileType = fileType,
+                    reason = "user_cancelled"
                 )
-            }
+            )
 
             return
         }
 
-        mMedia.statusMessage =
-            exception.localizedMessage ?: exception.message ?: exception.toString()
-        mMedia.sStatus = Media.Status.Error
-        mMedia.save()
+        mEvidence = mEvidence.copy(
+            statusMessage = exception.localizedMessage ?: exception.message ?: exception.toString(),
+            status = EvidenceStatus.ERROR
+        )
+        mediaRepository.updateEvidence(mEvidence)
 
         AppLogger.e(exception)
 
-        // Track failed upload analytics (GDPR-compliant - no PII)
-        val backendType = mMedia.space?.tType?.friendlyName ?: "Unknown"
-        val fileType = getFileType(mMedia.mimeType)
-        val fileSizeKB = mMedia.contentLength / 1024
+            // Track failed upload analytics (GDPR-compliant - no PII)
+            val vault = spaceRepository.getSpaceById(mEvidence.vaultId)
+            val backendType = vault?.type?.friendlyName ?: "Unknown"
+            val fileType = getFileType(mEvidence.mimeType)
+            val fileSizeKB = mEvidence.contentLength / 1024
 
-        // Categorize error
-        val errorCategory = when (exception) {
-            is IOException -> "network"
-            is FileNotFoundException -> "file_not_found"
-            is SecurityException -> "permission"
-            else -> "unknown"
-        }
+            // Categorize error
+            val errorCategory = when (exception) {
+                is IOException -> "network"
+                is FileNotFoundException -> "file_not_found"
+                is SecurityException -> "permission"
+                else -> "unknown"
+            }
 
-        scope.launch {
             analyticsManager.trackUploadFailed(
                 backendType = backendType,
                 fileType = fileType,
                 errorCategory = errorCategory,
                 fileSizeKB = fileSizeKB
             )
-        }
 
-        // Track in session
-        sessionTracker.trackUploadFailed()
+            // Track in session
+            sessionTracker.trackUploadFailed()
 
-        // Track error for drop-off analysis
-        scope.launch {
+            // Track error for drop-off analysis
             analyticsManager.trackError(
                 errorCategory = errorCategory,
                 screenName = "Upload",
                 backendType = backendType
             )
-        }
 
-        BroadcastManager.postChange(
-            context = mContext,
-            collectionId = mMedia.collectionId,
-            mediaId = mMedia.id
-        )
+            BroadcastManager.postChange(
+                context = mContext,
+                collectionId = mEvidence.submissionId,
+                mediaId = mEvidence.id
+            )
+            UploadEventBus.emitChanged(
+                projectId = mEvidence.archiveId,
+                collectionId = mEvidence.submissionId,
+                mediaId = mEvidence.id,
+                progress = -1,
+                isUploaded = false
+            )
+    }
+
+    /**
+     * Non-suspend version of jobFailed for use in callbacks.
+     */
+    fun jobFailedAsync(exception: Throwable) {
+        scope.launch { jobFailed(exception) }
     }
 
     private var lastReportedProgress: Int? = null
 
     fun jobProgress(uploadedBytes: Long) {
-        mMedia.progress = uploadedBytes
-        val progress = if (uploadedBytes > 0) (uploadedBytes.toFloat() / mMedia.contentLength * 100).toInt() else 0
+        mEvidence = mEvidence.copy(progress = uploadedBytes)
+        val progress = if (uploadedBytes > 0) (uploadedBytes.toFloat() / mEvidence.contentLength * 100).toInt() else 0
         if (progress > (lastReportedProgress ?: 0) + 1) {
             lastReportedProgress = progress
-            AppLogger.i("Media Item ${mMedia.id} progress: $progress/100")
+            AppLogger.i("Media Item ${mEvidence.id} progress: $progress/100")
             BroadcastManager.postProgress(
                 context = mContext,
-                collectionId = mMedia.collectionId,
-                mediaId = mMedia.id,
+                collectionId = mEvidence.submissionId,
+                mediaId = mEvidence.id,
                 progress = progress,
+            )
+            UploadEventBus.emitChanged(
+                projectId = mEvidence.archiveId,
+                collectionId = mEvidence.submissionId,
+                mediaId = mEvidence.id,
+                progress = progress,
+                isUploaded = false
             )
         }
     }
@@ -261,45 +303,74 @@ abstract class Conduit(
      *
      * reads some values from mMedia and copies them to some other fields of mMedia
      */
-    protected fun sanitize() {
-        val length = mMedia.file.length()
-        if (length > 0) mMedia.contentLength = length
+    protected suspend fun sanitize() {
+        val length = mEvidence.file.length()
+        var updatedEvidence = mEvidence
+        if (length > 0) updatedEvidence = updatedEvidence.copy(contentLength = length)
 
-        val tags = mMedia.tagSet
+        val tags = updatedEvidence.tags.toMutableList()
 
-        if (mMedia.flag) {
-            tags.add(getFlagText())
+        if (updatedEvidence.isFlagged) {
+            val flagText = getFlagText()
+            if (!tags.contains(flagText)) tags.add(flagText)
         } else {
             tags.remove(getFlagText())
         }
 
-        mMedia.tagSet = tags
+        updatedEvidence = updatedEvidence.copy(tags = tags)
 
         // Update to the latest project license.
-        mMedia.licenseUrl = mMedia.project?.licenseUrl
+        val project = projectRepository.getProject(mEvidence.archiveId)
+        updatedEvidence = updatedEvidence.copy(licenseUrl = project?.licenseUrl)
+
+        mEvidence = updatedEvidence
     }
 
-    protected fun getPath(): List<String>? {
-        val projectName = mMedia.project?.description ?: return null
-        val collectionName =
-            mDateFormat.format(mMedia.collection?.uploadDate ?: mMedia.createDate ?: Date())
+    protected suspend fun getPath(): List<String>? {
+        val project = projectRepository.getProject(mEvidence.archiveId)
+        val projectName = project?.description ?: return null
+
+        val submission = projectRepository.getActiveSubmission(mEvidence.archiveId)
+        val collectionDate =
+            submission.uploadDate ?: mEvidence.createdAt ?: net.opendasharchive.openarchive.util.DateUtils.nowDateTime
+
+        val javaDate = collectionDate.toJavaDate()
+        val collectionName = mDateFormat.format(javaDate)
 
         val path = mutableListOf(projectName, collectionName)
 
-        if (mMedia.flag) {
+        if (mEvidence.isFlagged) {
             path.add(getFlagText())
         }
 
         return path
     }
 
-    protected suspend fun createFolders(base: HttpUrl?, path: List<String>) {
+    protected suspend fun createFolders(base: HttpUrl?, path: List<String>, isFirstSegmentRemote: Boolean = false) {
+        try {
+            createFoldersInternal(base, path, isFirstSegmentRemote)
+        } catch (e: Exception) {
+            if (isFirstSegmentRemote) {
+                AppLogger.w("Remote folder optimization failed, retrying with full check", e)
+                createFoldersInternal(base, path, false)
+            } else {
+                throw e
+            }
+        }
+    }
+
+    private suspend fun createFoldersInternal(base: HttpUrl?, path: List<String>, isFirstSegmentRemote: Boolean) {
         val tmp = mutableListOf<String>()
 
-        for (segment in path) {
+        for ((index, segment) in path.withIndex()) {
             tmp.add(segment)
 
             if (mCancelled) throw Exception("Cancelled")
+
+            if (index == 0 && isFirstSegmentRemote) {
+                AppLogger.i("Skipping remote folder check for first segment: $segment")
+                continue
+            }
 
             val url = construct(base, tmp)
 
@@ -343,7 +414,7 @@ abstract class Conduit(
             .excludeFieldsWithoutExposeAnnotation()
             .create()
 
-        return gson.toJson(this.mMedia, Media::class.java)
+        return gson.toJson(this.mEvidence, Evidence::class.java)
     }
 
     /**
@@ -369,33 +440,34 @@ abstract class Conduit(
          */
         const val CHUNK_FILESIZE_THRESHOLD = 10 * 1024 * 1024
 
-        fun get(media: Media, context: Context): Conduit? {
-            return when (media.project?.space?.tType) {
-                Space.Type.INTERNET_ARCHIVE -> IaConduit(media, context)
+        suspend fun get(evidence: Evidence, context: Context): Conduit? {
+            val spaceRepository: SpaceRepository = GlobalContext.get().get()
+            val vault = spaceRepository.getSpaceById(evidence.vaultId) ?: return null
 
-                Space.Type.WEBDAV -> WebDavConduit(media, context)
-
+            return when (vault.type) {
+                net.opendasharchive.openarchive.core.domain.VaultType.INTERNET_ARCHIVE -> IaConduit(evidence, context)
+                net.opendasharchive.openarchive.core.domain.VaultType.PRIVATE_SERVER -> WebDavConduit(evidence, context)
                 else -> null
             }
         }
 
-        fun getUploadFileName(media: Media, escapeTitle: Boolean = false): String {
-            var ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(media.mimeType)
+        fun getUploadFileName(evidence: Evidence, escapeTitle: Boolean = false): String {
+            var ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(evidence.mimeType)
             if (ext.isNullOrEmpty()) {
                 ext = when {
-                    media.mimeType.startsWith("image") -> "jpg"
+                    evidence.mimeType.startsWith("image") -> "jpg"
 
-                    media.mimeType.startsWith("video") -> "mp4"
+                    evidence.mimeType.startsWith("video") -> "mp4"
 
-                    media.mimeType.startsWith("audio") -> "m4a"
+                    evidence.mimeType.startsWith("audio") -> "m4a"
 
                     else -> "txt"
                 }
             }
 
-            var title = media.title
+            var title = evidence.title
 
-            if (title.isBlank()) title = media.mediaHashString
+            if (title.isBlank()) title = evidence.mediaHashString
 
             if (escapeTitle) {
                 title = UrlEscapers.urlPathSegmentEscaper().escape(title) ?: title

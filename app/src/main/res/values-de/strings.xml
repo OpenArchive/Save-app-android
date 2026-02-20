@@ -107,6 +107,7 @@
     <string name="edit_multiple">Mehrere editieren</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">Gedrückt halten, um mehrere Elemente auszuwählen.</string>
     <string name="edit_media_info">Editieren</string>
+    <string name="bulk_edit_media_info">Mehrfachbearbeitung</string>
     <string name="add_a_location_optional">Ort hinzufügen (optional)</string>
     <string name="add_notes_optional">Notizen hinzufügen (optional)</string>
     <string name="skip">Überspringen</string>

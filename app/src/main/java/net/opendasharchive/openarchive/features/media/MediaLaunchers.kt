@@ -8,7 +8,6 @@ import androidx.activity.result.PickVisualMediaRequest
 data class MediaLaunchers(
     val galleryLauncher: ActivityResultLauncher<PickVisualMediaRequest>, // Changed
     val filePickerLauncher: ActivityResultLauncher<Intent>,
-    val cameraLauncher: ActivityResultLauncher<Intent>,
     val modernCameraLauncher: ActivityResultLauncher<Uri>,
     val customCameraLauncher: ActivityResultLauncher<Intent>
 )

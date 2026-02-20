@@ -107,17 +107,17 @@ class StorachaViewDIDsFragment :
         dialogManager.showDialog(dialogManager.requireResourceProvider()) {
             type = DialogType.Error
             icon = UiImage.DrawableResource(R.drawable.ic_trash)
-            title = UiText.StringResource(R.string.revoke_access)
-            message = UiText.StringResource(R.string.revoke_access_prompt)
+            title = UiText.Resource(R.string.revoke_access)
+            message = UiText.Resource(R.string.revoke_access_prompt)
             destructiveButton {
-                text = UiText.StringResource(R.string.revoke)
+                text = UiText.Resource(R.string.revoke)
                 action = {
                     viewModel.revokeDID(args.sessionId, args.spaceId, account)
                     dialogManager.dismissDialog()
                 }
             }
             neutralButton {
-                text = UiText.StringResource(R.string.lbl_Cancel)
+                text = UiText.Resource(R.string.lbl_Cancel)
                 action = {
                     dialogManager.dismissDialog()
                 }

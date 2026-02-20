@@ -9,14 +9,15 @@ import androidx.activity.compose.setContent
 import androidx.compose.ui.res.stringResource
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.features.core.BaseActivity
+import net.opendasharchive.openarchive.features.core.BaseComposeActivity
 import net.opendasharchive.openarchive.features.core.ComposeAppBar
 import net.opendasharchive.openarchive.features.settings.passcode.HapticManager
 import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
 import org.koin.android.ext.android.inject
 
-class PasscodeSetupActivity : BaseActivity() {
+class PasscodeSetupActivity : BaseComposeActivity() {
 
+    private val viewModel: PasscodeSetupViewModel by inject()
     private val hapticManager: HapticManager by inject()
 
     companion object {
@@ -32,7 +33,7 @@ class PasscodeSetupActivity : BaseActivity() {
                     topAppBar = {
                         ComposeAppBar(
                             title = stringResource(R.string.passcode_lock_app),
-                            onNavigationAction = {
+                            onNavigateBack = {
                                 setResult(RESULT_CANCELED)
                                 finish()
                             }
@@ -47,6 +48,7 @@ class PasscodeSetupActivity : BaseActivity() {
                     }
 
                     PasscodeSetupScreen(
+                        viewModel = viewModel,
                         onPasscodeSet = {
                             // Passcode successfully set
                             setResult(RESULT_OK, Intent().apply {
@@ -75,8 +77,4 @@ class PasscodeSetupActivity : BaseActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        hapticManager.clear() // Clear the reference to prevent leaks
-    }
 }
