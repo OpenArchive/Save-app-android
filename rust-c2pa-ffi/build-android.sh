@@ -1,85 +1,219 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# build-android.sh — Standalone build script for C2PA Rust FFI (all Android ABIs)
+#
+# Usage:
+#   ./build-android.sh              # build all ABIs
+#   ./build-android.sh arm64-v8a   # build a single ABI
+#
+# Prerequisites:
+#   - Rust + Cargo  (https://rustup.rs/)
+#   - Android NDK   (via Android Studio → SDK Manager → SDK Tools → NDK)
+#   - Android Rust targets (auto-installed by this script)
+#
+# The Gradle task `buildC2paRustLibs` calls this logic automatically for FOSS builds.
+# Use this script for manual builds or CI environments without Gradle.
 
-# Build script for C2PA Rust FFI for Android
-# This script compiles the Rust library for all Android architectures
-# and copies the .so files to the correct jniLibs directory
+set -euo pipefail
 
-set -e  # Exit on error
+BOLD='\033[1m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; NC='\033[0m'
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+info()  { echo -e "${GREEN}✓ $*${NC}"; }
+warn()  { echo -e "${YELLOW}⚠ $*${NC}"; }
+error() { echo -e "${RED}✗ $*${NC}" >&2; exit 1; }
+step()  { echo -e "${BOLD}▸ $*${NC}"; }
 
-echo -e "${GREEN}Building C2PA Rust FFI for Android${NC}"
-echo ""
-
-# Check if Rust is installed
-if ! command -v cargo &> /dev/null; then
-    echo -e "${RED}Error: Rust/Cargo not found${NC}"
-    echo "Install Rust from: https://rustup.rs/"
-    exit 1
-fi
-
-# Check if Android NDK is configured
-if [ ! -f ".cargo/config.toml" ]; then
-    echo -e "${YELLOW}Warning: .cargo/config.toml not found${NC}"
-    echo "Make sure you've configured the Android NDK paths"
-fi
-
-# Get the script directory
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROJECT_ROOT="$( dirname "$SCRIPT_DIR" )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 JNILIBS_DIR="$PROJECT_ROOT/app/src/main/jniLibs"
+ANDROID_API_LEVEL="30"
+PREFERRED_NDK_VERSION="27.1.12297006"
 
-echo "Project root: $PROJECT_ROOT"
-echo "JNI libs dir: $JNILIBS_DIR"
-echo ""
+# ─── Find Android NDK ────────────────────────────────────────────────────────
+find_ndk() {
+    # 1. Explicit NDK env vars
+    for var in ANDROID_NDK_HOME ANDROID_NDK_ROOT; do
+        if [[ -n "${!var:-}" && -d "${!var}" ]]; then
+            echo "${!var}"; return
+        fi
+    done
 
-# Android target architectures (compatible with Bash 3.2+)
-# Using simple arrays instead of associative arrays for macOS compatibility
-RUST_TARGETS=("aarch64-linux-android" "armv7-linux-androideabi" "i686-linux-android" "x86_64-linux-android")
-ANDROID_ABIS=("arm64-v8a" "armeabi-v7a" "x86" "x86_64")
+    # 2. Derive from SDK root
+    local sdk=""
+    for candidate in \
+            "${ANDROID_HOME:-}" \
+            "${ANDROID_SDK_ROOT:-}" \
+            "$HOME/Library/Android/sdk" \
+            "$HOME/Android/Sdk"; do
+        if [[ -n "$candidate" && -d "$candidate" ]]; then
+            sdk="$candidate"; break
+        fi
+    done
 
-# Environment variables for each target
-export CC_aarch64_linux_android="$HOME/Library/Android/sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android30-clang"
-export AR_aarch64_linux_android="$HOME/Library/Android/sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar"
+    [[ -z "$sdk" ]] && error \
+        "Android SDK not found.\nSet ANDROID_HOME to your SDK directory."
 
-export CC_armv7_linux_androideabi="$HOME/Library/Android/sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi30-clang"
-export AR_armv7_linux_androideabi="$HOME/Library/Android/sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar"
+    local ndk_parent="$sdk/ndk"
+    [[ -d "$ndk_parent" ]] || error \
+        "NDK not found at $ndk_parent.\nInstall it via Android Studio → SDK Manager → SDK Tools → NDK (Side by side)."
 
-export CC_i686_linux_android="$HOME/Library/Android/sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/darwin-x86_64/bin/i686-linux-android30-clang"
-export AR_i686_linux_android="$HOME/Library/Android/sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar"
+    # Prefer the pinned version; otherwise use the latest
+    if [[ -d "$ndk_parent/$PREFERRED_NDK_VERSION" ]]; then
+        echo "$ndk_parent/$PREFERRED_NDK_VERSION"; return
+    fi
 
-export CC_x86_64_linux_android="$HOME/Library/Android/sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android30-clang"
-export AR_x86_64_linux_android="$HOME/Library/Android/sdk/ndk/27.1.12297006/toolchains/llvm/prebuilt/darwin-x86_64/bin/llvm-ar"
+    local latest
+    latest=$(ls -1 "$ndk_parent" | sort -V | tail -1)
+    [[ -n "$latest" ]] || error "No NDK versions found in $ndk_parent"
+    warn "NDK $PREFERRED_NDK_VERSION not found — using $latest"
+    echo "$ndk_parent/$latest"
+}
 
-# Build for each target
-for i in "${!RUST_TARGETS[@]}"; do
-    TARGET="${RUST_TARGETS[$i]}"
-    ABI="${ANDROID_ABIS[$i]}"
-    echo -e "${YELLOW}Building for $TARGET ($ABI)...${NC}"
+# ─── Detect host OS/arch for toolchain prebuilt dir ─────────────────────────
+detect_host() {
+    local os arch
+    case "$(uname -s)" in
+        Darwin) os="darwin" ;;
+        Linux)  os="linux"  ;;
+        *)      error "Unsupported host OS: $(uname -s)" ;;
+    esac
+    case "$(uname -m)" in
+        x86_64)  arch="x86_64"  ;;
+        arm64|aarch64) arch="x86_64" ;;  # NDK ships x86_64 host tools even on Apple Silicon
+        *) error "Unsupported host arch: $(uname -m)" ;;
+    esac
+    echo "${os}-${arch}"
+}
 
-    cd "$SCRIPT_DIR"
-    cargo build --target "$TARGET" --release
+# ─── Prerequisite checks ─────────────────────────────────────────────────────
+step "Checking prerequisites"
 
-    # Create jniLibs directory structure
-    mkdir -p "$JNILIBS_DIR/$ABI"
+command -v cargo  >/dev/null 2>&1 || error \
+    "Cargo not found. Install Rust from https://rustup.rs/\nThen run: source \$HOME/.cargo/env"
 
-    # Copy the .so file
-    cp "target/$TARGET/release/libc2pa_ffi.so" "$JNILIBS_DIR/$ABI/"
+command -v rustup >/dev/null 2>&1 || error \
+    "rustup not found. Install Rust from https://rustup.rs/"
 
-    # Get file size
-    SIZE=$(du -h "$JNILIBS_DIR/$ABI/libc2pa_ffi.so" | cut -f1)
-    echo -e "${GREEN}✓ Built $ABI ($SIZE)${NC}"
+info "Rust $(rustc --version)"
+
+# ─── Determine NDK and toolchain paths ───────────────────────────────────────
+step "Locating Android NDK"
+NDK="$(find_ndk)"
+HOST="$(detect_host)"
+BIN="$NDK/toolchains/llvm/prebuilt/$HOST/bin"
+
+[[ -d "$BIN" ]] || error "NDK toolchain bin not found at $BIN"
+info "NDK: $NDK"
+
+# ─── Install Android Rust targets (idempotent) ───────────────────────────────
+step "Ensuring Android Rust targets are installed"
+RUST_TARGETS=(
+    "aarch64-linux-android"
+    "armv7-linux-androideabi"
+    "i686-linux-android"
+    "x86_64-linux-android"
+)
+rustup target add "${RUST_TARGETS[@]}"
+info "Rust targets verified"
+
+# ─── Generate .cargo/config.toml ─────────────────────────────────────────────
+step "Generating .cargo/config.toml"
+mkdir -p "$SCRIPT_DIR/.cargo"
+cat > "$SCRIPT_DIR/.cargo/config.toml" <<EOF
+# Auto-generated by build-android.sh — do not edit manually.
+# Regenerate: run ./build-android.sh (or delete this file and run again).
+# NDK: $NDK
+
+[env]
+ANDROID_NDK_HOME = "$NDK"
+
+[target.aarch64-linux-android]
+linker = "$BIN/aarch64-linux-android${ANDROID_API_LEVEL}-clang"
+ar = "$BIN/llvm-ar"
+rustflags = ["-C", "link-arg=-Wl,-z,max-page-size=16384"]
+
+[target.aarch64-linux-android.env]
+CC_aarch64_linux_android  = "$BIN/aarch64-linux-android${ANDROID_API_LEVEL}-clang"
+CXX_aarch64_linux_android = "$BIN/aarch64-linux-android${ANDROID_API_LEVEL}-clang++"
+AR_aarch64_linux_android  = "$BIN/llvm-ar"
+
+[target.armv7-linux-androideabi]
+linker = "$BIN/armv7a-linux-androideabi${ANDROID_API_LEVEL}-clang"
+ar = "$BIN/llvm-ar"
+rustflags = ["-C", "link-arg=-Wl,-z,max-page-size=16384"]
+
+[target.armv7-linux-androideabi.env]
+CC_armv7_linux_androideabi  = "$BIN/armv7a-linux-androideabi${ANDROID_API_LEVEL}-clang"
+CXX_armv7_linux_androideabi = "$BIN/armv7a-linux-androideabi${ANDROID_API_LEVEL}-clang++"
+AR_armv7_linux_androideabi  = "$BIN/llvm-ar"
+
+[target.i686-linux-android]
+linker = "$BIN/i686-linux-android${ANDROID_API_LEVEL}-clang"
+ar = "$BIN/llvm-ar"
+rustflags = ["-C", "link-arg=-Wl,-z,max-page-size=16384"]
+
+[target.i686-linux-android.env]
+CC_i686_linux_android  = "$BIN/i686-linux-android${ANDROID_API_LEVEL}-clang"
+CXX_i686_linux_android = "$BIN/i686-linux-android${ANDROID_API_LEVEL}-clang++"
+AR_i686_linux_android  = "$BIN/llvm-ar"
+
+[target.x86_64-linux-android]
+linker = "$BIN/x86_64-linux-android${ANDROID_API_LEVEL}-clang"
+ar = "$BIN/llvm-ar"
+rustflags = ["-C", "link-arg=-Wl,-z,max-page-size=16384"]
+
+[target.x86_64-linux-android.env]
+CC_x86_64_linux_android  = "$BIN/x86_64-linux-android${ANDROID_API_LEVEL}-clang"
+CXX_x86_64_linux_android = "$BIN/x86_64-linux-android${ANDROID_API_LEVEL}-clang++"
+AR_x86_64_linux_android  = "$BIN/llvm-ar"
+
+[build]
+target-dir = "target"
+EOF
+info ".cargo/config.toml generated"
+
+# ─── Determine which ABIs to build ───────────────────────────────────────────
+declare -A TARGET_TO_ABI=(
+    ["aarch64-linux-android"]="arm64-v8a"
+    ["armv7-linux-androideabi"]="armeabi-v7a"
+    ["i686-linux-android"]="x86"
+    ["x86_64-linux-android"]="x86_64"
+)
+
+# If an ABI argument was passed, filter to just that one
+if [[ $# -gt 0 ]]; then
+    SELECTED_ABI="$1"
+    SELECTED_TARGET=""
+    for target in "${!TARGET_TO_ABI[@]}"; do
+        if [[ "${TARGET_TO_ABI[$target]}" == "$SELECTED_ABI" ]]; then
+            SELECTED_TARGET="$target"
+            break
+        fi
+    done
+    [[ -n "$SELECTED_TARGET" ]] || error "Unknown ABI '$SELECTED_ABI'. Valid: ${TARGET_TO_ABI[*]}"
+    BUILD_TARGETS=("$SELECTED_TARGET")
+else
+    BUILD_TARGETS=("${!TARGET_TO_ABI[@]}")
+fi
+
+# ─── Build ────────────────────────────────────────────────────────────────────
+step "Building C2PA Rust FFI"
+cd "$SCRIPT_DIR"
+
+for target in "${BUILD_TARGETS[@]}"; do
+    abi="${TARGET_TO_ABI[$target]}"
     echo ""
+    step "  $abi  ($target)"
+    cargo build --target "$target" --release
+
+    so_file="$SCRIPT_DIR/target/$target/release/libc2pa_ffi.so"
+    [[ -f "$so_file" ]] || error "Build succeeded but .so not found at: $so_file"
+
+    mkdir -p "$JNILIBS_DIR/$abi"
+    cp "$so_file" "$JNILIBS_DIR/$abi/libc2pa_ffi.so"
+
+    size=$(du -h "$JNILIBS_DIR/$abi/libc2pa_ffi.so" | cut -f1)
+    info "$abi/libc2pa_ffi.so  ($size)"
 done
 
-echo -e "${GREEN}Build complete!${NC}"
 echo ""
-echo "Shared libraries copied to:"
-echo "  $JNILIBS_DIR"
-echo ""
-echo "You can now build your Android app with:"
-echo "  ./gradlew assembleFossDevDebug"
+info "Build complete!  .so files written to: $JNILIBS_DIR"

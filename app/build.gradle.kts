@@ -376,19 +376,223 @@ detekt {
     ignoreFailures = true
 }
 
-// Configure Rust build for C2PA FFI (FOSS builds only)
-// COMMENTED OUT - Use build-android.sh script instead due to Gradle plugin incompatibility
-//cargo {
-//    module = "../rust-c2pa-ffi"
-//    libname = "c2pa_ffi"
-//    targets = listOf("arm64", "arm", "x86", "x86_64")
-//    profile = "release"
-//    verbose = true
+// ============================================================
+// C2PA Rust FFI — Auto-build for FOSS variants
+// ============================================================
 //
-//    // Only build for FOSS variants
-//    // GMS builds can use pre-compiled libraries or different implementation
-//    targetIncludes = arrayOf("Foss.*")
-//}
+// Task graph (runs only for FOSS builds):
+//   mergeXxxJniLibFolders
+//     └── buildC2paRustLibs  [incremental: skipped if .so files are up-to-date]
+//           └── generateCargoConfig  [skipped if .cargo/config.toml already exists]
+//                 └── installRustTargets  [idempotent rustup target add]
+//                       └── restoreC2paSource  [skipped if Cargo.toml exists]
+//
+// To force a full rebuild:  ./gradlew buildC2paRustLibs --rerun-tasks
+// To regenerate NDK config: delete rust-c2pa-ffi/.cargo/config.toml and rebuild
+
+val preferredNdkVersion = "27.1.12297006"
+val androidApiLevel = "30"
+val rustC2paDir = rootProject.file("rust-c2pa-ffi")
+val jniLibsDir = project.file("src/main/jniLibs")
+
+// Rust target triple → Android ABI directory name
+val rustToAbi = linkedMapOf(
+    "aarch64-linux-android"   to "arm64-v8a",
+    "armv7-linux-androideabi" to "armeabi-v7a",
+    "i686-linux-android"      to "x86",
+    "x86_64-linux-android"    to "x86_64"
+)
+
+fun findNdk(): File {
+    // 1. Explicit NDK env var (highest priority)
+    listOfNotNull(
+        System.getenv("ANDROID_NDK_HOME"),
+        System.getenv("ANDROID_NDK_ROOT"),
+    ).map(::File).firstOrNull { it.isDirectory }?.let { return it }
+
+    // 2. Find SDK, then look for ndk/ subdirectory
+    val sdk = listOfNotNull(
+        System.getenv("ANDROID_HOME"),
+        System.getenv("ANDROID_SDK_ROOT"),
+        "${System.getProperty("user.home")}/Library/Android/sdk",  // macOS default
+        "${System.getProperty("user.home")}/Android/Sdk",          // Linux/Windows default
+    ).map(::File).firstOrNull { it.isDirectory }
+        ?: throw GradleException(
+            "Android SDK not found.\n" +
+            "Set ANDROID_HOME to your SDK root directory and try again."
+        )
+
+    val ndkParent = File(sdk, "ndk")
+    if (!ndkParent.isDirectory) throw GradleException(
+        "Android NDK not found at $ndkParent.\n" +
+        "Install it via Android Studio → SDK Manager → SDK Tools → NDK (Side by side)."
+    )
+
+    // Prefer the pinned version; otherwise use the latest installed
+    File(ndkParent, preferredNdkVersion).takeIf { it.isDirectory }?.let { return it }
+    return ndkParent.listFiles()
+        ?.filter { it.isDirectory }
+        ?.maxByOrNull { it.name }
+        ?: throw GradleException("No NDK versions found in $ndkParent")
+}
+
+fun ndkBinDir(ndk: File): File {
+    val prebuilt = File(ndk, "toolchains/llvm/prebuilt")
+    return prebuilt.listFiles()
+        ?.firstOrNull { it.isDirectory }
+        ?.let { File(it, "bin") }
+        ?: throw GradleException("NDK prebuilt toolchain not found under $prebuilt")
+}
+
+/** Runs a command via ProcessBuilder, streams output to stdout/stderr, throws on non-zero exit. */
+fun runCommand(vararg cmd: String, workDir: File = rootProject.projectDir, env: Map<String, String> = emptyMap()) {
+    val pb = ProcessBuilder(*cmd).directory(workDir).inheritIO()
+    if (env.isNotEmpty()) pb.environment().putAll(env)
+    val result = pb.start().waitFor()
+    check(result == 0) { "Command failed (exit $result): ${cmd.joinToString(" ")}" }
+}
+
+// Maps each Rust triple to its (clang binary prefix, CC env-var key)
+val targetDetails = linkedMapOf(
+    "aarch64-linux-android"   to Pair("aarch64-linux-android${androidApiLevel}",   "aarch64_linux_android"),
+    "armv7-linux-androideabi" to Pair("armv7a-linux-androideabi${androidApiLevel}", "armv7_linux_androideabi"),
+    "i686-linux-android"      to Pair("i686-linux-android${androidApiLevel}",       "i686_linux_android"),
+    "x86_64-linux-android"    to Pair("x86_64-linux-android${androidApiLevel}",     "x86_64_linux_android"),
+)
+
+// ─── Task 1: Restore source from git if the directory was deleted ────────────
+val restoreC2paSource by tasks.registering {
+    group = "c2pa"
+    description = "Restores rust-c2pa-ffi/ from git HEAD if the directory is missing"
+    onlyIf { !File(rustC2paDir, "Cargo.toml").exists() }
+    doLast {
+        logger.lifecycle("rust-c2pa-ffi/ missing — restoring from git HEAD...")
+        runCommand("git", "checkout", "HEAD", "--", "rust-c2pa-ffi")
+        logger.lifecycle("✓ rust-c2pa-ffi/ restored from git")
+    }
+}
+
+// ─── Task 2: Validate Rust toolchain; auto-install Android targets ───────────
+val installRustTargets by tasks.registering {
+    group = "c2pa"
+    description = "Verifies Cargo is installed and ensures all Android Rust targets are added"
+    dependsOn(restoreC2paSource)
+    doLast {
+        val cargoOk = ProcessBuilder("cargo", "--version")
+            .redirectErrorStream(true)
+            .start()
+            .waitFor() == 0
+        if (!cargoOk) throw GradleException(
+            "Cargo not found. Install Rust from https://rustup.rs/\n" +
+            "Then run: rustup target add ${rustToAbi.keys.joinToString(" ")}"
+        )
+        // rustup target add is idempotent — safe to call on every build
+        runCommand(*( listOf("rustup", "target", "add") + rustToAbi.keys ).toTypedArray())
+        logger.lifecycle("✓ Rust Android targets verified")
+    }
+}
+
+// ─── Task 3: Generate .cargo/config.toml using the installed NDK ─────────────
+// Runs on every build but only writes to disk when content changes, so
+// buildC2paRustLibs (which uses the file as input) stays UP-TO-DATE when NDK is unchanged.
+val generateCargoConfig by tasks.registering {
+    group = "c2pa"
+    description = "Generates rust-c2pa-ffi/.cargo/config.toml with NDK linker paths"
+    dependsOn(installRustTargets)
+    doLast {
+        val ndk = findNdk()
+        val bin = ndkBinDir(ndk)
+
+        // NOTE: CC_*/AR_* env vars must live in the top-level [env] section.
+        // [target.X.env] is NOT a valid Cargo config key and is silently ignored,
+        // which causes cc-rs (used by the ring crate) to fail with "tool not found".
+        val newContent = buildString {
+            appendLine("# Auto-generated by Gradle — do not edit manually.")
+            appendLine("# Regenerate: run ./gradlew generateCargoConfig --rerun-tasks")
+            appendLine("# NDK: ${ndk.absolutePath}")
+            appendLine()
+            appendLine("[env]")
+            appendLine("ANDROID_NDK_HOME = \"${ndk.absolutePath}\"")
+            // CC/CXX/AR vars for cc-rs and other build scripts (one entry per ABI, all in [env])
+            for ((_, pair) in targetDetails) {
+                val (clangPrefix, envKey) = pair
+                appendLine("CC_$envKey  = \"$bin/${clangPrefix}-clang\"")
+                appendLine("CXX_$envKey = \"$bin/${clangPrefix}-clang++\"")
+                appendLine("AR_$envKey  = \"$bin/llvm-ar\"")
+            }
+            appendLine()
+            for ((triple, pair) in targetDetails) {
+                val (clangPrefix, _) = pair
+                appendLine("[target.$triple]")
+                appendLine("linker = \"$bin/${clangPrefix}-clang\"")
+                appendLine("ar = \"$bin/llvm-ar\"")
+                appendLine("rustflags = [\"-C\", \"link-arg=-Wl,-z,max-page-size=16384\"]")
+                appendLine()
+            }
+            appendLine("[build]")
+            appendLine("target-dir = \"target\"")
+        }
+
+        val configFile = File(rustC2paDir, ".cargo/config.toml")
+        File(rustC2paDir, ".cargo").mkdirs()
+        if (!configFile.exists() || configFile.readText() != newContent) {
+            configFile.writeText(newContent)
+            logger.lifecycle("✓ .cargo/config.toml written (NDK: ${ndk.absolutePath})")
+        } else {
+            logger.lifecycle("✓ .cargo/config.toml unchanged")
+        }
+    }
+}
+
+// ─── Task 4: Compile the Rust library for all Android ABIs ───────────────────
+val buildC2paRustLibs by tasks.registering {
+    group = "c2pa"
+    description = "Compiles libc2pa_ffi.so for all Android ABIs (incremental)"
+    dependsOn(generateCargoConfig)
+
+    // Gradle skips this task automatically when inputs are unchanged and outputs exist
+    inputs.dir(File(rustC2paDir, "src"))
+    inputs.files(
+        File(rustC2paDir, "Cargo.toml"),
+        File(rustC2paDir, "Cargo.lock"),
+        File(rustC2paDir, ".cargo/config.toml"),
+    )
+    outputs.files(rustToAbi.values.map { abi -> jniLibsDir.resolve("$abi/libc2pa_ffi.so") })
+
+    doLast {
+        val bin = ndkBinDir(findNdk())
+        rustToAbi.forEach { (rustTarget, abi) ->
+            logger.lifecycle("  Building $abi ($rustTarget)...")
+            val (clangPrefix, envKey) = targetDetails[rustTarget]!!
+            // Pass CC/AR explicitly — belt-and-suspenders alongside .cargo/config.toml [env]
+            val env = mapOf(
+                "CC_$envKey"  to "$bin/${clangPrefix}-clang",
+                "CXX_$envKey" to "$bin/${clangPrefix}-clang++",
+                "AR_$envKey"  to "$bin/llvm-ar",
+            )
+            runCommand("cargo", "build", "--target", rustTarget, "--release", workDir = rustC2paDir, env = env)
+            val soFile = rustC2paDir.resolve("target/$rustTarget/release/libc2pa_ffi.so")
+            check(soFile.exists()) {
+                "cargo build succeeded but .so not found at: ${soFile.absolutePath}"
+            }
+            jniLibsDir.resolve(abi).mkdirs()
+            soFile.copyTo(jniLibsDir.resolve("$abi/libc2pa_ffi.so"), overwrite = true)
+            logger.lifecycle("  ✓ $abi/libc2pa_ffi.so (${soFile.length() / 1024} KB)")
+        }
+        logger.lifecycle("C2PA Rust FFI build complete.")
+    }
+}
+
+// ─── Wire buildC2paRustLibs into ALL variant builds (GMS + FOSS) ─────────────
+afterEvaluate {
+    android.applicationVariants.forEach { variant ->
+        val cap = variant.name.replaceFirstChar { it.titlecase() }
+        // mergeJniLibFolders collects .so files just before APK packaging
+        tasks.findByName("merge${cap}JniLibFolders")
+            ?.dependsOn(buildC2paRustLibs)
+            ?: logger.warn("[C2PA] Could not find merge${cap}JniLibFolders — .so may be absent at runtime")
+    }
+}
 
 // Conditionally apply Google Services plugins only for GMS builds
 if (gradle.startParameter.taskRequests.toString().contains("Gms", ignoreCase = true)) {
