@@ -23,7 +23,6 @@ fun SnowbirdGroupDTO.toVaultEntity(id: Long = 0): VaultEntity {
         name = name ?: "Untitled Group",
         host = uri ?: "", // Snowbird uses URI as host
         username = "",
-        password = "",
         displayName = name ?: "",
         id = id,
         metaData = "",

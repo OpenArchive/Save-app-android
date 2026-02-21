@@ -8,6 +8,9 @@ interface VaultDao {
     @Query("SELECT * FROM vaults WHERE type IN (0, 1)")
     fun observeVaults(): Flow<List<VaultEntity>>
 
+    @Query("SELECT EXISTS(SELECT 1 FROM vaults WHERE type = 5)")
+    fun observeHasDwebSpace(): Flow<Boolean>
+
     @Query("SELECT * FROM vaults WHERE id = :id")
     fun observeById(id: Long): Flow<VaultEntity?>
 

@@ -315,7 +315,7 @@ fun HomeScreenContent(
         if (state.pagerIndex == settingsIndex) HomeBottomTab.SETTINGS else HomeBottomTab.MEDIA
     val isSettings = selectedTab == HomeBottomTab.SETTINGS
 
-    val showDrawer = isSettings.not() && state.spaces.isNotEmpty()
+    val showDrawer = isSettings.not() && (state.spaces.isNotEmpty() || state.hasDwebEntry)
 
     // Sync pager → HomeViewModel ONLY when settled
     LaunchedEffect(pagerState) {
@@ -379,6 +379,11 @@ fun HomeScreenContent(
                         onAddNewSpaceClicked = {
                             scope.launch { drawerState.close() }
                             onAction(HomeAction.Navigate(route = AppRoute.SpaceSetupRoute))
+                        },
+                        showDwebEntry = state.hasDwebEntry,
+                        onDwebSelected = {
+                            scope.launch { drawerState.close() }
+                            onAction(HomeAction.Navigate(route = AppRoute.SnowbirdDashboardRoute))
                         },
                         onAddNewFolderClicked = {
                             scope.launch { drawerState.close() }
@@ -519,7 +524,7 @@ fun HomeScreenContent(
                             else -> {
                                 // No projects yet: show empty media state with current space from HomeViewModel
                                 MainMediaContent(
-                                    state = MainMediaState(currentSpace = state.currentSpace),
+                                    state = MainMediaState(currentSpace = state.currentSpace, isLoading = false),
                                     onAction = {}
                                 )
                             }

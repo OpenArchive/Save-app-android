@@ -13,7 +13,7 @@ plugins {
     alias(libs.plugins.detekt.plugin)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
-    alias(libs.plugins.stability.analyzer)
+    //alias(libs.plugins.stability.analyzer)
 }
 
 fun loadLocalProperties(): Properties = Properties().apply {
@@ -326,7 +326,7 @@ dependencies {
     // Barcode Scanning
     implementation(libs.google.mlkit.barcode)
     implementation(libs.zxing.core)
-    implementation(libs.zxing.android.embedded)
+    //implementation(libs.zxing.android.embedded)
 
     // Utilities
     implementation(libs.timber)

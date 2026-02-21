@@ -175,7 +175,10 @@ class MainMediaViewModel(
 
     private fun observeData() {
         val pid = projectId
-        if (pid < 0) return
+        if (pid < 0) {
+            _uiState.update { it.copy(isLoading = false) }
+            return
+        }
 
         val projectAndSpace = combine(
             projectRepository.observeProject(pid),

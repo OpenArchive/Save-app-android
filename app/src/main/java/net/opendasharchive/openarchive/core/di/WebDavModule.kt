@@ -12,7 +12,7 @@ import org.koin.dsl.module
 val webDavModule = module {
     single<SaveClientFactory> { SaveClientFactoryImpl(get()) }
     single { WebDavAuthenticator(get()) }
-    single { WebDavRepository(get()) }
+    single { WebDavRepository(get(), get()) }
 
     viewModelOf(::WebDavLoginViewModel)
     viewModelOf(::WebDavDetailViewModel)

@@ -8,6 +8,8 @@ import kotlinx.coroutines.asExecutor
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.AppDatabase
 import net.opendasharchive.openarchive.core.repositories.*
+import net.opendasharchive.openarchive.core.security.TinkVaultCredentialStore
+import net.opendasharchive.openarchive.core.security.VaultCredentialStore
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
@@ -40,8 +42,9 @@ val databaseModule = module {
     }
 
     single<SettingsRepository> { SettingsRepositoryImpl(get()) }
+    single<VaultCredentialStore> { TinkVaultCredentialStore(androidContext(), get(named("io"))) }
 
-    single { VaultRepositoryImpl(get(), get(), get(), get(named("io"))) }
+    single { VaultRepositoryImpl(get(), get(), get(), get(), get(named("io"))) }
     single { ArchiveRepositoryImpl(get(), get(), get(), get(), get(), get(named("io"))) }
     single { SubmissionRepositoryImpl(get(), get(named("io"))) }
     single { EvidenceRepositoryImpl(get(), get(), get(), get(), get(named("io"))) }

@@ -5,6 +5,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.orm.SugarRecord
 import net.opendasharchive.openarchive.core.logger.AppLogger
+import net.opendasharchive.openarchive.core.security.VaultCredentialStore
 import net.opendasharchive.openarchive.util.DateUtils
 import net.opendasharchive.openarchive.util.Prefs
 import org.koin.core.component.KoinComponent
@@ -27,6 +28,7 @@ class MigrationWorker(
     private val submissionDao: SubmissionDao by inject()
     private val evidenceDao: EvidenceDao by inject()
     private val migrationDao: MigrationDao by inject()
+    private val credentialStore: VaultCredentialStore by inject()
 
     override suspend fun doWork(): Result {
         if (Prefs.isRoomMigrated) return Result.success()
@@ -78,7 +80,7 @@ class MigrationWorker(
         AppLogger.i("Migrating ${spaces.size} spaces")
 
         spaces.forEach { space ->
-            vaultDao.upsert(
+            val vaultId = vaultDao.upsert(
                 VaultEntity(
                     id = space.id,
                     type = when (space.tType) {
@@ -89,13 +91,15 @@ class MigrationWorker(
                     name = space.name,
                     username = space.username,
                     displayName = space.displayname,
-                    password = space.password,
                     host = space.host,
                     metaData = space.metaData,
                     licenseUrl = space.license,
                     createdAt = DateUtils.now.toLocalDateTime()
                 )
             )
+            if (space.password.isNotBlank()) {
+                credentialStore.putSecret(vaultId, space.password)
+            }
         }
         migrationDao.upsert(MigrationStateEntity(stage = "PROJECTS", processedCount = 0, totalCount = 0))
     }
