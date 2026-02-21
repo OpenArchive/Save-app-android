@@ -33,7 +33,8 @@ class SnowbirdBridge {
 
         @JvmStatic
         fun updateStatusFromRust(code: Int, message: String) {
-            instance?._status?.value = SnowbirdServiceStatus.Companion.fromCode(code)
+            // Preserve error context from Rust when available.
+            instance?._status?.value = SnowbirdServiceStatus.fromCode(code, message)
         }
     }
 

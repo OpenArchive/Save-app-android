@@ -89,8 +89,18 @@ class SnowbirdService : Service() {
             createNotification("Snowbird Server is starting up.")
         )
 
-        // Launch a coroutine to check & start
+        // Launch startup flow
         serviceScope.launch {
+            // Initialize bridge first to reduce startup race windows.
+            try {
+                withContext(Dispatchers.IO) {
+                    SnowbirdBridge.getInstance().initialize()
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "SnowbirdBridge.initialize() failed")
+                // Continue; startServer may still surface a clearer error.
+            }
+
             val alreadyUp = isServerRunning()
             if (alreadyUp) {
                 Timber.d("Snowbird server already running; skipping start()")
@@ -141,17 +151,8 @@ class SnowbirdService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    /**
-     * Checks if a web server is available and responding with a 200 OK status.
-     * Throws exceptions on failure for better integration with retry mechanisms.
-     *
-     * @param url The URL to check
-     * @param timeout Optional timeout in milliseconds (default 5000ms)
-     * @throws ConnectException if the server refuses connection
-     * @throws SocketTimeoutException if the connection times out
-     * @throws IOException for other network-related errors
-     */
-    private suspend fun checkServerAvailability(url: String, timeout: Int = 1000) {
+    /** Checks if a URL is reachable and returns 2xx. Throws on failure. */
+    private suspend fun checkServerAvailability(url: String, timeout: Int = 8000) {
         withContext(Dispatchers.IO) {
             var connection: HttpURLConnection? = null
             try {
@@ -163,7 +164,7 @@ class SnowbirdService : Service() {
                 }
 
                 when (connection.responseCode) {
-                    HttpURLConnection.HTTP_OK -> return@withContext
+                    in 200..299 -> return@withContext
                     else -> throw IOException("Server returned ${connection.responseCode}")
                 }
             } catch (e: Exception) {
@@ -173,6 +174,12 @@ class SnowbirdService : Service() {
                 connection?.disconnect()
             }
         }
+    }
+
+    /** `/status` proves liveness; `/health/ready` proves backend initialization. */
+    private suspend fun checkFullReadiness() {
+        checkServerAvailability("http://localhost:8080/status")
+        checkServerAvailability("http://localhost:8080/health/ready", timeout = 8000)
     }
 
     private fun createNotification(text: String, withSound: Boolean = false): Notification {
@@ -207,7 +214,7 @@ class SnowbirdService : Service() {
         Timber.d("Starting polling")
         pollingJob?.cancel() // Cancel any existing polling
 
-        pollingJob = suspendToRetry { checkServerAvailability("http://localhost:8080/status") }
+        pollingJob = suspendToRetry { checkFullReadiness() }
             .retryWithScope(
                 scope = serviceScope,
                 config = RetryConfig(
@@ -219,7 +226,8 @@ class SnowbirdService : Service() {
                 shouldRetry = { error ->
                     when (error) {
                         is ConnectException,
-                        is SocketTimeoutException -> true
+                        is SocketTimeoutException,
+                        is IOException -> true
 
                         else -> false
                     }
