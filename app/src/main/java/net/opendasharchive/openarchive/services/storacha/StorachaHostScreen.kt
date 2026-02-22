@@ -12,6 +12,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -83,6 +84,18 @@ fun StorachaHostScreen(fragmentManager: FragmentManager) {
             )
         },
     ) { paddingValues ->
+        DisposableEffect(Unit) {
+            onDispose {
+                val fragment = fragmentManager.findFragmentById(R.id.storacha_fragment_container)
+                if (fragment != null) {
+                    fragmentManager
+                        .beginTransaction()
+                        .remove(fragment)
+                        .commitNowAllowingStateLoss()
+                }
+            }
+        }
+
         AndroidView(
             modifier =
                 Modifier
