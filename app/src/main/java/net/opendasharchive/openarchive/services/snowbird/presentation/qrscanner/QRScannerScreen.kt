@@ -1,23 +1,41 @@
 package net.opendasharchive.openarchive.services.snowbird.presentation.qrscanner
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.components.QRScanner
 import net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles
-import net.opendasharchive.openarchive.extensions.getQueryParameter
 import net.opendasharchive.openarchive.features.core.ComposeAppBar
+import net.opendasharchive.openarchive.services.snowbird.util.SnowbirdQRDecoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,14 +43,35 @@ fun QRScannerScreen(
     onQrCodeScanned: (String) -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    var scannedGroupName by remember { mutableStateOf("") }
-    
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
     // Launcher for picking QR image from gallery
-    val galleryLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.GetContent()
-    ) { uri: android.net.Uri? ->
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
         uri?.let {
-            // TODO: Process image URI to decode QR code
+            scope.launch {
+                val decoded = withContext(Dispatchers.IO) {
+                    runCatching {
+                        context.contentResolver.openInputStream(it)?.use { input ->
+                            BitmapFactory.decodeStream(input)
+                        }?.let { bitmap ->
+                            SnowbirdQRDecoder.decodeFromBitmap(bitmap)
+                        }
+                    }.getOrNull()
+                }
+
+                if (!decoded.isNullOrBlank()) {
+                    onQrCodeScanned(decoded)
+                } else {
+                    Toast.makeText(
+                        context,
+                        "No QR code found in selected image.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         }
     }
 

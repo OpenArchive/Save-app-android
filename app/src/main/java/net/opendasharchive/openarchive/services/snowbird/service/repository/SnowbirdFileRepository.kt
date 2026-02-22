@@ -10,6 +10,7 @@ import net.opendasharchive.openarchive.db.ArchiveDao
 import net.opendasharchive.openarchive.db.DwebDao
 import net.opendasharchive.openarchive.db.EvidenceDao
 import net.opendasharchive.openarchive.extensions.toDomainError
+import net.opendasharchive.openarchive.util.DateUtils
 import net.opendasharchive.openarchive.services.snowbird.data.toDwebEntity
 import net.opendasharchive.openarchive.services.snowbird.data.toDomain
 import net.opendasharchive.openarchive.services.snowbird.data.toEvidenceEntity
@@ -20,6 +21,7 @@ interface ISnowbirdFileRepository {
     suspend fun fetchFiles(archiveId: Long, groupKey: String, repoKey: String, forceRefresh: Boolean = false): DomainResult<Unit>
     fun observeFiles(archiveId: Long): Flow<List<Evidence>>
     suspend fun downloadFile(groupKey: String, repoKey: String, filename: String): DomainResult<ByteArray>
+    suspend fun markFileDownloaded(evidenceId: Long, localFilePath: String, mimeType: String): DomainResult<Unit>
     suspend fun uploadFile(groupKey: String, repoKey: String, uri: Uri): DomainResult<FileUploadResult>
 }
 
@@ -45,13 +47,38 @@ class SnowbirdFileRepository(
                 
                 // Deduplication lookup STRICTLY by content hash
                 val existingEvidenceId = evidenceDao.getEvidenceIdByHash(archiveId, fileDto.hash)
-                
-                // Map using the fixed ID (if exists) or 0 (for new)
-                val evidenceEntity = fileDto.toEvidenceEntity(archiveId, submissionId, id = existingEvidenceId ?: 0L)
+
+                // Preserve local file linkage and best-known mime type for existing downloaded items.
+                val existingEvidence = existingEvidenceId?.let { evidenceDao.getById(it) }
+                val mappedEvidence = fileDto.toEvidenceEntity(
+                    archiveId = archiveId,
+                    submissionId = submissionId,
+                    id = existingEvidenceId ?: 0L
+                )
+                val preservedMimeType = when {
+                    existingEvidence?.mimeType.isNullOrBlank() -> mappedEvidence.mimeType
+                    mappedEvidence.mimeType == "application/octet-stream" -> existingEvidence!!.mimeType
+                    else -> mappedEvidence.mimeType
+                }
+                val evidenceEntity = if (existingEvidence != null) {
+                    mappedEvidence.copy(
+                        originalFilePath = if (existingEvidence.originalFilePath.isNotBlank()) {
+                            existingEvidence.originalFilePath
+                        } else {
+                            mappedEvidence.originalFilePath
+                        },
+                        mimeType = preservedMimeType
+                    )
+                } else {
+                    mappedEvidence
+                }
                 val upsertedId = evidenceDao.upsert(evidenceEntity)
                 val evidenceId = existingEvidenceId ?: upsertedId
-                
-                val dwebEntity = fileDto.toDwebEntity(evidenceId)
+
+                val existingDweb = dwebDao.getEvidenceWithDwebById(evidenceId)?.dwebMetadata
+                val dwebEntity = fileDto.toDwebEntity(evidenceId).copy(
+                    isDownloaded = fileDto.isDownloaded || (existingDweb?.isDownloaded == true)
+                )
                 dwebDao.upsertEvidenceMetadata(dwebEntity)
             }
             DomainResult.Success(Unit)
@@ -65,6 +92,25 @@ class SnowbirdFileRepository(
         return try {
             val response = api.downloadFile(groupKey, repoKey, filename)
             DomainResult.Success(response)
+        } catch (e: Exception) {
+            AppLogger.e(e)
+            DomainResult.Error(e.toDomainError())
+        }
+    }
+
+    override suspend fun markFileDownloaded(
+        evidenceId: Long,
+        localFilePath: String,
+        mimeType: String
+    ): DomainResult<Unit> {
+        return try {
+            dwebDao.markEvidenceDownloaded(
+                evidenceId = evidenceId,
+                localFilePath = localFilePath,
+                mimeType = mimeType,
+                updatedAt = DateUtils.nowDateTime
+            )
+            DomainResult.Success(Unit)
         } catch (e: Exception) {
             AppLogger.e(e)
             DomainResult.Error(e.toDomainError())

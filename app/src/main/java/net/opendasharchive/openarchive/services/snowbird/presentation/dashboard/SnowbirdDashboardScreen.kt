@@ -139,7 +139,7 @@ fun SnowbirdDashboardContent(
             },
             onMediaTypeSelected = { type ->
                 onAction(SnowbirdDashboardAction.MediaPicked(type))
-            }
+            },
         )
     }
 

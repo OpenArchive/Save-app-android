@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.core.domain.Archive
+import net.opendasharchive.openarchive.core.domain.ArchivePermission
 import net.opendasharchive.openarchive.core.domain.DomainResult
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
@@ -24,7 +25,6 @@ data class SnowbirdRepoState(
 
 sealed interface SnowbirdRepoAction {
     data class SelectRepo(val repo: Archive) : SnowbirdRepoAction
-    data class CreateRepo(val name: String) : SnowbirdRepoAction
     data object RefreshRepos : SnowbirdRepoAction
     data object RefreshGroupContent : SnowbirdRepoAction
 }
@@ -59,11 +59,11 @@ class SnowbirdRepoViewModel(
                     AppRoute.SnowbirdFileListRoute(
                         archiveId = action.repo.id,
                         groupKey = _uiState.value.groupKey,
-                        repoKey = action.repo.archiveKey ?: ""
+                        repoKey = action.repo.archiveKey ?: "",
+                        canWrite = action.repo.permissions == ArchivePermission.READ_WRITE
                     )
                 )
             }
-            is SnowbirdRepoAction.CreateRepo -> createRepo(action.name)
             is SnowbirdRepoAction.RefreshRepos -> fetchRepos(forceRefresh = true)
             is SnowbirdRepoAction.RefreshGroupContent -> refreshGroupContent()
         }
@@ -86,22 +86,6 @@ class SnowbirdRepoViewModel(
             processingTracker.trackProcessing("fetch_repos") {
                 _uiState.update { it.copy(isLoading = true) }
                 val result = repository.fetchRepos(vaultId, groupKey, forceRefresh)
-                _uiState.update { it.copy(isLoading = false) }
-
-                if (result is DomainResult.Error) {
-                    dialogManager.showErrorDialog(message = UiText.Dynamic(result.error.friendlyMessage))
-                }
-            }
-        }
-    }
-
-    private fun createRepo(name: String) {
-        val vaultId = _uiState.value.vaultId
-        val groupKey = _uiState.value.groupKey
-        viewModelScope.launch {
-            processingTracker.trackProcessing("create_repo") {
-                _uiState.update { it.copy(isLoading = true) }
-                val result = repository.createRepo(vaultId, groupKey, name)
                 _uiState.update { it.copy(isLoading = false) }
 
                 if (result is DomainResult.Error) {

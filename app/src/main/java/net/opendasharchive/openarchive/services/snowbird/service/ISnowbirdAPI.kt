@@ -17,6 +17,6 @@ interface ISnowbirdAPI {
     suspend fun refreshGroupContent(groupKey: String): RefreshGroupResponse
 
     // Repos
-    suspend fun createRepo(groupKey: String, repoName: RequestName): CreateRepoResponse
+    suspend fun createRepo(groupKey: String, repoName: RequestName): SnowbirdRepoDTO
     suspend fun fetchRepos(groupKey: String): SnowbirdRepoListDTO
 }

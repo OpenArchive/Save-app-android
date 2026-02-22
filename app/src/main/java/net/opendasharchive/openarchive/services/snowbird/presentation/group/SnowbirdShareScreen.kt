@@ -1,5 +1,9 @@
 package net.opendasharchive.openarchive.services.snowbird.presentation.group
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,11 +21,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -35,7 +42,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -44,6 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.components.LoadingOverlay
 import net.opendasharchive.openarchive.core.presentation.theme.PreviewLight
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.extensions.asQRCode
@@ -77,6 +87,7 @@ fun SnowbirdShareScreenContent(
     state: SnowbirdShareState,
     onAction: (SnowbirdShareAction) -> Unit
 ) {
+    val context = LocalContext.current
     val qrBitmap = remember(state.qrContent) {
         if (state.qrContent.isNotBlank()) {
             state.qrContent.asQRCode(
@@ -133,19 +144,42 @@ fun SnowbirdShareScreenContent(
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold
                 ),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // QR Content/URI
-            Text(
-                text = state.actualUri,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+            // Join code with copy action
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = state.qrContent,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(1f)
+                )
+
+                IconButton(
+                    enabled = state.qrContent.isNotBlank() && !state.isLoading,
+                    onClick = {
+                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        clipboard.setPrimaryClip(ClipData.newPlainText("DWeb Join Code", state.qrContent))
+                        Toast.makeText(context, "Join code copied", Toast.LENGTH_SHORT).show()
+                    }
+                ) {
+                    Icon(
+                        modifier = Modifier.size(24.dp),
+                        painter = painterResource(R.drawable.ic_document),
+                        contentDescription = "Copy code"
+                    )
+                }
+            }
         }
 
         // Bottom Action Bar
@@ -181,15 +215,14 @@ fun SnowbirdShareScreenContent(
     }
 }
 
-@PreviewLight
+@PreviewLightDark
 @Composable
 private fun SnowbirdShareScreenPreview() {
     SaveAppTheme {
         SnowbirdShareScreenContent(
             state = SnowbirdShareState(
                 groupName = "Test Collective",
-                actualUri = "save+dweb::?dht=caf0a5ab51d936a0f6cbdb471feee9601714641523168359dce72fcdbb3394e3&enc=5af9ad74efce749b9b2bed692ecb16f71016729a6b11ea021d20f5f9186a1a7d&pk=0f083d9391c5bddf199320014abc9ab3f5b51c9e41adf97c0261e5be6b1ba41d&sk=e1525c792b78cd3aca849b3e2a1b6d3f7e08dd9339f3e872513b88400196c398",
-                qrContent = "some-uri-content"
+                qrContent = "save+dweb::?dht=caf0a5ab51d936a0f6cbdb471feee9601714641523168359dce72fcdbb3394e3&enc=5af9ad74efce749b9b2bed692ecb16f71016729a6b11ea021d20f5f9186a1a7d&pk=0f083d9391c5bddf199320014abc9ab3f5b51c9e41adf97c0261e5be6b1ba41d&sk=e1525c792b78cd3aca849b3e2a1b6d3f7e08dd9339f3e872513b88400196c398",
             ),
             onAction = {}
         )

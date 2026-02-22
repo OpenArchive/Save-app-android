@@ -2,6 +2,7 @@ package net.opendasharchive.openarchive.db
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.LocalDateTime
 
 @Dao
 interface DwebDao {
@@ -147,4 +148,36 @@ interface DwebDao {
 
     @Upsert
     suspend fun upsertEvidenceMetadata(entity: EvidenceDwebEntity)
+
+    @Query(
+        """
+        UPDATE evidence
+        SET originalFilePath = :localFilePath,
+            mimeType = :mimeType,
+            updatedAt = :updatedAt
+        WHERE id = :evidenceId
+        """
+    )
+    suspend fun updateEvidenceLocalFilePath(
+        evidenceId: Long,
+        localFilePath: String,
+        mimeType: String,
+        updatedAt: LocalDateTime
+    )
+
+    @Transaction
+    suspend fun markEvidenceDownloaded(
+        evidenceId: Long,
+        localFilePath: String,
+        mimeType: String,
+        updatedAt: LocalDateTime
+    ) {
+        updateEvidenceLocalFilePath(evidenceId, localFilePath, mimeType, updatedAt)
+        upsertEvidenceMetadata(
+            EvidenceDwebEntity(
+                evidenceId = evidenceId,
+                isDownloaded = true
+            )
+        )
+    }
 }

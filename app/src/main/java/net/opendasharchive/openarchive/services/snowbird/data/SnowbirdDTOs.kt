@@ -18,7 +18,9 @@ data class SnowbirdGroupListDTO(
 @Serializable
 data class SnowbirdRepoDTO(
     val key: String,
-    val name: String? = null
+    val name: String? = null,
+    @SerialName("can_write")
+    val canWrite: Boolean? = null,
 )
 
 @Serializable
@@ -30,8 +32,11 @@ data class SnowbirdRepoListDTO(
 data class SnowbirdFileDTO(
     val name: String,
     val hash: String = "",
+    @SerialName("is_downloaded")
+    val isDownloaded: Boolean = false,
     val size: Long = 0,
     val mimeType: String? = null,
+    @SerialName("created_at")
     val createdAt: String? = null
 )
 
@@ -57,8 +62,7 @@ data class CreateRepoResponse(
 
 @Serializable
 data class JoinGroupResponse(
-    val success: Boolean,
-    val message: String? = null
+    val group: SnowbirdGroupDTO
 )
 
 @Serializable

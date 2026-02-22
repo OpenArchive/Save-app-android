@@ -59,7 +59,7 @@ fun SnowbirdRepoDTO.toArchiveEntity(vaultId: Long, submissionId: Long, id: Long 
         isRemote = true,
         archived = false,
         openSubmissionId = submissionId,
-        licenseUrl = null
+        licenseUrl = null,
     )
 }
 
@@ -68,7 +68,7 @@ fun SnowbirdRepoDTO.toDwebEntity(archiveId: Long): ArchiveDwebEntity {
         archiveId = archiveId,
         archiveKey = key,
         archiveHash = "", // Initialize as empty
-        permissions = ArchivePermission.READ_WRITE
+        permissions = if (canWrite == true) ArchivePermission.READ_WRITE else ArchivePermission.READ_ONLY
     )
 }
 
@@ -81,7 +81,8 @@ fun ArchiveWithDweb.toDomain(): Archive {
         licenseUrl = archive.licenseUrl,
         isRemote = archive.isRemote,
         isArchived = archive.archived,
-        archiveKey = dwebMetadata?.archiveKey
+        archiveKey = dwebMetadata?.archiveKey,
+        permissions = dwebMetadata?.permissions
     )
 }
 
@@ -115,7 +116,7 @@ fun SnowbirdFileDTO.toEvidenceEntity(archiveId: Long, submissionId: Long, id: Lo
 fun SnowbirdFileDTO.toDwebEntity(evidenceId: Long): EvidenceDwebEntity {
     return EvidenceDwebEntity(
         evidenceId = evidenceId,
-        isDownloaded = false
+        isDownloaded = isDownloaded
     )
 }
 

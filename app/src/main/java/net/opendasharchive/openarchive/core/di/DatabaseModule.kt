@@ -22,9 +22,9 @@ val databaseModule = module {
             AppDatabase::class.java,
             "openarchive.db_room"
         )
-            .setQueryCallback(queryCallback = { sqlQuery, bindArgs ->
-                AppLogger.d("SQL Query: $sqlQuery, Bind Args: $bindArgs")
-            }, executor = Dispatchers.IO.asExecutor()  )
+//            .setQueryCallback(queryCallback = { sqlQuery, bindArgs ->
+//                AppLogger.d("SQL Query: $sqlQuery, Bind Args: $bindArgs")
+//            }, executor = Dispatchers.IO.asExecutor()  )
             .build()
     }
 

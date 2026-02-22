@@ -111,7 +111,13 @@ fun SnowbirdGroupItem(
                 text = group.name,
                 style = SaveTextStyles.titleMedium
             )
-            if (group.host.isNotBlank()) {
+            if (group.vaultKey?.isNotBlank() == true) {
+                Text(
+                    text = group.vaultKey,
+                    style = SaveTextStyles.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else if (group.host.isNotBlank()) {
                 Text(
                     text = group.host,
                     style = SaveTextStyles.bodySmall,

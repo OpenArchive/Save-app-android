@@ -67,7 +67,7 @@ interface RetrofitClient {
     suspend fun createRepo(
         @Path("groupKey") groupKey: String,
         @Body repoName: RequestName
-    ): Response<CreateRepoResponse>
+    ): Response<SnowbirdRepoDTO>
 
     @GET("groups/{groupKey}/repos")
     suspend fun fetchRepos(

@@ -18,8 +18,9 @@ import net.opendasharchive.openarchive.services.snowbird.data.*
 interface ISnowbirdGroupRepository {
     suspend fun createGroup(groupName: String): DomainResult<Vault>
     suspend fun fetchGroups(forceRefresh: Boolean = false): DomainResult<Unit>
+    suspend fun getVaultIdByKey(groupKey: String): Long?
     fun observeGroups(): Flow<List<Vault>>
-    suspend fun joinGroup(uriString: String): DomainResult<JoinGroupResponse>
+    suspend fun joinGroup(uriString: String): DomainResult<Vault>
 }
 
 class SnowbirdGroupRepository(
@@ -85,10 +86,34 @@ class SnowbirdGroupRepository(
         }
     }
 
-    override suspend fun joinGroup(uriString: String): DomainResult<JoinGroupResponse> {
+    override suspend fun getVaultIdByKey(groupKey: String): Long? {
+        return dwebDao.getVaultIdByKey(groupKey)
+    }
+
+    override suspend fun joinGroup(uriString: String): DomainResult<Vault> {
         return try {
             val response = api.joinGroup(MembershipRequest(uriString))
-            DomainResult.Success(response)
+            val data = response.group
+
+            // Deduplication lookup STRICTLY by DWeb key
+            val existingVaultId = dwebDao.getVaultIdByKey(data.key)
+
+            // Map SnowbirdGroup to Vault entity using the fixed ID (if exists) or 0 (for new)
+            val vaultEntity = data.toVaultEntity(id = existingVaultId ?: 0L)
+            val upsertedId = vaultDao.upsert(vaultEntity)
+            val vaultId = existingVaultId ?: upsertedId
+
+            val dwebEntity = data.toDwebEntity(vaultId)
+            dwebDao.upsertVaultMetadata(dwebEntity)
+
+            // Fetch the freshly saved vault with its metadata
+            val savedVaultWithDweb = dwebDao.getVaultWithDwebById(vaultId)
+            val savedVault = savedVaultWithDweb?.toDomain()
+            if (savedVault != null) {
+                DomainResult.Success(savedVault)
+            } else {
+                DomainResult.Error(DomainError.Unknown("Failed to retrieve saved group"))
+            }
         } catch (e: Exception) {
             AppLogger.e(e)
             DomainResult.Error(e.toDomainError())

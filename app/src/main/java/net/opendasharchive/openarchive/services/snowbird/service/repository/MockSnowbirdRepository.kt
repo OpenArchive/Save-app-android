@@ -14,6 +14,7 @@ import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.db.*
 import net.opendasharchive.openarchive.services.snowbird.data.*
+import net.opendasharchive.openarchive.util.DateUtils
 
 class MockSnowbirdGroupRepository(
     private val assetManager: AssetManager,
@@ -84,11 +85,33 @@ class MockSnowbirdGroupRepository(
         }
     }
 
-    override suspend fun joinGroup(uriString: String): DomainResult<JoinGroupResponse> {
+    override suspend fun getVaultIdByKey(groupKey: String): Long? {
+        return dwebDao.getVaultIdByKey(groupKey)
+    }
+
+    override suspend fun joinGroup(uriString: String): DomainResult<Vault> {
         delay(config.mockDelayMs)
         if (config.simulateErrors) return DomainResult.Error(DomainError.Unknown("Simulated error joining group"))
-        
-        return DomainResult.Success(JoinGroupResponse(success = true, message = "Successfully joined mock group"))
+
+        val content = assetManager.open("dweb/dweb_create_group_response.json").bufferedReader().use { it.readText() }
+        val groupDto = json.decodeFromString<SnowbirdGroupDTO>(content).copy(
+            uri = uriString
+        )
+
+        val existingVaultId = dwebDao.getVaultIdByKey(groupDto.key)
+        val vaultEntity = groupDto.toVaultEntity(id = existingVaultId ?: 0L)
+        val upsertedId = vaultDao.upsert(vaultEntity)
+        val vaultId = existingVaultId ?: upsertedId
+        dwebDao.upsertVaultMetadata(groupDto.toDwebEntity(vaultId))
+
+        val savedVaultWithDweb = dwebDao.getVaultWithDwebById(vaultId)
+        val savedVault = savedVaultWithDweb?.toDomain()
+
+        return if (savedVault != null) {
+            DomainResult.Success(savedVault)
+        } else {
+            DomainResult.Error(DomainError.Unknown("Failed to retrieve saved mock group"))
+        }
     }
 }
 
@@ -194,6 +217,10 @@ class MockSnowbirdRepoRepository(
         delay(config.mockDelayMs)
         return DomainResult.Success(RefreshGroupResponse(success = true))
     }
+
+    private suspend fun apiCreateRepoLikeBehavior(groupKey: String, repoName: String) {
+        assetManager.open("dweb/dweb_create_repo_response.json").bufferedReader().use { it.readText() }
+    }
 }
 
 class MockSnowbirdFileRepository(
@@ -245,6 +272,24 @@ class MockSnowbirdFileRepository(
     override suspend fun downloadFile(groupKey: String, repoKey: String, filename: String): DomainResult<ByteArray> {
         delay(config.mockDelayMs)
         return DomainResult.Success(ByteArray(0))
+    }
+
+    override suspend fun markFileDownloaded(
+        evidenceId: Long,
+        localFilePath: String,
+        mimeType: String
+    ): DomainResult<Unit> {
+        return try {
+            dwebDao.markEvidenceDownloaded(
+                evidenceId = evidenceId,
+                localFilePath = localFilePath,
+                mimeType = mimeType,
+                updatedAt = DateUtils.nowDateTime
+            )
+            DomainResult.Success(Unit)
+        } catch (e: Exception) {
+            DomainResult.Error(DomainError.Unknown("Failed to mark file as downloaded: ${e.message}"))
+        }
     }
 
     override suspend fun uploadFile(groupKey: String, repoKey: String, uri: Uri): DomainResult<FileUploadResult> {

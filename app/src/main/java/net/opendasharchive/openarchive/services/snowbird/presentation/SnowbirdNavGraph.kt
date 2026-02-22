@@ -1,8 +1,17 @@
 package net.opendasharchive.openarchive.services.snowbird.presentation
 
 import android.content.Intent
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import net.opendasharchive.openarchive.R
@@ -13,12 +22,9 @@ import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
 import net.opendasharchive.openarchive.services.snowbird.presentation.dashboard.SnowbirdDashboardScreen
 import net.opendasharchive.openarchive.services.snowbird.presentation.dashboard.SnowbirdDashboardViewModel
-import net.opendasharchive.openarchive.services.snowbird.presentation.file.SnowbirdFileListScreen
 import net.opendasharchive.openarchive.services.snowbird.presentation.file.SnowbirdFileAction
+import net.opendasharchive.openarchive.services.snowbird.presentation.file.SnowbirdFileListScreen
 import net.opendasharchive.openarchive.services.snowbird.presentation.file.SnowbirdFileViewModel
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.ui.res.painterResource
 import net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdCreateGroupScreen
 import net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdCreateGroupViewModel
 import net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdGroupListScreen
@@ -28,6 +34,7 @@ import net.opendasharchive.openarchive.services.snowbird.presentation.group.Snow
 import net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdShareScreen
 import net.opendasharchive.openarchive.services.snowbird.presentation.group.SnowbirdShareViewModel
 import net.opendasharchive.openarchive.services.snowbird.presentation.qrscanner.QRScannerScreen
+import net.opendasharchive.openarchive.services.snowbird.presentation.repo.SnowbirdRepoAction
 import net.opendasharchive.openarchive.services.snowbird.presentation.repo.SnowbirdRepoListScreen
 import net.opendasharchive.openarchive.services.snowbird.presentation.repo.SnowbirdRepoViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -105,10 +112,26 @@ fun EntryProviderScope<AppRoute>.snowbirdEntries(
             parametersOf(navigator, route)
         }
         val context = androidx.compose.ui.platform.LocalContext.current
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
 
         DefaultScaffold(
             title = stringResource(id = R.string.dweb_share_group),
-            onNavigateBack = { navigator.navigateBack() }
+            onNavigateBack = { navigator.navigateBack() },
+            actions = {
+                TextButton(
+                    enabled = state.qrContent.isNotBlank() && !state.isLoading,
+                    onClick = {
+                        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_SUBJECT, state.groupName)
+                            putExtra(Intent.EXTRA_TEXT, state.qrContent)
+                        }
+                        context.startActivity(Intent.createChooser(shareIntent, state.groupName))
+                    }
+                ) {
+                    Text(text = "Share", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
         ) {
             SnowbirdShareScreen(
                 viewModel = viewModel,
@@ -131,7 +154,20 @@ fun EntryProviderScope<AppRoute>.snowbirdEntries(
 
         DefaultScaffold(
             title = stringResource(id = R.string.dweb_repos),
-            onNavigateBack = { navigator.navigateBack() }
+            onNavigateBack = { navigator.navigateBack() },
+            actions = {
+                IconButton(
+                    onClick = {
+                        viewModel.onAction(SnowbirdRepoAction.RefreshGroupContent)
+                    }
+                ) {
+                    Icon(
+                        modifier = Modifier.size(24.dp),
+                        painter = painterResource(R.drawable.refresh),
+                        contentDescription = stringResource(R.string.refresh)
+                    )
+                }
+            }
         ) {
             SnowbirdRepoListScreen(
                 viewModel = viewModel
@@ -148,8 +184,14 @@ fun EntryProviderScope<AppRoute>.snowbirdEntries(
             title = stringResource(id = R.string.dweb_files),
             onNavigateBack = { viewModel.onAction(SnowbirdFileAction.NavigateBack) },
             actions = {
-                IconButton(onClick = { viewModel.onAction(SnowbirdFileAction.ShowContentPicker) }) {
-                    Icon(painter = painterResource(R.drawable.ic_add), contentDescription = "Add Files")
+                if (route.canWrite) {
+                    IconButton(onClick = { viewModel.onAction(SnowbirdFileAction.ShowContentPicker) }) {
+                        Icon(
+                            modifier = Modifier.size(20.dp),
+                            painter = painterResource(R.drawable.ic_add),
+                            contentDescription = "Add Files"
+                        )
+                    }
                 }
             }
         ) {

@@ -12,6 +12,7 @@ import net.opendasharchive.openarchive.services.snowbird.data.RequestName
 import net.opendasharchive.openarchive.services.snowbird.data.SnowbirdFileListDTO
 import net.opendasharchive.openarchive.services.snowbird.data.SnowbirdGroupDTO
 import net.opendasharchive.openarchive.services.snowbird.data.SnowbirdGroupListDTO
+import net.opendasharchive.openarchive.services.snowbird.data.SnowbirdRepoDTO
 import net.opendasharchive.openarchive.services.snowbird.data.SnowbirdRepoListDTO
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -128,7 +129,7 @@ class RetrofitAPI(private var context: Context, private val client: RetrofitClie
         return safeApiCall { client.refreshGroup(groupKey) }
     }
 
-    override suspend fun createRepo(groupKey: String, repoName: RequestName): net.opendasharchive.openarchive.services.snowbird.data.CreateRepoResponse {
+    override suspend fun createRepo(groupKey: String, repoName: RequestName): SnowbirdRepoDTO {
         return safeApiCall { client.createRepo(groupKey, repoName) }
     }
 
