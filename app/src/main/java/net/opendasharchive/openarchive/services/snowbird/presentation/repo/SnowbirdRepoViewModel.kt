@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.core.domain.Archive
+import net.opendasharchive.openarchive.core.domain.ArchivePermission
 import net.opendasharchive.openarchive.core.domain.DomainResult
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
@@ -24,7 +25,6 @@ data class SnowbirdRepoState(
 
 sealed interface SnowbirdRepoAction {
     data class SelectRepo(val repo: Archive) : SnowbirdRepoAction
-    data class CreateRepo(val name: String) : SnowbirdRepoAction
     data object RefreshRepos : SnowbirdRepoAction
     data object RefreshGroupContent : SnowbirdRepoAction
 }
@@ -59,11 +59,11 @@ class SnowbirdRepoViewModel(
                     AppRoute.SnowbirdFileListRoute(
                         archiveId = action.repo.id,
                         groupKey = _uiState.value.groupKey,
-                        repoKey = action.repo.archiveKey ?: ""
+                        repoKey = action.repo.archiveKey ?: "",
+                        canWrite = action.repo.permissions == ArchivePermission.READ_WRITE
                     )
                 )
             }
-            is SnowbirdRepoAction.CreateRepo -> createRepo(action.name)
             is SnowbirdRepoAction.RefreshRepos -> fetchRepos(forceRefresh = true)
             is SnowbirdRepoAction.RefreshGroupContent -> refreshGroupContent()
         }
@@ -95,22 +95,6 @@ class SnowbirdRepoViewModel(
         }
     }
 
-    private fun createRepo(name: String) {
-        val vaultId = _uiState.value.vaultId
-        val groupKey = _uiState.value.groupKey
-        viewModelScope.launch {
-            processingTracker.trackProcessing("create_repo") {
-                _uiState.update { it.copy(isLoading = true) }
-                val result = repository.createRepo(vaultId, groupKey, name)
-                _uiState.update { it.copy(isLoading = false) }
-
-                if (result is DomainResult.Error) {
-                    dialogManager.showErrorDialog(message = UiText.Dynamic(result.error.friendlyMessage))
-                }
-            }
-        }
-    }
-
     private fun refreshGroupContent() {
         val groupKey = _uiState.value.groupKey
         viewModelScope.launch {
@@ -119,12 +103,38 @@ class SnowbirdRepoViewModel(
                 val result = repository.refreshGroupContent(groupKey)
                 _uiState.update { it.copy(isLoading = false) }
 
-                if (result is DomainResult.Error) {
-                    dialogManager.showErrorDialog(message = UiText.Dynamic(result.error.friendlyMessage))
-                } else {
-                    fetchRepos(forceRefresh = true)
+                when (result) {
+                    is DomainResult.Error -> {
+                        dialogManager.showErrorDialog(message = UiText.Dynamic(result.error.friendlyMessage))
+                    }
+                    is DomainResult.Success -> {
+                        val repoErrors = result.data.refreshedRepos.mapNotNull { repo ->
+                            val error = repo.error?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                            val bucket = classifyRefreshError(error)
+                            "Repo ${repo.name} (${repo.repoId}): $bucket - $error"
+                        }
+                        if (repoErrors.isNotEmpty()) {
+                            val summary = repoErrors.take(8).joinToString("\n")
+                            val suffix = if (repoErrors.size > 8) "\n... and ${repoErrors.size - 8} more" else ""
+                            dialogManager.showErrorDialog(
+                                message = UiText.Dynamic(
+                                    "Some repositories failed to refresh:\n$summary$suffix"
+                                )
+                            )
+                        }
+                        fetchRepos(forceRefresh = true)
+                    }
                 }
             }
+        }
+    }
+
+    private fun classifyRefreshError(message: String): String {
+        val value = message.lowercase()
+        return when {
+            "dht" in value || "repo root hash" in value -> "DHT_DISCOVERY"
+            "download from any peer" in value || "any peer" in value -> "PEER_DOWNLOAD"
+            else -> "UNKNOWN"
         }
     }
 }

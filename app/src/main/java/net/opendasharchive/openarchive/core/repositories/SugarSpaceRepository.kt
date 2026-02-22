@@ -6,7 +6,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import net.opendasharchive.openarchive.core.domain.VaultAuth
 import net.opendasharchive.openarchive.core.domain.Vault
+import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.domain.mappers.toDomain
 import net.opendasharchive.openarchive.core.domain.mappers.toEntity
 import net.opendasharchive.openarchive.db.sugar.Space
@@ -17,11 +19,22 @@ import net.opendasharchive.openarchive.db.sugar.Space
 class SugarSpaceRepository(private val io: CoroutineDispatcher = Dispatchers.IO) : SpaceRepository {
 
     override suspend fun getSpaces(): List<Vault> = withContext(io) {
-        Space.getAll().asSequence().toList().map { it.toDomain() }
+        Space.getAll().asSequence()
+            .toList()
+            .map { it.toDomain() }
+            .filter { it.type == VaultType.INTERNET_ARCHIVE || it.type == VaultType.PRIVATE_SERVER }
     }
 
     override fun observeSpaces(): Flow<List<Vault>> = InvalidationBus.spaces
         .map { getSpaces() }
+        .distinctUntilChanged()
+
+    override fun observeHasDwebSpace(): Flow<Boolean> = InvalidationBus.spaces
+        .map {
+            Space.getAll().asSequence().toList().any { entity ->
+                entity.toDomain().type == VaultType.DWEB_STORAGE
+            }
+        }
         .distinctUntilChanged()
 
     override suspend fun getCurrentSpace(): Vault? = withContext(io) {
@@ -72,6 +85,16 @@ class SugarSpaceRepository(private val io: CoroutineDispatcher = Dispatchers.IO)
 
     override suspend fun getSpaceById(id: Long): Vault? = withContext(io) {
         Space.get(id)?.toDomain()
+    }
+
+    override suspend fun getVaultAuth(vaultId: Long): VaultAuth? = withContext(io) {
+        val space = Space.get(vaultId) ?: return@withContext null
+        VaultAuth(
+            vaultId = space.id,
+            type = space.toDomain().type,
+            username = space.username,
+            secret = space.password
+        )
     }
 
     override suspend fun deleteSpace(id: Long): Boolean = withContext(io) {

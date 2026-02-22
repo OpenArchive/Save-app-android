@@ -160,7 +160,7 @@
 
         <meta-data
             android:name="VERSION"
-            android:value="38" />
+            android:value="39" />
         <!--        NOTE: Please do not write migrations for added columns, as they are not needed.-->
         <!--        Only upgrade the version number when you add a new column.-->
         <!--        Version 38: Added 'hash' column to SNOWBIRD_REPO table-->

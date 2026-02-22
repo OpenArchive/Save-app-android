@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.domain.Evidence
+import net.opendasharchive.openarchive.core.domain.VaultAuth
 import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.services.Conduit
@@ -45,6 +46,7 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
 
         try {
             val vault = spaceRepository.getSpaceById(mEvidence.vaultId) ?: return false
+            val auth = spaceRepository.getVaultAuth(mEvidence.vaultId) ?: return false
             val mimeType = mEvidence.mimeType
 
             val client = SaveClient.get(mContext)
@@ -62,10 +64,10 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
             }
 
             // upload content synchronously for progress
-            client.uploadContent(fileName, mimeType, vault)
+            client.uploadContent(fileName, mimeType, vault, auth)
 
             // upload metadata and proofs, and report failures
-            client.uploadMetaData(metaJson, fileName, vault)
+            client.uploadMetaData(metaJson, fileName, auth)
 
             // Upload C2PA manifest, if enabled and successfully created.
             if (c2paManifest != null) {
@@ -87,7 +89,12 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
         // Ignored. Not used here.
     }
 
-    private suspend fun OkHttpClient.uploadContent(fileName: String, mimeType: String, vault: Vault) {
+    private suspend fun OkHttpClient.uploadContent(
+        fileName: String,
+        mimeType: String,
+        vault: Vault,
+        auth: VaultAuth
+    ) {
         val mediaUri = mEvidence.originalFilePath
 
         val url = "${ARCHIVE_API_ENDPOINT}/${mEvidence.serverUrl}/$fileName"
@@ -108,14 +115,14 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
         val request = Request.Builder()
             .url(url)
             .put(requestBody)
-            .headers(mainHeader(vault))
+            .headers(mainHeader(vault, auth))
             .build()
 
         execute(request)
     }
 
     @Throws(IOException::class)
-    private suspend fun OkHttpClient.uploadMetaData(content: String, fileName: String, vault: Vault) {
+    private suspend fun OkHttpClient.uploadMetaData(content: String, fileName: String, auth: VaultAuth) {
         val requestBody = RequestBodyUtil.create(
             textMediaType,
             content.byteInputStream(),
@@ -128,7 +135,7 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
         val request = Request.Builder()
             .url(url)
             .put(requestBody)
-            .headers(metadataHeader(vault))
+            .headers(metadataHeader(auth))
             .build()
 
         execute(request)
@@ -136,7 +143,7 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
 
     /// upload proof mode
     @Throws(IOException::class)
-    private suspend fun OkHttpClient.uploadProofFiles(uploadFile: File, vault: Vault) {
+    private suspend fun OkHttpClient.uploadProofFiles(uploadFile: File, auth: VaultAuth) {
         val requestBody = RequestBodyUtil.create(
             mContext.contentResolver,
             Uri.fromFile(uploadFile),
@@ -149,20 +156,20 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
         val request = Request.Builder()
             .url(url)
             .put(requestBody)
-            .headers(metadataHeader(vault))
+            .headers(metadataHeader(auth))
             .build()
 
         execute(request)
     }
 
-    private fun mainHeader(vault: Vault): Headers {
+    private fun mainHeader(vault: Vault, auth: VaultAuth): Headers {
         val builder = Headers.Builder()
             .add("Accept", "*/*")
             .add("x-archive-auto-make-bucket", "1")
             .add("x-amz-auto-make-bucket", "1")
             .add("x-archive-interactive-priority", "1")
             .add("x-archive-meta-language", "eng") // FIXME set based on locale or selected.
-            .add("Authorization", "LOW " + vault.username + ":" + vault.password)
+            .add("Authorization", "LOW " + auth.username + ":" + auth.secret)
 
         val author = mEvidence.author
         if (author.isNotEmpty()) {
@@ -222,11 +229,11 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
     }
 
     /// headers for meta-data and proof mode
-    private fun metadataHeader(vault: Vault): Headers {
+    private fun metadataHeader(auth: VaultAuth): Headers {
         return Headers.Builder()
             .add("x-amz-auto-make-bucket", "1")
             .add("x-archive-meta-language", "eng") // TODO: FIXME set based on locale or selected
-            .add("Authorization", "LOW " + vault.username + ":" + vault.password)
+            .add("Authorization", "LOW " + auth.username + ":" + auth.secret)
             .add("x-archive-meta-mediatype", "texts")
             .add("x-archive-meta-collection", "opensource")
             .build()

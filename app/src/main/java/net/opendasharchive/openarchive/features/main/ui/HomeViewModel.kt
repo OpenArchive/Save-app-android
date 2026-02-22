@@ -53,10 +53,11 @@ class HomeViewModel(
         combine(
             spaceRepository.observeSpaces(),
             spaceRepository.observeCurrentSpace(),
-        ) { spaces, current ->
+            spaceRepository.observeHasDwebSpace()
+        ) { spaces, current, hasDwebEntry ->
+            Triple(spaces, current, hasDwebEntry)
+        }.flatMapLatest { (spaces, current, hasDwebEntry) ->
             val actualCurrent = current ?: spaces.firstOrNull()
-            Triple(spaces, current, actualCurrent)
-        }.flatMapLatest { (spaces, current, actualCurrent) ->
             if (current == null && actualCurrent != null) {
                 viewModelScope.launch {
                     spaceRepository.setCurrentSpace(actualCurrent.id)
@@ -66,9 +67,8 @@ class HomeViewModel(
             val projectsFlow = actualCurrent?.let { projectRepository.observeProjects(it.id) }
                 ?: flowOf(emptyList())
 
-
-            projectsFlow.map { projects -> Triple(spaces, actualCurrent, projects) }
-        }.onEach { (spaces, currentSpace, projects) ->
+            projectsFlow.map { projects -> Quadruple(spaces, actualCurrent, projects, hasDwebEntry) }
+        }.onEach { (spaces, currentSpace, projects, hasDwebEntry) ->
             _uiState.update {
                 val selectedProjectId =
                     it.selectedProjectId?.takeIf { id -> projects.any { it.id == id } }
@@ -85,6 +85,7 @@ class HomeViewModel(
 
                 it.copy(
                     spaces = spaces,
+                    hasDwebEntry = hasDwebEntry,
                     currentSpace = currentSpace,
                     projects = projects,
                     selectedProjectId = selectedProjectId,
@@ -334,3 +335,10 @@ class HomeViewModel(
 
     private fun settingsIndex(projectCount: Int): Int = maxOf(1, projectCount)
 }
+
+private data class Quadruple<A, B, C, D>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val fourth: D
+)

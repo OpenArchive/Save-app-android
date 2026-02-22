@@ -3,8 +3,8 @@ package net.opendasharchive.openarchive.services.snowbird.service.repository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import net.opendasharchive.openarchive.core.domain.Archive
-import net.opendasharchive.openarchive.db.ArchiveDao
 import net.opendasharchive.openarchive.core.domain.DomainError
+import net.opendasharchive.openarchive.db.ArchiveDao
 import net.opendasharchive.openarchive.core.domain.DomainResult
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.DwebDao
@@ -37,10 +37,19 @@ class SnowbirdRepoRepository(
     override suspend fun createRepo(vaultId: Long, groupKey: String, repoName: String): DomainResult<Archive> {
         return try {
             val response = api.createRepo(groupKey, RequestName(repoName))
-            // The API response for createRepo is tricky, it returns CreateRepoResponse which needs mapping to a repo
-            // In the original code, it was: val repo = response.toRepo(groupKey)
-            // Let's assume we can map it to our entities.
-            // Wait, I should check CreateRepoResponse and toRepo extension.
+
+            // Deduplication lookup STRICTLY by DWeb key
+            val existingArchiveId = dwebDao.getArchiveIdByKey(response.key)
+
+            // Map SnowbirdRepo to Archive entity using the fixed ID (if exists) or 0 (for new)
+            val archiveEntity = response.toArchiveEntity(
+                vaultId = vaultId,
+                submissionId = 0L,
+                id = existingArchiveId ?: 0L
+            )
+            val upsertedId = archiveDao.upsert(archiveEntity)
+            val archiveId = existingArchiveId ?: upsertedId
+
 
             // For now, let's just fetch all repos after creation or handle it if we have the data.
             fetchRepos(vaultId, groupKey, forceRefresh = true)
@@ -113,5 +122,3 @@ class SnowbirdRepoRepository(
         }
     }
 }
-
-

@@ -3,6 +3,9 @@ package net.opendasharchive.openarchive.db
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.AutoMigration
+import androidx.room.DeleteColumn
+import androidx.room.migration.AutoMigrationSpec
 
 @Database(
     entities = [
@@ -15,7 +18,14 @@ import androidx.room.TypeConverters
         ArchiveDwebEntity::class,
         EvidenceDwebEntity::class
     ],
-    version = 1,
+    autoMigrations = [
+        AutoMigration(
+            from = 1,
+            to = 2,
+            spec = RemoveVaultPasswordColumnMigration::class
+        )
+    ],
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -27,3 +37,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun migrationDao(): MigrationDao
     abstract fun dwebDao(): DwebDao
 }
+
+@DeleteColumn(tableName = "vaults", columnName = "password")
+class RemoveVaultPasswordColumnMigration : AutoMigrationSpec

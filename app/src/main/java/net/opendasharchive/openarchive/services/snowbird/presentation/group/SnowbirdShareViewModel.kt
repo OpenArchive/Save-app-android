@@ -13,12 +13,11 @@ import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.db.DwebDao
-import net.opendasharchive.openarchive.extensions.urlEncode
+import net.opendasharchive.openarchive.services.snowbird.util.SnowbirdJoinCode
 
 data class SnowbirdShareState(
     val isLoading: Boolean = false,
     val groupName: String = "",
-    val actualUri: String = "",
     val qrContent: String = ""
 )
 
@@ -65,8 +64,8 @@ class SnowbirdShareViewModel(
             _uiState.update { it.copy(isLoading = true) }
             val vaultWithDweb = dwebDao.getVaultWithDwebByKey(groupKey)
             val groupName = vaultWithDweb?.vault?.name ?: "Unknown Group"
-            val actualUri = vaultWithDweb?.dwebMetadata?.vaultKey ?: groupKey
-            val qrContent = "$actualUri?name=${groupName.urlEncode()}"
+            val groupUri = vaultWithDweb?.vault?.host?.trim().orEmpty()
+            val qrContent = SnowbirdJoinCode.build(groupUri, groupName)
 
             _uiState.update {
                 it.copy(

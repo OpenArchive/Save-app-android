@@ -1,6 +1,7 @@
 package net.opendasharchive.openarchive.services.snowbird.presentation.file
 
 import android.net.Uri
+import android.webkit.MimeTypeMap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
@@ -149,10 +150,20 @@ class SnowbirdFileViewModel(
 
                 when (result) {
                     is DomainResult.Success -> {
-                        val internalUri = fileStorage.saveByteArrayToFile(result.data, filename).getOrNull()
-                        if (internalUri != null) {
+                        val savedFile = fileStorage.saveByteArrayToFile(result.data, filename).getOrNull()
+                        if (savedFile != null) {
+                            val markResult = repository.markFileDownloaded(
+                                evidenceId = evidence.id,
+                                localFilePath = savedFile.localFileUri,
+                                mimeType = resolveDownloadedMimeType(evidence)
+                            )
                             fileStorage.saveImageToGallery(result.data, filename)
-                            _events.emit(SnowbirdFileEvent.FileDownloaded(internalUri))
+                            if (markResult is DomainResult.Error) {
+                                dialogManager.showErrorDialog(
+                                    message = UiText.Dynamic(markResult.error.friendlyMessage)
+                                )
+                            }
+                            _events.emit(SnowbirdFileEvent.FileDownloaded(savedFile.shareUri))
                         } else {
                             dialogManager.showErrorDialog(message = UiText.Dynamic("Failed to save file locally"))
                         }
@@ -180,5 +191,20 @@ class SnowbirdFileViewModel(
                 }
             }
         }
+    }
+
+    private fun resolveDownloadedMimeType(evidence: Evidence): String {
+        val existing = evidence.mimeType.trim()
+        if (existing.isNotBlank() && existing != "application/octet-stream") {
+            return existing
+        }
+
+        val extension = evidence.title.substringAfterLast('.', "").lowercase()
+        val inferred = if (extension.isNotBlank()) {
+            MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+        } else {
+            null
+        }
+        return inferred ?: existing.ifBlank { "application/octet-stream" }
     }
 }

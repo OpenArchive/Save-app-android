@@ -133,6 +133,7 @@ class BrowseFoldersViewModel(
             )
 
             val projectId = projectRepository.addProject(archive)
+            AppLogger.i("New project added: $projectId")
 
             dialogManager.showDialog(
                 DialogConfig(

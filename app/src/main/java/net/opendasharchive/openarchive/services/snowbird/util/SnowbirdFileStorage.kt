@@ -15,7 +15,12 @@ import java.io.FileOutputStream
 
 class SnowbirdFileStorage(private val context: Context) {
 
-    suspend fun saveByteArrayToFile(byteArray: ByteArray, filename: String): Result<Uri> =
+    data class SavedFile(
+        val shareUri: Uri,
+        val localFileUri: String
+    )
+
+    suspend fun saveByteArrayToFile(byteArray: ByteArray, filename: String): Result<SavedFile> =
         withContext(Dispatchers.IO) {
             runCatching {
                 val directory = File(context.filesDir, "files").apply { mkdirs() }
@@ -23,10 +28,15 @@ class SnowbirdFileStorage(private val context: Context) {
 
                 file.outputStream().use { it.write(byteArray) }
 
-                FileProvider.getUriForFile(
+                val shareUri = FileProvider.getUriForFile(
                     context,
                     "${context.packageName}.provider",
                     file
+                )
+                val localFileUri = Uri.fromFile(file).toString()
+                SavedFile(
+                    shareUri = shareUri,
+                    localFileUri = localFileUri
                 )
             }
         }

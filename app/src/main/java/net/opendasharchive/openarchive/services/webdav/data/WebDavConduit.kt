@@ -17,10 +17,11 @@ class WebDavConduit(evidence: Evidence, context: Context) : Conduit(evidence, co
 
     override suspend fun upload(): Boolean {
         val vault = spaceRepository.getSpaceById(mEvidence.vaultId) ?: return false
+        val auth = spaceRepository.getVaultAuth(mEvidence.vaultId) ?: return false
         val base = vault.hostUrl ?: return false
         val path = getPath() ?: return false
 
-        mClient = SaveClient.getSardine(mContext, vault.username, vault.password)
+        mClient = SaveClient.getSardine(mContext, auth.username, auth.secret)
 
         sanitize()
 

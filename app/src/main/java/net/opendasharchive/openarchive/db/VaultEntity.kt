@@ -12,7 +12,6 @@ data class VaultEntity(
     val name: String,
     val username: String,
     val displayName: String,
-    val password: String,
     val host: String,
     val metaData: String,
     val licenseUrl: String?,

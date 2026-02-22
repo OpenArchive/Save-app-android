@@ -3,6 +3,7 @@ package net.opendasharchive.openarchive.services.snowbird.presentation.dashboard
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.content.ClipboardManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,10 +24,10 @@ import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.services.snowbird.service.ServiceStatus
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdServiceController
+import net.opendasharchive.openarchive.services.snowbird.util.SnowbirdJoinCode
 import net.opendasharchive.openarchive.services.snowbird.util.SnowbirdQRDecoder
 import net.opendasharchive.openarchive.util.ProcessingTracker
 import net.opendasharchive.openarchive.util.trackProcessing
-import net.opendasharchive.openarchive.extensions.getQueryParameter
 
 data class SnowbirdDashboardState(
     val isLoading: Boolean = false,
@@ -43,6 +44,7 @@ sealed interface SnowbirdDashboardAction {
     data class MediaPicked(val type: AddMediaType) : SnowbirdDashboardAction
     data class QRResultScanned(val result: String) : SnowbirdDashboardAction
     data class ImagePickedForQR(val uri: Uri, val context: Context) : SnowbirdDashboardAction
+    data class PasteCodeFromClipboard(val context: Context) : SnowbirdDashboardAction
 }
 
 sealed interface SnowbirdDashboardEvent {
@@ -113,6 +115,9 @@ class SnowbirdDashboardViewModel(
             is SnowbirdDashboardAction.ImagePickedForQR -> {
                 processImageForQR(action.uri, action.context)
             }
+            is SnowbirdDashboardAction.PasteCodeFromClipboard -> {
+                processCodeFromClipboard(action.context)
+            }
         }
     }
 
@@ -149,13 +154,29 @@ class SnowbirdDashboardViewModel(
     }
 
     private fun processScannedData(uriString: String) {
-        val name = uriString.getQueryParameter("name")
+        val name = SnowbirdJoinCode.extractGroupName(uriString)
         if (name == null) {
-            showError(UiText.Dynamic("Unable to determine group name from QR code."))
+            showError(UiText.Dynamic("Unable to determine group name from the provided code."))
             return
         }
 
         navigator.navigateTo(AppRoute.SnowbirdJoinGroupRoute(uriString))
     }
-}
 
+    private fun processCodeFromClipboard(context: Context) {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val code = clipboard.primaryClip
+            ?.takeIf { it.itemCount > 0 }
+            ?.getItemAt(0)
+            ?.coerceToText(context)
+            ?.toString()
+            ?.trim()
+
+        if (code.isNullOrBlank()) {
+            showError(UiText.Dynamic("Clipboard is empty. Copy a DWeb group code and try again."))
+            return
+        }
+
+        processScannedData(code)
+    }
+}

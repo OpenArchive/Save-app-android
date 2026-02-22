@@ -135,7 +135,8 @@ sealed class AppRoute(open val deeplink: String) : NavKey {
     data class SnowbirdFileListRoute(
         val archiveId: Long,
         val groupKey: String,
-        val repoKey: String
+        val repoKey: String,
+        val canWrite: Boolean = true
     ) : AppRoute("snowbird_file_list")
 
     @Serializable

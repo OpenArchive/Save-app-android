@@ -222,8 +222,7 @@ class PreviewMediaViewModel(
 
     private fun invokeUpload() {
 
-        //if (Prefs.dontShowUploadHint) {
-        if (true) {
+        if (Prefs.dontShowUploadHint) {
             handleUploadAll()
         } else {
             var doNotShowAgain = false

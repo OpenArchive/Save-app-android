@@ -9,11 +9,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.core.domain.DomainResult
 import net.opendasharchive.openarchive.core.domain.VaultType
-import net.opendasharchive.openarchive.features.main.ui.AppRoute
-import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
+import net.opendasharchive.openarchive.features.main.ui.AppRoute
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.services.snowbird.service.repository.ISnowbirdGroupRepository
 import net.opendasharchive.openarchive.services.snowbird.service.repository.ISnowbirdRepoRepository
 import net.opendasharchive.openarchive.util.ProcessingTracker
@@ -33,7 +33,6 @@ sealed interface SnowbirdCreateGroupAction {
 }
 
 
-
 class SnowbirdCreateGroupViewModel(
     private val navigator: Navigator,
     route: AppRoute.SnowbirdCreateGroupRoute,
@@ -51,9 +50,11 @@ class SnowbirdCreateGroupViewModel(
             is SnowbirdCreateGroupAction.UpdateGroupName -> {
                 _uiState.update { it.copy(groupName = action.name) }
             }
+
             is SnowbirdCreateGroupAction.UpdateRepoName -> {
                 _uiState.update { it.copy(repoName = action.name) }
             }
+
             is SnowbirdCreateGroupAction.CreateGroup -> createGroupWithRepo()
             is SnowbirdCreateGroupAction.Cancel -> {
                 navigator.navigateBack()
@@ -71,25 +72,31 @@ class SnowbirdCreateGroupViewModel(
         viewModelScope.launch {
             processingTracker.trackProcessing("create_group_with_repo") {
                 _uiState.update { it.copy(isLoading = true) }
-                val groupResult = repository.createGroup(groupName)
-                
-                when (groupResult) {
+                when (val groupResult = repository.createGroup(groupName)) {
                     is DomainResult.Success -> {
                         val group = groupResult.data
-                        val repoResult = repoRepository.createRepo(group.id, group.vaultKey ?: "", repoName)
-                        _uiState.update { it.copy(isLoading = false) }
-                        
+                        val groupKey = group.vaultKey.orEmpty()
+
+                        val repoResult = repoRepository.createRepo(
+                            vaultId = group.id,
+                            groupKey = groupKey,
+                            repoName = repoName
+                        )
+
                         when (repoResult) {
                             is DomainResult.Success -> {
-                                navigator.navigateTo(
-                                    AppRoute.SpaceSetupSuccessRoute(VaultType.DWEB_STORAGE)
-                                )
+                                navigator.navigateTo(AppRoute.SpaceSetupSuccessRoute(VaultType.DWEB_STORAGE))
                             }
+
                             is DomainResult.Error -> {
-                                dialogManager.showErrorDialog(message = UiText.Dynamic(repoResult.error.friendlyMessage))
+                                _uiState.update { it.copy(isLoading = false) }
+                                dialogManager.showErrorDialog(
+                                    message = UiText.Dynamic(repoResult.error.friendlyMessage)
+                                )
                             }
                         }
                     }
+
                     is DomainResult.Error -> {
                         _uiState.update { it.copy(isLoading = false) }
                         dialogManager.showErrorDialog(message = UiText.Dynamic(groupResult.error.friendlyMessage))

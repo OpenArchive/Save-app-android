@@ -23,6 +23,7 @@ import net.opendasharchive.openarchive.features.core.dialog.showErrorDialog
 import net.opendasharchive.openarchive.services.snowbird.service.repository.ISnowbirdGroupRepository
 import net.opendasharchive.openarchive.util.ProcessingTracker
 import net.opendasharchive.openarchive.util.trackProcessing
+import net.opendasharchive.openarchive.util.trackProcessingWithTimeout
 
 data class SnowbirdGroupListState(
     val groups: List<Vault> = emptyList(),
@@ -55,7 +56,8 @@ class SnowbirdGroupListViewModel(
             }
             .launchIn(viewModelScope)
         
-        fetchGroups()
+        // First load forces network refresh so newly joined memberships surface immediately.
+        fetchGroups(forceRefresh = true)
     }
 
     fun onAction(action: SnowbirdGroupListAction) {

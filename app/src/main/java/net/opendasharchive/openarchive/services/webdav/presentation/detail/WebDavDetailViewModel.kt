@@ -57,7 +57,7 @@ class WebDavDetailViewModel(
             val newState = currentState.copy(
                 serverUrl = vault.host,
                 username = vault.username,
-                password = vault.password,
+                password = "",
                 name = vault.name,
                 originalName = vault.name,
                 originalLicenseUrl = vault.licenseUrl

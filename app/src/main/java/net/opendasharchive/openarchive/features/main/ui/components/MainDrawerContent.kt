@@ -58,6 +58,8 @@ fun MainDrawerContent(
     onAddNewFolderClicked: () -> Unit = {},
     onSpaceSelected: (Long) -> Unit,
     onAddNewSpaceClicked: () -> Unit,
+    showDwebEntry: Boolean = false,
+    onDwebSelected: () -> Unit = {},
 ) {
 
     val serverAccordionState = rememberAccordionState()
@@ -78,9 +80,14 @@ fun MainDrawerContent(
                 serverAccordionState = serverAccordionState,
                 selectedSpace = selectedSpace,
                 spaceList = spaceList,
+                showDwebEntry = showDwebEntry,
                 onSpaceSelected = { selectedSpace ->
                     serverAccordionState.collapse()
                     onSpaceSelected(selectedSpace.id)
+                },
+                onDwebSelected = {
+                    serverAccordionState.collapse()
+                    onDwebSelected()
                 },
                 onAddAnotherAccountClicked = onAddNewSpaceClicked
             )
@@ -265,7 +272,9 @@ fun ExpandableSpaceList(
     serverAccordionState: AccordionState,
     selectedSpace: Vault? = null,
     spaceList: List<Vault>,
+    showDwebEntry: Boolean = false,
     onSpaceSelected: (Vault) -> Unit,
+    onDwebSelected: () -> Unit,
     onAddAnotherAccountClicked: () -> Unit,
 ) {
     Accordion(
@@ -313,6 +322,10 @@ fun ExpandableSpaceList(
                     )
                 }
 
+                if (showDwebEntry) {
+                    DrawerDwebItem(onClick = onDwebSelected)
+                }
+
                 AddAnotherAccountItem {
                     onAddAnotherAccountClicked()
                 }
@@ -320,6 +333,32 @@ fun ExpandableSpaceList(
 
         }
     )
+}
+
+@Composable
+private fun DrawerDwebItem(
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colorResource(R.color.colorDrawerSpaceListBackground))
+            .clickable { onClick() }
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        SpaceIcon(
+            type = VaultType.DWEB_STORAGE,
+            modifier = Modifier.size(24.dp),
+            tint = colorResource(R.color.colorOnBackground)
+        )
+        Text(
+            text = stringResource(R.string.dweb_title),
+            style = MaterialTheme.typography.bodyLarge,
+            color = colorResource(R.color.colorText)
+        )
+    }
 }
 
 @Composable
@@ -414,7 +453,9 @@ private fun ExpandableSpaceListPreview() {
             selectedSpace = dummySpaceList[1].toDomain(),
             spaceList = dummySpaceList.map { it.toDomain() },
             serverAccordionState = state,
+            showDwebEntry = true,
             onSpaceSelected = {},
+            onDwebSelected = {},
             onAddAnotherAccountClicked = {}
         )
     }

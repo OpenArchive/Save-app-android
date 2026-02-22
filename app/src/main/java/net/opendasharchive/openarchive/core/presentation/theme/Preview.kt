@@ -35,7 +35,8 @@ annotation class PreviewLight
 )
 annotation class PreviewDark
 
-@PreviewLightDark
+@PreviewLight
+@PreviewDark
 annotation class PreviewLightDark
 
 @Composable
