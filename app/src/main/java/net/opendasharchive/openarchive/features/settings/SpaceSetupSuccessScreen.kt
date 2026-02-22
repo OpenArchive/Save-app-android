@@ -152,8 +152,8 @@ class SpaceSetupSuccessViewModel(
             spaceType = route.spaceType,
             message = when(route.spaceType) {
                 VaultType.PRIVATE_SERVER -> UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server)
-                VaultType.INTERNET_ARCHIVE -> UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server)
-                VaultType.DWEB_STORAGE -> UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server)
+                VaultType.INTERNET_ARCHIVE -> UiText.Resource(R.string.you_have_successfully_connected_to_the_internet_archive)
+                VaultType.DWEB_STORAGE -> UiText.Resource(R.string.you_have_successfully_created_dweb)
             },
         )
     )
@@ -172,7 +172,11 @@ class SpaceSetupSuccessViewModel(
 
         //TODO: Navigate back with result
         _uiEvent.send(SpaceSetupSuccessEvent.SendResultBack)
+
         navigator.navigateAndClear(AppRoute.HomeRoute)
+        if (uiState.value.spaceType == VaultType.DWEB_STORAGE) {
+            navigator.navigateTo(AppRoute.SnowbirdDashboardRoute)
+        }
     }
 }
 

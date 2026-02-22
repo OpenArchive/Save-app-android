@@ -44,7 +44,9 @@ data class SnowbirdFileListDTO(
 data class FileUploadResult(
     val name: String,
     @SerialName("updated_collection_hash")
-    val updatedCollectionHash: String
+    val updatedCollectionHash: String,
+    @SerialName("file_hash")
+    val fileHash: String? = null
 )
 
 @Serializable
@@ -61,7 +63,27 @@ data class JoinGroupResponse(
 
 @Serializable
 data class RefreshGroupResponse(
-    val success: Boolean
+    @SerialName("repos")
+    val refreshedRepos: List<RefreshedRepo> = emptyList(),
+    val status: String? = null,
+    val success: Boolean? = null
+)
+
+@Serializable
+data class RefreshedRepo(
+    @SerialName("repo_id")
+    val repoId: String,
+    @SerialName("repo_hash")
+    val hash: String? = null,
+    val name: String,
+    @SerialName("can_write")
+    val canWrite: Boolean = false,
+    @SerialName("all_files")
+    val allFiles: List<String> = emptyList(),
+    @SerialName("refreshed_files")
+    val refreshedFiles: List<String> = emptyList(),
+    @SerialName("error")
+    val error: String? = null
 )
 
 @Serializable

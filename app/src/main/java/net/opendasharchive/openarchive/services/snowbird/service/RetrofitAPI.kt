@@ -25,8 +25,15 @@ class RetrofitAPI(private var context: Context, private val client: RetrofitClie
 
     private val json = Json { ignoreUnknownKeys = true }
 
+    private fun ensureServerReadyForNetwork() {
+        if (SnowbirdService.getCurrentStatus() !is ServiceStatus.Connected) {
+            throw IOException("DWeb server is not ready. Enable DWeb Server and wait for it to connect.")
+        }
+    }
+
     private suspend fun <T> safeApiCall(call: suspend () -> Response<T>): T {
         try {
+            ensureServerReadyForNetwork()
             val response = call()
             if (response.isSuccessful) {
                 return response.body() ?: throw IOException("Empty response body")
@@ -63,8 +70,14 @@ class RetrofitAPI(private var context: Context, private val client: RetrofitClie
     }
 
     override suspend fun downloadFile(groupKey: String, repoKey: String, filename: String): ByteArray {
-        val responseBody = client.downloadFile(groupKey, repoKey, filename)
-        return responseBody.bytes()
+        try {
+            ensureServerReadyForNetwork()
+            val responseBody = client.downloadFile(groupKey, repoKey, filename)
+            return responseBody.bytes()
+        } catch (e: Exception) {
+            if (e is IOException) throw e
+            throw IOException("Network error: ${e.localizedMessage ?: "Unknown error"}", e)
+        }
     }
 
     override suspend fun uploadFile(groupKey: String, repoKey: String, uri: Uri): FileUploadResult {

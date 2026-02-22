@@ -119,12 +119,38 @@ class SnowbirdRepoViewModel(
                 val result = repository.refreshGroupContent(groupKey)
                 _uiState.update { it.copy(isLoading = false) }
 
-                if (result is DomainResult.Error) {
-                    dialogManager.showErrorDialog(message = UiText.Dynamic(result.error.friendlyMessage))
-                } else {
-                    fetchRepos(forceRefresh = true)
+                when (result) {
+                    is DomainResult.Error -> {
+                        dialogManager.showErrorDialog(message = UiText.Dynamic(result.error.friendlyMessage))
+                    }
+                    is DomainResult.Success -> {
+                        val repoErrors = result.data.refreshedRepos.mapNotNull { repo ->
+                            val error = repo.error?.takeIf { it.isNotBlank() } ?: return@mapNotNull null
+                            val bucket = classifyRefreshError(error)
+                            "Repo ${repo.name} (${repo.repoId}): $bucket - $error"
+                        }
+                        if (repoErrors.isNotEmpty()) {
+                            val summary = repoErrors.take(8).joinToString("\n")
+                            val suffix = if (repoErrors.size > 8) "\n... and ${repoErrors.size - 8} more" else ""
+                            dialogManager.showErrorDialog(
+                                message = UiText.Dynamic(
+                                    "Some repositories failed to refresh:\n$summary$suffix"
+                                )
+                            )
+                        }
+                        fetchRepos(forceRefresh = true)
+                    }
                 }
             }
+        }
+    }
+
+    private fun classifyRefreshError(message: String): String {
+        val value = message.lowercase()
+        return when {
+            "dht" in value || "repo root hash" in value -> "DHT_DISCOVERY"
+            "download from any peer" in value || "any peer" in value -> "PEER_DOWNLOAD"
+            else -> "UNKNOWN"
         }
     }
 }

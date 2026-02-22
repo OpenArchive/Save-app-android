@@ -244,7 +244,6 @@
     <ID>FinalNewline:DummyData.kt$net.opendasharchive.openarchive.db.sugar.DummyData.kt</ID>
     <ID>FinalNewline:DurationExtensions.kt$net.opendasharchive.openarchive.extensions.DurationExtensions.kt</ID>
     <ID>FinalNewline:EmptyableRecyclerView.kt$net.opendasharchive.openarchive.features.main.ui.EmptyableRecyclerView.kt</ID>
-    <ID>FinalNewline:FileUploadResult.kt$net.opendasharchive.openarchive.services.snowbird.service.db.FileUploadResult.kt</ID>
     <ID>FinalNewline:FileUtils.kt$net.opendasharchive.openarchive.util.FileUtils.kt</ID>
     <ID>FinalNewline:FolderBar.kt$net.opendasharchive.openarchive.features.main.ui.FolderBar.kt</ID>
     <ID>FinalNewline:FolderDetailScreen.kt$net.opendasharchive.openarchive.features.settings.FolderDetailScreen.kt</ID>
@@ -293,7 +292,6 @@
     <ID>FinalNewline:RetryConfig.kt$net.opendasharchive.openarchive.services.snowbird.service.RetryConfig.kt</ID>
     <ID>FinalNewline:SaveTextStyles.kt$net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles.kt</ID>
     <ID>FinalNewline:ScryptHashingStrategy.kt$net.opendasharchive.openarchive.features.settings.passcode.ScryptHashingStrategy.kt</ID>
-    <ID>FinalNewline:SerializableMarker.kt$net.opendasharchive.openarchive.services.snowbird.service.db.SerializableMarker.kt</ID>
     <ID>FinalNewline:ServerOptionItem.kt$net.opendasharchive.openarchive.features.spaces.ServerOptionItem.kt</ID>
     <ID>FinalNewline:SettingsFragment.kt$net.opendasharchive.openarchive.features.settings.SettingsFragment.kt</ID>
     <ID>FinalNewline:SetupLicenseViewModel.kt$net.opendasharchive.openarchive.features.settings.license.SetupLicenseViewModel.kt</ID>
@@ -1987,7 +1985,6 @@
     <ID>NewLineAtEndOfFile:DummyData.kt$net.opendasharchive.openarchive.db.sugar.DummyData.kt</ID>
     <ID>NewLineAtEndOfFile:DurationExtensions.kt$net.opendasharchive.openarchive.extensions.DurationExtensions.kt</ID>
     <ID>NewLineAtEndOfFile:EmptyableRecyclerView.kt$net.opendasharchive.openarchive.features.main.ui.EmptyableRecyclerView.kt</ID>
-    <ID>NewLineAtEndOfFile:FileUploadResult.kt$net.opendasharchive.openarchive.services.snowbird.service.db.FileUploadResult.kt</ID>
     <ID>NewLineAtEndOfFile:FileUtils.kt$net.opendasharchive.openarchive.util.FileUtils.kt</ID>
     <ID>NewLineAtEndOfFile:FolderBar.kt$net.opendasharchive.openarchive.features.main.ui.FolderBar.kt</ID>
     <ID>NewLineAtEndOfFile:FolderDetailScreen.kt$net.opendasharchive.openarchive.features.settings.FolderDetailScreen.kt</ID>
