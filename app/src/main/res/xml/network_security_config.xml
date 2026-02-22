@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
+    <!--
+        Snowbird (Raven) server health-checks over HTTP to localhost before starting.
+        Storacha bridge API may also use HTTP on the staging domain.
+    -->
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">save-storacha.staging.hypha.coop</domain>f
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="true">save-storacha.staging.hypha.coop</domain>
     </domain-config>
 </network-security-config>

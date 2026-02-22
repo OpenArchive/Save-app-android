@@ -29,6 +29,7 @@ import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaMediaBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.features.core.ToolbarAction
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
@@ -299,7 +300,7 @@ class StorachaMediaFragment :
             },
         )
 
-        activity?.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+        // Menu actions are now provided via getToolbarActions() to the Compose TopAppBar
     }
 
     override fun onResume() {
@@ -323,39 +324,26 @@ class StorachaMediaFragment :
         }
     }
 
-    override fun onCreateMenu(
-        menu: Menu,
-        menuInflater: MenuInflater,
-    ) {
-        menuInflater.inflate(R.menu.menu_browse_folder, menu)
+    override fun getToolbarActions(): List<ToolbarAction> {
+        if (!args.isAdmin) return emptyList()
+        return listOf(
+            ToolbarAction(
+                iconRes = R.drawable.ic_add,
+                label = getString(R.string.manage_access),
+                onClick = {
+                    val action =
+                        StorachaMediaFragmentDirections.actionFragmentStorachaMediaToFragmentStorachaViewDids(
+                            spaceId = args.spaceId,
+                            sessionId = args.sessionId,
+                        )
+                    findNavController().navigate(action)
+                },
+            )
+        )
     }
 
-    override fun onPrepareMenu(menu: Menu) {
-        super.onPrepareMenu(menu)
-        val addMenuItem = menu.findItem(R.id.action_add)
-        if (args.isAdmin) {
-            addMenuItem?.isVisible = true
-            addMenuItem?.title = getString(R.string.manage_access)
-            addMenuItem?.isEnabled = viewModel.loadingState.value != LoadingState.UPLOADING
-        } else {
-            addMenuItem?.isVisible = false
-        }
-    }
-
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
-        when (menuItem.itemId) {
-            R.id.action_add -> {
-                val action =
-                    StorachaMediaFragmentDirections.actionFragmentStorachaMediaToFragmentStorachaViewDids(
-                        spaceId = args.spaceId,
-                        sessionId = args.sessionId,
-                    )
-                findNavController().navigate(action)
-                true
-            }
-
-            else -> false
-        }
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) = Unit
+    override fun onMenuItemSelected(menuItem: MenuItem) = false
 
     private fun handleMedia(uri: Uri) {
         Timber.d("Going to upload file: $uri")

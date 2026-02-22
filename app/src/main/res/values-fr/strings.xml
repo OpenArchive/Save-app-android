@@ -24,7 +24,6 @@
     <string name="tor_disabled_message">Cette fonctionnalité est actuellement en phase de développement. En attendant, pour améliorer le niveau de confidentialité et de sécurité de vos communications, vous pouvez utiliser Orbot ou n\'importe quel autre VPN de votre choix.</string>
     <string name="tor_download_btn_label">Télécharger Orbot</string>
 
-
     <!-- Errors -->
 
     <!-- Server -->
@@ -53,21 +52,6 @@
 
     <string name="prefs_use_tor_title">Activer le routage en oinon</string>
     <string name="prefs_use_tor_summary">Ne transférer que par le Réseau Tor</string>
-
-    <string name="prefs_use_proofmode_title">Activer ProofMode</string>
-    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode est un moyen d\'améliorer l\'authentification et la vérification du contenu multimédia. <a href=\"%1$s\"><u>Pour en savoir plus cliquez ici.</u></a>]]></string>
-
-    <string name="proof_mode_warning_text"><![CDATA[
-Pour vous permettre de vérifier où votre média a été enregistré, ProofMode recueille des données auprès des tours satellites situées à proximité et ce afin de confirmer votre position. Pour renforcer la crédibilité et le contexte de votre média, ProofMode ajoute un fichier de métadonnées indépendant à votre média*. À savoir: Android nécessite l\'accès à votre position pour recueillir ces informations.<br/><br/>
-<b>*Ni <i>Save </i>ni<i> OpenArchive</i> ne pourront accéder à ces données de localisation ni les stocker. Seules les personnes ayant accès aux fichiers du serveur pourront le faire.
-]]>\n</string>
-
-    <string name="prefs_share_proofmode_title">Identité ProofMode</string>
-    <string name="prefs_share_proofmode_summary">Partager la clé publique ProofMode </string>
-
-
-    <!-- Strings for ProofMode Activity -->
-    <string name="phone_permission_required">L’autorisation de localisation est nécessaire</string>
 
     <!-- Strings for nearby sharing -->
 
@@ -118,7 +102,6 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="confirm_passcode">Confirmer le code d’accès</string>
     <string name="set_passcode">Définir le code d’accès</string>
     <string name="set_passcode_warning">Mémorisez ce code. Si vous l’oubliez, vous devrez réinitialiser l’appli et toutes les données seront effacées.</string>
-
 
     <!-- Strings related to Settings -->
 
@@ -183,7 +166,7 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <!-- Clean Insights measurement -->
     <string name="server_name_optional"><i>Nom du serveur (facultatif)</i></string>
     <string name="add_another_account">Ajouter un nouveau serveur</string>
-    <string name="biometrics_title">Déverrouiller la clé ProofMode</string>
+    <string name="biometrics_title">Unlock with Biometrics</string>
     <string name="folders">Dossiers</string>
     <string name="create_folder_name">Créer un nom de dossier</string>
     <string name="folder_name">Nom du dossier</string>
@@ -199,13 +182,12 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="general">Général</string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Téléverser les médias par Wi-Fi seulement</string>
     <string name="security">Securité</string>
-    <string name="proofmode">ProofMode</string>
     <string name="no_webbrowser_found_error">Aucune appli ne peut traiter cette demande. Installez un navigateur Web.</string>
 
     <string name="intro_text_secure">Envoyez vos médias vers des serveurs privés en toute sécurité et verrouillez l’appli avec un code.</string>
     <string name="intro_text_archive"><![CDATA[Téléversez vos médias sur Nextcloud ou Internet Archive afin qu\'ils restent vérifiables, sécurisés et organisés à long terme.<br><br>Choisissez<a href=\"%1$s\"><u> une licence Creative Commons.</u></a>]]></string>
 
-    <string name="intro_text_verify"><![CDATA[Authentifiez et vérifiez vos médias grâce aux hachages sha256 et <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
+    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href="%1$s"><u>C2PA content credentials.</u></a>]]></string>
     <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> télécharge toujours via TLS (Transport Layer Security) pour protéger vos médias pendant leur transit.<br>Pour renforcer davantage la sécurité, activez <a href=\"%1$s\"><u>Tor</u></a> afin d\'empêcher l\'interception de vos médias entre votre téléphone et le serveur.]]></string>
     <string name="next">Suivant</string>
     <string name="done">Terminé</string>
@@ -235,10 +217,8 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="add_notes_optional"><i>Ajouter des notes (facultatif)</i></string>
     <string name="skip">Ignorer</string>
 
-
     <string name="upload_unsuccessful">Échec de téléchargement</string>
     <string name="upload_unsuccessful_description">Échec de téléversement causé par une erreur de session. Réessayez ou contactez l’assistance.</string>
-
 
     <string name="edit_media">Modifier le média</string>
 

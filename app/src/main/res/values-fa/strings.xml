@@ -53,7 +53,6 @@
     <string name="info_license_comm">Allow commercial uses of your work?</string>
     -->
 
-
     <string name="license_label">پروانه</string>
     <string name="info_license_deriv">به هر کسی اجازهٔ تغییردادن و اشتراک‌گذاری رسانه‌ٔ شما داده شود؟</string>
     <string name="info_license_sharealike">از آن‌ها خواسته شود تا محتوای شما را بدون جرح‌وتعدیل در آن به‌اشتراک بگذارند؟</string>
@@ -74,22 +73,8 @@
     <string name="prefs_use_tor_summary">انتقال فقط از طریق شبکهٔ Tor</string>
 
     <!--    <string name="prefs_theme_summary">Change Save\'s theme to light/dark</string>-->
-    <string name="prefs_use_proofmode_title">فعال‌سازی ProofMode</string>
-    <!--    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a system that enables authentication and verification of multimedia content, <a href="%1$s" style="text-decoration: underline;">learn more here</a>]]></string>-->
-    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode سامانه‌ای است که امکان احراز هویت و تصدیق محتوای چندرسانه‌ای را فراهم می‌کند، <a href=\"%1$s\"&gt;<u&gt;اینجا در این مورد بیشتر یاد بگیرید</u&gt;</a&gt;]]></string>
-    <!--    <string name="prefs_use_proofmode_description">-->
-<!--        ProofMode is a system that enables authentication and verification of multimedia content, &lt;a href="%1$s" style="text-decoration: underline;"&gt;learn more here&lt;/a&gt;-->
-<!--    </string>-->
-
-
-    <string name="proof_mode_warning_text"> برای کمک به اینکه محل ضبط رسانه‌های خود را تصدیق کنید، ProofMode داده‌هایی را از دکل‌های سلولی نزدیک جمع‌آوری می‌کند تا موقعیت مکانی شما را تأیید کند. سپس برای افزودن اعتبار و اطلاعات زمینه‌ای، یک فایل فرادادهٔ جداگانه در کنار رسانهٔ شما قرار داده می‌شود. <b>نه Save و نه OpenArchive قادر به ذخیره‌سازی یا دست‌یابی به این داده‌های مکانی نخواهند بود و تنها کسانی که به فایل‌های سرور دسترسی دارند، قادر به مشاهدهٔ آن خواهند بود.</b> Android برای جمع‌آوری این اطلاعات به دسترسی به موقعیت مکانی نیاز دارد.</string>
-
-    <string name="prefs_share_proofmode_title">هویت ProofMode</string>
-    <string name="prefs_share_proofmode_summary">کلید عمومی ProofMode را اشتراک‌گذاری کنید</string>
-
-
-    <!-- Strings for ProofMode Activity -->
-    <string name="phone_permission_required">اجازهٔ دسترسی به موقعیت مکانی لازم است</string>
+    <!---->
+    <!---->
 
     <!-- Strings for nearby sharing -->
 
@@ -141,7 +126,6 @@
     <string name="confirm_passcode">تأیید گذرواژه</string>
     <string name="set_passcode">تنظیم گذرواژه</string>
     <string name="set_passcode_warning"> حتماً این پین را به خاطر بسپارید. اگر آن را فراموش کنید، باید برنامه را بازنشانی کنید و تمام داده‌ها پاک خواهند شد.</string>
-
 
     <!-- Strings related to Settings -->
 
@@ -210,7 +194,7 @@
     <!-- Clean Insights measurement -->
     <string name="server_name_optional">نام سرور (اختیاری)</string>
     <string name="add_another_account">افزودن سرور جدید</string>
-    <string name="biometrics_title">بازگشایی کلید ProofMode</string>
+    <string name="biometrics_title">Unlock with Biometrics</string>
     <string name="folders">پوشه‌ها</string>
     <string name="create_folder_name">ایجاد نام پوشه</string>
     <string name="folder_name">نام پوشه</string>
@@ -226,12 +210,11 @@
     <string name="general">عمومی</string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">فایل‌های رسانه‌ای را تنها زمانی که به Wi-Fi متصل هستید، بارگذاری کنید.</string>
     <string name="security">امنیت</string>
-    <string name="proofmode">ProofMode</string>
     <string name="no_webbrowser_found_error">هیچ برنامه ای قادر به انجام این درخواست نیست. لطفا یک مرورگر وب نصب کنید.</string>
 
     <string name="intro_text_secure">رسانه‌های خود را به‌صورت امن به سرورهای خصوصی ارسال کنید و برنامه را با یک پین قفل کنید.</string>
     <string name="intro_text_archive"><![CDATA[با بارگذاری رسانه‌های خود روی سرورهای خصوصی یا عمومی مانند Nextcloud یا Internet Archive، آن‌ها را تصدیق‌پذیر، ایمن و سازمان‌دهی‌شده نگه دارید. <br&gt;قصد خود را برای استفاده‌های آتی با افزودن <a href=\"%1$s\"&gt;<u&gt;پروانهٔ Creative Commons بیان کنید</a&gt;</u&gt;.]]></string>
-    <string name="intro_text_verify"><![CDATA[با استفاده از هش‌های sha256 و <a href=\"%1$s\"&gt;<u&gt;حالت اثبات ProofMode</a&gt;</u&gt; رسانه‌های خود را احراز هویت و تأیید کنید.]]>\n\n</string>
+    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href="%1$s"><u>C2PA content credentials.</u></a>]]></string>
     <string name="next">بعدی</string>
     <string name="done">انجام شد</string>
     <string name="secure_mobile_media_preservation">نگهداری امن رسانه‌های تلفن همراه</string>

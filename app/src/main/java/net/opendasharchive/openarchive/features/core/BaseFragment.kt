@@ -13,6 +13,8 @@ import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
+import net.opendasharchive.openarchive.services.storacha.StorachaToolbarConfig
+import net.opendasharchive.openarchive.services.storacha.StorachaToolbarState
 import net.opendasharchive.openarchive.services.storacha.util.SessionManager
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -46,7 +48,16 @@ abstract class BaseFragment : Fragment(), ToolbarConfigurable {
 
     override fun onResume() {
         super.onResume()
-        // Toolbar updates are handled by the Compose host in the new architecture
+
+        if (this is ToolbarConfigurable) {
+            StorachaToolbarState.update(
+                StorachaToolbarConfig(
+                    title = getToolbarTitle(),
+                    showBack = shouldShowBackButton(),
+                    actions = getToolbarActions(),
+                )
+            )
+        }
 
         // Track screen view
         screenStartTime = System.currentTimeMillis()

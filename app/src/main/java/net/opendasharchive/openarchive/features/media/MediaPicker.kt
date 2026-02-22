@@ -6,11 +6,11 @@ import net.opendasharchive.openarchive.BuildConfig
 import net.opendasharchive.openarchive.core.domain.Archive
 import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.logger.AppLogger
+import net.opendasharchive.openarchive.util.C2paHelper
 import net.opendasharchive.openarchive.util.DateUtils
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Utility
 import net.opendasharchive.openarchive.util.toLocalDateTime
-import timber.log.Timber
 import java.security.MessageDigest
 import java.io.File
 import java.io.FileNotFoundException
@@ -24,14 +24,12 @@ object MediaPicker {
         archive: Archive,
         submissionId: Long,
         uris: List<Uri>,
-        generateProof: Boolean
     ): ArrayList<Evidence> {
         val result = ArrayList<Evidence>()
 
         for (uri in uris) {
             try {
-                //Simply pass the generate proof boolean for single file import which is looped here
-                val evidence = import(context, archive, submissionId, uri, generateProof)
+                val evidence = import(context, archive, submissionId, uri)
                 if (evidence != null) result.add(evidence)
             } catch (e: Exception) {
                 AppLogger.e("Error importing media", e)
@@ -46,7 +44,6 @@ object MediaPicker {
         archive: Archive,
         submissionId: Long,
         uri: Uri,
-        generateProof: Boolean
     ): Evidence? {
 
         val title = Utility.getUriDisplayName(context, uri) ?: ""
@@ -123,11 +120,16 @@ object MediaPicker {
             mediaHashString = mediaHashString
         )
 
-        // ProofMode is not available in FOSS builds — generation is skipped.
-        if (generateProof) {
-            AppLogger.w("ProofMode generation requested but ProofMode library is not available in this build")
-            Timber.w("Skipping proof generation - ProofMode library not present")
+        // Generate C2PA content credentials sidecar if enabled
+        if (file != null && mediaHashString.isNotEmpty()) {
+            C2paHelper.generateManifest(
+                context = context,
+                mediaFile = file,
+                mediaHash = mediaHashString,
+                metadata = mapOf("title" to title, "mimeType" to mimeType)
+            )
         }
+
         return evidence
     }
 

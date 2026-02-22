@@ -4,6 +4,7 @@ import android.content.Context
 import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.db.sugar.Media
+import net.opendasharchive.openarchive.util.C2paHelper
 import java.io.File
 
 /**
@@ -29,8 +30,10 @@ class FileCleanupHelper(private val context: Context) {
             }
         }
 
-        // Delete ProofMode metadata
-        deleteProofMetadata(evidence.mediaHashString)
+        // Delete C2PA sidecar manifest
+        if (evidence.mediaHashString.isNotEmpty()) {
+            C2paHelper.removeC2paFiles(context, evidence.mediaHashString)
+        }
     }
 
     /**
@@ -51,18 +54,10 @@ class FileCleanupHelper(private val context: Context) {
             }
         }
 
-        // Delete ProofMode metadata
-        deleteProofMetadata(media.mediaHashString)
-    }
-
-    /**
-     * Deletes ProofMode metadata directory associated with a media hash.
-     */
-    private fun deleteProofMetadata(hash: String) {
-        if (hash.isEmpty()) return
-
-        // ProofMode metadata cleanup would go here if ProofMode is available
-        AppLogger.d("Skipping ProofMode metadata cleanup for hash: $hash (ProofMode not linked)")
+        // Delete C2PA sidecar manifest
+        if (media.mediaHashString.isNotEmpty()) {
+            C2paHelper.removeC2paFiles(context, media.mediaHashString)
+        }
     }
 
     /**

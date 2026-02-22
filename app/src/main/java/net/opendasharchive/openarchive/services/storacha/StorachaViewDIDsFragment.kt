@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.FragmentStorachaViewDidsBinding
 import net.opendasharchive.openarchive.features.core.BaseFragment
+import net.opendasharchive.openarchive.features.core.ToolbarAction
 import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
@@ -62,7 +63,7 @@ class StorachaViewDIDsFragment :
 
         setupObservers()
         viewModel.loadDIDs(args.sessionId, args.spaceId)
-        activity?.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+        // Menu actions are now provided via getToolbarActions() to the Compose TopAppBar
     }
 
     private fun setupObservers() {
@@ -127,22 +128,11 @@ class StorachaViewDIDsFragment :
 
     override fun getToolbarTitle(): String = getString(R.string.manage_access)
 
-    override fun onCreateMenu(
-        menu: Menu,
-        menuInflater: MenuInflater,
-    ) {
-        menuInflater.inflate(R.menu.menu_browse_folder, menu)
-    }
-
-    override fun onPrepareMenu(menu: Menu) {
-        super.onPrepareMenu(menu)
-        val addMenuItem = menu.findItem(R.id.action_add)
-        addMenuItem?.isVisible = true
-    }
-
-    override fun onMenuItemSelected(menuItem: MenuItem): Boolean =
-        when (menuItem.itemId) {
-            R.id.action_add -> {
+    override fun getToolbarActions() = listOf(
+        ToolbarAction(
+            iconRes = R.drawable.ic_add,
+            label = getString(R.string.add),
+            onClick = {
                 val existingDids = viewModel.dids.value?.map { it.did }?.toTypedArray() ?: emptyArray()
                 val action =
                     StorachaViewDIDsFragmentDirections.actionFragmentStorachaViewDidsToFragmentStorachaDidAccess(
@@ -151,9 +141,10 @@ class StorachaViewDIDsFragment :
                         existingDids,
                     )
                 findNavController().navigate(action)
-                true
-            }
+            },
+        )
+    )
 
-            else -> false
-        }
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) = Unit
+    override fun onMenuItemSelected(menuItem: MenuItem) = false
 }

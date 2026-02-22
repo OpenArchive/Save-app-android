@@ -33,11 +33,6 @@
 
     <string name="error">Fehler</string>
 
-    <string name="prefs_use_proofmode_title">Aktiviere ProofMode</string>
-
-    <string name="prefs_share_proofmode_summary">Teile öffentlichen ProofMode Schlüssel</string>
-
-
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
@@ -94,7 +89,6 @@
     <string name="general">Allgemein</string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Medien nur über WLAN hochladen</string>
     <string name="security">Sicherheit</string>
-    <string name="proofmode">ProofMode</string>
     <string name="next">Weiter</string>
     <string name="done">Fertig</string>
     <string name="secure_mobile_media_preservation">Sichere Bewahrung mobiler Medien</string>

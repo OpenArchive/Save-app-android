@@ -433,9 +433,5 @@
             app:argType="long" />
     </fragment>
 
-    <fragment
-        android:id="@+id/fragment_proofmode_settings"
-        android:name="net.opendasharchive.openarchive.features.settings.SettingsFragment"
-        />
 
 </navigation>

@@ -1,9 +1,11 @@
 package net.opendasharchive.openarchive.features.settings
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
@@ -14,10 +16,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -30,6 +36,9 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -47,37 +56,36 @@ import me.zhanghai.compose.preference.preferenceTheme
 import me.zhanghai.compose.preference.rememberPreferenceState
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
+import net.opendasharchive.openarchive.core.config.AppConfig
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles
+import net.opendasharchive.openarchive.features.core.BaseComposeActivity
 import net.opendasharchive.openarchive.features.core.UiText
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupActivity
+import net.opendasharchive.openarchive.services.tor.TorServiceManager
+import net.opendasharchive.openarchive.services.tor.TorStatus
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Theme
 import net.opendasharchive.openarchive.util.extensions.getVersionName
 import org.koin.compose.koinInject
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.core.net.toUri
-import coil3.toUri
-import net.opendasharchive.openarchive.features.core.BaseComposeActivity
-import net.opendasharchive.openarchive.features.core.UiColor
-import net.opendasharchive.openarchive.features.main.ui.AppRoute
 
 @Composable
 fun SettingsScreen(
     onNavigateToSpaceList: () -> Unit = {},
     onNavigateToArchivedFolders: () -> Unit = {},
     onNavigateToCache: () -> Unit = {},
-    onNavigateToProofMode: () -> Unit = {},
+    onNavigateToC2pa: () -> Unit = {},
+    onNavigateToStoracha: () -> Unit = {},
 ) {
-    val dialogManager: DialogStateManager = koinInject<DialogStateManager>()
+    val dialogManager: DialogStateManager = koinInject()
+    val appConfig: AppConfig = koinInject()
     val context = LocalContext.current
+
     if (LocalInspectionMode.current) {
         PreviewSettingsScreen()
         return
@@ -87,44 +95,107 @@ fun SettingsScreen(
     val preferenceFlow = remember(sharedPreferences) { createFilteredPreferenceFlow(sharedPreferences) }
     val analyticsManager: AnalyticsManager = koinInject()
     val passcodeRepository: PasscodeRepository = koinInject()
+    val torServiceManager: TorServiceManager = koinInject()
 
     val coroutineScope = rememberCoroutineScope()
     val appVersion = remember { context.packageManager.getVersionName(context.packageName) }
 
-    val torUrl = stringResource(R.string.tor_url)
+    val torStatus by torServiceManager.torStatus.collectAsStateWithLifecycle()
+
+    // Trigger Tor verification when the service reports it is bootstrapped (TorStatus.On).
+    val isTorBootstrapped = torStatus is TorStatus.On
+    LaunchedEffect(isTorBootstrapped) {
+        if (isTorBootstrapped) {
+            torServiceManager.verifyTorConnection()
+        }
+    }
+
+    // Derive toggle appearance from the actual Tor status.
+    val torChecked = torStatus is TorStatus.Verified
+    val torInteractive = torStatus !is TorStatus.Starting && torStatus !is TorStatus.On
+
+    val torSummary = when (val s = torStatus) {
+        is TorStatus.Starting, is TorStatus.On ->
+            stringResource(R.string.tor_status_connecting)
+        is TorStatus.Verified -> {
+            val info = s.info
+            if (info.exitCountry != null)
+                stringResource(R.string.tor_status_verified_with_country, info.exitIp, info.exitCountry)
+            else
+                stringResource(R.string.tor_status_verified, info.exitIp)
+        }
+        is TorStatus.Error ->
+            stringResource(R.string.tor_status_error, s.message)
+        else -> stringResource(R.string.prefs_use_tor_summary)
+    }
+
+    // Launcher for notification permission required by the Tor foreground service (Android 13+).
+    val notificationPermLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { _ ->
+        // Start Tor whether the user granted or denied – same behaviour as the old fragment.
+        Prefs.useTor = true
+        AppLogger.breadcrumb("Feature Toggled", "tor: true")
+        coroutineScope.launch { analyticsManager.trackFeatureToggled("tor", true) }
+        torServiceManager.start()
+    }
+
+    fun startTor() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val granted = ContextCompat.checkSelfPermission(
+                context, Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            if (!granted) {
+                notificationPermLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                return
+            }
+        }
+        Prefs.useTor = true
+        AppLogger.breadcrumb("Feature Toggled", "tor: true")
+        coroutineScope.launch { analyticsManager.trackFeatureToggled("tor", true) }
+        torServiceManager.start()
+    }
+
+    fun stopTor() {
+        Prefs.useTor = false
+        AppLogger.breadcrumb("Feature Toggled", "tor: false")
+        coroutineScope.launch { analyticsManager.trackFeatureToggled("tor", false) }
+        torServiceManager.stop()
+    }
 
     ProvidePreferenceLocals(flow = preferenceFlow, theme = savePreferenceTheme()) {
+
         val settingStrings = SettingsStrings(
-                titleSecure = stringResource(R.string.pref_title_secure),
-                titleArchive = stringResource(R.string.pref_title_archive),
-                titleVerify = stringResource(R.string.intro_header_verify),
-                titleEncrypt = stringResource(R.string.intro_header_encrypt),
-                titleGeneral = stringResource(R.string.general),
-                titlePasscode = stringResource(R.string.passcode_lock_app),
-                titleWifiOnly = stringResource(R.string.only_upload_media_when_you_are_connected_to_wi_fi),
-                titleMediaServers = stringResource(R.string.pref_title_media_servers),
-                summaryMediaServers = stringResource(R.string.pref_summary_media_servers),
-                titleMediaFolders = stringResource(R.string.pref_title_media_folders),
-                summaryMediaFolders = stringResource(R.string.pref_summary_media_folders),
-                titleProofMode = stringResource(R.string.proofmode),
-                titleTor = stringResource(R.string.prefs_use_tor_title),
-                summaryTor = stringResource(R.string.prefs_use_tor_summary),
-                titleDarkMode = stringResource(R.string.pref_title_dark_mode),
-                titleLanguage = stringResource(R.string.pref_title_language),
-                summaryLanguage = stringResource(R.string.pref_summary_language),
-                titleAbout = stringResource(R.string.save_by_open_archive),
-                summaryAbout = stringResource(R.string.discover_the_save_app),
-                titlePrivacy = stringResource(R.string.pref_title_privacy_policy),
-                summaryPrivacy = stringResource(R.string.pref_summary_privacy_policy),
-                titleVersion = stringResource(R.string.pref_title_version),
-            )
+            titleStoracha = stringResource(R.string.storacha),
+            summaryStoracha = stringResource(R.string.dweb_description),
+            titleSecure = stringResource(R.string.pref_title_secure),
+            titleArchive = stringResource(R.string.pref_title_archive),
+            titleVerify = stringResource(R.string.intro_header_verify),
+            titleEncrypt = stringResource(R.string.intro_header_encrypt),
+            titleGeneral = stringResource(R.string.general),
+            titlePasscode = stringResource(R.string.passcode_lock_app),
+            titleWifiOnly = stringResource(R.string.only_upload_media_when_you_are_connected_to_wi_fi),
+            titleMediaServers = stringResource(R.string.pref_title_media_servers),
+            summaryMediaServers = stringResource(R.string.pref_summary_media_servers),
+            titleMediaFolders = stringResource(R.string.pref_title_media_folders),
+            summaryMediaFolders = stringResource(R.string.pref_summary_media_folders),
+            titleC2pa = stringResource(R.string.c2pa_content_authenticity),
+            summaryC2pa = stringResource(R.string.prefs_use_c2pa_summary),
+            titleTor = stringResource(R.string.prefs_use_tor_title),
+            titleDarkMode = stringResource(R.string.pref_title_dark_mode),
+            titleLanguage = stringResource(R.string.pref_title_language),
+            summaryLanguage = stringResource(R.string.pref_summary_language),
+            titleAbout = stringResource(R.string.save_by_open_archive),
+            summaryAbout = stringResource(R.string.discover_the_save_app),
+            titlePrivacy = stringResource(R.string.pref_title_privacy_policy),
+            summaryPrivacy = stringResource(R.string.pref_summary_privacy_policy),
+            titleVersion = stringResource(R.string.pref_title_version),
+        )
 
         val passcodeState = rememberPreferenceState(key = Prefs.PASSCODE_ENABLED, defaultValue = Prefs.passcodeEnabled)
         val wifiOnlyState = rememberPreferenceState(key = Prefs.UPLOAD_WIFI_ONLY, defaultValue = Prefs.uploadWifiOnly)
-        val torState = rememberPreferenceState(key = Prefs.USE_TOR, defaultValue = Prefs.useTor)
         val darkModeKey = stringResource(R.string.pref_key_use_dark_mode)
         val darkModeState = rememberPreferenceState(key = darkModeKey, defaultValue = Prefs.getBoolean(darkModeKey, false))
-        val prohibitScreenshotsState = rememberPreferenceState(key = Prefs.PROHIBIT_SCREENSHOTS, defaultValue = Prefs.prohibitScreenshots)
 
         val passcodeLauncher =
             rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -138,17 +209,18 @@ fun SettingsScreen(
         SettingsScreenContent(
             strings = settingStrings,
             appVersion = appVersion,
+            showStoracha = appConfig.isDwebEnabled,
             passcodeState = passcodeState,
             wifiOnlyState = wifiOnlyState,
-            torState = torState,
+            torChecked = torChecked,
+            torInteractive = torInteractive,
+            torSummary = torSummary,
             darkModeState = darkModeState,
-            prohibitScreenshotsState = prohibitScreenshotsState,
             onPasscodeToggle = { newValue ->
                 if (newValue) {
                     passcodeState.value = true
                     passcodeLauncher.launch(Intent(context, PasscodeSetupActivity::class.java))
                 } else {
-                    // Keep UI state on until the dialog result decides.
                     passcodeState.value = true
                     dialogManager.showDialog(dialogManager.requireResourceProvider()) {
                         type = DialogType.Warning
@@ -166,30 +238,14 @@ fun SettingsScreen(
                     }
                 }
             },
-            onProhibitScreenshotsToggle = { newValue ->
-                prohibitScreenshotsState.value = newValue
-                Prefs.prohibitScreenshots = newValue
-                AppLogger.breadcrumb("Feature Toggled", "screenshot_prevention: $newValue")
-                coroutineScope.launch { analyticsManager.trackFeatureToggled("screenshot_prevention", newValue) }
-            },
             onWifiOnlyToggle = { newValue ->
                 wifiOnlyState.value = newValue
                 Prefs.uploadWifiOnly = newValue
                 AppLogger.breadcrumb("Feature Toggled", "wifi_only_upload: $newValue")
                 coroutineScope.launch { analyticsManager.trackFeatureToggled("wifi_only_upload", newValue) }
             },
-            onTorToggle = {
-                dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-                    type = DialogType.Info
-                    iconColor = UiColor.Resource(R.color.colorTertiary)
-                    title = UiText.Resource(R.string.tor_disabled_title)
-                    message = UiText.Resource(R.string.tor_disabled_message)
-                    positiveButton {
-                        text = UiText.Resource(R.string.tor_download_btn_label)
-                        action = { context.startActivity(Intent(Intent.ACTION_VIEW, torUrl.toUri())) }
-                    }
-                    neutralButton { text = UiText.Resource(android.R.string.cancel) }
-                }
+            onTorToggle = { enable ->
+                if (enable) startTor() else stopTor()
             },
             onDarkModeToggle = { enabled ->
                 darkModeState.value = enabled
@@ -199,15 +255,10 @@ fun SettingsScreen(
                 coroutineScope.launch { analyticsManager.trackFeatureToggled("dark_mode", enabled) }
             },
             onLanguageClick = { openAppLanguageSettings(context) },
-            onMediaServersClick = {
-                onNavigateToSpaceList()
-            },
-            onMediaFoldersClick = {
-                onNavigateToArchivedFolders()
-            },
-            onProofModeClick = {
-                onNavigateToProofMode()
-            },
+            onMediaServersClick = onNavigateToSpaceList,
+            onMediaFoldersClick = onNavigateToArchivedFolders,
+            onC2paClick = onNavigateToC2pa,
+            onStorachaClick = onNavigateToStoracha,
             onAboutClick = { openUrl(context, "https://open-archive.org/save") },
             onPrivacyClick = { openUrl(context, "https://open-archive.org/privacy") },
             onNavigateToCache = onNavigateToCache,
@@ -219,20 +270,22 @@ fun SettingsScreen(
 private fun SettingsScreenContent(
     strings: SettingsStrings,
     appVersion: String,
+    showStoracha: Boolean = false,
     passcodeState: MutableState<Boolean>,
     wifiOnlyState: MutableState<Boolean>,
-    torState: MutableState<Boolean>,
+    torChecked: Boolean,
+    torInteractive: Boolean,
+    torSummary: String,
     darkModeState: MutableState<Boolean>,
-    prohibitScreenshotsState: MutableState<Boolean>,
     onPasscodeToggle: (Boolean) -> Unit,
-    onProhibitScreenshotsToggle: (Boolean) -> Unit,
     onWifiOnlyToggle: (Boolean) -> Unit,
-    onTorToggle: () -> Unit,
+    onTorToggle: (Boolean) -> Unit,
     onDarkModeToggle: (Boolean) -> Unit,
     onLanguageClick: () -> Unit,
     onMediaServersClick: () -> Unit,
     onMediaFoldersClick: () -> Unit,
-    onProofModeClick: () -> Unit,
+    onC2paClick: () -> Unit,
+    onStorachaClick: () -> Unit = {},
     onAboutClick: () -> Unit,
     onPrivacyClick: () -> Unit,
     onNavigateToCache: () -> Unit,
@@ -240,7 +293,8 @@ private fun SettingsScreenContent(
     val rowModifier = Modifier.fillMaxWidth()
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
-        // Secure
+
+        // ── Secure ────────────────────────────────────────────────────────────
         preferenceCategory(key = "category_secure", title = { PreferenceCategoryTitle(text = strings.titleSecure) })
         item(key = "passcode") {
             SwitchPreference(
@@ -250,12 +304,10 @@ private fun SettingsScreenContent(
                 onToggle = onPasscodeToggle,
             )
         }
-
         sectionDivider("divider_secure")
 
-        // Archive
+        // ── Archive ───────────────────────────────────────────────────────────
         preferenceCategory(key = "category_archive", title = { PreferenceCategoryTitle(text = strings.titleArchive) })
-
         item(key = "wifi_only") {
             SwitchPreference(
                 state = wifiOnlyState,
@@ -280,33 +332,41 @@ private fun SettingsScreenContent(
         )
         sectionDivider("divider_archive")
 
-        // Verify
+        // ── Verify ────────────────────────────────────────────────────────────
         preferenceCategory(key = "category_verify", title = { PreferenceCategoryTitle(text = strings.titleVerify) })
         preference(
-            key = "proof_mode",
-            title = { PreferenceTitle(text = strings.titleProofMode, maxLines = 2) },
+            key = "c2pa_settings",
+            title = { PreferenceTitle(text = strings.titleC2pa) },
+            summary = { PreferenceSummary(text = strings.summaryC2pa) },
             modifier = rowModifier,
-            onClick = onProofModeClick,
+            onClick = onC2paClick,
         )
+        if (showStoracha) {
+            preference(
+                key = "storacha",
+                title = { PreferenceTitle(text = strings.titleStoracha) },
+                summary = { PreferenceSummary(text = strings.summaryStoracha) },
+                modifier = rowModifier,
+                onClick = onStorachaClick,
+            )
+        }
         sectionDivider("divider_verify")
 
-        // Encrypt
+        // ── Encrypt ───────────────────────────────────────────────────────────
         preferenceCategory(key = "category_encrypt", title = { PreferenceCategoryTitle(text = strings.titleEncrypt) })
         item(key = "tor") {
-            SwitchPreference(
-                state = torState,
+            TorSwitchPreference(
+                checked = torChecked,
+                enabled = torInteractive,
                 title = { PreferenceTitle(text = strings.titleTor, maxLines = 2) },
-                summary = { PreferenceSummary(text = strings.summaryTor) },
+                summary = { PreferenceSummary(text = torSummary) },
                 modifier = rowModifier,
-                onToggle = {
-                    torState.value = false
-                    onTorToggle()
-                },
+                onToggle = onTorToggle,
             )
         }
         sectionDivider("divider_encrypt")
 
-        // General
+        // ── General ───────────────────────────────────────────────────────────
         preferenceCategory(key = "category_general", title = { PreferenceCategoryTitle(text = strings.titleGeneral) })
         item(key = "dark_mode") {
             SwitchPreference(
@@ -347,7 +407,11 @@ private fun SettingsScreenContent(
     }
 }
 
+// ── Data ──────────────────────────────────────────────────────────────────────
+
 private data class SettingsStrings(
+    val titleStoracha: String = "",
+    val summaryStoracha: String = "",
     val titleSecure: String,
     val titleArchive: String,
     val titleVerify: String,
@@ -359,9 +423,9 @@ private data class SettingsStrings(
     val summaryMediaServers: String,
     val titleMediaFolders: String,
     val summaryMediaFolders: String,
-    val titleProofMode: String,
+    val titleC2pa: String,
+    val summaryC2pa: String,
     val titleTor: String,
-    val summaryTor: String,
     val titleDarkMode: String,
     val titleLanguage: String,
     val summaryLanguage: String,
@@ -372,28 +436,51 @@ private data class SettingsStrings(
     val titleVersion: String,
 )
 
-// Helper function for opening URLs
-private fun openUrl(context: Context, url: String) {
-    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-    context.startActivity(intent)
-}
+// ── Composables ───────────────────────────────────────────────────────────────
 
-private fun openAppLanguageSettings(context: Context) {
-    val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        Intent(Settings.ACTION_APP_LOCALE_SETTINGS).apply {
-            data = Uri.fromParts("package", context.packageName, null)
+/**
+ * A Switch preference whose checked/enabled state is driven by external values rather than
+ * a MutableState. Used for the Tor toggle which derives its state from TorServiceManager.
+ */
+@Composable
+private fun TorSwitchPreference(
+    checked: Boolean,
+    enabled: Boolean,
+    title: @Composable () -> Unit,
+    summary: @Composable (() -> Unit)? = null,
+    modifier: Modifier = Modifier.fillMaxWidth(),
+    onToggle: (Boolean) -> Unit,
+) {
+    Preference(
+        title = title,
+        summary = summary,
+        enabled = enabled,
+        onClick = { onToggle(!checked) },
+        modifier = modifier,
+        widgetContainer = {
+            val theme = me.zhanghai.compose.preference.LocalPreferenceTheme.current
+            Switch(
+                checked = checked,
+                onCheckedChange = { onToggle(it) },
+                enabled = enabled,
+                modifier = Modifier.padding(start = theme.horizontalSpacing, end = 24.dp),
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color.White,
+                    checkedTrackColor = MaterialTheme.colorScheme.tertiary,
+                )
+            )
         }
-    } else {
-        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-            data = Uri.fromParts("package", context.packageName, null)
-        }
-    }
-    context.startActivity(intent)
+    )
 }
 
 @Composable
 private fun PreferenceCategoryTitle(text: String) {
-    Text(text = text, maxLines = 1, style = SaveTextStyles.titleLarge, color = colorResource(id = R.color.colorTertiary))
+    Text(
+        text = text,
+        maxLines = 1,
+        style = SaveTextStyles.titleLarge,
+        color = colorResource(id = R.color.colorTertiary),
+    )
 }
 
 @Composable
@@ -402,13 +489,18 @@ fun PreferenceTitle(text: String, maxLines: Int = 1) {
         text = text,
         maxLines = maxLines,
         style = SaveTextStyles.bodyLarge,
-        color = colorResource(id = R.color.colorOnBackground)
+        color = colorResource(id = R.color.colorOnBackground),
     )
 }
 
 @Composable
 private fun PreferenceSummary(text: String) {
-    Text(text = text, maxLines = 1, style = SaveTextStyles.bodySmallEmphasis, color = colorResource(id = R.color.colorOnSurfaceVariant))
+    Text(
+        text = text,
+        maxLines = 2,
+        style = SaveTextStyles.bodySmallEmphasis,
+        color = colorResource(id = R.color.colorOnSurfaceVariant),
+    )
 }
 
 @Composable
@@ -416,7 +508,7 @@ private fun SettingsDivider() {
     HorizontalDivider(
         modifier = Modifier.fillMaxWidth(),
         thickness = 0.5.dp,
-        color = colorResource(id = R.color.colorDivider).copy(alpha = 0.5f)
+        color = colorResource(id = R.color.colorDivider).copy(alpha = 0.5f),
     )
 }
 
@@ -449,7 +541,7 @@ fun SwitchPreference(
                 modifier = Modifier.padding(start = theme.horizontalSpacing, end = 24.dp),
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Color.White,
-                    checkedTrackColor = MaterialTheme.colorScheme.tertiary
+                    checkedTrackColor = MaterialTheme.colorScheme.tertiary,
                 )
             )
         }
@@ -476,9 +568,30 @@ fun savePreferenceTheme(): PreferenceTheme {
     )
 }
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+private fun openUrl(context: Context, url: String) {
+    context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
+}
+
+private fun openAppLanguageSettings(context: Context) {
+    val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        Intent(Settings.ACTION_APP_LOCALE_SETTINGS).apply {
+            data = Uri.fromParts("package", context.packageName, null)
+        }
+    } else {
+        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.fromParts("package", context.packageName, null)
+        }
+    }
+    context.startActivity(intent)
+}
+
+// ── Preference flow ───────────────────────────────────────────────────────────
+
 @OptIn(DelicateCoroutinesApi::class)
 private fun createFilteredPreferenceFlow(
-    sharedPreferences: SharedPreferences
+    sharedPreferences: SharedPreferences,
 ): MutableStateFlow<me.zhanghai.compose.preference.Preferences> {
     val initialPreferences = sharedPreferences.toSupportedPreferences()
     return MutableStateFlow(initialPreferences).also { flow ->
@@ -526,6 +639,8 @@ private inline fun SharedPreferences.edit(action: SharedPreferences.Editor.() ->
     }
 }
 
+// ── Preview ───────────────────────────────────────────────────────────────────
+
 @Preview
 @Composable
 private fun SettingsScreenPreview() {
@@ -550,46 +665,45 @@ private fun PreviewSettingsScreen() {
     }
     ProvidePreferenceLocals(flow = previewFlow, theme = savePreferenceTheme()) {
         SettingsScreenContent(
-            strings =
-                SettingsStrings(
-                    titleSecure = "Secure",
-                    titleArchive = "Archive",
-                    titleVerify = "Verify",
-                    titleEncrypt = "Encrypt",
-                    titleGeneral = "General",
-                    titlePasscode = "Lock app with passcode",
-                    titleWifiOnly = "Only upload media when you are connected to Wi-Fi",
-                    titleMediaServers = "Media Servers",
-                    summaryMediaServers = "Add or remove media servers",
-                    titleMediaFolders = "Media Folders",
-                    summaryMediaFolders = "Manage your archived folders",
-                    titleProofMode = "Proof Mode",
-                    titleTor = "Use Tor",
-                    summaryTor = "Enable Tor for encryption",
-                    titleDarkMode = "Switch to dark mode",
-                    titleLanguage = "App language",
-                    summaryLanguage = "Change the language for this app",
-                    titleAbout = "Save by Open Archive",
-                    summaryAbout = "Discover the Save app",
-                    titlePrivacy = "Terms & Privacy Policy",
-                    summaryPrivacy = "Tap to view our Terms & Privacy Policy",
-                    titleVersion = "Version",
-                ),
+            strings = SettingsStrings(
+                titleSecure = "Secure",
+                titleArchive = "Archive",
+                titleVerify = "Verify",
+                titleEncrypt = "Encrypt",
+                titleGeneral = "General",
+                titlePasscode = "Lock app with passcode",
+                titleWifiOnly = "Only upload media when you are connected to Wi-Fi",
+                titleMediaServers = "Media Servers",
+                summaryMediaServers = "Add or remove media servers",
+                titleMediaFolders = "Media Folders",
+                summaryMediaFolders = "Manage your archived folders",
+                titleC2pa = "C2PA Content Authenticity",
+                summaryC2pa = "Generate cryptographic content credentials",
+                titleTor = "Turn on Onion Routing",
+                titleDarkMode = "Switch to dark mode",
+                titleLanguage = "App language",
+                summaryLanguage = "Change the language for this app",
+                titleAbout = "Save by Open Archive",
+                summaryAbout = "Discover the Save app",
+                titlePrivacy = "Terms & Privacy Policy",
+                summaryPrivacy = "Tap to view our Terms & Privacy Policy",
+                titleVersion = "Version",
+            ),
             appVersion = "0.0.0",
             passcodeState = rememberPreferenceState(key = Prefs.PASSCODE_ENABLED, defaultValue = false),
             wifiOnlyState = rememberPreferenceState(key = Prefs.UPLOAD_WIFI_ONLY, defaultValue = true),
-            torState = rememberPreferenceState(key = Prefs.USE_TOR, defaultValue = false),
+            torChecked = false,
+            torInteractive = true,
+            torSummary = "Transfer via the Tor Network only",
             darkModeState = rememberPreferenceState(key = "pref_key_use_dark_mode", defaultValue = false),
-            prohibitScreenshotsState = rememberPreferenceState(key = Prefs.PROHIBIT_SCREENSHOTS, defaultValue = false),
             onPasscodeToggle = {},
-            onProhibitScreenshotsToggle = {},
             onWifiOnlyToggle = {},
             onTorToggle = {},
             onDarkModeToggle = {},
             onLanguageClick = {},
             onMediaServersClick = {},
             onMediaFoldersClick = {},
-            onProofModeClick = {},
+            onC2paClick = {},
             onAboutClick = {},
             onPrivacyClick = {},
             onNavigateToCache = {},

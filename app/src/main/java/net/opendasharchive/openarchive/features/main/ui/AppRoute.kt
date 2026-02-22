@@ -71,7 +71,7 @@ sealed class AppRoute(open val deeplink: String) : NavKey {
     data class FolderDetailRoute(val currentProjectId: Long) : AppRoute("folder_detail")
 
     @Serializable
-    data object ProofModeSettings : AppRoute("proof_mode_settings")
+    data object C2paSettings : AppRoute("c2pa_settings")
 
     @Serializable
     data class PreviewMediaRoute(val projectId: Long) : AppRoute("preview_media")

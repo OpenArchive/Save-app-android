@@ -63,8 +63,7 @@ import net.opendasharchive.openarchive.features.settings.FolderDetailScreen
 import net.opendasharchive.openarchive.features.settings.FolderDetailViewModel
 import net.opendasharchive.openarchive.features.settings.FoldersScreen
 import net.opendasharchive.openarchive.features.settings.FoldersViewModel
-import net.opendasharchive.openarchive.features.settings.ProofModeSettingsScreen
-import net.opendasharchive.openarchive.features.settings.ProofModeSettingsViewModel
+import net.opendasharchive.openarchive.features.settings.C2paScreen
 import net.opendasharchive.openarchive.features.settings.SpaceSetupSuccessScreen
 import net.opendasharchive.openarchive.features.settings.SpaceSetupSuccessViewModel
 import net.opendasharchive.openarchive.features.settings.license.SetupLicenseScreen
@@ -493,17 +492,10 @@ fun SaveNavGraph(
                         }
                     }
 
-                    entry<AppRoute.ProofModeSettings> { route ->
-                        val viewModel = koinViewModel<ProofModeSettingsViewModel> {
-                            parametersOf(navigator, route)
-                        }
-
-                        DefaultScaffold(
-                            title = stringResource(id = R.string.proofmode),
+                    entry<AppRoute.C2paSettings> {
+                        C2paScreen(
                             onNavigateBack = { navigator.navigateBack() }
-                        ) {
-                            ProofModeSettingsScreen(viewModel = viewModel)
-                        }
+                        )
                     }
 
                     entry<AppRoute.MediaCacheRoute> {

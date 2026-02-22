@@ -163,7 +163,6 @@ fun HomeScreen(
                         archive,
                         submission.id,
                         result.capturedUris,
-                        generateProof = Prefs.useProofMode
                     )
                     evidenceList.forEach { evidence ->
                         mediaRepository.addEvidence(evidence)
@@ -207,7 +206,6 @@ fun HomeScreen(
                         selectedProject,
                         submission.id,
                         uris,
-                        generateProof = false // Shared media usually doesn't generate proof in legacy
                     )
                     evidenceList.forEach { evidence ->
                         mediaRepository.addEvidence(evidence)
@@ -471,9 +469,12 @@ fun HomeScreenContent(
                                     onNavigateToCache = {
                                         onAction(HomeAction.Navigate(AppRoute.MediaCacheRoute))
                                     },
-                                    onNavigateToProofMode = {
-                                        onAction(HomeAction.Navigate(AppRoute.ProofModeSettings))
-                                    }
+                                    onNavigateToC2pa = {
+                                        onAction(HomeAction.Navigate(AppRoute.C2paSettings))
+                                    },
+                                    onNavigateToStoracha = {
+                                        onAction(HomeAction.Navigate(AppRoute.StorachaRoute))
+                                    },
                                 )
                             }
 

@@ -18,13 +18,10 @@ import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import net.opendasharchive.openarchive.util.PermissionManager
 import org.koin.android.ext.android.inject
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
 import net.opendasharchive.openarchive.core.navigation.ResultEventBus
 import net.opendasharchive.openarchive.upload.UploadJobScheduler
-import net.opendasharchive.openarchive.util.ProofModeHelper
+import net.opendasharchive.openarchive.util.C2paHelper
 
 class HomeActivity : BaseComposeActivity() {
 
@@ -78,14 +75,8 @@ class HomeActivity : BaseComposeActivity() {
 
     override fun onStart() {
         super.onStart()
-
-        // Initialize ProofMode on background thread to avoid ANR during RSA key generation
-        lifecycleScope.launch(Dispatchers.IO) {
-            ProofModeHelper.init(this@HomeActivity) {
-                // Check for any queued uploads and restart, only after ProofMode is correctly initialized.
-                uploadJobScheduler.schedule()
-            }
-        }
+        C2paHelper.init(this)
+        uploadJobScheduler.schedule()
     }
 
     override fun onNewIntent(intent: Intent) {

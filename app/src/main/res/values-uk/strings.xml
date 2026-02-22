@@ -24,7 +24,6 @@
     <string name="tor_disabled_message">Ця можливість знаходиться на стадії розробки. Зараз ви можете використати Orbot або будь-який VPN на ваш розсуд для підвищення приватності та безпеки.</string>
     <string name="tor_download_btn_label">Завантажити Orbot</string>
 
-
     <!-- Errors -->
 
     <!-- Server -->
@@ -53,21 +52,6 @@
 
     <string name="prefs_use_tor_title">Увімкнути маршрутизацію через Onion</string>
     <string name="prefs_use_tor_summary">Передавати лише через мережу Tor</string>
-
-    <string name="prefs_use_proofmode_title">Увімкнути ProofMode</string>
-    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode — це система, яка дозволяє автентифікацію та перевірку вмісту мультимедія. <a href=\"%1$s\"><u>Більше дізнайтесь тут.</u></a>]]></string>
-
-    <string name="proof_mode_warning_text"><![CDATA[
-Щоб допомогти перевірити, де саме було створено ваш медіафайл, ProofMode збирає дані від найближчих стільникових веж для підтвердження вашого місцеперебування. Для підвищення правдивості та надання контексту застосунок додає окремий файл метаданих до вашого медіа*. Android вимагає доступу до даних про місцеперебування для отримання цієї інформації.<br/><br/>
-<b>*Ані <i>Save</i>, ані <i>OpenArchive</i> не матимуть доступу до цих даних про місцеперебування та не зможуть їх зберігати. Вони будуть доступні лише особам, які мають доступ до серверних файлів.</b>
-]]>\n</string>
-
-    <string name="prefs_share_proofmode_title">Ідентифікатор ProofMode</string>
-    <string name="prefs_share_proofmode_summary">Поширити публічний ключ ProofMode</string>
-
-
-    <!-- Strings for ProofMode Activity -->
-    <string name="phone_permission_required">Потрібен дозвіл на отримання місцеперебування</string>
 
     <!-- Strings for nearby sharing -->
 
@@ -118,7 +102,6 @@
     <string name="confirm_passcode">Підтвердити код доступу</string>
     <string name="set_passcode">Встановити код доступу</string>
     <string name="set_passcode_warning">Запам’ятайте цей код доступу. У разі його втрати потрібно буде виконати скидання застосунку, після чого всі внутрішні дані буде безповоротно видалено.</string>
-
 
     <!-- Strings related to Settings -->
 
@@ -183,7 +166,7 @@
     <!-- Clean Insights measurement -->
     <string name="server_name_optional"><i>Назва сервера (необов\'язково)</i></string>
     <string name="add_another_account">Додати новий сервер</string>
-    <string name="biometrics_title">Розблокувати ключ ProofMode</string>
+    <string name="biometrics_title">Unlock with Biometrics</string>
     <string name="folders">Теки</string>
     <string name="create_folder_name">Створити назву теки</string>
     <string name="folder_name">Назва теки</string>
@@ -199,13 +182,12 @@
     <string name="general">Загальні</string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Вивантажувати медіа тільки, коли ви під\'єднані до Wi-Fi</string>
     <string name="security">Безпека</string>
-    <string name="proofmode">ProofMode</string>
     <string name="no_webbrowser_found_error">Жоден застосунок не може обробити цей запит. Будь ласка, встановіть веббраузер.</string>
 
     <string name="intro_text_secure">Безпечно надсилайте медіафайли до приватних серверів та блокуйте застосунок кодом доступу.</string>
     <string name="intro_text_archive"><![CDATA[Завантажуйте медіафайли до Nextcloud або Internet Archive, щоб зберігати їх перевірюваними, захищеними та впорядкованими у довгостроковій перспективі.<br><br>Обирайте <a href=\"%1$s\"><u>Ліцензування Creative Commons.</u></a>]]></string>
 
-    <string name="intro_text_verify"><![CDATA[Автентифікуйте та підтверджуйте свої медіафайли хешами sha256 та <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
+    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href="%1$s"><u>C2PA content credentials.</u></a>]]></string>
     <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> завжди вивантажує файли за допомогою TLS (Протокол захисту транспортного рівня) для захисту ваших медіафайлів під час передавання.<br>Для додаткового підвищення безпеки, увімкніть <a href=\"%1$s\"><u>Tor</u></a> для запобігання перехопленню ваших медіафайлів під час передавання з телефону на сервер.]]></string>
     <string name="next">Вперед</string>
     <string name="done">Готово</string>
@@ -235,10 +217,8 @@
     <string name="add_notes_optional"><i>Додати примітки (необов\'язково)</i></string>
     <string name="skip">Пропустити</string>
 
-
     <string name="upload_unsuccessful">Не вдалось вивантажити</string>
     <string name="upload_unsuccessful_description">Не вдалось завантажити через помилку сесії; будь ласка, спробуйте знову або зв\'яжіться з підтримкою.</string>
-
 
     <string name="edit_media">Редагувати медіафайл</string>
 

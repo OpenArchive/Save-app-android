@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
@@ -84,10 +85,22 @@ class SnowbirdService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        startForeground(
-            SaveApp.SNOWBIRD_SERVICE_ID,
-            createNotification("Snowbird Server is starting up.")
-        )
+        try {
+            startForeground(
+                SaveApp.SNOWBIRD_SERVICE_ID,
+                createNotification("Snowbird Server is starting up.")
+            )
+        } catch (e: Exception) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                e is android.app.ForegroundServiceStartNotAllowedException
+            ) {
+                Timber.w("Cannot start foreground service from background, stopping: ${e.message}")
+                updateStatus(ServiceStatus.Failed(e))
+                stopSelf()
+                return START_NOT_STICKY
+            }
+            throw e
+        }
 
         // Launch a coroutine to check & start
         serviceScope.launch {

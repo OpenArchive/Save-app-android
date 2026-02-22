@@ -77,7 +77,7 @@ fun rememberContentPickerLaunchers(
                 }
                 val submission = projectRepository.getActiveSubmission(archive.id)
                 val evidenceList = withContext(Dispatchers.IO) {
-                    MediaPicker.import(context, archive, submission.id, uris, generateProof = Prefs.useProofMode)
+                    MediaPicker.import(context, archive, submission.id, uris)
                 }
                 evidenceList.forEach { evidence ->
                     mediaRepository.addEvidence(evidence)
@@ -111,7 +111,7 @@ fun rememberContentPickerLaunchers(
                 val submission = projectRepository.getActiveSubmission(archive.id)
                 val evidenceList = withContext(Dispatchers.IO) {
                     // single-URI import
-                    MediaPicker.import(context, archive, submission.id, uri, generateProof = false)
+                    MediaPicker.import(context, archive, submission.id, uri)
                         ?.let { listOf(it) }
                         ?: emptyList()
                 }
@@ -144,8 +144,7 @@ fun rememberContentPickerLaunchers(
                 }
                 val submission = projectRepository.getActiveSubmission(archive.id)
                 val evidenceList = withContext(Dispatchers.IO) {
-                    // For in-app capture we pass generateProof = true (same semantics as Picker.register)
-                    MediaPicker.import(context, archive, submission.id, finalUri, generateProof = true)
+                    MediaPicker.import(context, archive, submission.id, finalUri)
                         ?.let { listOf(it) }
                         ?: emptyList()
                 }

@@ -25,7 +25,6 @@
     <string name="tor_disabled_message">Bu özellik şu anda geliştiriliyor. Şimdilik, gizliliğinizi ve güvenliğinizi artırmak için Orbot uygulamasını veya istediğiniz herhangi bir VPN hizmetini kullanabilirsiniz.</string>
     <string name="tor_download_btn_label">Orbot indir</string>
 
-
     <!-- Errors -->
 
     <!-- Server -->
@@ -54,21 +53,6 @@
 
     <string name="prefs_use_tor_title">Onion yöneltme kullanılsın</string>
     <string name="prefs_use_tor_summary">Yalnızca Tor ağı ile aktarılsın</string>
-
-    <string name="prefs_use_proofmode_title">ProofMode kullanılsın</string>
-    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode, çoklu ortam içeriklerinin kimliğinin ve gerçekliğinin doğrulanmasını iyileştiren bir yöntemdir. <a href=\"%1$s\"><u>Ayrıntılı bilgi alın</u></a>]]></string>
-
-    <string name="proof_mode_warning_text"><![CDATA[ 
-    ProofMode, ortamınızın nerede kaydedildiğini doğrulamaya yardımcı olmak için, konumunuzu doğrulamak amacıyla yakındaki baz istasyonlarından veri toplar. Güvenilirlik ve bağlam eklemek için, ortamınızla birlikte ayrı bir üst veri dosyası bulunur*. Android üzerinde bu bilgiyi elde etmek için konuma erişme izni istenir.<br/><br/>
-    <b>Ne <i>Save</i> ne de <i>OpenArchive</i> bu konum verilerine erişemez veya depolayamaz. Bu verilere yalnızca sunucu dosyalarına erişimi olanlar erişilebilir.</b> 
-    ]]></string>
-
-    <string name="prefs_share_proofmode_title">ProofMode kimliği</string>
-    <string name="prefs_share_proofmode_summary">ProofMode herkese açık anahtarını paylaş</string>
-
-
-    <!-- Strings for ProofMode Activity -->
-    <string name="phone_permission_required">Konum izni gereklidir</string>
 
     <!-- Strings for nearby sharing -->
 
@@ -119,7 +103,6 @@
     <string name="confirm_passcode">Parola kodu onayı</string>
     <string name="set_passcode">Parola kodunu ayarla</string>
     <string name="set_passcode_warning">Bu PIN kodunu unutmayacağınızdan emin olun. Unutursanız, uygulamayı sıfırlamanız gerekir ve uygulama içindeki tüm veriler silinir.</string>
-
 
     <!-- Strings related to Settings -->
 
@@ -183,7 +166,7 @@
     <!-- Clean Insights measurement -->
     <string name="server_name_optional"><i>Sunucu adı (isteğe bağlı)</i></string>
     <string name="add_another_account">Yeni sunucu ekle</string>
-    <string name="biometrics_title">ProofMode anahtarının kilidini aç</string>
+    <string name="biometrics_title">Unlock with Biometrics</string>
     <string name="folders">Klasörler</string>
     <string name="create_folder_name">Klasör adı oluştur</string>
     <string name="folder_name">Klasör adı</string>
@@ -199,13 +182,12 @@
     <string name="general">Genel</string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Ortamlar yalnızca Wi-Fi bağlantısı varken yüklensin</string>
     <string name="security">Güvenlik</string>
-    <string name="proofmode">ProofMode</string>
     <string name="no_webbrowser_found_error">Bu isteği yerine getirecek bir uygulama yok. Lütfen bir tarayıcı kurun.</string>
 
     <string name="intro_text_secure">Ortamınızı güvenli bir şekilde özel sunuculara gönderin ve uygulamayı bir PIN kodu ile kilitleyin.</string>
     <string name="intro_text_archive"><![CDATA[Ortamınızı uzun vadede doğrulanabilir, güvenli ve düzenli tutmak için Nextcloud veya İnternet Archive üzerine yükleyin.<br><br><a href=\"%1$s\"><u>Creative Commons Lisansı.</u> kullanın </a>]]></string>
 
-    <string name="intro_text_verify"><![CDATA[Ortamınız için SHA256 karmaları ve &lt;a href=\"%1$s\"&gt;&lt;u&gt;ProofMode&lt;/u&gt;&lt;/a&gt; ile kimlik ve gerçekliği doğrulayın.]]></string>
+    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href="%1$s"><u>C2PA content credentials.</u></a>]]></string>
     <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> aktarım sırasında ortamınızı korumak için her zaman TLS (Transport Layer Security) ile yükleme yapar.<br>Ek güvenlik sağlamak için,  ortamınızın telefonunuzdan sunucuya gönderilirken ele geçirilmesini önleyen <a href=\"%1$s\"><u>Tor</u></a> özelliğini açın.]]></string>
     <string name="next">İleri</string>
     <string name="done">Bitti</string>
@@ -235,10 +217,8 @@
     <string name="add_notes_optional"><i>Notlar ekle (isteğe bağlı)</i></string>
     <string name="skip">Atla</string>
 
-
     <string name="upload_unsuccessful">Yükleme tamamlanamadı</string>
     <string name="upload_unsuccessful_description">Oturum sorunu nedeniyle yükleme yapılamadı. Lütfen yeniden deneyin ya da destek ekibi ile görüşün.</string>
-
 
     <string name="edit_media">Ortamı düzenle</string>
 
