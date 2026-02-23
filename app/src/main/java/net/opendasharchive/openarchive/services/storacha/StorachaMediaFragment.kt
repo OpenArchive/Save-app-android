@@ -69,8 +69,8 @@ class StorachaMediaFragment :
         }
 
     private val getMultipleContentsLauncher =
-        registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris: List<Uri> ->
-            handleSelectedFiles(uris)
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            if (uri != null) handleMedia(uri) else Timber.d("No file selected")
         }
 
     // Modern camera launcher using TakePicture contract for photo capture
@@ -92,13 +92,12 @@ class StorachaMediaFragment :
     private val customCameraLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == android.app.Activity.RESULT_OK) {
-                val capturedUris =
-                    result.data?.getStringArrayListExtra(CameraActivity.EXTRA_CAPTURED_URIS)
-                if (!capturedUris.isNullOrEmpty()) {
-                    val uris = capturedUris.map { Uri.parse(it) }
-                    handleSelectedFiles(uris)
+                val capturedUri =
+                    result.data?.getStringArrayListExtra(CameraActivity.EXTRA_CAPTURED_URIS)?.firstOrNull()
+                if (capturedUri != null) {
+                    handleMedia(Uri.parse(capturedUri))
                 } else {
-                    Timber.w("No captures returned from custom camera")
+                    Timber.w("No capture returned from custom camera")
                 }
             } else {
                 Timber.w("Custom camera capture cancelled or failed")
@@ -502,16 +501,6 @@ class StorachaMediaFragment :
                 }
                 showError(userMessage)
             }
-        }
-    }
-
-    private fun handleSelectedFiles(uris: List<Uri>) {
-        if (uris.isNotEmpty()) {
-            for (uri in uris) {
-                handleMedia(uri)
-            }
-        } else {
-            Timber.d("No files selected")
         }
     }
 
