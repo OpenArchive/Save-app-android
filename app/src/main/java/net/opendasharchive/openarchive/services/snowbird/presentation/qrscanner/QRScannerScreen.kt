@@ -151,7 +151,7 @@ fun QRScannerScreen(
                     Text(
                         text = stringResource(R.string.open_from_gallery),
                         style = SaveTextStyles.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.tertiary
                     )
                 }
             }

@@ -45,7 +45,6 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.PreviewLight
 import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
-import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
 import net.opendasharchive.openarchive.services.internetarchive.presentation.login.CustomTextField
 
@@ -189,7 +188,7 @@ fun CreateNewFolderScreenContent(
 @PreviewLightDark
 @Composable
 private fun CreateNewFolderScreenPreview() {
-    SaveAppTheme {
+    DefaultScaffoldPreview {
         CreateNewFolderScreenContent(
             state = CreateNewFolderState(
                 folderName = "My New Folder",

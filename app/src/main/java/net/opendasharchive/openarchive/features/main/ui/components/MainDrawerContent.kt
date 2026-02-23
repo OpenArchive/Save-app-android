@@ -1,6 +1,5 @@
 package net.opendasharchive.openarchive.features.main.ui.components
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,7 +32,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.opendasharchive.openarchive.R
@@ -42,6 +40,9 @@ import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.domain.mappers.toDomain
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultBoxPreview
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
+import net.opendasharchive.openarchive.core.presentation.theme.TitleLarge
+import net.opendasharchive.openarchive.core.presentation.theme.TitleMedium
 import net.opendasharchive.openarchive.db.sugar.dummyProjectList
 import net.opendasharchive.openarchive.db.sugar.dummySpaceList
 import net.opendasharchive.openarchive.features.core.Accordion
@@ -129,11 +130,8 @@ fun MainDrawerContent(
                                 type = space.type,
                                 modifier = Modifier.size(24.dp)
                             )
-                            Text(
-                                text = space.friendlyName,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontSize = 16.sp
-                            )
+
+                            TitleMedium(space.friendlyName)
                         }
                     }
 
@@ -257,7 +255,7 @@ private fun FolderItem(
     }
 }
 
-@Preview
+@PreviewLightDark
 @Composable
 private fun MainDrawerContentPreview() {
     DefaultBoxPreview {
@@ -298,18 +296,12 @@ fun ExpandableSpaceList(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
 
-
-                Text(
-                    text = stringResource(R.string.servers),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontSize = 18.sp
-                )
-
-
+                TitleLarge(stringResource(R.string.servers))
 
                 Icon(
                     painter = painterResource(R.drawable.ic_expand_more),
                     contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
                         .size(24.dp)
                         .rotate(if (serverAccordionState.expanded) 180f else 0f)
@@ -480,7 +472,7 @@ fun SpaceIcon(
     )
 }
 
-@Preview(uiMode = UI_MODE_NIGHT_YES)
+@PreviewLightDark
 @Composable
 private fun ExpandableSpaceListPreview() {
     val state = rememberAccordionState(

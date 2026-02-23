@@ -31,10 +31,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
 
 private val keys = listOf(
     "1", "2", "3",
@@ -91,7 +91,7 @@ fun NumericKeypad(
     }
 }
 
-@Preview
+@PreviewLightDark
 @Composable
 private fun NumericKeypadPreview() {
 

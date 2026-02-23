@@ -53,7 +53,6 @@ import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
 import net.opendasharchive.openarchive.core.navigation.ResultEffect
-import net.opendasharchive.openarchive.core.navigation.ResultEventBus
 import net.opendasharchive.openarchive.core.presentation.components.LoadingOverlay
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultBoxPreview
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
@@ -132,8 +131,12 @@ fun SnowbirdDashboardContent(
 ) {
 
     if (state.showContentPicker) {
+        val context = LocalContext.current
         ContentPickerSheet(
             title = "Scan QR Code",
+            onClipboardClick = {
+                onAction(SnowbirdDashboardAction.PasteCodeFromClipboard(context))
+            },
             onDismiss = {
                 onAction(SnowbirdDashboardAction.ContentPickerDismissed)
             },

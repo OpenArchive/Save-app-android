@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 fun LoadingOverlay(
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colorScheme.scrim.copy(alpha = 0.5f),
-    indicatorColor: Color = MaterialTheme.colorScheme.primary
+    indicatorColor: Color = MaterialTheme.colorScheme.tertiary
 ) {
     Box(
         modifier = modifier

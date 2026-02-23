@@ -109,7 +109,7 @@ fun CameraPermissionScreen(
                         onClick = onOpenSettings,
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
+                            containerColor = MaterialTheme.colorScheme.tertiary
                         )
                     ) {
                         Row(

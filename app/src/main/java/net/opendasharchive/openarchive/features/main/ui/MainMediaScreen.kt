@@ -34,7 +34,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -47,12 +46,11 @@ import net.opendasharchive.openarchive.core.domain.EvidenceStatus
 import net.opendasharchive.openarchive.core.presentation.media.MediaStatusOverlay
 import net.opendasharchive.openarchive.core.presentation.media.MediaThumbnail
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
-import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import java.text.NumberFormat
-import java.util.Locale
 import kotlinx.datetime.LocalDateTime
 import net.opendasharchive.openarchive.util.format
 import net.opendasharchive.openarchive.core.domain.VaultType
+import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.PreviewLight
 
 /**
@@ -423,7 +421,7 @@ private fun formatUploadDate(dateTime: LocalDateTime): String {
 @PreviewLight
 @Composable
 private fun MainMediaScreenPreview() {
-    SaveAppTheme {
+    DefaultScaffoldPreview {
         MainMediaContent(
             state = MainMediaState(
                 currentSpace = Vault(id = 1, name = "My Vault", type = VaultType.PRIVATE_SERVER),
@@ -439,7 +437,7 @@ private fun MainMediaScreenPreview() {
 @PreviewLight
 @Composable
 private fun MainMediaScreenNoFolderPreview() {
-    SaveAppTheme {
+    DefaultScaffoldPreview {
         MainMediaContent(
             state = MainMediaState(
                 currentSpace = Vault(id = 1, name = "My Vault", type = VaultType.PRIVATE_SERVER),
@@ -454,7 +452,7 @@ private fun MainMediaScreenNoFolderPreview() {
 @PreviewLight
 @Composable
 private fun MainMediaScreenNoServerPreview() {
-    SaveAppTheme {
+    DefaultScaffoldPreview {
         MainMediaContent(
             state = MainMediaState(),
             onAction = {},

@@ -38,7 +38,6 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.PreviewLight
 import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
-import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.util.DateUtils
 
 @Composable
@@ -167,7 +166,7 @@ fun BrowseFolderItem(
 @PreviewLightDark
 @Composable
 private fun BrowseFolderScreenPreview() {
-    SaveAppTheme {
+    DefaultScaffoldPreview {
         BrowseFolderScreenContent(
             state = BrowseFoldersState(
                 folders = listOf(

@@ -8,7 +8,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
@@ -22,122 +21,121 @@ import androidx.compose.ui.unit.sp
  * - SaveText.Text16pt("Welcome")
  * - Text("Custom", style = SaveTextStyles.text16pt)
  */
-object SaveText {
 
-    @Composable
-    fun TitleLarge(
-        text: String,
-        modifier: Modifier = Modifier,
-        color: Color = MaterialTheme.colorScheme.onBackground,
-        textAlign: TextAlign? = null,
-        overflow: TextOverflow = TextOverflow.Clip,
-        maxLines: Int = Int.MAX_VALUE
-    ) {
-        Text(
-            text = text,
-            modifier = modifier,
-            style = SaveTextStyles.titleLarge.copy(color = color),
-            textAlign = textAlign,
-            overflow = overflow,
-            maxLines = maxLines
-        )
-    }
-
-    @Composable
-    fun TitleMedium(
-        text: String,
-        modifier: Modifier = Modifier,
-        color: Color = MaterialTheme.colorScheme.onBackground,
-        textAlign: TextAlign? = null,
-        overflow: TextOverflow = TextOverflow.Clip,
-        maxLines: Int = Int.MAX_VALUE
-    ) {
-        Text(
-            text = text,
-            modifier = modifier,
-            style = SaveTextStyles.titleMedium.copy(color = color),
-            textAlign = textAlign,
-            overflow = overflow,
-            maxLines = maxLines
-        )
-    }
-
-    @Composable
-    fun BodyLarge(
-        text: String,
-        modifier: Modifier = Modifier,
-        color: Color = MaterialTheme.colorScheme.onBackground,
-        textAlign: TextAlign? = null,
-        overflow: TextOverflow = TextOverflow.Clip,
-        maxLines: Int = Int.MAX_VALUE
-    ) {
-        Text(
-            text = text,
-            modifier = modifier,
-            style = SaveTextStyles.bodyLarge.copy(color = color),
-            textAlign = textAlign,
-            overflow = overflow,
-            maxLines = maxLines
-        )
-    }
-
-    @Composable
-    fun BodySmall(
-        text: String,
-        modifier: Modifier = Modifier,
-        color: Color = MaterialTheme.colorScheme.onBackground,
-        textAlign: TextAlign? = null,
-        overflow: TextOverflow = TextOverflow.Clip,
-        maxLines: Int = Int.MAX_VALUE
-    ) {
-        Text(
-            text = text,
-            modifier = modifier,
-            style = SaveTextStyles.bodySmall.copy(color = color),
-            textAlign = textAlign,
-            overflow = overflow,
-            maxLines = maxLines
-        )
-    }
-
-    @Composable
-    fun LabelLarge(
-        text: String,
-        modifier: Modifier = Modifier,
-        color: Color = MaterialTheme.colorScheme.primary,
-        textAlign: TextAlign? = null,
-        overflow: TextOverflow = TextOverflow.Clip,
-        maxLines: Int = Int.MAX_VALUE
-    ) {
-        Text(
-            text = text,
-            modifier = modifier,
-            style = SaveTextStyles.labelLarge.copy(color = color),
-            textAlign = textAlign,
-            overflow = overflow,
-            maxLines = maxLines
-        )
-    }
-
-    @Composable
-    fun BodySmallEmphasis(
-        text: String,
-        modifier: Modifier = Modifier,
-        color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-        textAlign: TextAlign? = null,
-        overflow: TextOverflow = TextOverflow.Clip,
-        maxLines: Int = Int.MAX_VALUE
-    ) {
-        Text(
-            text = text,
-            modifier = modifier,
-            style = SaveTextStyles.bodySmallEmphasis.copy(color = color),
-            textAlign = textAlign,
-            overflow = overflow,
-            maxLines = maxLines
-        )
-    }
+@Composable
+fun TitleLarge(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.onBackground,
+    textAlign: TextAlign? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE
+) {
+    Text(
+        text = text,
+        modifier = modifier,
+        style = SaveTextStyles.titleLarge.copy(color = color),
+        textAlign = textAlign,
+        overflow = overflow,
+        maxLines = maxLines
+    )
 }
+
+@Composable
+fun TitleMedium(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.onBackground,
+    textAlign: TextAlign? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE
+) {
+    Text(
+        text = text,
+        modifier = modifier,
+        style = SaveTextStyles.titleMedium.copy(color = color),
+        textAlign = textAlign,
+        overflow = overflow,
+        maxLines = maxLines
+    )
+}
+
+@Composable
+fun BodyLarge(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.onBackground,
+    textAlign: TextAlign? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE
+) {
+    Text(
+        text = text,
+        modifier = modifier,
+        style = SaveTextStyles.bodyLarge.copy(color = color),
+        textAlign = textAlign,
+        overflow = overflow,
+        maxLines = maxLines
+    )
+}
+
+@Composable
+fun BodySmall(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.onBackground,
+    textAlign: TextAlign? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE
+) {
+    Text(
+        text = text,
+        modifier = modifier,
+        style = SaveTextStyles.bodySmall.copy(color = color),
+        textAlign = textAlign,
+        overflow = overflow,
+        maxLines = maxLines
+    )
+}
+
+@Composable
+fun LabelLarge(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.tertiary,
+    textAlign: TextAlign? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE
+) {
+    Text(
+        text = text,
+        modifier = modifier,
+        style = SaveTextStyles.labelLarge.copy(color = color),
+        textAlign = textAlign,
+        overflow = overflow,
+        maxLines = maxLines
+    )
+}
+
+@Composable
+fun BodySmallEmphasis(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    textAlign: TextAlign? = null,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE
+) {
+    Text(
+        text = text,
+        modifier = modifier,
+        style = SaveTextStyles.bodySmallEmphasis.copy(color = color),
+        textAlign = textAlign,
+        overflow = overflow,
+        maxLines = maxLines
+    )
+}
+
 
 /**
  * Raw TextStyle objects based on Figma "Save App 3.0"

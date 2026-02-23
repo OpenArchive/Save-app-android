@@ -281,6 +281,7 @@
     <string name="camera">Camera</string>
     <string name="photo_gallery">Photo Gallery</string>
     <string name="files">Files</string>
+    <string name="paste_from_clipboard" translatable="false">Paste from clipboard</string>
 
     <!-- Internet Archive Settings -->
     <string name="label_email">Email</string>

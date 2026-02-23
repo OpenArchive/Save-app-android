@@ -25,7 +25,7 @@ interface RetrofitClient {
         @Path("groupKey") groupKey: String,
         @Path("repoKey") repoKey: String,
         @Path("filename") filename: String
-    ): ResponseBody
+    ): Response<ResponseBody>
 
     @POST("groups/{groupKey}/repos/{repoKey}/media/{filename}")
     @Headers("Content-Type: application/octet-stream")

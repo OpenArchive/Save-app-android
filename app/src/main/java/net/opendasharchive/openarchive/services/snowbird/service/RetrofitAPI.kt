@@ -73,8 +73,14 @@ class RetrofitAPI(private var context: Context, private val client: RetrofitClie
     override suspend fun downloadFile(groupKey: String, repoKey: String, filename: String): ByteArray {
         try {
             ensureServerReadyForNetwork()
-            val responseBody = client.downloadFile(groupKey, repoKey, filename)
-            return responseBody.bytes()
+            val response = client.downloadFile(groupKey, repoKey, filename)
+            if (response.isSuccessful) {
+                return response.body()?.bytes() ?: throw IOException("Empty response body")
+            }
+
+            val errorBody = response.errorBody()?.string()
+            val errorMessage = parseError(errorBody) ?: "Unknown error occurred (Code: ${response.code()})"
+            throw IOException(errorMessage)
         } catch (e: Exception) {
             if (e is IOException) throw e
             throw IOException("Network error: ${e.localizedMessage ?: "Unknown error"}", e)

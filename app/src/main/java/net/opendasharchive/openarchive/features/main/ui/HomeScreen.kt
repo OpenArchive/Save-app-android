@@ -29,6 +29,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -38,35 +39,32 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
 import net.opendasharchive.openarchive.core.navigation.ResultEffect
-import net.opendasharchive.openarchive.util.Prefs
-import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
+import net.opendasharchive.openarchive.core.presentation.theme.DefaultBoxPreview
+import net.opendasharchive.openarchive.core.repositories.MediaRepository
+import net.opendasharchive.openarchive.core.repositories.ProjectRepository
+import net.opendasharchive.openarchive.features.main.CheckForInAppReview
+import net.opendasharchive.openarchive.features.main.CheckForInAppUpdates
 import net.opendasharchive.openarchive.features.main.ui.components.HomeAppBar
 import net.opendasharchive.openarchive.features.main.ui.components.HomeBottomTab
 import net.opendasharchive.openarchive.features.main.ui.components.MainBottomBar
 import net.opendasharchive.openarchive.features.main.ui.components.MainDrawerContent
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.ContentPickerSheet
+import net.opendasharchive.openarchive.features.media.MediaPicker
 import net.opendasharchive.openarchive.features.media.rememberContentPickerLaunchers
 import net.opendasharchive.openarchive.features.settings.SettingsScreen
+import net.opendasharchive.openarchive.upload.UploadManagerScreen
 import net.opendasharchive.openarchive.util.rememberComposePermissionManager
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 import kotlin.math.max
-import net.opendasharchive.openarchive.core.repositories.ProjectRepository
-import net.opendasharchive.openarchive.core.repositories.MediaRepository
-import org.koin.compose.koinInject
-
-import net.opendasharchive.openarchive.features.main.CheckForInAppUpdates
-import net.opendasharchive.openarchive.features.main.CheckForInAppReview
-import net.opendasharchive.openarchive.features.media.MediaPicker
-import net.opendasharchive.openarchive.upload.UploadManagerScreen
 
 /**
  * IMPROVED HomeScreen:
@@ -577,7 +575,7 @@ fun HomeScreenContent(
 @Preview
 @Composable
 private fun MainContentPreview() {
-    SaveAppTheme {
+    DefaultBoxPreview {
 
         HomeScreenContent(
             state = HomeState(),
