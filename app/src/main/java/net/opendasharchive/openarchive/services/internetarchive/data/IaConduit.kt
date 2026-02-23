@@ -72,7 +72,7 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
             // Upload C2PA manifest, if enabled and successfully created.
             if (c2paManifest != null) {
                 AppLogger.d("Uploading C2PA manifest to Internet Archive: ${c2paManifest.name}")
-                client.uploadProofFiles(c2paManifest, vault)
+                client.uploadProofFiles(c2paManifest, auth)
             }
 
             jobSucceeded()

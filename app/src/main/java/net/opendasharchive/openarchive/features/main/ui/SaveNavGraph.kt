@@ -64,6 +64,7 @@ import net.opendasharchive.openarchive.features.settings.passcode.PasscodeFlowSt
 import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
 import net.opendasharchive.openarchive.features.spaces.SpaceListScreen
 import net.opendasharchive.openarchive.features.spaces.SpaceListViewModel
+import net.opendasharchive.openarchive.features.spaces.SpaceSetupAction
 import net.opendasharchive.openarchive.features.spaces.SpaceSetupScreen
 import net.opendasharchive.openarchive.features.spaces.SpaceSetupViewModel
 import net.opendasharchive.openarchive.services.internetarchive.presentation.details.InternetArchiveDetailsScreen
@@ -173,13 +174,19 @@ fun SaveNavGraph(
                     val viewModel = koinViewModel<SpaceSetupViewModel> {
                         parametersOf(navigator, route)
                     }
+                    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
                     DefaultScaffold(
                         title = stringResource(id = R.string.space_setup_title),
                         onNavigateBack = { navigator.navigateBack() }
                     ) {
                         SpaceSetupScreen(
-                            viewModel = viewModel,
+                            onWebDavClick = { viewModel.onAction(SpaceSetupAction.WebDavClicked) },
+                            isInternetArchiveAllowed = state.isInternetArchiveAllowed,
+                            onInternetArchiveClick = { viewModel.onAction(SpaceSetupAction.InternetArchiveClicked) },
+                            isDwebEnabled = state.isDwebEnabled,
+                            onDwebClicked = { viewModel.onAction(SpaceSetupAction.DwebClicked) },
+                            onStorachaClicked = { viewModel.onAction(SpaceSetupAction.StorachaClicked) },
                         )
                     }
                 }

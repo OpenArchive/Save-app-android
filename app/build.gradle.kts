@@ -468,9 +468,31 @@ fun ndkBinDir(ndk: File): File {
         ?: throw GradleException("NDK prebuilt toolchain not found under $prebuilt")
 }
 
+/**
+ * Resolves a bare executable name (e.g. "cargo", "rustup") to its absolute path.
+ * Gradle's daemon process does not inherit the user's shell PATH, so tools installed
+ * in ~/.cargo/bin are not visible to a plain ProcessBuilder call. Searching common
+ * locations here bypasses that limitation without requiring a shell wrapper.
+ */
+fun resolveExe(name: String): String {
+    if (name.contains("/")) return name // already a path
+    val searchDirs = listOf(
+        "${System.getProperty("user.home")}/.cargo/bin",
+        "/usr/local/bin",
+        "/usr/bin",
+        "/bin",
+    ) + (System.getenv("PATH") ?: "").split(File.pathSeparatorChar)
+    return searchDirs
+        .map { File(it, name) }
+        .firstOrNull { it.canExecute() }
+        ?.absolutePath
+        ?: name
+}
+
 /** Runs a command via ProcessBuilder, streams output to stdout/stderr, throws on non-zero exit. */
 fun runCommand(vararg cmd: String, workDir: File = rootProject.projectDir, env: Map<String, String> = emptyMap()) {
-    val pb = ProcessBuilder(*cmd).directory(workDir).inheritIO()
+    val resolved = listOf(resolveExe(cmd[0])) + cmd.drop(1)
+    val pb = ProcessBuilder(resolved).directory(workDir).inheritIO()
     if (env.isNotEmpty()) pb.environment().putAll(env)
     val result = pb.start().waitFor()
     check(result == 0) { "Command failed (exit $result): ${cmd.joinToString(" ")}" }
@@ -502,7 +524,7 @@ val installRustTargets by tasks.registering {
     description = "Verifies Cargo is installed and ensures all Android Rust targets are added"
     dependsOn(restoreC2paSource)
     doLast {
-        val cargoOk = ProcessBuilder("cargo", "--version")
+        val cargoOk = ProcessBuilder(resolveExe("cargo"), "--version")
             .redirectErrorStream(true)
             .start()
             .waitFor() == 0
