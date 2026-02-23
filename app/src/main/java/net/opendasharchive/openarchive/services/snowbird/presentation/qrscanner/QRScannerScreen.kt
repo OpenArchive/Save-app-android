@@ -19,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -36,6 +37,7 @@ import net.opendasharchive.openarchive.core.presentation.components.QRScanner
 import net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles
 import net.opendasharchive.openarchive.features.core.ComposeAppBar
 import net.opendasharchive.openarchive.services.snowbird.util.SnowbirdQRDecoder
+import net.opendasharchive.openarchive.util.rememberComposePermissionManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,6 +47,11 @@ fun QRScannerScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val permissionManager = rememberComposePermissionManager()
+
+    LaunchedEffect(Unit) {
+        permissionManager.checkCameraPermission(onGranted = {})
+    }
 
     // Launcher for picking QR image from gallery
     val galleryLauncher = rememberLauncherForActivityResult(
@@ -81,24 +88,6 @@ fun QRScannerScreen(
                 title = stringResource(R.string.scan_qr_code),
                 onNavigateBack = onNavigateBack
             )
-        },
-        bottomBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 32.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                TextButton(
-                    onClick = { galleryLauncher.launch("image/*") }
-                ) {
-                    Text(
-                        text = stringResource(R.string.open_from_gallery),
-                        style = SaveTextStyles.titleMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
         }
     ) { paddingValues ->
         Column(
@@ -118,24 +107,56 @@ fun QRScannerScreen(
                 modifier = Modifier.padding(horizontal = 24.dp)
             )
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.weight(0.8f))
 
             // QR Scanner - Large centered square
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.85f)
+                    .fillMaxWidth(0.95f)
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(16.dp))
             ) {
-                QRScanner(
-                    modifier = Modifier.fillMaxSize(),
-                    onQrCodeScanned = { result ->
-                        onQrCodeScanned(result)
+                if (permissionManager.isCameraGranted()) {
+                    QRScanner(
+                        modifier = Modifier.fillMaxSize(),
+                        onQrCodeScanned = { result ->
+                            onQrCodeScanned(result)
+                        }
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Camera permission is required to scan QR codes",
+                            style = SaveTextStyles.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 24.dp)
+                        )
                     }
-                )
+                }
             }
 
-            Spacer(modifier = Modifier.weight(1.5f))
+            Spacer(modifier = Modifier.weight(1f))
+
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                TextButton(
+                    onClick = { galleryLauncher.launch("image/*") }
+                ) {
+                    Text(
+                        text = stringResource(R.string.open_from_gallery),
+                        style = SaveTextStyles.titleMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
         }
     }
 }

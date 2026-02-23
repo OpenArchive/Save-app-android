@@ -48,7 +48,7 @@ val storachaModule =
         }
 
         // Logging interceptor for API calls (HEADERS level to avoid OOM on large files)
-        single {
+        single<HttpLoggingInterceptor>(named("storacha_http_logger")) {
             HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.HEADERS
             }
@@ -60,10 +60,10 @@ val storachaModule =
         }
 
         // OkHttp client with interceptors (for general API calls)
-        single {
+        single<OkHttpClient>(named("storacha_okhttp")) {
             OkHttpClient
                 .Builder()
-                .addInterceptor(get<HttpLoggingInterceptor>())
+                .addInterceptor(get<HttpLoggingInterceptor>(named("storacha_http_logger")))
                 .addInterceptor(get<AuthInterceptor>())
                 .connectTimeout(60, TimeUnit.SECONDS)
                 .readTimeout(300, TimeUnit.SECONDS) // 5 minutes for large file uploads
@@ -83,21 +83,21 @@ val storachaModule =
                 .build()
         }
 
-        single {
+        single(named("storacha_gson")) {
             GsonBuilder().create()
         }
 
-        single {
+        single<Retrofit>(named("storacha_retrofit")) {
             Retrofit
                 .Builder()
                 .baseUrl("http://save-storacha.staging.hypha.coop:3000/") // Change to actual API base URL
-                .client(get())
-                .addConverterFactory(GsonConverterFactory.create(get()))
+                .client(get<OkHttpClient>(named("storacha_okhttp")))
+                .addConverterFactory(GsonConverterFactory.create(get(named("storacha_gson"))))
                 .build()
         }
 
         single<StorachaApiService> {
-            get<Retrofit>().create(StorachaApiService::class.java)
+            get<Retrofit>(named("storacha_retrofit")).create(StorachaApiService::class.java)
         }
 
         // BridgeUploader uses the upload client without body logging

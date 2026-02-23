@@ -47,7 +47,7 @@ val snowbirdModule = module {
             )
         } else {
             SnowbirdFileRepository(
-                api = get(named("retrofit")),
+                api = get(named("snowbird_api")),
                 evidenceDao = get(),
                 archiveDao = get(),
                 dwebDao = get()
@@ -66,7 +66,7 @@ val snowbirdModule = module {
             )
         } else {
             SnowbirdGroupRepository(
-                api = get(named("retrofit")),
+                api = get(named("snowbird_api")),
                 vaultDao = get(),
                 dwebDao = get()
             )
@@ -85,7 +85,7 @@ val snowbirdModule = module {
             )
         } else {
             SnowbirdRepoRepository(
-                api = get(named("retrofit")),
+                api = get(named("snowbird_api")),
                 archiveDao = get(),
                 submissionDao = get(),
                 dwebDao = get()
