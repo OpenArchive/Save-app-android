@@ -313,7 +313,7 @@ fun HomeScreenContent(
         if (state.pagerIndex == settingsIndex) HomeBottomTab.SETTINGS else HomeBottomTab.MEDIA
     val isSettings = selectedTab == HomeBottomTab.SETTINGS
 
-    val showDrawer = isSettings.not() && (state.spaces.isNotEmpty() || state.hasDwebEntry)
+    val showDrawer = isSettings.not() && (state.spaces.isNotEmpty() || state.hasDwebEntry || state.hasStorachaEntry)
 
     // Sync pager → HomeViewModel ONLY when settled
     LaunchedEffect(pagerState) {
@@ -382,6 +382,11 @@ fun HomeScreenContent(
                         onDwebSelected = {
                             scope.launch { drawerState.close() }
                             onAction(HomeAction.Navigate(route = AppRoute.SnowbirdDashboardRoute))
+                        },
+                        showStorachaEntry = state.hasStorachaEntry,
+                        onStorachaSelected = {
+                            scope.launch { drawerState.close() }
+                            onAction(HomeAction.Navigate(route = AppRoute.StorachaRoute))
                         },
                         onAddNewFolderClicked = {
                             scope.launch { drawerState.close() }

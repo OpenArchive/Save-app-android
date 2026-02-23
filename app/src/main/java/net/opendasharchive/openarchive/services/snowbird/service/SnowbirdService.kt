@@ -86,10 +86,18 @@ class SnowbirdService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         try {
-            startForeground(
-                SaveApp.SNOWBIRD_SERVICE_ID,
-                createNotification("Snowbird Server is starting up.")
-            )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(
+                    SaveApp.SNOWBIRD_SERVICE_ID,
+                    createNotification("Snowbird Server is starting up."),
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
+                )
+            } else {
+                startForeground(
+                    SaveApp.SNOWBIRD_SERVICE_ID,
+                    createNotification("Snowbird Server is starting up."),
+                )
+            }
         } catch (e: Exception) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
                 e is android.app.ForegroundServiceStartNotAllowedException

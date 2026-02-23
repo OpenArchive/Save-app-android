@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.core.repositories
 
+import android.content.Context
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -12,11 +13,15 @@ import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.domain.mappers.toDomain
 import net.opendasharchive.openarchive.core.domain.mappers.toEntity
 import net.opendasharchive.openarchive.db.sugar.Space
+import net.opendasharchive.openarchive.services.storacha.util.StorachaHelper
 
 /**
  * Sugar-backed implementations; keep all ORM calls off the main thread.
  */
-class SugarSpaceRepository(private val io: CoroutineDispatcher = Dispatchers.IO) : SpaceRepository {
+class SugarSpaceRepository(
+    private val context: Context,
+    private val io: CoroutineDispatcher = Dispatchers.IO
+) : SpaceRepository {
 
     override suspend fun getSpaces(): List<Vault> = withContext(io) {
         Space.getAll().asSequence()
@@ -35,6 +40,10 @@ class SugarSpaceRepository(private val io: CoroutineDispatcher = Dispatchers.IO)
                 entity.toDomain().type == VaultType.DWEB_STORAGE
             }
         }
+        .distinctUntilChanged()
+
+    override fun observeHasStorachaSpace(): Flow<Boolean> = StorachaHelper.accountStateChanged
+        .map { StorachaHelper.shouldEnableStorachaAccess(context) }
         .distinctUntilChanged()
 
     override suspend fun getCurrentSpace(): Vault? = withContext(io) {

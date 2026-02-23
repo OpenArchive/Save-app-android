@@ -44,7 +44,7 @@ val databaseModule = module {
     single<SettingsRepository> { SettingsRepositoryImpl(get()) }
     single<VaultCredentialStore> { TinkVaultCredentialStore(androidContext(), get(named("io"))) }
 
-    single { VaultRepositoryImpl(get(), get(), get(), get(), get(named("io"))) }
+    single { VaultRepositoryImpl(androidContext(), get(), get(), get(), get(), get(named("io"))) }
     single { ArchiveRepositoryImpl(get(), get(), get(), get(), get(), get(named("io"))) }
     single { SubmissionRepositoryImpl(get(), get(named("io"))) }
     single { EvidenceRepositoryImpl(get(), get(), get(), get(), get(named("io"))) }

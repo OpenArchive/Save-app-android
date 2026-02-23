@@ -2,6 +2,9 @@ package net.opendasharchive.openarchive.services.storacha.util
 
 import android.content.Context
 import androidx.core.content.edit
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
 /**
  * Helper class for common Storacha-related checks and operations
@@ -9,6 +12,13 @@ import androidx.core.content.edit
 object StorachaHelper {
     private const val PREFS_NAME = "storacha_helper_prefs"
     private const val KEY_SPACE_COUNT = "space_count"
+
+    private val _accountStateChanged = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
+    val accountStateChanged: SharedFlow<Unit> = _accountStateChanged.asSharedFlow()
+
+    fun invalidateAccountState() {
+        _accountStateChanged.tryEmit(Unit)
+    }
 
     /**
      * Checks if the user should have access to Storacha features.
@@ -44,6 +54,7 @@ object StorachaHelper {
     ) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit { putInt(KEY_SPACE_COUNT, count) }
+        invalidateAccountState()
     }
 
     /**

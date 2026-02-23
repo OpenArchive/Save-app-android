@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.core.domain.Archive
+import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.core.repositories.ProjectRepository
 import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.features.main.ui.HomeEvent.LaunchPicker
@@ -53,10 +54,11 @@ class HomeViewModel(
         combine(
             spaceRepository.observeSpaces(),
             spaceRepository.observeCurrentSpace(),
-            spaceRepository.observeHasDwebSpace()
-        ) { spaces, current, hasDwebEntry ->
-            Triple(spaces, current, hasDwebEntry)
-        }.flatMapLatest { (spaces, current, hasDwebEntry) ->
+            spaceRepository.observeHasDwebSpace(),
+            spaceRepository.observeHasStorachaSpace()
+        ) { spaces, current, hasDwebEntry, hasStorachaEntry ->
+            Quadruple(spaces, current, hasDwebEntry, hasStorachaEntry)
+        }.flatMapLatest { (spaces, current, hasDwebEntry, hasStorachaEntry) ->
             val actualCurrent = current ?: spaces.firstOrNull()
             if (current == null && actualCurrent != null) {
                 viewModelScope.launch {
@@ -67,30 +69,33 @@ class HomeViewModel(
             val projectsFlow = actualCurrent?.let { projectRepository.observeProjects(it.id) }
                 ?: flowOf(emptyList())
 
-            projectsFlow.map { projects -> Quadruple(spaces, actualCurrent, projects, hasDwebEntry) }
-        }.onEach { (spaces, currentSpace, projects, hasDwebEntry) ->
-            _uiState.update {
+            projectsFlow.map { projects ->
+                ObservedData(spaces, actualCurrent, projects, hasDwebEntry, hasStorachaEntry)
+            }
+        }.onEach { data ->
+            _uiState.update { state ->
                 val selectedProjectId =
-                    it.selectedProjectId?.takeIf { id -> projects.any { it.id == id } }
-                        ?: projects.firstOrNull()?.id
+                    state.selectedProjectId?.takeIf { id -> data.projects.any { it.id == id } }
+                        ?: data.projects.firstOrNull()?.id
 
-                val currentSettingsIndex = settingsIndex(it.projects.size)
-                val wasOnSettings = it.pagerIndex == currentSettingsIndex
+                val currentSettingsIndex = settingsIndex(state.projects.size)
+                val wasOnSettings = state.pagerIndex == currentSettingsIndex
 
                 val newPagerIndex = if (wasOnSettings) {
-                    settingsIndex(projects.size)
+                    settingsIndex(data.projects.size)
                 } else {
-                    resolvePagerIndexForProject(selectedProjectId, projects)
+                    resolvePagerIndexForProject(selectedProjectId, data.projects)
                 }
 
-                it.copy(
-                    spaces = spaces,
-                    hasDwebEntry = hasDwebEntry,
-                    currentSpace = currentSpace,
-                    projects = projects,
+                state.copy(
+                    spaces = data.spaces,
+                    hasDwebEntry = data.hasDwebEntry,
+                    hasStorachaEntry = data.hasStorachaEntry,
+                    currentSpace = data.currentSpace,
+                    projects = data.projects,
                     selectedProjectId = selectedProjectId,
                     pagerIndex = newPagerIndex,
-                    lastMediaIndex = if (newPagerIndex < settingsIndex(projects.size)) newPagerIndex else it.lastMediaIndex
+                    lastMediaIndex = if (newPagerIndex < settingsIndex(data.projects.size)) newPagerIndex else state.lastMediaIndex
                 )
             }
         }.launchIn(viewModelScope)
@@ -341,4 +346,12 @@ private data class Quadruple<A, B, C, D>(
     val second: B,
     val third: C,
     val fourth: D
+)
+
+private data class ObservedData(
+    val spaces: List<Vault>,
+    val currentSpace: Vault?,
+    val projects: List<Archive>,
+    val hasDwebEntry: Boolean,
+    val hasStorachaEntry: Boolean,
 )

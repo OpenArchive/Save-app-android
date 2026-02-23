@@ -60,6 +60,8 @@ fun MainDrawerContent(
     onAddNewSpaceClicked: () -> Unit,
     showDwebEntry: Boolean = false,
     onDwebSelected: () -> Unit = {},
+    showStorachaEntry: Boolean = false,
+    onStorachaSelected: () -> Unit = {},
 ) {
 
     val serverAccordionState = rememberAccordionState()
@@ -88,6 +90,11 @@ fun MainDrawerContent(
                 onDwebSelected = {
                     serverAccordionState.collapse()
                     onDwebSelected()
+                },
+                showStorachaEntry = showStorachaEntry,
+                onStorachaSelected = {
+                    serverAccordionState.collapse()
+                    onStorachaSelected()
                 },
                 onAddAnotherAccountClicked = onAddNewSpaceClicked
             )
@@ -275,6 +282,8 @@ fun ExpandableSpaceList(
     showDwebEntry: Boolean = false,
     onSpaceSelected: (Vault) -> Unit,
     onDwebSelected: () -> Unit,
+    showStorachaEntry: Boolean = false,
+    onStorachaSelected: () -> Unit = {},
     onAddAnotherAccountClicked: () -> Unit,
 ) {
     Accordion(
@@ -326,6 +335,10 @@ fun ExpandableSpaceList(
                     DrawerDwebItem(onClick = onDwebSelected)
                 }
 
+                if (showStorachaEntry) {
+                    DrawerStorachaItem(onClick = onStorachaSelected)
+                }
+
                 AddAnotherAccountItem {
                     onAddAnotherAccountClicked()
                 }
@@ -357,6 +370,32 @@ private fun DrawerDwebItem(
             text = stringResource(R.string.dweb_title),
             style = MaterialTheme.typography.bodyLarge,
             color = colorResource(R.color.colorText)
+        )
+    }
+}
+
+@Composable
+private fun DrawerStorachaItem(
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colorResource(R.color.colorDrawerSpaceListBackground))
+            .clickable { onClick() }
+            .padding(horizontal = 16.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        SpaceIcon(
+            type = VaultType.STORACHA,
+            modifier = Modifier.size(24.dp),
+            tint = colorResource(R.color.colorOnBackground),
+        )
+        Text(
+            text = stringResource(R.string.storacha),
+            style = MaterialTheme.typography.bodyLarge,
+            color = colorResource(R.color.colorText),
         )
     }
 }

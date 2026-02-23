@@ -41,6 +41,7 @@ class StorachaAccountManager(
 
         saveAccounts(accounts)
         setCurrentAccount(email)
+        StorachaHelper.invalidateAccountState()
     }
 
     /**
@@ -55,6 +56,7 @@ class StorachaAccountManager(
         if (getCurrentAccountEmail() == email) {
             clearCurrentAccount()
         }
+        StorachaHelper.invalidateAccountState()
     }
 
     /**

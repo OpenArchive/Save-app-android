@@ -8,6 +8,7 @@ interface SpaceRepository {
     suspend fun getSpaces(): List<Vault>
     fun observeSpaces(): Flow<List<Vault>>
     fun observeHasDwebSpace(): Flow<Boolean>
+    fun observeHasStorachaSpace(): Flow<Boolean>
     suspend fun getCurrentSpace(): Vault?
     fun observeCurrentSpace(): Flow<Vault?>
     suspend fun setCurrentSpace(id: Long)

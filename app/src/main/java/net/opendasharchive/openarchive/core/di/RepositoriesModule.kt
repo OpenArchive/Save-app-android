@@ -20,7 +20,7 @@ val repositoriesModule = module {
     // Home/Main repositories
     single<SpaceRepository> {
         if (Prefs.isRoomMigrated) get<VaultRepositoryImpl>()
-        else SugarSpaceRepository(get(named("io")))
+        else SugarSpaceRepository(androidContext(), get(named("io")))
     }
     single<ProjectRepository> {
         if (Prefs.isRoomMigrated) get<ArchiveRepositoryImpl>()
