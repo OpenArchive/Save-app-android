@@ -118,7 +118,7 @@
 
     <string name="confirm_passcode">Parola Kodunu Doğrula</string>
     <string name="set_passcode">Parola Kodunu Ayarla</string>
-    <string name="set_passcode_warning">Bu PIN kodunu unutmayacağınızdan emin olun. Unutursanız, uygulamayı sıfırlamanız gerekir ve uygulama içindeki tüm veriler silinir.</string>
+    <string name="set_passcode_warning">Bu kodu unutmayacağınızdan emin olun. Unutursanız, uygulamayı sıfırlamanız gerekir ve uygulama içindeki tüm veriler silinir.</string>
 
 
     <!-- Strings related to Settings -->
