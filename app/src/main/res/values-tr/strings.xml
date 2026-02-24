@@ -206,7 +206,7 @@
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">İçerikler yalnızca kablosuz bağlantı varken yüklensin</string>
     <string name="security">Güvenlik</string>
     <string name="proofmode">ProofMode</string>
-    <string name="no_webbrowser_found_error">Bu isteği yerine getirecek bir uygulama yok. Lütfen bir tarayıcı kurun.</string>
+    <string name="no_webbrowser_found_error">Bu isteği yerine getirebilecek bir uygulama yok. Lütfen bir tarayıcı kurun.</string>
 
     <string name="intro_text_secure">İçeriğinizi güvenli bir şekilde özel sunuculara gönderin ve uygulamayı bir PIN kodu ile kilitleyin.</string>
     <string name="intro_text_archive"><![CDATA[İçeriğinizi uzun vadede doğrulanabilir, güvenli ve düzenli tutmak için Nextcloud veya İnternet Archive üzerine yükleyin.<br><br><a href=\"%1$s\"><u>Creative Commons Lisansı</u> kullanın. </a>]]></string>
@@ -230,7 +230,7 @@
     <string name="do_not_show_me_this_again">Bir daha gösterme</string>
     <string name="edit_multiple">Çoklu Düzenleme</string>
     <string name="press_and_hold_options_media_screen_title">İçerik Ekle</string>
-    <string name="press_and_hold_options_media_screen_message">Resim galerisinden seçim yapmak için + üzerine dokunun ya da diğer uygulamalardan ortam eklemek için basılı tutun.</string>
+    <string name="press_and_hold_options_media_screen_message">Resim galerisinden seçim yapmak için + sembolüne dokunun ya da diğer uygulamalardan içerik eklemek için basılı tutun.</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">Birden fazla içerik ögesini seçmek ve düzenlemek için basılı tutun.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Yüklendikten sonra içeriği düzenleyemeyeceksiniz.</string>
     <string name="edit_media_info">İçerik Bilgilerini Düzenle</string>
