@@ -10,6 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -29,7 +33,21 @@ fun SpaceSetupScreen(
     isDwebEnabled: Boolean,
     onDwebClicked: () -> Unit,
     onStorachaClicked: () -> Unit,
+    hasSeenStorachaWarning: Boolean = false,
+    onStorachaWarningAccepted: () -> Unit = {},
 ) {
+    var showStorachaWarning by remember { mutableStateOf(false) }
+
+    if (showStorachaWarning) {
+        StorachaWarningDialog(
+            onAccepted = {
+                showStorachaWarning = false
+                onStorachaWarningAccepted()
+                onStorachaClicked()
+            },
+        )
+    }
+
     // Use a scrollable Column to mimic ScrollView + LinearLayout
     Column(
         modifier = Modifier
@@ -96,12 +114,18 @@ fun SpaceSetupScreen(
             )
         }
 
-        // WebDav option
+        // Storacha option
         ServerOptionItem(
             iconRes = R.drawable.storacha,
             title = stringResource(R.string.storacha),
             subtitle = stringResource(R.string.send_directly_to_storacha_server),
-            onClick = onStorachaClicked
+            onClick = {
+                if (hasSeenStorachaWarning) {
+                    onStorachaClicked()
+                } else {
+                    showStorachaWarning = true
+                }
+            },
         )
     }
 }
