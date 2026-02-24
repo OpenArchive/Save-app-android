@@ -107,7 +107,7 @@
 
     <string name="action_upload">Yükle</string>
 <!-- Passcode Settings -->
-    <string name="multiple_failed_attempts_message">Birden fazla başarısız deneme nedeniyle uygulama kilitlendi. Lütfen bir süre sonra yeniden deneyin.</string>
+    <string name="multiple_failed_attempts_message">Çok sayıda hatalı deneme nedeniyle uygulama kilitlendi. Lütfen daha sonra tekrar deneyin.</string>
     <string name="passcode_not_set">Parola kodu ayarlanmamış</string>
     <string name="passcode_remaining_attempts">Yanlış parola kodu. %1$d deneme hakkınız kaldı.</string>
     <string name="passcode_too_many_failed_attempts">Çok fazla başarısız deneme yapıldı. Uygulama kilitlendi.</string>
