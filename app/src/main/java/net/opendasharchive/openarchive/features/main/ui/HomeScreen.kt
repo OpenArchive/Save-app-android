@@ -480,9 +480,6 @@ fun HomeScreenContent(
                                     onNavigateToC2pa = {
                                         onAction(HomeAction.Navigate(AppRoute.C2paSettings))
                                     },
-                                    onNavigateToStoracha = {
-                                        onAction(HomeAction.Navigate(AppRoute.StorachaRoute))
-                                    },
                                 )
                             }
 

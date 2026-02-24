@@ -56,7 +56,6 @@ import me.zhanghai.compose.preference.preferenceTheme
 import me.zhanghai.compose.preference.rememberPreferenceState
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
-import net.opendasharchive.openarchive.core.config.AppConfig
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
 import net.opendasharchive.openarchive.core.presentation.theme.SaveTextStyles
@@ -80,10 +79,8 @@ fun SettingsScreen(
     onNavigateToArchivedFolders: () -> Unit = {},
     onNavigateToCache: () -> Unit = {},
     onNavigateToC2pa: () -> Unit = {},
-    onNavigateToStoracha: () -> Unit = {},
 ) {
     val dialogManager: DialogStateManager = koinInject()
-    val appConfig: AppConfig = koinInject()
     val context = LocalContext.current
 
     if (LocalInspectionMode.current) {
@@ -166,8 +163,6 @@ fun SettingsScreen(
     ProvidePreferenceLocals(flow = preferenceFlow, theme = savePreferenceTheme()) {
 
         val settingStrings = SettingsStrings(
-            titleStoracha = stringResource(R.string.storacha),
-            summaryStoracha = stringResource(R.string.dweb_description),
             titleSecure = stringResource(R.string.pref_title_secure),
             titleArchive = stringResource(R.string.pref_title_archive),
             titleVerify = stringResource(R.string.intro_header_verify),
@@ -209,7 +204,6 @@ fun SettingsScreen(
         SettingsScreenContent(
             strings = settingStrings,
             appVersion = appVersion,
-            showStoracha = appConfig.isDwebEnabled,
             passcodeState = passcodeState,
             wifiOnlyState = wifiOnlyState,
             torChecked = torChecked,
@@ -258,7 +252,6 @@ fun SettingsScreen(
             onMediaServersClick = onNavigateToSpaceList,
             onMediaFoldersClick = onNavigateToArchivedFolders,
             onC2paClick = onNavigateToC2pa,
-            onStorachaClick = onNavigateToStoracha,
             onAboutClick = { openUrl(context, "https://open-archive.org/save") },
             onPrivacyClick = { openUrl(context, "https://open-archive.org/privacy") },
             onNavigateToCache = onNavigateToCache,
@@ -270,7 +263,6 @@ fun SettingsScreen(
 private fun SettingsScreenContent(
     strings: SettingsStrings,
     appVersion: String,
-    showStoracha: Boolean = false,
     passcodeState: MutableState<Boolean>,
     wifiOnlyState: MutableState<Boolean>,
     torChecked: Boolean,
@@ -285,7 +277,6 @@ private fun SettingsScreenContent(
     onMediaServersClick: () -> Unit,
     onMediaFoldersClick: () -> Unit,
     onC2paClick: () -> Unit,
-    onStorachaClick: () -> Unit = {},
     onAboutClick: () -> Unit,
     onPrivacyClick: () -> Unit,
     onNavigateToCache: () -> Unit,
@@ -341,15 +332,6 @@ private fun SettingsScreenContent(
             modifier = rowModifier,
             onClick = onC2paClick,
         )
-        if (showStoracha) {
-            preference(
-                key = "storacha",
-                title = { PreferenceTitle(text = strings.titleStoracha) },
-                summary = { PreferenceSummary(text = strings.summaryStoracha) },
-                modifier = rowModifier,
-                onClick = onStorachaClick,
-            )
-        }
         sectionDivider("divider_verify")
 
         // ── Encrypt ───────────────────────────────────────────────────────────
@@ -410,8 +392,6 @@ private fun SettingsScreenContent(
 // ── Data ──────────────────────────────────────────────────────────────────────
 
 private data class SettingsStrings(
-    val titleStoracha: String = "",
-    val summaryStoracha: String = "",
     val titleSecure: String,
     val titleArchive: String,
     val titleVerify: String,

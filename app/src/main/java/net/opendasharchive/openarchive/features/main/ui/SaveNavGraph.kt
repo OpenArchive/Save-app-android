@@ -52,6 +52,7 @@ import net.opendasharchive.openarchive.features.media.ReviewMediaViewModel
 import net.opendasharchive.openarchive.features.media.camera.CameraScreenWrapper
 import net.opendasharchive.openarchive.features.onboarding.OnboardingInstructionsScreen
 import net.opendasharchive.openarchive.features.onboarding.OnboardingWelcomeScreen
+import net.opendasharchive.openarchive.features.settings.C2paScreen
 import net.opendasharchive.openarchive.features.settings.FolderDetailScreen
 import net.opendasharchive.openarchive.features.settings.FolderDetailViewModel
 import net.opendasharchive.openarchive.features.settings.FoldersScreen
@@ -431,6 +432,12 @@ fun SaveNavGraph(
                             viewModel = viewModel,
                         )
                     }
+                }
+
+                entry<AppRoute.C2paSettings> {
+                    C2paScreen(
+                        onNavigateBack = { navigator.navigateBack() }
+                    )
                 }
 
                 entry<AppRoute.PreviewMediaRoute> { route ->
