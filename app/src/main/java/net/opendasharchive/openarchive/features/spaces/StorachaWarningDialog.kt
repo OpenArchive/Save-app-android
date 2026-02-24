@@ -21,14 +21,17 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,23 +47,24 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import kotlinx.coroutines.delay
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultBoxPreview
+import androidx.core.graphics.drawable.toDrawable
 
 private const val WARNING_DURATION_SECONDS = 10
 
 private const val WARNING_MESSAGE =
-    "All data uploaded to the Storacha Network is available to anyone who requests it using " +
-        "the correct CID. Do not store any private or sensitive information in an unencrypted " +
-        "form using Storacha. Removing files from the Storacha Network will remove them from " +
-        "the file listing for your account, but that doesn't prevent nodes on the decentralized " +
-        "storage network from retaining copies of the data indefinitely. Storacha itself " +
-        "generally retains and charges users for any uploaded data for a minimum of 30 days. " +
-        "Do not use Storacha for data that may need to be permanently deleted in the future."
+    "Uploads to Storacha (Filecoin/IPFS) may be retrievable by anyone who has the file identifier (CID).\n" +
+            "Decentralized storage is designed for long-term durability. Removing a file may not remove all copies that exist across the network.\n" +
+            "Do not upload private or sensitive information unless it is encrypted."
 
 @Composable
 fun StorachaWarningDialog(
     onAccepted: () -> Unit,
+    onDismiss: () -> Unit,
 ) {
     var secondsRemaining by remember { mutableIntStateOf(WARNING_DURATION_SECONDS) }
+
+    var isCheckedState by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(Unit) {
         while (secondsRemaining > 0) {
@@ -80,7 +84,7 @@ fun StorachaWarningDialog(
         val view = LocalView.current
         val dialogWindow = (view.parent as? DialogWindowProvider)?.window
         SideEffect {
-            dialogWindow?.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
+            dialogWindow?.setBackgroundDrawable(android.graphics.Color.TRANSPARENT.toDrawable())
         }
 
         Card(
@@ -136,30 +140,90 @@ fun StorachaWarningDialog(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-                Button(
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    onClick = onAccepted,
-                    enabled = secondsRemaining == 0,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.tertiary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                    ),
-                    shape = RoundedCornerShape(12.dp),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = if (secondsRemaining > 0) "OK ($secondsRemaining)" else "OK",
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold,
-                        ),
+                    Checkbox(
+                        checked = isCheckedState,
+                        onCheckedChange = { isChecked ->
+                            isCheckedState = isChecked
+                        }
                     )
+
+                    BaseDialogMessage("I'm okay with this")
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+
+                    TextButton(
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            onDismiss()
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp),
+                    ) {
+                        Text(
+                            text = "Cancel",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onBackground
+                            ),
+                        )
+                    }
+
+                    Button(
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            if (isCheckedState) {
+                                onAccepted()
+                            }
+                        },
+                        enabled = secondsRemaining == 0 && isCheckedState,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp),
+                    ) {
+                        Text(
+                            text = if (secondsRemaining > 0) "Continue ($secondsRemaining)" else "Continue",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            ),
+                        )
+                    }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun BaseDialogMessage(
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = text,
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colorScheme.onSurface,
+        style = MaterialTheme.typography.bodyMedium.copy(
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+        ),
+        modifier = modifier
+    )
 }
 
 @Preview
@@ -167,6 +231,21 @@ fun StorachaWarningDialog(
 @Composable
 private fun StorachaWarningDialogPreview() {
     DefaultBoxPreview {
-        StorachaWarningDialog(onAccepted = {})
+        StorachaWarningDialog(
+            onAccepted = {},
+            onDismiss = {}
+        )
     }
 }
+
+/**
+Text: Uploads to Storacha may be retrievable by anyone who has the file identifier (CID).
+Decentralized storage is designed for long-term durability. Removing a file may not remove all copies that exist across the network.
+
+Do not upload private or sensitive information unless it is encrypted.
+
+Checkbox: I understand that files may be retrievable by CID and may persist, and I am responsible for encrypting sensitive content before uploading. (If this text is too long, just put I'm okay with this)
+
+Buttons: Continue, Cancel
+
+ */

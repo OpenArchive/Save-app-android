@@ -45,6 +45,9 @@ fun SpaceSetupScreen(
                 onStorachaWarningAccepted()
                 onStorachaClicked()
             },
+            onDismiss = {
+                showStorachaWarning = false
+            }
         )
     }
 
@@ -117,8 +120,8 @@ fun SpaceSetupScreen(
         // Storacha option
         ServerOptionItem(
             iconRes = R.drawable.storacha,
-            title = stringResource(R.string.storacha),
-            subtitle = stringResource(R.string.send_directly_to_storacha_server),
+            title = "Storacha (Filecoin/IPFS)",
+            subtitle = "Connect to decentralized storage.",
             onClick = {
                 if (hasSeenStorachaWarning) {
                     onStorachaClicked()
