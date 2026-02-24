@@ -262,7 +262,7 @@
     <string name="dweb_create_group_group_name"><i>Grup adı</i></string>
     <string name="dweb_create_group_user_name"><i>Bu gruptaki adınız</i></string>
     <string name="dweb_join_group_screen_title">Bu grup için bir kullanıcı adı seçin</string>
-    <string name="dweb_join_group_screen_description">DWeb Storage üzerindeki bir grup, bir sunucuya benzer ve bir kullanıcı adı bu gruptaki klasörünüz olarak işlev görür. Bu kullanıcı adı ile ortam yükleyebilirsiniz</string>
+    <string name="dweb_join_group_screen_description">DWeb Storage üzerindeki bir grup, sunucuya benzer ve kullanıcı adı bu gruptaki klasörünüz olarak işlev görür. Bu kullanıcı adı ile içerik yükleyebilirsiniz.</string>
     <string name="dweb_join_group_group_name">Grup Adı</string>
     <string name="dweb_join_group_repo_name">Bu gruptaki adınız</string>
 
