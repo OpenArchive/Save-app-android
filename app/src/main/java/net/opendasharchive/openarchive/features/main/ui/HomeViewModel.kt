@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.core.domain.Archive
 import net.opendasharchive.openarchive.core.domain.Vault
+import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.repositories.ProjectRepository
 import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.features.main.ui.HomeEvent.LaunchPicker
@@ -134,7 +135,7 @@ class HomeViewModel(
 
             HomeAction.NavigateToAddNewFolder -> {
                 val spaceId = uiState.value.currentSpace?.id ?: return
-                navigator.navigateTo(AppRoute.AddFolderRoute(spaceId))
+                navigateToAddFolder(spaceId)
             }
 
             HomeAction.NavigateToArchivedFolders -> {
@@ -239,7 +240,7 @@ class HomeViewModel(
             state.currentSpace == null -> navigator.navigateTo(AppRoute.SpaceSetupRoute)
             state.projects.isEmpty() || state.selectedProjectId == null -> {
                 state.currentSpace.id.let {
-                    navigator.navigateTo(AppRoute.AddFolderRoute(it))
+                    navigateToAddFolder(it)
                 }
             }
 
@@ -271,7 +272,7 @@ class HomeViewModel(
             state.currentSpace == null -> navigator.navigateTo(AppRoute.SpaceSetupRoute)
             state.projects.isEmpty() || state.selectedProjectId == null -> {
                 state.currentSpace.id.let {
-                    navigator.navigateTo(AppRoute.AddFolderRoute(it))
+                    navigateToAddFolder(it)
                 }
             }
 
@@ -339,6 +340,14 @@ class HomeViewModel(
     }
 
     private fun settingsIndex(projectCount: Int): Int = maxOf(1, projectCount)
+
+    private fun navigateToAddFolder(spaceId: Long) {
+        if (uiState.value.currentSpace?.type == VaultType.INTERNET_ARCHIVE) {
+            navigator.navigateTo(AppRoute.CreateNewFolderRoute)
+        } else {
+            navigator.navigateTo(AppRoute.AddFolderRoute(spaceId))
+        }
+    }
 }
 
 private data class Quadruple<A, B, C, D>(

@@ -1,6 +1,7 @@
 package net.opendasharchive.openarchive.features.onboarding
 
 import android.content.res.Configuration
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -34,6 +35,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -53,6 +56,7 @@ import com.tbuonomo.viewpagerdotsindicator.compose.type.WormIndicatorType
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.LocalColors
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.onboarding.components.HtmlText
 import net.opendasharchive.openarchive.features.onboarding.components.OnboardingSlide
@@ -92,16 +96,24 @@ fun OnboardingInstructionsScreen(
     val currentPage = pagerState.currentPage
     val isLastPage = currentPage == slides.size - 1
 
-    // Handle cover image animation
-    val imageAlpha by animateFloatAsState(
-        targetValue = if (pagerState.isScrollInProgress) 0f else 1f,
-        animationSpec = tween(durationMillis = 200),
-        label = "imageAlpha"
-    )
+    // Match legacy behavior:
+    // - Hide immediately when dragging starts
+    // - Swap image only when pager is idle
+    // - Fade in over 200ms after swap
+    var coverImageRes by remember { mutableIntStateOf(slides[currentPage].imageRes) }
+    val coverAlpha = remember { Animatable(1f) }
 
-    // Handle back press
-    LaunchedEffect(pagerState.currentPage) {
-        // This composition will be called every time page changes
+    LaunchedEffect(pagerState.isScrollInProgress) {
+        if (pagerState.isScrollInProgress) {
+            coverAlpha.snapTo(0f)
+        } else {
+            coverImageRes = slides[pagerState.currentPage].imageRes
+            coverAlpha.snapTo(0f)
+            coverAlpha.animateTo(
+                targetValue = 1f,
+                animationSpec = tween(durationMillis = 200)
+            )
+        }
     }
 
     Box(
@@ -207,11 +219,11 @@ fun OnboardingInstructionsScreen(
                     .offset(x = (-8).dp) // Use offset instead of negative padding to extend left
             ) {
                 Image(
-                    painter = painterResource(slides[currentPage].imageRes),
+                    painter = painterResource(coverImageRes),
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxSize()
-                        .graphicsLayer { alpha = imageAlpha },
+                        .graphicsLayer { alpha = coverAlpha.value },
                     contentScale = ContentScale.Fit,
                     alignment = Alignment.CenterStart
                 )
@@ -325,8 +337,7 @@ fun OnboardingSlideContent(
 }
 
 
-@Preview(name = "Light Mode", showBackground = true)
-@Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@PreviewLightDark
 @Composable
 private fun OnboardingInstructionsScreenPreview() {
     SaveAppTheme {
@@ -337,8 +348,7 @@ private fun OnboardingInstructionsScreenPreview() {
 }
 
 
-@Preview(name = "Single Slide Light", showBackground = true)
-@Preview(name = "Single Slide Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@PreviewLightDark
 @Composable
 private fun OnboardingSlideContentPreview() {
     val sampleSlide = OnboardingSlide(
