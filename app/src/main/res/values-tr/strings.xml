@@ -56,7 +56,7 @@
     <string name="prefs_use_tor_summary">Yalnızca Tor ağı ile aktarılsın</string>
 
     <string name="prefs_use_proofmode_title">ProofMode kullanılsın</string>
-    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode, çoklu ortam içeriklerinin kimliğinin ve gerçekliğinin doğrulanmasını iyileştiren bir yöntemdir. <a href=\"%1$s\"><u>Ayrıntılı bilgi alın</u></a>]]></string>
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode, zengin içeriklerin doğrulanmasını iyileştiren ve geliştiren bir yöntemdir. <a href=\"%1$s\"><u>Buradan ayrıntılı bilgi alın.</u></a>]]></string>
 
     <string name="proof_mode_warning_text"><![CDATA[ 
     İçeriğinizin çekildiği konumu doğrulamak için ProofMode yakındaki baz istasyonlarından veri toplayarak konumunuzu teyit eder. Güvenilirlik ve bağlam sağlamak amacıyla içeriğinize ayrı bir üst veri dosyası dahil edilir. Android bu bilgilerin toplanması için konum erişimi gerektirir.<br/><br/>
