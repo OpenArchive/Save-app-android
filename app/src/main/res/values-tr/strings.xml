@@ -22,7 +22,7 @@
     <string name="disable_passcode_dialog_title">Parola kodunu kapat</string>
     <string name="disable_passcode_dialog_msg">Parola kodu kapatılsın mı\?</string>
     <string name="tor_disabled_title">Onion yönlendirme geliştirme aşamasında</string>
-    <string name="tor_disabled_message">Bu özellik şu anda geliştiriliyor. Şimdilik, gizliliğinizi ve güvenliğinizi artırmak için Orbot uygulamasını veya istediğiniz herhangi bir VPN hizmetini kullanabilirsiniz.</string>
+    <string name="tor_disabled_message">Bu özellik şu anda geliştirme aşamasında. Gizliliğinizi ve güvenliğinizi artırmak için Orbot uygulamasını veya bir VPN hizmetini kullanabilirsiniz.</string>
     <string name="tor_download_btn_label">Orbot İndir</string>
 
 
