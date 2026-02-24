@@ -37,8 +37,6 @@ import net.opendasharchive.openarchive.features.media.camera.CameraActivity
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.services.storacha.model.UploadEntry
-import net.opendasharchive.openarchive.services.storacha.util.CarFileCreator
-import net.opendasharchive.openarchive.services.storacha.util.CarFileResult
 import net.opendasharchive.openarchive.services.storacha.util.DidManager
 import net.opendasharchive.openarchive.services.storacha.viewModel.LoadingState
 import net.opendasharchive.openarchive.services.storacha.viewModel.StorachaMediaViewModel
@@ -71,8 +69,8 @@ class StorachaMediaFragment :
         }
 
     private val getMultipleContentsLauncher =
-        registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris: List<Uri> ->
-            handleSelectedFiles(uris)
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            if (uri != null) handleMedia(uri) else Timber.d("No file selected")
         }
 
     // Modern camera launcher using TakePicture contract for photo capture
@@ -94,13 +92,12 @@ class StorachaMediaFragment :
     private val customCameraLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == android.app.Activity.RESULT_OK) {
-                val capturedUris =
-                    result.data?.getStringArrayListExtra(CameraActivity.EXTRA_CAPTURED_URIS)
-                if (!capturedUris.isNullOrEmpty()) {
-                    val uris = capturedUris.map { Uri.parse(it) }
-                    handleSelectedFiles(uris)
+                val capturedUri =
+                    result.data?.getStringArrayListExtra(CameraActivity.EXTRA_CAPTURED_URIS)?.firstOrNull()
+                if (capturedUri != null) {
+                    handleMedia(Uri.parse(capturedUri))
                 } else {
-                    Timber.w("No captures returned from custom camera")
+                    Timber.w("No capture returned from custom camera")
                 }
             } else {
                 Timber.w("Custom camera capture cancelled or failed")
@@ -116,7 +113,7 @@ class StorachaMediaFragment :
     private data class FailedUploadData(
         val uri: Uri,
         val tempFile: File,
-        val carFile: File,
+        val fileName: String,
         val userDid: String,
         val spaceDid: String,
         val sessionId: String,
@@ -250,14 +247,13 @@ class StorachaMediaFragment :
             result?.fold(
                 onSuccess = { uploadResponse ->
                     Timber.d("Upload successful: CID=${uploadResponse.cid}, Size=${uploadResponse.size}")
-                    // Clean up temporary files after successful upload
+                    // Clean up temporary file after successful upload
                     lastFailedUpload?.let { failedUpload ->
                         try {
                             failedUpload.tempFile.delete()
-                            failedUpload.carFile.delete()
-                            Timber.d("Cleaned up temporary files after successful upload")
+                            Timber.d("Cleaned up temporary file after successful upload")
                         } catch (e: Exception) {
-                            Timber.e(e, "Failed to delete temporary files")
+                            Timber.e(e, "Failed to delete temporary file")
                         }
                     }
                     lastFailedUpload = null // Clear any previous failed upload
@@ -326,12 +322,8 @@ class StorachaMediaFragment :
                     failedUpload.tempFile.delete()
                     Timber.d("Cleaned up temp file: ${failedUpload.tempFile.name}")
                 }
-                if (failedUpload.carFile.exists()) {
-                    failedUpload.carFile.delete()
-                    Timber.d("Cleaned up CAR file: ${failedUpload.carFile.name}")
-                }
             } catch (e: Exception) {
-                Timber.e("Failed to clean up temp files: ${e.message}")
+                Timber.e("Failed to clean up temp file: ${e.message}")
             }
         }
     }
@@ -383,10 +375,6 @@ class StorachaMediaFragment :
                             previousFailedUpload.tempFile.delete()
                             Timber.d("Cleaned up previous failed upload temp file: ${previousFailedUpload.tempFile.name}")
                         }
-                        if (previousFailedUpload.carFile.exists()) {
-                            previousFailedUpload.carFile.delete()
-                            Timber.d("Cleaned up previous failed upload CAR file: ${previousFailedUpload.carFile.name}")
-                        }
                     } catch (e: Exception) {
                         Timber.e("Failed to clean up previous failed upload: ${e.message}")
                     }
@@ -395,6 +383,10 @@ class StorachaMediaFragment :
 
                 val userDid = DidManager(requireContext()).getOrCreateDid()
                 val spaceDid = args.spaceId
+
+                // Get the original filename first
+                val originalFileName = Utility.getUriDisplayName(requireContext(), uri)
+                    ?: "IMG_${System.currentTimeMillis()}.jpg"
 
                 // Perform all I/O operations on IO dispatcher
                 val finalTempFile = withContext(Dispatchers.IO) {
@@ -434,10 +426,7 @@ class StorachaMediaFragment :
                         tempFile
                     } else {
                         // Need to copy from URI (gallery, etc.)
-                        val title =
-                            Utility.getUriDisplayName(requireContext(), uri)
-                                ?: "IMG_${System.currentTimeMillis()}.jpg"
-                        val newTempFile = Utility.getOutputMediaFileByCacheNoTimestamp(requireContext(), title)
+                        val newTempFile = Utility.getOutputMediaFileByCacheNoTimestamp(requireContext(), originalFileName)
 
                         if (newTempFile == null) {
                             Timber.e("Failed to create temp file for URI: $uri")
@@ -477,12 +466,6 @@ class StorachaMediaFragment :
                     }
                 }
 
-                // Generate proper CAR file from the temporary file (writes directly to cache dir)
-                // This should also be done on IO thread as it involves file I/O
-                val carResult = withContext(Dispatchers.IO) {
-                    CarFileCreator.createCarFile(finalTempFile, requireContext().cacheDir)
-                }
-
                 val uploadSessionId = args.sessionId.ifEmpty { null }
 
                 // Store upload details for potential retry and cleanup
@@ -490,16 +473,17 @@ class StorachaMediaFragment :
                     FailedUploadData(
                         uri = uri,
                         tempFile = finalTempFile,
-                        carFile = carResult.carFile,
+                        fileName = originalFileName,
                         userDid = userDid,
                         spaceDid = spaceDid,
                         sessionId = uploadSessionId ?: "",
                         isAdmin = args.isAdmin,
                     )
 
+                // Upload file to backend - backend wraps file in UnixFS directory with filename
                 viewModel.uploadFile(
                     finalTempFile,
-                    carResult,
+                    originalFileName,
                     userDid,
                     spaceDid,
                     uploadSessionId,
@@ -517,16 +501,6 @@ class StorachaMediaFragment :
                 }
                 showError(userMessage)
             }
-        }
-    }
-
-    private fun handleSelectedFiles(uris: List<Uri>) {
-        if (uris.isNotEmpty()) {
-            for (uri in uris) {
-                handleMedia(uri)
-            }
-        } else {
-            Timber.d("No files selected")
         }
     }
 
@@ -797,45 +771,19 @@ class StorachaMediaFragment :
 
     private fun retryLastUpload() {
         lastFailedUpload?.let { failedUpload ->
-            Timber.d("Retrying upload for file: ${failedUpload.uri}")
+            Timber.d("Retrying upload for file: ${failedUpload.fileName}")
 
-            // Launch coroutine to handle I/O operations off the main thread
-            lifecycleScope.launch {
-                try {
-                    // Clean up old CAR file if it exists
-                    withContext(Dispatchers.IO) {
-                        try {
-                            if (failedUpload.carFile.exists()) {
-                                failedUpload.carFile.delete()
-                                Timber.d("Deleted old CAR file before retry: ${failedUpload.carFile.name}")
-                            }
-                        } catch (e: Exception) {
-                            Timber.e("Failed to delete old CAR file: ${e.message}")
-                        }
-                    }
+            val retrySessionId = failedUpload.sessionId.ifEmpty { null }
 
-                    // Regenerate CAR file for retry
-                    val carResult = withContext(Dispatchers.IO) {
-                        CarFileCreator.createCarFile(failedUpload.tempFile, requireContext().cacheDir)
-                    }
-                    val retrySessionId = failedUpload.sessionId.ifEmpty { null }
-
-                    // Update lastFailedUpload with new CAR file
-                    lastFailedUpload = failedUpload.copy(carFile = carResult.carFile)
-
-                    viewModel.uploadFile(
-                        failedUpload.tempFile,
-                        carResult,
-                        failedUpload.userDid,
-                        failedUpload.spaceDid,
-                        retrySessionId,
-                        failedUpload.isAdmin,
-                    )
-                } catch (e: Exception) {
-                    Timber.e(e, "Error retrying upload: ${e.message}")
-                    showError("Failed to retry upload. Please try again.")
-                }
-            }
+            // Retry upload - backend wraps file in UnixFS directory with filename
+            viewModel.uploadFile(
+                failedUpload.tempFile,
+                failedUpload.fileName,
+                failedUpload.userDid,
+                failedUpload.spaceDid,
+                retrySessionId,
+                failedUpload.isAdmin,
+            )
         }
     }
 

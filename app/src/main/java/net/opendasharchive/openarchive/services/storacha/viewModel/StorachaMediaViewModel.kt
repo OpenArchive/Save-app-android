@@ -4,15 +4,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.services.storacha.model.UploadEntry
 import net.opendasharchive.openarchive.services.storacha.model.UploadResponse
 import net.opendasharchive.openarchive.services.storacha.service.StorachaApiService
 import net.opendasharchive.openarchive.services.storacha.util.BridgeUploader
-import net.opendasharchive.openarchive.services.storacha.util.CarFileResult
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.File
+import java.io.IOException
 
 enum class LoadingState {
     NONE,
@@ -121,9 +122,22 @@ class StorachaMediaViewModel(
         }
     }
 
+    /**
+     * Uploads a file to Storacha via the backend server.
+     *
+     * The backend handles CAR file generation and the complex blob workflow,
+     * so we just need to send the original file and filename.
+     *
+     * @param file The file to upload
+     * @param fileName The original filename (preserved in UnixFS directory structure)
+     * @param userDid The user's DID
+     * @param spaceDid The target space DID
+     * @param sessionId The session ID (for admin users)
+     * @param isAdmin Whether this is an admin upload
+     */
     fun uploadFile(
         file: File,
-        carResult: CarFileResult,
+        fileName: String,
         userDid: String,
         spaceDid: String,
         sessionId: String?,
@@ -133,16 +147,15 @@ class StorachaMediaViewModel(
             _loading.value = true
             _loadingState.value = LoadingState.UPLOADING
             try {
-                val bridgeResult =
-                    bridgeUploader.uploadFile(
-                        carFile = carResult.carFile,
-                        carCid = carResult.carCid,
-                        rootCid = carResult.rootCid,
-                        spaceDid = spaceDid,
-                        userDid = userDid,
-                        sessionId = sessionId,
-                        isAdmin = isAdmin,
-                    )
+                // Upload with retry logic for transient failures
+                val bridgeResult = uploadWithRetry(
+                    file = file,
+                    fileName = fileName,
+                    spaceDid = spaceDid,
+                    userDid = userDid,
+                    sessionId = sessionId,
+                    isAdmin = isAdmin,
+                )
 
                 _uploadResult.value =
                     Result.success(
@@ -153,21 +166,143 @@ class StorachaMediaViewModel(
                         ),
                     )
 
-                refreshFromStart()
-                loadMoreMediaEntries(userDid, spaceDid, sessionId)
+                // Optimistically add the new upload to the list immediately
+                // This gives instant feedback without waiting for server sync
+                addOptimisticUpload(bridgeResult.rootCid, bridgeResult.size)
+
+                // Clear loading state immediately - user sees the result
+                _loading.value = false
+                _loadingState.value = LoadingState.NONE
+
+                // Sync with server in background to ensure consistency
+                // This runs silently without affecting the UI
+                syncWithServerInBackground(userDid, spaceDid, sessionId)
+
             } catch (e: HttpException) {
                 if (e.code() == HTTP_UNAUTHORIZED) {
                     _sessionExpired.value = true
                 }
                 _uploadResult.value = Result.failure(e)
+                _loading.value = false
+                _loadingState.value = LoadingState.NONE
             } catch (e: Exception) {
                 _uploadResult.value = Result.failure(e)
-            } finally {
-                cleanupCarFile(carResult.carFile)
                 _loading.value = false
                 _loadingState.value = LoadingState.NONE
             }
         }
+    }
+
+    /**
+     * Optimistically adds a newly uploaded item to the list.
+     * This provides instant feedback without waiting for server sync.
+     */
+    private fun addOptimisticUpload(cid: String, size: Long) {
+        val currentTime = java.time.Instant.now().toString()
+        val newEntry = net.opendasharchive.openarchive.services.storacha.model.UploadEntry(
+            cid = cid,
+            size = size,
+            created = currentTime,
+            insertedAt = currentTime,
+            updatedAt = currentTime,
+            gatewayUrl = "https://$cid.ipfs.dweb.link/",
+        )
+
+        val currentList = _media.value ?: emptyList()
+        // Add to the beginning of the list (most recent first)
+        _media.value = listOf(newEntry) + currentList
+        _isEmpty.value = false
+    }
+
+    /**
+     * Silently syncs with the server in the background.
+     * Updates the list if there are changes, but doesn't show loading indicators.
+     */
+    private fun syncWithServerInBackground(
+        userDid: String,
+        spaceDid: String,
+        sessionId: String?,
+    ) {
+        viewModelScope.launch {
+            try {
+                val response = apiService.listUploads(
+                    userDid = userDid,
+                    spaceDid = spaceDid,
+                    cursor = null,
+                    size = PAGE_SIZE,
+                    sessionId = sessionId?.takeIf { it.isNotEmpty() },
+                )
+
+                // Only update if we got data - merge with optimistic updates
+                if (response.uploads.isNotEmpty()) {
+                    val currentList = _media.value ?: emptyList()
+                    val serverCids = response.uploads.map { it.cid }.toSet()
+
+                    // Keep optimistic entries that aren't in server response yet,
+                    // plus all server entries
+                    val optimisticEntries = currentList.filterNot { it.cid in serverCids }
+                    _media.value = optimisticEntries + response.uploads
+
+                    paginationState = paginationState.copy(
+                        cursor = response.uploads.lastOrNull()?.cid,
+                        hasMoreData = response.hasMore,
+                        isFirstLoad = false,
+                        isRefreshing = false,
+                    )
+                }
+            } catch (e: Exception) {
+                // Silently ignore background sync errors - optimistic data is still shown
+                Timber.d("Background sync failed (non-critical): ${e.message}")
+            }
+        }
+    }
+
+    /**
+     * Upload with retry logic for transient network failures.
+     */
+    private suspend fun uploadWithRetry(
+        file: File,
+        fileName: String,
+        spaceDid: String,
+        userDid: String?,
+        sessionId: String?,
+        isAdmin: Boolean,
+        maxRetries: Int = 3,
+    ): net.opendasharchive.openarchive.services.storacha.model.BridgeUploadResult {
+        var lastException: Exception? = null
+
+        repeat(maxRetries) { attempt ->
+            try {
+                return bridgeUploader.uploadFile(
+                    file = file,
+                    fileName = fileName,
+                    spaceDid = spaceDid,
+                    userDid = userDid,
+                    sessionId = sessionId,
+                    isAdmin = isAdmin,
+                )
+            } catch (e: IOException) {
+                // Retry on network errors
+                lastException = e
+                Timber.w("Upload attempt ${attempt + 1} failed with IO error: ${e.message}")
+                if (attempt < maxRetries - 1) {
+                    delay(1000L * (attempt + 1)) // Exponential backoff: 1s, 2s, 3s
+                }
+            } catch (e: HttpException) {
+                // Retry on 5xx server errors, but not on 4xx client errors
+                if (e.code() in 500..599) {
+                    lastException = e
+                    Timber.w("Upload attempt ${attempt + 1} failed with server error: ${e.code()}")
+                    if (attempt < maxRetries - 1) {
+                        delay(1000L * (attempt + 1))
+                    }
+                } else {
+                    throw e // Don't retry client errors
+                }
+            }
+        }
+
+        throw lastException ?: Exception("Upload failed after $maxRetries attempts")
     }
 
     private fun handleLoadSuccess(
@@ -219,21 +354,18 @@ class StorachaMediaViewModel(
             _sessionExpired.value = true
         }
         Timber.e(error, "Failed to load page")
+
+        // Only set isEmpty if this was the first load AND we have no existing data
+        // This prevents showing "no media" when a refresh fails but we have cached data
+        if (paginationState.isFirstLoad && (_media.value.isNullOrEmpty())) {
+            _isEmpty.value = true
+        }
+
         paginationState =
             paginationState.copy(
                 isRefreshing = false,
+                isLoading = false,
             )
-    }
-
-    private fun cleanupCarFile(carFile: File) {
-        try {
-            if (carFile.exists()) {
-                carFile.delete()
-                Timber.d("Deleted temporary CAR file: ${carFile.name}")
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to delete CAR file")
-        }
     }
 
     private data class PaginationState(
