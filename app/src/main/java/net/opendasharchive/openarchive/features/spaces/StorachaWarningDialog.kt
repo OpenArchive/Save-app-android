@@ -37,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,15 +47,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
 import kotlinx.coroutines.delay
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultBoxPreview
 import androidx.core.graphics.drawable.toDrawable
 
 private const val WARNING_DURATION_SECONDS = 10
-
-private const val WARNING_MESSAGE =
-    "Do not upload private or sensitive information unless it is encrypted.\n\n" +
-    "Uploads to the decentralized web/Filecoin- are accessible to anyone who has the file identifier (CID).\n\n" +
-    "Decentralized storage is designed for long-term durability. Removing a file will not remove all copies that exist across the network."
 
 @Composable
 fun StorachaWarningDialog(
@@ -130,7 +127,7 @@ fun StorachaWarningDialog(
                             .fillMaxWidth()
                             .heightIn(max = 220.dp)
                             .verticalScroll(rememberScrollState()),
-                        text = WARNING_MESSAGE,
+                        text = stringResource(R.string.storacha_warning_message),
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyMedium.copy(
