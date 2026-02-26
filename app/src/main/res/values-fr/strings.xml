@@ -266,7 +266,7 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="dweb_join_group_group_name">Votre groupe</string>
     <string name="dweb_join_group_repo_name">Votre nom au sein du groupe</string>
 
-    <string name="dweb_share_qr_code">Partager le code QR</string>
+    <string name="dweb_share_qr_code">Partagez le code QR</string>
 
     <string name="pref_title_secure">Sécuriser</string>
     <string name="pref_title_archive">Archiver</string>
