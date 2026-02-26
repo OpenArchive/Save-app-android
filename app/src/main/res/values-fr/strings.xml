@@ -4,8 +4,8 @@
     <string name="action_settings">Paramètres</string>
     <string name="internet_archive">« Internet Archive »</string>
     <string name="internet_archive_description">Téléversez vos médias vers un compte public gratuit sur internet Archive.</string>
-    <string name="dweb_title">Service DWeb</string>
-    <string name="dweb_description">Connectez-vous\nau web décentralisé</string>
+    <string name="dweb_title">Stockage DWeb</string>
+    <string name="dweb_description">Connectez-vous au Web décentralisé</string>
     <string name="servers">Serveurs</string>
     <string name="add_server">Ajouter un serveur</string>
     <string name="lbl_rename_folder">Renommer le dossier</string>
@@ -17,6 +17,7 @@
     <string name="folder_rename_success">Le dossier a été renommé</string>
     <string name="folder_not_found">Le dossier est introuvable</string>
     <string name="folder_removed">Le dossier a été supprimé</string>
+    <string name="folder_archived">Le dossier a été archivé avec succès.</string>
     <string name="content_picker_label">Ajouter des médias depuis</string>
     <string name="disable_passcode_dialog_title">Désactiver le code d’accès</string>
     <string name="disable_passcode_dialog_msg">Voulez-vous vraiment désactiver le code d’accès \?</string>
@@ -29,7 +30,7 @@
 
     <!-- Server -->
     <string name="lbl_Cancel">Annuler</string>
-    <string name="lbl_ok">Valider</string>
+    <string name="lbl_ok">Fonctionne</string>
     <string name="lbl_confirm">Confirmer</string>
     <string name="lbl_remove">Supprimer</string>
     <string name="lbl_retry">Réessayer</string>
@@ -73,7 +74,7 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
 
     <!-- Strings related to login -->
     <string name="prompt_username"><i>Nom d’utilisateur</i></string>
-    <string name="prompt_email">Courriel</string>
+    <string name="prompt_email">Addresse courriel</string>
     <string name="prompt_password"><i>Mot de passe</i></string>
 
     <string name="label_username">\@string/prompt_email</string>
@@ -126,7 +127,7 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="tap_to_add_folder">Toucher le bouton ci-dessous pour ajouter un dossier</string>
     <string name="tap_to_add_server">Toucher le bouton ci-dessous pour ajouter un serveur</string>
     <string name="to_get_started_connect_to_a_server_to_store_your_media">Pour commencer, connectez-vous à un serveur afin d\'y stocker vos médias.</string>
-    <string name="to_get_started_more_hint_dweb">Vous pouvez à tout moment ajouter plusieurs\nserveurs privés et un compte de serveur IA ou DWeb.</string>
+    <string name="to_get_started_more_hint_dweb">Vous pouvez à tout moment ajouter plusieurs serveurs privés ainsi qu\'un compte IA ou Stockage DWeb </string>
     <string name="to_get_started_more_hint">Vous pouvez à tout moment ajouter plusieurs\nserveurs privés et un compte de serveur IA.</string>
     <string name="send_directly_to_a_private_server">Connectez-vous à un serveur\nWebDAV sécurisé</string>
     <string name="upload_to_the_internet_archive">Connectez-vous à un serveur\npublic gratuit</string>
@@ -137,6 +138,8 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="select_where_to_store_your_media">Choisissez un dossier nouveau ou existant pour y enregistrer votre média.</string>
     <string name="you_have_successfully_connected_to_a_private_server">La connexion au serveur privé est établie</string>
     <string name="you_have_successfully_connected_to_the_internet_archive">La connexion à « Internet Archive » est établie</string>
+    <string name="you_have_successfully_created_dweb">Vous avez créé un groupe avec succès via le Stockage DWeb !</string>
+    <string name="you_have_successfully_joined_dweb">Vous avez rejoint un groupe via le Stockage DWeb !</string>
     <string name="create_a_new_folder">Créer un nouveau dossier</string>
     <string name="create_new_folder_title">Nommez votre dossier</string>
     <string name="create_new_folder_subtitle">Ce dossier sera créé sur votre serveur et ajouté à Save.</string>
@@ -159,6 +162,9 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="popup_flag_desc">Quand vous marquez un élément, il est acheminé dans un sous-dossier du dossier du projet choisi sur le serveur privé.</string>
     <string name="set_creative_commons_license_for_all_folders_on_this_server">Attribuer des licences « Creative Commons » aux dossiers de ce serveur.</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Attribuer la même licence « Creative Commons » à TOUS les dossiers de ce serveur.</string>
+    <string name="you_already_have_a_server_with_these_credentials">Un serveur est déjà défini avec ces identifiants.</string>
+
+
     <!-- Space Setup -->
     <string name="space_setup_title">Choisir un serveur</string>
     <!-- WebDAV related strings -->
@@ -198,7 +204,7 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="account">Compte</string>
     <string name="general">Général</string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Téléverser les médias par Wi-Fi seulement</string>
-    <string name="security">Securité</string>
+    <string name="security">Sécurité</string>
     <string name="proofmode">ProofMode</string>
     <string name="no_webbrowser_found_error">Aucune appli ne peut traiter cette demande. Installez un navigateur Web.</string>
 
@@ -248,6 +254,19 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="label_screen_name">Nom affiché</string>
     <string name="label_create_login">Créer un compte</string>
     <string name="prompt_no_account">Pas de compte \?</string>
+    <string name="action_continue">Poursuivre</string>
+
+    <!-- DWeb Strings -->
+    <string name="dweb_create_group_screen_title">Nommez votre groupe et choisissez un nom d\'utilisateur.</string>
+    <string name="dweb_create_group_screen_description">Un groupe sur le Stockage DWeb est comparable à un serveur. Votre nom d\'utilisateur sert de dossier personnel où vous pourrez téléverser vos contenus médias.</string>
+    <string name="dweb_create_group_group_name"><i>Votre groupe</i></string>
+    <string name="dweb_create_group_user_name"><i>Votre nom au sein du groupe</i></string>
+    <string name="dweb_join_group_screen_title">Choisissez un nom d\'utilisateur pour ce groupe.</string>
+    <string name="dweb_join_group_screen_description">Un groupe sur le Stockage DWeb est comparable à un serveur. Votre nom d\'utilisateur sert de dossier personnel où vous pourrez téléverser vos contenus médias.</string>
+    <string name="dweb_join_group_group_name">Nom de groupe</string>
+    <string name="dweb_join_group_repo_name">Votre nom dans le groupe</string>
+
+    <string name="dweb_share_qr_code">Partager le code QR</string>
 
     <string name="pref_title_secure">Sécuriser</string>
     <string name="pref_title_archive">Archiver</string>
