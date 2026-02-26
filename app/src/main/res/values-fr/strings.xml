@@ -263,7 +263,7 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="dweb_create_group_user_name"><i>Votre nom au sein du groupe</i></string>
     <string name="dweb_join_group_screen_title">Choisissez un nom d\'utilisateur pour ce groupe.</string>
     <string name="dweb_join_group_screen_description">Un groupe sur le Stockage DWeb est comparable à un serveur. Votre nom d\'utilisateur sert de dossier personnel où vous pourrez téléverser vos contenus médias.</string>
-    <string name="dweb_join_group_group_name">Nom du groupe</string>
+    <string name="dweb_join_group_group_name">Votre groupe</string>
     <string name="dweb_join_group_repo_name">Votre nom au sein du groupe</string>
 
     <string name="dweb_share_qr_code">Partager le code QR</string>
