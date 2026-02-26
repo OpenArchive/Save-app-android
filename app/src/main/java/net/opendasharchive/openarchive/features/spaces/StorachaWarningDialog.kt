@@ -52,9 +52,9 @@ import androidx.core.graphics.drawable.toDrawable
 private const val WARNING_DURATION_SECONDS = 10
 
 private const val WARNING_MESSAGE =
-    "Uploads to Storacha (Filecoin/IPFS) may be retrievable by anyone who has the file identifier (CID).\n" +
-            "Decentralized storage is designed for long-term durability. Removing a file may not remove all copies that exist across the network.\n" +
-            "Do not upload private or sensitive information unless it is encrypted."
+    "Do not upload private or sensitive information unless it is encrypted.\n\n" +
+    "Uploads to the decentralized web/Filecoin- are accessible to anyone who has the file identifier (CID).\n\n" +
+    "Decentralized storage is designed for long-term durability. Removing a file will not remove all copies that exist across the network."
 
 @Composable
 fun StorachaWarningDialog(
