@@ -127,7 +127,7 @@ Pour vous permettre de vérifier où votre média a été enregistré, ProofMode
     <string name="tap_to_add_folder">Toucher le bouton ci-dessous pour ajouter un dossier</string>
     <string name="tap_to_add_server">Toucher le bouton ci-dessous pour ajouter un serveur</string>
     <string name="to_get_started_connect_to_a_server_to_store_your_media">Pour commencer, connectez-vous à un serveur afin d\'y stocker vos médias.</string>
-    <string name="to_get_started_more_hint_dweb">Vous pouvez à tout moment ajouter plusieurs serveurs privés ainsi qu\'un compte IA ou Stockage DWeb </string>
+    <string name="to_get_started_more_hint_dweb">Vous pouvez à tout moment ajouter plusieurs serveurs privés ainsi qu\'un compte IA ou un Stockage DWeb </string>
     <string name="to_get_started_more_hint">Vous pouvez à tout moment ajouter plusieurs\nserveurs privés et un compte de serveur IA.</string>
     <string name="send_directly_to_a_private_server">Connectez-vous à un serveur\nWebDAV sécurisé</string>
     <string name="upload_to_the_internet_archive">Connectez-vous à un serveur\npublic gratuit</string>
