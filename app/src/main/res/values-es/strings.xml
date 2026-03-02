@@ -257,7 +257,7 @@
     <string name="action_continue">Continuar</string>
 
     <!-- DWeb Strings -->
-    <string name="dweb_create_group_screen_title">Nombra tu grupo y elige un nombre de usuario</string>
+    <string name="dweb_create_group_screen_title">Nombra tu grupo y elige un nombre de usuaria(o)</string>
     <string name="dweb_create_group_screen_description">Un grupo en DWeb Storage es similar a un servidor, y un nombre de usuario funciona como una carpeta dentro de este grupo. Podrás cargar archivos multimedia con este nombre de usuario.</string>
     <string name="dweb_create_group_group_name"><i>El nombre de tu grupo</i></string>
     <string name="dweb_create_group_user_name"><i>Tu nombre en este grupo</i></string>
