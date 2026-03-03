@@ -138,7 +138,7 @@
     <string name="select_where_to_store_your_media">Оберіть нову або вже наявну теку для збереження у неї ваших файлів.</string>
     <string name="you_have_successfully_connected_to_a_private_server">Ви успішно під’єднались до приватного сервера!</string>
     <string name="you_have_successfully_connected_to_the_internet_archive">Ви успішно під’єднались до Internet Archive!</string>
-    <string name="you_have_successfully_created_dweb">Ви успішно створили групу через DWeb Storage!</string>
+    <string name="you_have_successfully_created_dweb">Ви успішно створили групу через сховище DWeb!</string>
     <string name="you_have_successfully_joined_dweb">Ви успішно під’єднались до групи через DWeb Storage!</string>
     <string name="create_a_new_folder">Створити нову теку</string>
     <string name="create_new_folder_title">Будь ласка, введіть назву теки</string>
