@@ -29,6 +29,7 @@ object Prefs {
     private const val DONT_SHOW_UPLOAD_HINT = "ft.upload"
     private const val IA_HINT_SHOWN = "ft.ia"
     private const val ADD_FOLDER_HINT_SHOWN = "ft.add_folder"
+    private const val STORACHA_WARNING_SHOWN = "storacha_warning_shown"
     private const val LICENSE_URL = "archive_pref_share_license_url"
     private const val PROOFMODE_ENCRYPTED_PASSPHRASE = "proof_mode_encrypted_passphrase"
 
@@ -164,6 +165,12 @@ object Prefs {
         get() = prefs?.getBoolean(ADD_FOLDER_HINT_SHOWN, false) ?: false
         set(value) {
             prefs?.edit()?.putBoolean(ADD_FOLDER_HINT_SHOWN, value)?.apply()
+        }
+
+    var storachaWarningShown: Boolean
+        get() = prefs?.getBoolean(STORACHA_WARNING_SHOWN, false) ?: false
+        set(value) {
+            prefs?.edit()?.putBoolean(STORACHA_WARNING_SHOWN, value)?.apply()
         }
 
     var licenseUrl: String?

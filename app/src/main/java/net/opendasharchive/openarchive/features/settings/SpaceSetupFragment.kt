@@ -13,6 +13,7 @@ import net.opendasharchive.openarchive.db.Space
 import net.opendasharchive.openarchive.features.core.BaseFragment
 import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
 import net.opendasharchive.openarchive.features.spaces.SpaceSetupScreen
+import net.opendasharchive.openarchive.util.Prefs
 import org.koin.android.ext.android.inject
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdActivity
 
@@ -52,6 +53,11 @@ class SpaceSetupFragment : BaseFragment() {
             findNavController().navigate(action)
         }
 
+        val hasSeenStorachaWarning = Prefs.storachaWarningShown
+        val onStorachaWarningAccepted = {
+            Prefs.storachaWarningShown = true
+        }
+
         SaveAppTheme {
             SpaceSetupScreen(
                 onWebDavClick = onWebDavClick,
@@ -59,7 +65,9 @@ class SpaceSetupFragment : BaseFragment() {
                 onInternetArchiveClick = onInternetArchiveClick,
                 isDwebEnabled = isDwebEnabled,
                 onDwebClicked = onDwebClicked,
-                onStorachaClicked = onStorachaClicked
+                onStorachaClicked = onStorachaClicked,
+                hasSeenStorachaWarning = hasSeenStorachaWarning,
+                onStorachaWarningAccepted = onStorachaWarningAccepted,
             )
         }
 
