@@ -349,7 +349,7 @@
     <string name="connect_to_an_existing_space">Join an existing shared space</string>
     <string name="you_can_add_multiple_private_servers_and_one_ia_account_at_any_time">You can add multiple private servers and one IA account at any time.</string>
     <string name="storacha_disclaimer"><![CDATA[Files uploaded to the Storacha (Filecoin/IPFS) network are publicly accessible through their CID and may remain permanently available across decentralized nodes. <a href="https://docs.storacha.network/how-to/upload/">Learn more.</a>]]></string>
-    <string name="storacha_warning_message">Do not upload private or sensitive information unless it is encrypted.\n\nUploads to the decentralized web/Filecoin- are accessible to anyone who has the file identifier (CID).\n\nDecentralized storage is designed for long-term durability. Removing a file will not remove all copies that exist across the network.</string>
+    <string name="storacha_warning_message">Do not upload private or sensitive information unless it is encrypted.\n\nUploads to the decentralized web (Filecoin) are accessible to anyone who has the file identifier (CID).\n\nDecentralized storage is designed for long-term durability. Removing a file will not remove all copies that exist across the network</string>
     <string name="storacha_is_a_decentralized_media_storage_system_using_ipfs_ucan_and_dids">Storacha lets you store media securely using decentralized technologies (IPFS, UCAN, and DIDs).</string>
     <string name="sign_up_storacha">Don\'t have an account?</string>
     <string name="email_has_been_verified_and_the_spaces_have_been_added_to_save">Your email has been verified, and the spaces have been added to Save.</string>
@@ -515,4 +515,5 @@
     <string name="grid" translatable="false">Grid</string>
     <string name="flash" translatable="false">Flash</string>
     <string name="camera_paused_message" translatable="false">Tap to wake camera</string>
+    <string name="i_m_okay_with_this">I\'m okay with this</string>
 </resources>

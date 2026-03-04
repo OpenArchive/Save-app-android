@@ -1,7 +1,6 @@
 package net.opendasharchive.openarchive.features.spaces
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import android.graphics.drawable.ColorDrawable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -46,13 +45,14 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
+import androidx.core.graphics.drawable.toDrawable
 import kotlinx.coroutines.delay
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultBoxPreview
-import androidx.core.graphics.drawable.toDrawable
 
 private const val WARNING_DURATION_SECONDS = 10
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun StorachaWarningDialog(
     onAccepted: () -> Unit,
@@ -61,7 +61,6 @@ fun StorachaWarningDialog(
     var secondsRemaining by remember { mutableIntStateOf(WARNING_DURATION_SECONDS) }
 
     var isCheckedState by remember { mutableStateOf(false) }
-
 
     LaunchedEffect(Unit) {
         while (secondsRemaining > 0) {
@@ -72,30 +71,36 @@ fun StorachaWarningDialog(
 
     Dialog(
         onDismissRequest = {},
-        properties = DialogProperties(
-            dismissOnBackPress = false,
-            dismissOnClickOutside = false,
-            usePlatformDefaultWidth = true,
-        ),
+        properties =
+            DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false,
+                usePlatformDefaultWidth = true,
+            ),
     ) {
         val view = LocalView.current
         val dialogWindow = (view.parent as? DialogWindowProvider)?.window
         SideEffect {
-            dialogWindow?.setBackgroundDrawable(android.graphics.Color.TRANSPARENT.toDrawable())
+            dialogWindow?.setBackgroundDrawable(
+                android.graphics.Color.TRANSPARENT
+                    .toDrawable(),
+            )
         }
 
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-            ),
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ),
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 12.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
@@ -110,9 +115,10 @@ fun StorachaWarningDialog(
 
                 Text(
                     text = "Warning: Public Data",
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                    ),
+                    style =
+                        MaterialTheme.typography.titleLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                        ),
                     textAlign = TextAlign.Center,
                 )
 
@@ -123,17 +129,19 @@ fun StorachaWarningDialog(
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 220.dp)
-                            .verticalScroll(rememberScrollState()),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 220.dp)
+                                .verticalScroll(rememberScrollState()),
                         text = stringResource(R.string.storacha_warning_message),
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                        ),
+                        style =
+                            MaterialTheme.typography.bodyMedium.copy(
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                            ),
                     )
                 }
 
@@ -142,23 +150,22 @@ fun StorachaWarningDialog(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Checkbox(
                         checked = isCheckedState,
                         onCheckedChange = { isChecked ->
                             isCheckedState = isChecked
-                        }
+                        },
                     )
 
-                    BaseDialogMessage("I'm okay with this")
+                    BaseDialogMessage(stringResource(R.string.i_m_okay_with_this))
                 }
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-
                     TextButton(
                         modifier = Modifier.weight(1f),
                         onClick = {
@@ -169,11 +176,12 @@ fun StorachaWarningDialog(
                     ) {
                         Text(
                             text = "Cancel",
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onBackground
-                            ),
+                            style =
+                                MaterialTheme.typography.bodyLarge.copy(
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                ),
                         )
                     }
 
@@ -185,19 +193,21 @@ fun StorachaWarningDialog(
                             }
                         },
                         enabled = secondsRemaining == 0 && isCheckedState,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.tertiary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                        ),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.tertiary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary,
+                            ),
                         shape = RoundedCornerShape(12.dp),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp),
                     ) {
                         Text(
                             text = if (secondsRemaining > 0) "Continue ($secondsRemaining)" else "Continue",
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.SemiBold,
-                            ),
+                            style =
+                                MaterialTheme.typography.bodyLarge.copy(
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                ),
                         )
                     }
                 }
@@ -206,23 +216,26 @@ fun StorachaWarningDialog(
     }
 }
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 private fun BaseDialogMessage(
     text: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Text(
         text = text,
         textAlign = TextAlign.Center,
         color = MaterialTheme.colorScheme.onSurface,
-        style = MaterialTheme.typography.bodyMedium.copy(
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-        ),
-        modifier = modifier
+        style =
+            MaterialTheme.typography.bodyMedium.copy(
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+            ),
+        modifier = modifier,
     )
 }
 
+@Suppress("ktlint:standard:function-naming")
 @Preview
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
@@ -230,19 +243,7 @@ private fun StorachaWarningDialogPreview() {
     DefaultBoxPreview {
         StorachaWarningDialog(
             onAccepted = {},
-            onDismiss = {}
+            onDismiss = {},
         )
     }
 }
-
-/**
-Text: Uploads to Storacha may be retrievable by anyone who has the file identifier (CID).
-Decentralized storage is designed for long-term durability. Removing a file may not remove all copies that exist across the network.
-
-Do not upload private or sensitive information unless it is encrypted.
-
-Checkbox: I understand that files may be retrievable by CID and may persist, and I am responsible for encrypting sensitive content before uploading. (If this text is too long, just put I'm okay with this)
-
-Buttons: Continue, Cancel
-
- */
