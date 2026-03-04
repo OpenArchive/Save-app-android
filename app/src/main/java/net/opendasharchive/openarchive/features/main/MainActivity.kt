@@ -36,6 +36,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.BuildConfig
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.analytics.EnhancedAnalyticsHelper
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.databinding.ActivityMainBinding
 import net.opendasharchive.openarchive.databinding.PopupFolderOptionsBinding
@@ -286,6 +287,19 @@ class MainActivity :
 
         // Set flag to check for app updates on first onResume
         shouldCheckForUpdate = Prefs.didCompleteOnboarding
+
+        // Enhanced Analytics - User identification for staging/dev builds
+        if (EnhancedAnalyticsHelper.isEnabled()) {
+            EnhancedAnalyticsHelper.instance.setupUserIdentification(
+                activity = this,
+                onIdentified = { email ->
+                    AppLogger.i("Enhanced Analytics: User identified as $email")
+                },
+                onSkipped = {
+                    AppLogger.w("Enhanced Analytics: User skipped identification")
+                }
+            )
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

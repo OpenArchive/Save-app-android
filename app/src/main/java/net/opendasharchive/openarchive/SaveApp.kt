@@ -74,7 +74,8 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
                 passcodeModule,
                 analyticsModule(
                     mixpanelToken = getString(R.string.mixpanel_key),
-                    cleanInsightsConsentChecker = { CleanInsightsManager.hasConsent() }
+                    cleanInsightsConsentChecker = { CleanInsightsManager.hasConsent() },
+                    enhancedAnalyticsEnabled = BuildConfig.ENHANCED_ANALYTICS_ENABLED
                 )
             )
         }

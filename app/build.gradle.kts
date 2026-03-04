@@ -102,17 +102,20 @@ android {
             dimension = "env"
             versionNameSuffix = "-dev"
             applicationIdSuffix = ".debug"
+            buildConfigField("boolean", "ENHANCED_ANALYTICS_ENABLED", "true")
         }
 
         create("staging") {
             dimension = "env"
             versionNameSuffix = "-staging"
             applicationIdSuffix = ".debug"
+            buildConfigField("boolean", "ENHANCED_ANALYTICS_ENABLED", "true")
         }
 
         create("prod") {
             dimension = "env"
             applicationIdSuffix = ".release"
+            buildConfigField("boolean", "ENHANCED_ANALYTICS_ENABLED", "false")
         }
     }
 
