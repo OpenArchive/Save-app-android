@@ -24,38 +24,27 @@ android {
         buildConfig = true
     }
 
-    // Match parent app's flavor dimensions
-    flavorDimensions += listOf("distribution", "env")
+    // Match parent app's flavor dimensions (env only - no distribution split on this branch)
+    flavorDimensions += listOf("env")
 
     productFlavors {
-        create("gms") {
-            dimension = "distribution"
-        }
-
-        create("foss") {
-            dimension = "distribution"
-        }
-
         create("dev") {
             dimension = "env"
-            // Enable enhanced analytics with user identification for dev builds
             buildConfigField("boolean", "ENHANCED_ANALYTICS_ENABLED", "true")
         }
 
         create("staging") {
             dimension = "env"
-            // Enable enhanced analytics with user identification for staging builds
             buildConfigField("boolean", "ENHANCED_ANALYTICS_ENABLED", "true")
         }
 
         create("prod") {
             dimension = "env"
-            // Disable enhanced analytics for production - anonymous only
             buildConfigField("boolean", "ENHANCED_ANALYTICS_ENABLED", "false")
         }
     }
 
-    buildTypes {
+buildTypes {
         debug {
             buildConfigField("boolean", "ENABLE_ANALYTICS_IN_DEBUG", "true")
         }
@@ -84,18 +73,12 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.process)
 
-    // Analytics SDKs - flavor specific
-    "gmsApi"(libs.mixpanel)
-    "gmsApi"(libs.mixpanel.session.replay)
-    "gmsApi"(libs.firebase.analytics)
-
-    // CleanInsights for both GMS and FOSS builds
+    // Analytics SDKs
+    api(libs.mixpanel)
+    api(libs.mixpanel.session.replay)
+    api(libs.firebase.analytics)
+    api(libs.firebase.crashlytics)
     api(libs.clean.insights)
-
-    // Crash Reporting - flavor specific
-    "gmsApi"(libs.firebase.crashlytics)
-    "fossApi"("ch.acra:acra-http:5.11.3")
-    "fossApi"("ch.acra:acra-dialog:5.11.3")
 
     // Logging
     implementation(libs.timber)
