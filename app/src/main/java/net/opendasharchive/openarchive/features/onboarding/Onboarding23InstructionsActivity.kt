@@ -6,7 +6,10 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import net.opendasharchive.openarchive.BuildConfig
 import androidx.activity.OnBackPressedCallback
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.activity.enableEdgeToEdge
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
@@ -20,8 +23,6 @@ import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 
 class Onboarding23InstructionsActivity : BaseActivity() {
-
-    override fun showTestingBanner(): Boolean = true
 
     private lateinit var mBinding: ActivityOnboarding23InstructionsBinding
 
@@ -41,6 +42,17 @@ class Onboarding23InstructionsActivity : BaseActivity() {
         }
 
         setContentView(mBinding.root)
+
+        if (BuildConfig.ENHANCED_ANALYTICS_ENABLED) {
+            mBinding.testingBanner?.let { banner ->
+                banner.visibility = View.VISIBLE
+                ViewCompat.setOnApplyWindowInsetsListener(banner) { v, insets ->
+                    val navBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+                    v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBarHeight)
+                    insets
+                }
+            }
+        }
 
         mBinding.skipButton.setOnClickListener {
             done()
