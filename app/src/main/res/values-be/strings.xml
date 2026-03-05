@@ -187,7 +187,7 @@
     <string name="uploading_is_paused">Запампоўка прыпыненая</string>
 
     <!-- Clean Insights measurement -->
-    <string name="server_name_optional"><i>Імя сервера (неабавязкова)</i></string>
+    <string name="server_name_optional"><i>Імя сервера (па жаданні)</i></string>
     <string name="add_another_account">Дадаць сервер</string>
     <string name="biometrics_title">Разблакаваць  ключ ProofMode</string>
     <string name="folders">Тэчкі</string>
