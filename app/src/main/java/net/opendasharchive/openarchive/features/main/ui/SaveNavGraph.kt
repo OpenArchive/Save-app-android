@@ -121,7 +121,9 @@ fun SaveNavGraph(
             modifier = Modifier.fillMaxSize(),
             backStack = navigator.backstack,
             entryDecorators = listOf(
+                // Add the default decorators for managing scenes and saving state
                 rememberSaveableStateHolderNavEntryDecorator(),
+                // Then add the view model store decorator
                 rememberViewModelStoreNavEntryDecorator(),
                 rememberAnalyticsNavEntryDecorator(analyticsManager, sessionTracker)
             ),

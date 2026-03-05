@@ -11,21 +11,26 @@ import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.features.core.BaseComposeActivity
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.main.ui.SaveNavGraph
-import net.opendasharchive.openarchive.features.main.ui.rememberNavigator
 import net.opendasharchive.openarchive.core.config.AppConfig
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import net.opendasharchive.openarchive.util.PermissionManager
 import org.koin.android.ext.android.inject
+import org.koin.android.scope.AndroidScopeComponent
+import org.koin.androidx.scope.activityRetainedScope
 import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
 import net.opendasharchive.openarchive.core.navigation.ResultEventBus
 import net.opendasharchive.openarchive.upload.UploadJobScheduler
 import net.opendasharchive.openarchive.util.C2paHelper
 
-class HomeActivity : BaseComposeActivity() {
+class HomeActivity : BaseComposeActivity(), AndroidScopeComponent {
+
+    override val scope by activityRetainedScope()
 
     private val appConfig by inject<AppConfig>()
+    private val navigator by inject<Navigator>()
     private val uploadJobScheduler by inject<UploadJobScheduler>()
     private lateinit var permissionManager: PermissionManager
 
@@ -49,9 +54,6 @@ class HomeActivity : BaseComposeActivity() {
         setContent {
 
             SaveAppTheme {
-
-                val navigator = rememberNavigator()
-
                 SaveNavGraph(
                     dialogManager,
                     navigator
