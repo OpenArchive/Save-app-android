@@ -21,6 +21,8 @@ import net.opendasharchive.openarchive.util.extensions.applyEdgeToEdgeInsets
 
 class Onboarding23InstructionsActivity : BaseActivity() {
 
+    override fun showTestingBanner(): Boolean = true
+
     private lateinit var mBinding: ActivityOnboarding23InstructionsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

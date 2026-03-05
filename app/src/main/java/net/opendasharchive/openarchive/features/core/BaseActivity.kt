@@ -1,9 +1,16 @@
 package net.opendasharchive.openarchive.features.core
 
+import android.graphics.Color
+import android.graphics.Typeface
+import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.FrameLayout
+import android.widget.TextView
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.lifecycleScope
@@ -38,16 +45,51 @@ abstract class BaseActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_DATA_SPACE = "space"
+        private const val TESTING_BANNER_TAG = "testing_banner"
     }
 
     override fun setContentView(layoutResID: Int) {
         super.setContentView(layoutResID)
         ensureComposeDialogHost()
+        ensureTestingBanner()
     }
 
     override fun setContentView(view: View?) {
         super.setContentView(view)
         ensureComposeDialogHost()
+        ensureTestingBanner()
+    }
+
+    protected open fun showTestingBanner(): Boolean = false
+
+    private fun ensureTestingBanner() {
+        if (!net.opendasharchive.openarchive.BuildConfig.ENHANCED_ANALYTICS_ENABLED) return
+        if (!showTestingBanner()) return
+        val rootView = window.decorView.findViewById<FrameLayout>(android.R.id.content) ?: return
+        if (rootView.findViewWithTag<View>(TESTING_BANNER_TAG) != null) return
+        val banner = TextView(this).apply {
+            tag = TESTING_BANNER_TAG
+            text = "⚠ TESTING ONLY — NOT FOR PUBLIC USE"
+            textSize = 12f
+            typeface = Typeface.DEFAULT_BOLD
+            setTextColor(Color.WHITE)
+            setBackgroundColor(Color.parseColor("#CC8B0000"))
+            gravity = Gravity.CENTER
+        }
+        // Apply bottom inset so it clears the navigation bar
+        ViewCompat.setOnApplyWindowInsetsListener(banner) { v, insets ->
+            val navBar = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            v.setPadding(0, 20, 0, 20 + navBar.bottom)
+            insets
+        }
+        rootView.addView(
+            banner,
+            FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM
+            )
+        )
     }
 
     fun ensureComposeDialogHost() {
