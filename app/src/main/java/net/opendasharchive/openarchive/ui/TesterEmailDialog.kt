@@ -2,194 +2,285 @@ package net.opendasharchive.openarchive.ui
 
 import android.accounts.AccountManager
 import android.content.Context
-import android.text.InputType
-import android.widget.EditText
-import android.widget.LinearLayout
-import androidx.appcompat.app.AlertDialog
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import androidx.activity.ComponentDialog
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.graphics.drawable.toDrawable
 import net.opendasharchive.openarchive.core.logger.AppLogger
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 
 /**
  * Dialog for staging/dev builds that prompts testers to identify themselves.
  *
- * This enables user-level tracking in Mixpanel for debugging purposes.
- * The email is stored locally and used to identify the user in analytics.
- *
- * Flow:
- * 1. First launch: Show dialog with device emails (from AccountManager) + manual option
- * 2. Tester selects or enters email
- * 3. Email stored in SharedPreferences
- * 4. Subsequent launches: Use stored email automatically
- *
- * WARNING: This should ONLY be used in staging/dev builds.
+ * Styled consistently with StorachaWarningDialog using Material3 Compose.
  */
 class TesterEmailDialog(private val context: Context) {
 
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-    /**
-     * Get the stored tester email, if any.
-     */
     fun getStoredEmail(): String? = prefs.getString(KEY_TESTER_EMAIL, null)
 
-    /**
-     * Check if the tester has been identified.
-     */
     fun hasStoredEmail(): Boolean = getStoredEmail() != null
 
-    /**
-     * Clear the stored email (e.g., for testing or user request).
-     */
     fun clearStoredEmail() {
         prefs.edit().remove(KEY_TESTER_EMAIL).apply()
-        AppLogger.d("TesterEmailDialog", "Cleared stored tester email")
+        AppLogger.d(TAG, "Cleared stored tester email")
     }
 
-    /**
-     * Show the email prompt dialog.
-     *
-     * If device emails are available (from AccountManager), shows a selection list.
-     * Otherwise, shows a text input for manual email entry.
-     *
-     * @param onEmailProvided Callback with the selected/entered email
-     * @param onCancelled Callback if the dialog is cancelled (optional)
-     */
     fun showEmailPrompt(
         onEmailProvided: (String) -> Unit,
-        onCancelled: (() -> Unit)? = null
+        onCancelled: (() -> Unit)? = null,
     ) {
         val deviceEmails = getDeviceEmails()
 
-        if (deviceEmails.isNotEmpty()) {
-            showEmailSelectionDialog(deviceEmails, onEmailProvided, onCancelled)
-        } else {
-            showManualEmailInput(onEmailProvided, onCancelled)
+        val dialog = ComponentDialog(context)
+        dialog.window?.setBackgroundDrawable(android.graphics.Color.TRANSPARENT.toDrawable())
+        dialog.setCancelable(false)
+        dialog.setCanceledOnTouchOutside(false)
+
+        val composeView = ComposeView(context).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
+            setContent {
+                SaveAppTheme {
+                    TesterEmailContent(
+                        deviceEmails = deviceEmails,
+                        onEmailProvided = { email ->
+                            saveAndProvide(email, onEmailProvided)
+                            dialog.dismiss()
+                        },
+                        onSkipped = {
+                            AppLogger.w(TAG, "Tester skipped identification")
+                            dialog.dismiss()
+                            onCancelled?.invoke()
+                        },
+                    )
+                }
+            }
         }
+
+        dialog.setContentView(composeView)
+        dialog.show()
     }
 
-    /**
-     * Get emails from device accounts using Android's AccountManager.
-     * Requires GET_ACCOUNTS permission.
-     */
     private fun getDeviceEmails(): List<String> {
         return try {
-            val accountManager = AccountManager.get(context)
-            accountManager.accounts
+            AccountManager.get(context).accounts
                 .map { it.name }
                 .filter { it.contains("@") }
                 .distinct()
-                .take(5) // Limit to 5 emails for UI
+                .take(5)
         } catch (e: SecurityException) {
-            AppLogger.w("TesterEmailDialog", "GET_ACCOUNTS permission not granted", e)
+            AppLogger.w(TAG, "GET_ACCOUNTS permission not granted", e)
             emptyList()
         } catch (e: Exception) {
-            AppLogger.e("TesterEmailDialog", "Error getting device emails", e)
+            AppLogger.e(TAG, "Error getting device emails", e)
             emptyList()
         }
     }
 
-    /**
-     * Show dialog with device emails to select from.
-     */
-    private fun showEmailSelectionDialog(
-        deviceEmails: List<String>,
-        onEmailProvided: (String) -> Unit,
-        onCancelled: (() -> Unit)?
-    ) {
-        val items = deviceEmails + "Enter manually..."
-
-        MaterialAlertDialogBuilder(context)
-            .setTitle("Staging Build - Tester Identification")
-            .setMessage("Select your email to help us track issues during testing.\n\nThis is only used for internal debugging.")
-            .setItems(items.toTypedArray()) { _, which ->
-                if (which < deviceEmails.size) {
-                    // Selected a device email
-                    val email = deviceEmails[which]
-                    saveAndProvide(email, onEmailProvided)
-                } else {
-                    // Selected "Enter manually..."
-                    showManualEmailInput(onEmailProvided, onCancelled)
-                }
-            }
-            .setCancelable(false) // Testers must identify for staging builds
-            .setNegativeButton("Skip (Anonymous)") { _, _ ->
-                // Allow skipping but log it
-                AppLogger.w("TesterEmailDialog", "Tester skipped identification")
-                onCancelled?.invoke()
-            }
-            .show()
-    }
-
-    /**
-     * Show dialog with text input for manual email entry.
-     */
-    private fun showManualEmailInput(
-        onEmailProvided: (String) -> Unit,
-        onCancelled: (() -> Unit)?
-    ) {
-        val input = EditText(context).apply {
-            inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
-            hint = "your.email@example.com"
-            setPadding(48, 32, 48, 32)
-        }
-
-        val container = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(48, 16, 48, 0)
-            addView(input)
-        }
-
-        MaterialAlertDialogBuilder(context)
-            .setTitle("Enter Your Email")
-            .setMessage("This email will be used to identify your testing session.\n\nIt is stored locally and only sent to our analytics dashboard.")
-            .setView(container)
-            .setPositiveButton("Continue") { _, _ ->
-                val email = input.text.toString().trim()
-                if (email.isNotEmpty() && email.contains("@")) {
-                    saveAndProvide(email, onEmailProvided)
-                } else {
-                    // Invalid email - show error and retry
-                    showInvalidEmailError(onEmailProvided, onCancelled)
-                }
-            }
-            .setCancelable(false)
-            .setNegativeButton("Skip (Anonymous)") { _, _ ->
-                AppLogger.w("TesterEmailDialog", "Tester skipped identification (manual)")
-                onCancelled?.invoke()
-            }
-            .show()
-    }
-
-    /**
-     * Show error for invalid email and prompt again.
-     */
-    private fun showInvalidEmailError(
-        onEmailProvided: (String) -> Unit,
-        onCancelled: (() -> Unit)?
-    ) {
-        MaterialAlertDialogBuilder(context)
-            .setTitle("Invalid Email")
-            .setMessage("Please enter a valid email address.")
-            .setPositiveButton("Try Again") { _, _ ->
-                showManualEmailInput(onEmailProvided, onCancelled)
-            }
-            .setNegativeButton("Skip (Anonymous)") { _, _ ->
-                onCancelled?.invoke()
-            }
-            .show()
-    }
-
-    /**
-     * Save email to SharedPreferences and invoke callback.
-     */
     private fun saveAndProvide(email: String, onEmailProvided: (String) -> Unit) {
         prefs.edit().putString(KEY_TESTER_EMAIL, email).apply()
-        AppLogger.i("TesterEmailDialog", "Tester identified: $email")
+        AppLogger.i(TAG, "Tester identified: $email")
         onEmailProvided(email)
     }
 
     companion object {
+        private const val TAG = "TesterEmailDialog"
         private const val PREFS_NAME = "staging_analytics"
         private const val KEY_TESTER_EMAIL = "tester_email"
+    }
+}
+
+@Suppress("ktlint:standard:function-naming")
+@Composable
+private fun TesterEmailContent(
+    deviceEmails: List<String>,
+    onEmailProvided: (String) -> Unit,
+    onSkipped: () -> Unit,
+) {
+    var showManualInput by remember { mutableStateOf(deviceEmails.isEmpty()) }
+    var emailText by remember { mutableStateOf("") }
+    var emailError by remember { mutableStateOf(false) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, top = 18.dp, bottom = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Icon(
+                imageVector = Icons.Default.AccountCircle,
+                contentDescription = null,
+                modifier = Modifier.size(30.dp),
+                tint = MaterialTheme.colorScheme.tertiary,
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Staging Build — Tester ID",
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                ),
+                textAlign = TextAlign.Center,
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = if (!showManualInput && deviceEmails.isNotEmpty()) {
+                    "Select your email to help us track issues during testing. This is only used for internal debugging."
+                } else {
+                    "Enter your email to help us track issues during testing. It is stored locally and only sent to our analytics dashboard."
+                },
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                ),
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            if (!showManualInput && deviceEmails.isNotEmpty()) {
+                deviceEmails.forEach { email ->
+                    OutlinedButton(
+                        onClick = { onEmailProvided(email) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp),
+                        shape = RoundedCornerShape(8.dp),
+                    ) {
+                        Text(
+                            text = email,
+                            maxLines = 1,
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                TextButton(
+                    onClick = { showManualInput = true },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Enter manually...")
+                }
+            } else {
+                OutlinedTextField(
+                    value = emailText,
+                    onValueChange = { emailText = it; emailError = false },
+                    label = { Text("Email") },
+                    placeholder = { Text("your.email@example.com") },
+                    isError = emailError,
+                    supportingText = if (emailError) {
+                        { Text("Please enter a valid email address") }
+                    } else {
+                        null
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                TextButton(
+                    modifier = Modifier.weight(1f),
+                    onClick = onSkipped,
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp),
+                ) {
+                    Text(
+                        text = "Skip",
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onBackground,
+                        ),
+                    )
+                }
+
+                if (showManualInput || deviceEmails.isEmpty()) {
+                    Button(
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            val email = emailText.trim()
+                            if (email.isNotEmpty() && email.contains("@")) {
+                                onEmailProvided(email)
+                            } else {
+                                emailError = true
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 12.dp),
+                    ) {
+                        Text(
+                            text = "Continue",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            ),
+                        )
+                    }
+                }
+            }
+        }
     }
 }

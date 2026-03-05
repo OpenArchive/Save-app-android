@@ -8,8 +8,12 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.graphics.Color
+import android.graphics.Typeface
 import android.view.Gravity
 import android.view.LayoutInflater
+import android.widget.FrameLayout
+import android.widget.TextView
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -164,7 +168,31 @@ class MainActivity :
 //        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 //        WindowCompat.setDecorFitsSystemWindows(window, false)
-        installSplashScreen()
+        val splashScreen = installSplashScreen()
+        if (BuildConfig.ENHANCED_ANALYTICS_ENABLED) {
+            splashScreen.setOnExitAnimationListener { splashScreenView ->
+                val banner = TextView(this).apply {
+                    text = "⚠ TESTING ONLY — NOT FOR PUBLIC USE"
+                    textSize = 13f
+                    typeface = Typeface.DEFAULT_BOLD
+                    setTextColor(Color.WHITE)
+                    setBackgroundColor(Color.parseColor("#CC8B0000"))
+                    gravity = Gravity.CENTER
+                    setPadding(0, 28, 0, 28)
+                }
+                val rootView = splashScreenView.view as? FrameLayout
+                rootView?.addView(
+                    banner,
+                    FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        FrameLayout.LayoutParams.WRAP_CONTENT,
+                        Gravity.BOTTOM
+                    )
+                )
+                rootView?.postDelayed({ splashScreenView.remove() }, 3000)
+                    ?: splashScreenView.remove()
+            }
+        }
 
         // Check onboarding status early and redirect if needed
         if (!Prefs.didCompleteOnboarding) {
