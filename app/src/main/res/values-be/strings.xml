@@ -129,7 +129,7 @@
     <string name="to_get_started_connect_to_a_server_to_store_your_media">Каб пачаць, падлучыцеся да сервера для захоўвання вашых медыяфайлаў.</string>
     <string name="to_get_started_more_hint_dweb">Вы можаце ў любы час дадаць некалькі прыватных сервераў і \nадзін ІА-акаўнт або адзін DWeb-сховішча акаўнт</string>
     <string name="to_get_started_more_hint">Вы можаце ў любы час дадаць некалькі прыватных сервераў і \nадзін ІА-акаўнт.</string>
-    <string name="send_directly_to_a_private_server">Злучыцца з абароненым \nWebDAV-серверам</string>
+    <string name="send_directly_to_a_private_server">Злучыцца з абароненым \nсерверам WebDAV</string>
     <string name="upload_to_the_internet_archive">Злучыцца з бясплатным \nпублічным серверам</string>
     <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">Злучыцца з серверамі, сумяшчальнымі з WebDAV, напрыклад, з Nexcloud ці ownCloud.</string>
     <string name="action_next">Наступная частка</string>
