@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Bundle
 import android.text.Spanned
+import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.view.animation.BounceInterpolator
@@ -11,6 +12,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat
+import net.opendasharchive.openarchive.BuildConfig
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.databinding.ActivityOnboarding23Binding
 import net.opendasharchive.openarchive.features.core.BaseActivity
@@ -47,6 +49,10 @@ class Onboarding23Activity : BaseActivity() {
                 finishAffinity()
             }
         })
+
+        if (BuildConfig.ENHANCED_ANALYTICS_ENABLED) {
+            mBinding.testingBanner?.visibility = View.VISIBLE
+        }
 
         for (textView in arrayOf(
             mBinding.titleBlock.shareText,

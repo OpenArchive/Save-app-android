@@ -1,158 +1,163 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center_vertical"
-    android:orientation="vertical"
-    android:weightSum="55"
-    tools:showIn="@layout/activity_onboarding23">
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="8"
-        android:adjustViewBounds="true"
-        android:src="@drawable/save_oa"
-        app:tint="@color/colorTertiary" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="8" />
-
-    <!-- the horizontal linear layouts are a hack to correct offsets from
-     scaleX and scaleY; using the scale attributes is an hack to reduce line
-      spacing, since that can't be controlled when using auto text-size -->
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="8"
-        android:orientation="horizontal"
-        android:weightSum="1000">
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:weightSum="55"
+        tools:showIn="@layout/activity_onboarding23">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="8"
+            android:adjustViewBounds="true"
+            android:src="@drawable/save_oa"
+            app:tint="@color/colorTertiary" />
 
         <View
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="65"
-            tools:ignore="NestedWeights" />
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="8" />
+
+        <!-- the horizontal linear layouts are a hack to correct offsets from
+         scaleX and scaleY; using the scale attributes is an hack to reduce line
+          spacing, since that can't be controlled when using auto text-size -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="8"
+            android:orientation="horizontal"
+            android:weightSum="1000">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="65"
+                tools:ignore="NestedWeights" />
+
+            <TextView
+                android:id="@+id/shareText"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="870"
+                android:scaleX="1.15"
+                android:scaleY="1.15"
+                android:text="@string/intro_header_secure"
+                android:textColor="@color/colorOnBackground"
+                android:textFontWeight="900"
+                android:textSize="60sp"
+                app:autoSizeTextType="uniform" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="8"
+            android:orientation="horizontal"
+            android:weightSum="1000">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="65"
+                tools:ignore="NestedWeights" />
+
+            <TextView
+                android:id="@+id/archiveText"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="870"
+                android:scaleX="1.15"
+                android:scaleY="1.15"
+                android:text="@string/intro_header_archive"
+                android:textColor="@color/colorOnBackground"
+                android:textFontWeight="900"
+                android:textSize="60sp"
+                app:autoSizeTextType="uniform" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="8"
+            android:orientation="horizontal"
+            android:weightSum="1000">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="65"
+                tools:ignore="NestedWeights" />
+
+            <TextView
+                android:id="@+id/verifyText"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="870"
+                android:scaleX="1.15"
+                android:scaleY="1.15"
+                android:text="@string/intro_header_verify"
+                android:textColor="@color/colorOnBackground"
+                android:textFontWeight="900"
+                android:textSize="60sp"
+                app:autoSizeTextType="uniform" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="8"
+            android:orientation="horizontal"
+            android:weightSum="1000">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="65"
+                tools:ignore="NestedWeights" />
+
+            <TextView
+                android:id="@+id/encryptText"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="870"
+                android:scaleX="1.15"
+                android:scaleY="1.15"
+                android:text="@string/intro_header_encrypt"
+                android:textColor="@color/colorOnBackground"
+                android:textFontWeight="900"
+                android:textSize="60sp"
+                app:autoSizeTextType="uniform" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2" />
 
         <TextView
-            android:id="@+id/shareText"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="870"
-            android:scaleX="1.15"
-            android:scaleY="1.15"
-            android:text="@string/intro_header_secure"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:textColor="@color/colorOnBackground"
-            android:textFontWeight="900"
-            android:textSize="60sp"
+            android:layout_weight="5"
+            android:text="@string/secure_mobile_media_preservation"
+            android:textFontWeight="600"
+            app:autoSizeMaxTextSize="500sp"
+            app:autoSizeMinTextSize="16sp"
             app:autoSizeTextType="uniform" />
 
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="8"
-        android:orientation="horizontal"
-        android:weightSum="1000">
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="65"
-            tools:ignore="NestedWeights" />
-
-        <TextView
-            android:id="@+id/archiveText"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="870"
-            android:scaleX="1.15"
-            android:scaleY="1.15"
-            android:text="@string/intro_header_archive"
-            android:textColor="@color/colorOnBackground"
-            android:textFontWeight="900"
-            android:textSize="60sp"
-            app:autoSizeTextType="uniform" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="8"
-        android:orientation="horizontal"
-        android:weightSum="1000">
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="65"
-            tools:ignore="NestedWeights" />
-
-        <TextView
-            android:id="@+id/verifyText"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="870"
-            android:scaleX="1.15"
-            android:scaleY="1.15"
-            android:text="@string/intro_header_verify"
-            android:textColor="@color/colorOnBackground"
-            android:textFontWeight="900"
-            android:textSize="60sp"
-            app:autoSizeTextType="uniform" />
-
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="8"
-        android:orientation="horizontal"
-        android:weightSum="1000">
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="65"
-            tools:ignore="NestedWeights" />
-
-        <TextView
-            android:id="@+id/encryptText"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="870"
-            android:scaleX="1.15"
-            android:scaleY="1.15"
-            android:text="@string/intro_header_encrypt"
-            android:textColor="@color/colorOnBackground"
-            android:textFontWeight="900"
-            android:textSize="60sp"
-            app:autoSizeTextType="uniform" />
-
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:textColor="@color/colorOnBackground"
-        android:layout_weight="5"
-        android:text="@string/secure_mobile_media_preservation"
-        android:textFontWeight="600"
-        app:autoSizeMaxTextSize="500sp"
-        app:autoSizeMinTextSize="16sp"
-        app:autoSizeTextType="uniform" />
-
-</LinearLayout>
+</FrameLayout>

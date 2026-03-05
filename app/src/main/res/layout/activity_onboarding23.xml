@@ -77,4 +77,22 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/testing_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_alignParentBottom="true"
+        android:background="#CC8B0000"
+        android:gravity="center"
+        android:paddingVertical="6dp"
+        android:text="⚠ TESTING ONLY — NOT FOR PUBLIC USE"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        tools:visibility="visible"
+        xmlns:tools="http://schemas.android.com/tools" />
+
+
 </RelativeLayout>
