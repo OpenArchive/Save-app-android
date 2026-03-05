@@ -39,7 +39,7 @@ fun SpaceSetupScreen(
     var showStorachaWarning by remember { mutableStateOf(false) }
 
     if (showStorachaWarning) {
-        storachaWarningDialog(
+        StorachaWarningDialog(
             onAccepted = {
                 showStorachaWarning = false
                 onStorachaWarningAccepted()
