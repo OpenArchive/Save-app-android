@@ -22,7 +22,7 @@
     <string name="disable_passcode_dialog_title">Адлучыць пароль</string>
     <string name="disable_passcode_dialog_msg">Вы ўпэўненыя, што хочаце адлучыць пароль\?</string>
     <string name="tor_disabled_title">Onion-маршрутызацыя ў распрацоўцы</string>
-    <string name="tor_disabled_message">Гэтая функцыя на дадзены знаходзіцца ў распрацоўцы. Пакуль што вы можаце выкарыстоўваць Orbot або любы VPN на ваш выбар, каб падвысіць канфідэнцыйнасць і бяспеку.</string>
+    <string name="tor_disabled_message">Гэтая функцыя на дадзены момант знаходзіцца ў распрацоўцы. Пакуль што вы можаце выкарыстоўваць Orbot або любы VPN на ваш выбар, каб падвысіць канфідэнцыйнасць і бяспеку.</string>
     <string name="tor_download_btn_label">Спампаваць Orbot</string>
 
 
