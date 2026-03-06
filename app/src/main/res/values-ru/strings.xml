@@ -289,7 +289,7 @@
     <string name="expand">Открыть</string>
     <string name="lbl_no_servers">Серверы еще не добавлены.</string>
     <string name="lbl_no_archived_folders">Архивные папки не найдены.</string>
-    <string name="error_no_internet">Интернет недоступен</string>
+    <string name="error_no_internet">Нет подключения к Интернету</string>
     <string name="save_by_open_archive">Save от OpenArchive</string>
     <string name="discover_the_save_app">Подробнее</string>
 
