@@ -162,7 +162,7 @@
     <string name="popup_flag_desc">عندما تضع العلامة على عنصر ما، يتم توجيهها نحو مجلد فرعي داخل مجلد المشروع المختار على الخادم الخاص.</string>
     <string name="set_creative_commons_license_for_all_folders_on_this_server">تعيين ترخيص المشاع الإبداعي للمجلدات الموجودة على هذا الخادم.</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">‫تعيين نفس ترخيص المشاع الإبداعي لـ** كافة ** المجلدات الموجودة على هذا الخادم.</string>
-    <string name="you_already_have_a_server_with_these_credentials">لديك بالفعل خادم بهذه الاعتمادات.</string>
+    <string name="you_already_have_a_server_with_these_credentials">لديك فعلًا خادم بهذه الاعتمادات.</string>
 
 
     <!-- Space Setup -->
