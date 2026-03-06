@@ -257,7 +257,7 @@
     <string name="action_continue">الاستمرار</string>
 
     <!-- DWeb Strings -->
-    <string name="dweb_create_group_screen_title">أطلق اسما على مجموعتك واختر اسم مستخدم</string>
+    <string name="dweb_create_group_screen_title">أطلق اسما على مجموعتك واختر اسم المستخدم</string>
     <string name="dweb_create_group_screen_description">تُشبه المجموعة في تخزين DWeb الخادم، و يعمل اسم المستخدم بصفة مجلد خاص بك داخل هذه المجموعة. ستتمكن من رفع الوسائط تحت هذا الاسم</string>
     <string name="dweb_create_group_group_name"><i>اسم مجموعتك</i></string>
     <string name="dweb_create_group_user_name"><i>اسمك في هذه المجموعة</i></string>
