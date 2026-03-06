@@ -138,7 +138,7 @@
     <string name="select_where_to_store_your_media">Создайте или выберите папку для ваших медиафайлов.</string>
     <string name="you_have_successfully_connected_to_a_private_server">Вы успешно подключились к частному серверу!</string>
     <string name="you_have_successfully_connected_to_the_internet_archive">Вы успешно подключились к Интернет-архиву!</string>
-    <string name="you_have_successfully_created_dweb">Вы успешно создали группу через DWeb Storage!</string>
+    <string name="you_have_successfully_created_dweb">Вы успешно создали группу через хранилище DWeb!</string>
     <string name="you_have_successfully_joined_dweb">Вы успешно присоединились к группе через DWeb Storage!</string>
     <string name="create_a_new_folder">Создать новую папку</string>
     <string name="create_new_folder_title">Назовите свою папку</string>
