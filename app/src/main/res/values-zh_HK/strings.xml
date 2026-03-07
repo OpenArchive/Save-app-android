@@ -278,6 +278,7 @@
     <string name="create_folder_ok_message">已成功添加文件夹。</string>
     <string name="msg_edit_server_success">已成功更改服务器设置。</string>
     <string name="expand">展開</string>
+    <string name="lbl_no_servers">尚未添加服务器。</string>
     <string name="discover_the_save_app">深入瞭解</string>
 
     </resources>
