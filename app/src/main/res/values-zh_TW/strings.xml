@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="title_activity_first_start">首次启动</string>
+    <string name="action_settings">設定</string>
+    <string name="internet_archive">Internet Archive</string>
+    <string name="internet_archive_description">通过免费公开账户上传媒体至 Internet Archive.</string>
+    <string name="dweb_title">DWeb 存储</string>
+    <string name="dweb_description">连接去中心化网络</string>
+    <string name="servers">服务器</string>
+    <string name="add_server">添加服务器</string>
+    <string name="lbl_rename_folder">文件夾重命名</string>
+    <string name="lbl_select_media">选择媒体</string>
+    <string name="lbl_remove_folder">移除文件夹</string>
+    <string name="popup_archive_folder">存档文件夹</string>
+    <string name="popup_remove_folder">从应用移除文件夹</string>
+    <string name="folder_empty_warning">文件夹名称不可为空</string>
+    <string name="folder_rename_success">文件夹已重命名</string>
+    <string name="folder_not_found">文件夹未找到</string>
+    <string name="folder_removed">文件夹已移除</string>
+    <string name="folder_archived">文件夹已成功归档…</string>
+    <string name="content_picker_label">添加媒体自：</string>
+    <string name="disable_passcode_dialog_title">禁用密码</string>
+    <string name="disable_passcode_dialog_msg">确定禁用密码？</string>
+    <string name="tor_disabled_title">Onion 路由还在开发中</string>
+    <string name="tor_disabled_message">该功能目前还在开发中。现在，可使用 Orbot 或任意 VPN 来增强隐私和安全。</string>
+    <string name="tor_download_btn_label">下载 Orbot</string>
+
+
+    <!-- Errors -->
+
+    <!-- Server -->
+    <string name="lbl_Cancel">取消</string>
+    <string name="lbl_ok">正常</string>
+    <string name="lbl_confirm">確認</string>
+    <string name="lbl_remove">移除</string>
+    <string name="lbl_retry">重試</string>
+
+    <string name="license_label">授權</string>
+    <string name="info_license_cc0">免除一切限制、要求及署名义务 (CC0)</string>
+    <string name="info_license_deriv">允许任何人再混合并共享？</string>
+    <string name="info_license_sharealike">要求他们像您一样分享？</string>
+    <string name="info_license_comm">允许商业使用？</string>
+
+    <string name="menu_delete">移除媒体</string>
+    <string name="menu_delete_desc">该媒体已从 Save 移除。\n它仍会保留在服务器和“图片”应用中。</string>
+
+    <string name="hint_flag">点击标记为重要内容</string>
+    <string name="answer_yes">是</string>
+    <string name="answer_no">否</string>
+
+    <string name="action_cancel">取消</string>
+
+    <string name="error">錯誤</string>
+
+    <string name="prefs_use_tor_title">开启 Onion 路由</string>
+    <string name="prefs_use_tor_summary">仅通过 Tor 网络传输</string>
+
+    <string name="prefs_use_proofmode_title">启用 ProofMode</string>
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode 用于增强多媒体内容的认证与验证。<a href=\"%1$s\"><u>可在这里了解更多。</u></a>]]></string>
+
+    <string name="prefs_share_proofmode_title">ProofMode 身份</string>
+    <string name="prefs_share_proofmode_summary">分享 ProofMode 公钥</string>
+
+
+    <!-- Strings for ProofMode Activity -->
+    <string name="phone_permission_required">需位置权限</string>
+
+    <!-- Strings for nearby sharing -->
+
+    <!-- Strings related to login -->
+    <string name="prompt_username"><i>用户名</i></string>
+    <string name="prompt_email">電子郵件</string>
+    <string name="prompt_password"><i>密码</i></string>
+
+    <string name="label_username">\@string/prompt_email</string>
+    <string name="placeholder_email_or_username">输入电子邮箱或用户名</string>
+    <string name="label_password">\@string/prompt_password</string>
+    <string name="placeholder_password">输入密码</string>
+
+    <string name="action_sign_in_short">登入</string>
+    <string name="error_incorrect_username_or_password">不正確的用戶帳號和密碼</string>
+    <string name="error_incorrect_email_or_password">电子邮箱或密码错误</string>
+    <string name="error_field_required">這是必填欄位</string>
+
+    <string name="importing_media">正在导入媒体…</string>
+
+    <string name="title_welcome">歡迎</string>
+
+    <string name="action_privacy">隱私政策</string>
+    <string name="action_about">关于 %s</string>
+    <string name="add_a_folder">添加文件夹</string>
+    <string name="browse_existing_folders">浏览现有文件夹</string>
+    <string name="browse_existing">浏览现有</string>
+    <string name="title_activity_upload_manager">上传管理器</string>
+
+    <string name="uploads">上傳項目</string>
+    <string name="upload_manager_screen_title">退出队列</string>
+    <string name="upload_manager_screen_subtitle">上传已暂停</string>
+    <string name="uploading">正在上传…</string>
+    <string name="uploading_left">正在上传… （剩余 %d）</string>
+    <string name="uploads_notification_descriptions">该应用在上传媒体时，显示这些通知。</string>
+
+    <string name="action_upload">上傳</string>
+<!-- Passcode Settings -->
+    <string name="multiple_failed_attempts_message">由于多次尝试失败，应用被锁定，请稍后重试。</string>
+    <string name="passcode_not_set">未设置密码</string>
+    <string name="passcode_remaining_attempts">密码错误，还可尝试 %1$d 次。</string>
+    <string name="passcode_too_many_failed_attempts">多次尝试失败，应用被锁定。</string>
+
+    <string name="passcode_lock_app">使用密码锁定应用</string>
+    <string name="enter_passcode">输入密码</string>
+    <string name="passcode_do_not_match">密码不匹配，请重试。</string>
+
+    <string name="confirm_passcode">确认密码</string>
+    <string name="set_passcode">设置密码</string>
+    <string name="set_passcode_warning">请确定记住该 pin 码。如果忘记，需重置该应用，并抹除所有应用内数据。</string>
+
+
+    <!-- Strings related to Settings -->
+
+    <string name="tap_to_add">点击下方按钮添加媒体</string>
+    <string name="tap_to_add_folder">点击下方按钮添加文件夹</string>
+    <string name="tap_to_add_server">点击下方按钮添加服务器</string>
+    <string name="to_get_started_connect_to_a_server_to_store_your_media">开始使用，请先连接服务器存储您的媒体。</string>
+    <string name="to_get_started_more_hint_dweb">可随时添加多个私人服务器以及\n一个 IA 或 DWeb 存储账户。</string>
+    <string name="to_get_started_more_hint">可随时添加多个私人服务器以及\n一个 IA 账户。</string>
+    <string name="send_directly_to_a_private_server">连接安全\nWebDAV 服务器</string>
+    <string name="upload_to_the_internet_archive">连接免费\n公共服务器</string>
+    <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">连接兼容 WebDAV 的服务器，如 Nexcloud 和 ownCloud。</string>
+    <string name="action_next">下一個</string>
+    <string name="action_done">完成</string>
+    <string name="status_flagged">重要内容</string>
+    <string name="select_where_to_store_your_media">选择新的或现有文件夹保存您的媒体。</string>
+    <string name="you_have_successfully_connected_to_a_private_server">已成功连接私人服务器！</string>
+    <string name="you_have_successfully_connected_to_the_internet_archive">已成功连接 Internet Archive！</string>
+    <string name="you_have_successfully_created_dweb">已成功通过 DWeb 存储创建群组！</string>
+    <string name="you_have_successfully_joined_dweb">已成功连接 ！</string>
+    <string name="create_a_new_folder">创建一个“新文件夹”</string>
+    <string name="create_new_folder_title">请命名文件夹</string>
+    <string name="create_new_folder_subtitle">将在服务器上创建文件夹，并将其添加到 Save。</string>
+    <string name="create_new_folder_hint"><i>输入文件夹名称</i></string>
+    <string name="edit">編輯</string>
+    <string name="menu_done">完成</string>
+    <string name="remove_from_app">从应用移除</string>
+    <string name="action_remove_project">确定移除您的项目吗？</string>
+    <string name="action_archive_project">存档项目</string>
+    <string name="action_unarchive_project">取消存档项目</string>
+    <string name="new_folder">新資料夾</string>
+    <string name="please_do_not_include_special_characters_in_the_name">请勿在名称中使用特殊字符。</string>
+    <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">确定从应用中移除该服务器？</string>
+    <string name="folder_name_already_exists">文件夹名称已存在。</string>
+    <string name="metadata">中繼資料</string>
+    <string name="web_dav_host_error">未找到指定主机名的服务器。</string>
+
+    <string name="btn_lbl_remove_media">移除媒体</string>
+    <string name="popup_flag_title">标记重要内容</string>
+    <string name="popup_flag_desc">标记一个条目后，系统自动将其归入私有服务器所选文件夹中的子文件夹。</string>
+    <string name="set_creative_commons_license_for_all_folders_on_this_server">为本服务器上的文件夹设置知识共享许可协议。</string>
+    <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">对于本服务器上的所有文件夹，设置为使用相同的知识共享许可协议。</string>
+    <string name="you_already_have_a_server_with_these_credentials">使用这些凭证的服务器已存在。</string>
+
+
+    <!-- Space Setup -->
+    <string name="space_setup_title">选择服务器</string>
+    <!-- WebDAV related strings -->
+    <string name="private_server">私有服务器</string>
+
+    <string name="unsaved_changes">未保存更改！</string>
+    <string name="do_you_want_to_save">想要保持吗？</string>
+    <string name="lbl_save">儲存</string>
+    <string name="lbl_discard">丟棄</string>
+
+    <!-- WebDAV setup License -->
+    <string name="name_your_server">命名服务器并选择许可协议</string>
+    <string name="choose_license">选择许可协议</string>
+
+    <!-- Space Setup Success -->
+    <string name="space_setup_success_title">设置完成</string>
+
+    <!-- Upload Manager Bottom Sheet -->
+    <string name="edit_queue">退出队列</string>
+    <string name="uploading_is_paused">上传已暂停</string>
+
+    <!-- Clean Insights measurement -->
+    <string name="server_name_optional"><i>服务器名称（可选）</i></string>
+    <string name="add_another_account">添加新服务器</string>
+    <string name="biometrics_title">解锁ProofMode 密钥</string>
+    <string name="folders">文件夹</string>
+    <string name="create_folder_name">创建文件夹名称</string>
+    <string name="folder_name">文件夹名称</string>
+    <string name="create">建立</string>
+    <string name="add">新增</string>
+    <string name="no_more_folders">没有（更多）文件夹</string>
+
+    <string name="back">返回</string>
+    <string name="my_media">我的媒体</string>
+    <string name="server_info">服务器信息</string>
+    <string name="enter_url"><i>输入 URL</i></string>
+    <string name="account">帳號</string>
+    <string name="general">一般</string>
+    <string name="only_upload_media_when_you_are_connected_to_wi_fi">仅在连接 Wi-Fi 时上传媒体</string>
+    <string name="security">安全</string>
+    <string name="proofmode">ProofMode</string>
+    <string name="no_webbrowser_found_error">没有应用可处理该请求，请安装网页浏览器。</string>
+
+    <string name="intro_text_secure">安全发送媒体到私有服务器，并使用 pin 码锁定应用。</string>
+    <string name="intro_text_archive"><![CDATA[上传媒体到 Nextcloud 或 Internet Archive，可长期保持媒体安全、可验证和易于管理。<br><br>选择<a href=\"%1$s\"><u>知识共享许可协议。</u></a>]]></string>
+
+    <string name="intro_text_verify"><![CDATA[使用 sha256 哈希值和 <a href=\"%1$s\"><u>ProofMode</u></a> 认证并验证媒体。]]></string>
+    <string name="next">下一個</string>
+    <string name="done">完成</string>
+    <string name="secure_mobile_media_preservation">安全保存移动媒体</string>
+    <string name="get_started">開始</string>
+    <string name="archived_folders">已存档文件夹</string>
+    <string name="view_archived_folders">查看已存档文件夹</string>
+    <string name="learn_more_about_creative_commons">了解更多关于知识共享的信息</string>
+    <string name="refresh">更新</string>
+    <string name="is_video">视频</string>
+    <string name="preview_media">预览上传</string>
+    <string name="add_more">添加更多</string>
+    <string name="select_all">選擇全部</string>
+    <string name="deselect_all">取消全選</string>
+    <string name="lbl_got_it">收到</string>
+    <string name="do_not_show_me_this_again">不再显示</string>
+    <string name="edit_multiple">编辑多个</string>
+    <string name="press_and_hold_options_media_screen_title">添加媒体</string>
+    <string name="press_and_hold_options_media_screen_message">Tap + to pick from image gallery or press and hold to add media from other apps.</string>
+    <string name="press_and_hold_to_select_and_edit_multiple_media">长安选择并编辑多个媒体。</string>
+    <string name="once_uploaded_you_will_not_be_able_to_edit_media">一旦上传，将无法编辑媒体。</string>
+    <string name="edit_media_info">编辑媒体信息</string>
+    <string name="add_a_location_optional"><i>添加位置（可选）</i></string>
+    <string name="add_notes_optional"><i>添加备注（可选）</i></string>
+    <string name="skip">跳過</string>
+
+
+    <string name="upload_unsuccessful">上传未成功</string>
+    <string name="upload_unsuccessful_description">由于会话错误无法上传，请重试或联系支持。</string>
+
+
+    <string name="edit_media">编辑媒体</string>
+
+    <string name="camera">攝影機</string>
+    <string name="photo_gallery">相册</string>
+    <string name="files">檔案</string>
+
+    <!-- Internet Archive Settings -->
+    <string name="label_email">電子郵件</string>
+    <string name="label_screen_name">屏幕名称</string>
+    <string name="label_create_login">创建一个</string>
+    <string name="prompt_no_account">没有账户？</string>
+    <string name="action_continue">繼續</string>
+
+    <!-- DWeb Strings -->
+    <string name="dweb_create_group_screen_title">命名群组并选择用户名</string>
+    <string name="dweb_create_group_group_name"><i>群组名称</i></string>
+    <string name="dweb_create_group_user_name"><i>您在群组中的名称</i></string>
+    <string name="dweb_join_group_screen_title">选择在该群组中的用户名</string>
+    <string name="dweb_join_group_group_name">群组名称</string>
+    <string name="dweb_join_group_repo_name">您在该群组中的名字</string>
+
+    <string name="dweb_share_qr_code">分享二维码</string>
+
+    <string name="pref_title_secure">安全</string>
+    <string name="pref_title_archive">備存</string>
+    <string name="pref_title_media_servers">媒体服务器</string>
+    <string name="pref_title_media_folders">已存档文件夹</string>
+    <string name="pref_summary_media_servers">管理服务器</string>
+    <string name="pref_summary_media_folders">管理存档文件夹</string>
+    <string name="pref_summary_privacy_policy">请查阅条款与隐私政策</string>
+
+    <!-- General -->
+    <string name="label_success_title">成功！</string>
+    <string name="label_warning_title">警告！</string>
+    <string name="label_info_title">信息！</string>
+    <string name="label_got_it">收到</string>
+
+    <string name="expand"> 拓展</string>
+    <string name="discover_the_save_app">深入瞭解</string>
+
+    </resources>
