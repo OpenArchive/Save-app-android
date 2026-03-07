@@ -58,6 +58,11 @@
     <string name="prefs_use_proofmode_title">启用 ProofMode</string>
     <string name="prefs_use_proofmode_description"><![CDATA[ProofMode 用于增强多媒体内容的认证与验证。<a href=\"%1$s\"><u>可在这里了解更多。</u></a>]]></string>
 
+    <string name="proof_mode_warning_text"><![CDATA[
+    为了便于验证媒体捕获的地点，ProofMode 将从附近基站收集数据以佐证您的位置。为了增加可信度和环境信息，您的媒体将包含独立的元数据文件*。在 Android 系统上，需位置访问权限来收集这些信息。<br/><br/>
+    <b>*<i>Save</i> 和 <i>OpenArchive</i> 都无法访问或存储这些位置数据，仅对可访问这些服务器文件的人可用。</b>
+    ]]>\n    </string>
+
     <string name="prefs_share_proofmode_title">ProofMode 身份</string>
     <string name="prefs_share_proofmode_summary">分享 ProofMode 公钥</string>
 
