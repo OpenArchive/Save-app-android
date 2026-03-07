@@ -255,6 +255,7 @@
     <string name="dweb_create_group_group_name"><i>群组名称</i></string>
     <string name="dweb_create_group_user_name"><i>您在群组中的名称</i></string>
     <string name="dweb_join_group_screen_title">选择在该群组中的用户名</string>
+    <string name="dweb_join_group_screen_description">DWeb 存储上的群组类似服务器，用户名相当于您在群组中的文件夹。可使用用户名上传媒体。</string>
     <string name="dweb_join_group_group_name">群组名称</string>
     <string name="dweb_join_group_repo_name">您在该群组中的名字</string>
 
