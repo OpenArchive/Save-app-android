@@ -215,7 +215,7 @@
     <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> всегда использует TLS (Transport Layer Security) для защиты медиафайлов при передаче.<br> Повысить безопасность (не дать перехватывать файлы при передаче с телефона на сервер) может <a href=\"%1$s\"><u>Tor</u></a>.]]></string>
     <string name="next">Далее</string>
     <string name="done">Готово</string>
-    <string name="secure_mobile_media_preservation">Безопасное сохранение мобильных медиа данных</string>
+    <string name="secure_mobile_media_preservation">Безопасное сохранение мобильных медиаданных</string>
     <string name="get_started">Начало работы</string>
     <string name="archived_folders">Архивные папки</string>
     <string name="view_archived_folders">Просмотр архивных папок</string>
