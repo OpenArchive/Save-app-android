@@ -127,7 +127,7 @@
     <string name="tap_to_add_folder">Нажмите кнопку ниже, чтобы добавить папку</string>
     <string name="tap_to_add_server">Нажмите кнопку ниже, чтобы добавить сервер</string>
     <string name="to_get_started_connect_to_a_server_to_store_your_media">Для начала подключитесь к серверу, где хотите хранить файлы.</string>
-    <string name="to_get_started_more_hint_dweb">Можно в любое время добавить несколько частных серверов и один аккаунт IA или DWeb Storage. </string>
+    <string name="to_get_started_more_hint_dweb">Можно в любое время добавить несколько частных серверов и один аккаунт Интернет-архива или DWeb Storage. </string>
     <string name="to_get_started_more_hint">Можно в любое время добавить несколько частных серверов и один аккаунт IA.</string>
     <string name="send_directly_to_a_private_server">Подключиться к безопасному\nсерверу WebDAV</string>
     <string name="upload_to_the_internet_archive">Подключиться к бесплатному\nпубличному серверу</string>
