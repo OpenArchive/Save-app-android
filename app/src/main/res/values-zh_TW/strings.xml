@@ -207,6 +207,7 @@
     <string name="intro_text_archive"><![CDATA[上传媒体到 Nextcloud 或 Internet Archive，可长期保持媒体安全、可验证和易于管理。<br><br>选择<a href=\"%1$s\"><u>知识共享许可协议。</u></a>]]></string>
 
     <string name="intro_text_verify"><![CDATA[使用 sha256 哈希值和 <a href=\"%1$s\"><u>ProofMode</u></a> 认证并验证媒体。]]></string>
+    <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> 始终通过 TLS （传输层安全协议）上传，以在传输过程中保护您的媒体。<br>为了进一步提升安全，请启用 <a href=\"%1$s\"><u>Tor</u></a>，防止在手机到服务器传输过程中媒体被截获。]]></string>
     <string name="next">下一個</string>
     <string name="done">完成</string>
     <string name="secure_mobile_media_preservation">安全保存移动媒体</string>
