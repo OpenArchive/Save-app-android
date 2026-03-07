@@ -279,6 +279,8 @@
     <string name="msg_edit_server_success">已成功更改服务器设置。</string>
     <string name="expand"> 拓展</string>
     <string name="lbl_no_servers">尚未添加服务器。</string>
+    <string name="lbl_no_archived_folders">未找到存档文件夹。</string>
+    <string name="error_no_internet">互联网不可用</string>
     <string name="discover_the_save_app">深入瞭解</string>
 
     </resources>
