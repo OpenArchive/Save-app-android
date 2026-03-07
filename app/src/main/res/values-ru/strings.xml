@@ -209,7 +209,7 @@
     <string name="no_webbrowser_found_error">Нет приложения для обработки запроса. Пожалуйста, установите браузер.</string>
 
     <string name="intro_text_secure">Безопасно сохраняйте свои медиафайлы на частных серверах и блокируйте приложение с помощью PIN-кода.</string>
-    <string name="intro_text_archive"><![CDATA[Загружайте медиафайлы в Nextcloud или Internet Archive, где они будут доступны для проверки, защищены и упорядочены.<br><br>Можно выбрать <a href=\"%1$s\"><u>лицензию Creative Commons.</u></a>]]></string>
+    <string name="intro_text_archive"><![CDATA[Загружайте медиафайлы в Nextcloud или Интернет-архив, где они будут доступны для проверки, защищены и упорядочены.<br><br>Можно выбрать <a href=\"%1$s\"><u>лицензию Creative Commons.</u></a>]]></string>
 
     <string name="intro_text_verify"><![CDATA[Подтверждайте подлинность ваших медиафайлов с помощью хэшей sha256 и <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
     <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> всегда использует TLS (Transport Layer Security) для защиты медиафайлов при передаче.<br> Ради большей безопасности можно включить <a href=\"%1$s\"><u>Tor</u></a>: это помешает перехвату файлов при передаче с телефона на сервер.]]></string>
