@@ -262,6 +262,7 @@
 
     <string name="pref_title_secure">安全</string>
     <string name="pref_title_archive">備存</string>
+    <string name="pref_title_privacy_policy">条款与隐私</string>
     <string name="pref_title_media_servers">媒体服务器</string>
     <string name="pref_title_media_folders">已存档文件夹</string>
     <string name="pref_summary_media_servers">管理服务器</string>
