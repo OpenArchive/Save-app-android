@@ -281,6 +281,7 @@
     <string name="lbl_no_servers">尚未添加服务器。</string>
     <string name="lbl_no_archived_folders">未找到存档文件夹。</string>
     <string name="error_no_internet">互联网不可用</string>
+    <string name="save_by_open_archive">Save by OpenArchive</string>
     <string name="discover_the_save_app">深入瞭解</string>
 
     </resources>
