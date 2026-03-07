@@ -212,7 +212,7 @@
     <string name="intro_text_archive"><![CDATA[Загружайте медиафайлы в Nextcloud или Интернет-архив, где они будут доступны для проверки, защищены и упорядочены.<br><br>Можно выбрать <a href=\"%1$s\"><u>лицензию Creative Commons.</u></a>]]></string>
 
     <string name="intro_text_verify"><![CDATA[Подтверждайте подлинность ваших медиафайлов с помощью хэшей sha256 и <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
-    <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> всегда использует TLS (Transport Layer Security) для защиты медиафайлов при передаче.<br> Ради большей безопасности можно включить <a href=\"%1$s\"><u>Tor</u></a>: это помешает перехвату файлов при передаче с телефона на сервер.]]></string>
+    <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> всегда использует TLS (Transport Layer Security) для защиты медиафайлов при передаче.<br> Повысить безопасность (не дать перехватывать файлы при передаче с телефона на сервер) может <a href=\"%1$s\"><u>Tor</u></a>.]]></string>
     <string name="next">Далее</string>
     <string name="done">Готово</string>
     <string name="secure_mobile_media_preservation">Безопасное сохранение мобильных медиа данных</string>
