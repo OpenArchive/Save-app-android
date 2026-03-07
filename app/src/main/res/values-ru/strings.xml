@@ -95,7 +95,7 @@
     <string name="action_about">О %s</string>
     <string name="add_a_folder">Добавить папку</string>
     <string name="browse_existing_folders">Просмотр существующих папок</string>
-    <string name="browse_existing">Просмотр Существующих</string>
+    <string name="browse_existing">Просмотр существующих</string>
     <string name="title_activity_upload_manager">Менеджер загрузок</string>
 
     <string name="uploads">Загруженная информация</string>
