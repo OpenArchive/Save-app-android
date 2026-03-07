@@ -262,7 +262,7 @@
     <string name="dweb_create_group_group_name"><i>Название вашей группы</i></string>
     <string name="dweb_create_group_user_name"><i>Ваше имя в этой группе</i></string>
     <string name="dweb_join_group_screen_title">Выберите имя пользователя для этой группы</string>
-    <string name="dweb_join_group_screen_description">Группа в хранилище DWeb похожа на сервер, а имя пользователя играет роль папки в этой группе. Вы сможете загружать медиафайлы под этим именем пользователя.</string>
+    <string name="dweb_join_group_screen_description">Группа в хранилище DWeb похожа на сервер, а имя пользователя играет роль вашей папки в этой группе. Вы сможете загружать медиафайлы под этим именем пользователя.</string>
     <string name="dweb_join_group_group_name">Название группы</string>
     <string name="dweb_join_group_repo_name">Ваше имя в этой группе</string>
 
