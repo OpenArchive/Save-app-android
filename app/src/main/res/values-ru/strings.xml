@@ -233,7 +233,7 @@
     <string name="press_and_hold_options_media_screen_message">Нажмите + для выбора из галереи изображений. Нажмите и удерживайте, чтобы добавить данные из других приложений.</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">Нажмите и удерживайте, чтобы выбрать и редактировать несколько файлов.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">После загрузки вы не сможете редактировать медиа.</string>
-    <string name="edit_media_info">Данные медиа</string>
+    <string name="edit_media_info">Данные файла</string>
     <string name="add_a_location_optional"><i>Местоположение (по желанию)</i></string>
     <string name="add_notes_optional"><i>Примечания (по желанию)</i></string>
     <string name="skip">Пропустить</string>
