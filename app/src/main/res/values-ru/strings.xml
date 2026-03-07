@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="title_activity_first_start">Первый запуск</string>
     <string name="action_settings">Настройки</string>
-    <string name="internet_archive">Интернет архив</string>
+    <string name="internet_archive">Интернет-архив</string>
     <string name="internet_archive_description">Используйте для загрузки файлов бесплатный публичный аккаунт в Интернет-архиве.</string>
     <string name="dweb_title">Хранилище DWeb</string>
     <string name="dweb_description">Подключение к децентрализованной сети</string>
