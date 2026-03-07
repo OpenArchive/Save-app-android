@@ -274,6 +274,8 @@
     <string name="label_info_title">信息！</string>
     <string name="label_got_it">收到</string>
 
+    <!-- Create New Folder -->
+    <string name="create_folder_ok_message">已成功添加文件夹。</string>
     <string name="expand"> 拓展</string>
     <string name="discover_the_save_app">深入瞭解</string>
 
