@@ -184,7 +184,7 @@ class WebDavConduit(evidence: Evidence, context: Context) : Conduit(evidence, co
         }
     }
 
-    private fun uploadMetadata(base: HttpUrl, path: List<String>, fileName: String) {
+    private suspend fun uploadMetadata(base: HttpUrl, path: List<String>, fileName: String) {
         AppLogger.i("Uploading metadata....")
         val metadata = getMetadata()
 

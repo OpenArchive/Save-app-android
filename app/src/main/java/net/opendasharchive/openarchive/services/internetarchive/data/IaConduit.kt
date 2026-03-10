@@ -2,7 +2,6 @@ package net.opendasharchive.openarchive.services.internetarchive.data
 
 import android.content.Context
 import android.net.Uri
-import com.google.gson.GsonBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.opendasharchive.openarchive.R
@@ -37,8 +36,6 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
         }
 
         val textMediaType = "texts".toMediaTypeOrNull()
-
-        private val gson = GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
     }
 
     override suspend fun upload(): Boolean {
@@ -52,7 +49,7 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
             val client = SaveClient.get(mContext)
 
             val fileName = getUploadFileName(mEvidence, true)
-            val metaJson = gson.toJson(mEvidence)
+            val metaJson = getMetadata()
             val c2paManifest = getC2paManifest()
 
             if (mEvidence.serverUrl.isBlank()) {

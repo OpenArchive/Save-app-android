@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.webkit.MimeTypeMap
 import com.google.common.net.UrlEscapers
-import com.google.gson.GsonBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -16,7 +15,9 @@ import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
 import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.domain.EvidenceStatus
+import net.opendasharchive.openarchive.core.domain.toMetadata
 import net.opendasharchive.openarchive.core.logger.AppLogger
+import net.opendasharchive.openarchive.core.repositories.CollectionRepository
 import net.opendasharchive.openarchive.core.repositories.MediaRepository
 import net.opendasharchive.openarchive.core.repositories.ProjectRepository
 import net.opendasharchive.openarchive.core.repositories.SpaceRepository
@@ -27,6 +28,9 @@ import net.opendasharchive.openarchive.upload.UploadEventBus
 import net.opendasharchive.openarchive.util.C2paHelper
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.toJavaDate
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import net.opendasharchive.openarchive.util.DateUtils
 import okhttp3.HttpUrl
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -45,6 +49,7 @@ abstract class Conduit(
     val id: Long get() = mEvidence.id
 
     protected val mediaRepository: MediaRepository by inject()
+    protected val collectionRepository: CollectionRepository by inject()
     protected val projectRepository: ProjectRepository by inject()
     protected val spaceRepository: SpaceRepository by inject()
 
@@ -330,9 +335,10 @@ abstract class Conduit(
         val project = projectRepository.getProject(mEvidence.archiveId)
         val projectName = project?.description ?: return null
 
-        val submission = projectRepository.getActiveSubmission(mEvidence.archiveId)
+        // Use the submission bound to this evidence to keep folder grouping stable.
+        val submission = collectionRepository.getCollection(mEvidence.submissionId)
         val collectionDate =
-            submission.uploadDate ?: mEvidence.createdAt ?: net.opendasharchive.openarchive.util.DateUtils.nowDateTime
+            submission?.uploadDate ?: mEvidence.createdAt ?: DateUtils.nowDateTime
 
         val javaDate = collectionDate.toJavaDate()
         val collectionName = mDateFormat.format(javaDate)
@@ -400,21 +406,19 @@ abstract class Conduit(
         }
     }
 
-    protected fun construct(path: List<String>, file: String? = null): String {
-        return construct(null, path, file)
-    }
-
     /**
-     * Generate JSON encoded string of metadata corresponding Media currently
-     * stored in `this.mMedia`.
+     * Generate JSON encoded string of metadata corresponding to Evidence currently
+     * stored in `this.mEvidence`.
      */
-    protected fun getMetadata(): String {
-        val gson = GsonBuilder()
-            .setPrettyPrinting()
-            .excludeFieldsWithoutExposeAnnotation()
-            .create()
+    protected suspend fun getMetadata(): String {
+        val json = Json {
+            prettyPrint = true
+            encodeDefaults = true
+        }
 
-        return gson.toJson(this.mEvidence, Evidence::class.java)
+        val vault = spaceRepository.getSpaceById(mEvidence.vaultId)
+        val metadata = mEvidence.toMetadata(licenseUrl = vault?.licenseUrl)
+        return json.encodeToString(metadata)
     }
 
     /**
