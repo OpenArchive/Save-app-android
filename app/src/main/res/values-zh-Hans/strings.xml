@@ -127,7 +127,7 @@
     <string name="tap_to_add">点击下方按钮添加媒体</string>
     <string name="tap_to_add_folder">点击下方按钮添加文件夹</string>
     <string name="tap_to_add_server">点击下方按钮添加服务器</string>
-    <string name="to_get_started_connect_to_a_server_to_store_your_media">开始使用，请先连接服务器存储您的媒体。</string>
+    <string name="to_get_started_connect_to_a_server_to_store_your_media">开始使用，请连接服务器存储您的媒体。</string>
     <string name="to_get_started_more_hint_dweb">可随时添加多个私有服务器以及\n一个 IA 或 DWeb 存储账号。</string>
     <string name="to_get_started_more_hint">可随时添加多个私有服务器以及\n一个 IA 账号。</string>
     <string name="send_directly_to_a_private_server">连接安全的\nWebDAV 服务器</string>
