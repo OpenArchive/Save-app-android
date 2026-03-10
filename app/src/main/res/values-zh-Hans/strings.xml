@@ -275,7 +275,7 @@
     <string name="pref_title_media_servers">媒体服务器</string>
     <string name="pref_title_media_folders">已存档文件夹</string>
     <string name="pref_summary_media_servers">管理服务器</string>
-    <string name="pref_summary_media_folders">管理存档文件夹</string>
+    <string name="pref_summary_media_folders">管理已存档文件夹</string>
     <string name="pref_summary_privacy_policy">请查阅条款与隐私政策</string>
 
     <!-- General -->
