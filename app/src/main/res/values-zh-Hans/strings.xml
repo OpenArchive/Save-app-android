@@ -251,7 +251,7 @@
     <string name="files">文件</string>
 
     <!-- Internet Archive Settings -->
-    <string name="label_email">电子邮件</string>
+    <string name="label_email">电子邮箱</string>
     <string name="label_screen_name">屏幕名称</string>
     <string name="label_create_login">创建一个</string>
     <string name="prompt_no_account">没有账号？</string>
