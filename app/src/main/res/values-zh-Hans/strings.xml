@@ -75,7 +75,7 @@
 
     <!-- Strings related to login -->
     <string name="prompt_username"><i>用户名</i></string>
-    <string name="prompt_email">电子邮件</string>
+    <string name="prompt_email">电子邮箱</string>
     <string name="prompt_password"><i>密码</i></string>
 
     <string name="label_username">@string/prompt_email</string>
