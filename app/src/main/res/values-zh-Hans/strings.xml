@@ -160,7 +160,7 @@
 
     <string name="btn_lbl_remove_media">移除媒体</string>
     <string name="popup_flag_title">标记重要内容</string>
-    <string name="popup_flag_desc">标记一个条目后，系统自动将其归入私有服务器所选文件夹中的子文件夹。</string>
+    <string name="popup_flag_desc">标记一个条目后，系统自动将其归入私有服务器所选项目文件夹中的子文件夹。</string>
     <string name="set_creative_commons_license_for_all_folders_on_this_server">为本服务器上的文件夹设置知识共享许可协议。</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">本服务器上的所有文件夹，设置为使用相同的知识共享许可协议。</string>
     <string name="you_already_have_a_server_with_these_credentials">使用这些凭证的服务器已存在。</string>
