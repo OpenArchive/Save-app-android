@@ -50,7 +50,7 @@
 
     <string name="action_cancel">取消</string>
 
-    <string name="error">错误</string>
+    <string name="error">出错</string>
 
     <string name="prefs_use_tor_title">开启 Onion 路由</string>
     <string name="prefs_use_tor_summary">仅通过 Tor 网络传输</string>
