@@ -164,18 +164,17 @@ class UploadService : JobService() {
                     )
                 }
 
-                val project = projectRepository.getProject(updatedMedia.archiveId)
+                val vault = spaceRepository.getSpaceById(media.vaultId)
                 updatedMedia = updatedMedia.copy(
-                    licenseUrl = project?.licenseUrl,
-                    vaultId = project?.vaultId ?: 0L
+                    licenseUrl = vault?.licenseUrl,
                 )
 
                 // Persist updated state before starting upload
                 mediaRepository.updateEvidence(updatedMedia)
 
-                // Update submission upload date if not already set.
+                // Update the submission upload date if not already set.
                 // This "closes" the submission bucket in the repository,
-                // ensuring that any subsequent imports start a new submission.
+                // ensuring that any following imports start a new submission.
                 val submission = collectionRepository.getCollection(updatedMedia.submissionId)
                 if (submission != null && submission.uploadDate == null) {
                     collectionRepository.updateCollection(submission.copy(uploadDate = datePublish))

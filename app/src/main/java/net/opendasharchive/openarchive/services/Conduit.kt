@@ -324,9 +324,9 @@ abstract class Conduit(
 
         updatedEvidence = updatedEvidence.copy(tags = tags)
 
-        // Update to the latest project license.
-        val project = projectRepository.getProject(mEvidence.archiveId)
-        updatedEvidence = updatedEvidence.copy(licenseUrl = project?.licenseUrl)
+        // Update to the latest vault license.
+        val vault = spaceRepository.getSpaceById(mEvidence.vaultId)
+        updatedEvidence = updatedEvidence.copy(licenseUrl = vault?.licenseUrl)
 
         mEvidence = updatedEvidence
     }

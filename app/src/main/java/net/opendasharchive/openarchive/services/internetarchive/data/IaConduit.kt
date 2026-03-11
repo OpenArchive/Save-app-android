@@ -214,7 +214,7 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
             builder.add("x-archive-meta-title", mEvidence.title)
         }
 
-        var licenseUrl = mEvidence.licenseUrl
+        var licenseUrl = vault.licenseUrl
 
         if (licenseUrl.isNullOrEmpty()) {
             licenseUrl = "https://creativecommons.org/licenses/by/4.0/"
