@@ -141,7 +141,7 @@
     <string name="you_have_successfully_connected_to_the_internet_archive">已成功连接 Internet Archive！</string>
     <string name="you_have_successfully_created_dweb">已成功通过 DWeb 存储创建群组！</string>
     <string name="you_have_successfully_joined_dweb">已成功通过 DWeb 存储加入群组！</string>
-    <string name="create_a_new_folder">创建一个“新文件夹”</string>
+    <string name="create_a_new_folder">创建“新文件夹”</string>
     <string name="create_new_folder_title">请命名文件夹</string>
     <string name="create_new_folder_subtitle">将在服务器上创建文件夹，并将其添加到 Save。</string>
     <string name="create_new_folder_hint"><i>输入文件夹名称</i></string>
