@@ -268,7 +268,7 @@
 
     <string name="dweb_share_qr_code">Udostępnij kod QR</string>
 
-    <string name="pref_title_secure">Bezpieczne</string>
+    <string name="pref_title_secure">Chroń</string>
     <string name="pref_title_archive">archiwum</string>
     <string name="pref_title_privacy_policy">Regulamin i Polityka prywatności</string>
     <string name="pref_title_media_servers">Serwery multimediów</string>
