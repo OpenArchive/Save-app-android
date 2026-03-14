@@ -133,7 +133,7 @@
     <string name="upload_to_the_internet_archive">Połącz się z darmowym\nserwerem publicznym</string>
     <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">Połącz się z serwerem zgodnym z WebDAV, np. Nextcloud lub ownCloud.</string>
     <string name="action_next">Dalej</string>
-    <string name="action_done">Skończone</string>
+    <string name="action_done">Gotowe</string>
     <string name="status_flagged">Istotna zawartość</string>
     <string name="select_where_to_store_your_media">Wybierz nowy lub istniejący katalog, aby zapisać w nim multimedia.</string>
     <string name="you_have_successfully_connected_to_a_private_server">Połączono z serwerem prywatnym!</string>
