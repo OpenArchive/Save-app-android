@@ -142,7 +142,7 @@
     <string name="you_have_successfully_joined_dweb">Dołączono do grupy w Pamięci DWeb!</string>
     <string name="create_a_new_folder">Utwórz nowy katalog</string>
     <string name="create_new_folder_title">Nazwij katalog</string>
-    <string name="create_new_folder_subtitle">Ten katalog zostanie utworzony na serwerze i dodany do Save.</string>
+    <string name="create_new_folder_subtitle">Ten katalog zostanie utworzony na serwerze i dodany do aplikacji Save.</string>
     <string name="create_new_folder_hint"><i>Wprowadź nazwę katalogu</i></string>
     <string name="edit">Edytuj</string>
     <string name="menu_done">Skończone</string>
