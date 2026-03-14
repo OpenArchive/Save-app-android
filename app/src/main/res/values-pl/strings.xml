@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="title_activity_first_start">Pierwsze uruchomienie</string>
+    <string name="action_settings">Ustawienia</string>
+    <string name="internet_archive">Internet Archive</string>
+    <string name="internet_archive_description">Prześlij multimedia na darmowe publiczne konto w Internet Archive.</string>
+    <string name="dweb_title">Pamięć DWeb</string>
+    <string name="dweb_description">Połącz się ze zdecentralizowaną siecią</string>
+    <string name="servers">Serwery</string>
+    <string name="add_server">Dodaj serwer</string>
+    <string name="lbl_rename_folder">Zmień nazwę katalogu</string>
+    <string name="lbl_select_media">Wybierz multimedia</string>
+    <string name="lbl_remove_folder">Usuń katalog</string>
+    <string name="popup_archive_folder">Archiwizuj katalog</string>
+    <string name="popup_remove_folder">Usuń katalog z aplikacji</string>
+    <string name="folder_empty_warning">Nazwa katalogu nie może być pusta</string>
+    <string name="folder_rename_success">Nazwa katalogu została zmieniona.</string>
+    <string name="folder_not_found">Nie znaleziono katalogu</string>
+    <string name="folder_removed">Katalog został usunięty</string>
+    <string name="folder_archived">Katalog został zarchiwizowany...</string>
+    <string name="content_picker_label">Dodaj multimedia z</string>
+    <string name="disable_passcode_dialog_title">Wyłącz kod dostępu</string>
+    <string name="disable_passcode_dialog_msg">Czy na pewno chcesz wyłączyć kod dostępu\?</string>
+    <string name="tor_disabled_title">Trasowanie cebulowe w przygotowaniu</string>
+    <string name="tor_disabled_message">Ta funkcja jest obecnie w fazie rozwoju. Na razie możesz korzystać z aplikacji Orbot lub dowolnej innej sieci VPN, aby zwiększyć swoją prywatność i bezpieczeństwo.</string>
+    <string name="tor_download_btn_label">Pobierz aplikację Orbot</string>
+
+
+    <!-- Errors -->
+
+    <!-- Server -->
+    <string name="lbl_Cancel">Anuluj</string>
+    <string name="lbl_ok">OK</string>
+    <string name="lbl_confirm">Potwierdź</string>
+    <string name="lbl_remove">Usuń</string>
+    <string name="lbl_retry">Spróbuj ponownie</string>
+
+    <string name="license_label">Licencja</string>
+    <string name="info_license_cc0">Zrezygnuj ze wszystkich ograniczeń, wymogów i obowiązku podania autora (CC0).</string>
+    <string name="info_license_deriv">Zezwolić na remiksowanie i udostępnianie\?</string>
+    <string name="info_license_sharealike">Wymagać udostępniania na tych samych zasadach\?</string>
+    <string name="info_license_comm">Zezwolić na użytek komercyjny\?</string>
+
+    <string name="menu_delete">Usuń multimedia</string>
+    <string name="menu_delete_desc">Te multimedia zostaną usunięte z aplikacji Save.\nPozostaną jednak na serwerze oraz w aplikacji Zdjęcia.</string>
+
+    <string name="hint_flag">Dotknij, aby oznaczyć istotną zawartość</string>
+    <string name="answer_yes">Tak</string>
+    <string name="answer_no">Nie</string>
+
+    <string name="action_cancel">Anuluj</string>
+
+    <string name="error">Błąd</string>
+
+    <string name="prefs_use_tor_title">Włącz trasowanie cebulowe</string>
+    <string name="prefs_use_tor_summary">Przesyłaj wyłącznie przez sieć Tor</string>
+
+    <string name="prefs_use_proofmode_title">Włącz ProofMode</string>
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode rozwiązanie służące do usprawnienia procesu uwierzytelniania i weryfikacji treści multimedialnych. <a href=\"%1$s\"><u>Dowiedz się więcej tutaj.</u></a>]]></string>
+
+    <string name="proof_mode_warning_text"><![CDATA[
+    by ustalić, gdzie utworzono multimedia, ProofMode zbiera dane z pobliskich wież komórkowych w celu potwierdzenia lokalizacji. Następnie, aby zwiększyć wiarygodność i zapewnić kontekst, dołącza do multimediów oddzielny plik z metadanymi*. Android wymaga dostępu do lokalizacji, aby móc gromadzić te informacje.<br/><br/>
+    <b>*<i>Save</i> i <i>OpenArchive</i> nie będą mieć dostępu do tych danych lokalizacyjnych ani ich przechowywać. Dane są widoczne wyłącznie dla osób z dostępem do plików na serwerze.</b>
+    ]]>\n    </string>
+
+    <string name="prefs_share_proofmode_title">Tożsamość ProofMode</string>
+    <string name="prefs_share_proofmode_summary">Udostępnij klucz publiczny ProofMode</string>
+
+
+    <!-- Strings for ProofMode Activity -->
+    <string name="phone_permission_required">Wymagany dostęp do lokalizacji</string>
+
+    <!-- Strings for nearby sharing -->
+
+    <!-- Strings related to login -->
+    <string name="prompt_username"><i>Nazwa użytkownika</i></string>
+    <string name="prompt_email">E-mail</string>
+    <string name="prompt_password"><i>Hasło</i></string>
+
+    <string name="label_username">\@string/prompt_email</string>
+    <string name="placeholder_email_or_username">Wprowadź adres e-mail lub nazwę użytkownika</string>
+    <string name="label_password">\@string/prompt_password</string>
+    <string name="placeholder_password">Wprowadź hasło</string>
+
+    <string name="action_sign_in_short">Zaloguj się</string>
+    <string name="error_incorrect_username_or_password">Nieprawidłowa nazwa użytkownika lub hasło </string>
+    <string name="error_incorrect_email_or_password">Nieprawidłowy adres e-mail lub hasło</string>
+    <string name="error_field_required">To pole jest wymagane</string>
+
+    <string name="importing_media">Importowanie multimediów…</string>
+
+    <string name="title_welcome">Witaj!</string>
+
+    <string name="action_privacy">Polityka prywatności</string>
+    <string name="action_about">O aplikacji %s</string>
+    <string name="add_a_folder">Dodaj katalog</string>
+    <string name="browse_existing_folders">Przeglądaj istniejące katalogi</string>
+    <string name="browse_existing">Przeglądaj istniejące</string>
+    <string name="title_activity_upload_manager">Menedżer przesyłania</string>
+
+    <string name="uploads">Przesłane</string>
+    <string name="upload_manager_screen_title">Edytuj kolejkę</string>
+    <string name="upload_manager_screen_subtitle">Przesyłanie zostało wstrzymane</string>
+    <string name="uploading">Przesyłanie…</string>
+    <string name="uploading_left">Przesyłanie… (pozostało: %d)</string>
+    <string name="uploads_notification_descriptions">Te powiadomienia pojawiają się, gdy aplikacja przesyła multimedia.</string>
+
+    <string name="action_upload">Prześlij</string>
+<!-- Passcode Settings -->
+    <string name="multiple_failed_attempts_message">Aplikacja została zablokowana z powodu wielu nieudanych prób. Spróbuj ponownie później.</string>
+    <string name="passcode_not_set">Kod dostępu nie został ustawiony</string>
+    <string name="passcode_remaining_attempts">Nieprawidłowy kod dostępu. Pozostało prób: %1$d.</string>
+    <string name="passcode_too_many_failed_attempts">Zbyt wiele nieudanych prób. Aplikacja została zablokowana.</string>
+
+    <string name="passcode_lock_app">Zabezpiecz aplikację kodem dostępu</string>
+    <string name="enter_passcode">Wprowadź kod dostępu</string>
+    <string name="passcode_do_not_match">Kody dostępu nie są zgodne. Spróbuj ponownie.</string>
+
+    <string name="confirm_passcode">Potwierdź kod dostępu</string>
+    <string name="set_passcode">Ustaw kod dostępu</string>
+    <string name="set_passcode_warning">Zapamiętaj ten PIN. Jeśli go zapomnisz, konieczne będzie zresetowanie aplikacji, co spowoduje usunięcie wszystkich danych. </string>
+
+
+    <!-- Strings related to Settings -->
+
+    <string name="tap_to_add">Dotknij poniższego przycisku, aby dodać multimedia</string>
+    <string name="tap_to_add_folder">Dotknij poniższego przycisku, aby dodać katalog</string>
+    <string name="tap_to_add_server">Dotknij poniższego przycisku, aby dodać serwer</string>
+    <string name="to_get_started_connect_to_a_server_to_store_your_media">Aby rozpocząć, połącz się z serwerem do przechowywania multimediów.</string>
+    <string name="to_get_started_more_hint_dweb">Możesz dodać kilka serwerów prywatnych oraz \njedno konto IA lub Pamięć DWeb w dowolnym momencie.</string>
+    <string name="to_get_started_more_hint">Możesz dodać kilka serwerów prywatnych oraz \njedno konto IA w dowolnym momencie.</string>
+    <string name="send_directly_to_a_private_server">Połącz się z bezpiecznym\nserwerem WebDAV</string>
+    <string name="upload_to_the_internet_archive">Połącz się z darmowym\nserwerem publicznym</string>
+    <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">Połącz się z serwerem zgodnym z WebDAV, np. Nextcloud lub ownCloud.</string>
+    <string name="action_next">Dalej</string>
+    <string name="action_done">Skończone</string>
+    <string name="status_flagged">Istotna zawartość</string>
+    <string name="select_where_to_store_your_media">Wybierz nowy lub istniejący katalog, aby zapisać w nim multimedia.</string>
+    <string name="you_have_successfully_connected_to_a_private_server">Połączono z serwerem prywatnym!</string>
+    <string name="you_have_successfully_connected_to_the_internet_archive">Połączono z Internet Archive!</string>
+    <string name="you_have_successfully_created_dweb">Utworzono grupę w Pamięci DWeb!</string>
+    <string name="you_have_successfully_joined_dweb">Dołączono do grupy w Pamięci DWeb!</string>
+    <string name="create_a_new_folder">Utwórz nowy katalog</string>
+    <string name="create_new_folder_title">Nazwij katalog</string>
+    <string name="create_new_folder_subtitle">Ten katalog zostanie utworzony na serwerze i dodany do Save.</string>
+    <string name="create_new_folder_hint"><i>Wprowadź nazwę katalogu</i></string>
+    <string name="edit">Edytuj</string>
+    <string name="menu_done">Skończone</string>
+    <string name="remove_from_app">Usuń z aplikacji</string>
+    <string name="action_remove_project">Czy na pewno chcesz usunąć projekt\?</string>
+    <string name="action_archive_project">Archiwizuj projekt</string>
+    <string name="action_unarchive_project">Przywróć projekt z archiwum</string>
+    <string name="new_folder">Nowy katalog</string>
+    <string name="please_do_not_include_special_characters_in_the_name">Nazwa nie może zawierać znaków specjalnych.</string>
+    <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">Czy na pewno chcesz usunąć ten serwer z aplikacji\?</string>
+    <string name="folder_name_already_exists">Nazwa katalogu już istnieje.</string>
+    <string name="metadata">Metadane</string>
+    <string name="web_dav_host_error">Nie znaleziono serwera o podanej nazwie hosta.</string>
+
+    <string name="btn_lbl_remove_media">Usuń multimedia</string>
+    <string name="popup_flag_title">Oznacz istotną zawartość</string>
+    <string name="popup_flag_desc">Gdy oznaczysz element, zostanie on przeniesiony do podkatalogu w wybranym katalogu na serwerze prywatnym.</string>
+    <string name="set_creative_commons_license_for_all_folders_on_this_server">Ustaw licencje Creative Commons dla katalogów na tym serwerze.</string>
+    <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Ustaw taką samą licencję Creative Commons dla WSZYSTKICH katalogów na tym serwerze.</string>
+    <string name="you_already_have_a_server_with_these_credentials">Masz już serwer z tymi danymi uwierzytelniającymi.</string>
+
+
+    <!-- Space Setup -->
+    <string name="space_setup_title">Wybierz serwer</string>
+    <!-- WebDAV related strings -->
+    <string name="private_server">Serwer prywatny</string>
+
+    <string name="unsaved_changes">Niezapisane zmiany!</string>
+    <string name="do_you_want_to_save">Czy chcesz zapisać\?</string>
+    <string name="lbl_save">Zapisz</string>
+    <string name="lbl_discard">Odrzuć</string>
+
+    <!-- WebDAV setup License -->
+    <string name="name_your_server">Nazwij serwer i wybierz licencję</string>
+    <string name="choose_license">Wybierz licencję</string>
+
+    <!-- Space Setup Success -->
+    <string name="space_setup_success_title">Konfiguracja zakończona</string>
+
+    <!-- Upload Manager Bottom Sheet -->
+    <string name="edit_queue">Edytuj kolejkę</string>
+    <string name="uploading_is_paused">Przesyłanie zostało wstrzymane</string>
+
+    <!-- Clean Insights measurement -->
+    <string name="server_name_optional"><i>Nazwa serwera (opcjonalnie)</i></string>
+    <string name="add_another_account">Dodaj nowy serwer</string>
+    <string name="biometrics_title">Odblokuj klucz ProofMode</string>
+    <string name="folders">Katalogi</string>
+    <string name="create_folder_name">Nazwij katalog</string>
+    <string name="folder_name">Nazwa katalogu</string>
+    <string name="create">Utwórz</string>
+    <string name="add">Dodaj</string>
+    <string name="no_more_folders">Brak (kolejnych) katalogów</string>
+
+    <string name="back">Wstecz</string>
+    <string name="my_media">Moje multimedia</string>
+    <string name="server_info">Dane serwera</string>
+    <string name="enter_url"><i>Wprowadź adres URL</i></string>
+    <string name="account">Konto</string>
+    <string name="general">Ogólne</string>
+    <string name="only_upload_media_when_you_are_connected_to_wi_fi">Przesyłaj multimedia tylko, gdy masz połączenie z siecią Wi-Fi</string>
+    <string name="security">Bezpieczeństwo</string>
+    <string name="proofmode">ProofMode</string>
+    <string name="no_webbrowser_found_error">Żadna aplikacja nie może obsłużyć tego żądania. Zainstaluj przeglądarkę internetową.</string>
+
+    <string name="intro_text_secure">Bezpiecznie przesyłaj multimedia na serwery prywatne i zabezpiecz aplikację kodem PIN.</string>
+    <string name="intro_text_archive"><![CDATA[Prześlij multimedia do Nextcloud lub Internet Archive. Dzięki temu będą bezpieczne, uporządkowane i weryfikowalne.<br><br>Wybierz <a href=\"%1$s\"><u>Licencjonowanie Creative Commons.</u></a>]]></string>
+
+    <string name="intro_text_verify"><![CDATA[Uwierzytelniaj i weryfikuj pliki za pomocą sum kontrolnych SHA256 i <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
+    <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> zawsze przesyła dane przez TLS (Transport Layer Security), co chroni multimedia podczas transferu.<br>Aby dodatkowo zwiększyć bezpieczeństwo i uniemożliwić przechwycenie multimediów przesyłanych z telefonu na serwer, włącz <a href=\"%1$s\"><u>Tor</u></a>.]]></string>
+    <string name="next">Dalej</string>
+    <string name="done">Gotowe</string>
+    <string name="secure_mobile_media_preservation">Bezpieczne przechowywanie multimediów mobilnych</string>
+    <string name="get_started">Rozpocznij</string>
+    <string name="archived_folders">Zarchiwizowane katalogi</string>
+    <string name="view_archived_folders">Przeglądaj zarchiwizowane katalogi</string>
+    <string name="learn_more_about_creative_commons">Dowiedz się więcej o Creative Commons.</string>
+    <string name="refresh">Odśwież</string>
+    <string name="is_video">wideo</string>
+    <string name="preview_media">Podgląd przesyłanych multimediów</string>
+    <string name="add_more">Dodaj więcej</string>
+    <string name="select_all">Zaznacz wszystko</string>
+    <string name="deselect_all">Odznacz wszystko</string>
+    <string name="lbl_got_it">Rozumiem</string>
+    <string name="do_not_show_me_this_again">Nie pokazuj ponownie</string>
+    <string name="edit_multiple">Edytuj kilka</string>
+    <string name="press_and_hold_options_media_screen_title">Dodaj multimedia</string>
+    <string name="press_and_hold_options_media_screen_message">Dotknij +, aby wybrać z galerii zdjęć lub naciśnij i przytrzymaj, aby dodać multimedia z innych aplikacji.</string>
+    <string name="press_and_hold_to_select_and_edit_multiple_media">Naciśnij i przytrzymaj, aby wybrać i edytować kilka multimediów.</string>
+    <string name="once_uploaded_you_will_not_be_able_to_edit_media">Po przesłaniu nie będzie można już edytować multimediów.</string>
+    <string name="edit_media_info">Edytuj informacje o multimediach</string>
+    <string name="add_a_location_optional"><i>Dodaj lokalizację (opcjonalnie)</i></string>
+    <string name="add_notes_optional"><i>Dodaj notatkę (opcjonalnie)</i></string>
+    <string name="skip">Pomiń</string>
+
+
+    <string name="upload_unsuccessful">Przesyłanie nie powiodło się</string>
+    <string name="upload_unsuccessful_description">Nie można przesłać – błąd sesji. Spróbuj ponownie lub skontaktuj się z działem wsparcia.</string>
+
+
+    <string name="edit_media">Edytuj multimedia</string>
+
+    <string name="camera">Aparat</string>
+    <string name="photo_gallery">Galeria zdjęć</string>
+    <string name="files">Pliki</string>
+
+    <!-- Internet Archive Settings -->
+    <string name="label_email">E-mail</string>
+    <string name="label_screen_name">Nazwa wyświetlana</string>
+    <string name="label_create_login">Utwórz konto</string>
+    <string name="prompt_no_account">Nie masz konta\?</string>
+    <string name="action_continue">Kontynuuj</string>
+
+    <!-- DWeb Strings -->
+    <string name="dweb_create_group_screen_title">Nazwij grupę i wybierz nazwę użytkownika</string>
+    <string name="dweb_create_group_screen_description">Grupa w Pamięci DWeb działa podobnie jak serwer, a nazwa użytkownika pełni rolę Twojego katalogu w tej grupie. Będziesz w stanie przesyłać multimedia pod tą nazwą użytkownika</string>
+    <string name="dweb_create_group_group_name"><i>Nazwa grupy</i></string>
+    <string name="dweb_create_group_user_name"><i>Twoja nazwa w tej grupie</i></string>
+    <string name="dweb_join_group_screen_title">Wybierz nazwę użytkownika dla tej grupy</string>
+    <string name="dweb_join_group_screen_description">Grupa w Pamięci DWeb działa podobnie jak serwer, a nazwa użytkownika pełni rolę Twojego katalogu w tej grupie. Będziesz w stanie przesyłać multimedia pod tą nazwą użytkownika.</string>
+    <string name="dweb_join_group_group_name">Nazwa grupy</string>
+    <string name="dweb_join_group_repo_name">Twoja nazwa w tej grupie</string>
+
+    <string name="dweb_share_qr_code">Udostępnij kod QR</string>
+
+    <string name="pref_title_secure">Bezpieczne</string>
+    <string name="pref_title_archive">archiwum</string>
+    <string name="pref_title_privacy_policy">Regulamin i Polityka prywatności</string>
+    <string name="pref_title_media_servers">Serwery multimediów</string>
+    <string name="pref_title_media_folders">Zarchiwizowane katalogi</string>
+    <string name="pref_summary_media_servers">Zarządzaj serwerami</string>
+    <string name="pref_summary_media_folders">Zarządzaj zarchiwizowanymi katalogami</string>
+    <string name="pref_summary_privacy_policy">Przeczytaj nasze warunki i politykę prywatności</string>
+
+    <!-- General -->
+    <string name="label_success_title">Sukces!</string>
+    <string name="label_warning_title">Uwaga!</string>
+    <string name="label_info_title">Informacja!</string>
+    <string name="label_got_it">Rozumiem</string>
+
+    <!-- Create New Folder -->
+    <string name="create_folder_ok_message">Katalog został dodany.</string>
+    <string name="msg_edit_server_success">Ustawienia serwera zostały zmienione.</string>
+    <string name="expand">Rozwiń</string>
+    <string name="lbl_no_servers">Nie dodano jeszcze żadnych serwerów.</string>
+    <string name="lbl_no_archived_folders">Nie znaleziono zarchiwizowanych katalogów.</string>
+    <string name="error_no_internet">Brak dostępu do internetu</string>
+    <string name="save_by_open_archive">Save by OpenArchive</string>
+    <string name="discover_the_save_app">Dowiedz się więcej</string>
+
+    </resources>
