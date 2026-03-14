@@ -56,7 +56,7 @@
     <string name="prefs_use_tor_summary">Przesyłaj wyłącznie przez sieć Tor</string>
 
     <string name="prefs_use_proofmode_title">Włącz ProofMode</string>
-    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode rozwiązanie służące do usprawnienia procesu uwierzytelniania i weryfikacji treści multimedialnych. <a href=\"%1$s\"><u>Dowiedz się więcej tutaj.</u></a>]]></string>
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode to rozwiązanie służące do usprawnienia procesu uwierzytelniania i weryfikacji treści multimedialnych. <a href=\"%1$s\"><u>Dowiedz się więcej tutaj.</u></a>]]></string>
 
     <string name="proof_mode_warning_text"><![CDATA[
    Aby ustalić, gdzie utworzono multimedia, ProofMode zbiera dane z pobliskich wież komórkowych w celu potwierdzenia lokalizacji. Następnie, aby zwiększyć wiarygodność i zapewnić kontekst, dołącza do multimediów oddzielny plik z metadanymi*. Android wymaga dostępu do lokalizacji, aby móc gromadzić te informacje.<br/><br/>
