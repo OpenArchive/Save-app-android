@@ -14,7 +14,7 @@
     <string name="popup_archive_folder">Archiwizuj katalog</string>
     <string name="popup_remove_folder">Usuń katalog z aplikacji</string>
     <string name="folder_empty_warning">Nazwa katalogu nie może być pusta</string>
-    <string name="folder_rename_success">Nazwa katalogu została zmieniona.</string>
+    <string name="folder_rename_success">Nazwa katalogu została zmieniona</string>
     <string name="folder_not_found">Nie znaleziono katalogu</string>
     <string name="folder_removed">Katalog został usunięty</string>
     <string name="folder_archived">Katalog został zarchiwizowany...</string>
