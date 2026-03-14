@@ -209,7 +209,7 @@
     <string name="no_webbrowser_found_error">Żadna aplikacja nie może obsłużyć tego żądania. Zainstaluj przeglądarkę internetową.</string>
 
     <string name="intro_text_secure">Bezpiecznie przesyłaj multimedia na serwery prywatne i zabezpiecz aplikację kodem PIN.</string>
-    <string name="intro_text_archive"><![CDATA[Prześlij multimedia do Nextcloud lub Internet Archive. Dzięki temu będą bezpieczne, uporządkowane i weryfikowalne.<br><br>Wybierz <a href=\"%1$s\"><u>Licencjonowanie Creative Commons.</u></a>]]></string>
+    <string name="intro_text_archive"><![CDATA[Przesyłaj multimedia do Nextcloud lub Internet Archive. Dzięki temu będą bezpieczne, uporządkowane i weryfikowalne.<br><br>Wybierz <a href=\"%1$s\"><u>Licencjonowanie Creative Commons.</u></a>]]></string>
 
     <string name="intro_text_verify"><![CDATA[Uwierzytelniaj i weryfikuj pliki za pomocą sum kontrolnych SHA256 i <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
     <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> zawsze przesyła dane przez TLS (Transport Layer Security), co chroni multimedia podczas transferu.<br>Aby dodatkowo zwiększyć bezpieczeństwo i uniemożliwić przechwycenie multimediów przesyłanych z telefonu na serwer, włącz <a href=\"%1$s\"><u>Tor</u></a>.]]></string>
