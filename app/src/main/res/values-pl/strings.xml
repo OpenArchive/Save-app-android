@@ -60,7 +60,7 @@
 
     <string name="proof_mode_warning_text"><![CDATA[
    Aby ustalić, gdzie utworzono multimedia, ProofMode zbiera dane z pobliskich wież komórkowych w celu potwierdzenia lokalizacji. Następnie, aby zwiększyć wiarygodność i zapewnić kontekst, dołącza do multimediów oddzielny plik z metadanymi*. Android wymaga dostępu do lokalizacji, aby móc gromadzić te informacje.<br/><br/>
-    <b>*<i>Save</i> i <i>OpenArchive</i> nie mają dostępu do tych danych lokalizacyjnych ani nie mogą ich przechowywać. Dane są widoczne wyłącznie dla osób z dostępem do plików na serwerze.</b>
+    <b>*<i>Save</i> i <i>OpenArchive</i> nie mają dostępu do danych lokalizacyjnych ani nie mogą ich przechowywać. Dane te są widoczne wyłącznie dla osób z dostępem do plików na serwerze.</b>
     ]]>\n    </string>
 
     <string name="prefs_share_proofmode_title">Tożsamość ProofMode</string>
