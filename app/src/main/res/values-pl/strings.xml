@@ -145,7 +145,7 @@
     <string name="create_new_folder_subtitle">Ten katalog zostanie utworzony na serwerze i dodany do aplikacji Save.</string>
     <string name="create_new_folder_hint"><i>Wprowadź nazwę katalogu</i></string>
     <string name="edit">Edytuj</string>
-    <string name="menu_done">Skończone</string>
+    <string name="menu_done">Gotowe</string>
     <string name="remove_from_app">Usuń z aplikacji</string>
     <string name="action_remove_project">Czy na pewno chcesz usunąć projekt\?</string>
     <string name="action_archive_project">Archiwizuj projekt</string>
