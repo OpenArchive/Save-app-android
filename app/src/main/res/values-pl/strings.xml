@@ -275,7 +275,7 @@
     <string name="pref_title_media_folders">Zarchiwizowane katalogi</string>
     <string name="pref_summary_media_servers">Zarządzaj serwerami</string>
     <string name="pref_summary_media_folders">Zarządzaj zarchiwizowanymi katalogami</string>
-    <string name="pref_summary_privacy_policy">Przeczytaj nasze warunki i politykę prywatności</string>
+    <string name="pref_summary_privacy_policy">Zapoznaj się z Regulaminem i Polityką prywatności</string>
 
     <!-- General -->
     <string name="label_success_title">Sukces!</string>
