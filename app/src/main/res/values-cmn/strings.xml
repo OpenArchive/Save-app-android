@@ -230,7 +230,7 @@
     <string name="do_not_show_me_this_again">不再显示</string>
     <string name="edit_multiple">编辑多个</string>
     <string name="press_and_hold_options_media_screen_title">添加媒体</string>
-    <string name="press_and_hold_options_media_screen_message">Tap + to pick from image gallery or press and hold to add media from other apps.</string>
+    <string name="press_and_hold_options_media_screen_message">点击 + 从相册选择，或长按从其他应用添加媒体。</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">长按选择并编辑多个媒体。</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">一旦上传，将无法编辑媒体。</string>
     <string name="edit_media_info">编辑媒体信息</string>
