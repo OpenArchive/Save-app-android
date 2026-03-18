@@ -135,7 +135,7 @@
     <string name="action_next">دواتر</string>
     <string name="action_done">ئەنجام درا</string>
     <string name="status_flagged">ناوەڕۆکی گرنگ</string>
-    <string name="select_where_to_store_your_media">فۆڵدەرێکی نوێ یان هەبوو هەڵبژێرە بۆ پاشەکەوتکردنی میدیاکەت تێیدا.</string>
+    <string name="select_where_to_store_your_media"> فۆڵدەرێکی نوێ یان هەبوو بۆ پاشەکەوتکردنی میدیاکەت تێیدا هەڵبژێرە.</string>
     <string name="you_have_successfully_connected_to_a_private_server">بە سەرکەوتوویی پەیوەند بوویت بە سێرڤێرێکی تایبەتەوە!</string>
     <string name="you_have_successfully_connected_to_the_internet_archive">بە سەرکەوتوویی پەیوەند بوویت بە Internet Archiveـەوە!</string>
     <string name="you_have_successfully_created_dweb"> بە سەرکەوتوویی گرووپێکت لە ڕێگەی کۆگای DWebـەوە درووست کرد!</string>
