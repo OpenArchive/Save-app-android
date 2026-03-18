@@ -142,7 +142,7 @@
     <string name="you_have_successfully_joined_dweb">بە سەرکەوتوویی پەیوەندیت بە گروپێکەوە کرد لە ڕێگەی کۆگای DWebـەوە!</string>
     <string name="create_a_new_folder">ذروستاکردنی فۆڵدەرێکی نوێ</string>
     <string name="create_new_folder_title">تکایە ناوێک لە فۆڵدەرەکەت بنێ</string>
-    <string name="create_new_folder_subtitle">ئەم فۆڵدەرە لەسەر سێرڤەرەکەت دروست دەکرێت و بۆ Save زیاد دەکرێت.</string>
+    <string name="create_new_folder_subtitle"> ئەم فۆڵدەرە لەسەر سێرڤێرەکەت درووست دەکرێت و بۆ Save زیاد دەکرێت.</string>
     <string name="create_new_folder_hint"><i> ناوی فۆڵدەر بنووسە</i></string>
     <string name="edit">دەستکاری</string>
     <string name="menu_done">ئەنجام درا</string>
