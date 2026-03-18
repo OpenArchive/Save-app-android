@@ -126,7 +126,7 @@
     <string name="tap_to_add">کرتە بکە سەر ئەو دوگمەی خوارەوە بۆ زیادکردنی میدیاکان</string>
     <string name="tap_to_add_folder">کرتە بکە سەر ئەو دوگمەی خوارەوە بۆ زیادکردنی فۆڵدەرێک</string>
     <string name="tap_to_add_server">کرتە بکە سەر ئەو دوگمەی خوارەوە بۆ زیادکردنی سێرڤێرێک</string>
-    <string name="to_get_started_connect_to_a_server_to_store_your_media">بۆ دەستپێکردن، پەیوەندی بە سێرڤەرەکەوە بکە بۆ پاشەکەوتکردنی میدیاکەت.</string>
+    <string name="to_get_started_connect_to_a_server_to_store_your_media"> بۆ دەستپێکردن، پەیوەندی بە سێرڤێرەکەوە بکە بۆ پاشەکەوتکردنی میدیاکەت.</string>
     <string name="to_get_started_more_hint_dweb"> لە هەر کاتێکدا دەتوانیت چەندین سێرڤێری تایبەت و یەک هەژماری کۆگای IA  یان DWeb زیاد بکەیت.</string>
     <string name="to_get_started_more_hint">دەتوانی چەندین سێرڤێری تایبەت و \nیەک ئەکاونتی سێرڤێری IA لە هەر کاتێکدا زیاد بکەیت.</string>
     <string name="send_directly_to_a_private_server"> پەیوەندی بکە بە\n سێرڤێرێکی پارێزراوی  WebDAV</string>
