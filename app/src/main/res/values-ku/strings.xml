@@ -118,7 +118,7 @@
 
     <string name="confirm_passcode">پشتڕاستکردنەوەی پاسکۆد</string>
     <string name="set_passcode">دانانی پاسکۆد</string>
-    <string name="set_passcode_warning">دڵنیابە لەوەی ئەم PINـەت لەیاد بێت. ئەگەر لەیادی بکەیت، پێویستە ئەپەکە ڕێکبخەیتەوە، وە هەموو داتاکانی ناو ئەپەکە دەسڕێنەوە.</string>
+    <string name="set_passcode_warning"> دڵنیابە لەوەی ئەم  PINـەت لەیاد بێت. ئەگەر لەیادی بکەیت، پێویستە ئەپەکە ڕێک بخەیتەوە، وە هەموو داتاکانی ناو ئەپەکە دەسڕێنەوە.</string>
 
 
     <!-- Strings related to Settings -->
