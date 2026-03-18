@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="title_activity_first_start">یەکەم دەستپێکردن</string>
+    <string name="action_settings">ڕێکخستنەکان</string>
+    <string name="internet_archive">ئەرشیفی ئینتەرنێت</string>
+    <string name="internet_archive_description">میدیاکانت باربکە بۆ سەر ئەکاونتێکی گشتیی خۆڕایی لەسەر ئەرشیڤی ئینتەرنێت بار بکە.</string>
+    <string name="dweb_title"> کۆگای DWeb</string>
+    <string name="dweb_description">پەیوەندی بە وێبی لامەرکەزیەوە بکە</string>
+    <string name="servers">سێرڤێرەکان</string>
+    <string name="add_server">زیادکردنی سێرڤێر</string>
+    <string name="lbl_rename_folder">گۆڕینی ناوی فۆڵدەر</string>
+    <string name="lbl_select_media">هەڵبژاردنی میدیاکان</string>
+    <string name="lbl_remove_folder">لابردنی فۆڵدەر</string>
+    <string name="popup_archive_folder">ئەرشیڤکردنی فۆڵدەر</string>
+    <string name="popup_remove_folder">فۆڵدەر لە ئەپەکە دەربهێنە</string>
+    <string name="folder_empty_warning">ناوی فۆڵدەر ناکرێ بەتاڵ بێت</string>
+    <string name="folder_rename_success">ناوی فۆڵدەر گۆڕدرا</string>
+    <string name="folder_not_found">فۆڵدەر نەدۆزرایەوە</string>
+    <string name="folder_removed">فۆڵدەرەکە لابرا</string>
+    <string name="folder_archived"> فۆڵدەر بێکێشە ئەرشیڤ کرا...</string>
+    <string name="content_picker_label"> زیادکردنی میدیا لە</string>
+    <string name="disable_passcode_dialog_title">پاسکۆد لەکاربخە</string>
+    <string name="disable_passcode_dialog_msg">ئایا دڵنیای کە دەتەوێت پاسکۆدەکە لەکاربخەیت؟</string>
+    <string name="tor_disabled_title"> ڕێدۆزینەوەی پیازی (Onion routing) لە قۆناغی پەرەپێداندایە</string>
+    <string name="tor_disabled_message"> ئەم تایبەتمەندییە لە ئێستادا لە قۆناغی پەرەپێداندایە. بۆ ئێستا، دەتوانیت Orbot  یان هەر VPNـێکی دڵخوازی خۆت بەکار بهێنبەکار بهێنیت بۆ باشترکردنی تایبەتمەندی و ئاسایشت.</string>
+    <string name="tor_download_btn_label"> داگرتنی Orbot</string>
+
+
+    <!-- Errors -->
+
+    <!-- Server -->
+    <string name="lbl_Cancel">ڕەتکردنەوە</string>
+    <string name="lbl_ok">باشە</string>
+    <string name="lbl_confirm">پشتڕاستکردنەوە</string>
+    <string name="lbl_remove">لابردن</string>
+    <string name="lbl_retry">دووبارە هەوڵ بدەرەوە</string>
+
+    <string name="license_label">مۆڵەت</string>
+    <string name="info_license_cc0"> دەستبەرداربوون لە هەموو کۆتوبەند، پێداویستی و ئاماژەپێدانێک بۆ خاوەنەکەی (CC0).</string>
+    <string name="info_license_deriv">ڕێگە بە هەمووان بدرێت کە ڕیمیکس و هاوبەش بکەن؟</string>
+    <string name="info_license_sharealike">پێویست بەوە بن کە بەو شێوەی خۆت ئەنجامت داوە هاوبەشی بکەن؟</string>
+    <string name="info_license_comm">ڕێگە بە بەکارهێنانی بازرگانی بدرێت؟</string>
+
+    <string name="menu_delete">لابردنی میدیا</string>
+    <string name="menu_delete_desc">ئەم میدیایە لە Save دەسڕدرێتەوە.\nلەسەر سێرڤێر و لە ئەپی \"وێنەکان\"تدا دەمێنێتەوە.</string>
+
+    <string name="hint_flag">کرتە بکە بۆ نیشانکردن وەکوو ناوەڕۆکی گرنگ</string>
+    <string name="answer_yes">بەڵی</string>
+    <string name="answer_no">نەخێر</string>
+
+    <string name="action_cancel">ڕەتکردنەوە</string>
+
+    <string name="error">هەڵە</string>
+
+    <string name="prefs_use_tor_title">هەڵکردنی ڕێدۆزینەوەی پیازی</string>
+    <string name="prefs_use_tor_summary">گواستنەوە تەنها بە Tor Network</string>
+
+    <string name="prefs_use_proofmode_title">چالاککردنی ProofMode</string>
+    <string name="prefs_use_proofmode_description"><![CDATA[ دۆخی ProofMode ڕێگەیەکە بۆ باشترکردنی ڕەسەنایەتی و سەلماندنی ناوەڕۆکی فرەمیدیا. <a href=\"%1$s\"><u>لێرە زیاتر بزانە. </u></a>]]></string>
+
+    <string name="proof_mode_warning_text"><![CDATA[
+    بۆ یارمەتیدان لە سەلماندنی شوێنی تۆمارکردنی میدیاکەت، دۆخی ProofMode داتا لە تاوەرەکانی مۆبایلی نزیکەوە کۆدەکاتەوە بۆ پشتڕاستکردنەوەی شوێنەکەت. بۆ زیادکردنی متمانە و زانیاریی زیاتر، پاشان پەڕگەیەکی جیاکراوەی مێتاداتا لەگەڵ میدیاکەتدا لەخۆدەگرێ*. ئەندرۆید پێویستی بە دەستگەیشتن بە شوێن هەیە بۆ کۆکردنەوەی ئەم زانیارییە.<br/><br/>
+    <b>*نە<i>Save</i> و نە <i>OpenArchive</i> ناتوانن دەستیان بەم داتایەی شوێن بگات یان پاشەکەوتی بکەن، تەنها بۆ ئەوانە بەردەست دەبێت کە دەستیان بە پەڕگەکانی سێرڤەرەکە دەگات.</b>
+    ]]>\n    </string>
+
+    <string name="prefs_share_proofmode_title">شوناسی ProofMode</string>
+    <string name="prefs_share_proofmode_summary">هاوبەشکردنی کلیلی گشتیی ProofMode</string>
+
+
+    <!-- Strings for ProofMode Activity -->
+    <string name="phone_permission_required">ڕێگەدان بە شوێن پێویستە</string>
+
+    <!-- Strings for nearby sharing -->
+
+    <!-- Strings related to login -->
+    <string name="prompt_username"><i>ناوی بەکارهێنەر</i></string>
+    <string name="prompt_email">ئیمەیل</string>
+    <string name="prompt_password"><i>وشەی نهێنی</i></string>
+
+    <string name="label_username">\@string/prompt_email</string>
+    <string name="placeholder_email_or_username">ئیمەیل یان ناوێکی بەکارهێنەر بنووسە</string>
+    <string name="label_password">\@string/prompt_password</string>
+    <string name="placeholder_password">وشەی نهێنی بنووسە</string>
+
+    <string name="action_sign_in_short">چوونەژوورەوە</string>
+    <string name="error_incorrect_username_or_password">ناوی بەکارهێنەر یان وشەی نهێنی هەڵەیە</string>
+    <string name="error_incorrect_email_or_password">ئیمەیل یان وشەی نهێنی هەڵەیە</string>
+    <string name="error_field_required">ئەم بەشە پێویستە</string>
+
+    <string name="importing_media">هێنانەژوورەوەی میدیاکان …</string>
+
+    <string name="title_welcome">بەخێر بێن!</string>
+
+    <string name="action_privacy">سیاسەتی پاراستنی نهێنی</string>
+    <string name="action_about">سەبارەت بە ئێمە%s</string>
+    <string name="add_a_folder">زیادکردنی فۆڵدەرێک</string>
+    <string name="browse_existing_folders">گەڕان بە ناو فۆڵدەرەکانی ئێستا</string>
+    <string name="browse_existing">گەڕان بەناو ئەوانەی ئێستا هەن</string>
+    <string name="title_activity_upload_manager">بەڕێوەبەری بارکردن</string>
+
+    <string name="uploads">بارکردن</string>
+    <string name="upload_manager_screen_title">دەستکاریکردنی ڕیز</string>
+    <string name="upload_manager_screen_subtitle">بارکردن ڕاگیراوە</string>
+    <string name="uploading">خەریکە بار دەکرێت ...</string>
+    <string name="uploading_left">خەریکە بار دەکرێت... (%dی ماوە) </string>
+    <string name="uploads_notification_descriptions">ئەم ڕااگەیاندنانە نیشان دەدرێن لەو کاتەدا کە ئەپەکە خەریکی بارکردنی میدیاکانە.</string>
+
+    <string name="action_upload">بارکردن</string>
+<!-- Passcode Settings -->
+    <string name="multiple_failed_attempts_message">ئەپەکە لەبەر چەندین جار هەوڵی سەرنەکەوتوو قفڵ کراوە. تکایە دواتر هەوڵ بدەرەوە.</string>
+    <string name="passcode_not_set">پاسکۆد دانەنراوە</string>
+    <string name="passcode_remaining_attempts">پاسکۆدی هەڵە. %1$d جار هەوڵدان ماوە.</string>
+    <string name="passcode_too_many_failed_attempts">هەوڵی سەرنەکەوتووی یەگجار زۆر. ئەپەکە قفڵ کراوە.</string>
+
+    <string name="passcode_lock_app">قفڵکردنی ئەپەکە بە پاسکۆد</string>
+    <string name="enter_passcode">سکۆدەکەت بنووسە</string>
+    <string name="passcode_do_not_match">پاسکۆدەکان یەک ناخوێننەوە. دووبارە هەوڵ بدەرەوە.</string>
+
+    <string name="confirm_passcode">پشتڕاستکردنەوەی پاسکۆد</string>
+    <string name="set_passcode">دانانی پاسکۆد</string>
+    <string name="set_passcode_warning">دڵنیابە لەوەی ئەم PINـەت لەیاد بێت. ئەگەر لەیادی بکەیت، پێویستە ئەپەکە ڕێکبخەیتەوە، وە هەموو داتاکانی ناو ئەپەکە دەسڕێنەوە.</string>
+
+
+    <!-- Strings related to Settings -->
+
+    <string name="tap_to_add">کرتە بکە سەر ئەو دوگمەی خوارەوە بۆ زیادکردنی میدیاکان</string>
+    <string name="tap_to_add_folder">کرتە بکە سەر ئەو دوگمەی خوارەوە بۆ زیادکردنی فۆڵدەرێک</string>
+    <string name="tap_to_add_server">کرتە بکە سەر ئەو دوگمەی خوارەوە بۆ زیادکردنی سێرڤێرێک</string>
+    <string name="to_get_started_connect_to_a_server_to_store_your_media">بۆ دەستپێکردن، پەیوەندی بە سێرڤەرەکەوە بکە بۆ پاشەکەوتکردنی میدیاکەت.</string>
+    <string name="to_get_started_more_hint_dweb">لە هەر کاتێکدا دەتوانیت چەندین سێرڤەری تایبەت و یەک هەژماری کۆگای IA یان DWeb زیاد بکەیت.</string>
+    <string name="to_get_started_more_hint">دەتوانی چەندین سێرڤێری تایبەت و \nیەک ئەکاونتی سێرڤێری IA لە هەر کاتێکدا زیاد بکەیت.</string>
+    <string name="send_directly_to_a_private_server">پەیوەندی بکە بە\nسێرڤەرێکی پارێزراوی WebDAV</string>
+    <string name="upload_to_the_internet_archive">پەیوەندە بکە بە\n سێرڤەرێکی گشتیی خۆڕایی</string>
+    <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">پەیوەند ببە بە سێرڤێرەکانی گونجاو بۆ WebDAV وەکوو Nexcloud و ownCloud.</string>
+    <string name="action_next">دواتر</string>
+    <string name="action_done">ئەنجام درا</string>
+    <string name="status_flagged">ناوەڕۆکی گرنگ</string>
+    <string name="select_where_to_store_your_media">فۆڵدەرێکی نوێ یان هەبوو هەڵبژێرە بۆ پاشەکەوتکردنی میدیاکەت تێیدا.</string>
+    <string name="you_have_successfully_connected_to_a_private_server">بە سەرکەوتوویی پەیوەند بوویت بە سێرڤێرێکی تایبەتەوە!</string>
+    <string name="you_have_successfully_connected_to_the_internet_archive">بە سەرکەوتوویی پەیوەند بوویت بە Internet Archiveـەوە!</string>
+    <string name="you_have_successfully_created_dweb">بە سەرکەوتوویی گروپێکت لە ڕێگەی کۆگای DWebـەوە دروستکرد!</string>
+    <string name="you_have_successfully_joined_dweb">بە سەرکەوتوویی پەیوەندیت بە گروپێکەوە کرد لە ڕێگەی کۆگای DWebـەوە!</string>
+    <string name="create_a_new_folder">ذروستاکردنی فۆڵدەرێکی نوێ</string>
+    <string name="create_new_folder_title">تکایە ناوێک لە فۆڵدەرەکەت بنێ</string>
+    <string name="create_new_folder_subtitle">ئەم فۆڵدەرە لەسەر سێرڤەرەکەت دروست دەکرێت و بۆ Save زیاد دەکرێت.</string>
+    <string name="create_new_folder_hint"><i> ناوی فۆڵدەر بنووسە</i></string>
+    <string name="edit">دەستکاری</string>
+    <string name="menu_done">ئەنجام درا</string>
+    <string name="remove_from_app">سڕینەوە لە ناو ئەپەکە</string>
+    <string name="action_remove_project">ئایا دڵنیایت دەتەوێ پڕۆژەکەت بسڕیتەوە؟</string>
+    <string name="action_archive_project">ئەرشیڤکردنی پڕۆژەکە</string>
+    <string name="action_unarchive_project">لە ئەرشیڤ دەرهێنانی پڕۆژەکە</string>
+    <string name="new_folder">فۆڵدەری نوێ</string>
+    <string name="please_do_not_include_special_characters_in_the_name">تکایە لە ناوەکەدا کاراکتەری تایبەت ابەکار مەبە.</string>
+    <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">دڵنیای دەتەوێ ئەم سێرڤێرە لە ناو ئەپەکە بسڕیتەوە؟</string>
+    <string name="folder_name_already_exists">ناوی ئەم فۆڵدەرە پێشتر گیراوە.</string>
+    <string name="metadata">Metadata</string>
+    <string name="web_dav_host_error"> سێرڤێرێک بەو ناوی هۆستە (hostname) کە دیاری کراوە، نەدۆزرایەوە.</string>
+
+    <string name="btn_lbl_remove_media">لابردنی میدیا</string>
+    <string name="popup_flag_title">نیشانکردن وەکوو ناوەڕۆکی گرنگ</string>
+    <string name="popup_flag_desc">کاتێ ئایتێمێک نیشان دەکەیت، دەکەوێتە ناو فۆڵدەرێکی ناو فۆڵدەری ئەو پڕۆژەیەی کە هەڵبژێردراوە لەسەر سێرڤێرێکی تایبەتدا.</string>
+    <string name="set_creative_commons_license_for_all_folders_on_this_server">دانانی مۆڵەتەکانی هاوبەشییە داهێنەرەکان بۆ فۆڵدەرەکانی سەر ئەم سێرڤێرە.</string>
+    <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">دانانی هەمان مۆڵەتی هاوبەشییە داهێنەرەکان بۆ هەموو فۆڵدەرەکانی سەر ئەم سێرڤێرە.</string>
+    <string name="you_already_have_a_server_with_these_credentials"> هەرئێستاش سێرڤێرەێکت بەم زانیارییانەی چوونەژوورەوە هەیە.</string>
+
+
+    <!-- Space Setup -->
+    <string name="space_setup_title">سێرڤێرێک هەڵبژێرە</string>
+    <!-- WebDAV related strings -->
+    <string name="private_server">سێرڤێری تایبەتی</string>
+
+    <string name="unsaved_changes">گۆڕانکارییە پاشەکەوتنەکراوەکان!</string>
+    <string name="do_you_want_to_save">ائایا دەتەوێ پاشەکەوت بکەیت؟</string>
+    <string name="lbl_save">هەڵگرتن</string>
+    <string name="lbl_discard">ڕەتکردنەوە</string>
+
+    <!-- WebDAV setup License -->
+    <string name="name_your_server">ناوێک لە سێرڤێرەکەت بنێ و مۆڵەتێک هەڵبژێرە</string>
+    <string name="choose_license"> مۆڵەتێک هەڵبژێرە</string>
+
+    <!-- Space Setup Success -->
+    <string name="space_setup_success_title">ڕێکخستن تەواو بووە</string>
+
+    <!-- Upload Manager Bottom Sheet -->
+    <string name="edit_queue">دەستکاریکردنی ڕیز</string>
+    <string name="uploading_is_paused">بارکردن ڕاگیراوە</string>
+
+    <!-- Clean Insights measurement -->
+    <string name="server_name_optional"><i> ناوی سێرڤێر (دڵخوازی)</i></string>
+    <string name="add_another_account">زیادکردنی سێرڤێری نوێ</string>
+    <string name="biometrics_title">کردنەوەی کلیلی ProofMode</string>
+    <string name="folders">فۆڵدەرەکان</string>
+    <string name="create_folder_name">دروستکردنی ناوی فۆڵدەر</string>
+    <string name="folder_name">ناوی فۆڵدەر</string>
+    <string name="create">دروستکردن</string>
+    <string name="add">زیادکردن</string>
+    <string name="no_more_folders">هیچ فۆڵدەرێک (یان فۆڵدەرێکی تر)</string>
+
+    <string name="back">گەڕانەوە</string>
+    <string name="my_media">میدیاکانی من</string>
+    <string name="server_info">زانیارییەکانی سێرڤێر</string>
+    <string name="enter_url"><i>داخڵکردنی URL</i></string>
+    <string name="account">ئەکاونت</string>
+    <string name="general">گشتی</string>
+    <string name="only_upload_media_when_you_are_connected_to_wi_fi">تەنها کاتێ پەیوەندییت بە وایفایەوە هەیە میدیا بار بکە</string>
+    <string name="security">ئاسایش</string>
+    <string name="proofmode">ProofMode</string>
+    <string name="no_webbrowser_found_error">هیچ بەرنامەیەک ناتوانێ ئەم داواکارییە جێبەجێ بکات. تکایە وێبگەڕێک دابمەزرێنە.</string>
+
+    <string name="intro_text_secure">ئاسایشی میدیاکانت بنێرە بۆ سێرڤێرە تایبەتەکان و ئەپەکە بە پینێک قفڵ بکە.</string>
+    <string name="intro_text_archive"><![CDATA[ میدیاکەتبار بکە بۆ سەر Nextcloud یان Internet Archive بار بکە  بۆ ئەوەی میدیاکەت بە شێوەیەکی شیاوی سەلماندن، پارێزراو، و ڕێکخراو بۆ ماوەیەکی درێژخایەن بهێڵیتەوە <br><br><a href=\"%1$s\"> مۆڵەتدانی هاوبەشییە داهێنەرەکان (Creative Commons) هەڵبژێرە.<u></a>]]></string>
+
+    <string name="intro_text_verify"><![CDATA[ بە هاشەکانی sha256 و <a href=\"%1$s\"><u>ProofMode</u></a>میدیاکانت پشتڕاست بکەوە و بیانسەلمێنە.]]></string>
+    <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> هەمیشە لە ڕێگەی TLS (ئاسایشی چینی گواستنەوە) بۆ پاراستنی میدیاکەت لە کاتی گواستنەوەدا ئاپلەود دەکات.<br>بۆ زیاتر باشترکردنی ئاسایش، <a href=\"%1$s\"><u>Tor</u></a>  بۆ ڕێگریکردن لە چاودێریکردن و لەڕێداگرتنی میدیاکەت لە مۆبایلەکەتەوە بۆ سێرڤێرەکە چالاک بکە. ]]></string>
+    <string name="next">دواتر</string>
+    <string name="done">ئەنجام درا</string>
+    <string name="secure_mobile_media_preservation">پاراستنی سەلامەتی میدیاکانی مۆبایل</string>
+    <string name="get_started">دەستپێبکە</string>
+    <string name="archived_folders">فۆڵدەرە ئەرشیڤکراوەکان</string>
+    <string name="view_archived_folders">پیشاندانی فۆڵدەرە ئەرشیڤکراوەکان</string>
+    <string name="learn_more_about_creative_commons">دەربارەی هاوبەشییە داهێنەرەکان زیاتر بزانە.</string>
+    <string name="refresh">نوێکردنەوە</string>
+    <string name="is_video">ڤیدیۆیە</string>
+    <string name="preview_media">پێش‌نیشاندانی بارکردن</string>
+    <string name="add_more">زیادکردنی زیاتر</string>
+    <string name="select_all">هەڵبژاردنی هەموو</string>
+    <string name="deselect_all"> هەڵبژاردنی هەمووان لابە</string>
+    <string name="lbl_got_it">وەرمگرت</string>
+    <string name="do_not_show_me_this_again">ئەمەم دووبارە نیشان مەدەوە</string>
+    <string name="edit_multiple">دەستکاریکردنی چەنددانەیی</string>
+    <string name="press_and_hold_options_media_screen_title">زیادکردنی میدیا</string>
+    <string name="press_and_hold_options_media_screen_message">کرتە بکە لەسەر + بۆ هەڵبژاردن لە گەلەریی وێنەکان یان ئەوەی کە دەستی لەسەر ڕاگرە بۆ زیادکرنی میدیا لە بەرنامەکانی ترەوە.</string>
+    <string name="press_and_hold_to_select_and_edit_multiple_media"> بۆ هەڵبژاردن و دەستکاریکردنی چەندین بڕگەی میدیا پەنجە بخە سەری و ڕایگرە.</string>
+    <string name="once_uploaded_you_will_not_be_able_to_edit_media">کاتێ بارکرا، چیتر ناتوانیت میدیاکان دەستکاری بکەیت.</string>
+    <string name="edit_media_info">دەستکاریکردنی زانیارییەکانی میدیا</string>
+    <string name="add_a_location_optional"><i> شوێنێک زیاد بکە (دڵخوازی)</i></string>
+    <string name="add_notes_optional"><i> زیادکردنی یادداشت (دڵخوازی)</i></string>
+    <string name="skip">تێپەڕاندن</string>
+
+
+    <string name="upload_unsuccessful">بارکردن ناسەرکەوتوو بوو</string>
+    <string name="upload_unsuccessful_description">بەهۆی هەڵەی دانیشتنەوە بارکردن ناکرێ، تکایە دووبارە هەوڵ بدەرەوە یان پەیوەندی بە بەشی پاڵپشیتییەوە بکە.</string>
+
+
+    <string name="edit_media">دەستکاریکردنی میدیا</string>
+
+    <string name="camera">کامێرا</string>
+    <string name="photo_gallery">گەلەریی وێنەکان</string>
+    <string name="files">فایلەکان</string>
+
+    <!-- Internet Archive Settings -->
+    <string name="label_email">ئیمەیل</string>
+    <string name="label_screen_name">ناوی شاشەکە</string>
+    <string name="label_create_login">دروستکردنی دەنکێ</string>
+    <string name="prompt_no_account">هیچ ئەکاونتێکت نییە؟</string>
+    <string name="action_continue">بەردەوام بە</string>
+
+    <!-- DWeb Strings -->
+    <string name="dweb_create_group_screen_title"> ناوێک لە گرووپەکەت بنێ و ناوێکی بەکارهێنەر هەڵبژێرە</string>
+    <string name="dweb_create_group_screen_description"> گرووپێک لە کۆگای DWeb هاوشێوەی سێرڤێرەکەیە، وە ناوێکی بەکارهێنەر وەک فۆڵدەرەکەت لەناو ئەم گرووپەدا کار دەکات. دەتوانیت میدیا لەژێر ئەم ناوی بەکارهێنەرەدا ئاپلەود بکەیت.</string>
+    <string name="dweb_create_group_group_name"><i> ناوی گرووپەکەت</i></string>
+    <string name="dweb_create_group_user_name"><i> ناوت لەم گرووپەدا</i></string>
+    <string name="dweb_join_group_screen_title"> ناوێکی بەکارهێنەر بۆ ئەم گرووپە هەڵبژێرە</string>
+    <string name="dweb_join_group_screen_description"> گرووپێک لە کۆگای DWeb هاوشێوەی سێرڤێرەکەیە، وە ناوێکی بەکارهێنەر وەک فۆڵدەرەکەت لەناو ئەم گرووپەدا کار دەکات. دەتوانیت میدیا لەژێر ئەم ناوی بەکارهێنەرەدا ئاپلەود بکەیت.</string>
+    <string name="dweb_join_group_group_name"> ناوی گرووپ</string>
+    <string name="dweb_join_group_repo_name"> ناوت لەم گرووپەدا</string>
+
+    <string name="dweb_share_qr_code">کۆدی QR هاوبەش بکە</string>
+
+    <string name="pref_title_secure">سەرچاوە</string>
+    <string name="pref_title_archive">ئەرشیڤکردن</string>
+    <string name="pref_title_privacy_policy">مەرجەکان و نهێنیپارێزی</string>
+    <string name="pref_title_media_servers">سێرڤێرەکانی میدیا</string>
+    <string name="pref_title_media_folders">فۆڵدەرە ئەرشیڤکراوەکان</string>
+    <string name="pref_summary_media_servers">بەڕێوەبردنی سێرڤێرەکانت</string>
+    <string name="pref_summary_media_folders">بەڕێوەبردنی فۆڵدەرە ئەرشیڤکراوەکان</string>
+    <string name="pref_summary_privacy_policy">مەرجەکان و سیاسەتی نهێنیپارێزیمان بخوێنەوە</string>
+
+    <!-- General -->
+    <string name="label_success_title">سەرکەوتن!</string>
+    <string name="label_warning_title">ئاگادارکردنەوە!</string>
+    <string name="label_info_title">زانیاری!</string>
+    <string name="label_got_it">وەرمگرت</string>
+
+    <!-- Create New Folder -->
+    <string name="create_folder_ok_message">بە سەرکەوتوویی فۆڵدەرێکت زیاد کرد.</string>
+    <string name="msg_edit_server_success">ڕێکخستنەکانی سێرڤێرەکەت بە سەرکەوتوویی گۆڕیوە.</string>
+    <string name="expand">گەورەکردنەوە</string>
+    <string name="lbl_no_servers">هێشتا هیچ سێرڤێرێک زیاد نەکراوە.</string>
+    <string name="lbl_no_archived_folders">هیچ فۆڵدەرێکی ئەشیڤکراو نەدۆزرایەوە.</string>
+    <string name="error_no_internet">ئینتەرنێت لەبەردەست نییە</string>
+    <string name="save_by_open_archive">Save لەلایەن OpenArchive</string>
+    <string name="discover_the_save_app">زیاتر بزانە</string>
+
+    </resources>
