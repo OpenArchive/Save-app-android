@@ -130,7 +130,7 @@
     <string name="to_get_started_more_hint_dweb">لە هەر کاتێکدا دەتوانیت چەندین سێرڤەری تایبەت و یەک هەژماری کۆگای IA یان DWeb زیاد بکەیت.</string>
     <string name="to_get_started_more_hint">دەتوانی چەندین سێرڤێری تایبەت و \nیەک ئەکاونتی سێرڤێری IA لە هەر کاتێکدا زیاد بکەیت.</string>
     <string name="send_directly_to_a_private_server">پەیوەندی بکە بە\nسێرڤەرێکی پارێزراوی WebDAV</string>
-    <string name="upload_to_the_internet_archive">پەیوەندە بکە بە\n سێرڤەرێکی گشتیی خۆڕایی</string>
+    <string name="upload_to_the_internet_archive"> پەیوەندە بکە بە\n سێرڤێرێکی گشتیی خۆڕایی</string>
     <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">پەیوەند ببە بە سێرڤێرەکانی گونجاو بۆ WebDAV وەکوو Nexcloud و ownCloud.</string>
     <string name="action_next">دواتر</string>
     <string name="action_done">ئەنجام درا</string>
