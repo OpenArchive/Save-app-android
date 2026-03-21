@@ -161,7 +161,7 @@
     <string name="popup_flag_title">علامت‌گذاری به‌عنوان محتوای مهم</string>
     <string name="popup_flag_desc">هنگامی که یک مورد را علامت‌گذاری می‌کنید، به یک زیرپوشه در داخل پوشهٔ انتخاب‌شده روی سرور خصوصی منتقل می‌شود.</string>
     <string name="set_creative_commons_license_for_all_folders_on_this_server"> برای پوشه‌های این سرور پروانه‌های Creative Commons تنظیم کنید.</string>
-    <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server"> همان مجوز Creative Commons را برای تمام پوشه‌های این سرور تنظیم کنید.</string>
+    <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server"> همان پروانهٔ Creative Commons را برای تمام پوشه‌های این سرور تنظیم کنید.</string>
     <string name="you_already_have_a_server_with_these_credentials"> شما از قبل سروری با این اطلاعات کاربری دارید</string>
 
 
