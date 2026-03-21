@@ -30,7 +30,7 @@
 
     <!-- Server -->
     <string name="lbl_Cancel">انصراف</string>
-    <string name="lbl_ok">قبول</string>
+    <string name="lbl_ok">تأیید</string>
     <string name="lbl_confirm">تأیید</string>
     <string name="lbl_remove">حذف کردن</string>
     <string name="lbl_retry">تلاش دوباره</string>
