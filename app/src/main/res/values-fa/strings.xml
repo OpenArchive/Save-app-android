@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-    <string name="title_activity_first_start">اولین شروع</string>
+    <string name="title_activity_first_start">نخستین اجرا</string>
     <string name="action_settings">تنظیمات</string>
     <string name="internet_archive">Internet Archive</string>
     <string name="internet_archive_description">رسانه‌های خود را در یک حساب کاربری عمومی رایگان در Internet Archive بارگذاری کنید.</string>
