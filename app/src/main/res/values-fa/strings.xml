@@ -38,7 +38,7 @@
     <string name="license_label">پروانه</string>
     <string name="info_license_cc0">صرف‌نظر کردن از تمام محدودیت‌ها، الزامات و انتساب (CC0).</string>
     <string name="info_license_deriv">آیا امکان تغییر و اشتراک‌گذاری برای همه فراهم باشد؟</string>
-    <string name="info_license_sharealike">آیا اشتراک‌گذاری با همان شرایط شما برای آن‌ها الزامی است؟</string>
+    <string name="info_license_sharealike">آیا آن‌ها ملزم‌اند مانند شما (با همان شرایط) به اشتراک بگذارند؟</string>
     <string name="info_license_comm">آیا استفادهٔ تجاری مجاز است؟</string>
 
     <string name="menu_delete">حذف رسانه‌</string>
