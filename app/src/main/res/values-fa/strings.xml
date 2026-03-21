@@ -63,7 +63,7 @@
  <b>* <i>Save</i> و <i>OpenArchive</i> قادر به ذخیره‌سازی یا دست‌یابی به این داده‌های مکانی نخواهند بود و تنها کسانی که به فایل‌های سرور دسترسی دارند، قادر به مشاهدهٔ آن خواهند بود.</b>
 ]]>\n</string>
 
-    <string name="prefs_share_proofmode_title">شناسهٔ ProofMode</string>
+    <string name="prefs_share_proofmode_title">هویت ProofMode</string>
     <string name="prefs_share_proofmode_summary">کلید عمومی ProofMode را اشتراک‌گذاری کنید</string>
 
 
