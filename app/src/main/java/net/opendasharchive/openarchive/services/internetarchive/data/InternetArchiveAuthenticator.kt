@@ -73,6 +73,7 @@ class InternetArchiveAuthenticator(
                 Result.success(
                     Vault(
                         type = VaultType.INTERNET_ARCHIVE,
+                        name = VaultType.INTERNET_ARCHIVE.friendlyName,
                         username = intermediate.access,
                         password = intermediate.secret,
                         displayName = intermediate.screenName,

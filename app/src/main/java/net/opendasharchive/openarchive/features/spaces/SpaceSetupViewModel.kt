@@ -13,6 +13,7 @@ import net.opendasharchive.openarchive.core.repositories.SpaceRepository
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.core.config.AppConfig
+import net.opendasharchive.openarchive.core.domain.VaultType
 
 data class SpaceSetupState(
     val isInternetArchiveAllowed: Boolean = false,
@@ -41,7 +42,7 @@ class SpaceSetupViewModel(
 
     private fun loadInitialState() {
         viewModelScope.launch {
-            val hasInternetArchive = spaceRepository.getSpaces().any { it.name == "Internet Archive" }
+            val hasInternetArchive = spaceRepository.getSpaces().any { it.type == VaultType.INTERNET_ARCHIVE }
             _uiState.update {
                 it.copy(
                     isInternetArchiveAllowed = !hasInternetArchive,
