@@ -220,8 +220,10 @@ private fun RowScope.FolderBarInfoMode(
                     onDismissRequest = { onIntent(FolderBarIntent.OptionsDismissed) }
                 ) {
                     menu.forEach { item ->
+                        val enabled = item !is FolderMenuItem.SelectMedia || state.totalMediaCount > 0
                         DropdownMenuItem(
                             text = { Text(stringResource(id = item.titleRes)) },
+                            enabled = enabled,
                             onClick = {
                                 onIntent(FolderBarIntent.OptionsDismissed)
                                 onIntent(item.intent)
