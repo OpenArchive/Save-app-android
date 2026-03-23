@@ -30,9 +30,9 @@
             android:maxHeight="50dp"
             android:scaleType="fitCenter"
             android:backgroundTint="@color/colorBackgroundSpaceIcon"
-            app:tint="@color/red"
             android:background="@drawable/circle_shape"
-            android:src="@drawable/storacha" />
+            android:src="@drawable/filecoin_fil_logo"
+            app:tint="#0090FF" />
 
         <!-- Instructions -->
         <TextView

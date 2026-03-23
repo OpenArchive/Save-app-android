@@ -39,7 +39,7 @@ fun SpaceSetupScreen(
     var showStorachaWarning by remember { mutableStateOf(false) }
 
     if (showStorachaWarning) {
-        storachaWarningDialog(
+        StorachaWarningDialog(
             onAccepted = {
                 showStorachaWarning = false
                 onStorachaWarningAccepted()
@@ -119,9 +119,9 @@ fun SpaceSetupScreen(
 
         // Storacha option
         ServerOptionItem(
-            iconRes = R.drawable.storacha,
-            title = "Storacha (Filecoin/IPFS)",
-            subtitle = "Connect to decentralized storage.",
+            iconRes = R.drawable.filecoin_fil_logo,
+            title = "Filecoin",
+            subtitle = "Connect to a public DWeb server",
             onClick = {
                 if (hasSeenStorachaWarning) {
                     onStorachaClicked()
