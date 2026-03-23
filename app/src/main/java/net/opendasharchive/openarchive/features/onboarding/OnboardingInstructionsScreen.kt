@@ -96,24 +96,17 @@ fun OnboardingInstructionsScreen(
     val currentPage = pagerState.currentPage
     val isLastPage = currentPage == slides.size - 1
 
-    // Match legacy behavior:
-    // - Hide immediately when dragging starts
-    // - Swap image only when pager is idle
-    // - Fade in over 200ms after swap
+    // Crossfade the cover image when the settled page changes (stays visible during swipe)
     var coverImageRes by remember { mutableIntStateOf(slides[currentPage].imageRes) }
     val coverAlpha = remember { Animatable(1f) }
 
-    LaunchedEffect(pagerState.isScrollInProgress) {
-        if (pagerState.isScrollInProgress) {
-            coverAlpha.snapTo(0f)
-        } else {
-            coverImageRes = slides[pagerState.currentPage].imageRes
-            coverAlpha.snapTo(0f)
-            coverAlpha.animateTo(
-                targetValue = 1f,
-                animationSpec = tween(durationMillis = 200)
-            )
-        }
+    LaunchedEffect(pagerState.currentPage) {
+        coverAlpha.snapTo(0f)
+        coverImageRes = slides[pagerState.currentPage].imageRes
+        coverAlpha.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 200)
+        )
     }
 
     Box(
