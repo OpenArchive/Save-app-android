@@ -170,7 +170,7 @@ private fun InternetArchiveDetailsContent(
             ) {
                 TextButton(
                     onClick = {
-
+                        onAction(InternetArchiveDetailsAction.ShowRemoveSpaceDialog)
                     },
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = colorResource(R.color.red_bg)
