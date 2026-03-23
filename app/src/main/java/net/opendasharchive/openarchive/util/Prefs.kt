@@ -32,6 +32,7 @@ object Prefs {
     private const val DID_RUN_SEEDER = "did_run_seeder"
     private const val IS_MIGRATION_IN_PROGRESS = "is_migration_in_progress"
     private const val IS_ROOM_MIGRATED = "is_room_migrated"
+    private const val STORACHA_WARNING_SHOWN = "storacha_warning_shown"
 
     val TOR_DOWNLOAD_URL = Uri.parse("https://play.google.com/store/apps/details?id=org.torproject.android")
 
@@ -225,6 +226,12 @@ object Prefs {
         get() = prefs?.getBoolean(IS_ROOM_MIGRATED, false) ?: false
         set(value) {
             putBoolean(IS_ROOM_MIGRATED, value)
+        }
+
+    var storachaWarningShown: Boolean
+        get() = prefs?.getBoolean(STORACHA_WARNING_SHOWN, false) ?: false
+        set(value) {
+            prefs?.edit()?.putBoolean(STORACHA_WARNING_SHOWN, value)?.apply()
         }
 
 }
