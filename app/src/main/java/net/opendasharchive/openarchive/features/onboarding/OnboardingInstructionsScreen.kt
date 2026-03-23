@@ -233,7 +233,8 @@ fun OnboardingInstructionsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(15f)
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = 24.dp)
+                    .windowInsetsPadding(WindowInsets.navigationBars),
                 contentAlignment = Alignment.CenterStart
             ) {
                 // Dots indicator - constrained width to prevent expansion
