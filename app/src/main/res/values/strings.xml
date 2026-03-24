@@ -145,7 +145,7 @@
     <string name="tap_to_add_server">Tap the button below to add a server</string>
     <string name="to_get_started_connect_to_a_server_to_store_your_media">To get started, connect to a server to store your media.</string>
     <string name="to_get_started_more_hint_dweb">You can add multiple private servers and\none IA or DWeb Storage account at any time.</string>
-    <string name="to_get_started_more_hint">You can add multiple private servers and\none IA account at any time.</string>
+    <string name="to_get_started_more_hint">You can add multiple private servers,\n one IA account, and one Filecoin account\nat any time.</string>
     <string name="send_directly_to_a_private_server">Connect to a secure\nWebDAV server</string>
     <string name="upload_to_the_internet_archive">Connect to a free\npublic server</string>
     <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">Connect to a WebDAV-compatible servers, e.g. Nexcloud and ownCloud.</string>
