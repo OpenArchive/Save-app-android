@@ -10,7 +10,7 @@ plugins {
     // Build Tools
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.navigation.safeargs) apply false
-    alias(libs.plugins.androidx.room) apply false
+    alias(libs.plugins.androidx.room3) apply false
 
     // Code Quality
     alias(libs.plugins.detekt.plugin) apply false

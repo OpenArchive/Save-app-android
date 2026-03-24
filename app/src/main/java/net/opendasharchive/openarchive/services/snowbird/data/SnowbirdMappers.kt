@@ -124,6 +124,7 @@ fun EvidenceWithDweb.toDomain(): Evidence {
     return Evidence(
         id = evidence.id,
         originalFilePath = evidence.originalFilePath,
+        thumbnail = evidence.thumbnail,
         mimeType = evidence.mimeType,
         createdAt = evidence.createdAt ?: DateUtils.nowDateTime,
         updatedAt = evidence.updatedAt ?: DateUtils.nowDateTime,

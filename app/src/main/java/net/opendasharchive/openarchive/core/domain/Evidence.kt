@@ -15,6 +15,7 @@ import java.io.File
 data class Evidence(
     val id: Long = 0L,
     val originalFilePath: String = "",
+    val thumbnail: ByteArray? = null,
     val mimeType: String = "",
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null,

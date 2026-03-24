@@ -862,9 +862,9 @@
     <ID>ImportOrdering:CameraScreen.kt$import android.content.Context import android.net.Uri import android.util.Size import androidx.camera.compose.CameraXViewfinder import androidx.camera.core.Camera import androidx.camera.core.CameraSelector import androidx.camera.core.ImageCapture import androidx.camera.core.Preview import androidx.camera.core.SurfaceRequest import androidx.camera.core.resolutionselector.ResolutionSelector import androidx.camera.core.resolutionselector.ResolutionStrategy import androidx.camera.lifecycle.ProcessCameraProvider import androidx.camera.video.Quality import androidx.camera.video.QualitySelector import androidx.camera.video.Recorder import androidx.camera.video.VideoCapture import androidx.compose.animation.AnimatedContent import androidx.compose.animation.core.LinearEasing import androidx.compose.animation.core.RepeatMode import androidx.compose.animation.core.animateFloat import androidx.compose.animation.core.infiniteRepeatable import androidx.compose.animation.core.rememberInfiniteTransition import androidx.compose.animation.core.tween import androidx.compose.animation.fadeIn import androidx.compose.animation.fadeOut import androidx.compose.animation.togetherWith import androidx.compose.foundation.background import androidx.compose.foundation.clickable import androidx.compose.foundation.gestures.awaitEachGesture import androidx.compose.foundation.layout.Arrangement import androidx.compose.foundation.layout.Column import androidx.compose.foundation.layout.Box import androidx.compose.foundation.layout.Row import androidx.compose.foundation.layout.Spacer import androidx.compose.foundation.layout.displayCutoutPadding import androidx.compose.foundation.layout.fillMaxSize import androidx.compose.foundation.layout.fillMaxWidth import androidx.compose.foundation.layout.navigationBarsPadding import androidx.compose.foundation.layout.padding import androidx.compose.foundation.layout.size import androidx.compose.foundation.layout.statusBarsPadding import androidx.compose.foundation.layout.width import androidx.compose.foundation.shape.CircleShape import androidx.compose.material3.Icon import androidx.compose.material3.IconButton import androidx.compose.material3.MaterialTheme import androidx.compose.material3.Text import androidx.compose.runtime.Composable import androidx.compose.runtime.DisposableEffect import androidx.compose.runtime.LaunchedEffect import androidx.compose.runtime.collectAsState import androidx.compose.runtime.getValue import androidx.compose.runtime.mutableLongStateOf import androidx.compose.runtime.mutableStateOf import androidx.compose.runtime.remember import androidx.compose.runtime.setValue import androidx.compose.ui.Alignment import androidx.compose.ui.Modifier import androidx.compose.ui.draw.clip import androidx.compose.ui.graphics.Color import androidx.compose.ui.input.pointer.pointerInput import androidx.compose.ui.platform.LocalContext import androidx.compose.ui.res.painterResource import androidx.compose.ui.res.stringResource import androidx.compose.ui.text.font.FontWeight import androidx.compose.ui.text.style.TextAlign import androidx.compose.ui.unit.dp import androidx.compose.ui.unit.sp import androidx.core.content.ContextCompat import androidx.lifecycle.viewmodel.compose.viewModel import com.google.common.util.concurrent.ListenableFuture import kotlinx.coroutines.delay import net.opendasharchive.openarchive.R import net.opendasharchive.openarchive.core.logger.AppLogger import net.opendasharchive.openarchive.util.ComposePermissionManager import java.util.concurrent.ExecutorService import java.util.concurrent.Executors</ID>
     <ID>ImportOrdering:ContentPickerLauncher.kt$import android.app.Activity import android.net.Uri import androidx.activity.compose.rememberLauncherForActivityResult import androidx.activity.result.PickVisualMediaRequest import androidx.activity.result.contract.ActivityResultContracts import androidx.compose.runtime.Composable import androidx.compose.runtime.getValue import androidx.compose.runtime.mutableStateOf import androidx.compose.runtime.remember import androidx.compose.runtime.rememberCoroutineScope import androidx.compose.runtime.setValue import androidx.compose.ui.platform.LocalContext import androidx.core.content.FileProvider import kotlinx.coroutines.Dispatchers import kotlinx.coroutines.launch import kotlinx.coroutines.withContext import net.opendasharchive.openarchive.core.domain.Archive import net.opendasharchive.openarchive.core.domain.Evidence import net.opendasharchive.openarchive.core.logger.AppLogger import net.opendasharchive.openarchive.core.repositories.ProjectRepository import net.opendasharchive.openarchive.core.repositories.MediaRepository import net.opendasharchive.openarchive.features.main.ui.AppRoute import net.opendasharchive.openarchive.features.main.ui.Navigator import org.koin.compose.koinInject import net.opendasharchive.openarchive.features.media.camera.CameraActivity import net.opendasharchive.openarchive.features.media.camera.CameraConfig import net.opendasharchive.openarchive.util.Prefs import net.opendasharchive.openarchive.util.Utility import java.io.File import kotlin.coroutines.cancellation.CancellationException</ID>
     <ID>ImportOrdering:ContentPickerSheet.kt$import androidx.compose.foundation.clickable import androidx.compose.foundation.layout.Arrangement import androidx.compose.foundation.layout.Column import androidx.compose.foundation.layout.Row import androidx.compose.foundation.layout.fillMaxWidth import androidx.compose.foundation.layout.padding import androidx.compose.foundation.shape.RoundedCornerShape import androidx.compose.material3.ExperimentalMaterial3Api import androidx.compose.material3.ModalBottomSheet import androidx.compose.material3.Text import androidx.compose.runtime.Composable import androidx.compose.ui.Alignment import androidx.compose.ui.Modifier import androidx.compose.ui.res.colorResource import androidx.compose.ui.res.painterResource import androidx.compose.ui.res.stringResource import androidx.compose.ui.text.font.FontWeight import androidx.compose.ui.tooling.preview.Preview import androidx.compose.ui.unit.dp import androidx.compose.material3.Icon import androidx.compose.material3.MaterialTheme import net.opendasharchive.openarchive.R import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme</ID>
-    <ID>ImportOrdering:Converters.kt$import androidx.room.TypeConverter import kotlinx.datetime.LocalDateTime import kotlinx.datetime.TimeZone import kotlinx.datetime.toInstant import kotlinx.datetime.toLocalDateTime import net.opendasharchive.openarchive.core.domain.VaultType import net.opendasharchive.openarchive.core.domain.EvidenceStatus import kotlin.time.Instant</ID>
+    <ID>ImportOrdering:Converters.kt$import androidx.room3.TypeConverter import kotlinx.datetime.LocalDateTime import kotlinx.datetime.TimeZone import kotlinx.datetime.toInstant import kotlinx.datetime.toLocalDateTime import net.opendasharchive.openarchive.core.domain.VaultType import net.opendasharchive.openarchive.core.domain.EvidenceStatus import kotlin.time.Instant</ID>
     <ID>ImportOrdering:CreateNewFolderViewModel.kt$import androidx.lifecycle.ViewModel import androidx.lifecycle.viewModelScope import kotlinx.coroutines.channels.Channel import kotlinx.coroutines.flow.MutableStateFlow import kotlinx.coroutines.flow.StateFlow import kotlinx.coroutines.flow.asStateFlow import kotlinx.coroutines.flow.receiveAsFlow import kotlinx.coroutines.flow.update import kotlinx.coroutines.launch import net.opendasharchive.openarchive.R import net.opendasharchive.openarchive.core.domain.Archive import net.opendasharchive.openarchive.core.logger.AppLogger import net.opendasharchive.openarchive.features.core.UiText import net.opendasharchive.openarchive.core.repositories.ProjectRepository import net.opendasharchive.openarchive.core.repositories.SpaceRepository import net.opendasharchive.openarchive.features.core.UiImage import net.opendasharchive.openarchive.features.core.dialog.ButtonData import net.opendasharchive.openarchive.features.core.dialog.DialogConfig import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager import net.opendasharchive.openarchive.features.core.dialog.DialogType import net.opendasharchive.openarchive.features.core.dialog.showSuccessDialog import net.opendasharchive.openarchive.features.main.ui.Navigator import net.opendasharchive.openarchive.util.DateUtils</ID>
-    <ID>ImportOrdering:DatabaseModule.kt$import androidx.room.Room import androidx.datastore.preferences.core.PreferenceDataStoreFactory import androidx.datastore.preferences.preferencesDataStoreFile import kotlinx.coroutines.Dispatchers import kotlinx.coroutines.asExecutor import net.opendasharchive.openarchive.core.logger.AppLogger import net.opendasharchive.openarchive.db.AppDatabase import net.opendasharchive.openarchive.core.repositories.* import org.koin.android.ext.koin.androidApplication import org.koin.android.ext.koin.androidContext import org.koin.core.qualifier.named import org.koin.dsl.module</ID>
+    <ID>ImportOrdering:DatabaseModule.kt$import androidx.room3.Room import androidx.datastore.preferences.core.PreferenceDataStoreFactory import androidx.datastore.preferences.preferencesDataStoreFile import kotlinx.coroutines.Dispatchers import kotlinx.coroutines.asExecutor import net.opendasharchive.openarchive.core.logger.AppLogger import net.opendasharchive.openarchive.db.AppDatabase import net.opendasharchive.openarchive.core.repositories.* import org.koin.android.ext.koin.androidApplication import org.koin.android.ext.koin.androidContext import org.koin.core.qualifier.named import org.koin.dsl.module</ID>
     <ID>ImportOrdering:DateUtils.kt$import kotlinx.datetime.LocalDateTime import kotlinx.datetime.TimeZone import kotlinx.datetime.toLocalDateTime import kotlinx.datetime.toInstant import kotlinx.datetime.toJavaLocalDateTime import kotlinx.datetime.toKotlinLocalDateTime import java.time.OffsetDateTime import java.util.Date import java.util.Locale import java.time.format.DateTimeFormatter import kotlin.time.Clock import kotlin.time.Instant</ID>
     <ID>ImportOrdering:Evidence.kt$import kotlinx.datetime.LocalDateTime import kotlinx.serialization.Serializable import android.net.Uri import androidx.core.net.toUri import androidx.core.net.toFile import java.io.File</ID>
     <ID>ImportOrdering:FeaturesModule.kt$import android.app.Application import android.content.ContentResolver import net.opendasharchive.openarchive.features.main.ui.HomeViewModel import net.opendasharchive.openarchive.features.main.ui.MainMediaViewModel import net.opendasharchive.openarchive.features.media.PreviewMediaViewModel import net.opendasharchive.openarchive.features.media.ReviewMediaViewModel import net.opendasharchive.openarchive.features.spaces.SpaceListViewModel import net.opendasharchive.openarchive.features.spaces.SpaceSetupViewModel import net.opendasharchive.openarchive.upload.JobSchedulerUploadJobScheduler import net.opendasharchive.openarchive.upload.UploadJobScheduler import net.opendasharchive.openarchive.upload.UploadManagerViewModel import net.opendasharchive.openarchive.features.settings.ProofModeSettingsViewModel import org.koin.android.ext.koin.androidApplication import org.koin.core.module.dsl.viewModelOf import org.koin.dsl.module</ID>
@@ -2391,7 +2391,7 @@
     <ID>NoUnusedImports:View.kt$net.opendasharchive.openarchive.util.extensions.View.kt</ID>
     <ID>NoUnusedImports:WebDavLoginScreen.kt$net.opendasharchive.openarchive.services.webdav.presentation.login.WebDavLoginScreen.kt</ID>
     <ID>NoUnusedImports:WebDavLoginViewModel.kt$net.opendasharchive.openarchive.services.webdav.presentation.login.WebDavLoginViewModel.kt</ID>
-    <ID>NoWildcardImports:ArchiveDao.kt$import androidx.room.*</ID>
+    <ID>NoWildcardImports:ArchiveDao.kt$import androidx.room3.*</ID>
     <ID>NoWildcardImports:ArchiveRepositoryImpl.kt$import kotlinx.coroutines.flow.*</ID>
     <ID>NoWildcardImports:BadgeDrawable.kt$import android.graphics.*</ID>
     <ID>NoWildcardImports:CameraActivity.kt$import androidx.compose.runtime.*</ID>
@@ -2407,10 +2407,10 @@
     <ID>NoWildcardImports:CreativeCommonsLicenseContent.kt$import androidx.compose.material3.*</ID>
     <ID>NoWildcardImports:CreativeCommonsLicenseContent.kt$import androidx.compose.runtime.*</ID>
     <ID>NoWildcardImports:DatabaseModule.kt$import net.opendasharchive.openarchive.core.repositories.*</ID>
-    <ID>NoWildcardImports:DwebDao.kt$import androidx.room.*</ID>
+    <ID>NoWildcardImports:DwebDao.kt$import androidx.room3.*</ID>
     <ID>NoWildcardImports:DwebRepositoryImpl.kt$import kotlinx.coroutines.flow.*</ID>
     <ID>NoWildcardImports:DwebRepositoryImpl.kt$import net.opendasharchive.openarchive.core.domain.mappers.*</ID>
-    <ID>NoWildcardImports:EvidenceDao.kt$import androidx.room.*</ID>
+    <ID>NoWildcardImports:EvidenceDao.kt$import androidx.room3.*</ID>
     <ID>NoWildcardImports:EvidenceRepositoryImpl.kt$import kotlinx.coroutines.flow.*</ID>
     <ID>NoWildcardImports:FoldersViewModel.kt$import kotlinx.coroutines.flow.*</ID>
     <ID>NoWildcardImports:Hbks.kt$import java.security.*</ID>
@@ -2419,7 +2419,7 @@
     <ID>NoWildcardImports:IaConduit.kt$import okhttp3.*</ID>
     <ID>NoWildcardImports:Mappers.kt$import net.opendasharchive.openarchive.db.*</ID>
     <ID>NoWildcardImports:Mappers.kt$import net.opendasharchive.openarchive.util.*</ID>
-    <ID>NoWildcardImports:MigrationDao.kt$import androidx.room.*</ID>
+    <ID>NoWildcardImports:MigrationDao.kt$import androidx.room3.*</ID>
     <ID>NoWildcardImports:MockSnowbirdRepository.kt$import net.opendasharchive.openarchive.db.*</ID>
     <ID>NoWildcardImports:MockSnowbirdRepository.kt$import net.opendasharchive.openarchive.services.snowbird.data.*</ID>
     <ID>NoWildcardImports:QRScanner.kt$import androidx.compose.animation.core.*</ID>
@@ -2459,7 +2459,7 @@
     <ID>NoWildcardImports:SubmissionRepositoryImpl.kt$import kotlinx.coroutines.flow.*</ID>
     <ID>NoWildcardImports:SugarMappers.kt$import net.opendasharchive.openarchive.util.*</ID>
     <ID>NoWildcardImports:UploadService.kt$import android.app.*</ID>
-    <ID>NoWildcardImports:VaultDao.kt$import androidx.room.*</ID>
+    <ID>NoWildcardImports:VaultDao.kt$import androidx.room3.*</ID>
     <ID>NoWildcardImports:VaultRepositoryImpl.kt$import kotlinx.coroutines.flow.*</ID>
     <ID>PackageName:PasscodeEntryActivity.kt$package net.opendasharchive.openarchive.features.settings.passcode.passcode_entry</ID>
     <ID>PackageName:PasscodeEntryScreen.kt$package net.opendasharchive.openarchive.features.settings.passcode.passcode_entry</ID>
@@ -2809,7 +2809,7 @@
     <ID>UnusedPrivateProperty:SnowbirdGroupListViewModel.kt$SnowbirdGroupListViewModel$route: AppRoute.SnowbirdGroupListRoute</ID>
     <ID>UnusedPrivateProperty:WebDavLoginViewModel.kt$WebDavLoginViewModel.Companion$private const val REMOTE_PHP_ADDRESS = "/remote.php/webdav/"</ID>
     <ID>UseCheckOrError:ArchiveRepositoryImpl.kt$ArchiveRepositoryImpl$throw IllegalStateException("Project not found")</ID>
-    <ID>WildcardImport:ArchiveDao.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:ArchiveDao.kt$import androidx.room3.*</ID>
     <ID>WildcardImport:ArchiveRepositoryImpl.kt$import kotlinx.coroutines.flow.*</ID>
     <ID>WildcardImport:BadgeDrawable.kt$import android.graphics.*</ID>
     <ID>WildcardImport:CameraActivity.kt$import androidx.compose.runtime.*</ID>
@@ -2825,10 +2825,10 @@
     <ID>WildcardImport:CreativeCommonsLicenseContent.kt$import androidx.compose.material3.*</ID>
     <ID>WildcardImport:CreativeCommonsLicenseContent.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:DatabaseModule.kt$import net.opendasharchive.openarchive.core.repositories.*</ID>
-    <ID>WildcardImport:DwebDao.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:DwebDao.kt$import androidx.room3.*</ID>
     <ID>WildcardImport:DwebRepositoryImpl.kt$import kotlinx.coroutines.flow.*</ID>
     <ID>WildcardImport:DwebRepositoryImpl.kt$import net.opendasharchive.openarchive.core.domain.mappers.*</ID>
-    <ID>WildcardImport:EvidenceDao.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:EvidenceDao.kt$import androidx.room3.*</ID>
     <ID>WildcardImport:EvidenceRepositoryImpl.kt$import kotlinx.coroutines.flow.*</ID>
     <ID>WildcardImport:FoldersViewModel.kt$import kotlinx.coroutines.flow.*</ID>
     <ID>WildcardImport:Hbks.kt$import java.security.*</ID>
@@ -2837,7 +2837,7 @@
     <ID>WildcardImport:IaConduit.kt$import okhttp3.*</ID>
     <ID>WildcardImport:Mappers.kt$import net.opendasharchive.openarchive.db.*</ID>
     <ID>WildcardImport:Mappers.kt$import net.opendasharchive.openarchive.util.*</ID>
-    <ID>WildcardImport:MigrationDao.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:MigrationDao.kt$import androidx.room3.*</ID>
     <ID>WildcardImport:MockSnowbirdRepository.kt$import net.opendasharchive.openarchive.db.*</ID>
     <ID>WildcardImport:MockSnowbirdRepository.kt$import net.opendasharchive.openarchive.services.snowbird.data.*</ID>
     <ID>WildcardImport:QRScanner.kt$import androidx.compose.animation.core.*</ID>
@@ -2877,7 +2877,7 @@
     <ID>WildcardImport:SubmissionRepositoryImpl.kt$import kotlinx.coroutines.flow.*</ID>
     <ID>WildcardImport:SugarMappers.kt$import net.opendasharchive.openarchive.util.*</ID>
     <ID>WildcardImport:UploadService.kt$import android.app.*</ID>
-    <ID>WildcardImport:VaultDao.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:VaultDao.kt$import androidx.room3.*</ID>
     <ID>WildcardImport:VaultRepositoryImpl.kt$import kotlinx.coroutines.flow.*</ID>
     <ID>Wrapping:BaseButton.kt$(</ID>
     <ID>Wrapping:BaseDialog.kt$(</ID>

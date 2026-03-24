@@ -1,5 +1,5 @@
 [versions]
-activity = "1.12.4"
+activity = "1.13.0"
 agp = "9.1.0"
 androidx-exifinterface = "1.4.2"
 androidx-security-crypto = "1.1.0"
@@ -13,22 +13,22 @@ bouncycastle-bcprov = "1.72"
 camerax = "1.6.0-rc01"
 clean-insights = "2.8.0"
 coil = "3.4.0"
-compose = "1.11.0-alpha06"
-compose-preference = "2.1.1"
+compose = "1.11.0-beta-01"
+compose-preference = "2.2.0"
 compose-stability = "0.7.0"
 constraintlayout = "2.2.1"
 constraintlayout-compos = "1.1.1"
 coordinatorlayout = "1.3.0"
-core-ktx = "1.17.0"
+core-ktx = "1.18.0"
 core-splashscreen = "1.2.0"
-datastore = "1.3.0-alpha06"
+datastore = "1.3.0-alpha07"
 coroutines = "1.10.2"
 detekt = "1.23.8"
 detekt-compose = "0.5.6"
 detekt-rules-compose = "1.4.0"
 dotsindicator = "5.1.0"
 espresso-core = "3.5.1"
-firebase-analytics = "23.0.0"
+firebase-analytics = "23.2.0"
 firebase-crashlytics = "20.0.4"
 fragment = "1.8.9"
 google-api-client-android = "1.26.0"
@@ -48,9 +48,9 @@ jsoup = "1.17.2"
 jtorctl = "0.4.5.7"
 junit = "4.13.2"
 junit-android = "1.3.0"
-koin = "4.2.0-RC1"
-koin-plugin = "0.3.0"
-kotlin = "2.3.20-RC2"
+koin = "4.2.0"
+koin-plugin = "0.4.1"
+kotlin = "2.3.20"
 kotlinx-collections-immutable = "0.4.0"
 kotlinx-datetime = "0.7.1"
 ksp = "2.3.6"
@@ -59,10 +59,10 @@ material = "1.13.0"
 material3 = "1.5.0-alpha15"
 material-adaptive = "1.2.0"
 mlkit-barcode = "17.3.0"
-media3 = "1.9.2"
-mixpanel = "8.3.0"
+media3 = "1.9.3"
+mixpanel = "8.4.0"
 navigation = "2.9.7"
-navigation3 = "1.1.0-alpha05"
+navigation3 = "1.1.0-beta01"
 navigation-events = "1.1.0-alpha01"
 accompanist = "0.37.3"
 netcipher = "2.2.0-alpha"
@@ -77,12 +77,12 @@ recyclerview-selection = "1.2.0"
 reorderable = "3.0.0"
 retrofit = "3.0.0"
 robolectric = "4.16.1"
-room = "2.8.4"
+room = "3.0.0-alpha01"
 satyan-sugar = "1.5"
 serialization = "1.10.0"
 swiperefreshlayout = "1.2.0"
 timber = "5.0.1"
-tor-android = "0.4.9.5"
+tor-android = "0.4.9.5.1"
 viewpager2 = "1.1.0"
 work = "2.11.1"
 zxing-core = "3.5.4"
@@ -163,9 +163,9 @@ androidx-datastore-preferences = { group = "androidx.datastore", name = "datasto
 androidx-work = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
 
 # AndroidX - Room
-androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
-androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
-androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+androidx-room3-runtime = { group = "androidx.room3", name = "room3-runtime", version.ref = "room" }
+androidx-room3-ktx = { group = "androidx.room3", name = "room3-ktx", version.ref = "room" }
+androidx-room3-compiler = { group = "androidx.room3", name = "room3-compiler", version.ref = "room" }
 
 # AndroidX - Testing
 androidx-test-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junit-android" }
@@ -227,6 +227,8 @@ koin-compose-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmo
 koin-compose-viewmodel-navigation = { group = "io.insert-koin", name = "koin-compose-viewmodel-navigation", version.ref = "koin" }
 koin-compose-navigation3 = { group = "io.insert-koin", name = "koin-compose-navigation3", version.ref = "koin" }
 
+koin-annotations = { module = "io.insert-koin:koin-annotations", version.ref = "koin" }
+
 # Kotlin
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
@@ -272,7 +274,7 @@ tor-android = { group = "info.guardianproject", name = "tor-android", version.re
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-androidx-room = { id = "androidx.room", version.ref = "room" }
+androidx-room3 = { id = "androidx.room3", version.ref = "room" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 detekt-plugin = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 google-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "google-firebase-crashlytics" }

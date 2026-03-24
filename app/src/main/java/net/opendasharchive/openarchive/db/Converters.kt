@@ -1,6 +1,6 @@
 package net.opendasharchive.openarchive.db
 
-import androidx.room.TypeConverter
+import androidx.room3.TypeConverter
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant

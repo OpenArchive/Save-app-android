@@ -1,7 +1,7 @@
 package net.opendasharchive.openarchive.db
 
-import androidx.room.Embedded
-import androidx.room.Relation
+import androidx.room3.Embedded
+import androidx.room3.Relation
 
 data class VaultWithDweb(
     @Embedded val vault: VaultEntity,
