@@ -115,7 +115,7 @@ android {
         create("prod") {
             dimension = "env"
             applicationIdSuffix = ".release"
-            buildConfigField("boolean", "ENHANCED_ANALYTICS_ENABLED", "false")
+            buildConfigField("boolean", "ENHANCED_ANALYTICS_ENABLED", "true")
         }
     }
 

@@ -40,7 +40,7 @@ android {
 
         create("prod") {
             dimension = "env"
-            buildConfigField("boolean", "ENHANCED_ANALYTICS_ENABLED", "false")
+            buildConfigField("boolean", "ENHANCED_ANALYTICS_ENABLED", "true")
         }
     }
 
