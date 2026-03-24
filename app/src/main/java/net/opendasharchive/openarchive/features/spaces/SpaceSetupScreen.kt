@@ -121,11 +121,11 @@ fun SpaceSetupScreen(
             )
         }
 
-        // Storacha (Filecoin/IPFS) option
+        // Storacha option
         ServerOptionItem(
-            iconRes = R.drawable.storacha,
-            title = "Storacha (Filecoin/IPFS)",
-            subtitle = "Connect to decentralized storage.",
+            iconRes = R.drawable.filecoin_fil_logo,
+            title = "Filecoin",
+            subtitle = "Connect to a public DWeb server",
             onClick = {
                 if (hasSeenStorachaWarning) {
                     onStorachaClicked()

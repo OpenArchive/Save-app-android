@@ -144,7 +144,7 @@
     <string name="tap_to_add_server">Tap the button below to add a server</string>
     <string name="to_get_started_connect_to_a_server_to_store_your_media">To get started, connect to a server to store your media.</string>
     <string name="to_get_started_more_hint_dweb">You can add multiple private servers and\none IA or DWeb Storage account at any time.</string>
-    <string name="to_get_started_more_hint">You can add multiple private servers and\none IA account at any time.</string>
+    <string name="to_get_started_more_hint">You can add multiple private servers,\n one IA account, and one Filecoin account\nat any time.</string>
     <string name="send_directly_to_a_private_server">Connect to a secure\nWebDAV server</string>
     <string name="upload_to_the_internet_archive">Connect to a free\npublic server</string>
     <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">Connect to a WebDAV-compatible servers, e.g. Nexcloud and ownCloud.</string>
@@ -366,9 +366,9 @@
     <string name="access_your_saved_spaces">Access your spaces</string>
     <string name="connect_to_an_existing_space">Join an existing shared space</string>
     <string name="you_can_add_multiple_private_servers_and_one_ia_account_at_any_time">You can add multiple private servers and one IA account at any time.</string>
-    <string name="storacha_disclaimer"><![CDATA[Uploads to the decentralized web/Filecoin are accessible to anyone who has the file identifier (CID). Decentralized storage is designed for long-term durability. Removing a file will not remove all copies that exist across the network. <a href="https://docs.storacha.network/how-to/upload/">Learn more.</a>]]></string>
+    <string name="storacha_disclaimer"><![CDATA[Uploads to the decentralized web/Filecoin- are accessible to anyone who has the file identifier (CID). Decentralized storage is designed for long-term durability. Removing a file will not remove all copies that exist across the network. <a href="https://docs.storacha.network/how-to/upload/">Learn more.</a>]]></string>
     <string name="storacha_is_a_decentralized_media_storage_system_using_ipfs_ucan_and_dids">Filecoin lets you store media securely using decentralized technologies (IPFS, UCAN, and DIDs).</string>
-    <string name="storacha_warning_message">Do not upload private or sensitive information unless it is encrypted.\n\nUploads to the decentralized web (Filecoin) are accessible to anyone who has the file identifier (CID).\n\nDecentralized storage is designed for long-term durability. Removing a file will not remove all copies that exist across the network</string>
+    <string name="storacha_warning_message">Do not upload private or sensitive information unless it is encrypted.\n\nUploads to the decentralized web/Filecoin- are accessible to anyone who has the file identifier (CID).\n\nDecentralized storage is designed for long-term durability. Removing a file will not remove all copies that exist across the network.</string>
     <string name="i_m_okay_with_this">I\'m okay with this</string>
     <string name="sign_up_storacha">Don\'t have an account?</string>
     <string name="email_has_been_verified_and_the_spaces_have_been_added_to_save">Your email has been verified, and the spaces have been added to Save.</string>
