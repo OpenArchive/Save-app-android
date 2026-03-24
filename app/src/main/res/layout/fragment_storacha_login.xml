@@ -30,8 +30,8 @@
                 android:importantForAccessibility="no"
                 android:scaleType="fitCenter"
                 android:backgroundTint="@color/colorBackgroundSpaceIcon"
-                android:src="@drawable/storacha"
-                app:tint="@color/red" />
+                android:src="@drawable/filecoin_fil_logo"
+                app:tint="#0090FF" />
 
             <TextView
                 android:layout_marginStart="16dp"

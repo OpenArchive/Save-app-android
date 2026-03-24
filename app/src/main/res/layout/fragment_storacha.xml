@@ -29,7 +29,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
                 android:layout_gravity="center"
-                android:src="@drawable/storacha_logo"
+                android:src="@drawable/filecoin"
                 android:scaleType="fitCenter"
                 android:adjustViewBounds="true"
                 android:importantForAccessibility="no" />
@@ -301,8 +301,8 @@
                 android:layout_height="24dp"
                 android:layout_marginEnd="8dp"
                 android:importantForAccessibility="no"
-                android:tint="@color/colorOnSurface"
-                android:src="@drawable/ic_info" />
+                android:src="@drawable/ic_info"
+                app:tint="@color/colorOnSurface" />
 
             <TextView
                 android:id="@+id/tv_storacha_disclaimer"
