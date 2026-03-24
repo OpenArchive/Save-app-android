@@ -190,6 +190,8 @@ fun SaveNavGraph(
                             isDwebEnabled = state.isDwebEnabled,
                             onDwebClicked = { viewModel.onAction(SpaceSetupAction.DwebClicked) },
                             onStorachaClicked = { viewModel.onAction(SpaceSetupAction.StorachaClicked) },
+                            hasSeenStorachaWarning = state.hasSeenStorachaWarning,
+                            onStorachaWarningAccepted = { viewModel.onAction(SpaceSetupAction.StorachaWarningAccepted) },
                         )
                     }
                 }

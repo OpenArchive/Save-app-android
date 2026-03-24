@@ -25,7 +25,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -220,8 +220,10 @@ private fun RowScope.FolderBarInfoMode(
                     onDismissRequest = { onIntent(FolderBarIntent.OptionsDismissed) }
                 ) {
                     menu.forEach { item ->
+                        val enabled = item !is FolderMenuItem.SelectMedia || state.totalMediaCount > 0
                         DropdownMenuItem(
                             text = { Text(stringResource(id = item.titleRes)) },
+                            enabled = enabled,
                             onClick = {
                                 onIntent(FolderBarIntent.OptionsDismissed)
                                 onIntent(item.intent)
@@ -372,7 +374,9 @@ private fun FolderBarEditMode(
                     onSave(folderName.text)
                 }
             ),
-            colors = TextFieldDefaults.colors(
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color.Transparent,
+                unfocusedBorderColor = Color.Transparent,
                 focusedContainerColor = Color.Transparent,
                 unfocusedContainerColor = Color.Transparent,
                 disabledContainerColor = Color.Transparent

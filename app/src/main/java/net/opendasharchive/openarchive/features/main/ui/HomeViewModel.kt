@@ -139,7 +139,7 @@ class HomeViewModel(
             }
 
             HomeAction.NavigateToArchivedFolders -> {
-                val spaceId = uiState.value.currentSpace?.id ?: return
+                val spaceId = uiState.value.currentSpace?.id
                 navigator.navigateTo(AppRoute.FolderListRoute(spaceId = spaceId, showArchived = true))
             }
 

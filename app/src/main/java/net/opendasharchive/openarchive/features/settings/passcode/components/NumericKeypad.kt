@@ -1,12 +1,10 @@
 package net.opendasharchive.openarchive.features.settings.passcode.components
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,9 +21,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -131,62 +130,49 @@ private fun NumberButton(
     onHaptic: () -> Unit = {},
 ) {
 
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-
-    LaunchedEffect(isPressed) {
-        if (isPressed && enabled) {
-            onHaptic()
-        }
+    val pressedColor = when (label) {
+        "delete" -> colorResource(R.color.red_bg).copy(alpha = 0.5f)
+        "submit" -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f)
+        else -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
     }
+    val restingColor = when (label) {
+        "delete" -> colorResource(R.color.red_bg).copy(alpha = 0.3f)
+        "submit" -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)
+        else -> Color.Transparent
+    }
+    val tertiaryColor = MaterialTheme.colorScheme.tertiary
 
-    // Determine background color based on button type and pressed state
-    val backgroundColor by animateColorAsState(
-        targetValue = when {
-            isPressed -> when (label) {
-                "delete" -> colorResource(R.color.red_bg).copy(alpha = 0.5f)
-                "submit" -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f)
-                else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-            }
+    // pressAlpha drives the fill: 1f = fully pressed color, 0f = resting color
+    val pressAlpha = remember { Animatable(0f) }
 
-            else -> when (label) {
-                "delete" -> colorResource(R.color.red_bg).copy(alpha = 0.3f)
-                "submit" -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)
-                else -> Color.Transparent
-            }
-        },
-        animationSpec = spring(),
-        label = ""
-    )
+    // Use a scope so we can cancel the fade-out if a new press arrives mid-animation
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
 
-    // Determine background color based on button type and pressed state
-    val borderColor by animateColorAsState(
-        targetValue = when {
-            isPressed -> when (label) {
-                "delete" -> Color.Transparent
-                "submit" -> Color.Transparent
-                else -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)
-            }
-
-            else -> when (label) {
-                "delete" -> Color.Transparent
-                "submit" -> Color.Transparent
-                else -> MaterialTheme.colorScheme.tertiary
-            }
-        },
-        animationSpec = spring(),
-        label = ""
-    )
+    val backgroundColor = androidx.compose.ui.graphics.lerp(restingColor, pressedColor, pressAlpha.value)
+    val borderColor = if (label == "delete" || label == "submit") {
+        Color.Transparent
+    } else {
+        tertiaryColor.copy(alpha = 1f - pressAlpha.value)
+    }
 
     Box(
         modifier = Modifier
             .background(color = backgroundColor, shape = CircleShape)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                enabled = enabled,
-                onClick = onClick
-            )
+            .pointerInput(enabled) {
+                detectTapGestures(
+                    onPress = { _ ->
+                        if (!enabled) return@detectTapGestures
+                        onHaptic()
+                        scope.launch { pressAlpha.snapTo(1f) }
+                        tryAwaitRelease()
+                        scope.launch {
+                            delay(60)
+                            pressAlpha.animateTo(0f, animationSpec = tween(200))
+                        }
+                    },
+                    onTap = { if (enabled) onClick() }
+                )
+            }
             .border(width = 2.dp, color = borderColor, shape = CircleShape)
             .size(72.dp),
         contentAlignment = Alignment.Center

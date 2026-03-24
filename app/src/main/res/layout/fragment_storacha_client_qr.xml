@@ -10,7 +10,7 @@
     <LinearLayout
         android:id="@+id/ll_header"
         android:layout_width="0dp"
-        android:layout_height="115dp"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="16dp"
         android:orientation="horizontal"
@@ -30,9 +30,9 @@
             android:maxHeight="50dp"
             android:scaleType="fitCenter"
             android:backgroundTint="@color/colorBackgroundSpaceIcon"
-            app:tint="@color/red"
+            app:tint="#0090FF"
             android:background="@drawable/circle_shape"
-            android:src="@drawable/storacha" />
+            android:src="@drawable/filecoin_fil_logo" />
 
         <!-- Instructions -->
         <TextView
