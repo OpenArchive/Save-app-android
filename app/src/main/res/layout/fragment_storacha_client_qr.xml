@@ -10,7 +10,7 @@
     <LinearLayout
         android:id="@+id/ll_header"
         android:layout_width="0dp"
-        android:layout_height="115dp"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="16dp"
         android:orientation="horizontal"
