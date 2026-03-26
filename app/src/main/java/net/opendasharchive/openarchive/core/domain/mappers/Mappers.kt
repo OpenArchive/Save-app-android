@@ -106,6 +106,7 @@ fun Submission.toSubmissionEntity(): SubmissionEntity = SubmissionEntity(
 fun EvidenceEntity.toDomain(vaultId: Long = 0L): Evidence = Evidence(
     id = this.id,
     originalFilePath = this.originalFilePath,
+    thumbnail = this.thumbnail,
     mimeType = this.mimeType,
     createdAt = this.createdAt,
     updatedAt = this.updatedAt,
@@ -157,7 +158,8 @@ fun Evidence.toEvidenceEntity(): EvidenceEntity = EvidenceEntity(
     contentLength = this.contentLength,
     progress = this.progress,
     flag = this.isFlagged,
-    priority = this.priority
+    priority = this.priority,
+    thumbnail = this.thumbnail
 )
 
 fun Evidence.toDwebEntity(): EvidenceDwebEntity = EvidenceDwebEntity(

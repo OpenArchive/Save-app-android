@@ -8,6 +8,7 @@ import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.util.C2paHelper
 import net.opendasharchive.openarchive.util.DateUtils
+import net.opendasharchive.openarchive.util.MediaThumbnailGenerator
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.util.Utility
 import net.opendasharchive.openarchive.util.toLocalDateTime
@@ -106,12 +107,20 @@ object MediaPicker {
             ""
         }
 
+        val thumbnail = try {
+            file?.let { MediaThumbnailGenerator.generateThumbnailBytes(it, mimeType) }
+        } catch (e: Exception) {
+            AppLogger.e("Failed to generate thumbnail for media", e)
+            null
+        }
+
         // Create domain object
         val evidence = Evidence(
             archiveId = archive.id,
             submissionId = submissionId,
             title = title,
             originalFilePath = originalFilePath,
+            thumbnail = thumbnail,
             mimeType = mimeType,
             contentLength = contentLength,
             createdAt = createDate.toLocalDateTime(),

@@ -50,6 +50,9 @@ fun MediaThumbnail(
     onTitleVisibilityChanged: ((Boolean) -> Unit)? = null
 ) {
     val context = LocalContext.current
+    val storedThumbnail = remember(evidence.thumbnail) {
+        evidence.thumbnail?.takeIf { it.isNotEmpty() }
+    }
     val imageExists = remember(evidence.originalFilePath) {
         runCatching { evidence.file.exists() }.getOrDefault(false)
     }
@@ -86,6 +89,31 @@ fun MediaThumbnail(
                         .data(evidence.originalFilePath.ifEmpty { evidence.fileUri.toString() })
                         .decoderFactory(VideoFrameDecoder.Factory())
                         .error(R.drawable.ic_video)
+                        .build(),
+                    contentDescription = null,
+                    contentScale = contentScale,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .alpha(alpha)
+                ) {
+                    SubcomposeAsyncImageContent()
+                }
+                onTitleVisibilityChanged?.invoke(false)
+            }
+
+            storedThumbnail != null -> {
+                SubcomposeAsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(storedThumbnail)
+                        .error(
+                            when {
+                                evidence.mimeType.startsWith("video") -> R.drawable.ic_video
+                                evidence.mimeType == "application/pdf" -> R.drawable.ic_pdf
+                                evidence.mimeType.startsWith("audio") -> R.drawable.ic_music
+                                evidence.mimeType.startsWith("image") -> R.drawable.ic_image
+                                else -> R.drawable.ic_unknown_file
+                            }
+                        )
                         .build(),
                     contentDescription = null,
                     contentScale = contentScale,

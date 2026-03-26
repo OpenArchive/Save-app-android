@@ -104,6 +104,7 @@ fun Submission.toEntity(): SugarCollection {
 fun Media.toDomain(): Evidence = Evidence(
     id = this.id ?: 0L,
     originalFilePath = this.originalFilePath,
+    thumbnail = null,
     mimeType = this.mimeType,
     createdAt = this.createDate?.toKotlinLocalDateTime(),
     updatedAt = this.updateDate?.toKotlinLocalDateTime(),

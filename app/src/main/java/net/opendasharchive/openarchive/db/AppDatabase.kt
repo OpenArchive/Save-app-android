@@ -1,12 +1,14 @@
 package net.opendasharchive.openarchive.db
 
-import androidx.room.Database
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
-import androidx.room.AutoMigration
-import androidx.room.DeleteColumn
-import androidx.room.migration.AutoMigrationSpec
+import android.annotation.SuppressLint
+import androidx.room3.Database
+import androidx.room3.RoomDatabase
+import androidx.room3.TypeConverters
+import androidx.room3.AutoMigration
+import androidx.room3.DeleteColumn
+import androidx.room3.migration.AutoMigrationSpec
 
+@SuppressLint("RestrictedApi")
 @Database(
     entities = [
         VaultEntity::class,
@@ -23,9 +25,13 @@ import androidx.room.migration.AutoMigrationSpec
             from = 1,
             to = 2,
             spec = RemoveVaultPasswordColumnMigration::class
+        ),
+        AutoMigration(
+            from = 2,
+            to = 3
         )
     ],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

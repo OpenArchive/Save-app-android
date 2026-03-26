@@ -25,6 +25,7 @@ import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.domain.EvidenceStatus
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.repositories.CollectionRepository
+import net.opendasharchive.openarchive.core.repositories.FileCleanupHelper
 import net.opendasharchive.openarchive.core.repositories.MediaRepository
 import net.opendasharchive.openarchive.core.repositories.ProjectRepository
 import net.opendasharchive.openarchive.core.repositories.SpaceRepository
@@ -44,6 +45,7 @@ class UploadService : JobService() {
     private val projectRepository: ProjectRepository by inject()
     private val collectionRepository: CollectionRepository by inject()
     private val spaceRepository: SpaceRepository by inject()
+    private val fileCleanupHelper: FileCleanupHelper by inject()
 
     companion object {
         private const val NOTIFICATION_CHANNEL_ID = "oasave_channel_1"
@@ -184,6 +186,9 @@ class UploadService : JobService() {
                     AppLogger.i("Started uploading", updatedMedia)
                     val uploadSuccess = upload(updatedMedia)
                     if (uploadSuccess) {
+                        serviceScope.launch {
+                            fileCleanupHelper.deleteUploadedMediaFiles(updatedMedia)
+                        }
                         successCount++
                     } else {
                         failedCount++

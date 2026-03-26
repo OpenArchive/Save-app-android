@@ -1,6 +1,6 @@
 package net.opendasharchive.openarchive.core.di
 
-import androidx.room.Room
+import androidx.room3.Room
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
 import kotlinx.coroutines.Dispatchers

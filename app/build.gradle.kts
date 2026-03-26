@@ -9,12 +9,14 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
     alias(libs.plugins.navigation.safeargs)
-    alias(libs.plugins.androidx.room)
+    alias(libs.plugins.androidx.room3)
     alias(libs.plugins.detekt.plugin)
     // Rust Android Gradle plugin - COMMENTED OUT due to Gradle 9.2 incompatibility
     // Use manual Rust build script instead (see rust-c2pa-ffi/build-android.sh)
     // id("org.mozilla.rust-android-gradle.rust-android") version "0.9.4"
     // Google Services plugins applied conditionally at bottom of file for GMS builds only
+
+    alias(libs.plugins.koin.compiler)
 }
 
 fun loadLocalProperties(): Properties = Properties().apply {
@@ -189,7 +191,7 @@ base {
     archivesName.set("save-${project.version}")
 }
 
-room {
+room3 {
     schemaDirectory("$projectDir/schemas")
 }
 
@@ -268,9 +270,8 @@ dependencies {
     implementation(libs.androidx.work)
 
     // Room Database
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room3.runtime)
+    ksp(libs.androidx.room3.compiler)
 
     // Dependency Injection - Koin
     implementation(libs.koin.core)
@@ -280,6 +281,8 @@ dependencies {
     implementation(libs.koin.compose)
     implementation(libs.koin.compose.viewmodel)
     implementation(libs.koin.compose.viewmodel.navigation)
+
+    implementation(libs.koin.annotations)
 
     // Networking
     implementation(libs.okhttp)
