@@ -46,7 +46,7 @@ class SessionReplayManager(
                     autoStartRecording = true,
                     recordingSessionsPercent = 100.0,
                     enableLogging = BuildConfig.DEBUG,
-                    maskAllViews = false,
+                    autoMaskedViews = emptySet(),
                 )
 
             MPSessionReplay.initialize(context, token, distinctId, config)
