@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.opendasharchive.openarchive.R
@@ -163,20 +164,17 @@ fun MainDrawerContent(
                         shape = RoundedCornerShape(8.dp),
                         onClick = onAddNewFolderClicked,
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = colorResource(R.color.colorTertiary)
+                            containerColor = MaterialTheme.colorScheme.tertiary,
+                            contentColor = colorResource(R.color.black)
                         )
                     ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_add),
-                            contentDescription = null,
-                            tint = colorResource(R.color.colorOnBackground),
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = stringResource(R.string.new_folder),
-                            fontSize = 16.sp,
-                            color = colorResource(R.color.colorOnBackground)
+                            text = "+ ${stringResource(R.string.new_folder)}",
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
                         )
                     }
                 }
