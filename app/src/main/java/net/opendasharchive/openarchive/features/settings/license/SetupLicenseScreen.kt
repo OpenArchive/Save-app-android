@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.features.settings.license
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -50,6 +51,11 @@ fun SetupLicenseScreen(
 ) {
 
     val state by viewModel.uiState.collectAsState()
+
+    // Disable back button for Internet Archive setup
+    BackHandler(enabled = state.spaceType == VaultType.INTERNET_ARCHIVE) {
+        // Do nothing - back button is disabled
+    }
 
     SetupLicenseScreenContent(
         state = state,

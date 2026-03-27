@@ -74,6 +74,9 @@ class PreviewMediaViewModel(
     private val _uiState = MutableStateFlow(PreviewMediaState())
     val uiState: StateFlow<PreviewMediaState> = _uiState.asStateFlow()
 
+    // Expose navigator for content picker launchers
+    internal fun getNavigator(): Navigator = navigator
+
     private val _uiEvent = Channel<PreviewMediaEvent>(Channel.BUFFERED)
     val uiEvent = _uiEvent.receiveAsFlow()
     

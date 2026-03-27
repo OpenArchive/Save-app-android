@@ -36,11 +36,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -50,24 +52,37 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.core.logger.AppLogger
+import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
+import net.opendasharchive.openarchive.core.navigation.ResultEffect
 import net.opendasharchive.openarchive.core.presentation.media.MediaStatusOverlay
 import net.opendasharchive.openarchive.core.presentation.media.MediaThumbnail
 import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
 import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.core.presentation.theme.ThemeDimensions
+import net.opendasharchive.openarchive.core.repositories.MediaRepository
+import net.opendasharchive.openarchive.core.repositories.ProjectRepository
+import net.opendasharchive.openarchive.features.main.ui.CameraCaptureResult
+import org.koin.compose.koinInject
 
 @Composable
 fun PreviewMediaScreen(
     viewModel: PreviewMediaViewModel,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val projectRepository: ProjectRepository = koinInject()
+    val mediaRepository: MediaRepository = koinInject()
 
     val pickerLaunchers = rememberContentPickerLaunchers(
+        navigator = viewModel.getNavigator(),
         projectProvider = {
             state.selectedProject
         },
@@ -93,14 +108,29 @@ fun PreviewMediaScreen(
         }
     }
 
-    // Load the preview media items from here instead of viewModel.init
-    // Data loading is now handled reactively by the ViewModel's init block
+    // Intercept camera capture results so HomeScreen doesn't receive them and navigate to a new PreviewMediaScreen
+    ResultEffect<CameraCaptureResult>(resultKey = NavigationResultKeys.CAMERA_CAPTURE_RESULT) { result ->
+        scope.launch(Dispatchers.IO) {
+            val archive = projectRepository.getProject(result.projectId)
+            if (archive != null && result.capturedUris.isNotEmpty()) {
+                val submission = projectRepository.getActiveSubmission(archive.id)
+                val evidenceList = MediaPicker.import(
+                    context,
+                    archive,
+                    submission.id,
+                    result.capturedUris,
+                )
+                evidenceList.forEach { evidence ->
+                    mediaRepository.addEvidence(evidence)
+                }
+            }
+        }
+    }
 
     PreviewMediaContent(
         state = state,
         onAction = viewModel::onAction,
     )
-
 
 }
 

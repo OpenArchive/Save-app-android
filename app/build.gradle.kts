@@ -15,8 +15,9 @@ plugins {
     // Use manual Rust build script instead (see rust-c2pa-ffi/build-android.sh)
     // id("org.mozilla.rust-android-gradle.rust-android") version "0.9.4"
     // Google Services plugins applied conditionally at bottom of file for GMS builds only
-
-    alias(libs.plugins.koin.compiler)
+    // koin.compiler plugin REMOVED: only needed for annotation-based Koin (@Module/@Single).
+    // This project uses DSL modules only, and the plugin caused spurious "Missing definition"
+    // errors on incremental builds (whole-graph validation fails when not all files recompile).
 }
 
 fun loadLocalProperties(): Properties = Properties().apply {
@@ -281,8 +282,6 @@ dependencies {
     implementation(libs.koin.compose)
     implementation(libs.koin.compose.viewmodel)
     implementation(libs.koin.compose.viewmodel.navigation)
-
-    implementation(libs.koin.annotations)
 
     // Networking
     implementation(libs.okhttp)
