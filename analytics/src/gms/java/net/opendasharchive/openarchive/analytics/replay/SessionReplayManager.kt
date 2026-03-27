@@ -13,7 +13,7 @@ import timber.log.Timber
  * and understanding tester behavior in staging/dev builds.
  *
  * Privacy considerations:
- * - By default, all EditText, TextView, ImageView, and WebView content is masked
+ * - App masking is DISABLED - all content (EditText, TextView, ImageView, WebView) is recorded
  * - Only initialized AFTER user identification (email prompt)
  * - Only available when ENHANCED_ANALYTICS_ENABLED = true
  *
@@ -46,6 +46,7 @@ class SessionReplayManager(
                     autoStartRecording = true,
                     recordingSessionsPercent = 100.0,
                     enableLogging = BuildConfig.DEBUG,
+                    maskAllViews = false,
                 )
 
             MPSessionReplay.initialize(context, token, distinctId, config)
