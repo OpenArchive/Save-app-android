@@ -65,6 +65,7 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeRepository
+import net.opendasharchive.openarchive.features.settings.passcode.passcode_entry.PasscodeEntryActivity
 import net.opendasharchive.openarchive.features.settings.passcode.passcode_setup.PasscodeSetupActivity
 import net.opendasharchive.openarchive.services.tor.TorServiceManager
 import net.opendasharchive.openarchive.services.tor.TorStatus
@@ -201,6 +202,19 @@ fun SettingsScreen(
                 (context as? BaseComposeActivity)?.updateScreenshotPrevention()
             }
 
+        // Launched when the user wants to DISABLE the passcode — requires verifying current passcode first
+        val passcodeVerifyLauncher =
+            rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    passcodeRepository.clearPasscode()
+                    passcodeState.value = false
+                    (context as? BaseComposeActivity)?.updateScreenshotPrevention()
+                } else {
+                    // Verification failed or cancelled — revert toggle
+                    passcodeState.value = true
+                }
+            }
+
         SettingsScreenContent(
             strings = settingStrings,
             appVersion = appVersion,
@@ -216,20 +230,11 @@ fun SettingsScreen(
                     passcodeLauncher.launch(Intent(context, PasscodeSetupActivity::class.java))
                 } else {
                     passcodeState.value = true
-                    dialogManager.showDialog(dialogManager.requireResourceProvider()) {
-                        type = DialogType.Warning
-                        title = UiText.Resource(R.string.disable_passcode_dialog_title)
-                        message = UiText.Resource(R.string.disable_passcode_dialog_msg)
-                        positiveButton {
-                            text = UiText.Resource(R.string.answer_yes)
-                            action = {
-                                passcodeRepository.clearPasscode()
-                                (context as? BaseComposeActivity)?.updateScreenshotPrevention()
-                                passcodeState.value = false
-                            }
+                    passcodeVerifyLauncher.launch(
+                        Intent(context, PasscodeEntryActivity::class.java).apply {
+                            putExtra(PasscodeEntryActivity.EXTRA_VERIFY_MODE, true)
                         }
-                        neutralButton { action = { passcodeState.value = true } }
-                    }
+                    )
                 }
             },
             onWifiOnlyToggle = { newValue ->

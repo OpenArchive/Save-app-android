@@ -8,6 +8,7 @@ import net.opendasharchive.openarchive.core.repositories.SugarCollectionReposito
 import net.opendasharchive.openarchive.core.repositories.SugarMediaRepository
 import net.opendasharchive.openarchive.core.repositories.SugarProjectRepository
 import net.opendasharchive.openarchive.core.repositories.SugarSpaceRepository
+import net.opendasharchive.openarchive.core.security.VaultCredentialStore
 import net.opendasharchive.openarchive.util.Prefs
 import net.opendasharchive.openarchive.core.repositories.*
 import org.koin.android.ext.koin.androidContext
@@ -20,7 +21,7 @@ val repositoriesModule = module {
     // Home/Main repositories
     single<SpaceRepository> {
         if (Prefs.isRoomMigrated) get<VaultRepositoryImpl>()
-        else SugarSpaceRepository(androidContext(), get(named("io")))
+        else SugarSpaceRepository(androidContext(), get<VaultCredentialStore>(), get(named("io")))
     }
     single<ProjectRepository> {
         if (Prefs.isRoomMigrated) get<ArchiveRepositoryImpl>()

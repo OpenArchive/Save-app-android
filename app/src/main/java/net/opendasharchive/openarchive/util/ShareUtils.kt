@@ -15,7 +15,7 @@ object ShareUtils {
      */
     fun saveBitmapToCache(context: Context, bitmap: Bitmap, fileName: String): Uri? {
         return try {
-            val cachePath = File(context.cacheDir, "images")
+            val cachePath = File(context.filesDir, "share_images")
             cachePath.mkdirs()
             val file = File(cachePath, fileName)
             val stream = FileOutputStream(file)

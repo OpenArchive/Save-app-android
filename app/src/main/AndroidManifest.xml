@@ -64,7 +64,7 @@
     <application
         android:usesCleartextTraffic="true"
         android:name=".SaveApp"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="false"
@@ -91,23 +91,46 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Intent filter for sending text or images; accepts SEND action and various data types -->
+            <!-- Intent filters restricted to supported media types only -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="*/*" />
+                <data android:mimeType="image/*" />
             </intent-filter>
 
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="application/*" />
                 <data android:mimeType="audio/*" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="video/*" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/pdf" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="image/*" />
-                <data android:mimeType="message/*" />
-                <data android:mimeType="multipart/*" />
-                <data android:mimeType="text/*" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="audio/*" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="video/*" />
             </intent-filter>
 

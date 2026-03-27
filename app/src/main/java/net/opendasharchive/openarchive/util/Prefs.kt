@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
-import android.util.Base64
 import androidx.preference.PreferenceManager
 
 object Prefs {
@@ -16,8 +15,6 @@ object Prefs {
     const val USE_TOR = "pref_use_tor"
     const val PROHIBIT_SCREENSHOTS = "prohibit_screenshots"
     const val USE_C2PA = "use_c2pa"
-    private const val C2PA_SIGNING_KEY = "c2pa_signing_key"
-    private const val C2PA_ENCRYPTED_PASSPHRASE = "c2pa_encrypted_passphrase"
     // private const val USE_NEXTCLOUD_CHUNKING = "upload_nextcloud_chunks"
     const val THEME = "theme"
     private const val CURRENT_SPACE_ID = "current_space"
@@ -181,22 +178,6 @@ object Prefs {
         get() = prefs?.getBoolean(PASSCODE_ENABLED, false) ?: false
         set(value) {
             prefs?.edit()?.putBoolean(PASSCODE_ENABLED, value)?.apply()
-        }
-
-    var c2paSigningKey: String?
-        get() = prefs?.getString(C2PA_SIGNING_KEY, null)
-        set(value) {
-            prefs?.edit()?.putString(C2PA_SIGNING_KEY, value)?.apply()
-        }
-
-    var c2paEncryptedPassphrase: ByteArray?
-        get() {
-            val passphrase = prefs?.getString(C2PA_ENCRYPTED_PASSPHRASE, null) ?: return null
-            return Base64.decode(passphrase, Base64.DEFAULT)
-        }
-        set(value) {
-            val passphrase = if (value == null) null else Base64.encodeToString(value, Base64.DEFAULT)
-            prefs?.edit()?.putString(C2PA_ENCRYPTED_PASSPHRASE, passphrase)?.apply()
         }
 
     val theme: Theme

@@ -44,6 +44,7 @@ import net.opendasharchive.openarchive.util.extensions.toggle
 import okhttp3.OkHttpClient
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.qualifier.named
 import timber.log.Timber
 import java.io.File
 
@@ -53,7 +54,7 @@ class StorachaMediaFragment :
     private lateinit var mBinding: FragmentStorachaMediaBinding
     private val viewModel: StorachaMediaViewModel by viewModel()
     private val args: StorachaMediaFragmentArgs by navArgs()
-    private val okHttpClient: OkHttpClient by inject()
+    private val okHttpClient: OkHttpClient by inject(named("storacha_okhttp"))
     private val appConfig: AppConfig by inject()
     private lateinit var mediaAdapter: StorachaMediaGridAdapter
     private lateinit var uploadOverlay: View
@@ -379,9 +380,9 @@ class StorachaMediaFragment :
                             if (uri.scheme == "content" && uri.authority == "${requireContext().packageName}.provider") {
                                 // This is likely from our camera - try to get the actual file path
                                 Timber.d("Camera URI detected: $uri, path: ${uri.path}")
-                                val path = uri.path?.removePrefix("/cache/")
+                                val path = uri.path?.removePrefix("/internal/")
                                 if (path != null && path != uri.path) {
-                                    val existingFile = File(requireContext().cacheDir, path)
+                                    val existingFile = File(requireContext().filesDir, path)
                                     Timber.d(
                                         "Checking for existing file at: ${existingFile.absolutePath}, exists: ${existingFile.exists()}, size: ${existingFile.length()}",
                                     )
