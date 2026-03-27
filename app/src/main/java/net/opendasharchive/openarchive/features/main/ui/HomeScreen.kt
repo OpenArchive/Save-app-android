@@ -20,6 +20,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -312,6 +313,16 @@ fun HomeScreenContent(
     val isSettings = selectedTab == HomeBottomTab.SETTINGS
 
     val showDrawer = isSettings.not() && (state.spaces.isNotEmpty() || state.hasDwebEntry || state.hasStorachaEntry)
+
+    // Back on settings tab → go to media tab (lower priority, defined first)
+    BackHandler(enabled = isSettings) {
+        onAction(HomeAction.TabSelected(HomeBottomTab.MEDIA))
+    }
+
+    // Back when drawer is open → close drawer (higher priority, defined last)
+    BackHandler(enabled = drawerState.isOpen) {
+        scope.launch { drawerState.close() }
+    }
 
     // Sync pager → HomeViewModel ONLY when settled
     LaunchedEffect(pagerState) {
