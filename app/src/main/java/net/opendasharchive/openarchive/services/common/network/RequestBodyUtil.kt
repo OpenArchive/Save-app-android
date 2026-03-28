@@ -83,9 +83,10 @@ object RequestBodyUtil {
             @Throws(IOException::class)
             override fun writeTo(sink: BufferedSink) {
                 init()
+                val stream = inputStream ?: throw IOException("Failed to open file: ${uri.path}")
                 var source: Source? = null
                 try {
-                    source = inputStream!!.source()
+                    source = stream.source()
                     sink.writeAll(source, listener)
                 } finally {
                     source?.closeQuietly()
@@ -130,7 +131,8 @@ object RequestBodyUtil {
             @Throws(IOException::class)
             override fun writeTo(sink: BufferedSink) {
                 init()
-                val source = inputStream!!.source()
+                val stream = inputStream ?: throw IOException("File not found: ${fileSource.path}")
+                val source = stream.source()
                 if (listener == null) {
                     sink.writeAll(source)
                 } else {

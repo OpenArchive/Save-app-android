@@ -61,6 +61,7 @@ import net.opendasharchive.openarchive.features.media.MediaPicker
 import net.opendasharchive.openarchive.features.media.rememberContentPickerLaunchers
 import net.opendasharchive.openarchive.features.settings.SettingsScreen
 import net.opendasharchive.openarchive.upload.UploadManagerScreen
+import net.opendasharchive.openarchive.upload.UploadManagerViewModel
 import net.opendasharchive.openarchive.util.rememberComposePermissionManager
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -561,6 +562,12 @@ fun HomeScreenContent(
         )
     }
 
+    // Hoist UploadManagerViewModel outside the if-block so its viewModelScope and
+    // reactive observers (InvalidationBus, UploadEventBus) are bound to HomeScreenContent's
+    // stable ViewModelStoreOwner rather than the ModalBottomSheet's dialog window scope,
+    // which would create a fresh ViewModel (and cancel its flows) on every open/close.
+    val uploadManagerViewModel: UploadManagerViewModel = koinViewModel()
+
     // Upload Manager Bottom Sheet
     if (state.showUploadManager) {
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -571,7 +578,7 @@ fun HomeScreenContent(
             sheetState = sheetState
         ) {
             UploadManagerScreen(
-                viewModel = koinViewModel(),
+                viewModel = uploadManagerViewModel,
                 onClose = {
                     onAction(HomeAction.HideUploadManager)
                 }

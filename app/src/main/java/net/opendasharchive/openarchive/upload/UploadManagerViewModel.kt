@@ -7,11 +7,14 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.core.repositories.InvalidationBus
 import net.opendasharchive.openarchive.core.repositories.MediaRepository
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.DialogType
@@ -58,8 +61,23 @@ class UploadManagerViewModel(
     val events = _events.receiveAsFlow()
 
     init {
-        refresh()
+        observeQueue()
         observeUploadEvents()
+    }
+
+    /**
+     * Reactively re-queries getQueue() whenever any media is written to the DB.
+     * This is the primary mechanism for keeping the list correct: every
+     * updateEvidence() call (including upload completion) fires invalidateMedia(),
+     * so UPLOADED items disappear from this list automatically without needing
+     * event-based removeItem() calls.
+     */
+    private fun observeQueue() {
+        InvalidationBus.media
+            .map { mediaRepository.getQueue() }
+            .distinctUntilChanged()
+            .onEach { queue -> _uiState.update { it.copy(mediaList = queue) } }
+            .launchIn(viewModelScope)
     }
 
     private fun observeUploadEvents() {
@@ -67,11 +85,10 @@ class UploadManagerViewModel(
             .onEach { event ->
                 when (event) {
                     is UploadEvent.Changed -> {
-                        if (event.isUploaded) {
-                            removeItem(event.mediaId)
-                        } else {
+                        if (!event.isUploaded) {
                             updateItem(event.mediaId, event.progress, event.isUploaded)
                         }
+                        // isUploaded=true: observeQueue() handles removal reactively
                     }
 
                     is UploadEvent.Deleted -> {

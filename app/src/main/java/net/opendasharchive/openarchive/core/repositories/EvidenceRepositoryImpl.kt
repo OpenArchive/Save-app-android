@@ -80,6 +80,9 @@ class EvidenceRepositoryImpl(
                     evidenceDao.deleteById(mediaId)
                 }
 
+                InvalidationBus.invalidateMedia()
+                InvalidationBus.invalidateCollections()
+
                 // Clean up physical files after successful DB removal
                 fileCleanupHelper.deleteMediaFiles(evidence)
             }
@@ -87,7 +90,12 @@ class EvidenceRepositoryImpl(
     }
 
     override suspend fun addEvidence(evidence: Evidence): Long = withContext(io) {
-        evidenceDao.upsert(evidence.toEvidenceEntity())
+        val id = evidenceDao.upsert(evidence.toEvidenceEntity())
+        if (id > 0) {
+            InvalidationBus.invalidateMedia()
+            InvalidationBus.invalidateCollections()
+        }
+        id
     }
 
     override suspend fun updateEvidence(evidence: Evidence) {
@@ -95,6 +103,7 @@ class EvidenceRepositoryImpl(
             val entity = evidence.toEvidenceEntity()
             if (evidenceDao.getById(entity.id) != null) {
                 evidenceDao.upsert(entity)
+                InvalidationBus.invalidateMedia()
             } else {
                 AppLogger.w("Skipping update for media ${entity.id} as it was deleted from database")
             }
@@ -108,6 +117,7 @@ class EvidenceRepositoryImpl(
                     evidenceDao.upsert(it.copy(status = EvidenceStatus.QUEUED))
                 }
             }
+            InvalidationBus.invalidateMedia()
         }
     }
 
@@ -121,6 +131,7 @@ class EvidenceRepositoryImpl(
         withContext(io) {
             evidenceDao.getById(mediaId)?.let {
                 evidenceDao.upsert(it.copy(priority = priority))
+                InvalidationBus.invalidateMedia()
             }
         }
     }
@@ -129,6 +140,7 @@ class EvidenceRepositoryImpl(
         withContext(io) {
             evidenceDao.getById(mediaId)?.let {
                 evidenceDao.upsert(it.copy(status = EvidenceStatus.QUEUED, progress = 0, statusMessage = ""))
+                InvalidationBus.invalidateMedia()
             }
         }
     }

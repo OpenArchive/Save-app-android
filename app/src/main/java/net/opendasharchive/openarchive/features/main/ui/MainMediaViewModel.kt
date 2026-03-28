@@ -198,14 +198,15 @@ class MainMediaViewModel(
                     media = media.filter { it.submissionId == collection.id }
                         .map { item ->
                             val progress = progressMap[item.id]
+                            val effectiveStatus = when {
+                                item.status == EvidenceStatus.UPLOADED -> EvidenceStatus.UPLOADED
+                                progress != null -> EvidenceStatus.UPLOADING
+                                else -> item.status
+                            }
                             item.copy(
                                 isSelected = selectedIds.contains(item.id),
                                 uploadPercentage = progress ?: item.uploadPercentage,
-                                status = if (progress != null) {
-                                    if (progress >= 100) EvidenceStatus.UPLOADED else EvidenceStatus.UPLOADING
-                                } else {
-                                    item.status
-                                }
+                                status = effectiveStatus
                             )
                         }
                 )
@@ -454,7 +455,7 @@ class MainMediaViewModel(
         viewModelScope.launch {
             _uiState.update { state ->
                 val newProgress = if (isUploaded) 100 else progress
-                val updatedTransient = if (newProgress < 0) {
+                val updatedTransient = if (isUploaded || newProgress < 0) {
                     state.transientProgress - mediaId
                 } else {
                     state.transientProgress + (mediaId to newProgress)

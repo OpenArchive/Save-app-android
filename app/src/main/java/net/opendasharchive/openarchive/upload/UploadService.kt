@@ -154,7 +154,13 @@ class UploadService : JobService() {
         ) {
             val datePublish = DateUtils.nowDateTime
 
-            for (media in results) {
+            // Skip items already in ERROR state — they need explicit user retry via the Edit Queue.
+            // Without this filter, a failed item would be reset to UPLOADING each iteration,
+            // fail again, and loop indefinitely.
+            val uploadableResults = results.filter { it.status != EvidenceStatus.ERROR }
+            if (uploadableResults.isEmpty()) break
+
+            for (media in uploadableResults) {
                 totalCount++
                 var updatedMedia = media
                 if (updatedMedia.status != EvidenceStatus.UPLOADING) {
