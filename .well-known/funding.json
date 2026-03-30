@@ -17,7 +17,7 @@
       "name": "Save Mobile Android App",
       "description": "Open-source mobile application that enables journalists, researchers, and human rights experts to securely capture photos, video, and audio with tamper-evident metadata, and upload them to trusted archival systems. This work is supported by ongoing platform maintenance and development, including Jetpack Compose UI framework enhancements and Room DB migration. In parallel, we conduct dedicated research and development (R&D) focused on areas such as Tor routing integration and C2PA toolkit implementation.",
       "webpageUrl": {
-        "url": "https://www.open-archive.org/save"
+        "url": "https://www.open-archive.org/save",
         "wellKnown": "https://github.com/OpenArchive/Save-app-android/blob/master/.well-known/funding.json"
       },
       "repositoryUrl": {
@@ -38,7 +38,7 @@
       "name": "Save Mobile iOS App",
       "description": "Open-source mobile application that enables journalists, researchers, and human rights experts to securely capture photos, video, and audio with tamper-evident metadata, and upload them to trusted archival systems. This work is supported by ongoing platform maintenance and development, including Swift UI enhancements and Core Data migration. In parallel, we conduct dedicated research and development (R&D) focused on areas such as Tor routing integration and C2PA toolkit implementation.",
       "webpageUrl": {
-        "url": "https://www.open-archive.org/save"
+        "url": "https://www.open-archive.org/save",
         "wellKnown": "https://github.com/OpenArchive/Save-app-ios/blob/master/.well-known/funding.json"
       },
       "repositoryUrl": {
