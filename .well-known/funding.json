@@ -21,6 +21,7 @@
       },
       "repositoryUrl": {
         "url": "https://github.com/OpenArchive/Save-app-android"
+        "wellKnown": "https://github.com/OpenArchive/Save-app-android/blob/master/.well-known/funding.json"
       },
       "licenses": [
         "GNU General Public License v3.0"
@@ -41,6 +42,7 @@
       },
       "repositoryUrl": {
         "url": "https://github.com/OpenArchive/Save-app-ios"
+        "wellKnown": "https://github.com/OpenArchive/Save-app-ios/blob/master/.well-known/funding.json"
       },
       "licenses": [
         "GNU General Public License v3.0"
