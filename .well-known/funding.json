@@ -1,0 +1,111 @@
+{
+  "$schema": "https://fundingjson.org/schema/v1.1.0.json",
+  "version": "v1.0.0",
+  "entity": {
+    "type": "organisation",
+    "role": "maintainer",
+    "name": "OpenArchive",
+    "email": "info@open-archive.org",
+    "description": "OpenArchive is the team behind the Save app. We build and integrating secure, open-source protocols and services into mobile archiving.",
+    "webpageUrl": {
+      "url": "https://open-archive.org"
+    }
+  },
+  "projects": [
+    {
+      "guid": "save-mobile-android",
+      "name": "Save Mobile Android App",
+      "description": "Open-source mobile application that enables journalists, researchers, and human rights experts to securely capture photos, video, and audio with tamper-evident metadata, and upload them to trusted archival systems. This work is supported by ongoing platform maintenance and development, including Jetpack Compose UI framework enhancements and Room DB migration. In parallel, we conduct dedicated research and development (R&D) focused on areas such as Tor routing integration and C2PA toolkit implementation.",
+      "webpageUrl": {
+        "url": "https://www.open-archive.org/save"
+      },
+      "repositoryUrl": {
+        "url": "https://github.com/OpenArchive/Save-app-android"
+      },
+      "licenses": [
+        "GNU General Public License v3.0"
+      ],
+      "tags": [
+        "mobile",
+        "journalism",
+        "human-rights",
+        "android"
+      ]
+    },
+    {
+      "guid": "save-mobile-ios",
+      "name": "Save Mobile iOS App",
+      "description": "Open-source mobile application that enables journalists, researchers, and human rights experts to securely capture photos, video, and audio with tamper-evident metadata, and upload them to trusted archival systems. This work is supported by ongoing platform maintenance and development, including Swift UI enhancements and Core Data migration. In parallel, we conduct dedicated research and development (R&D) focused on areas such as Tor routing integration and C2PA toolkit implementation.",
+      "webpageUrl": {
+        "url": "https://www.open-archive.org/save"
+      },
+      "repositoryUrl": {
+        "url": "https://github.com/OpenArchive/Save-app-ios"
+      },
+      "licenses": [
+        "GNU General Public License v3.0"
+      ],
+      "tags": [
+        "mobile",
+        "journalism",
+        "human-rights",
+        "ios"
+      ]
+    }
+  ],
+  "funding": {
+    "channels": [
+      {
+        "guid": "funding-website",
+        "type": "payment-provider",
+        "address": "https://www.open-archive.org/donate",
+        "description": "Donations are tax-deductible through our fiscal sponsor, Media Alliance."
+      },
+      {
+        "guid": "mybank",
+        "type": "bank",
+        "address": "info[at]open-archive.org",
+        "description": "We also accept donations wire transfer. Please email us."
+      }
+    ],
+    "plans": [
+      {
+        "guid": "onetime-devs-usd",
+        "status": "active",
+        "name": "Support the developers",
+        "description": "Supports our developers and their families with the bills, while they work on Save Mobile Android and Save Mobile iOS maintenance",
+        "amount": 32000,
+        "currency": "USD",
+        "frequency": "one-time",
+        "channels": [
+          "funding-website"
+        ]
+      },
+      {
+        "guid": "onetime-rnd-usd",
+        "status": "active",
+        "name": "Tor Routing, C2PA, Dweb Storage, UI Framework Modernisation, Database Modernisation, Platform-level Improvements",
+        "description": "Covers our reseach and development efforts on Tor Routing, C2PA, Dweb Storage, UI Framework Modernisation, Database Modernisation, Platform-level Improvements.",
+        "amount": 60000,
+        "currency": "USD",
+        "frequency": "one-time",
+        "channels": [
+          "funding-website"
+        ]
+      },
+      {
+        "guid": "onetime-bean-tin-usd",
+        "status": "active",
+        "name": "Compliment",
+        "description": "Help us fill our can of half-empty beans in the pantry",
+        "amount": 5,
+        "currency": "USD",
+        "frequency": "monthly",
+        "channels": [
+          "funding-website"
+        ]
+      }
+    ],
+    "history": []
+  }
+}
