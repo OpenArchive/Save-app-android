@@ -8,7 +8,7 @@
     "email": "info@open-archive.org",
     "description": "OpenArchive is the team behind the Save app. We build and integrate secure, open-source protocols and services into mobile archiving.",
     "webpageUrl": {
-      "url": "https://open-archive.org"
+      "url": "https://www.open-archive.org"
     }
   },
   "projects": [
@@ -20,12 +20,9 @@
         "url": "https://www.open-archive.org/save"
       },
       "repositoryUrl": {
-        "url": "https://github.com/OpenArchive/Save-app-android",
-        "wellKnown": "https://github.com/OpenArchive/Save-app-android/blob/master/.well-known/funding-manifest-urls"
+        "url": "https://github.com/OpenArchive/Save-app-android"
       },
-      "licenses": [
-        "GNU General Public License v3.0"
-      ],
+      "licenses": ["spdx:GPL-3.0-only"],
       "tags": [
         "mobile",
         "journalism",
@@ -41,12 +38,9 @@
         "url": "https://www.open-archive.org/save"
       },
       "repositoryUrl": {
-        "url": "https://github.com/OpenArchive/Save-app-ios",
-        "wellKnown": "https://github.com/OpenArchive/Save-app-ios/blob/master/.well-known/funding-manifest-urls"
+        "url": "https://github.com/OpenArchive/Save-app-ios"
       },
-      "licenses": [
-        "GNU General Public License v3.0"
-      ],
+      "licenses": ["spdx:GPL-3.0-only"],
       "tags": [
         "mobile",
         "journalism",
