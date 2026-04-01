@@ -84,6 +84,10 @@ fun C2paScreenContent() {
         mutableStateOf(Prefs.useC2pa)
     }
 
+    val msgAutoDisabled = stringResource(R.string.c2pa_auto_disabled)
+    val msgEnabled = stringResource(R.string.c2pa_enabled)
+    val msgLocationDenied = stringResource(R.string.c2pa_location_permission_denied)
+
     // Check if location permission is granted
     fun hasLocationPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
@@ -98,38 +102,33 @@ fun C2paScreenContent() {
             // C2PA is enabled but permission is missing - auto-disable
             useC2pa = false
             Prefs.useC2pa = false
-            Toast.makeText(
-                context,
-                context.getString(R.string.c2pa_auto_disabled),
-                Toast.LENGTH_LONG
-            ).show()
+            Toast.makeText(context, msgAutoDisabled, Toast.LENGTH_LONG).show()
             AppLogger.w("[C2PA] Auto-disabled due to missing location permission")
         }
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            // Permission granted - enable C2PA
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { results ->
+        val locationGranted = results[Manifest.permission.ACCESS_FINE_LOCATION] == true
+        val phoneStateGranted = results[Manifest.permission.READ_PHONE_STATE] == true
+
+        if (locationGranted) {
+            // Location is required; phone state is optional (enables cell tower data)
             useC2pa = true
             Prefs.useC2pa = true
-            Toast.makeText(
-                context,
-                context.getString(R.string.c2pa_enabled),
-                Toast.LENGTH_SHORT
-            ).show()
-            AppLogger.d("[C2PA] Enabled after permission grant")
+            if (phoneStateGranted) {
+                AppLogger.d("[C2PA] Enabled with location + cell tower data")
+            } else {
+                AppLogger.d("[C2PA] Enabled with location only (cell tower data unavailable)")
+            }
+            Toast.makeText(context, msgEnabled, Toast.LENGTH_SHORT).show()
         } else {
-            // Permission denied - disable C2PA
+            // Location is required — disable C2PA if denied
             useC2pa = false
             Prefs.useC2pa = false
-            Toast.makeText(
-                context,
-                context.getString(R.string.c2pa_location_permission_denied),
-                Toast.LENGTH_LONG
-            ).show()
-            AppLogger.w("[C2PA] Disabled due to permission denial")
+            Toast.makeText(context, msgLocationDenied, Toast.LENGTH_LONG).show()
+            AppLogger.w("[C2PA] Disabled due to location permission denial")
         }
     }
 
@@ -188,18 +187,31 @@ fun C2paScreenContent() {
                     checked = useC2pa,
                     onCheckedChange = { enabled ->
                         if (enabled) {
-                            // Enabling C2PA - check/request permission first
                             if (hasLocationPermission()) {
+                                // Location already granted — enable immediately, then also
+                                // request phone state if not yet granted (for cell tower data)
                                 useC2pa = true
                                 Prefs.useC2pa = true
-                                AppLogger.d("[C2PA] Enabled (permission already granted)")
+                                AppLogger.d("[C2PA] Enabled (location already granted)")
+                                if (ContextCompat.checkSelfPermission(
+                                        context, Manifest.permission.READ_PHONE_STATE
+                                    ) != PackageManager.PERMISSION_GRANTED
+                                ) {
+                                    permissionLauncher.launch(
+                                        arrayOf(Manifest.permission.READ_PHONE_STATE)
+                                    )
+                                }
                             } else {
-                                // Request location permission
-                                AppLogger.d("[C2PA] Requesting location permission")
-                                permissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                                // Request location (required) + phone state (optional) together
+                                AppLogger.d("[C2PA] Requesting location + phone state permissions")
+                                permissionLauncher.launch(
+                                    arrayOf(
+                                        Manifest.permission.ACCESS_FINE_LOCATION,
+                                        Manifest.permission.READ_PHONE_STATE
+                                    )
+                                )
                             }
                         } else {
-                            // Disabling C2PA - no permission needed
                             useC2pa = false
                             Prefs.useC2pa = false
                             AppLogger.d("[C2PA] Disabled by user")
