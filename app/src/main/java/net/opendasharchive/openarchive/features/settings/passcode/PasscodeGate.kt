@@ -11,6 +11,12 @@ class PasscodeGate(
     private val flowState: PasscodeFlowState
 ) : DefaultLifecycleObserver {
 
+    /**
+     * Tracks whether the user has successfully authenticated in the current process session.
+     * Cleared on onStop so the app re-locks whenever it is fully backgrounded.
+     */
+    private var isAuthenticated = false
+
     private val _locked = MutableStateFlow(Prefs.passcodeEnabled)
     val locked: StateFlow<Boolean> = _locked.asStateFlow()
 
@@ -18,22 +24,26 @@ class PasscodeGate(
         _locked.value = shouldLockNow()
     }
 
-    override fun onPause(owner: LifecycleOwner) {
-        _locked.value = Prefs.passcodeEnabled
-    }
+    // Intentionally no onPause override — do NOT re-lock mid-session when the app loses focus
+    // briefly (e.g. system dialog, notification shade). Only re-lock on full background (onStop).
 
     override fun onStop(owner: LifecycleOwner) {
-        _locked.value = Prefs.passcodeEnabled
+        if (Prefs.passcodeEnabled) {
+            isAuthenticated = false
+            _locked.value = true
+        }
     }
 
+    /** Call this once the user has successfully entered their passcode. */
     fun unlock() {
+        isAuthenticated = true
         _locked.value = false
     }
 
     private fun shouldLockNow(): Boolean {
         if (!Prefs.passcodeEnabled) return false
         if (flowState.isPasscodeFlowActive.value) return false
-        return true
+        return !isAuthenticated
     }
 }
 

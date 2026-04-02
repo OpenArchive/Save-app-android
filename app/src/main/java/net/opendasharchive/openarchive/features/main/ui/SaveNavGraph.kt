@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.features.main.ui
 
+import android.app.Activity
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -61,7 +62,10 @@ import net.opendasharchive.openarchive.features.settings.SpaceSetupSuccessViewMo
 import net.opendasharchive.openarchive.features.settings.license.SetupLicenseScreen
 import net.opendasharchive.openarchive.features.settings.license.SetupLicenseViewModel
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeFlowState
+import net.opendasharchive.openarchive.features.settings.passcode.PasscodeGate
 import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
+import net.opendasharchive.openarchive.features.settings.passcode.passcode_entry.PasscodeEntryScreen
+import net.opendasharchive.openarchive.features.settings.passcode.passcode_entry.PasscodeEntryViewModel
 import net.opendasharchive.openarchive.features.spaces.SpaceListScreen
 import net.opendasharchive.openarchive.features.spaces.SpaceListViewModel
 import net.opendasharchive.openarchive.features.spaces.SpaceSetupAction
@@ -91,6 +95,8 @@ fun SaveNavGraph(
     val resultBus = ResultEventBus
     val resultStore = rememberResultStore()
     val passcodeFlowState: PasscodeFlowState = koinInject()
+    val passcodeGate: PasscodeGate = koinInject()
+    val isLocked by passcodeGate.locked.collectAsStateWithLifecycle()
 
     val currentRoute = navigator.backstack.lastOrNull()
     AppLogger.d("Navigation", "Current route: $currentRoute")
@@ -107,6 +113,13 @@ fun SaveNavGraph(
             }
 
             else -> Unit
+        }
+    }
+
+    // Navigate to lock screen whenever the gate locks — catches ADB launches and share intents
+    LaunchedEffect(isLocked) {
+        if (isLocked && navigator.backstack.lastOrNull() !is AppRoute.PasscodeEntryRoute) {
+            navigator.navigateTo(AppRoute.PasscodeEntryRoute)
         }
     }
 
@@ -488,6 +501,29 @@ fun SaveNavGraph(
                 entry<AppRoute.MediaCacheRoute> {
                     MediaCacheScreen {
                         navigator.navigateBack()
+                    }
+                }
+
+                // ==================== Passcode Entry (Lock Screen) ====================
+
+                entry<AppRoute.PasscodeEntryRoute> {
+                    val context = LocalContext.current
+                    val viewModel: PasscodeEntryViewModel = koinViewModel()
+                    DefaultScaffold {
+                        PasscodeEntryScreen(
+                            viewModel = viewModel,
+                            onSuccess = {
+                                passcodeGate.unlock()
+                                navigator.navigateBack()
+                            },
+                            onLockedOut = {
+                                (context as? Activity)?.finishAndRemoveTask()
+                            },
+                            onExit = {
+                                // Send app to background rather than letting the user dismiss
+                                (context as? Activity)?.moveTaskToBack(true)
+                            }
+                        )
                     }
                 }
 

@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import net.opendasharchive.openarchive.core.config.AppConfig
+import net.opendasharchive.openarchive.core.security.C2paKeyStore
 import net.opendasharchive.openarchive.core.security.SecurityManager
 import net.opendasharchive.openarchive.features.core.dialog.DefaultResourceProvider
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
@@ -66,6 +67,9 @@ val coreModule = module {
 
     // Centrally managed security flags
     single { SecurityManager(get(named("default_prefs"))) }
+
+    // Secure storage for C2PA signing keys (Android Keystore backed)
+    single { C2paKeyStore(androidApplication()) }
 }
 
 

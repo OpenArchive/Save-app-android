@@ -44,7 +44,7 @@ object Utility {
     }
 
     fun getOutputMediaFileByCache(context: Context, fileName: String): File? {
-        val dir = context.cacheDir
+        val dir = File(context.filesDir, "media_temp")
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
                 return null
@@ -72,7 +72,7 @@ object Utility {
     }
 
     fun getOutputMediaFileByCacheNoTimestamp(context: Context, fileName: String): File? {
-        val dir = context.cacheDir
+        val dir = File(context.filesDir, "media_temp")
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
                 return null

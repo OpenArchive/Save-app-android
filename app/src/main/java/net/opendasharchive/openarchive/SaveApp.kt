@@ -13,15 +13,20 @@ import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import coil3.video.VideoFrameDecoder
 import com.orm.SugarApp
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import net.opendasharchive.openarchive.core.repositories.CacheCleanupWorker
 import net.opendasharchive.openarchive.core.di.torModule
 import net.opendasharchive.openarchive.services.tor.TorConstants
 import net.opendasharchive.openarchive.services.tor.TorServiceManager
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
+import net.opendasharchive.openarchive.core.security.C2paKeyStore
 import net.opendasharchive.openarchive.analytics.di.analyticsModule
 import net.opendasharchive.openarchive.db.MigrationWorker
 import net.opendasharchive.openarchive.core.di.coreModule
@@ -30,7 +35,6 @@ import net.opendasharchive.openarchive.core.di.featuresModule
 import net.opendasharchive.openarchive.core.di.passcodeModule
 import net.opendasharchive.openarchive.core.di.retrofitModule
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.features.settings.passcode.PasscodeManager
 import net.opendasharchive.openarchive.util.C2paHelper
 import net.opendasharchive.openarchive.util.CleanInsightsManager
 import net.opendasharchive.openarchive.util.Prefs
@@ -64,8 +68,6 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
 
         // Initialize logging first
         AppLogger.init(applicationContext, initDebugger = true)
-
-        registerActivityLifecycleCallbacks(PasscodeManager())
 
         Prefs.load(this)
 
@@ -102,6 +104,28 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
         }
 
         applyTheme()
+
+        // Migrate C2PA keys from plaintext SharedPreferences to SecureStorage (one-time)
+        val c2paKeyStore: C2paKeyStore by inject()
+        c2paKeyStore.migrateFromPrefsIfNeeded(
+            androidx.preference.PreferenceManager.getDefaultSharedPreferences(this)
+        )
+
+        // Schedule periodic cache cleanup (runs every 7 days when battery is not low)
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            CacheCleanupWorker.WORK_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
+            PeriodicWorkRequestBuilder<CacheCleanupWorker>(
+                CacheCleanupWorker.REPEAT_INTERVAL_DAYS,
+                java.util.concurrent.TimeUnit.DAYS
+            )
+                .setConstraints(
+                    Constraints.Builder()
+                        .setRequiresBatteryNotLow(true)
+                        .build()
+                )
+                .build()
+        )
 
         // Start embedded Tor service if enabled
         if (Prefs.useTor) {

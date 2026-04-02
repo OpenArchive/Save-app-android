@@ -7,6 +7,10 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
@@ -14,6 +18,7 @@ import net.opendasharchive.openarchive.features.core.BaseComposeActivity
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.main.ui.SaveNavGraph
 import net.opendasharchive.openarchive.core.config.AppConfig
+import net.opendasharchive.openarchive.features.settings.passcode.PasscodeGate
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import net.opendasharchive.openarchive.util.PermissionManager
@@ -32,10 +37,18 @@ class HomeActivity : BaseComposeActivity(), AndroidScopeComponent {
     private val appConfig by inject<AppConfig>()
     private val navigator by inject<Navigator>()
     private val uploadJobScheduler by inject<UploadJobScheduler>()
+    private val passcodeGate by inject<PasscodeGate>()
     private lateinit var permissionManager: PermissionManager
+
+    /** URIs received via share sheet while the app was locked — delivered after authentication. */
+    private var pendingSharedUris: List<Uri>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Register PasscodeGate as a lifecycle observer so it manages the locked state
+        // based on the activity's onStart/onStop events.
+        lifecycle.addObserver(passcodeGate)
 
         installSplashScreen()
 
@@ -50,16 +63,13 @@ class HomeActivity : BaseComposeActivity(), AndroidScopeComponent {
             )
         )
 
-        // Set up your Compose UI and pass callbacks.
         setContent {
-
             SaveAppTheme {
                 SaveNavGraph(
                     dialogManager,
                     navigator
                 )
             }
-
         }
 
         if (appConfig.isDwebEnabled) {
@@ -79,6 +89,22 @@ class HomeActivity : BaseComposeActivity(), AndroidScopeComponent {
         super.onStart()
         C2paHelper.init(this)
         uploadJobScheduler.schedule()
+
+        // Flush any share URIs that arrived while the app was locked
+        lifecycleScope.launch {
+            passcodeGate.locked
+                .filter { !it }
+                .take(1)
+                .collect {
+                    pendingSharedUris?.let { uris ->
+                        ResultEventBus.sendResult(
+                            resultKey = NavigationResultKeys.SHARED_MEDIA_IMPORT,
+                            result = uris
+                        )
+                        pendingSharedUris = null
+                    }
+                }
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -105,6 +131,10 @@ class HomeActivity : BaseComposeActivity(), AndroidScopeComponent {
         val action = intent.action
         val type = intent.type
 
+        // Defense-in-depth: reject MIME types not explicitly supported
+        val allowedMimePrefixes = setOf("image/", "audio/", "video/", "application/pdf")
+        if (type != null && allowedMimePrefixes.none { type.startsWith(it) || type == it }) return
+
         if ((Intent.ACTION_SEND == action || Intent.ACTION_SEND_MULTIPLE == action) && type != null) {
             val uris = mutableListOf<Uri>()
 
@@ -115,12 +145,15 @@ class HomeActivity : BaseComposeActivity(), AndroidScopeComponent {
             }
 
             if (uris.isNotEmpty()) {
-                // Publish the shared media result via ResultEventBus.
-                // We'll use the same ResultEventBus key used in HomeScreen
-                ResultEventBus.sendResult(
-                    resultKey = NavigationResultKeys.SHARED_MEDIA_IMPORT,
-                    result = uris
-                )
+                if (passcodeGate.locked.value) {
+                    // Hold URIs until the user authenticates
+                    pendingSharedUris = uris
+                } else {
+                    ResultEventBus.sendResult(
+                        resultKey = NavigationResultKeys.SHARED_MEDIA_IMPORT,
+                        result = uris
+                    )
+                }
             }
         }
     }

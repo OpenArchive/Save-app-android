@@ -12,14 +12,20 @@ import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.domain.mappers.toDomain
 import net.opendasharchive.openarchive.core.domain.mappers.toEntity
+import net.opendasharchive.openarchive.core.security.VaultCredentialStore
 import net.opendasharchive.openarchive.db.sugar.Space
 
 
 /**
  * Sugar-backed implementations; keep all ORM calls off the main thread.
+ *
+ * Credentials (passwords) are stored in [VaultCredentialStore] (AES-GCM + Android Keystore)
+ * rather than in the SugarORM SQLite database. Legacy plaintext passwords are migrated lazily
+ * on first access via [getVaultAuth].
  */
 class SugarSpaceRepository(
     private val context: Context,
+    private val credentialStore: VaultCredentialStore,
     private val io: CoroutineDispatcher = Dispatchers.IO
 ) : SpaceRepository {
 
@@ -72,10 +78,22 @@ class SugarSpaceRepository(
 
     override suspend fun updateSpace(vaultId: Long, vault: Vault): Boolean =
         withContext(io) {
+            // Guard: migrate any legacy plaintext password from Sugar DB to SecureStorage
+            // before wiping it. The domain model always carries password="" (toDomain()),
+            // so if this call happens before getVaultAuth() the credential would be lost.
+            val existingSpace = Space.get(vaultId)
+            if (existingSpace != null && existingSpace.password.isNotBlank() && !credentialStore.hasSecret(vaultId)) {
+                credentialStore.putSecret(vaultId, existingSpace.password)
+            }
+
             val entity = vault.toEntity()
             entity.id = vaultId
+            entity.password = ""  // never persist password in Sugar DB
             val savedId = entity.save()
             if (savedId > 0) {
+                if (vault.password.isNotBlank()) {
+                    credentialStore.putSecret(vaultId, vault.password)
+                }
                 InvalidationBus.invalidateSpaces()
                 InvalidationBus.invalidateCurrentSpace()
             }
@@ -83,8 +101,15 @@ class SugarSpaceRepository(
         }
 
     override suspend fun addSpace(vault: Vault): Long = withContext(io) {
-        val id = vault.toEntity().save()
-        if (id > 0) InvalidationBus.invalidateSpaces()
+        val entity = vault.toEntity()
+        entity.password = ""  // never persist password in Sugar DB
+        val id = entity.save()
+        if (id > 0) {
+            if (vault.password.isNotBlank()) {
+                credentialStore.putSecret(id, vault.password)
+            }
+            InvalidationBus.invalidateSpaces()
+        }
         id
     }
 
@@ -94,17 +119,32 @@ class SugarSpaceRepository(
 
     override suspend fun getVaultAuth(vaultId: Long): VaultAuth? = withContext(io) {
         val space = Space.get(vaultId) ?: return@withContext null
+
+        // Lazy migration: if a plaintext password exists in the Sugar DB and the
+        // secure store has no entry yet, migrate it now and wipe it from Sugar.
+        val secret = if (credentialStore.hasSecret(vaultId)) {
+            credentialStore.getSecret(vaultId)
+        } else if (space.password.isNotBlank()) {
+            credentialStore.putSecret(vaultId, space.password)
+            space.password = ""
+            space.save()
+            credentialStore.getSecret(vaultId)
+        } else {
+            null
+        }
+
         VaultAuth(
             vaultId = space.id,
             type = space.toDomain().type,
             username = space.username,
-            secret = space.password
+            secret = secret.orEmpty()
         )
     }
 
     override suspend fun deleteSpace(id: Long): Boolean = withContext(io) {
         val deleted = Space.get(id)?.delete() ?: false
         if (deleted) {
+            credentialStore.deleteSecret(id)
             InvalidationBus.invalidateSpaces()
             InvalidationBus.invalidateCurrentSpace()
         }
