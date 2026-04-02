@@ -49,7 +49,6 @@ class SpaceListViewModel(
             VaultType.PRIVATE_SERVER -> navigator.navigateTo(AppRoute.WebDavDetailRoute(spaceId))
             VaultType.INTERNET_ARCHIVE -> navigator.navigateTo(AppRoute.IADetailRoute(spaceId))
             VaultType.DWEB_STORAGE -> navigator.navigateTo(AppRoute.SnowbirdDashboardRoute)
-            VaultType.STORACHA -> navigator.navigateTo(AppRoute.StorachaRoute)
         }
     }
 }

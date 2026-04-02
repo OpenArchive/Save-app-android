@@ -87,7 +87,6 @@ class MigrationWorker(
                         SugarSpace.Type.WEBDAV -> VaultType.PRIVATE_SERVER
                         SugarSpace.Type.INTERNET_ARCHIVE -> VaultType.INTERNET_ARCHIVE
                         SugarSpace.Type.RAVEN -> VaultType.DWEB_STORAGE
-                        SugarSpace.Type.STORACHA -> VaultType.STORACHA
                     },
                     name = space.name,
                     username = space.username,

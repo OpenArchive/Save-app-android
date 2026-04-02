@@ -13,7 +13,7 @@ import net.opendasharchive.openarchive.core.domain.mappers.toVaultEntity
 import net.opendasharchive.openarchive.core.security.VaultCredentialStore
 import net.opendasharchive.openarchive.db.ArchiveDao
 import net.opendasharchive.openarchive.db.VaultDao
-import net.opendasharchive.openarchive.services.storacha.util.StorachaHelper
+
 
 class VaultRepositoryImpl(
     private val context: Context,
@@ -33,10 +33,6 @@ class VaultRepositoryImpl(
         .distinctUntilChanged()
 
     override fun observeHasDwebSpace(): Flow<Boolean> = vaultDao.observeHasDwebSpace()
-        .distinctUntilChanged()
-
-    override fun observeHasStorachaSpace(): Flow<Boolean> = StorachaHelper.accountStateChanged
-        .map { StorachaHelper.shouldEnableStorachaAccess(context) }
         .distinctUntilChanged()
 
     override suspend fun getCurrentSpace(): Vault? = withContext(io) {

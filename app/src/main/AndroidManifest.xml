@@ -143,12 +143,6 @@
             android:windowSoftInputMode="stateHidden"
             tools:ignore="DiscouragedApi" />
 
-        <activity
-            android:name=".services.storacha.PortraitCaptureActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/zxing_CaptureTheme"
-            android:exported="false" />
-
         <meta-data
             android:name="DOMAIN_PACKAGE_NAME"
             android:value="net.opendasharchive.openarchive.db" />

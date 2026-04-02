@@ -19,15 +19,12 @@ import net.opendasharchive.openarchive.util.Prefs
 data class SpaceSetupState(
     val isInternetArchiveAllowed: Boolean = false,
     val isDwebEnabled: Boolean = false,
-    val hasSeenStorachaWarning: Boolean = false
 )
 
 sealed interface SpaceSetupAction {
     data object WebDavClicked : SpaceSetupAction
     data object InternetArchiveClicked : SpaceSetupAction
     data object DwebClicked : SpaceSetupAction
-    data object StorachaClicked : SpaceSetupAction
-    data object StorachaWarningAccepted : SpaceSetupAction
 }
 
 class SpaceSetupViewModel(
@@ -50,7 +47,6 @@ class SpaceSetupViewModel(
                 it.copy(
                     isInternetArchiveAllowed = !hasInternetArchive,
                     isDwebEnabled = appConfig.isDwebEnabled,
-                    hasSeenStorachaWarning = Prefs.storachaWarningShown
                 )
             }
         }
@@ -76,19 +72,6 @@ class SpaceSetupViewModel(
                 }
             }
 
-            SpaceSetupAction.StorachaClicked -> {
-                viewModelScope.launch {
-                    navigator.navigateTo(AppRoute.StorachaRoute)
-                }
-            }
-
-            SpaceSetupAction.StorachaWarningAccepted -> {
-                Prefs.storachaWarningShown = true
-                _uiState.update { it.copy(hasSeenStorachaWarning = true) }
-                viewModelScope.launch {
-                    navigator.navigateTo(AppRoute.StorachaRoute)
-                }
-            }
         }
     }
 }

@@ -13,7 +13,7 @@ import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.domain.mappers.toDomain
 import net.opendasharchive.openarchive.core.domain.mappers.toEntity
 import net.opendasharchive.openarchive.db.sugar.Space
-import net.opendasharchive.openarchive.services.storacha.util.StorachaHelper
+
 
 /**
  * Sugar-backed implementations; keep all ORM calls off the main thread.
@@ -40,10 +40,6 @@ class SugarSpaceRepository(
                 entity.toDomain().type == VaultType.DWEB_STORAGE
             }
         }
-        .distinctUntilChanged()
-
-    override fun observeHasStorachaSpace(): Flow<Boolean> = StorachaHelper.accountStateChanged
-        .map { StorachaHelper.shouldEnableStorachaAccess(context) }
         .distinctUntilChanged()
 
     override suspend fun getCurrentSpace(): Vault? = withContext(io) {

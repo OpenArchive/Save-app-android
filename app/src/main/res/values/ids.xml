@@ -4,5 +4,4 @@
     <item name="initial_margin_bottom" type="id"/>
     <item name="initial_margin_start" type="id"/>
     <item name="initial_margin_end" type="id"/>
-    <item name="storacha_fragment_container" type="id"/>
 </resources>

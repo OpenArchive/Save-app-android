@@ -17,7 +17,6 @@ import net.opendasharchive.openarchive.core.domain.Vault
 data class HomeState(
     val spaces: List<Vault> = emptyList(),
     val hasDwebEntry: Boolean = false,
-    val hasStorachaEntry: Boolean = false,
     val currentSpace: Vault? = null,
     val projects: List<Archive> = emptyList(),
     val selectedProjectId: Long? = null,

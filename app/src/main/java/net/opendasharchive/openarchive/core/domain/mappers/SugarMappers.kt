@@ -24,7 +24,6 @@ fun Space.toDomain(): Vault = Vault(
         Space.Type.WEBDAV -> VaultType.PRIVATE_SERVER
         Space.Type.INTERNET_ARCHIVE -> VaultType.INTERNET_ARCHIVE
         Space.Type.RAVEN -> VaultType.DWEB_STORAGE
-        Space.Type.STORACHA -> VaultType.STORACHA
     },
     name = this.name,
     username = this.username,
@@ -43,7 +42,6 @@ fun Vault.toEntity(): Space {
         VaultType.PRIVATE_SERVER -> Space.Type.WEBDAV
         VaultType.INTERNET_ARCHIVE -> Space.Type.INTERNET_ARCHIVE
         VaultType.DWEB_STORAGE -> Space.Type.RAVEN
-        VaultType.STORACHA -> Space.Type.STORACHA
     }
     space.name = this.name
     space.username = this.username

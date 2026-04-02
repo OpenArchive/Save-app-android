@@ -109,7 +109,7 @@ object CleanInsightsManager  {
     /**
      * Track backend/server usage
      * @param action Action performed (e.g., "configured", "upload_started", "upload_completed")
-     * @param backendType Type of backend (e.g., "Internet Archive", "Private Server", "DWeb Service", "Storacha")
+     * @param backendType Type of backend (e.g., "Internet Archive", "Private Server", "DWeb Service")
      * @param value Optional numeric value (e.g., duration, file size)
      */
     fun trackBackendAction(action: String, backendType: String, value: Double? = null) {

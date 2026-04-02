@@ -99,11 +99,6 @@ sealed class AppRoute(open val deeplink: String) : NavKey {
         val resultKey: String = NavigationResultKeys.CAMERA_CAPTURE_RESULT
     ) : AppRoute("camera")
 
-    // ── Storacha Route ──
-
-    @Serializable
-    data object StorachaRoute : AppRoute("storacha")
-
     // ── Snowbird Routes ──
 
     @Serializable

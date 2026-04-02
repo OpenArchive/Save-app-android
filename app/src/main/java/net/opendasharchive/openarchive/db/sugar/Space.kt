@@ -52,7 +52,6 @@ data class Space(
             }
 
             Type.RAVEN -> "Raven"
-            Type.STORACHA -> "Storacha Service"
         }
     }
 
@@ -61,7 +60,6 @@ data class Space(
         WEBDAV(0, "Private Server"),
         INTERNET_ARCHIVE(1, IaConduit.Companion.NAME),
         RAVEN(5, "DWeb Storage"),
-        STORACHA(7, "Storacha Service"),
     }
 
     companion object {
@@ -196,12 +194,6 @@ data class Space(
                 )
 
             Type.RAVEN -> ContextCompat.getDrawable(context, R.drawable.ic_dweb)
-
-            Type.STORACHA ->
-                ContextCompat.getDrawable(
-                    context,
-                    R.drawable.storacha,
-                )
         }
 
     @Composable
@@ -212,8 +204,6 @@ data class Space(
             Type.INTERNET_ARCHIVE -> painterResource(R.drawable.ic_space_interent_archive)
 
             Type.RAVEN -> painterResource(R.drawable.ic_space_dweb)
-
-            Type.STORACHA -> painterResource(R.drawable.storacha)
         }
 
     fun setAvatar(view: ImageView) {

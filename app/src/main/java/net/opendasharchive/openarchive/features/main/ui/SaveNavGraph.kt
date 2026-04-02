@@ -14,7 +14,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -73,7 +72,6 @@ import net.opendasharchive.openarchive.services.internetarchive.presentation.det
 import net.opendasharchive.openarchive.services.internetarchive.presentation.login.InternetArchiveLoginScreen
 import net.opendasharchive.openarchive.services.internetarchive.presentation.login.InternetArchiveLoginViewModel
 import net.opendasharchive.openarchive.services.snowbird.presentation.snowbirdEntries
-import net.opendasharchive.openarchive.services.storacha.StorachaHostScreen
 import net.opendasharchive.openarchive.services.webdav.presentation.detail.WebDavDetailScreen
 import net.opendasharchive.openarchive.services.webdav.presentation.detail.WebDavDetailViewModel
 import net.opendasharchive.openarchive.services.webdav.presentation.login.WebDavLoginScreen
@@ -189,9 +187,6 @@ fun SaveNavGraph(
                             onInternetArchiveClick = { viewModel.onAction(SpaceSetupAction.InternetArchiveClicked) },
                             isDwebEnabled = state.isDwebEnabled,
                             onDwebClicked = { viewModel.onAction(SpaceSetupAction.DwebClicked) },
-                            onStorachaClicked = { viewModel.onAction(SpaceSetupAction.StorachaClicked) },
-                            hasSeenStorachaWarning = state.hasSeenStorachaWarning,
-                            onStorachaWarningAccepted = { viewModel.onAction(SpaceSetupAction.StorachaWarningAccepted) },
                         )
                     }
                 }
@@ -282,7 +277,6 @@ fun SaveNavGraph(
                         VaultType.INTERNET_ARCHIVE -> R.string.internet_archive
                         VaultType.PRIVATE_SERVER -> R.string.private_server
                         VaultType.DWEB_STORAGE -> R.string.dweb_title
-                        VaultType.STORACHA -> R.string.storacha
                     }
 
                     DefaultScaffold(
@@ -515,14 +509,6 @@ fun SaveNavGraph(
                             navigator.navigateBack()
                         }
                     )
-                }
-
-                // ==================== Storacha Route ====================
-
-                entry<AppRoute.StorachaRoute> {
-                    val context = LocalContext.current
-                    val fragmentManager = (context as FragmentActivity).supportFragmentManager
-                    StorachaHostScreen(fragmentManager = fragmentManager)
                 }
 
                 // ==================== Snowbird Routes ====================

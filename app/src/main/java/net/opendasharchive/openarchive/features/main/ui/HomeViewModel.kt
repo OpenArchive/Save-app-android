@@ -56,10 +56,9 @@ class HomeViewModel(
             spaceRepository.observeSpaces(),
             spaceRepository.observeCurrentSpace(),
             spaceRepository.observeHasDwebSpace(),
-            spaceRepository.observeHasStorachaSpace()
-        ) { spaces, current, hasDwebEntry, hasStorachaEntry ->
-            Quadruple(spaces, current, hasDwebEntry, hasStorachaEntry)
-        }.flatMapLatest { (spaces, current, hasDwebEntry, hasStorachaEntry) ->
+        ) { spaces, current, hasDwebEntry ->
+            Triple(spaces, current, hasDwebEntry)
+        }.flatMapLatest { (spaces, current, hasDwebEntry) ->
             val actualCurrent = current ?: spaces.firstOrNull()
             if (current == null && actualCurrent != null) {
                 viewModelScope.launch {
@@ -71,7 +70,7 @@ class HomeViewModel(
                 ?: flowOf(emptyList())
 
             projectsFlow.map { projects ->
-                ObservedData(spaces, actualCurrent, projects, hasDwebEntry, hasStorachaEntry)
+                ObservedData(spaces, actualCurrent, projects, hasDwebEntry)
             }
         }.onEach { data ->
             _uiState.update { state ->
@@ -91,7 +90,6 @@ class HomeViewModel(
                 state.copy(
                     spaces = data.spaces,
                     hasDwebEntry = data.hasDwebEntry,
-                    hasStorachaEntry = data.hasStorachaEntry,
                     currentSpace = data.currentSpace,
                     projects = data.projects,
                     selectedProjectId = selectedProjectId,
@@ -362,5 +360,4 @@ private data class ObservedData(
     val currentSpace: Vault?,
     val projects: List<Archive>,
     val hasDwebEntry: Boolean,
-    val hasStorachaEntry: Boolean,
 )

@@ -357,8 +357,7 @@
     <string name="save_by_open_archive">Save by OpenArchive</string>
     <string name="discover_the_save_app">Learn More</string>
 
-    <!-- Storacha -->
-    <string name="storacha">Filecoin</string>
+
     <string name="manage_accounts">Manage Accounts</string>
     <string name="my_spaces">My Spaces</string>
     <string name="join_space">Join Space</string>
@@ -366,11 +365,8 @@
     <string name="access_your_saved_spaces">Access your spaces</string>
     <string name="connect_to_an_existing_space">Join an existing shared space</string>
     <string name="you_can_add_multiple_private_servers_and_one_ia_account_at_any_time">You can add multiple private servers and one IA account at any time.</string>
-    <string name="storacha_disclaimer"><![CDATA[Uploads to the decentralized web/Filecoin- are accessible to anyone who has the file identifier (CID). Decentralized storage is designed for long-term durability. Removing a file will not remove all copies that exist across the network. <a href="https://docs.storacha.network/how-to/upload/">Learn more.</a>]]></string>
-    <string name="storacha_is_a_decentralized_media_storage_system_using_ipfs_ucan_and_dids">Filecoin lets you store media securely using decentralized technologies (IPFS, UCAN, and DIDs).</string>
-    <string name="storacha_warning_message">Do not upload private or sensitive information unless it is encrypted.\n\nUploads to the decentralized web/Filecoin- are accessible to anyone who has the file identifier (CID).\n\nDecentralized storage is designed for long-term durability. Removing a file will not remove all copies that exist across the network.</string>
+
     <string name="i_m_okay_with_this">I\'m okay with this</string>
-    <string name="sign_up_storacha">Don\'t have an account?</string>
     <string name="email_has_been_verified_and_the_spaces_have_been_added_to_save">Your email has been verified, and the spaces have been added to Save.</string>
     <string name="email_address">Email address</string>
     <string name="users_can_delete_the_content_within_the_space">Users can delete the content within the space</string>
@@ -378,7 +374,6 @@
     <string name="users_can_write_content_to_the_space">Users can write content to the space</string>
     <string name="define_access_to_the_following_did_key">Define access to the following DID key</string>
     <string name="this_is_your_qr_code_to_request_access_please_ask_the_admin_to_scab_your_code_to_gain_access_to_soace">Here is your identity.\nShare this QR code or ID with an admin so they can add you to their space.</string>
-    <string name="storacha_qr">storacha qr</string>
     <string name="no_did_has_access_to_this_space">No DIDs currently have access to this space. Tap "Add" to grant access.</string>
     <string name="no_spaces_available">No Spaces Available</string>
     <string name="loading_spaces">Loading spaces…</string>
@@ -397,7 +392,6 @@
     <string name="accounts">Accounts</string>
     <string name="spaces">Spaces</string>
     <string name="no_files_available">No files Available</string>
-    <string name="send_directly_to_storacha_server">Connect to the Storacha network</string>
     <string name="did_access_key"><i>Enter DID Key</i></string>
     <string name="browse_files">Files</string>
     <string name="no_media_available">No Media Available.</string>

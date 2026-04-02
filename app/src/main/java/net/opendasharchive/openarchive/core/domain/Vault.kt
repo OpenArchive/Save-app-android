@@ -46,6 +46,5 @@ data class Vault(
 enum class VaultType(val id: Int, val friendlyName: String) {
     PRIVATE_SERVER(0, "Private Server"),
     INTERNET_ARCHIVE(1, "Internet Archive"),
-    DWEB_STORAGE(5, "DWeb Storage"),
-    STORACHA(7, "Storacha Service")
+    DWEB_STORAGE(5, "DWeb Storage")
 }

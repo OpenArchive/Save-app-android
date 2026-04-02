@@ -154,7 +154,6 @@ class SpaceSetupSuccessViewModel(
                 VaultType.PRIVATE_SERVER -> UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server)
                 VaultType.INTERNET_ARCHIVE -> UiText.Resource(R.string.you_have_successfully_connected_to_the_internet_archive)
                 VaultType.DWEB_STORAGE -> UiText.Resource(R.string.you_have_successfully_created_dweb)
-                VaultType.STORACHA -> UiText.Resource(R.string.you_have_successfully_connected_to_a_private_server)
             },
         )
     )

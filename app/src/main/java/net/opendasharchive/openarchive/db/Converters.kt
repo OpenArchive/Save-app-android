@@ -27,7 +27,6 @@ class Converters {
         VaultType.PRIVATE_SERVER -> 0
         VaultType.INTERNET_ARCHIVE -> 1
         VaultType.DWEB_STORAGE -> 5
-        VaultType.STORACHA -> 7
     }
 
     @TypeConverter
@@ -35,7 +34,6 @@ class Converters {
         0 -> VaultType.PRIVATE_SERVER
         1 -> VaultType.INTERNET_ARCHIVE
         5 -> VaultType.DWEB_STORAGE
-        7 -> VaultType.STORACHA
         else -> VaultType.PRIVATE_SERVER
     }
 

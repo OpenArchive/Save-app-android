@@ -10,10 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -34,22 +30,7 @@ fun SpaceSetupScreen(
     onInternetArchiveClick: () -> Unit,
     isDwebEnabled: Boolean,
     onDwebClicked: () -> Unit,
-    onStorachaClicked: () -> Unit,
-    hasSeenStorachaWarning: Boolean = false,
-    onStorachaWarningAccepted: () -> Unit = {},
 ) {
-    var showStorachaWarning by remember { mutableStateOf(false) }
-
-    if (showStorachaWarning) {
-        StorachaWarningDialog(
-            onAccepted = {
-                showStorachaWarning = false
-                onStorachaWarningAccepted()
-            },
-            onDismiss = { showStorachaWarning = false }
-        )
-    }
-
     // Use a scrollable Column to mimic ScrollView + LinearLayout
     Column(
         modifier = Modifier
@@ -121,19 +102,6 @@ fun SpaceSetupScreen(
             )
         }
 
-        // Storacha option
-        ServerOptionItem(
-            iconRes = R.drawable.filecoin_fil_logo,
-            title = "Filecoin",
-            subtitle = "Connect to a public DWeb server",
-            onClick = {
-                if (hasSeenStorachaWarning) {
-                    onStorachaClicked()
-                } else {
-                    showStorachaWarning = true
-                }
-            }
-        )
     }
 }
 
@@ -147,7 +115,6 @@ private fun SpaceSetupScreenPreview() {
             onInternetArchiveClick = {},
             isDwebEnabled = true,
             onDwebClicked = {},
-            onStorachaClicked = {}
         )
     }
 }
