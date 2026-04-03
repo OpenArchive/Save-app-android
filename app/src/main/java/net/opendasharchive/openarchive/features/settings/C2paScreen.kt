@@ -25,6 +25,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -185,6 +186,10 @@ fun C2paScreenContent() {
                 }
                 Switch(
                     checked = useC2pa,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = MaterialTheme.colorScheme.tertiary,
+                    ),
                     onCheckedChange = { enabled ->
                         if (enabled) {
                             if (hasLocationPermission()) {

@@ -7,6 +7,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.take
@@ -46,9 +47,10 @@ class HomeActivity : BaseComposeActivity(), AndroidScopeComponent {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Register PasscodeGate as a lifecycle observer so it manages the locked state
-        // based on the activity's onStart/onStop events.
-        lifecycle.addObserver(passcodeGate)
+        // Register PasscodeGate on the process lifecycle so onStop only fires when the
+        // entire app goes to background — not during Activity-to-Activity transitions
+        // (e.g. PasscodeEntryActivity / PasscodeSetupActivity launching over HomeActivity).
+        ProcessLifecycleOwner.get().lifecycle.addObserver(passcodeGate)
 
         installSplashScreen()
 
