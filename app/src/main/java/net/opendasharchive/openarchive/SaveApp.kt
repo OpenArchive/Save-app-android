@@ -1,6 +1,7 @@
 package net.opendasharchive.openarchive
 
 import android.app.NotificationChannel
+import android.os.Build
 import android.app.NotificationManager
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
@@ -127,10 +128,29 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
                 .build()
         )
 
-        // Start embedded Tor service if enabled
+        // Start embedded Tor service if enabled.
+        // On Android 12+ we cannot call startForegroundService() when the process is launched
+        // from the background (e.g. Android restarting SnowbirdService via START_STICKY).
+        // Strategy: try to start immediately (gives Tor a head-start before Snowbird initialises),
+        // and if the OS rejects it we register a one-shot observer to retry on first foreground entry.
         if (Prefs.useTor) {
             val torServiceManager: TorServiceManager by inject()
-            torServiceManager.start()
+            try {
+                torServiceManager.start()
+            } catch (e: Exception) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                    e is android.app.ForegroundServiceStartNotAllowedException
+                ) {
+                    ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
+                        override fun onStart(owner: LifecycleOwner) {
+                            torServiceManager.start()
+                            owner.lifecycle.removeObserver(this)
+                        }
+                    })
+                } else {
+                    throw e
+                }
+            }
         }
 
         // Legacy CleanInsightsManager (kept for backwards compatibility)

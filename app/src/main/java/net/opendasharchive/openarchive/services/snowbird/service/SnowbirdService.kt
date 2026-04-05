@@ -17,7 +17,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.SaveApp
 import net.opendasharchive.openarchive.core.logger.AppLogger
@@ -26,6 +29,10 @@ import net.opendasharchive.openarchive.extensions.retryWithScope
 import net.opendasharchive.openarchive.extensions.suspendToRetry
 import net.opendasharchive.openarchive.features.main.HomeActivity
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
+import net.opendasharchive.openarchive.services.tor.TorServiceManager
+import net.opendasharchive.openarchive.services.tor.TorStatus
+import net.opendasharchive.openarchive.util.Prefs
+import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
@@ -36,6 +43,8 @@ import java.net.URL
 import kotlin.time.Duration.Companion.seconds
 
 class SnowbirdService : Service() {
+
+    private val torServiceManager: TorServiceManager by inject()
 
     companion object {
         var DEFAULT_BACKEND_DIRECTORY = ""
@@ -112,6 +121,23 @@ class SnowbirdService : Service() {
 
         // Launch startup flow
         serviceScope.launch {
+            // Wait for Tor to be ready before initialising the Rust bridge.
+            // This covers both fresh launches and START_STICKY restarts — in both
+            // cases the Tokio thread-pool must not compete with Tor's bootstrap.
+            if (Prefs.useTor) {
+                updateNotification("Waiting for Tor...")
+                val ready = withTimeoutOrNull(60_000L) {
+                    torServiceManager.torStatus
+                        .filter { it is TorStatus.On || it is TorStatus.Verified }
+                        .first()
+                }
+                if (ready == null) {
+                    Timber.w("SnowbirdService: Tor wait timed out after 60 s — proceeding anyway")
+                } else {
+                    Timber.d("SnowbirdService: Tor is ready, starting bridge")
+                }
+            }
+
             // Initialize bridge first to reduce startup race windows.
             try {
                 withContext(Dispatchers.IO) {

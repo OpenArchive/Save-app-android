@@ -11,6 +11,12 @@ import android.content.pm.ServiceInfo
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.main.HomeActivity
@@ -27,6 +33,7 @@ import org.torproject.jni.TorService
  */
 class TorForegroundService : TorService() {
     private var statusReceiver: BroadcastReceiver? = null
+    private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     override fun onCreate() {
         super.onCreate()
@@ -58,6 +65,14 @@ class TorForegroundService : TorService() {
             filter,
             ContextCompat.RECEIVER_NOT_EXPORTED,
         )
+
+        // Workaround for tor-android 0.4.9.5.1 bug:
+        // The library's event handler (lambda$new$0) was changed to wait for
+        // keyword=="NOTICE" with "Bootstrapped 100%", but setEvents() still only
+        // subscribes to ["CIRC"]. Tor never sends NOTICE events unless subscribed,
+        // so STATUS_ON is never broadcast. We fix this by adding "NOTICE" to the
+        // subscription after the library's control port thread finishes its own setup.
+        serviceScope.launch { subscribeToBootstrapEvents() }
     }
 
     override fun onStartCommand(
@@ -156,6 +171,7 @@ class TorForegroundService : TorService() {
     }
 
     override fun onDestroy() {
+        serviceScope.cancel()
         statusReceiver?.let {
             try {
                 unregisterReceiver(it)
@@ -165,6 +181,46 @@ class TorForegroundService : TorService() {
         }
         clearNotificationAndStop()
         super.onDestroy()
+    }
+
+    /**
+     * Workaround for tor-android 0.4.9.5.1 bug: the library's bootstrap event handler
+     * checks for NOTICE events but the control port thread only subscribes to CIRC.
+     *
+     * We wait for the library's control port setup to complete (signalled by socksPort > 0,
+     * which is set AFTER setEvents in the control port thread), then re-subscribe with NOTICE
+     * added so Tor starts forwarding bootstrap log messages to the control connection.
+     *
+     * We also handle the edge case where Tor already reached 100% before we subscribed,
+     * by querying the bootstrap phase directly and sending the STATUS_ON broadcast manually.
+     */
+    private suspend fun subscribeToBootstrapEvents() {
+        for (attempt in 1..120) {
+            delay(1_000L)
+            if (getSocksPort() <= 0) continue
+
+            val conn = getTorControlConnection() ?: continue
+
+            try {
+                conn.setEvents(listOf("CIRC", "NOTICE"))
+                AppLogger.d("TorForegroundService: Subscribed to CIRC+NOTICE events (attempt $attempt)")
+
+                // Edge case: bootstrap already at 100% before we subscribed
+                val phase = getInfo("status/bootstrap-phase")
+                if (phase != null && phase.contains("PROGRESS=100")) {
+                    AppLogger.d("TorForegroundService: Already bootstrapped — broadcasting STATUS_ON")
+                    val intent = Intent(ACTION_STATUS).apply {
+                        setPackage(packageName)
+                        putExtra(EXTRA_STATUS, STATUS_ON)
+                    }
+                    sendBroadcast(intent)
+                }
+                return
+            } catch (e: Exception) {
+                AppLogger.w("TorForegroundService: setEvents attempt $attempt failed", e)
+            }
+        }
+        AppLogger.e("TorForegroundService: Timed out waiting to subscribe to NOTICE events")
     }
 
     private fun clearNotificationAndStop() {

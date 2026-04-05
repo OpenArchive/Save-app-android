@@ -20,7 +20,6 @@ import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.main.ui.SaveNavGraph
 import net.opendasharchive.openarchive.core.config.AppConfig
 import net.opendasharchive.openarchive.features.settings.passcode.PasscodeGate
-import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
 import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
 import net.opendasharchive.openarchive.util.PermissionManager
 import org.koin.android.ext.android.inject
@@ -79,9 +78,8 @@ class HomeActivity : BaseComposeActivity(), AndroidScopeComponent {
             permissionManager.checkNotificationPermission {
                 AppLogger.i("Notification permission granted")
             }
-            SnowbirdBridge.getInstance().initialize()
-            startForegroundService(Intent(this, SnowbirdService::class.java))
             handleIntent(intent)
+            startForegroundService(Intent(this, SnowbirdService::class.java))
         }
 
         importSharedMedia(intent)
