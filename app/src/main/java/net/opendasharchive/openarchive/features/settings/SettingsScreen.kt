@@ -226,7 +226,6 @@ fun SettingsScreen(
             darkModeState = darkModeState,
             onPasscodeToggle = { newValue ->
                 if (newValue) {
-                    passcodeState.value = true
                     passcodeLauncher.launch(Intent(context, PasscodeSetupActivity::class.java))
                 } else {
                     passcodeState.value = true
