@@ -184,7 +184,7 @@ private fun UploadManagerContent(
                                     onAction(UploadManagerAction.DeleteItem(index))
                                 }
                             },
-                            modifier = Modifier
+                            dragHandleModifier = Modifier
                                 .draggableHandle()
                                 .longPressDraggableHandle()
                         )
@@ -211,7 +211,8 @@ private fun UploadEvidenceItem(
     evidence: Evidence,
     isDragging: Boolean,
     onDelete: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    dragHandleModifier: Modifier = Modifier
 ) {
     val elevation by animateDpAsState(if (isDragging) 4.dp else 0.dp)
 
@@ -328,7 +329,7 @@ private fun UploadEvidenceItem(
                 painter = painterResource(id = R.drawable.ic_reorder_black_24dp),
                 contentDescription = stringResource(R.string.uploads),
                 tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(end = 8.dp)
+                modifier = dragHandleModifier.padding(end = 8.dp)
             )
         }
     }

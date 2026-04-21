@@ -234,13 +234,12 @@ class UploadManagerViewModel(
             val movedItem = updatedList.removeAt(fromPosition)
             updatedList.add(toPosition, movedItem)
 
-            // Update priorities
-            var priority = updatedList.size
-            for (item in updatedList) {
-                mediaRepository.updatePriority(item.id, priority--)
-            }
-
             _uiState.update { it.copy(mediaList = updatedList) }
+
+            // Batch update priorities with single invalidation
+            var priority = updatedList.size
+            val priorities = updatedList.map { it.id to priority-- }
+            mediaRepository.updatePriorities(priorities)
         }
     }
 

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.presentation.theme.MontserratFontFamily
 import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
 import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
 import net.opendasharchive.openarchive.services.internetarchive.presentation.login.CustomTextField
@@ -62,6 +63,7 @@ fun FolderDetailScreenContent(
             text = stringResource(R.string.folder_name),
             fontSize = 18.sp,
             fontWeight = FontWeight.SemiBold,
+            fontFamily = MontserratFontFamily,
             color = colorResource(R.color.colorOnBackground),
             modifier = Modifier.fillMaxWidth()
         )
@@ -105,6 +107,7 @@ fun FolderDetailScreenContent(
                         stringResource(R.string.action_archive_project)
                     },
                     fontSize = 18.sp,
+                    fontFamily = MontserratFontFamily,
                     color = colorResource(R.color.colorOnPrimaryContainer)
                 )
             }
@@ -113,7 +116,8 @@ fun FolderDetailScreenContent(
             Text(
                 text = stringResource(R.string.remove_from_app),
                 fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.SemiBold,
+                fontFamily = MontserratFontFamily,
                 color = colorResource(R.color.red_bg),
                 modifier = Modifier
                     .wrapContentWidth()

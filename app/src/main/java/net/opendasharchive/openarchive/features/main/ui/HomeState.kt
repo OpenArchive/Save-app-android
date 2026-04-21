@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.features.main.ui
 
+import android.net.Uri
 import net.opendasharchive.openarchive.core.domain.Archive
 import net.opendasharchive.openarchive.core.domain.Vault
 
@@ -25,5 +26,7 @@ data class HomeState(
     val showContentPicker: Boolean = false,
     val showUploadManager: Boolean = false,
     val mediaRefreshProjectId: Long? = null,
-    val mediaRefreshToken: Long = 0L
+    val mediaRefreshToken: Long = 0L,
+    val pendingSharedUris: List<Uri>? = null,
+    val showProjectPickerForImport: Boolean = false,
 )

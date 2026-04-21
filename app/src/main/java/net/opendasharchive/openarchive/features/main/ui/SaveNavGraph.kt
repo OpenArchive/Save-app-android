@@ -490,7 +490,13 @@ fun SaveNavGraph(
                                 R.string.edit_media_info
                             }
                         ),
-                        onNavigateBack = { navigator.navigateBack() }
+                        onNavigateBack = { navigator.navigateBack() },
+                        actions = {
+                            TextActionButton(
+                                label = R.string.done,
+                                onClick = { viewModel.onAction(net.opendasharchive.openarchive.features.media.ReviewMediaAction.SaveAndFinish) }
+                            )
+                        }
                     ) {
                         ReviewMediaScreen(
                             viewModel = viewModel

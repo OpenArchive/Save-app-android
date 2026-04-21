@@ -138,6 +138,7 @@
 
 
     <!-- Strings related to Settings -->
+    <string name="folder_renamed">Folder renamed</string>
 
     <string name="tap_to_add">Tap the button below to add media</string>
     <string name="tap_to_add_folder">Tap the button below to add a folder</string>
@@ -538,6 +539,7 @@
     <string name="prefs_use_c2pa_title">Enable C2PA</string>
     <string name="prefs_use_c2pa_summary">Generate cryptographic content credentials</string>
     <string name="prefs_use_c2pa_description"><![CDATA[C2PA (Coalition for Content Provenance and Authenticity) is an industry standard for verifying the source and history of media content. <a href=\"%1$s\"><u>Learn more here.</u></a>]]></string>
+    <string name="c2pa_learn_more_url" translatable="false">https://c2pa.org/</string>
 
     <string name="c2pa_warning_text"><![CDATA[
     To help verify where your media was captured, C2PA collects metadata including location data from nearby cell towers to corroborate where content was created. Android requires location access to collect this information.<br/><br/>

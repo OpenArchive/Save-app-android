@@ -83,7 +83,7 @@ private fun SetupLicenseScreenContent(
                     focusManager.clearFocus()
                 }
                 .padding(horizontal = 16.dp)
-                .padding(top = 48.dp, bottom = 80.dp), // Add bottom padding for button
+                .padding(top = 48.dp, bottom = 100.dp), // ensure Learn More link clears Next button
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Description text (hidden in edit mode)

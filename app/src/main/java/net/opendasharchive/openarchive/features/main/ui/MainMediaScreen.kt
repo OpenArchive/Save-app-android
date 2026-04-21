@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.CircularProgressIndicator
@@ -23,7 +25,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -69,11 +73,13 @@ fun MainMediaScreen(
 ) {
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val lazyListState = rememberLazyListState()
 
     LaunchedEffect(refreshToken, uiState.projectId, refreshProjectId) {
         val projectId = uiState.projectId ?: return@LaunchedEffect
         if (refreshProjectId == projectId) {
             viewModel.onAction(MainMediaAction.Refresh(projectId))
+            lazyListState.animateScrollToItem(0)
         }
     }
 
@@ -95,6 +101,7 @@ fun MainMediaScreen(
 
     MainMediaContent(
         state = uiState,
+        lazyListState = lazyListState,
         onAction = viewModel::onAction,
     )
 }
@@ -108,6 +115,7 @@ fun MainMediaScreen(
 @Composable
 fun MainMediaContent(
     state: MainMediaState,
+    lazyListState: LazyListState = rememberLazyListState(),
     onAction: (MainMediaAction) -> Unit,
 ) {
 
@@ -179,7 +187,7 @@ fun MainMediaContent(
                     },
                 )
             } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(state = lazyListState, modifier = Modifier.fillMaxSize()) {
                     state.sections.forEach { section ->
                         item(key = "header_${section.collection.id}") {
                             CollectionHeaderView(section)
@@ -299,6 +307,7 @@ private fun MediaGridItem(
     modifier: Modifier = Modifier
 ) {
     val thumbnailAlpha = if (evidence.status == EvidenceStatus.UPLOADED) 1f else 0.5f
+    var showTitle by remember { mutableStateOf(false) }
 
     Box(
         modifier = modifier
@@ -312,8 +321,29 @@ private fun MediaGridItem(
             alpha = thumbnailAlpha,
             placeholderPadding = 28.dp,
             pdfMaxDimensionPx = 512,
-            showStatusOverlay = false
+            showStatusOverlay = false,
+            onTitleVisibilityChanged = { showTitle = it }
         )
+
+        if (showTitle && evidence.title.isNotBlank()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .align(Alignment.BottomCenter),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                Text(
+                    text = evidence.title,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.85f))
+                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                )
+            }
+        }
 
         // Selection border and background overlay (goes on top of thumbnail)
         if (isInSelectionMode && isSelected) {
@@ -369,7 +399,7 @@ private fun EmptyStateView(
                 Spacer(modifier = Modifier.height(120.dp))
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.displayLarge,
+                    style = MaterialTheme.typography.displayLarge.copy(fontFamily = MontserratFontFamily),
                     fontSize = 48.sp,
                     fontWeight = FontWeight.Bold,
                     color = colorResource(R.color.colorOnSurface),
@@ -383,10 +413,10 @@ private fun EmptyStateView(
             // Description text
             Text(
                 text = message,
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.headlineSmall.copy(fontFamily = MontserratFontFamily),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                color = colorResource(R.color.c23_medium_grey),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(horizontal = 50.dp)
             )
@@ -406,7 +436,7 @@ private fun EmptyStateView(
                         .weight(2f)
                         .padding(horizontal = 48.dp, vertical = 8.dp),
                     contentScale = ContentScale.Fit,
-                    colorFilter = ColorFilter.tint(colorResource(R.color.c23_medium_grey))
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
                 )
             }
         }

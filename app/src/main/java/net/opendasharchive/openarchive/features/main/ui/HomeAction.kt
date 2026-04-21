@@ -1,5 +1,6 @@
 package net.opendasharchive.openarchive.features.main.ui
 
+import android.net.Uri
 import net.opendasharchive.openarchive.features.main.ui.components.HomeBottomTab
 import net.opendasharchive.openarchive.features.media.AddMediaType
 
@@ -21,6 +22,10 @@ sealed class HomeAction {
     data object NavigateToPreviewMedia : HomeAction()
     data object NavigateToCamera: HomeAction()
     data class MediaImported(val projectId: Long) : HomeAction()
+
+    // Share-sheet import flow
+    data class StartSharedImport(val uris: List<Uri>) : HomeAction()
+    data object DismissSharedImportPicker : HomeAction()
 
     // NEW: Project-level actions that modify the projects list
     data class RenameProject(val projectId: Long, val newName: String) : HomeAction()

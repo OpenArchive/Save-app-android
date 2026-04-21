@@ -15,6 +15,7 @@ import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import java.io.File
 import java.io.IOException
+import androidx.core.net.toFile
 import androidx.core.net.toUri
 import net.opendasharchive.openarchive.services.common.network.RequestBodyUtil
 import net.opendasharchive.openarchive.services.common.network.RequestListener
@@ -63,13 +64,21 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
             // upload content synchronously for progress
             client.uploadContent(fileName, mimeType, vault, auth)
 
-            // upload metadata and proofs, and report failures
-            client.uploadMetaData(metaJson, fileName, auth)
+            // upload metadata — non-fatal if it fails
+            try {
+                client.uploadMetaData(metaJson, fileName, auth)
+            } catch (e: Throwable) {
+                AppLogger.e("Failed to upload meta.json for $fileName", e)
+            }
 
-            // Upload C2PA manifest, if enabled and successfully created.
+            // Upload C2PA manifest, if enabled and successfully created — non-fatal
             if (c2paManifest != null) {
-                AppLogger.d("Uploading C2PA manifest to Internet Archive: ${c2paManifest.name}")
-                client.uploadProofFiles(c2paManifest, auth)
+                try {
+                    AppLogger.d("Uploading C2PA manifest to Internet Archive: ${c2paManifest.name}")
+                    client.uploadProofFiles(c2paManifest, auth)
+                } catch (e: Throwable) {
+                    AppLogger.e("Failed to upload C2PA manifest for $fileName", e)
+                }
             }
 
             jobSucceeded()
@@ -92,22 +101,26 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
         vault: Vault,
         auth: VaultAuth
     ) {
-        val mediaUri = mEvidence.originalFilePath
-
         val url = "${ARCHIVE_API_ENDPOINT}/${mEvidence.serverUrl}/$fileName"
+        val listener = createListener(cancellable = { !mCancelled }, onProgress = { jobProgress(it) })
 
-        val requestBody = RequestBodyUtil.create(
-            mContext.contentResolver,
-            mediaUri.toUri(),
-            mEvidence.contentLength,
-            mimeType.toMediaTypeOrNull(),
-            createListener(
-                cancellable = { !mCancelled },
-                onProgress = {
-                    jobProgress(it)
-                }
-            )
-        )
+        val requestBody = run {
+            val uri = mEvidence.originalFilePath.toUri()
+            val scheme = uri.scheme
+            if (scheme == null || scheme == "file") {
+                // plain path or file:// URI — open directly as File to avoid ContentResolver issues
+                val file = if (scheme == "file") uri.toFile() else File(mEvidence.originalFilePath)
+                RequestBodyUtil.create(file, mimeType.toMediaTypeOrNull(), listener)
+            } else {
+                RequestBodyUtil.create(
+                    mContext.contentResolver,
+                    uri,
+                    mEvidence.contentLength,
+                    mimeType.toMediaTypeOrNull(),
+                    listener
+                )
+            }
+        }
 
         val request = Request.Builder()
             .url(url)

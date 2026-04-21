@@ -136,6 +136,17 @@ class EvidenceRepositoryImpl(
         }
     }
 
+    override suspend fun updatePriorities(priorities: List<Pair<Long, Int>>) {
+        withContext(io) {
+            priorities.forEach { (mediaId, priority) ->
+                evidenceDao.getById(mediaId)?.let {
+                    evidenceDao.upsert(it.copy(priority = priority))
+                }
+            }
+            InvalidationBus.invalidateMedia()
+        }
+    }
+
     override suspend fun retryMedia(mediaId: Long) {
         withContext(io) {
             evidenceDao.getById(mediaId)?.let {

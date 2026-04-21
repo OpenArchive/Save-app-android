@@ -25,8 +25,7 @@ import net.opendasharchive.openarchive.util.PermissionManager
 import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.scope.activityRetainedScope
-import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
-import net.opendasharchive.openarchive.core.navigation.ResultEventBus
+import net.opendasharchive.openarchive.features.main.ui.SharedImportState
 import net.opendasharchive.openarchive.upload.UploadJobScheduler
 import net.opendasharchive.openarchive.util.C2paHelper
 
@@ -38,6 +37,7 @@ class HomeActivity : BaseComposeActivity(), AndroidScopeComponent {
     private val navigator by inject<Navigator>()
     private val uploadJobScheduler by inject<UploadJobScheduler>()
     private val passcodeGate by inject<PasscodeGate>()
+    private val sharedImportState by inject<SharedImportState>()
     private lateinit var permissionManager: PermissionManager
 
     /** URIs received via share sheet while the app was locked — delivered after authentication. */
@@ -82,7 +82,9 @@ class HomeActivity : BaseComposeActivity(), AndroidScopeComponent {
             startForegroundService(Intent(this, SnowbirdService::class.java))
         }
 
-        importSharedMedia(intent)
+        if (savedInstanceState == null) {
+            importSharedMedia(intent)
+        }
     }
 
     override fun onStart() {
@@ -97,10 +99,7 @@ class HomeActivity : BaseComposeActivity(), AndroidScopeComponent {
                 .take(1)
                 .collect {
                     pendingSharedUris?.let { uris ->
-                        ResultEventBus.sendResult(
-                            resultKey = NavigationResultKeys.SHARED_MEDIA_IMPORT,
-                            result = uris
-                        )
+                        sharedImportState.setPendingUris(uris)
                         pendingSharedUris = null
                     }
                 }
@@ -127,13 +126,25 @@ class HomeActivity : BaseComposeActivity(), AndroidScopeComponent {
     }
 
     private fun importSharedMedia(intent: Intent?) {
-        if (intent == null) return
+        if (intent == null) { AppLogger.d("SHARE_DEBUG: intent null, skipping"); return }
         val action = intent.action
         val type = intent.type
+        AppLogger.d("SHARE_DEBUG: importSharedMedia action=$action type=$type")
 
-        // Defense-in-depth: reject MIME types not explicitly supported
-        val allowedMimePrefixes = setOf("image/", "audio/", "video/", "application/pdf")
-        if (type != null && allowedMimePrefixes.none { type.startsWith(it) || type == it }) return
+        // Defense-in-depth: reject MIME types not explicitly supported (mirrors manifest intent-filters)
+        val allowedMimeTypes = setOf(
+            "image/jpeg", "image/png", "image/gif", "image/webp",
+            "image/heic", "image/heif", "image/tiff", "image/bmp",
+            "video/mp4", "video/quicktime", "video/x-msvideo",
+            "video/x-matroska", "video/webm", "video/3gpp",
+            "audio/mpeg", "audio/aac", "audio/flac", "audio/ogg",
+            "audio/wav", "audio/x-wav", "audio/mp4", "audio/opus",
+            "application/pdf"
+        )
+        if (type != null && type !in allowedMimeTypes) {
+            AppLogger.d("SHARE_DEBUG: MIME type $type not allowed, returning")
+            return
+        }
 
         if ((Intent.ACTION_SEND == action || Intent.ACTION_SEND_MULTIPLE == action) && type != null) {
             val uris = mutableListOf<Uri>()
@@ -144,17 +155,19 @@ class HomeActivity : BaseComposeActivity(), AndroidScopeComponent {
                 intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)?.let { uris.addAll(it) }
             }
 
+            AppLogger.d("SHARE_DEBUG: uris.size=${uris.size} locked=${passcodeGate.locked.value}")
+
             if (uris.isNotEmpty()) {
                 if (passcodeGate.locked.value) {
-                    // Hold URIs until the user authenticates
+                    AppLogger.d("SHARE_DEBUG: app locked, storing pending uris")
                     pendingSharedUris = uris
                 } else {
-                    ResultEventBus.sendResult(
-                        resultKey = NavigationResultKeys.SHARED_MEDIA_IMPORT,
-                        result = uris
-                    )
+                    AppLogger.d("SHARE_DEBUG: calling sharedImportState.setPendingUris")
+                    sharedImportState.setPendingUris(uris)
                 }
             }
+        } else {
+            AppLogger.d("SHARE_DEBUG: action/type mismatch, not ACTION_SEND. action=$action type=$type")
         }
     }
 }

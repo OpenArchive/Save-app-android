@@ -40,17 +40,17 @@ class WebDavAuthenticator(
     }
 
     override suspend fun testConnection(vault: Vault): Result<Unit> = withContext(Dispatchers.IO) {
-        val url = vault.host
-        val client = saveClientFactory.createClient(vault.username, vault.password)
-
-        val request = Request.Builder()
-            .url(url)
-            .method("GET", null)
-            .addHeader("OCS-APIRequest", "true")
-            .addHeader("Accept", "application/json")
-            .build()
-
         try {
+            val url = vault.host
+            val client = saveClientFactory.createClient(vault.username, vault.password)
+
+            val request = Request.Builder()
+                .url(url)
+                .method("GET", null)
+                .addHeader("OCS-APIRequest", "true")
+                .addHeader("Accept", "application/json")
+                .build()
+
             suspendCoroutine { continuation ->
                 client.newCall(request).enqueue(object : okhttp3.Callback {
                     override fun onFailure(call: okhttp3.Call, e: IOException) {

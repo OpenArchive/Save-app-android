@@ -51,8 +51,11 @@ object MediaPicker {
         uri: Uri,
     ): Evidence? {
 
-        val title = Utility.getUriDisplayName(context, uri) ?: ""
-        val file  = Utility.getOutputMediaFile(context, title)
+        val title = Utility.getUriDisplayName(context, uri)
+            ?: uri.lastPathSegment
+            ?: uri.path?.substringAfterLast('/')
+            ?: ""
+        val file  = Utility.getOutputMediaFile(context, title.ifBlank { "media" })
 
         try {
             context.contentResolver.openInputStream(uri)?.use { inputStream ->

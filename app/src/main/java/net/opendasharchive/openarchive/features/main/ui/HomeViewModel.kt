@@ -27,6 +27,7 @@ import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.MediaPicker
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
 import net.opendasharchive.openarchive.upload.UploadJobScheduler
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.util.Prefs
 
 /**
@@ -37,7 +38,8 @@ class HomeViewModel(
     private val navigator: Navigator,
     private val spaceRepository: SpaceRepository,
     private val projectRepository: ProjectRepository,
-    private val uploadJobScheduler: UploadJobScheduler
+    private val uploadJobScheduler: UploadJobScheduler,
+    private val sharedImportState: SharedImportState
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeState())
@@ -48,6 +50,7 @@ class HomeViewModel(
 
     init {
         observeData()
+        observeSharedImport()
     }
 
     private fun observeData() {
@@ -98,6 +101,19 @@ class HomeViewModel(
                 )
             }
         }.launchIn(viewModelScope)
+    }
+
+    private fun observeSharedImport() {
+        sharedImportState.pendingUris
+            .onEach { uris ->
+                AppLogger.d("SHARE_DEBUG: HomeViewModel observeSharedImport uris=$uris")
+                if (uris != null) {
+                    AppLogger.d("SHARE_DEBUG: setting showProjectPickerForImport=true")
+                    _uiState.update { it.copy(pendingSharedUris = uris, showProjectPickerForImport = true) }
+                    sharedImportState.clear()
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
     fun onAction(action: HomeAction) {
@@ -173,6 +189,20 @@ class HomeViewModel(
                 )
                 val route = AppRoute.CameraRoute(projectId, config)
                 navigator.navigateTo(route)
+            }
+
+            is HomeAction.StartSharedImport -> {
+                _uiState.update { it.copy(
+                    pendingSharedUris = action.uris,
+                    showProjectPickerForImport = true
+                )}
+            }
+
+            HomeAction.DismissSharedImportPicker -> {
+                _uiState.update { it.copy(
+                    pendingSharedUris = null,
+                    showProjectPickerForImport = false
+                )}
             }
 
             // NEW: Handle project mutations
@@ -312,7 +342,7 @@ class HomeViewModel(
     private fun renameProject(projectId: Long, newName: String) {
         viewModelScope.launch {
             projectRepository.renameProject(projectId, newName)
-            // UI updates automatically via flow
+            emitEvent(HomeEvent.ShowMessage("Folder renamed"))
         }
     }
 

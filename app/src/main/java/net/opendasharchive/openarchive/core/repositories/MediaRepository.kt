@@ -18,5 +18,6 @@ interface MediaRepository {
     suspend fun queueAllForUpload(mediaIds: List<Long>)
     suspend fun getQueue(): List<Evidence>
     suspend fun updatePriority(mediaId: Long, priority: Int)
+    suspend fun updatePriorities(priorities: List<Pair<Long, Int>>)
     suspend fun retryMedia(mediaId: Long)
 }

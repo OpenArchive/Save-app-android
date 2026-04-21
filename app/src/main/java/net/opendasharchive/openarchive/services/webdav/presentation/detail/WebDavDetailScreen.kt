@@ -143,20 +143,21 @@ private fun WebDavContent(
                 enabled = false,
             )
 
+
             Spacer(modifier = Modifier.height(ThemeDimensions.spacing.medium))
 
             // Password field
             CustomSecureField(
-                value = state.password,
+                value = "••••••••",
                 onValueChange = {
                     // Do nothing
                 },
                 placeholder = stringResource(R.string.prompt_password),
                 enabled = false,
+                showToggle = false,
                 keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Done,
             )
-
 
             // License Section (only in edit mode)
             Spacer(modifier = Modifier.height(ThemeDimensions.spacing.large))

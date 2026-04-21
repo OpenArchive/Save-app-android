@@ -128,6 +128,18 @@ class SugarMediaRepository(
         }
     }
 
+    override suspend fun updatePriorities(priorities: List<Pair<Long, Int>>) {
+        withContext(io) {
+            priorities.forEach { (mediaId, priority) ->
+                Media.get(mediaId)?.let {
+                    it.priority = priority
+                    it.save()
+                }
+            }
+            InvalidationBus.invalidateMedia()
+        }
+    }
+
     override suspend fun retryMedia(mediaId: Long) {
         withContext(io) {
             Media.get(mediaId)?.let {

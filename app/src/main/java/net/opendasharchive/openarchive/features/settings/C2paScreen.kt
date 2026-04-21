@@ -5,8 +5,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
-import android.text.Spanned
-import android.text.style.URLSpan
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -41,14 +39,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextDecoration
+import net.opendasharchive.openarchive.features.onboarding.components.HtmlText
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.text.HtmlCompat
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
@@ -133,37 +130,6 @@ fun C2paScreenContent() {
         }
     }
 
-    val spannedText: Spanned = HtmlCompat.fromHtml(
-        stringResource(
-            R.string.prefs_use_c2pa_description,
-            "https://c2pa.org/"
-        ), HtmlCompat.FROM_HTML_MODE_COMPACT
-    )
-
-    // AnnotatedString Builder
-    val annotatedString = buildAnnotatedString {
-        append(spannedText.toString())
-        spannedText.getSpans(0, spannedText.length, URLSpan::class.java)
-            .forEach { urlSpan ->
-                val start = spannedText.getSpanStart(urlSpan)
-                val end = spannedText.getSpanEnd(urlSpan)
-                addStringAnnotation(
-                    tag = "URL",
-                    annotation = urlSpan.url,
-                    start = start,
-                    end = end
-                )
-                addStyle(
-                    style = SpanStyle(
-                        color = MaterialTheme.colorScheme.tertiary,
-                        textDecoration = TextDecoration.Underline
-                    ),
-                    start = start,
-                    end = end
-                )
-            }
-    }
-
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
             Row(
@@ -228,7 +194,12 @@ fun C2paScreenContent() {
 
         item {
             Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-                Text(annotatedString, fontSize = 11.sp)
+                HtmlText(
+                    textRes = R.string.prefs_use_c2pa_description,
+                    linkRes = R.string.c2pa_learn_more_url,
+                    fontSize = 11.sp,
+                    linkColor = MaterialTheme.colorScheme.tertiary
+                )
             }
         }
 

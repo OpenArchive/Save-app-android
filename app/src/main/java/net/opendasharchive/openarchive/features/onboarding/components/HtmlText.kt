@@ -82,6 +82,13 @@ private fun spannedToAnnotatedString(
         val text = spanned.toString()
         append(text)
 
+        // Apply default color first so link/span styles can override it
+        addStyle(
+            SpanStyle(color = color),
+            start = 0,
+            end = text.length
+        )
+
         // Get all spans from the Spanned text
         val spans = spanned.getSpans(0, spanned.length, Any::class.java)
 
@@ -146,11 +153,5 @@ private fun spannedToAnnotatedString(
             }
         }
 
-        // Apply default color to all text
-        addStyle(
-            SpanStyle(color = color),
-            start = 0,
-            end = text.length
-        )
     }
 }
