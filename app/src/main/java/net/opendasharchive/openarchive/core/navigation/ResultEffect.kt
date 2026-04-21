@@ -23,8 +23,8 @@ inline fun <reified T> ResultEffect(
 ) {
     LaunchedEffect(resultKey) {
         resultBus.getResultFlow<T>(resultKey)
-            ?.filterNotNull()
-            ?.collect { result ->
+            .filterNotNull()
+            .collect { result ->
                 onResult(result as T)
             }
     }

@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.ContentResolver
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.main.ui.HomeViewModel
+import net.opendasharchive.openarchive.features.main.ui.SharedImportState
 import net.opendasharchive.openarchive.features.main.ui.MainMediaViewModel
 import net.opendasharchive.openarchive.features.media.PreviewMediaViewModel
 import net.opendasharchive.openarchive.features.media.ReviewMediaViewModel
@@ -42,4 +43,5 @@ val featuresModule = module {
 
     viewModelOf(::UploadManagerViewModel)
     single<UploadJobScheduler> { JobSchedulerUploadJobScheduler(androidApplication()) }
+    single { SharedImportState() }
 }

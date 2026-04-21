@@ -1,11 +1,23 @@
 package net.opendasharchive.openarchive.features.main.ui
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.res.painterResource
+import net.opendasharchive.openarchive.R
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextButton
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.CircularProgressIndicator
@@ -31,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -56,6 +69,8 @@ import net.opendasharchive.openarchive.features.main.ui.components.HomeBottomTab
 import net.opendasharchive.openarchive.features.main.ui.components.MainBottomBar
 import net.opendasharchive.openarchive.features.main.ui.components.MainDrawerContent
 import net.opendasharchive.openarchive.features.media.AddMediaType
+import net.opendasharchive.openarchive.core.domain.Archive
+import net.opendasharchive.openarchive.core.domain.Vault
 import net.opendasharchive.openarchive.features.media.ContentPickerSheet
 import net.opendasharchive.openarchive.features.media.MediaPicker
 import net.opendasharchive.openarchive.features.media.rememberContentPickerLaunchers
@@ -82,6 +97,10 @@ fun HomeScreen(
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.showProjectPickerForImport) {
+        net.opendasharchive.openarchive.core.logger.AppLogger.d("SHARE_DEBUG: HomeScreen showProjectPickerForImport=${uiState.showProjectPickerForImport}")
+    }
 
     // Handle In-App Updates
     CheckForInAppUpdates(snackbarHostState)
@@ -192,53 +211,6 @@ fun HomeScreen(
         }
     }
 
-    // Receive shared media imports from HomeActivity via ResultEventBus
-    ResultEffect<List<android.net.Uri>>(resultKey = NavigationResultKeys.SHARED_MEDIA_IMPORT) { uris ->
-        manualImportInProgress = true
-        scope.launch(Dispatchers.IO) {
-            try {
-                // Use the currently selected project for the import
-                val selectedProject = uiState.projects.getOrNull(uiState.pagerIndex)
-                if (selectedProject != null && uris.isNotEmpty()) {
-                    val submission = projectRepository.getActiveSubmission(selectedProject.id)
-                    val evidenceList = MediaPicker.import(
-                        context,
-                        selectedProject,
-                        submission.id,
-                        uris,
-                    )
-                    evidenceList.forEach { evidence ->
-                        mediaRepository.addEvidence(evidence)
-                    }
-                    withContext(Dispatchers.Main) {
-                        if (evidenceList.isNotEmpty()) {
-                            scope.launch {
-                                snackbarHostState.showSnackbar("Media imported")
-                            }
-                            viewModel.onAction(HomeAction.NavigateToPreviewMedia)
-                        } else {
-                            scope.launch {
-                                snackbarHostState.showSnackbar("Import failed")
-                            }
-                        }
-                    }
-                } else if (uris.isNotEmpty()) {
-                    withContext(Dispatchers.Main) {
-                        snackbarHostState.showSnackbar("Please select a folder first")
-                    }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    snackbarHostState.showSnackbar("Failed to import: ${e.localizedMessage}")
-                }
-            } finally {
-                withContext(Dispatchers.Main) {
-                    manualImportInProgress = false
-                }
-            }
-        }
-    }
-
     // Receive space added result to refresh space list after coming from space setup complete screen
     ResultEffect<Boolean>(resultKey = NavigationResultKeys.REFRESH_SPACES) { success ->
         if (success) {
@@ -282,6 +254,190 @@ fun HomeScreen(
         snackbarHostState = snackbarHostState,
         showImportLoading = isImporting
     )
+
+    // Two-step project picker bottom sheet for share-sheet imports
+    // Step 1: pick a space; Step 2: pick a folder within that space
+    if (uiState.showProjectPickerForImport) {
+        var selectedSpace by remember { mutableStateOf<Vault?>(null) }
+        var spaceFolders by remember { mutableStateOf<List<Archive>>(emptyList()) }
+        var foldersLoading by remember { mutableStateOf(false) }
+
+        LaunchedEffect(selectedSpace) {
+            val space = selectedSpace ?: return@LaunchedEffect
+            foldersLoading = true
+            spaceFolders = try {
+                projectRepository.getProjects(space.id)
+            } catch (e: Exception) {
+                emptyList()
+            }
+            foldersLoading = false
+        }
+
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(
+            onDismissRequest = {
+                selectedSpace = null
+                viewModel.onAction(HomeAction.DismissSharedImportPicker)
+            },
+            sheetState = sheetState
+        ) {
+            Column(modifier = Modifier.padding(bottom = 24.dp)) {
+                if (selectedSpace == null) {
+                    // ── Step 1: space list ──
+                    Text(
+                        text = "Select server",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                    )
+                    HorizontalDivider()
+                    if (uiState.spaces.isEmpty()) {
+                        Text(
+                            text = "No servers configured. Add a server first.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    } else {
+                        LazyColumn {
+                            items(uiState.spaces) { space ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { selectedSpace = space }
+                                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.ic_folder),
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column {
+                                        Text(
+                                            text = space.friendlyName,
+                                            style = MaterialTheme.typography.bodyLarge
+                                        )
+                                        Text(
+                                            text = space.type.friendlyName,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // ── Step 2: folder list for selected space ──
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 4.dp, end = 16.dp, top = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(onClick = { selectedSpace = null }) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_arrow_back),
+                                contentDescription = "Back"
+                            )
+                        }
+                        Text(
+                            text = selectedSpace!!.friendlyName,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                    HorizontalDivider()
+                    when {
+                        foldersLoading -> {
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                CircularProgressIndicator(modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text("Loading folders…", style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                        spaceFolders.isEmpty() -> {
+                            Text(
+                                text = "No folders found in this server.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                        }
+                        else -> {
+                            LazyColumn {
+                                items(spaceFolders) { project ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                val uris = uiState.pendingSharedUris ?: return@clickable
+                                                selectedSpace = null
+                                                viewModel.onAction(HomeAction.DismissSharedImportPicker)
+                                                manualImportInProgress = true
+                                                scope.launch(Dispatchers.IO) {
+                                                    try {
+                                                        val submission = projectRepository.getActiveSubmission(project.id)
+                                                        val evidenceList = MediaPicker.import(
+                                                            context,
+                                                            project,
+                                                            submission.id,
+                                                            uris,
+                                                        )
+                                                        evidenceList.forEach { mediaRepository.addEvidence(it) }
+                                                        withContext(Dispatchers.Main) {
+                                                            if (evidenceList.isNotEmpty()) {
+                                                                viewModel.onAction(HomeAction.MediaImported(project.id))
+                                                            } else {
+                                                                snackbarHostState.showSnackbar("Import failed")
+                                                            }
+                                                        }
+                                                    } catch (e: Exception) {
+                                                        withContext(Dispatchers.Main) {
+                                                            snackbarHostState.showSnackbar("Failed to import: ${e.localizedMessage}")
+                                                        }
+                                                    } finally {
+                                                        withContext(Dispatchers.Main) {
+                                                            manualImportInProgress = false
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(R.drawable.ic_folder),
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        Text(
+                                            text = project.description ?: "Unnamed folder",
+                                            style = MaterialTheme.typography.bodyLarge
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                HorizontalDivider()
+                TextButton(
+                    onClick = {
+                        selectedSpace = null
+                        viewModel.onAction(HomeAction.DismissSharedImportPicker)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                ) {
+                    Text("Cancel")
+                }
+            }
+        }
+    }
 }
 
 

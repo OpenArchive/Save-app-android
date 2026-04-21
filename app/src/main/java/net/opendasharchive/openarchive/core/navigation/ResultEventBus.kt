@@ -39,30 +39,24 @@ object LocalResultEventBus {
  * It provides a solution for event based results.
  */
 object ResultEventBus {
-    /**
-     * Map from the result key to a channel of results.
-     */
     val channelMap: MutableMap<String, Channel<Any?>> = mutableMapOf()
 
+    @PublishedApi internal fun getOrCreate(resultKey: String): Channel<Any?> =
+        channelMap.getOrPut(resultKey) {
+            Channel(capacity = BUFFERED, onBufferOverflow = BufferOverflow.SUSPEND)
+        }
+
     /**
-     * Provides a flow for the given resultKey.
+     * Always returns a non-null flow. The channel is created eagerly so that
+     * subscribers established before [sendResult] is called still receive events.
      */
     inline fun <reified T> getResultFlow(resultKey: String = T::class.toString()) =
-        channelMap[resultKey]?.receiveAsFlow()
+        getOrCreate(resultKey).receiveAsFlow()
 
-    /**
-     * Sends a result into the channel associated with the given resultKey.
-     */
     inline fun <reified T> sendResult(resultKey: String = T::class.toString(), result: T) {
-        if (!channelMap.contains(resultKey)) {
-            channelMap[resultKey] = Channel(capacity = BUFFERED, onBufferOverflow = BufferOverflow.SUSPEND)
-        }
-        channelMap[resultKey]?.trySend(result)
+        getOrCreate(resultKey).trySend(result)
     }
 
-    /**
-     * Removes all results associated with the given key from the store.
-     */
     inline fun <reified T> removeResult(resultKey: String = T::class.toString()) {
         channelMap.remove(resultKey)
     }
