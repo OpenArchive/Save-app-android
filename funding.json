@@ -6,46 +6,65 @@
     "role": "maintainer",
     "name": "OpenArchive",
     "email": "info@open-archive.org",
-    "description": "OpenArchive is the team behind the Save app. We build and integrate secure, open-source protocols and services into mobile archiving.",
+    "description": "OpenArchive is the team behind the Save app, working to preserve history to help democracies flourish. Save is a cross-platform (Android and iOS) FLOSS secure mobile archiving app that verifies media with Proofmode and sends it securely over Tor and TLS to the Internet Archive, WebDav-compatible, and decentralized backends. It equally prioritizes privacy and usability to promote media sovereignty by offering people easy-to-use secure media capture, verification, and long-term preservation. Save plays an essential role in the digital archiving and verification ecosystem, supporting journalists, eyewitnesses, and human rights defenders. It streamlines workflows that require trustworthy media capture and preservation, serving as a technical foundation for people handling sensitive, evidentiary, or high-value content.",
     "webpageUrl": {
-      "url": "https://www.open-archive.org"
+      "url": "https://www.open-archive.org",
+      "wellKnown": ""
     }
   },
   "projects": [
     {
       "guid": "save-mobile-android",
       "name": "Save Mobile Android App",
-      "description": "Open-source mobile application that enables journalists, researchers, and human rights experts to securely capture photos, video, and audio with tamper-evident metadata, and upload them to trusted archival systems. This work is supported by ongoing platform maintenance and development, including Jetpack Compose UI framework enhancements and Room DB migration. In parallel, we conduct dedicated research and development (R&D) focused on areas such as Tor routing integration and C2PA toolkit implementation.",
+      "description": "Save is a cross-platform FLOSS secure mobile archiving app that verifies media with Proofmode and sends it securely over Tor and TLS to ethical FLOSS backends including, the Internet Archive, WebDav-compatible, and decentralized servers. Save helps journalists, eyewitnesses, and human rights defenders securely capture multimedia with tamper-evident metadata and upload them to independent archival systems. Save for Android is actively maintained and continuously evolving. Ongoing work includes improvements to core platform components like the Jetpack Compose UI framework, Room database modernization, and overall system stability. R&D efforts explore enhancements in privacy, transport security, and distributed storage, including Tor routing and emerging verification standards like C2PA.",
       "webpageUrl": {
-        "url": "https://www.open-archive.org/save"
+        "url": "https://www.open-archive.org/save",
+        "wellKnown": "https://github.com/OpenArchive/Save-app-android/blob/master/.well-known/funding-manifest-urls"
       },
       "repositoryUrl": {
-        "url": "https://github.com/OpenArchive/Save-app-android"
+        "url": "https://github.com/OpenArchive/Save-app-android",
+        "wellKnown": "https://github.com/OpenArchive/Save-app-android/blob/master/.well-known/funding-manifest-urls"
       },
-      "licenses": ["spdx:GPL-3.0-only"],
+      "licenses": [
+        "spdx:GPL-3.0-only"
+      ],
       "tags": [
         "mobile",
         "journalism",
         "human-rights",
-        "android"
+        "android",
+        "verification",
+        "tor",
+        "c2pa",
+        "ipfs",
+        "privacy"
       ]
     },
     {
       "guid": "save-mobile-ios",
       "name": "Save Mobile iOS App",
-      "description": "Open-source mobile application that enables journalists, researchers, and human rights experts to securely capture photos, video, and audio with tamper-evident metadata, and upload them to trusted archival systems. This work is supported by ongoing platform maintenance and development, including Swift UI enhancements and Core Data migration. In parallel, we conduct dedicated research and development (R&D) focused on areas such as Tor routing integration and C2PA toolkit implementation.",
+      "description": "Save is a cross-platform FLOSS secure mobile archiving app that verifies media with Proofmode and sends it securely over Tor and TLS to ethical FLOSS backends including, the Internet Archive, WebDav-compatible, and decentralized servers. Save helps journalists, eyewitnesses, and human rights defenders securely capture multimedia with tamper-evident metadata and upload them to independent archival systems. Save for iOS is actively maintained and continuously evolving. Ongoing work includes improvements to core platform components like SwiftUI, Core Data modernization, and overall system stability. R&D efforts explore enhancements in privacy, transport security, and distributed storage, including Tor routing and emerging verification standards like C2PA.",
       "webpageUrl": {
-        "url": "https://www.open-archive.org/save"
+        "url": "https://www.open-archive.org/save",
+        "wellKnown": "https://github.com/OpenArchive/Save-app-ios/blob/master/.well-known/funding-manifest-urls"
       },
       "repositoryUrl": {
-        "url": "https://github.com/OpenArchive/Save-app-ios"
+        "url": "https://github.com/OpenArchive/Save-app-ios",
+        "wellKnown": "https://github.com/OpenArchive/Save-app-ios/blob/master/.well-known/funding-manifest-urls"
       },
-      "licenses": ["spdx:GPL-3.0-only"],
+      "licenses": [
+        "spdx:GPL-3.0-only"
+      ],
       "tags": [
         "mobile",
         "journalism",
         "human-rights",
-        "ios"
+        "ios",
+        "verification",
+        "tor",
+        "c2pa",
+        "ipfs",
+        "privacy"
       ]
     }
   ],
