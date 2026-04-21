@@ -82,7 +82,9 @@ class HomeActivity : BaseComposeActivity(), AndroidScopeComponent {
             startForegroundService(Intent(this, SnowbirdService::class.java))
         }
 
-        importSharedMedia(intent)
+        if (savedInstanceState == null) {
+            importSharedMedia(intent)
+        }
     }
 
     override fun onStart() {

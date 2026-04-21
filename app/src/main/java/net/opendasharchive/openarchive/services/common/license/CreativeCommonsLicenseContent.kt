@@ -101,7 +101,7 @@ fun CreativeCommonsLicenseContent(
 
         // Show license URL when CC is enabled
         if (licenseState.ccEnabled) {
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // License URL - matches TextView lines 132-138 in content_cc.xml  
             licenseState.licenseUrl?.let { url ->
@@ -117,7 +117,7 @@ fun CreativeCommonsLicenseContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Learn More Link - matches TextView lines 140-147 in content_cc.xml
         Text(

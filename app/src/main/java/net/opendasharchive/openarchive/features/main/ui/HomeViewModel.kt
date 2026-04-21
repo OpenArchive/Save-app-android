@@ -342,7 +342,7 @@ class HomeViewModel(
     private fun renameProject(projectId: Long, newName: String) {
         viewModelScope.launch {
             projectRepository.renameProject(projectId, newName)
-            // UI updates automatically via flow
+            emitEvent(HomeEvent.ShowMessage("Folder renamed"))
         }
     }
 

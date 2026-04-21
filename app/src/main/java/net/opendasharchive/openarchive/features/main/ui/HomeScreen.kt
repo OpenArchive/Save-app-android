@@ -15,6 +15,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import net.opendasharchive.openarchive.R
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextButton
@@ -109,6 +110,7 @@ fun HomeScreen(
     CheckForInAppReview()
 
     val context = LocalContext.current
+    val noFolderMessage = stringResource(R.string.tap_to_add_folder)
     val scope = rememberCoroutineScope()
     var manualImportInProgress by remember { mutableStateOf(false) }
     var importSnackbarJob by remember { mutableStateOf<Job?>(null) }
@@ -222,20 +224,25 @@ fun HomeScreen(
         viewModel.uiEvent.collectLatest { event ->
             when (event) {
                 is HomeEvent.LaunchPicker -> {
-                    when (event.type) {
-                        AddMediaType.CAMERA -> {
-                            // Navigate to camera screen
-                            viewModel.onAction(HomeAction.NavigateToCamera)
-                        }
-
-                        AddMediaType.GALLERY -> {
-                            permissionManager.checkMediaPermissions {
-                                pickerLaunchers.launch(AddMediaType.GALLERY)
+                    val hasFolder = uiState.selectedProjectId != null &&
+                        uiState.projects.any { it.id == uiState.selectedProjectId }
+                    if (!hasFolder) {
+                        snackbarHostState.showSnackbar(noFolderMessage)
+                    } else {
+                        when (event.type) {
+                            AddMediaType.CAMERA -> {
+                                viewModel.onAction(HomeAction.NavigateToCamera)
                             }
-                        }
 
-                        AddMediaType.FILES -> {
-                            pickerLaunchers.launch(AddMediaType.FILES)
+                            AddMediaType.GALLERY -> {
+                                permissionManager.checkMediaPermissions {
+                                    pickerLaunchers.launch(AddMediaType.GALLERY)
+                                }
+                            }
+
+                            AddMediaType.FILES -> {
+                                pickerLaunchers.launch(AddMediaType.FILES)
+                            }
                         }
                     }
                 }

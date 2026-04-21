@@ -40,6 +40,7 @@ fun CustomSecureField(
     placeholder: String,
     isError: Boolean = false,
     isLoading: Boolean = false,
+    showToggle: Boolean = true,
     keyboardType: KeyboardType,
     imeAction: ImeAction,
     onImeAction: (() -> Unit)? = null,
@@ -98,16 +99,16 @@ fun CustomSecureField(
             //focusedIndicatorColor = Color.Transparent,
             //unfocusedIndicatorColor = Color.Transparent,
         ),
-        trailingIcon = {
+        trailingIcon = if (showToggle) ({
             IconButton(
-                enabled = !isLoading,
+                enabled = !isLoading && enabled,
                 modifier = Modifier.sizeIn(ThemeDimensions.touchable),
                 onClick = { showPassword = !showPassword }) {
 
                 val (iconRes, cd) =
                     if (showPassword) {
                         R.drawable.ic_visibility_off to
-                                "Hide password" // ideally a stringResource(...)
+                                "Hide password"
                     } else {
                         R.drawable.ic_visibility to
                                 "Show password"
@@ -118,6 +119,6 @@ fun CustomSecureField(
                     contentDescription = cd
                 )
             }
-        },
+        }) else null,
     )
 }

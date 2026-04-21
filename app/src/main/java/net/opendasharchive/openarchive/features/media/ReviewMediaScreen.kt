@@ -1,6 +1,7 @@
 package net.opendasharchive.openarchive.features.media
 
 import android.content.res.Configuration
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -32,6 +33,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -88,17 +90,20 @@ private fun ReviewMediaContent(
     state: ReviewMediaState,
     onAction: (ReviewMediaAction) -> Unit
 ) {
+    val screenHeight = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp.dp
+    val previewHeight = screenHeight * 0.55f
+
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .imePadding()
             .verticalScroll(rememberScrollState())
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Top Preview Section (55% height)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.60f)
+                .height(previewHeight)
         ) {
             if (state.isBatchMode) {
                 BatchPreviewSection(state = state)
@@ -106,22 +111,17 @@ private fun ReviewMediaContent(
                 SinglePreviewSection(state = state)
             }
 
-            // Overlay Actions
             PreviewOverlayActions(
                 state = state,
                 onAction = onAction
             )
         }
 
-        Spacer(modifier = Modifier.fillMaxHeight(0.05f))
-
-        // Bottom Metadata Section (45% height)
         MetadataSection(
             state = state,
             onAction = onAction,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.35f)
                 .alpha(0.85f)
         )
     }
@@ -392,7 +392,7 @@ private fun MetadataSection(
             onValueChange = { onAction(ReviewMediaAction.UpdateDescription(it)) },
             placeholder = stringResource(R.string.add_notes_optional),
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .focusRequester(descriptionFocusRequester)
         )
     }

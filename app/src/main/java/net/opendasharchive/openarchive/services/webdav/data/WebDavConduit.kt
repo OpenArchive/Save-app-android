@@ -16,74 +16,76 @@ class WebDavConduit(evidence: Evidence, context: Context) : Conduit(evidence, co
     private lateinit var mClient: OkHttpSardine
 
     override suspend fun upload(): Boolean {
-        val vault = spaceRepository.getSpaceById(mEvidence.vaultId) ?: return false
-        val auth = spaceRepository.getVaultAuth(mEvidence.vaultId) ?: return false
-        val base = vault.hostUrl ?: return false
-        val path = getPath() ?: return false
-
-        mClient = SaveClient.getSardine(mContext, auth.username, auth.secret)
-
-        sanitize()
-
-        val fileName = getUploadFileName(mEvidence)
-
         try {
-            val archive = projectRepository.getProject(mEvidence.archiveId)
-            createFolders(base, path, archive?.isRemote ?: false)
+            val vault = spaceRepository.getSpaceById(mEvidence.vaultId) ?: return false
+            val auth = spaceRepository.getVaultAuth(mEvidence.vaultId) ?: return false
+            val base = vault.hostUrl ?: return false
+            val path = getPath() ?: return false
 
-            uploadMetadata(base, path, fileName)
-        } catch (e: Throwable) {
-            jobFailed(e)
+            mClient = SaveClient.getSardine(mContext, auth.username, auth.secret)
 
-            return false
-        }
+            sanitize()
 
-//        if (space.useChunking && mMedia.contentLength > CHUNK_FILESIZE_THRESHOLD) {
-//            return uploadChunked(base, path, fileName)
-//        }
+            val fileName = getUploadFileName(mEvidence)
 
-        AppLogger.i("Begin media file upload...")
-        if (mEvidence.contentLength > CHUNK_FILESIZE_THRESHOLD) {
-            return uploadChunked(base, path, fileName)
-        }
+            try {
+                val archive = projectRepository.getProject(mEvidence.archiveId)
+                createFolders(base, path, archive?.isRemote ?: false)
 
-        val fullPath = construct(base, path, fileName)
-        AppLogger.i("Uploading started for single file upload...", "filePath: $fullPath")
+                uploadMetadata(base, path, fileName)
+            } catch (e: Throwable) {
+                jobFailed(e)
 
-        try {
-            mClient.put(
-                mContext.contentResolver,
-                fullPath,
-                mEvidence.fileUri,
-                mEvidence.contentLength,
-                mEvidence.mimeType,
-                false,
-                object : SardineListener {
-                    var lastBytes: Long = 0
+                return false
+            }
 
-                    override fun transferred(bytes: Long) {
-                        if (bytes > lastBytes) {
-                            jobProgress(bytes)
-                            lastBytes = bytes
+            AppLogger.i("Begin media file upload...")
+            if (mEvidence.contentLength > CHUNK_FILESIZE_THRESHOLD) {
+                return uploadChunked(base, path, fileName)
+            }
+
+            val fullPath = construct(base, path, fileName)
+            AppLogger.i("Uploading started for single file upload...", "filePath: $fullPath")
+
+            try {
+                mClient.put(
+                    mContext.contentResolver,
+                    fullPath,
+                    mEvidence.fileUri,
+                    mEvidence.contentLength,
+                    mEvidence.mimeType,
+                    false,
+                    object : SardineListener {
+                        var lastBytes: Long = 0
+
+                        override fun transferred(bytes: Long) {
+                            if (bytes > lastBytes) {
+                                jobProgress(bytes)
+                                lastBytes = bytes
+                            }
+                            AppLogger.i("Bytes transferred for for ${mEvidence.id}: ", "$bytes")
                         }
-                        AppLogger.i("Bytes transferred for for ${mEvidence.id}: ", "$bytes")
-                    }
 
-                    override fun continueUpload(): Boolean {
-                        AppLogger.i("Should continue upload for ${mEvidence.id}?", "$mCancelled")
-                        return !mCancelled
-                    }
-                })
+                        override fun continueUpload(): Boolean {
+                            AppLogger.i("Should continue upload for ${mEvidence.id}?", "$mCancelled")
+                            return !mCancelled
+                        }
+                    })
+            } catch (e: Throwable) {
+                jobFailed(e)
+
+                return false
+            }
+
+            mEvidence = mEvidence.copy(serverUrl = fullPath)
+            jobSucceeded()
+
+            return true
         } catch (e: Throwable) {
             jobFailed(e)
-
-            return false
         }
 
-        mEvidence = mEvidence.copy(serverUrl = fullPath)
-        jobSucceeded()
-
-        return true
+        return false
     }
 
     override suspend fun createFolder(url: String) {
