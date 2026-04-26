@@ -67,8 +67,8 @@ android {
         applicationId = "net.opendasharchive.openarchive"
         minSdk = 29
         targetSdk = 36
-        versionCode = 30029
-        versionName = "4.0.6"
+        versionCode = 30032
+        versionName = "4.0.11"
         multiDexEnabled = true
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -87,8 +87,8 @@ android {
 
         getByName("release") {
             signingConfig = signingConfigs.getByName("debug")
-            isMinifyEnabled = false
-            isShrinkResources = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
 
@@ -119,6 +119,10 @@ android {
             val localProps = loadLocalProperties()
             val acraEmail = localProps.getProperty("ACRA_EMAIL") ?: System.getenv("ACRA_EMAIL") ?: ""
             buildConfigField("String", "ACRA_EMAIL", "\"$acraEmail\"")
+            // No real devices use x86/x86_64 — emulators can use armeabi-v7a via translation
+            ndk {
+                abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+            }
         }
 
         // Environment dimension
@@ -177,15 +181,13 @@ android {
 
     androidResources {
         generateLocaleConfig = true
+        // Strip unused locale resources from all transitive libraries
+        localeFilters += setOf(
+            "en", "ar", "fa", "fr", "es", "de", "ckb", "pt", "ru", "zh", "tr", "id", "uk", "nl"
+        )
     }
 
 
-    configurations.all {
-        resolutionStrategy {
-            force("org.bouncycastle:bcprov-jdk15to18:1.72")
-            exclude(group = "org.bouncycastle", module = "bcprov-jdk15on")
-        }
-    }
 }
 
 base {
@@ -211,12 +213,7 @@ dependencies {
     implementation(libs.androidx.exifinterface)
 
     // AndroidX UI Components
-    implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.constraintlayout.compose)
-    implementation(libs.androidx.coordinatorlayout)
     implementation(libs.androidx.recyclerview)
-    implementation(libs.androidx.recyclerview.selection)
-    implementation(libs.androidx.viewpager2)
     implementation(libs.androidx.swiperefresh)
 
     // AndroidX Activity & Fragment
@@ -232,17 +229,14 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.process)
 
-    // AndroidX Navigation
+    // AndroidX Navigation (fragment kept for BaseFragment.findNavController)
     implementation(libs.androidx.navigation.fragment)
-    implementation(libs.androidx.navigation.ui)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.navigation.fragment.compose)
 
     // AndroidX Navigation3
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
-    implementation(libs.koin.compose.navigation3)
     implementation(libs.androidx.navigationevent)
 
     // Compose UI
@@ -287,17 +281,14 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
     implementation(libs.retrofit)
-    implementation(libs.retrofit.gson)
     implementation(libs.retrofit.kotlinx.serialization)
     implementation(libs.guardianproject.sardine)
-    implementation(libs.jsoup)
 
     // Images & Media
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
     implementation(libs.coil.network)
-    implementation(libs.picasso)
 
     // CameraX
     implementation(libs.androidx.camera.core)
@@ -308,7 +299,7 @@ dependencies {
     implementation(libs.androidx.camera.compose)
     implementation(libs.androidx.camera.extensions)
 
-    // Barcode Scanning
+    // Barcode Scanning (ZXing only — ML Kit removed, 20 MB native saved)
     implementation(libs.zxing.core)
     implementation(libs.zxing.android.embedded)
 
@@ -331,17 +322,9 @@ dependencies {
     //implementation(libs.google.http.client.gson)
     //implementation(libs.google.drive.api)
 
-    // Security & Cryptography
-    implementation("com.google.crypto.tink:tink-android:1.20.0")
-    implementation(libs.bouncycastle.bcprov)
-    implementation(libs.bouncycastle.bcpkix)
-    api(libs.bouncycastle.bcpg)
-    implementation(libs.netcipher)
-
-    // Tor & Bitcoin
+    // Tor
     implementation(libs.tor.android)
     implementation(libs.jtorctl)
-    implementation(libs.bitcoinj.core)
 
     // C2PA - Content Authenticity
     // TODO: Add actual C2PA library once available
@@ -354,18 +337,10 @@ dependencies {
     // implementation(libs.simple.c2pa)
     // implementation(libs.jna)
 
-    // Barcode Scanning
-    implementation(libs.google.mlkit.barcode)
-    implementation(libs.zxing.core)
-    implementation(libs.zxing.android.embedded)
-
     // Utilities
     implementation(libs.timber)
     implementation(libs.gson)
-    implementation(libs.guava)
-    implementation(libs.guava.listenablefuture)
     implementation(libs.dotsindicator)
-    implementation(libs.permissionx)
     implementation(libs.satyan.sugar)
 
     // Analytics Module (includes crash reporting)
@@ -386,8 +361,10 @@ dependencies {
     detektPlugins(libs.detekt.rules.compose)
 }
 
+// xpp3 ships XmlPullParser which conflicts with Android's built-in version — exclude the jar
 configurations.all {
-    exclude(group = "com.google.guava", module = "listenablefuture")
+    exclude(group = "xpp3", module = "xpp3")
+    exclude(group = "xpp3", module = "xpp3_min")
 }
 
 detekt {

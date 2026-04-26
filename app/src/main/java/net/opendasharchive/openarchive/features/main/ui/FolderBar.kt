@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
@@ -221,8 +222,20 @@ private fun RowScope.FolderBarInfoMode(
                 ) {
                     menu.forEach { item ->
                         val enabled = item !is FolderMenuItem.SelectMedia || state.totalMediaCount > 0
+                        val isDestructive = item is FolderMenuItem.Remove
                         DropdownMenuItem(
-                            text = { Text(stringResource(id = item.titleRes)) },
+                            text = {
+                                Text(
+                                    text = stringResource(id = item.titleRes),
+                                    style = MaterialTheme.typography.titleMedium.copy(fontFamily = MontserratFontFamily),
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = when {
+                                        isDestructive -> MaterialTheme.colorScheme.error
+                                        !enabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                                        else -> MaterialTheme.colorScheme.onSurface
+                                    }
+                                )
+                            },
                             enabled = enabled,
                             onClick = {
                                 onIntent(FolderBarIntent.OptionsDismissed)
