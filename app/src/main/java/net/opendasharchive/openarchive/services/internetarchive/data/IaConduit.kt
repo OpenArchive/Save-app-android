@@ -51,7 +51,6 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
 
             val fileName = getUploadFileName(mEvidence, true)
             val metaJson = getMetadata()
-            val c2paManifest = getC2paManifest()
 
             if (mEvidence.serverUrl.isBlank()) {
                 // TODO this should make sure we aren't accidentally using one of archive.org's metadata fields by accident
@@ -69,16 +68,6 @@ class IaConduit(evidence: Evidence, context: Context) : Conduit(evidence, contex
                 client.uploadMetaData(metaJson, fileName, auth)
             } catch (e: Throwable) {
                 AppLogger.e("Failed to upload meta.json for $fileName", e)
-            }
-
-            // Upload C2PA manifest, if enabled and successfully created — non-fatal
-            if (c2paManifest != null) {
-                try {
-                    AppLogger.d("Uploading C2PA manifest to Internet Archive: ${c2paManifest.name}")
-                    client.uploadProofFiles(c2paManifest, auth)
-                } catch (e: Throwable) {
-                    AppLogger.e("Failed to upload C2PA manifest for $fileName", e)
-                }
             }
 
             jobSucceeded()

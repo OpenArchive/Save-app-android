@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.webkit.MimeTypeMap
-import com.google.common.net.UrlEscapers
+import android.net.Uri
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -474,7 +474,7 @@ abstract class Conduit(
             if (title.isBlank()) title = evidence.mediaHashString
 
             if (escapeTitle) {
-                title = UrlEscapers.urlPathSegmentEscaper().escape(title) ?: title
+                title = Uri.encode(title) ?: title
             }
 
             if (!title.endsWith(".$ext")) {

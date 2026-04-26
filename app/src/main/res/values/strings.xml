@@ -12,8 +12,8 @@
     <string name="servers">Servers</string>
     <string name="add_server">Add Server</string>
     <string name="lbl_rename_folder">Rename Folder</string>
-    <string name="lbl_select_media">Select Media</string>
-    <string name="lbl_remove_folder">Remove Folder</string>
+    <string name="lbl_select_media">Select media</string>
+    <string name="lbl_remove_folder">Remove folder</string>
     <string name="popup_archive_folder">Archive folder</string>
     <string name="popup_remove_folder">Remove folder from app</string>
     <string name="folder_empty_warning">Folder name cannot be empty</string>

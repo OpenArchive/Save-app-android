@@ -1,42 +1,37 @@
 package net.opendasharchive.openarchive.core.presentation.components
 
-import androidx.annotation.OptIn
-import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import com.google.mlkit.vision.barcode.BarcodeScanning
-import com.google.mlkit.vision.common.InputImage
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.BinaryBitmap
+import com.google.zxing.DecodeHintType
+import com.google.zxing.MultiFormatReader
+import com.google.zxing.NotFoundException
+import com.google.zxing.PlanarYUVLuminanceSource
+import com.google.zxing.common.HybridBinarizer
 
-/**
- * Image analysis helper for ML Kit barcode scanning.
- */
 class QRImageAnalyzer(
     private val onQrCodeScanned: (String) -> Unit
 ) : ImageAnalysis.Analyzer {
 
-    private val scanner = BarcodeScanning.getClient()
+    private val reader = MultiFormatReader().apply {
+        setHints(mapOf(DecodeHintType.POSSIBLE_FORMATS to listOf(BarcodeFormat.QR_CODE)))
+    }
 
-    @OptIn(ExperimentalGetImage::class)
     override fun analyze(imageProxy: ImageProxy) {
-        val mediaImage = imageProxy.image
-        if (mediaImage != null) {
-            val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
-            
-            scanner.process(image)
-                .addOnSuccessListener { barcodes ->
-                    for (barcode in barcodes) {
-                        barcode.rawValue?.let { 
-                            onQrCodeScanned(it)
-                        }
-                    }
-                }
-                .addOnFailureListener {
-                    // Handle failure
-                }
-                .addOnCompleteListener {
-                    imageProxy.close()
-                }
-        } else {
+        val buffer = imageProxy.planes[0].buffer
+        val bytes = ByteArray(buffer.remaining()).also { buffer.get(it) }
+        val source = PlanarYUVLuminanceSource(
+            bytes, imageProxy.width, imageProxy.height,
+            0, 0, imageProxy.width, imageProxy.height, false
+        )
+        try {
+            val result = reader.decodeWithState(BinaryBitmap(HybridBinarizer(source)))
+            onQrCodeScanned(result.text)
+        } catch (_: NotFoundException) {
+            // no QR in this frame — normal, keep analyzing
+        } finally {
+            reader.reset()
             imageProxy.close()
         }
     }

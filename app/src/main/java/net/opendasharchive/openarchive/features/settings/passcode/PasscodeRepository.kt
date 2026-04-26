@@ -2,16 +2,18 @@ package net.opendasharchive.openarchive.features.settings.passcode
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import android.util.Base64
-import com.google.crypto.tink.Aead
-import com.google.crypto.tink.KeyTemplates
-import com.google.crypto.tink.aead.AeadConfig
-import com.google.crypto.tink.integration.android.AndroidKeysetManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import net.opendasharchive.openarchive.util.Prefs
-import com.google.crypto.tink.RegistryConfiguration
 import net.opendasharchive.openarchive.core.config.AppConfig
+import net.opendasharchive.openarchive.util.Prefs
+import java.security.KeyStore
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
 
 class PasscodeRepository(
     private val prefs: SharedPreferences,
@@ -132,23 +134,47 @@ class PasscodeRepository(
     }
 }
 
-class PrefAead(context: Context) {
-    private val aead: Aead
+// Replaces Tink PrefAead — AES-256-GCM backed by Android Keystore, zero external dependencies.
+// Migration: if decrypt fails on pre-existing Tink-encrypted data, returns empty ByteArray
+// so PasscodeRepository clears the passcode and the user re-sets it on next launch.
+class PrefAead(@Suppress("UNUSED_PARAMETER") context: Context) {
 
-    init {
-        val appContext = context.applicationContext
-        AeadConfig.register()
-
-        val keysetHandle = AndroidKeysetManager.Builder()
-            .withSharedPref(context, "tink_keyset", "tink_keyset_pref")
-            .withKeyTemplate(KeyTemplates.get("AES256_GCM")) // or AES256_GCM_SIV
-            //.withMasterKeyUri("android-keystore://openarchive_master_key")
-            .build()
-            .keysetHandle
-
-        aead = keysetHandle.getPrimitive(RegistryConfiguration.get(), Aead::class.java)
+    private fun getOrCreateKey(): SecretKey {
+        val ks = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
+        (ks.getKey(KEY_ALIAS, null) as? SecretKey)?.let { return it }
+        val kg = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE)
+        kg.init(
+            KeyGenParameterSpec.Builder(KEY_ALIAS,
+                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setKeySize(256)
+                .build()
+        )
+        return kg.generateKey()
     }
 
-    fun encrypt(plain: ByteArray, aad: ByteArray): ByteArray = aead.encrypt(plain, aad)
-    fun decrypt(cipher: ByteArray, aad: ByteArray): ByteArray = aead.decrypt(cipher, aad)
+    fun encrypt(plain: ByteArray, @Suppress("UNUSED_PARAMETER") aad: ByteArray): ByteArray {
+        val cipher = Cipher.getInstance(TRANSFORMATION)
+        cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
+        return cipher.iv + cipher.doFinal(plain)  // 12-byte IV prepended
+    }
+
+    fun decrypt(cipherPayload: ByteArray, @Suppress("UNUSED_PARAMETER") aad: ByteArray): ByteArray {
+        return runCatching {
+            val iv = cipherPayload.sliceArray(0 until GCM_IV_LENGTH)
+            val ciphertext = cipherPayload.sliceArray(GCM_IV_LENGTH until cipherPayload.size)
+            val cipher = Cipher.getInstance(TRANSFORMATION)
+            cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey(), GCMParameterSpec(GCM_TAG_BITS, iv))
+            cipher.doFinal(ciphertext)
+        }.getOrElse { ByteArray(0) }  // stale Tink data — caller detects empty and resets
+    }
+
+    private companion object {
+        const val KEY_ALIAS = "openarchive_passcode_key"
+        const val ANDROID_KEYSTORE = "AndroidKeyStore"
+        const val TRANSFORMATION = "AES/GCM/NoPadding"
+        const val GCM_IV_LENGTH = 12
+        const val GCM_TAG_BITS = 128
+    }
 }

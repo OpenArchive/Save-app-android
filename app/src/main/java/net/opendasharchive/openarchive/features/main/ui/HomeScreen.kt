@@ -184,6 +184,7 @@ fun HomeScreen(
                         archive,
                         submission.id,
                         result.capturedUris,
+                        fromCamera = true,
                     )
                     evidenceList.forEach { evidence ->
                         mediaRepository.addEvidence(evidence)

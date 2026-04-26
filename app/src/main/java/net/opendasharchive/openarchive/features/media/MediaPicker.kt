@@ -29,12 +29,13 @@ object MediaPicker {
         archive: Archive,
         submissionId: Long,
         uris: List<Uri>,
+        fromCamera: Boolean = false,
     ): ArrayList<Evidence> {
         val result = ArrayList<Evidence>()
 
         for (uri in uris) {
             try {
-                val evidence = import(context, archive, submissionId, uri)
+                val evidence = import(context, archive, submissionId, uri, fromCamera)
                 if (evidence != null) result.add(evidence)
             } catch (e: Exception) {
                 AppLogger.e("Error importing media", e)
@@ -49,6 +50,7 @@ object MediaPicker {
         archive: Archive,
         submissionId: Long,
         uri: Uri,
+        fromCamera: Boolean = false,
     ): Evidence? {
 
         val title = Utility.getUriDisplayName(context, uri)
@@ -146,8 +148,10 @@ object MediaPicker {
             mediaHashString  = mediaHashString
         )
 
-        // --- Generate C2PA sidecar with the full proof metadata map ---
-        if (file != null && mediaHashString.isNotEmpty()) {
+        // C2PA: only for in-app camera captures of image/video — not imports, not PDFs
+        val isCameraMedia = fromCamera &&
+            (mimeType.startsWith("image/") || mimeType.startsWith("video/"))
+        if (file != null && mediaHashString.isNotEmpty() && isCameraMedia) {
             C2paHelper.generateManifest(
                 context   = context,
                 mediaFile = file,
