@@ -1,7 +1,9 @@
 package net.opendasharchive.openarchive.features.media
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,8 +29,11 @@ import net.opendasharchive.openarchive.core.repositories.MediaRepository
 import net.opendasharchive.openarchive.core.repositories.ProjectRepository
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
-import net.opendasharchive.openarchive.util.Prefs
+import net.opendasharchive.openarchive.core.domain.VaultType
+import net.opendasharchive.openarchive.core.repositories.SpaceRepository
+import net.opendasharchive.openarchive.upload.UploadGate
 import net.opendasharchive.openarchive.upload.UploadJobScheduler
+import net.opendasharchive.openarchive.util.Prefs
 
 data class PreviewMediaState(
     val mediaList: List<Evidence> = emptyList(),
@@ -38,7 +43,8 @@ data class PreviewMediaState(
     val selectedIds: Set<Long> = emptySet(),
     val showContentPicker: Boolean = false,
     val selectedProjectId: Long? = null,
-    val selectedProject: Archive? = null
+    val selectedProject: Archive? = null,
+    val vaultType: VaultType? = null
 ) {
     val isInSelectionMode: Boolean
         get() = selectedIds.isNotEmpty()
@@ -63,13 +69,16 @@ sealed class PreviewMediaEvent {
 }
 
 class PreviewMediaViewModel(
+    application: Application,
     private val route: AppRoute.PreviewMediaRoute,
     private val navigator: Navigator,
     private val dialogManager: DialogStateManager,
     private val projectRepository: ProjectRepository,
     private val mediaRepository: MediaRepository,
-    private val uploadJobScheduler: UploadJobScheduler
-) : ViewModel() {
+    private val uploadJobScheduler: UploadJobScheduler,
+    private val uploadGate: UploadGate,
+    private val spaceRepository: SpaceRepository
+) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(PreviewMediaState())
     val uiState: StateFlow<PreviewMediaState> = _uiState.asStateFlow()
@@ -112,6 +121,7 @@ class PreviewMediaViewModel(
             _uiState.map { it.selectedIds }.distinctUntilChanged()
         ) { project, localMedia, selectedIds ->
             
+            val vaultType = project?.vaultId?.let { spaceRepository.getSpaceById(it)?.type }
             _uiState.update { state ->
                 state.copy(
                     mediaList = localMedia.map { it.copy(isSelected = selectedIds.contains(it.id)) },
@@ -119,7 +129,8 @@ class PreviewMediaViewModel(
                     selectionCount = selectedIds.size,
                     showAddMore = project != null,
                     selectedProjectId = projectId,
-                    selectedProject = project
+                    selectedProject = project,
+                    vaultType = vaultType
                 )
             }
 
@@ -224,7 +235,10 @@ class PreviewMediaViewModel(
     }
 
     private fun invokeUpload() {
+        uploadGate.check(vaultType = _uiState.value.vaultType) { proceedWithUpload() }
+    }
 
+    private fun proceedWithUpload() {
         if (Prefs.dontShowUploadHint) {
             handleUploadAll()
         } else {

@@ -51,7 +51,8 @@ class UploadManagerViewModel(
     private val application: Application,
     private val mediaRepository: MediaRepository,
     private val dialogManager: DialogStateManager,
-    private val uploadJobScheduler: UploadJobScheduler
+    private val uploadJobScheduler: UploadJobScheduler,
+    private val uploadGate: UploadGate
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UploadManagerState())
@@ -188,9 +189,10 @@ class UploadManagerViewModel(
             positiveButton {
                 text = UiText.Resource(R.string.lbl_retry)
                 action = {
-                    retryItem(evidence)
-                    // Resume service since we have a new item to upload
-                    uploadJobScheduler.schedule()
+                    uploadGate.check {
+                        retryItem(evidence)
+                        uploadJobScheduler.schedule()
+                    }
                 }
             }
 

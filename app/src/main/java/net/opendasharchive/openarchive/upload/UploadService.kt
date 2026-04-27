@@ -274,14 +274,14 @@ class UploadService : JobService() {
         synchronized(mConduits) {
             mConduits.add(conduit)
         }
-        
-        conduit.upload()
-        
+
+        val success = conduit.upload()
+
         synchronized(mConduits) {
             mConduits.remove(conduit)
         }
 
-        return true
+        return success
     }
 
     private fun cancelConduitForMedia(mediaId: Long) {

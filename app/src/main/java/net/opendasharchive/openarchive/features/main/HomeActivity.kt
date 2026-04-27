@@ -26,6 +26,7 @@ import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.scope.activityRetainedScope
 import net.opendasharchive.openarchive.features.main.ui.SharedImportState
+import net.opendasharchive.openarchive.upload.UploadGate
 import net.opendasharchive.openarchive.upload.UploadJobScheduler
 import net.opendasharchive.openarchive.util.C2paHelper
 
@@ -36,6 +37,7 @@ class HomeActivity : BaseComposeActivity(), AndroidScopeComponent {
     private val appConfig by inject<AppConfig>()
     private val navigator by inject<Navigator>()
     private val uploadJobScheduler by inject<UploadJobScheduler>()
+    private val uploadGate by inject<UploadGate>()
     private val passcodeGate by inject<PasscodeGate>()
     private val sharedImportState by inject<SharedImportState>()
     private lateinit var permissionManager: PermissionManager
@@ -90,7 +92,7 @@ class HomeActivity : BaseComposeActivity(), AndroidScopeComponent {
     override fun onStart() {
         super.onStart()
         C2paHelper.init(this)
-        uploadJobScheduler.schedule()
+        uploadGate.checkIfQueued { uploadJobScheduler.schedule() }
 
         // Flush any share URIs that arrived while the app was locked
         lifecycleScope.launch {

@@ -197,17 +197,16 @@ abstract class Conduit(
     }
 
     suspend fun jobFailed(exception: Throwable) {
-        // If an upload was cancelled, track and return.
+        // If an upload was cancelled, reset to QUEUED so it's retried on next session,
+        // and clear transientProgress so the UI doesn't show a stuck uploading spinner.
         if (mCancelled) {
             AppLogger.i("Upload cancelled", exception)
 
-            // Add breadcrumb
             val vault = spaceRepository.getSpaceById(mEvidence.vaultId)
             val backendType = vault?.type?.friendlyName ?: "Unknown"
             val fileType = getFileType(mEvidence.mimeType)
             AppLogger.breadcrumb("Upload Cancelled", "$fileType to $backendType")
 
-            // Track upload cancellation
             analyticsManager.trackEvent(
                 AnalyticsEvent.UploadCancelled(
                     backendType = backendType,
@@ -216,6 +215,18 @@ abstract class Conduit(
                 )
             )
 
+            // Reset status from UPLOADING → QUEUED so the item re-enters the queue next session.
+            mEvidence = mEvidence.copy(status = EvidenceStatus.QUEUED, progress = 0, statusMessage = "")
+            mediaRepository.updateEvidence(mEvidence)
+
+            // Emit progress = -1 to clear any stale transientProgress entry in the UI.
+            UploadEventBus.emitChanged(
+                projectId = mEvidence.archiveId,
+                collectionId = mEvidence.submissionId,
+                mediaId = mEvidence.id,
+                progress = -1,
+                isUploaded = false
+            )
             return
         }
 

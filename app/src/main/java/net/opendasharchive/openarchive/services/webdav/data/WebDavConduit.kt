@@ -8,6 +8,7 @@ import net.opendasharchive.openarchive.core.domain.Evidence
 import net.opendasharchive.openarchive.services.Conduit
 import net.opendasharchive.openarchive.services.SaveClient
 import okhttp3.HttpUrl
+import java.io.FileNotFoundException
 import java.io.IOException
 
 
@@ -46,6 +47,24 @@ class WebDavConduit(evidence: Evidence, context: Context) : Conduit(evidence, co
 
             val fullPath = construct(base, path, fileName)
             AppLogger.i("Uploading started for single file upload...", "filePath: $fullPath")
+
+            // Validate the file is still accessible before handing to sardine.
+            // RequestBodyUtil swallows FileNotFoundException and leaves inputStream=null,
+            // which then NPEs inside Okio.source(). Fail early with a clear error instead.
+            // ENOENT means the file is unrecoverable — auto-delete the evidence record
+            // rather than leaving it stuck in ERROR state where retries will always fail.
+            try {
+                mContext.contentResolver.openInputStream(mEvidence.fileUri)?.close()
+                    ?: throw IOException("openInputStream returned null for ${mEvidence.fileUri}")
+            } catch (e: FileNotFoundException) {
+                AppLogger.e("Media file missing (ENOENT), removing evidence ${mEvidence.id}: ${mEvidence.fileUri}")
+                mediaRepository.deleteMedia(mEvidence.id)
+                return false
+            } catch (e: Throwable) {
+                AppLogger.e("Media file inaccessible, cannot upload: ${mEvidence.fileUri}", e.message ?: "")
+                jobFailed(e)
+                return false
+            }
 
             try {
                 mClient.put(

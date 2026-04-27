@@ -145,11 +145,15 @@
 -keepclassmembers class * extends androidx.work.CoroutineWorker { public <init>(...); }
 
 # ============================================================
-# CleanInsights SDK — uses Moshi reflection to deserialize Configuration subclass.
-# R8 must not rename or strip any CleanInsights classes or their members.
+# CleanInsights SDK — uses Moshi reflection to deserialize Configuration.
+# -keep prevents renaming/removal but NOT R8 optimization (class merging).
+# Class merging can set the abstract modifier on Configuration, making
+# Moshi's ClassJsonAdapter throw "Cannot serialize abstract class".
+# Disable class/merging optimizations globally to prevent this.
 # ============================================================
 -keep class org.cleaninsights.sdk.** { *; }
 -keepclassmembers class org.cleaninsights.sdk.** { *; }
+-optimizations !class/merging/*
 
 # Moshi — keep all JsonClass-annotated classes and their adapters
 -keep @com.squareup.moshi.JsonClass class * { *; }

@@ -557,4 +557,16 @@
     <string name="c2pa_auto_disabled">C2PA has been automatically disabled because location permission was removed</string>
 
     <string name="tor_url" translatable="false">https://play.google.com/store/apps/details?id=org.torproject.android</string>
+
+    <string name="wifi_not_connected">Wi-Fi not connected</string>
+    <string name="wifi_required_upload_message">Uploads are blocked until you connect to a Wi-Fi network or allow uploads over a mobile connection.</string>
+    <string name="allow_any_connection">Allow any connection</string>
+    <string name="ignore">Ignore</string>
+
+    <string name="tor_not_connected">Tor not connected</string>
+    <string name="tor_not_connected_message">Tor routing is enabled, however connection is not established / disconnected. Do you want to disable Tor?</string>
+    <string name="tor_still_connecting_message">Tor is still connecting. Do you want to disable Tor and proceed with the upload?</string>
+    <string name="tor_error_message">Tor encountered an error and is not connected. Do you want to disable Tor and proceed with the upload?</string>
+    <string name="proceed">Proceed</string>
+    <string name="ok">OK</string>
 </resources>

@@ -26,6 +26,7 @@ import net.opendasharchive.openarchive.features.main.ui.components.HomeBottomTab
 import net.opendasharchive.openarchive.features.media.AddMediaType
 import net.opendasharchive.openarchive.features.media.MediaPicker
 import net.opendasharchive.openarchive.features.media.camera.CameraConfig
+import net.opendasharchive.openarchive.upload.UploadGate
 import net.opendasharchive.openarchive.upload.UploadJobScheduler
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.util.Prefs
@@ -39,6 +40,7 @@ class HomeViewModel(
     private val spaceRepository: SpaceRepository,
     private val projectRepository: ProjectRepository,
     private val uploadJobScheduler: UploadJobScheduler,
+    private val uploadGate: UploadGate,
     private val sharedImportState: SharedImportState
 ) : ViewModel() {
 
@@ -142,9 +144,7 @@ class HomeViewModel(
             }
             HomeAction.HideUploadManager -> {
                 _uiState.update { it.copy(showUploadManager = false) }
-                // In legacy, it resumes if there are pending uploads.
-                // UploadJobScheduler.schedule() usually checks internally, but we can also check here if needed.
-                uploadJobScheduler.schedule()
+                uploadGate.check { uploadJobScheduler.schedule() }
             }
 
             HomeAction.NavigateToAddNewFolder -> {
