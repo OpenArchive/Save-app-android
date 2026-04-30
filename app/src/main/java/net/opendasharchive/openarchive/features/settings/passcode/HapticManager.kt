@@ -2,6 +2,7 @@ package net.opendasharchive.openarchive.features.settings.passcode
 
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import net.opendasharchive.openarchive.core.config.AppConfig
 
 enum class AppHapticFeedbackType {
     KeyPress,
@@ -11,25 +12,13 @@ enum class AppHapticFeedbackType {
 class HapticManager(
     private val appConfig: AppConfig
 ) {
-    private var hapticFeedback: HapticFeedback? = null
-
-    fun init(hapticFeedback: HapticFeedback) {
-        this.hapticFeedback = hapticFeedback
-    }
-
-    fun performHapticFeedback(type: AppHapticFeedbackType) {
+    fun perform(haptic: HapticFeedback, type: AppHapticFeedbackType) {
         if (!appConfig.enableHapticFeedback) return
 
-        hapticFeedback?.let {
-            // Using Compose HapticFeedback
-            when (type) {
-                AppHapticFeedbackType.KeyPress -> it.performHapticFeedback(HapticFeedbackType.LongPress)
-                AppHapticFeedbackType.Error -> it.performHapticFeedback(HapticFeedbackType.LongPress)
-            }
+        val composeType = when (type) {
+            AppHapticFeedbackType.KeyPress -> HapticFeedbackType.TextHandleMove
+            AppHapticFeedbackType.Error -> HapticFeedbackType.LongPress
         }
-    }
-
-    fun clear() {
-        hapticFeedback = null
+        haptic.performHapticFeedback(composeType)
     }
 }

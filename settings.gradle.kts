@@ -58,6 +58,9 @@ pluginManagement {
         }
     }
 }
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
 dependencyResolutionManagement {
 
     /**
@@ -77,11 +80,6 @@ dependencyResolutionManagement {
         mavenCentral()
 
         gradlePluginPortal()
-        maven("https://raw.githubusercontent.com/guardianproject/gpmaven/master") {
-            content {
-                includeModule("org.proofmode", "android-libproofmode")
-            }
-        }
 
         maven("https://jitpack.io") {
             content {

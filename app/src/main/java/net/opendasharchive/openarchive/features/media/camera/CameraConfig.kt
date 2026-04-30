@@ -8,33 +8,28 @@ import java.io.Serializable
  * This class allows fine-grained control over camera behavior, performance, and
  * resource usage. All settings have sensible defaults for typical use cases.
  */
+@kotlinx.serialization.Serializable
 data class CameraConfig(
     // ===== Capture Modes =====
     /** Enable photo capture functionality */
     val allowVideoCapture: Boolean = true,
-
     /** Enable video recording functionality */
     val allowPhotoCapture: Boolean = true,
-
     /** Allow capturing multiple photos/videos in one session */
     val allowMultipleCapture: Boolean = false,
-
     /** Enable preview functionality (should generally stay true) */
     val enablePreview: Boolean = true,
-
     /** Initial capture mode when camera opens */
     val initialMode: CameraCaptureMode = CameraCaptureMode.PHOTO,
-
     // ===== UI Controls =====
     /** Show flash toggle button (only appears if camera has flash hardware) */
     val showFlashToggle: Boolean = true,
-
     /** Show grid overlay toggle button for composition assistance */
     val showGridToggle: Boolean = true,
-
     /** Show button to switch between front and back cameras */
     val showCameraSwitch: Boolean = true,
-
+    // When true, uses IMG_123.jpg instead of 20250119_143045.IMG_123.jpg
+    val useCleanFilenames: Boolean = false,
     // ===== Power Management =====
     /**
      * Override screen brightness to maximum when camera is active.
@@ -48,7 +43,6 @@ data class CameraConfig(
      * Default: true (prevents automatic brightness reduction)
      */
     val overrideScreenBrightness: Boolean = true,
-
     /**
      * Enable automatic camera pause after inactivity.
      *
@@ -59,7 +53,6 @@ data class CameraConfig(
      * Recommendation: Keep enabled for better battery life
      */
     val enableIdleTimeout: Boolean = true,
-
     /**
      * Duration in seconds before camera automatically pauses (when [enableIdleTimeout] is true).
      *
@@ -71,7 +64,6 @@ data class CameraConfig(
      * Default: 60 seconds
      */
     val idleTimeoutSeconds: Int = 60,
-
     // ===== Preview Optimization =====
     /**
      * Camera preview resolution.
@@ -87,7 +79,6 @@ data class CameraConfig(
      * Default: HD
      */
     val previewResolution: PreviewResolution = PreviewResolution.HD,
-
     /**
      * PreviewView rendering implementation mode.
      *
@@ -102,7 +93,6 @@ data class CameraConfig(
      * Default: PERFORMANCE
      */
     val implementationMode: ImplementationMode = ImplementationMode.PERFORMANCE,
-
     // ===== Video Recording Settings =====
     /**
      * Video recording quality.
@@ -119,7 +109,6 @@ data class CameraConfig(
      * Default: HD
      */
     val videoQuality: VideoQuality = VideoQuality.HD,
-
     /**
      * Enable audio recording with video (requires RECORD_AUDIO permission).
      *
@@ -127,7 +116,6 @@ data class CameraConfig(
      * Default: true
      */
     val enableAudio: Boolean = true,
-
     // ===== Video Playback Optimization =====
     /**
      * Defer video player initialization until preview is actually shown.
@@ -140,7 +128,6 @@ data class CameraConfig(
      * Default: true
      */
     val enableLazyVideoLoading: Boolean = true,
-
     /**
      * Target buffer duration in milliseconds required to start/resume video playback.
      *
@@ -152,7 +139,6 @@ data class CameraConfig(
      * Default: 1500ms
      */
     val videoBufferMs: Int = 1500,
-
     /**
      * Minimum total buffer duration for video playback (in milliseconds).
      *
@@ -164,7 +150,6 @@ data class CameraConfig(
      * Default: 2500ms
      */
     val minVideoBufferMs: Int = 2500,
-
     /**
      * Maximum buffer duration for video playback (in milliseconds).
      *
@@ -174,7 +159,7 @@ data class CameraConfig(
      * Recommendation: 5000-10000ms
      * Default: 5000ms
      */
-    val maxVideoBufferMs: Int = 5000
+    val maxVideoBufferMs: Int = 5000,
 ) : Serializable
 
 /**
@@ -182,7 +167,7 @@ data class CameraConfig(
  */
 enum class CameraCaptureMode : Serializable {
     PHOTO,
-    VIDEO
+    VIDEO,
 }
 
 /**
@@ -198,7 +183,7 @@ enum class PreviewResolution : Serializable {
     FHD,
 
     /** Maximum supported resolution - Use sparingly */
-    MAX
+    MAX,
 }
 
 /**
@@ -217,7 +202,7 @@ enum class ImplementationMode : Serializable {
      * Uses TextureView for rendering.
      * Use only if PERFORMANCE mode causes rendering issues.
      */
-    COMPATIBLE
+    COMPATIBLE,
 }
 
 /**
@@ -236,5 +221,5 @@ enum class VideoQuality : Serializable {
     FHD,
 
     /** 4K - Only for high-end devices (if supported) */
-    UHD
+    UHD,
 }

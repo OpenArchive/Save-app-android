@@ -1,27 +1,22 @@
 package net.opendasharchive.openarchive.features.main.ui
 
-import android.content.Context
-import android.os.Bundle
-import android.provider.MediaStore
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.Movie
-import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -30,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -39,6 +33,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.size.Scale
+import net.opendasharchive.openarchive.R
 import java.io.File
 
 // MediaFile Data Class
@@ -56,8 +51,10 @@ enum class FileType {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MediaCacheScreen(context: Context, onNavigateBack: () -> Unit) {
-    val cacheDir = context.cacheDir
+fun MediaCacheScreen(onNavigateBack: () -> Unit) {
+
+    val context = LocalContext.current
+    val cacheDir = File(context.filesDir, "media_temp")
     val files = remember { cacheDir.listFiles()?.map { it.toMediaFile() } ?: emptyList() }
 
     Scaffold(
@@ -66,7 +63,7 @@ topBar ={
         title = { Text("Media Cache") },
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = null)
+                Icon(painter = painterResource(R.drawable.ic_arrow_back_ios), contentDescription = null)
             }
         }
     )
@@ -107,7 +104,7 @@ fun CacheFileItem(file: MediaFile) {
         when {
             file.isDirectory -> {
                 Icon(
-                    imageVector = Icons.Default.Folder,
+                    painter = painterResource(R.drawable.ic_folder),
                     contentDescription = file.name,
                     modifier = Modifier.size(48.dp)
                 )
@@ -141,7 +138,7 @@ fun CacheFileItem(file: MediaFile) {
 
             file.type == FileType.PDF -> {
                 Icon(
-                    imageVector = Icons.Default.Description,
+                    painter = painterResource(R.drawable.ic_pdf),
                     contentDescription = file.name,
                     modifier = Modifier.size(48.dp)
                 )
@@ -149,7 +146,7 @@ fun CacheFileItem(file: MediaFile) {
 
             else -> {
                 Icon(
-                    imageVector = Icons.Default.QuestionMark,
+                    painter = painterResource(R.drawable.ic_folder),
                     contentDescription = file.name,
                     modifier = Modifier.size(48.dp)
                 )

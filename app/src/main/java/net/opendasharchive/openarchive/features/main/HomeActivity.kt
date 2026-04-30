@@ -1,247 +1,175 @@
 package net.opendasharchive.openarchive.features.main
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.view.View
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
+import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.fragment.app.FragmentActivity
-import net.opendasharchive.openarchive.db.Project
-import net.opendasharchive.openarchive.features.main.ui.HomeScreen
-import net.opendasharchive.openarchive.features.main.ui.HomeViewModel
+import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.logger.AppLogger
+import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
+import net.opendasharchive.openarchive.features.core.BaseComposeActivity
+import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.main.ui.SaveNavGraph
-import net.opendasharchive.openarchive.features.media.AddMediaType
-import net.opendasharchive.openarchive.features.media.MediaLaunchers
-import net.opendasharchive.openarchive.features.media.Picker
-import net.opendasharchive.openarchive.features.media.camera.CameraConfig
-import net.opendasharchive.openarchive.features.settings.passcode.AppConfig
+import net.opendasharchive.openarchive.core.config.AppConfig
+import net.opendasharchive.openarchive.features.settings.passcode.PasscodeGate
+import net.opendasharchive.openarchive.services.snowbird.service.SnowbirdService
+import net.opendasharchive.openarchive.util.PermissionManager
 import org.koin.android.ext.android.inject
-import org.koin.androidx.viewmodel.ext.android.viewModel
-import timber.log.Timber
-import kotlin.getValue
+import org.koin.android.scope.AndroidScopeComponent
+import org.koin.androidx.scope.activityRetainedScope
+import net.opendasharchive.openarchive.features.main.ui.SharedImportState
+import net.opendasharchive.openarchive.upload.UploadGate
+import net.opendasharchive.openarchive.upload.UploadJobScheduler
+import net.opendasharchive.openarchive.util.C2paHelper
 
-class HomeActivity: FragmentActivity() {
+class HomeActivity : BaseComposeActivity(), AndroidScopeComponent {
+
+    override val scope by activityRetainedScope()
 
     private val appConfig by inject<AppConfig>()
-    private val viewModel by viewModel<HomeViewModel>()
+    private val navigator by inject<Navigator>()
+    private val uploadJobScheduler by inject<UploadJobScheduler>()
+    private val uploadGate by inject<UploadGate>()
+    private val passcodeGate by inject<PasscodeGate>()
+    private val sharedImportState by inject<SharedImportState>()
+    private lateinit var permissionManager: PermissionManager
 
-    // We'll hold a reference to the media launchers registered with Picker.
-    private lateinit var mediaLaunchers: MediaLaunchers
-
-    private val mNewFolderResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == RESULT_OK) {
-                //TODO: Refresh projects in MainViewModel
-            }
-        }
-
-    private val folderResultLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == RESULT_OK) {
-                val selectedFolderId:Long? = result.data?.getLongExtra("SELECTED_FOLDER_ID", -1)
-                if (selectedFolderId != null && selectedFolderId > -1) {
-                    navigateToFolder(selectedFolderId)
-                }
-            }
-        }
-
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            Timber.d("Able to post notifications")
-        } else {
-            Timber.d("Need to explain")
-        }
-    }
+    /** URIs received via share sheet while the app was locked — delivered after authentication. */
+    private var pendingSharedUris: List<Uri>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Register PasscodeGate on the process lifecycle so onStop only fires when the
+        // entire app goes to background — not during Activity-to-Activity transitions
+        // (e.g. PasscodeEntryActivity / PasscodeSetupActivity launching over HomeActivity).
+        ProcessLifecycleOwner.get().lifecycle.addObserver(passcodeGate)
+
         installSplashScreen()
 
-        // Perform any intent processing (e.g. deep-links or shared media)
-        handleIntent(intent)
-
-        // Check notification permission (for Android 13+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            checkNotificationPermissions()
-        }
-
-        // Get a reference to a view to serve as the root for Snackbars, etc.
-        val rootView: View = findViewById(android.R.id.content)
-
-        // Register media launchers via Picker.
-        // The lambda for 'project' should return the currently selected project.
-        // For now, this stub returns null—you should wire it to your actual selection.
-        mediaLaunchers = Picker.register(
-            activity = this,
-            root = rootView,
-            project = { getCurrentProject() },
-            completed = { media ->
-                // For example, refresh the current project UI and preview media.
-                refreshCurrentProject()
-                if (media.isNotEmpty()) {
-                    previewMedia()
-                }
-            }
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(
+                lightScrim = getColor(R.color.colorTertiary),
+                darkScrim = getColor(R.color.colorTertiary)
+            ),
+            navigationBarStyle = SystemBarStyle.auto(
+                lightScrim = getColor(R.color.colorTertiary),
+                darkScrim = getColor(R.color.colorTertiary)
+            )
         )
 
-        // Set up your Compose UI and pass callbacks.
         setContent {
-            SaveNavGraph(
-                context = this@HomeActivity,
-                onExit = {
-                    finish()
-                },
-                viewModel = viewModel,
-                onNewFolder = { launchNewFolder() },
-                onFolderSelected = { folderId -> navigateToFolder(folderId) },
-                onAddMedia = { mediaType -> addMediaClicked(mediaType) }
-            )
+            SaveAppTheme {
+                SaveNavGraph(
+                    dialogManager,
+                    navigator
+                )
+            }
+        }
+
+        if (appConfig.isDwebEnabled) {
+            permissionManager = PermissionManager(this, dialogManager)
+            permissionManager.checkNotificationPermission {
+                AppLogger.i("Notification permission granted")
+            }
+            handleIntent(intent)
+            startForegroundService(Intent(this, SnowbirdService::class.java))
+        }
+
+        if (savedInstanceState == null) {
+            importSharedMedia(intent)
         }
     }
 
-    /**
-     * Returns the currently selected project.
-     * Replace this stub with your actual project–retrieval logic.
-     */
-    private fun getCurrentProject(): Project? {
-        // TODO: Return your current project from a ViewModel or other state.
-        return null
-    }
+    override fun onStart() {
+        super.onStart()
+        C2paHelper.init(this)
+        uploadGate.checkIfQueued { uploadJobScheduler.schedule() }
 
-    /**
-     * Refresh UI details for the current project.
-     */
-    private fun refreshCurrentProject() {
-        // TODO: Update your UI state, refresh fragment content, etc.
-    }
-
-    /**
-     * Launch a preview after media import.
-     */
-    private fun previewMedia() {
-        // TODO: Launch your preview activity or update the UI as needed.
-    }
-
-    /**
-     * Launch the AddFolderActivity using your folder launcher.
-     */
-    private fun launchNewFolder() {
-        // Example: startActivity(Intent(this, AddFolderActivity::class.java))
-        // Or, if you have a registered launcher, use it here.
-    }
-
-    /**
-     * Navigate to a folder after selection.
-     */
-    private fun navigateToFolder(folderId: Long) {
-        // TODO: Update your navigation or fragment state to display the selected folder.
-    }
-
-    /**
-     * Handle "Add Media" events from the Compose UI.
-     */
-    private fun addMediaClicked(mediaType: AddMediaType) {
-        if (getCurrentProject() != null) {
-            // If you wish to show hints or dialogs before picking media,
-            // insert that logic here (e.g., check Prefs.addMediaHint).
-            when (mediaType) {
-                AddMediaType.CAMERA -> {
-                    if (appConfig.useCustomCamera) {
-                        // Use custom camera with photo and video support
-                        val cameraConfig = CameraConfig(
-                            allowVideoCapture = true,
-                            allowPhotoCapture = true,
-                            allowMultipleCapture = false, // Single capture for main screen
-                            enablePreview = true,
-                            showFlashToggle = true,
-                            showGridToggle = true,
-                            showCameraSwitch = true
-                        )
-                        Picker.launchCustomCamera(
-                            this,
-                            mediaLaunchers.customCameraLauncher,
-                            cameraConfig
-                        )
-                    } else {
-
-                            Picker.takePhotoModern(
-                                activity = this@HomeActivity,
-                                launcher = mediaLaunchers.modernCameraLauncher
-                            )
-
+        // Flush any share URIs that arrived while the app was locked
+        lifecycleScope.launch {
+            passcodeGate.locked
+                .filter { !it }
+                .take(1)
+                .collect {
+                    pendingSharedUris?.let { uris ->
+                        sharedImportState.setPendingUris(uris)
+                        pendingSharedUris = null
                     }
                 }
-                AddMediaType.GALLERY -> {
-                    // Launch the gallery/image picker.
-                    Picker.pickMedia(mediaLaunchers.galleryLauncher)
-                }
-                AddMediaType.FILES -> {
-                    // Launch the file picker.
-                    Picker.pickFiles(mediaLaunchers.filePickerLauncher)
-                }
-            }
-        } else {
-            // If no project is selected, prompt the user to create one (e.g. add a folder).
-            launchNewFolder()
         }
     }
 
-    /**
-     * Check for POST_NOTIFICATIONS permission on Android 13+.
-     */
-    private fun checkNotificationPermissions() {
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            Timber.d("Notification permission already granted")
-        } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
-            showNotificationPermissionRationale()
-        } else {
-            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        importSharedMedia(intent)
     }
 
-    /**
-     * Show a rationale for notification permission.
-     */
-    private fun showNotificationPermissionRationale() {
-        // TODO: Display a dialog or Snackbar explaining why notifications are needed.
-        Timber.d("Showing notification permission rationale")
-    }
-
-    /**
-     * Handle incoming intents for deep-linking, shared media, etc.
-     */
-    private fun handleIntent(intent: Intent?) {
-        intent?.let { receivedIntent ->
-            when (receivedIntent.action) {
-                Intent.ACTION_VIEW -> {
-                    val uri = receivedIntent.data
-                    if (uri?.scheme == "save-veilid") {
-                        processUri(uri)
-                    }
-                }
-                // Optionally handle other actions (like ACTION_SEND) here.
-            }
+    // ----- Permissions & Intent Handling -----
+    private fun handleIntent(intent: Intent) {
+        if (intent.action == Intent.ACTION_VIEW) {
+            intent.data?.takeIf { it.scheme == "save-veilid" }?.let { processUri(it) }
         }
     }
 
     private fun processUri(uri: Uri) {
-        // Process the URI similarly to your original logic.
-        Timber.d("Processing URI: $uri")
-        // TODO: Extract path, query parameters, etc.
+        val path = uri.path
+        val queryParams = uri.queryParameterNames.associateWith { uri.getQueryParameter(it) }
+        AppLogger.d("Path: $path, QueryParams: $queryParams")
     }
 
+    private fun importSharedMedia(intent: Intent?) {
+        if (intent == null) { AppLogger.d("SHARE_DEBUG: intent null, skipping"); return }
+        val action = intent.action
+        val type = intent.type
+        AppLogger.d("SHARE_DEBUG: importSharedMedia action=$action type=$type")
 
+        // Defense-in-depth: reject MIME types not explicitly supported (mirrors manifest intent-filters)
+        val allowedMimeTypes = setOf(
+            "image/jpeg", "image/png", "image/gif", "image/webp",
+            "image/heic", "image/heif", "image/tiff", "image/bmp",
+            "video/mp4", "video/quicktime", "video/x-msvideo",
+            "video/x-matroska", "video/webm", "video/3gpp",
+            "audio/mpeg", "audio/aac", "audio/flac", "audio/ogg",
+            "audio/wav", "audio/x-wav", "audio/mp4", "audio/opus",
+            "application/pdf"
+        )
+        if (type != null && type !in allowedMimeTypes) {
+            AppLogger.d("SHARE_DEBUG: MIME type $type not allowed, returning")
+            return
+        }
+
+        if ((Intent.ACTION_SEND == action || Intent.ACTION_SEND_MULTIPLE == action) && type != null) {
+            val uris = mutableListOf<Uri>()
+
+            if (Intent.ACTION_SEND == action) {
+                intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)?.let { uris.add(it) }
+            } else {
+                intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)?.let { uris.addAll(it) }
+            }
+
+            AppLogger.d("SHARE_DEBUG: uris.size=${uris.size} locked=${passcodeGate.locked.value}")
+
+            if (uris.isNotEmpty()) {
+                if (passcodeGate.locked.value) {
+                    AppLogger.d("SHARE_DEBUG: app locked, storing pending uris")
+                    pendingSharedUris = uris
+                } else {
+                    AppLogger.d("SHARE_DEBUG: calling sharedImportState.setPendingUris")
+                    sharedImportState.setPendingUris(uris)
+                }
+            }
+        } else {
+            AppLogger.d("SHARE_DEBUG: action/type mismatch, not ACTION_SEND. action=$action type=$type")
+        }
+    }
 }

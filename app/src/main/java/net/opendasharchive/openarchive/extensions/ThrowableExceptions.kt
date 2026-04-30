@@ -1,21 +1,21 @@
 package net.opendasharchive.openarchive.extensions
 
-import net.opendasharchive.openarchive.db.SnowbirdError
+import net.opendasharchive.openarchive.core.domain.DomainError
 import net.opendasharchive.openarchive.services.snowbird.service.HttpLikeException
 import retrofit2.HttpException
 import java.net.SocketTimeoutException
 
-fun Throwable.toSnowbirdError(): SnowbirdError {
+fun Throwable.toDomainError(): DomainError {
     return when (this) {
-        is HttpLikeException -> SnowbirdError.NetworkError(
+        is HttpLikeException -> DomainError.Network(
             code = code,
             message = message
         )
-        is HttpException -> SnowbirdError.NetworkError(
+        is HttpException -> DomainError.Server(
             code = response()?.code() ?: 0,
             message = message() ?: "HTTP Error"
         )
-        is SocketTimeoutException -> SnowbirdError.TimedOut
-        else -> SnowbirdError.GeneralError(message ?: "Unknown error occurred")
+        is SocketTimeoutException -> DomainError.Timeout()
+        else -> DomainError.Unknown(message ?: "Unknown error occurred")
     }
 }

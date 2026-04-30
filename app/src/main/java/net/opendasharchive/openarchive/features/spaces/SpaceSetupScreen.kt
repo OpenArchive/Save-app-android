@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
+
 
 @Composable
 fun SpaceSetupScreen(
@@ -27,7 +29,7 @@ fun SpaceSetupScreen(
     isInternetArchiveAllowed: Boolean,
     onInternetArchiveClick: () -> Unit,
     isDwebEnabled: Boolean,
-    onDwebClicked: () -> Unit
+    onDwebClicked: () -> Unit,
 ) {
     // Use a scrollable Column to mimic ScrollView + LinearLayout
     Column(
@@ -50,9 +52,14 @@ fun SpaceSetupScreen(
                     color = MaterialTheme.colorScheme.onBackground
                 )
             )
+
             Spacer(modifier = Modifier.height(12.dp))
 
-            val description = if (isDwebEnabled) stringResource(R.string.to_get_started_more_hint_dweb) else stringResource(R.string.to_get_started_more_hint)
+            val description = if (isDwebEnabled) {
+                stringResource(R.string.to_get_started_more_hint_dweb)
+            } else {
+                stringResource(R.string.to_get_started_more_hint)
+            }
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium.copy(
@@ -94,11 +101,11 @@ fun SpaceSetupScreen(
                 onClick = onDwebClicked
             )
         }
+
     }
 }
 
-@Preview
-@Preview(uiMode = UI_MODE_NIGHT_YES)
+@PreviewLightDark
 @Composable
 private fun SpaceSetupScreenPreview() {
     DefaultScaffoldPreview {

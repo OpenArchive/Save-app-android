@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        android:key="use_c2pa"
+        android:title="@string/use_c2pa"
+        android:summary="@string/use_c2pa_summary"
+        android:defaultValue="false" />
+
+    <PreferenceCategory
+        android:title="@string/c2pa_signing"
+        android:dependency="use_c2pa">
+
+        <Preference
+            android:key="c2pa_signing_key"
+            android:title="@string/c2pa_signing_key"
+            android:summary="@string/c2pa_signing_key_summary" />
+
+        <Preference
+            android:key="c2pa_about"
+            android:title="@string/c2pa_about_title"
+            android:summary="@string/c2pa_about_summary" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

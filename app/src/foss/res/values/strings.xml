@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ACRA crash reporting strings -->
+    <string name="crash_dialog_title">Oops! Save has crashed</string>
+    <string name="crash_dialog_text">We\'re sorry for the inconvenience. Would you like to send a crash report to help us fix this issue?</string>
+    <string name="crash_dialog_comment_prompt">What were you doing when the crash occurred? (optional)</string>
+    <string name="crash_dialog_ok_toast">Send Report</string>
+    <string name="crash_dialog_cancel">Don\'t Send</string>
+</resources>

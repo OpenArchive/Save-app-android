@@ -25,7 +25,6 @@
     <string name="tor_disabled_message">هذه الميزة قيد التطوير حاليا. في الوقت الحالي، يمكنك استخدام Orbot أو أي شبكة افتراضية خاصة من اختيارك لتعزيز خصوصيتك وأمنك.</string>
     <string name="tor_download_btn_label">تنزيل Orbot</string>
 
-
     <!-- Errors -->
 
     <!-- Server -->
@@ -54,21 +53,6 @@
 
     <string name="prefs_use_tor_title">تشغيل التوجيه البصلي</string>
     <string name="prefs_use_tor_summary">النقل عبر شبكة « تور » فقط</string>
-
-    <string name="prefs_use_proofmode_title">تفعيل ProofMode</string>
-    <string name="prefs_use_proofmode_description"><![CDATA[يُمكِّن نظام ‫ProofMode من تعزيز الاستيثاق والتحقق من محتوى الوسائط. <a href=\"%1$s\"><u>تعرَّف على المزيد هنا</u></a>]]></string>
-
-    <string name="proof_mode_warning_text"><![CDATA[
-لمساعدتك في التحقق من المكان الذي تم فيه التقاط وسائطك، يجمع ProofMode بيانات من أبراج الخلايا القريبة لإثبات موقعك. لزيادة المصداقية والسياق، فإنه يُدمِج ملفا منفصلا للبيانات الوصفية مع وسائطك*. يطلب أندرويد حق الوصول إلى الموقع للحصول على تلك المعلومة.<br/><br/>
-<b>*لا <i>Save</i> ولا <i>OpenArchive</i> يمكنهما الوصول إلى بيانات موقعك ولا حتى تخزينها، سيكون ذلك متاحا فقط لمن له حق الوصول إلى ملفات الخادم.</b>
-    ]]>\n    </string>
-
-    <string name="prefs_share_proofmode_title">هوية ProofMode</string>
-    <string name="prefs_share_proofmode_summary">مشاركة مفتاح ProofMode العمومي</string>
-
-
-    <!-- Strings for ProofMode Activity -->
-    <string name="phone_permission_required">إذن معرفة الموقع مطلوبة</string>
 
     <!-- Strings for nearby sharing -->
 
@@ -119,7 +103,6 @@
     <string name="confirm_passcode">أكِّد رمز المرور</string>
     <string name="set_passcode">حدد رمز المرور</string>
     <string name="set_passcode_warning">تيقَّن من تذكُّر هذا الرمز. إذا نسيته، فسيحتاج الأمر إلى إعادة تعيين التطبيق، وسيتم مسح جميع البيانات داخل التطبيق.</string>
-
 
     <!-- Strings related to Settings -->
 
@@ -189,7 +172,7 @@
     <!-- Clean Insights measurement -->
     <string name="server_name_optional"><i>اسم الخادم (اختياري)</i></string>
     <string name="add_another_account">إضافة خادم جديد</string>
-    <string name="biometrics_title">‫فك قفل مفتاح ProofMode</string>
+    <string name="biometrics_title">Unlock with Biometrics</string>
     <string name="folders">المجلدات</string>
     <string name="create_folder_name">إنشاء اسم المجلد</string>
     <string name="folder_name">اسم المجلد</string>
@@ -205,13 +188,12 @@
     <string name="general">عام</string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">‫حمِّل الوسائط عندما تكون متصلا بالشبكة اللاسلكية (Wi-Fi) فقط</string>
     <string name="security">الأمن</string>
-    <string name="proofmode">ProofMode</string>
     <string name="no_webbrowser_found_error">لا يوجد تطبيق يمكنه التعامل مع هذا الطلب. الرجاء تثبيت متصفح الانترنت.</string>
 
     <string name="intro_text_secure">أرسل وسائطك بشكل آمن إلى خوادم خاصة، ثم اقفل التطبيق باستخدام رمز.</string>
     <string name="intro_text_archive"><![CDATA[قم بتحميل الوسائط إلى Nextcloud أو Internet Archive لجعل وسائطك قابلة للتحقق منها وآمنة ومُنظَّمة على المدى الطويل.<br><br>اختر<a href=\"%1$s\"><u>ترخيص المشاع الإبداعي</u></a>]]></string>
 
-    <string name="intro_text_verify"><![CDATA[‫استوثق من وسائطك وتحقق منها باستخدام تلبيد التجزئة sha256 ووضع <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
+    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href="%1$s"><u>C2PA content credentials.</u></a>]]></string>
     <string name="intro_text_encrypt"><![CDATA[يحمل <b><i>Save</i></b>دائما عبر TLS (بروتوكول طبقة النقل الآمن) لحماية وسائطك أثناء عبورها.<br>لتعزيز الأمن بشكل أفضل، قم بتفعيل <a href=\"%1$s\"><u>تور</u></a> لمنع اعتراض وسائطك من هاتفك إلى الخادم.]]></string>
     <string name="next">التالي</string>
     <string name="done">تم</string>
@@ -233,15 +215,16 @@
     <string name="press_and_hold_options_media_screen_message">‫المس علامة + للاختيار من مَعْرِض الصور أو اضغط مع الاستمرار في ذلك لإضافة الوسائط من تطبيقات أخرى.</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">اضغط مع الإبقاء لتحديد وتعديل عناصر وسائط متعددة.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">بمجرد التحميل، لن تتمكن من تعديل الوسائط.</string>
+    <string name="proceed_to_upload">تابع للتحميل</string>
+    <string name="actually_let_me_edit">في الحقيقة، أريد التعديل</string>
     <string name="edit_media_info">تعديل معلومات الوسائط</string>
+    <string name="bulk_edit_media_info">تعديل متعدد لمعلومات الوسائط</string>
     <string name="add_a_location_optional"><i>إضافة موقع (اختياري)</i></string>
     <string name="add_notes_optional"><i>إضافة ملاحظات (اختياري)</i></string>
     <string name="skip">تخطي</string>
 
-
     <string name="upload_unsuccessful">التحميل غير ناجح</string>
     <string name="upload_unsuccessful_description">لقد تعذر التحميل بسبب خطأ في الجلسة، يرجى المحاولة مرة أخرى أو الاتصال بالدعم.</string>
-
 
     <string name="edit_media">تحرير الوسائط</string>
 

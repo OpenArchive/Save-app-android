@@ -10,11 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.ErrorOutline
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -38,12 +33,14 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.ViewModel
 import net.opendasharchive.openarchive.R
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultBoxPreview
 import net.opendasharchive.openarchive.features.core.BaseButton
 import net.opendasharchive.openarchive.features.core.BaseDestructiveButton
 import net.opendasharchive.openarchive.features.core.BaseNeutralButton
 import net.opendasharchive.openarchive.features.core.UiImage
 import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.asString
 import net.opendasharchive.openarchive.features.core.asUiImage
 
 @Composable
@@ -207,11 +204,17 @@ fun BaseDialogMessage(
     )
 }
 
-
+/**
+ * A Global Manager for Dialogs.
+ * Registered as a 'single' in Koin so every screen shares this state.
+ */
 class DialogStateManager(private val resourceProvider: ResourceProvider) : ViewModel() {
     private val _dialogConfig = mutableStateOf<DialogConfig?>(null)
     val dialogConfig: State<DialogConfig?> = _dialogConfig
 
+    init {
+        AppLogger.i("DialogStateManager initialized....")
+    }
     fun showDialog(config: DialogConfig) {
         _dialogConfig.value = config
     }
@@ -243,7 +246,7 @@ fun DialogHost(dialogStateManager: DialogStateManager) {
                 config.onDismissAction?.invoke()
             },
             icon = config.icon,
-            iconColor = config.iconColor,
+            iconColor = config.iconColor?.asColor(),
             title = config.title.asString(),
             message = config.message.asString(),
             positiveButton = config.positiveButton,
@@ -264,11 +267,11 @@ private fun BaseDialogPreview() {
 
         BaseDialog(
             onDismiss = {},
-            icon = Icons.Filled.Check.asUiImage(),
+            icon = UiImage.DrawableResource(R.drawable.ic_warning),
             iconColor = MaterialTheme.colorScheme.tertiary,
             title = stringResource(R.string.label_success_title),
             message = stringResource(R.string.create_folder_ok_message),
-            positiveButton = ButtonData(UiText.StringResource(R.string.lbl_ok)),
+            positiveButton = ButtonData(UiText.Resource(R.string.lbl_ok)),
         )
 
     }
@@ -282,12 +285,12 @@ private fun WarningDialogPreview() {
 
         BaseDialog(
             onDismiss = {},
-            icon = Icons.Default.Warning.asUiImage(),
+            icon = UiImage.DrawableResource(R.drawable.ic_warning),
             iconColor = MaterialTheme.colorScheme.tertiary,
             title = "Warning",
             message = stringResource(R.string.once_uploaded_you_will_not_be_able_to_edit_media),
-            positiveButton = ButtonData(UiText.DynamicString("OK")),
-            neutralButton = ButtonData(UiText.DynamicString("Cancel")),
+            positiveButton = ButtonData(UiText.Dynamic("OK")),
+            neutralButton = ButtonData(UiText.Dynamic("Cancel")),
             hasCheckbox = true,
             checkBoxHint = "Do not show me this again",
             onCheckBoxStateChanged = { },
@@ -303,12 +306,12 @@ private fun ErrorDialogPreview() {
 
         BaseDialog(
             onDismiss = {},
-            icon = Icons.Default.ErrorOutline.asUiImage(),
+            icon = UiImage.DrawableResource(R.drawable.ic_error),
             iconColor = MaterialTheme.colorScheme.error,
             title = "Image upload unsuccessful",
             message = "Give a reason here? Lorem Ipsum text can go here if needed",
-            positiveButton = ButtonData(UiText.DynamicString("Retry")),
-            destructiveButton = ButtonData(UiText.DynamicString("Remove Image")),
+            positiveButton = ButtonData(UiText.Dynamic("Retry")),
+            destructiveButton = ButtonData(UiText.Dynamic("Remove Image")),
         )
     }
 }
@@ -321,11 +324,11 @@ private fun TorWarningDialogPreview() {
 
         BaseDialog(
             onDismiss = {},
-            icon = Icons.Default.Info.asUiImage(),
+            icon = UiImage.DrawableResource(R.drawable.ic_info_outline),
             iconColor = MaterialTheme.colorScheme.tertiary,
             title = stringResource(R.string.tor_disabled_title),
             message = stringResource(R.string.tor_disabled_message),
-            positiveButton = ButtonData(UiText.DynamicString(stringResource(R.string.lbl_ok))),
+            positiveButton = ButtonData(UiText.Dynamic(stringResource(R.string.lbl_ok))),
         )
     }
 }

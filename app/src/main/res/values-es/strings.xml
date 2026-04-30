@@ -25,7 +25,6 @@
     <string name="tor_disabled_message">Esta funcionalidad actualmente está en desarrollo. Por ahora, puedes utilizar Orbot o cualquier VPN de tu elección para mejorar tu privacidad y seguridad.</string>
     <string name="tor_download_btn_label">Descargar Orbot</string>
 
-
     <!-- Errors -->
 
     <!-- Server -->
@@ -54,21 +53,6 @@
 
     <string name="prefs_use_tor_title">Habilita el Enrutamiento Onion</string>
     <string name="prefs_use_tor_summary">Transferencia solo a través de la Red Tor</string>
-
-    <string name="prefs_use_proofmode_title">Habilitar ProofMode</string>
-    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode es una manera de mejorar la autenticación y verificación de contenido multimedia. <a href=\"%1$s\"><u>Aprende más aquí.</u></a>]]></string>
-
-    <string name="proof_mode_warning_text"><![CDATA[
-  Para ayudar a verificar dónde tus medios fueron capturados, ProofMode obtiene datos de torres celulares cercanas para corroborar tu ubicación. Para agregar credibilidad y contexto, luego incluye un archivo de metadatos separado con tus medios*. Android requiere acceso a la ubicación para recopilar esta información.<br/><br/>
- <b>*Ni<i>Save</i>ni <i>OperArchive</i> podrán acceder o almacenar estos datos de ubicación, solo serán accesibles para quienes tengan acceso a los archivos del servidor.</b>
-  ]]>\n </string>
-
-    <string name="prefs_share_proofmode_title">Identidad ProofMode</string>
-    <string name="prefs_share_proofmode_summary">Compartir Clave Pública ProofMode</string>
-
-
-    <!-- Strings for ProofMode Activity -->
-    <string name="phone_permission_required">Permisos de ubicación requeridos</string>
 
     <!-- Strings for nearby sharing -->
 
@@ -119,7 +103,6 @@
     <string name="confirm_passcode">Confirmar Código de Acceso</string>
     <string name="set_passcode">Establecer Código de Acceso</string>
     <string name="set_passcode_warning">Asegúrate de recordar este pin. Si lo olvidas, tendrás que restablecer la app, y toda la información dentro de la app se eliminará.</string>
-
 
     <!-- Strings related to Settings -->
 
@@ -189,7 +172,7 @@
     <!-- Clean Insights measurement -->
     <string name="server_name_optional"><i>Nombre del Servidor (Opcional)</i></string>
     <string name="add_another_account">Añadir nuevo servidor</string>
-    <string name="biometrics_title">Desbloquear Clave de ProofMode</string>
+    <string name="biometrics_title">Unlock with Biometrics</string>
     <string name="folders">Carpetas</string>
     <string name="create_folder_name">Crear Nombre de Carpeta</string>
     <string name="folder_name">Nombre de Carpeta</string>
@@ -205,13 +188,12 @@
     <string name="general">General</string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Solo subir medios cuando estés conectada(o) a Wi-Fi</string>
     <string name="security">Seguridad</string>
-    <string name="proofmode">ProofMode</string>
     <string name="no_webbrowser_found_error">Ninguna aplicación puede manejar esta solicitud. Por favor instala un navegador web.</string>
 
     <string name="intro_text_secure">Envía tus medios de manera segura a servidores privados y bloquea la app con un pin.</string>
     <string name="intro_text_archive"><![CDATA[Sube medios a Nextcloud o a Internet Archive para mantener tus medios verificables, seguros, y organizados a largo plazo.<br><br>Elige<a href=\"%1$s\"><u>Licencias Creative Commons.</u></a>]]></string>
 
-    <string name="intro_text_verify"><![CDATA[Autentica y verifica tus medios con hashes sha256 y <a href=\"%1$s\"><u>ProofMode.</u></a>]]> </string>
+    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href="%1$s"><u>C2PA content credentials.</u></a>]]></string>
     <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> siempre sube sobre TLS (Seguridad de la Capa de Transporte) para proteger tus medios en tránsito. <br>Para mejorar aún más la seguridad, habilita<a href=\"%1$s\"><u>Tor</u></a> para prevenir la intercepción de tus medios desde tu teléfono hacia el servidor.]]></string>
     <string name="next">Seguir</string>
     <string name="done">Listo</string>
@@ -233,15 +215,16 @@
     <string name="press_and_hold_options_media_screen_message">Tocar + para elegir de la galería de imágenes o presiona y mantén para añadir medios desde otras apps. </string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">Mantén presionado para seleccionar y editar múltiples ítems de medios.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Una vez subidos, no podrás editar los medios.</string>
+    <string name="proceed_to_upload">Proceder con la subida</string>
+    <string name="actually_let_me_edit">En realidad, quiero editar</string>
     <string name="edit_media_info">Editar Info de Medios</string>
+    <string name="bulk_edit_media_info">Edición Por Lotes de Info Multimedia</string>
     <string name="add_a_location_optional"><i>Añade una ubicación (opcional)</i></string>
     <string name="add_notes_optional"><i>Añade notas (opcional)</i></string>
     <string name="skip">Omitir</string>
 
-
     <string name="upload_unsuccessful">Carga Fallida</string>
     <string name="upload_unsuccessful_description">No se pudo subir debido a error de sesión, por favor vuelve a intentar o contacta a soporte.</string>
-
 
     <string name="edit_media">Editar Medios</string>
 

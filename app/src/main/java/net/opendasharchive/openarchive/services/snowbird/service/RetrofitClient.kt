@@ -1,17 +1,9 @@
 package net.opendasharchive.openarchive.services.snowbird.service
 
-import net.opendasharchive.openarchive.db.CreateRepoResponse
-import net.opendasharchive.openarchive.db.FileUploadResult
-import net.opendasharchive.openarchive.db.JoinGroupResponse
-import net.opendasharchive.openarchive.db.MembershipRequest
-import net.opendasharchive.openarchive.db.RefreshGroupResponse
-import net.opendasharchive.openarchive.db.RequestName
-import net.opendasharchive.openarchive.db.SnowbirdFileList
-import net.opendasharchive.openarchive.db.SnowbirdGroup
-import net.opendasharchive.openarchive.db.SnowbirdGroupList
-import net.opendasharchive.openarchive.db.SnowbirdRepoList
+import net.opendasharchive.openarchive.services.snowbird.data.*
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
@@ -26,14 +18,14 @@ interface RetrofitClient {
     suspend fun fetchFiles(
         @Path("groupKey") groupKey: String,
         @Path("repoKey") repoKey: String
-    ): SnowbirdFileList
+    ): Response<SnowbirdFileListDTO>
 
     @GET("groups/{groupKey}/repos/{repoKey}/media/{filename}")
     suspend fun downloadFile(
         @Path("groupKey") groupKey: String,
         @Path("repoKey") repoKey: String,
         @Path("filename") filename: String
-    ): ResponseBody
+    ): Response<ResponseBody>
 
     @POST("groups/{groupKey}/repos/{repoKey}/media/{filename}")
     @Headers("Content-Type: application/octet-stream")
@@ -42,32 +34,32 @@ interface RetrofitClient {
         @Path("repoKey") repoKey: String,
         @Path(value = "filename", encoded = true) filename: String,
         @Body imageData: RequestBody
-    ): FileUploadResult
+    ): Response<FileUploadResult>
 
     // Groups
 
     @POST("groups")
     suspend fun createGroup(
         @Body groupName: RequestName
-    ): SnowbirdGroup
+    ): Response<SnowbirdGroupDTO>
 
     @GET("groups/{groupKey}")
     suspend fun fetchGroup(
         @Path("groupKey") groupKey: String
-    ): SnowbirdGroup
+    ): Response<SnowbirdGroupDTO>
 
     @GET("groups")
-    suspend fun fetchGroups(): SnowbirdGroupList
+    suspend fun fetchGroups(): Response<SnowbirdGroupListDTO>
 
     @POST("memberships")
     suspend fun joinGroup(
         @Body request: MembershipRequest
-    ): JoinGroupResponse
+    ): Response<JoinGroupResponse>
 
     @POST("groups/{group_id}/refresh")
     suspend fun refreshGroup(
         @Path("group_id") groupKey: String
-    ): RefreshGroupResponse
+    ): Response<RefreshGroupResponse>
 
     // Repos
 
@@ -75,10 +67,10 @@ interface RetrofitClient {
     suspend fun createRepo(
         @Path("groupKey") groupKey: String,
         @Body repoName: RequestName
-    ): CreateRepoResponse
+    ): Response<SnowbirdRepoDTO>
 
     @GET("groups/{groupKey}/repos")
     suspend fun fetchRepos(
         @Path("groupKey") groupKey: String
-    ): SnowbirdRepoList
+    ): Response<SnowbirdRepoListDTO>
 }

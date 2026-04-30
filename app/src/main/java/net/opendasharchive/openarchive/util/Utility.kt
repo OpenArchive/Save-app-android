@@ -7,15 +7,17 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.OpenableColumns
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.security.SecureRandom
 import java.util.Locale
+import java.util.Random
+import androidx.core.net.toUri
 
 object Utility {
 
@@ -42,16 +44,42 @@ object Utility {
     }
 
     fun getOutputMediaFileByCache(context: Context, fileName: String): File? {
-        val dir = context.cacheDir
+        val dir = File(context.filesDir, "media_temp")
         if (!dir.exists()) {
             if (!dir.mkdirs()) {
                 return null
             }
         }
 
-        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-
+        val timeStamp = DateUtils.getTimestamp()
         return File(dir, "$timeStamp.$fileName")
+    }
+
+    /**
+     * Temporary persistent storage solution using internal files directory.
+     * TODO: Review this storage strategy when implementing the new Evidence architecture.
+     */
+    fun getOutputMediaFile(context: Context, fileName: String): File? {
+        val dir = context.filesDir
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                return null
+            }
+        }
+
+        val timeStamp = DateUtils.getTimestamp()
+        return File(dir, "$timeStamp.$fileName")
+    }
+
+    fun getOutputMediaFileByCacheNoTimestamp(context: Context, fileName: String): File? {
+        val dir = File(context.filesDir, "media_temp")
+        if (!dir.exists()) {
+            if (!dir.mkdirs()) {
+                return null
+            }
+        }
+
+        return File(dir, fileName)
     }
 
     fun writeStreamToFile(input: InputStream?, file: File?): Boolean {
@@ -77,24 +105,24 @@ object Utility {
             success = true
         }
         catch (e: FileNotFoundException) {
-            Timber.e(e)
+            AppLogger.e(e)
         }
         catch (e: IOException) {
-            Timber.e(e)
+            AppLogger.e(e)
         }
         finally {
             try {
                 output?.close()
             }
             catch (e: IOException) {
-                Timber.e(e)
+                AppLogger.e(e)
             }
 
             try {
                 input.close()
             }
             catch (e: IOException) {
-                Timber.e(e)
+                AppLogger.e(e)
             }
         }
 
@@ -102,13 +130,14 @@ object Utility {
     }
 
     fun openStore(context: Context, appId: String) {
-        var i = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${appId}"))
+        var i = Intent(Intent.ACTION_VIEW, "market://details?id=${appId}".toUri())
 
         val capableApps = context.packageManager.queryIntentActivities(i, 0)
 
         // If there are no app stores installed, send to the web.
-        if (capableApps.size < 1) {
-            i = Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=${appId}"))
+        if (capableApps.isEmpty()) {
+            i = Intent(Intent.ACTION_VIEW,
+                "https://play.google.com/store/apps/details?id=${appId}".toUri())
         }
 
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
@@ -139,6 +168,24 @@ object Utility {
                     completion.invoke(false)
                 }
                 .show()
+        }
+    }
+
+    class RandomString(length: Int) {
+        private val random: Random = SecureRandom()
+        private val buf: CharArray
+        fun nextString(): String {
+            for (idx in buf.indices) buf[idx] = symbols[random.nextInt(symbols.length)]
+            return String(buf)
+        }
+
+        companion object {
+            private const val symbols = "abcdefghijklmnopqrstuvwxyz0123456789"
+        }
+
+        init {
+            require(length >= 1) { "length < 1: $length" }
+            buf = CharArray(length)
         }
     }
 }

@@ -5,7 +5,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,67 +27,55 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.collectLatest
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultEmptyScaffoldPreview
-import net.opendasharchive.openarchive.core.presentation.theme.SaveAppTheme
-import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
+import net.opendasharchive.openarchive.features.core.UiText
+import net.opendasharchive.openarchive.features.core.UiTextArg
 import net.opendasharchive.openarchive.features.settings.passcode.AppHapticFeedbackType
 import net.opendasharchive.openarchive.features.settings.passcode.HapticManager
 import net.opendasharchive.openarchive.features.settings.passcode.components.MessageManager
 import net.opendasharchive.openarchive.features.settings.passcode.components.NumericKeypad
 import net.opendasharchive.openarchive.features.settings.passcode.components.PasscodeDots
-import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
 
 @Composable
 fun PasscodeEntryScreen(
-    onPasscodeSuccess: () -> Unit,
+    viewModel: PasscodeEntryViewModel,
+    hapticManager: HapticManager = koinInject(),
+    onSuccess: () -> Unit,
+    onLockedOut: () -> Unit,
     onExit: () -> Unit,
-    viewModel: PasscodeEntryViewModel = koinViewModel(),
-    hapticManager: HapticManager = koinInject()
 ) {
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    val context = LocalContext.current
-
-
     val hapticFeedback = LocalHapticFeedback.current
 
-    LaunchedEffect(Unit) {
-        hapticManager.init(hapticFeedback)
+    BackHandler(enabled = true) {
+        onExit()
     }
 
     // Function to handle passcode entry
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collectLatest { event ->
             when (event) {
-                PasscodeEntryUiEvent.Success -> onPasscodeSuccess()
-
-                PasscodeEntryUiEvent.PasscodeNotSet -> {
-                    MessageManager.showMessage(context.getString(R.string.passcode_not_set))
-                }
 
                 is PasscodeEntryUiEvent.IncorrectPasscode -> {
-                    hapticManager.performHapticFeedback(AppHapticFeedbackType.Error)
+                    hapticManager.perform(hapticFeedback, AppHapticFeedbackType.Error)
 
                     event.remainingAttempts?.let {
-                        val message = context.getString(R.string.passcode_remaining_attempts, it)//"Incorrect passcode. $it attempts remaining."
+                        val message = UiText.Resource(R.string.passcode_remaining_attempts,
+                            listOf(UiTextArg.Num(it)))//"Incorrect passcode. $it attempts remaining."
                         MessageManager.showMessage(message)
                     }
 
                 }
-
-                PasscodeEntryUiEvent.LockedOut -> {
-                    MessageManager.showMessage(context.getString(R.string.passcode_too_many_failed_attempts))
-                    onExit()
-                }
+                PasscodeEntryUiEvent.Success -> onSuccess()
+                PasscodeEntryUiEvent.LockedOut -> onLockedOut()
             }
         }
     }
@@ -96,7 +83,7 @@ fun PasscodeEntryScreen(
     PasscodeEntryScreenContent(
         state = state,
         onAction = viewModel::onAction,
-        onExit = onExit,
+        onHaptic = { hapticManager.perform(hapticFeedback, AppHapticFeedbackType.Error) }
     )
 }
 
@@ -105,7 +92,7 @@ fun PasscodeEntryScreen(
 fun PasscodeEntryScreenContent(
     state: PasscodeEntryScreenState,
     onAction: (PasscodeEntryScreenAction) -> Unit,
-    onExit: () -> Unit,
+    onHaptic: () -> Unit,
 ) {
 
     Column(
@@ -172,6 +159,9 @@ fun PasscodeEntryScreenContent(
                     onAction(PasscodeEntryScreenAction.OnBackspaceClick)
                 },
                 onSubmitClick = {
+                    onAction(PasscodeEntryScreenAction.OnSubmit)
+                },
+                onHaptic = {
 
                 }
             )
@@ -234,7 +224,7 @@ private fun PasscodeEntryScreenPreview() {
                 passcodeLength = 6
             ),
             onAction = {},
-            onExit = {},
+            onHaptic = {}
         )
 
     }

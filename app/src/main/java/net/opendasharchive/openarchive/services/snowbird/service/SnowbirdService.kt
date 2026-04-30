@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
@@ -16,14 +17,22 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.SaveApp
+import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.extensions.RetryAttempt
 import net.opendasharchive.openarchive.extensions.retryWithScope
 import net.opendasharchive.openarchive.extensions.suspendToRetry
-import net.opendasharchive.openarchive.features.main.MainActivity
+import net.opendasharchive.openarchive.features.main.HomeActivity
 import net.opendasharchive.openarchive.services.snowbird.SnowbirdBridge
+import net.opendasharchive.openarchive.services.tor.TorServiceManager
+import net.opendasharchive.openarchive.services.tor.TorStatus
+import net.opendasharchive.openarchive.util.Prefs
+import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
@@ -31,11 +40,11 @@ import java.net.ConnectException
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import java.net.URL
-import java.nio.file.Files
-import kotlin.io.path.Path
 import kotlin.time.Duration.Companion.seconds
 
 class SnowbirdService : Service() {
+
+    private val torServiceManager: TorServiceManager by inject()
 
     companion object {
         var DEFAULT_BACKEND_DIRECTORY = ""
@@ -85,13 +94,60 @@ class SnowbirdService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        startForeground(
-            SaveApp.SNOWBIRD_SERVICE_ID,
-            createNotification("Snowbird Server is starting up.")
-        )
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(
+                    SaveApp.SNOWBIRD_SERVICE_ID,
+                    createNotification("Snowbird Server is starting up."),
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
+                )
+            } else {
+                startForeground(
+                    SaveApp.SNOWBIRD_SERVICE_ID,
+                    createNotification("Snowbird Server is starting up."),
+                )
+            }
+        } catch (e: Exception) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                e is android.app.ForegroundServiceStartNotAllowedException
+            ) {
+                Timber.w("Cannot start foreground service from background, stopping: ${e.message}")
+                updateStatus(ServiceStatus.Failed(e))
+                stopSelf()
+                return START_NOT_STICKY
+            }
+            throw e
+        }
 
-        // Launch a coroutine to check & start
+        // Launch startup flow
         serviceScope.launch {
+            // Wait for Tor to be ready before initialising the Rust bridge.
+            // This covers both fresh launches and START_STICKY restarts — in both
+            // cases the Tokio thread-pool must not compete with Tor's bootstrap.
+            if (Prefs.useTor) {
+                updateNotification("Waiting for Tor...")
+                val ready = withTimeoutOrNull(60_000L) {
+                    torServiceManager.torStatus
+                        .filter { it is TorStatus.On || it is TorStatus.Verified }
+                        .first()
+                }
+                if (ready == null) {
+                    Timber.w("SnowbirdService: Tor wait timed out after 60 s — proceeding anyway")
+                } else {
+                    Timber.d("SnowbirdService: Tor is ready, starting bridge")
+                }
+            }
+
+            // Initialize bridge first to reduce startup race windows.
+            try {
+                withContext(Dispatchers.IO) {
+                    SnowbirdBridge.getInstance().initialize()
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "SnowbirdBridge.initialize() failed")
+                // Continue; startServer may still surface a clearer error.
+            }
+
             val alreadyUp = isServerRunning()
             if (alreadyUp) {
                 Timber.d("Snowbird server already running; skipping start()")
@@ -132,7 +188,7 @@ class SnowbirdService : Service() {
                 updateStatus(ServiceStatus.Stopped)
                 Timber.d("Server shutdown complete")
             } catch (e: Exception) {
-                Timber.e(e, "Error stopping server")
+                AppLogger.e( "Error stopping server", e)
                 updateStatus(ServiceStatus.Failed(e))
             }
         }
@@ -142,17 +198,8 @@ class SnowbirdService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    /**
-     * Checks if a web server is available and responding with a 200 OK status.
-     * Throws exceptions on failure for better integration with retry mechanisms.
-     *
-     * @param url The URL to check
-     * @param timeout Optional timeout in milliseconds (default 5000ms)
-     * @throws ConnectException if the server refuses connection
-     * @throws SocketTimeoutException if the connection times out
-     * @throws IOException for other network-related errors
-     */
-    private suspend fun checkServerAvailability(url: String, timeout: Int = 1000) {
+    /** Checks if a URL is reachable and returns 2xx. Throws on failure. */
+    private suspend fun checkServerAvailability(url: String, timeout: Int = 8000) {
         withContext(Dispatchers.IO) {
             var connection: HttpURLConnection? = null
             try {
@@ -164,7 +211,7 @@ class SnowbirdService : Service() {
                 }
 
                 when (connection.responseCode) {
-                    HttpURLConnection.HTTP_OK -> return@withContext
+                    in 200..299 -> return@withContext
                     else -> throw IOException("Server returned ${connection.responseCode}")
                 }
             } catch (e: Exception) {
@@ -176,13 +223,19 @@ class SnowbirdService : Service() {
         }
     }
 
+    /** `/status` proves liveness; `/health/ready` proves backend initialization. */
+    private suspend fun checkFullReadiness() {
+        checkServerAvailability("http://localhost:8080/status")
+        checkServerAvailability("http://localhost:8080/health/ready", timeout = 8000)
+    }
+
     private fun createNotification(text: String, withSound: Boolean = false): Notification {
         val channelId =
             if (withSound) SaveApp.SNOWBIRD_SERVICE_CHANNEL_CHIME else SaveApp.SNOWBIRD_SERVICE_CHANNEL_SILENT
 
         val pendingIntent: PendingIntent = Intent(
             this,
-            MainActivity::class.java
+            HomeActivity::class.java
         ).let { notificationIntent ->
             PendingIntent.getActivity(
                 this,
@@ -208,7 +261,7 @@ class SnowbirdService : Service() {
         Timber.d("Starting polling")
         pollingJob?.cancel() // Cancel any existing polling
 
-        pollingJob = suspendToRetry { checkServerAvailability("http://localhost:8080/status") }
+        pollingJob = suspendToRetry { checkFullReadiness() }
             .retryWithScope(
                 scope = serviceScope,
                 config = RetryConfig(
@@ -220,7 +273,8 @@ class SnowbirdService : Service() {
                 shouldRetry = { error ->
                     when (error) {
                         is ConnectException,
-                        is SocketTimeoutException -> true
+                        is SocketTimeoutException,
+                        is IOException -> true
 
                         else -> false
                     }
@@ -245,7 +299,7 @@ class SnowbirdService : Service() {
                         val errorMessage = attempt.error.message ?: "Unknown error"
                         updateStatus(ServiceStatus.Failed(attempt.error))
                         updateNotification("Connection Failed: $errorMessage")
-                        Timber.e(attempt.error)
+                        AppLogger.e(attempt.error)
                         stopPolling()
                     }
                 }

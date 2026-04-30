@@ -1,0 +1,7 @@
+Save (Share Archive Verify Encrypt) by OpenArchive enables you to safely preserve, organize, and share your mobile media.
+
+* Upload any type of media to a private server or directly to the Internet Archive and the WebDAV Servers.
+* Edit media metadata, including location, and additional notes
+* Flag media as "significant" for organization and/or easy retrieval later
+* Create multiple project albums to keep media organized
+* Creative Commons licensing options for the media you collect and share

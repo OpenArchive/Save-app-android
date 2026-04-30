@@ -1,36 +1,47 @@
 package net.opendasharchive.openarchive
 
 import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.UiModeManager
-import android.content.Context
 import android.os.Build
+import android.app.NotificationManager
+import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import coil3.video.VideoFrameDecoder
 import com.orm.SugarApp
-import info.guardianproject.netcipher.proxy.OrbotHelper
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ProcessLifecycleOwner
-import androidx.lifecycle.lifecycleScope
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import net.opendasharchive.openarchive.core.repositories.CacheCleanupWorker
+import net.opendasharchive.openarchive.core.di.torModule
+import net.opendasharchive.openarchive.services.tor.TorConstants
+import net.opendasharchive.openarchive.services.tor.TorServiceManager
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
+import net.opendasharchive.openarchive.core.security.C2paKeyStore
 import net.opendasharchive.openarchive.analytics.di.analyticsModule
+import net.opendasharchive.openarchive.db.MigrationWorker
 import net.opendasharchive.openarchive.core.di.coreModule
+import net.opendasharchive.openarchive.core.di.databaseModule
 import net.opendasharchive.openarchive.core.di.featuresModule
 import net.opendasharchive.openarchive.core.di.passcodeModule
 import net.opendasharchive.openarchive.core.di.retrofitModule
-import net.opendasharchive.openarchive.core.di.unixSocketModule
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.features.settings.passcode.PasscodeManager
+import net.opendasharchive.openarchive.util.C2paHelper
+import net.opendasharchive.openarchive.util.CleanInsightsManager
 import net.opendasharchive.openarchive.util.Prefs
+import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
-import org.koin.android.ext.android.inject
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 
@@ -42,6 +53,8 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
 
     override fun attachBaseContext(base: Context?) {
         super.attachBaseContext(base)
+        // Initialize ACRA for FOSS builds (no-op for GMS builds)
+        AppLogger.initAcra(this)
     }
 
     private fun applyTheme() {
@@ -57,20 +70,33 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
         // Initialize logging first
         AppLogger.init(applicationContext, initDebugger = true)
 
-        registerActivityLifecycleCallbacks(PasscodeManager())
-
         Prefs.load(this)
+
+        // Initialize C2PA Helper
+        C2paHelper.init(this)
+
+        // Trigger Room migration if needed (SugarORM → Room)
+        if (!Prefs.isRoomMigrated) {
+            val migrationRequest = OneTimeWorkRequestBuilder<MigrationWorker>()
+                .build()
+            WorkManager.getInstance(this).enqueueUniqueWork(
+                "RoomMigration",
+                ExistingWorkPolicy.KEEP,
+                migrationRequest
+            )
+        }
 
         // Initialize Koin DI
         startKoin {
             androidLogger(Level.DEBUG)
             androidContext(this@SaveApp)
             modules(
+                databaseModule,
                 coreModule,
+                passcodeModule,
                 featuresModule,
                 retrofitModule,
-                unixSocketModule,
-                passcodeModule,
+                torModule,
                 analyticsModule(
                     mixpanelToken = getString(R.string.mixpanel_key),
                     cleanInsightsConsentChecker = { CleanInsightsManager.hasConsent() }
@@ -80,7 +106,52 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
 
         applyTheme()
 
-        if (Prefs.useTor) initNetCipher()
+        // Migrate C2PA keys from plaintext SharedPreferences to SecureStorage (one-time)
+        val c2paKeyStore: C2paKeyStore by inject()
+        c2paKeyStore.migrateFromPrefsIfNeeded(
+            androidx.preference.PreferenceManager.getDefaultSharedPreferences(this)
+        )
+
+        // Schedule periodic cache cleanup (runs every 7 days when battery is not low)
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            CacheCleanupWorker.WORK_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
+            PeriodicWorkRequestBuilder<CacheCleanupWorker>(
+                CacheCleanupWorker.REPEAT_INTERVAL_DAYS,
+                java.util.concurrent.TimeUnit.DAYS
+            )
+                .setConstraints(
+                    Constraints.Builder()
+                        .setRequiresBatteryNotLow(true)
+                        .build()
+                )
+                .build()
+        )
+
+        // Start embedded Tor service if enabled.
+        // On Android 12+ we cannot call startForegroundService() when the process is launched
+        // from the background (e.g. Android restarting SnowbirdService via START_STICKY).
+        // Strategy: try to start immediately (gives Tor a head-start before Snowbird initialises),
+        // and if the OS rejects it we register a one-shot observer to retry on first foreground entry.
+        if (Prefs.useTor) {
+            val torServiceManager: TorServiceManager by inject()
+            try {
+                torServiceManager.start()
+            } catch (e: Exception) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                    e is android.app.ForegroundServiceStartNotAllowedException
+                ) {
+                    ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
+                        override fun onStart(owner: LifecycleOwner) {
+                            torServiceManager.start()
+                            owner.lifecycle.removeObserver(this)
+                        }
+                    })
+                } else {
+                    throw e
+                }
+            }
+        }
 
         // Legacy CleanInsightsManager (kept for backwards compatibility)
         CleanInsightsManager.init(this)
@@ -93,7 +164,9 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
             AppLogger.setAnalyticsManager(analyticsManager)
 
             // Set app version for session tracker
-            (sessionTracker as? net.opendasharchive.openarchive.analytics.api.session.SessionTrackerImpl)?.setAppVersion(BuildConfig.VERSION_NAME)
+            (sessionTracker as? net.opendasharchive.openarchive.analytics.api.session.SessionTrackerImpl)?.setAppVersion(
+                BuildConfig.VERSION_NAME
+            )
 
             // Set user properties (GDPR-compliant)
             analyticsManager.setUserProperty("app_version", BuildConfig.VERSION_NAME)
@@ -104,6 +177,7 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
         }
 
         createSnowbirdNotificationChannel()
+        createTorNotificationChannel()
     }
 
     override fun onStart(owner: LifecycleOwner) {
@@ -127,15 +201,27 @@ class SaveApp : SugarApp(), SingletonImageLoader.Factory, DefaultLifecycleObserv
         }
     }
 
-    private fun initNetCipher() {
-        AppLogger.d("Initializing NetCipher client")
-        val oh = OrbotHelper.get(this)
+    override fun onTerminate() {
+        super.onTerminate()
+        // Clean up Tor service when app is terminated
+        if (Prefs.useTor) {
+            val torServiceManager: TorServiceManager by inject()
+            torServiceManager.cleanup()
+        }
+    }
 
-        if (BuildConfig.DEBUG) {
-            oh.skipOrbotValidation()
+    private fun createTorNotificationChannel() {
+        val channel = NotificationChannel(
+            TorConstants.TOR_NOTIFICATION_CHANNEL_ID,
+            getString(R.string.tor_notification_channel_name),
+            NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            description = getString(R.string.tor_notification_channel_description)
         }
 
-//        oh.init()
+        val notificationManager: NotificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
 
     private fun createSnowbirdNotificationChannel() {

@@ -4,15 +4,17 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.launch
+import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
 import net.opendasharchive.openarchive.core.logger.AppLogger
 import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
-import net.opendasharchive.openarchive.features.onboarding.SpaceSetupActivity
+import net.opendasharchive.openarchive.features.core.dialog.DialogType
+import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
-import kotlin.getValue
 
 abstract class BaseFragment : Fragment(), ToolbarConfigurable {
 
@@ -36,14 +38,13 @@ abstract class BaseFragment : Fragment(), ToolbarConfigurable {
     }
 
     private fun ensureComposeDialogHost() {
-        (requireActivity() as? BaseActivity)?.ensureComposeDialogHost()
+        // Dialog host is managed by BaseComposeActivity in the Compose architecture
     }
 
 
 
     override fun onResume() {
         super.onResume()
-        (activity as? SpaceSetupActivity)?.updateToolbarFromFragment(this)
 
         // Track screen view
         screenStartTime = System.currentTimeMillis()
@@ -79,4 +80,5 @@ abstract class BaseFragment : Fragment(), ToolbarConfigurable {
         // Store as previous screen for navigation tracking
         previousScreen = screenName
     }
+
 }

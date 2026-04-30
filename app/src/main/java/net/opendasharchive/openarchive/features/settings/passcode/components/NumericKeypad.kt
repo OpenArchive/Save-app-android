@@ -1,12 +1,10 @@
 package net.opendasharchive.openarchive.features.settings.passcode.components
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,29 +17,23 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Backspace
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.input.pointer.pointerInput
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.presentation.theme.DefaultScaffoldPreview
-import net.opendasharchive.openarchive.features.settings.passcode.AppHapticFeedbackType
-import net.opendasharchive.openarchive.features.settings.passcode.HapticManager
-import org.koin.compose.koinInject
+import net.opendasharchive.openarchive.core.presentation.theme.PreviewLightDark
 
 private val keys = listOf(
     "1", "2", "3",
@@ -55,7 +47,8 @@ fun NumericKeypad(
     isEnabled: Boolean = true,
     onNumberClick: (String) -> Unit,
     onDeleteClick: () -> Unit,
-    onSubmitClick: () -> Unit
+    onSubmitClick: () -> Unit,
+    onHaptic: () -> Unit = {},
 ) {
 
     Box(
@@ -85,7 +78,8 @@ fun NumericKeypad(
                                     "submit" -> onSubmitClick()
                                     else -> onNumberClick(label)
                                 }
-                            }
+                            },
+                            onHaptic = onHaptic
                         )
                     } else {
                         Spacer(modifier = Modifier.size(72.dp))
@@ -96,7 +90,7 @@ fun NumericKeypad(
     }
 }
 
-@Preview
+@PreviewLightDark
 @Composable
 private fun NumericKeypadPreview() {
 
@@ -133,62 +127,52 @@ private fun NumberButton(
     label: String,
     enabled: Boolean = true,
     onClick: () -> Unit,
-    hapticManager: HapticManager = koinInject()
+    onHaptic: () -> Unit = {},
 ) {
 
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
+    val pressedColor = when (label) {
+        "delete" -> colorResource(R.color.red_bg).copy(alpha = 0.5f)
+        "submit" -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f)
+        else -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
+    }
+    val restingColor = when (label) {
+        "delete" -> colorResource(R.color.red_bg).copy(alpha = 0.3f)
+        "submit" -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)
+        else -> Color.Transparent
+    }
+    val tertiaryColor = MaterialTheme.colorScheme.tertiary
 
-    // Determine background color based on button type and pressed state
-    val backgroundColor by animateColorAsState(
-        targetValue = when {
-            isPressed -> when (label) {
-                "delete" -> colorResource(R.color.red_bg).copy(alpha = 0.5f)
-                "submit" -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f)
-                else -> MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-            }
+    // pressAlpha drives the fill: 1f = fully pressed color, 0f = resting color
+    val pressAlpha = remember { Animatable(0f) }
 
-            else -> when (label) {
-                "delete" -> colorResource(R.color.red_bg).copy(alpha = 0.3f)
-                "submit" -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)
-                else -> Color.Transparent
-            }
-        },
-        animationSpec = spring(),
-        label = ""
-    )
+    // Use a scope so we can cancel the fade-out if a new press arrives mid-animation
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
 
-    // Determine background color based on button type and pressed state
-    val borderColor by animateColorAsState(
-        targetValue = when {
-            isPressed -> when (label) {
-                "delete" -> Color.Transparent
-                "submit" -> Color.Transparent
-                else -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f)
-            }
-
-            else -> when (label) {
-                "delete" -> Color.Transparent
-                "submit" -> Color.Transparent
-                else -> MaterialTheme.colorScheme.tertiary
-            }
-        },
-        animationSpec = spring(),
-        label = ""
-    )
+    val backgroundColor = androidx.compose.ui.graphics.lerp(restingColor, pressedColor, pressAlpha.value)
+    val borderColor = if (label == "delete" || label == "submit") {
+        Color.Transparent
+    } else {
+        tertiaryColor.copy(alpha = 1f - pressAlpha.value)
+    }
 
     Box(
         modifier = Modifier
             .background(color = backgroundColor, shape = CircleShape)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-                enabled = enabled,
-                onClick = {
-                    hapticManager?.performHapticFeedback(AppHapticFeedbackType.KeyPress)
-                    onClick()
-                }
-            )
+            .pointerInput(enabled) {
+                detectTapGestures(
+                    onPress = { _ ->
+                        if (!enabled) return@detectTapGestures
+                        onHaptic()
+                        scope.launch { pressAlpha.snapTo(1f) }
+                        tryAwaitRelease()
+                        scope.launch {
+                            delay(60)
+                            pressAlpha.animateTo(0f, animationSpec = tween(200))
+                        }
+                    },
+                    onTap = { if (enabled) onClick() }
+                )
+            }
             .border(width = 2.dp, color = borderColor, shape = CircleShape)
             .size(72.dp),
         contentAlignment = Alignment.Center
@@ -209,8 +193,7 @@ private fun NumberButton(
 
             else -> Text(
                 text = label,
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.titleLarge.copy(
                     color = MaterialTheme.colorScheme.onBackground
                 )
             )

@@ -12,8 +12,8 @@
     <string name="servers">Servers</string>
     <string name="add_server">Add Server</string>
     <string name="lbl_rename_folder">Rename Folder</string>
-    <string name="lbl_select_media">Select Media</string>
-    <string name="lbl_remove_folder">Remove Folder</string>
+    <string name="lbl_select_media">Select media</string>
+    <string name="lbl_remove_folder">Remove folder</string>
     <string name="popup_archive_folder">Archive folder</string>
     <string name="popup_remove_folder">Remove folder from app</string>
     <string name="folder_empty_warning">Folder name cannot be empty</string>
@@ -24,6 +24,22 @@
     <string name="content_picker_label">Add media from</string>
     <string name="disable_passcode_dialog_title">Disable Passcode</string>
     <string name="disable_passcode_dialog_msg">Are you sure you want to disable the passcode?</string>
+    <!-- Embedded Tor Service Strings -->
+    <string name="tor_notification_title">Tor Network</string>
+    <string name="tor_notification_connecting">Connecting to Tor network…</string>
+    <string name="tor_notification_connected">Connected to Tor network</string>
+    <string name="tor_notification_channel_name">Tor Service</string>
+    <string name="tor_notification_channel_description">Notifications for the embedded Tor service</string>
+    <string name="tor_status_connecting">Connecting to Tor…</string>
+    <string name="tor_status_verifying">Connected, verifying routing…</string>
+    <string name="tor_status_connected">Connected to Tor network</string>
+    <string name="tor_status_verified">Connected, verified.\nExit: %1$s</string>
+    <string name="tor_status_verified_with_country">Connected, verified.\nExit: %1$s - %2$s</string>
+    <string name="tor_status_error">Tor error: %1$s</string>
+    <string name="tor_notification_permission_title">Notification Permission</string>
+    <string name="tor_notification_permission_message">To show Tor connection status in your notification bar, Save needs notification permission. You can still use Tor without this permission.</string>
+
+    <!-- Legacy Tor strings (kept for backwards compatibility) -->
     <string name="tor_disabled_title">Onion routing under development</string>
     <string name="tor_disabled_message">This feature is currently under development. For now, you can use Orbot or any VPN of your choice to enhance your privacy and security.</string>
     <string name="tor_download_btn_label">Download Orbot</string>
@@ -65,28 +81,12 @@
     <string name="prefs_theme_val_light" translatable="false">light</string>
     <string name="prefs_theme_val_dark" translatable="false">dark</string>
 
-    <string name="prefs_use_proofmode_title">Enable ProofMode</string>
-    <string name="prefs_use_proofmode_summary" translatable="false">Share ProofMode public key</string>
-    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode is a way to enhance the authentication and verification of multimedia content. <a href=\"%1$s\"><u>Learn more here.</u></a>]]></string>
-
-    <string name="proof_mode_warning_text"><![CDATA[
-    To help verify where your media was captured, ProofMode gathers data from nearby cell towers to corroborate your location. To add credibility and context, it then includes a separate metadata file with your media*. Android requires location access to collect this information.<br/><br/>
-    <b>*Neither <i>Save</i> nor <i>OpenArchive</i> will be able to access or store this location data, it will only be accessible to those with access to the server files.</b>
-    ]]>
-    </string>
-
-    <string name="prefs_share_proofmode_title">ProofMode Identity</string>
-    <string name="prefs_share_proofmode_summary">Share ProofMode Public Key</string>
-
-
-    <!-- Strings for ProofMode Activity -->
-    <string name="phone_permission_required">Location permission required</string>
-
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
     <string name="prompt_username"><i>Username</i></string>
     <string name="prompt_email">Email</string>
+    <string name="prompt_email_italics"><i>Email</i></string>
     <string name="prompt_password"><i>Password</i></string>
 
     <string name="label_username">@string/prompt_email</string>
@@ -138,13 +138,14 @@
 
 
     <!-- Strings related to Settings -->
+    <string name="folder_renamed">Folder renamed</string>
 
     <string name="tap_to_add">Tap the button below to add media</string>
     <string name="tap_to_add_folder">Tap the button below to add a folder</string>
     <string name="tap_to_add_server">Tap the button below to add a server</string>
     <string name="to_get_started_connect_to_a_server_to_store_your_media">To get started, connect to a server to store your media.</string>
     <string name="to_get_started_more_hint_dweb">You can add multiple private servers and\none IA or DWeb Storage account at any time.</string>
-    <string name="to_get_started_more_hint">You can add multiple private servers and\none IA account at any time.</string>
+    <string name="to_get_started_more_hint">You can add multiple private servers and \n one IA account \nat any time.</string>
     <string name="send_directly_to_a_private_server">Connect to a secure\nWebDAV server</string>
     <string name="upload_to_the_internet_archive">Connect to a free\npublic server</string>
     <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">Connect to a WebDAV-compatible servers, e.g. Nexcloud and ownCloud.</string>
@@ -184,7 +185,7 @@
 
 
     <!-- Space Setup -->
-    <string name="space_setup_title">Select a Server</string>
+    <string name="space_setup_title">Select a server</string>
     <!-- WebDAV related strings -->
     <string name="private_server">Private Server</string>
 
@@ -207,10 +208,7 @@
     <!-- Clean Insights measurement -->
     <string name="server_name_optional"><i>Server Name (Optional)</i></string>
     <string name="add_another_account">Add new server</string>
-    <string name="prefs_proofmode_key_encryption_title_all" translatable="false">Secure ProofMode Key with Biometrics or Device Passcode</string>
-    <string name="prefs_proofmode_key_encryption_title_biometrics" translatable="false">Secure ProofMode Key with Biometrics</string>
-    <string name="prefs_proofmode_key_encryption_title_passcode" translatable="false">Secure ProofMode Key with Device Passcode</string>
-    <string name="biometrics_title">Unlock ProofMode Key</string>
+    <string name="biometrics_title">Unlock with Biometrics</string>
     <string name="folders">Folders</string>
     <string name="create_folder_name">Create Folder Name</string>
     <string name="folder_name">Folder Name</string>
@@ -228,7 +226,6 @@
     <string name="general">General</string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Only upload media when you are connected to Wi-Fi</string>
     <string name="security">Security</string>
-    <string name="proofmode">ProofMode</string>
     <string name="no_webbrowser_found_error">No application can handle this request. Please install a webbrowser.</string>
 
     <string name="intro_header_secure" translatable="false">Secure</string>
@@ -239,8 +236,8 @@
     <string name="intro_text_archive"><![CDATA[Upload media to Nextcloud or the Internet Archive to keep your media verifiable, safe, and organized for the long term.<br><br>Choose <a href=\"%1$s\"><u>Creative Commons Licensing.</u></a>]]></string>
 
     <string name="intro_link_archive" translatable="false">https://creativecommons.org</string>
-    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
-    <string name="intro_link_verify" translatable="false">https://proofmode.org</string>
+    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href=\"%1$s\"><u>C2PA content credentials.</u></a>]]></string>
+    <string name="intro_link_verify" translatable="false">https://c2pa.org</string>
     <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> always uploads over TLS (Transport Layer Security) to protect your media in transit.<br>To further enhance security, enable <a href=\"%1$s\"><u>Tor</u></a> to prevent interception of your media from your phone to the server.]]></string>
     <string name="intro_link_encrypt" translatable="false">https://www.torproject.org</string>
 
@@ -264,7 +261,11 @@
     <string name="press_and_hold_options_media_screen_message">Tap + to pick from image gallery or press and hold to add media from other apps.</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">Press and hold to select and edit multiple media items.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Once uploaded, you will not be able to edit media.</string>
+    <string name="proceed_to_upload">Proceed to upload</string>
+    <string name="actually_let_me_edit">Actually, let me edit</string>
     <string name="edit_media_info">Edit Media Info</string>
+    <string name="bulk_edit_media_info" translatable="false">Bulk Edit Media Info</string>
+    <string name="previous" translatable="false">Previous</string>
     <string name="counter" translatable="false">%1$d/%2$d</string>
     <string name="add_a_location_optional"><i>Add a location (optional)</i></string>
     <string name="add_notes_optional"><i>Add notes (optional)</i></string>
@@ -281,6 +282,7 @@
     <string name="camera">Camera</string>
     <string name="photo_gallery">Photo Gallery</string>
     <string name="files">Files</string>
+    <string name="paste_from_clipboard" translatable="false">Paste from clipboard</string>
 
     <!-- Internet Archive Settings -->
     <string name="label_email">Email</string>
@@ -294,12 +296,25 @@
     <string name="dweb_create_group_screen_description">A group on DWeb Storage is similar to a server, and a user name acts as your folder within this group. You\'ll be able to upload media under this user name</string>
     <string name="dweb_create_group_group_name"><i>Your group name</i></string>
     <string name="dweb_create_group_user_name"><i>Your name in this group</i></string>
-    <string name="dweb_join_group_screen_title">Pick a user name for this group</string>
-    <string name="dweb_join_group_screen_description">A group on DWeb Storage is similar to a server, and a user name acts as your folder within this group. You’ll be able to upload media under this user name.</string>
+    <string name="dweb_join_group_screen_title">Name your group and pick a user name</string>
+    <string name="dweb_join_group_screen_description">A group on DWeb Storage is similar to a server, and a username acts as your folder within this group. You’ll be able to upload media under this username.</string>
     <string name="dweb_join_group_group_name">Group Name</string>
     <string name="dweb_join_group_repo_name">You name in this group</string>
 
     <string name="dweb_share_qr_code">Share QR Code</string>
+    <string name="scan_qr_code" translatable="false">Scan QR Code</string>
+    <string name="qr_scanner_instruction" translatable="false">Open save.opendasharchive.net, desktop app, or other devices.</string>
+    <string name="open_from_gallery" translatable="false">Open from gallery</string>
+    <string name="joining_group_label" translatable="false">Joining Group: %1$s</string>
+
+    <!-- Snowbird Navigation Toolbar Titles -->
+    <string name="dweb_storage">DWeb Storage</string>
+    <string name="dweb_create_group">Create Group</string>
+    <string name="dweb_join_group">Join Group</string>
+    <string name="dweb_my_groups">My Groups</string>
+    <string name="dweb_share_group">Share Group</string>
+    <string name="dweb_repos">Repositories</string>
+    <string name="dweb_files">Files</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
@@ -314,13 +329,18 @@
 
 
     <string name="pref_title_secure">Secure</string>
+    <string name="pref_title_prohibit_screenshots">Prevent screenshots</string>
     <string name="pref_title_archive">Archive</string>
-    <string name="pref_title_privacy_policy">Terms and Privacy</string>
+    <string name="pref_title_privacy_policy">Terms &amp; Privacy Policy</string>
     <string name="pref_title_media_servers">Media Servers</string>
     <string name="pref_title_media_folders">Archived Folders</string>
     <string name="pref_summary_media_servers">Manage your servers</string>
     <string name="pref_summary_media_folders">Manage your archived folders</string>
-    <string name="pref_summary_privacy_policy">Read our Terms and Privacy Policy</string>
+    <string name="pref_summary_privacy_policy">Tap to view our Terms &amp; Privacy Policy</string>
+    <string name="pref_title_version" translatable="false">Version</string>
+    <string name="pref_title_dark_mode" translatable="false">Switch to dark mode</string>
+    <string name="pref_title_language">App language</string>
+    <string name="pref_summary_language">Change the language for this app</string>
 
     <!-- General -->
     <string name="label_success_title">Success!</string>
@@ -338,6 +358,64 @@
     <string name="save_by_open_archive">Save by OpenArchive</string>
     <string name="discover_the_save_app">Learn More</string>
 
+
+    <string name="manage_accounts">Manage Accounts</string>
+    <string name="my_spaces">My Spaces</string>
+    <string name="join_space">Join Space</string>
+    <string name="create_or_edit_accounts">Create or edit accounts</string>
+    <string name="access_your_saved_spaces">Access your spaces</string>
+    <string name="connect_to_an_existing_space">Join an existing shared space</string>
+    <string name="you_can_add_multiple_private_servers_and_one_ia_account_at_any_time">You can add multiple private servers and one IA account at any time.</string>
+
+    <string name="i_m_okay_with_this">I\'m okay with this</string>
+    <string name="email_has_been_verified_and_the_spaces_have_been_added_to_save">Your email has been verified, and the spaces have been added to Save.</string>
+    <string name="email_address">Email address</string>
+    <string name="users_can_delete_the_content_within_the_space">Users can delete the content within the space</string>
+    <string name="users_can_read_the_content_within_the_space">Users can read the content within the space</string>
+    <string name="users_can_write_content_to_the_space">Users can write content to the space</string>
+    <string name="define_access_to_the_following_did_key">Define access to the following DID key</string>
+    <string name="this_is_your_qr_code_to_request_access_please_ask_the_admin_to_scab_your_code_to_gain_access_to_soace">Here is your identity.\nShare this QR code or ID with an admin so they can add you to their space.</string>
+    <string name="no_did_has_access_to_this_space">No DIDs currently have access to this space. Tap "Add" to grant access.</string>
+    <string name="no_spaces_available">No Spaces Available</string>
+    <string name="loading_spaces">Loading spaces…</string>
+    <string name="loading_files">Loading files…</string>
+    <string name="loading_more_files">Loading more…</string>
+    <string name="loading_accounts">Loading accounts…</string>
+    <string name="uploading_files">Uploading…</string>
+    <string name="logout">Logout</string>
+    <string name="logout_confirmation">Are you sure you want to logout?</string>
+    <string name="please_check_your_inbox_and_click_the_link_on_the_verification_email">Please check your inbox and click the link on the verification email.</string>
+    <string name="verification_email_sent">Verification Email Sent</string>
+    <string name="change_email_link"><![CDATA[Email is incorrect? <a href="#">Change now.</a>]]></string>
+    <string name="access">Access</string>
+    <string name="email_verification">Email Verification</string>
+    <string name="add_account">Add Account</string>
+    <string name="accounts">Accounts</string>
+    <string name="spaces">Spaces</string>
+    <string name="no_files_available">No files Available</string>
+    <string name="did_access_key"><i>Enter DID Key</i></string>
+    <string name="browse_files">Files</string>
+    <string name="no_media_available">No Media Available.</string>
+    <string name="revoke_access">Revoke Access?\n</string>
+    <string name="revoke_access_prompt">"This will revoke access to this DID for this Space\n "</string>
+    <string name="revoke">Revoke</string>
+    <string name="view_spaces">View Spaces</string>
+    <string name="copy_did">Copy DID</string>
+    <string name="access_your_account_using_your_registered_email_address">Log in using your registered email address</string>
+    <string name="sent_to">Sent to: %1$s</string>
+    <string name="loading_usage">Loading usage…</string>
+    <string name="manage_access">Manage Access</string>
+    <string name="click_on_view_spaces_once_nadmin_has_granted_access">Once the admin approves you,\nthe space will appear under My Spaces.</string>
+    <string name="invalid_did_format_please_scan_a_valid_did_key_format_did_key_z">Invalid DID format. Please scan a valid DID key (format: did:key:z...)</string>
+    <string name="did_already_added">DID already added</string>
+    <string name="scan_did_key">Scan DID Key</string>
+    <string name="did_access_granted_successfully">DID access granted successfully</string>
+    <string name="add_did">Add DID</string>
+    <string name="camera_permission">Camera Permission</string>
+    <string name="camera_access_is_needed_to_take_pictures_please_grant_permission">Camera access is needed to take pictures. Please grant permission.</string>
+    <string name="accept">Accept</string>
+    <string name="cancel">Cancel</string>
+
     <!-- Sync Preferences -->
     <string name="sync_title" translatable="false">Sync email periodically</string>
     <string name="attachment_title" translatable="false">Download incoming attachments</string>
@@ -350,8 +428,6 @@
     <string name="pref_key_privacy_policy" translatable="false">pref_privacy_policy</string>
     <string name="pref_key_app_version" translatable="false">pref_app_version</string>
     <string name="pref_app_passcode" translatable="false">passcode_enabled</string>
-    <string name="pref_key_proof_mode" translatable="false">pref_proof_mode</string>
-    <string name="pref_key_use_proof_mode" translatable="false">use_proofmode</string>
     <string name="pref_key_use_tor" translatable="false">pref_use_tor</string>
     <string name="pref_key_use_dark_mode" translatable="false">pref_is_dark_mode</string>
 
@@ -389,6 +465,32 @@
     <string name="tor_connection_exception" translatable="false">Unable to connect to Orbot/Tor.</string>
     <string name="tor_connection_timeout" translatable="false">Unable to connect to Orbot/Tor: TIMEOUT</string>
     <string name="tor_connection_invalid" translatable="false">Unable to connect to Orbot/Tor: INVALID</string>
+    <string name="label_login">Login</string>
+    <string name="logging_in">Logging in…</string>
+    <string name="adding_did">Adding DID…</string>
+    <string name="your_session_has_expired_please_log_out_and_log_back_in_then_try_uploading_again">Your session has expired. Please log out and log back in, then try uploading again.</string>
+    <string name="you_don_t_have_permission_to_upload_to_this_space_please_check_with_the_space_owner">You don\'t have permission to upload to this space. Please check with the space owner.</string>
+    <string name="can_t_connect_to_the_server_please_check_your_internet_connection_and_try_again">Can\'t connect to the server. Please check your internet connection and try again.</string>
+    <string name="the_storage_service_is_temporarily_unavailable_please_try_again_in_a_few_minutes">The storage service is temporarily unavailable. Please try again in a few minutes.</string>
+    <string name="the_file_may_be_too_large_or_the_upload_is_taking_too_long_try_with_a_smaller_file_or_check_your_connection">The file may be too large or the upload is taking too long. Try with a smaller file or check your connection.</string>
+    <string name="the_server_is_busy_please_wait_a_moment_and_try_again">The server is busy. Please wait a moment and try again.</string>
+    <string name="something_went_wrong_on_the_server_please_try_again">Something went wrong on the server. Please try again.</string>
+    <string name="there_was_an_authentication_issue_the_app_will_try_again_automatically">There was an authentication issue. The app will try again automatically.</string>
+    <string name="there_was_a_problem_with_the_storage_service_please_try_again">There was a problem with the storage service. Please try again.</string>
+    <string name="there_might_not_be_enough_storage_space_available_please_try_again_or_contact_support">There might not be enough storage space available. Please try again or contact support.</string>
+    <string name="something_went_wrong_with_the_upload_please_try_again">Something went wrong with the upload. Please try again.</string>
+    <string name="enter_a_did_access_key_manually_or_scan_a_qr_code_to_add_one">To add someone, enter the <b>DID key</b> they shared with you or scan their <b>QR code</b>. They can find this information by tapping <b>Join Space</b> in their app.</string>
+
+    <!-- Session Management -->
+    <string name="email_verification_required_title">Email Verification Required</string>
+    <string name="email_verification_required_message">Please verify your email to access spaces. Check your inbox for the verification link.</string>
+    <string name="session_expired_title">Session Expired</string>
+    <string name="session_expired_message">Your session has expired. Please login again to continue.</string>
+    <string name="session_expired_can_continue_message">Your session has expired. You can login to access your spaces, or continue browsing delegated spaces without logging in.</string>
+    <string name="session_expired_check_email_message">Your session has expired. A new verification email has been sent to your inbox. Please check your email and click the verification link to continue.</string>
+    <string name="login">Login</string>
+    <string name="stay_here">Stay Here</string>
+    <string name="manage_accounts_login">Retry Login</string>
 
 
 
@@ -425,4 +527,46 @@
     <string name="grid" translatable="false">Grid</string>
     <string name="flash" translatable="false">Flash</string>
     <string name="camera_paused_message" translatable="false">Tap to wake camera</string>
+
+    <!-- C2PA Content Provenance -->
+    <string name="use_c2pa">Enable C2PA Provenance</string>
+    <string name="use_c2pa_summary">Generate cryptographic proofs for media authenticity using C2PA standard</string>
+    <string name="c2pa_signing">Signing Configuration</string>
+
+    <!-- C2PA Screen Strings -->
+    <string name="pref_key_use_c2pa" translatable="false">use_c2pa</string>
+    <string name="c2pa_content_authenticity">C2PA Content Authenticity</string>
+    <string name="prefs_use_c2pa_title">Enable C2PA</string>
+    <string name="prefs_use_c2pa_summary">Generate cryptographic content credentials</string>
+    <string name="prefs_use_c2pa_description"><![CDATA[C2PA (Coalition for Content Provenance and Authenticity) is an industry standard for verifying the source and history of media content. <a href=\"%1$s\"><u>Learn more here.</u></a>]]></string>
+    <string name="c2pa_learn_more_url" translatable="false">https://c2pa.org/</string>
+
+    <string name="c2pa_warning_text"><![CDATA[
+    To help verify where your media was captured, C2PA collects metadata including location data from nearby cell towers to corroborate where content was created. Android requires location access to collect this information.<br/><br/>
+    <b>*Neither <i>Save</i> nor <i>OpenArchive</i> will be able to access or store this location data directly. It will be cryptographically signed and included in the C2PA manifest file uploaded with your media.</b>
+    ]]>
+    </string>
+    <string name="c2pa_signing_key">Signing Key</string>
+    <string name="c2pa_signing_key_summary">Configure cryptographic signing key for C2PA manifests</string>
+    <string name="c2pa_about_title">About C2PA</string>
+    <string name="c2pa_about_summary">C2PA provides cryptographic proof of media authenticity and origin. Manifests are stored as separate .c2pa.json files to preserve original file integrity.</string>
+
+    <!-- C2PA Location Permission -->
+    <string name="c2pa_enabled">C2PA content provenance enabled</string>
+    <string name="c2pa_location_permission_denied">C2PA disabled - location permission is required for content provenance</string>
+    <string name="c2pa_auto_disabled">C2PA has been automatically disabled because location permission was removed</string>
+
+    <string name="tor_url" translatable="false">https://play.google.com/store/apps/details?id=org.torproject.android</string>
+
+    <string name="wifi_not_connected">Wi-Fi not connected</string>
+    <string name="wifi_required_upload_message">Uploads are blocked until you connect to a Wi-Fi network or allow uploads over a mobile connection.</string>
+    <string name="allow_any_connection">Allow any connection</string>
+    <string name="ignore">Ignore</string>
+
+    <string name="tor_not_connected">Tor not connected</string>
+    <string name="tor_not_connected_message">Tor routing is enabled, however connection is not established / disconnected. Do you want to disable Tor?</string>
+    <string name="tor_still_connecting_message">Tor is still connecting. Do you want to disable Tor and proceed with the upload?</string>
+    <string name="tor_error_message">Tor encountered an error and is not connected. Do you want to disable Tor and proceed with the upload?</string>
+    <string name="proceed">Proceed</string>
+    <string name="ok">OK</string>
 </resources>

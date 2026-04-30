@@ -68,12 +68,7 @@ val Typography = Typography(
         lineHeight = 36.sp,
         fontWeight = FontWeight.SemiBold
     ),
-    headlineSmall = TextStyle(
-        fontFamily = MontserratFontFamily,
-        fontSize = 24.sp,
-        lineHeight = 32.sp,
-        fontWeight = FontWeight.SemiBold
-    ),
+    headlineSmall = SaveTextStyles.headlineSmall,   // 24sp, ExtraBold
 
     // Titles - Map to your Figma styles
     titleLarge = SaveTextStyles.titleLarge,    // 18sp, SemiBold
