@@ -27,6 +27,8 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogType
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.core.repositories.MediaRepository
 import net.opendasharchive.openarchive.core.repositories.ProjectRepository
+import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
+import net.opendasharchive.openarchive.core.navigation.ResultEventBus
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.core.domain.VaultType
@@ -91,6 +93,7 @@ class PreviewMediaViewModel(
     
     init {
         observeData()
+        observeReviewSaved()
     }
 
     fun onAction(action: PreviewMediaAction) {
@@ -109,6 +112,15 @@ class PreviewMediaViewModel(
                 _uiState.update { it.copy(showContentPicker = false) }
                 emitEvent(PreviewMediaEvent.LaunchPicker(action.type))
             }
+        }
+    }
+
+    private fun observeReviewSaved() {
+        viewModelScope.launch {
+            ResultEventBus.getResultFlow<Boolean>(NavigationResultKeys.REVIEW_MEDIA_SAVED)
+                .collect {
+                    _uiState.update { it.copy(selectedIds = emptySet(), selectionCount = 0) }
+                }
         }
     }
 

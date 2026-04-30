@@ -9,4 +9,5 @@ object NavigationResultKeys {
     const val SNOWBIRD_CAMERA_RESULT = "snowbird_camera_result"
     const val SHARED_MEDIA_IMPORT = "shared_media_import"
     const val REFRESH_SPACES = "refresh_spaces"
+    const val REVIEW_MEDIA_SAVED = "review_media_saved"
 }

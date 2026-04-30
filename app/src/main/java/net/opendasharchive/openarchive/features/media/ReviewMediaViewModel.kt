@@ -26,6 +26,8 @@ import net.opendasharchive.openarchive.features.core.dialog.DialogStateManager
 import net.opendasharchive.openarchive.features.core.dialog.showDialog
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
+import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
+import net.opendasharchive.openarchive.core.navigation.ResultEventBus
 import net.opendasharchive.openarchive.util.Prefs
 import java.io.File
 
@@ -232,6 +234,7 @@ class ReviewMediaViewModel(
     private fun handleSaveAndFinish() {
         viewModelScope.launch {
             saveAllMedia()
+            ResultEventBus.sendResult(NavigationResultKeys.REVIEW_MEDIA_SAVED, true)
             navigator.navigateBack()
         }
     }
