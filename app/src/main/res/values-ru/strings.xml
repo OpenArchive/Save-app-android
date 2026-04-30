@@ -1,21 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-
-    <!-- Alert Values -->
-
+    <string name="title_activity_first_start">Первый запуск</string>
     <string name="action_settings">Настройки</string>
+    <string name="internet_archive">Интернет-архив</string>
+    <string name="internet_archive_description">Используйте для загрузки файлов бесплатный публичный аккаунт в Интернет-архиве.</string>
+    <string name="dweb_title">Хранилище DWeb</string>
+    <string name="dweb_description">Подключение к децентрализованной сети</string>
+    <string name="servers">Серверы</string>
+    <string name="add_server">Добавить сервер</string>
+    <string name="lbl_rename_folder">Переименовать папку</string>
+    <string name="lbl_select_media">Выбрать файл</string>
+    <string name="lbl_remove_folder">Удалить папку</string>
+    <string name="popup_archive_folder">Архивировать папку</string>
+    <string name="popup_remove_folder">Удалить папку из приложения</string>
+    <string name="folder_empty_warning">Название папки не может быть пустым</string>
+    <string name="folder_rename_success">Папка переименована</string>
+    <string name="folder_not_found">Папка не найдена</string>
+    <string name="folder_removed">Папка удалена</string>
+    <string name="folder_archived">Папка успешно архивирована…</string>
+    <string name="content_picker_label">Добавить файл из</string>
+    <string name="disable_passcode_dialog_title">Отключение PIN-кода</string>
+    <string name="disable_passcode_dialog_msg">Уверены, что хотите отключить PIN-код\?</string>
+    <string name="tor_disabled_title">Onion-маршрутизация в стадии разработки</string>
+    <string name="tor_disabled_message">Эта функция находится в стадии разработки. На данный момент для повышения приватности и безопасности вы можете использовать Orbot или VPN по вашему выбору.</string>
+    <string name="tor_download_btn_label">Скачать Orbot</string>
 
-    <!-- FirstStartActivity -->
-    <string name="internet_archive">Интернет архив</string>
 
     <!-- Errors -->
 
     <!-- Server -->
     <string name="lbl_Cancel">Отмена</string>
     <string name="lbl_ok">ОК</string>
-    <string name="menu_delete">Удалить медиа данные</string>
+    <string name="lbl_confirm">Подтвердить</string>
+    <string name="lbl_remove">Удалить</string>
+    <string name="lbl_retry">Повторить</string>
 
-    <string name="hint_flag">Нажмите, чтобы отметить как важное содержание</string>
+    <string name="license_label">Лицензия</string>
+    <string name="info_license_cc0">Отказ от всех ограничений, требований и атрибуции (CC0)</string>
+    <string name="info_license_deriv">Разрешить всем перерабатывать и делиться</string>
+    <string name="info_license_sharealike">Разрешить делиться на тех же условиях</string>
+    <string name="info_license_comm">Разрешить коммерческое использование</string>
+
+    <string name="menu_delete">Удалить файл</string>
+    <string name="menu_delete_desc">Этот медиафайл будет удален из Save.\nОн останется на сервере и в приложении для фото.</string>
+
+    <string name="hint_flag">Отметить как важное содержание</string>
     <string name="answer_yes">Да</string>
     <string name="answer_no">Нет</string>
 
@@ -23,54 +52,245 @@
 
     <string name="error">Ошибка</string>
 
+    <string name="prefs_use_tor_title">Включить Onion-маршрутизацию</string>
+    <string name="prefs_use_tor_summary">Передача данных только через сеть Tor</string>
+
+    <string name="prefs_use_proofmode_title">Режим ProofMode</string>
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode — продвинутый режим подтверждения подлинности и проверки мультимедийных данных. <a href=\"%1$s\"><u>Подробнее</u></a>]]></string>
+
+    <string name="proof_mode_warning_text"><![CDATA[
+    Для подтверждения места создания ваших медиафайлов ProofMode собирает данные с ближайших базовых вышек сотовой связи. Ради большей достоверности и контекста к вашим медиафайлам добавляется отдельный файл метаданных*. Для работы этой функции в Android требуется доступ к местоположению.<br/><br/>
+    <b>*Ни <i>Save</i>, ни <i>OpenArchive</i> не имеют доступа к данным о местоположении и не сохраняют их. Данные доступны только тому, у кого есть доступ к файлам на сервере.</b>
+    ]]>\n    </string>
+
+    <string name="prefs_share_proofmode_title">Идентификатор ProofMode</string>
+    <string name="prefs_share_proofmode_summary">Поделиться открытым ключом ProofMode</string>
+
+
+    <!-- Strings for ProofMode Activity -->
+    <string name="phone_permission_required">Нужно разрешение на доступ к данным геолокации</string>
+
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
-    <string name="prompt_email">Имя пользователя</string>
-    <string name="prompt_password">Пароль</string>
+    <string name="prompt_username"><i>Имя пользователя</i></string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password"><i>Пароль</i></string>
+
+    <string name="label_username">\@string/prompt_email</string>
+    <string name="placeholder_email_or_username">Email или имя пользователя</string>
+    <string name="label_password">\@string/prompt_password</string>
+    <string name="placeholder_password">Пароль</string>
+
+    <string name="action_sign_in_short">Вход</string>
     <string name="error_incorrect_username_or_password">Неверное имя пользователя или пароль</string>
+    <string name="error_incorrect_email_or_password">Неверный email или пароль</string>
     <string name="error_field_required">Это обязательное поле</string>
 
-    <string name="title_welcome">Добро пожаловать</string>
+    <string name="importing_media">Импорт медиафайлов…</string>
 
-    <string name="action_privacy">Политика обеспечения конфиденциальности.</string>
+    <string name="title_welcome">Добро пожаловать!</string>
+
+    <string name="action_privacy">Политика приватности</string>
+    <string name="action_about">О %s</string>
+    <string name="add_a_folder">Добавить папку</string>
+    <string name="browse_existing_folders">Просмотр существующих папок</string>
+    <string name="browse_existing">Просмотр существующих</string>
+    <string name="title_activity_upload_manager">Менеджер загрузок</string>
+
     <string name="uploads">Загруженная информация</string>
+    <string name="upload_manager_screen_title">Очередь</string>
+    <string name="upload_manager_screen_subtitle">Загрузка приостановлена</string>
     <string name="uploading">Загрузка…</string>
-    <string name="action_upload">Загрузить</string>
+    <string name="uploading_left">Загрузка… (осталось %d)</string>
+    <string name="uploads_notification_descriptions">Эти уведомления появляются, когда приложение загружает файлы.</string>
 
+    <string name="action_upload">Загрузить</string>
+<!-- Passcode Settings -->
+    <string name="multiple_failed_attempts_message">Приложение заблокировано из-за нескольких неудачных попыток. Пожалуйста, попробуйте позже.</string>
+    <string name="passcode_not_set">PIN-код не установлен</string>
+    <string name="passcode_remaining_attempts">Неверный PIN-код. Осталось попыток: %1$d.</string>
+    <string name="passcode_too_many_failed_attempts">Слишком много неудачных попыток. Приложение заблокировано.</string>
+
+    <string name="passcode_lock_app">Защита с помощью PIN-кода</string>
+    <string name="enter_passcode">Введите PIN-код</string>
+    <string name="passcode_do_not_match">PIN-коды не совпадают. Попробуйте еще.</string>
+
+    <string name="confirm_passcode">Подтвердите PIN-код</string>
+    <string name="set_passcode">Установить PIN-код</string>
+    <string name="set_passcode_warning">Запомните ваш PIN-код, иначе потребуется сброс настроек и все данные приложения будут удалены.</string>
+
+
+    <!-- Strings related to Settings -->
+
+    <string name="tap_to_add">Нажмите кнопку ниже, чтобы добавить файлы</string>
+    <string name="tap_to_add_folder">Нажмите кнопку ниже, чтобы добавить папку</string>
+    <string name="tap_to_add_server">Нажмите кнопку ниже, чтобы добавить сервер</string>
+    <string name="to_get_started_connect_to_a_server_to_store_your_media">Для начала подключитесь к серверу, где хотите хранить файлы.</string>
+    <string name="to_get_started_more_hint_dweb">Можно в любое время добавить несколько частных серверов и один аккаунт Интернет-архива или DWeb Storage. </string>
+    <string name="to_get_started_more_hint">Можно в любое время добавить несколько частных серверов и один аккаунт Интернет-архива.</string>
+    <string name="send_directly_to_a_private_server">Подключиться к безопасному\nсерверу WebDAV</string>
+    <string name="upload_to_the_internet_archive">Подключиться к бесплатному\nпубличному серверу</string>
+    <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">Подключение к WebDAV-совместимым серверам, например Nexcloud и ownCloud.</string>
     <string name="action_next">Далее</string>
     <string name="action_done">Готово</string>
     <string name="status_flagged">Важное содержание</string>
+    <string name="select_where_to_store_your_media">Создайте или выберите папку для ваших медиафайлов.</string>
+    <string name="you_have_successfully_connected_to_a_private_server">Вы успешно подключились к частному серверу!</string>
+    <string name="you_have_successfully_connected_to_the_internet_archive">Вы успешно подключились к Интернет-архиву!</string>
+    <string name="you_have_successfully_created_dweb">Вы успешно создали группу через хранилище DWeb!</string>
+    <string name="you_have_successfully_joined_dweb">Вы успешно присоединились к группе через хранилище DWeb!</string>
+    <string name="create_a_new_folder">Создать новую папку</string>
+    <string name="create_new_folder_title">Назовите свою папку</string>
+    <string name="create_new_folder_subtitle">Эта папка будет создана на вашем сервере и добавлена в Save.</string>
+    <string name="create_new_folder_hint"><i>Название папки</i></string>
     <string name="edit">Редактировать</string>
     <string name="menu_done">Готово</string>
     <string name="remove_from_app">Удалить из приложения</string>
-    <string name="lbl_remove">Удалить</string>
+    <string name="action_remove_project">Уверены, что хотите удалить свой проект\?</string>
     <string name="action_archive_project">Архивировать проект</string>
     <string name="action_unarchive_project">Разархивировать проект</string>
-    <string name="new_folder">Новый каталог</string>
+    <string name="new_folder">Новая папка</string>
+    <string name="please_do_not_include_special_characters_in_the_name">Пожалуйста, не используйте в названии спецсимволы.</string>
+    <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">Уверены, что хотите удалить этот сервер из приложения\?</string>
+    <string name="folder_name_already_exists">Папка с таким названием уже есть</string>
     <string name="metadata">Метаданные</string>
+    <string name="web_dav_host_error">Сервер с этим названием не найден.</string>
 
+    <string name="btn_lbl_remove_media">Удалить файлы</string>
     <string name="popup_flag_title">Отметить важное содержание</string>
-    <string name="popup_flag_desc">Когда вы отмечаете элемент, он направляется в подпапку  выбранного проекта на частном сервере.</string>
+    <string name="popup_flag_desc">Помеченный объект направляется в подпапку  выбранного проекта на частном сервере.</string>
+    <string name="set_creative_commons_license_for_all_folders_on_this_server">Лицензии Creative Commons для папок на этом сервере</string>
+    <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Одна лицензия Creative Commons для ВСЕХ папок на этом сервере</string>
+    <string name="you_already_have_a_server_with_these_credentials">У вас уже есть сервер с этими учетными данными.</string>
 
+
+    <!-- Space Setup -->
+    <string name="space_setup_title">Выберите сервер</string>
+    <!-- WebDAV related strings -->
+    <string name="private_server">Частный сервер</string>
+
+    <string name="unsaved_changes">Изменения не сохранены!</string>
+    <string name="do_you_want_to_save">Хотите сохранить\?</string>
+    <string name="lbl_save">Сохранить</string>
+    <string name="lbl_discard">Отменить</string>
+
+    <!-- WebDAV setup License -->
+    <string name="name_your_server">Укажите свой сервер и выберите лицензию</string>
+    <string name="choose_license">Выбор лицензии</string>
+
+    <!-- Space Setup Success -->
+    <string name="space_setup_success_title">Настройка завершена</string>
+
+    <!-- Upload Manager Bottom Sheet -->
+    <string name="edit_queue">Очередь</string>
+    <string name="uploading_is_paused">Загрузка приостановлена</string>
+
+    <!-- Clean Insights measurement -->
+    <string name="server_name_optional"><i>Название сервера (по желанию)</i></string>
+    <string name="add_another_account">Добавить новый сервер</string>
+    <string name="biometrics_title">Разблокировать ключ ProofMode</string>
     <string name="folders">Папки</string>
+    <string name="create_folder_name">Создать название папки</string>
+    <string name="folder_name">Название папки</string>
     <string name="create">Создать</string>
     <string name="add">Добавить</string>
-    <string name="back">вернуться и отредактировать</string>
-    <string name="account">Учетная запись</string>
+    <string name="no_more_folders">Нет (больше) папок</string>
+
+    <string name="back">Назад</string>
+    <string name="my_media">Мои файлы</string>
+    <string name="server_info">Данные о сервере</string>
+    <string name="enter_url"><i>Введите URL</i></string>
+    <string name="account">Аккаунт</string>
     <string name="general">Общие</string>
-    <string name="only_upload_media_when_you_are_connected_to_wi_fi">Выгружать медиа данные только когда вы подключены к Wi-Fi</string>
+    <string name="only_upload_media_when_you_are_connected_to_wi_fi">Загружать данные только при подключении по wifi</string>
     <string name="security">Безопасность</string>
+    <string name="proofmode">ProofMode</string>
+    <string name="no_webbrowser_found_error">Нет приложения для обработки запроса. Пожалуйста, установите браузер.</string>
+
+    <string name="intro_text_secure">Безопасно сохраняйте свои медиафайлы на частных серверах и блокируйте приложение с помощью PIN-кода.</string>
+    <string name="intro_text_archive"><![CDATA[Загружайте медиафайлы в Nextcloud или Интернет-архив, где они будут доступны для проверки, защищены и упорядочены.<br><br>Можно выбрать <a href=\"%1$s\"><u>лицензию Creative Commons.</u></a>]]></string>
+
+    <string name="intro_text_verify"><![CDATA[Подтверждайте подлинность ваших медиафайлов с помощью хэшей sha256 и <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
+    <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> всегда использует TLS (Transport Layer Security) для защиты медиафайлов при передаче.<br> Повысить безопасность (не дать перехватывать файлы при передаче с телефона на сервер) может <a href=\"%1$s\"><u>Tor</u></a>.]]></string>
     <string name="next">Далее</string>
     <string name="done">Готово</string>
-    <string name="secure_mobile_media_preservation">Безопасное сохранение мобильных медиа данных</string>
+    <string name="secure_mobile_media_preservation">Безопасное сохранение мобильных медиаданных</string>
     <string name="get_started">Начало работы</string>
+    <string name="archived_folders">Архивные папки</string>
+    <string name="view_archived_folders">Просмотр архивных папок</string>
+    <string name="learn_more_about_creative_commons">Подробнее о Creative Commons</string>
     <string name="refresh">Обновить</string>
+    <string name="is_video">это видео</string>
+    <string name="preview_media">Предпросмотр</string>
+    <string name="add_more">Добавить еще</string>
     <string name="select_all">Выбрать все</string>
-    <string name="lbl_got_it">ОК</string>
+    <string name="deselect_all">Отменить выбор</string>
+    <string name="lbl_got_it">OK</string>
+    <string name="do_not_show_me_this_again">Больше не показывать</string>
+    <string name="edit_multiple">Редактировать группу</string>
+    <string name="press_and_hold_options_media_screen_title">Добавить файл</string>
+    <string name="press_and_hold_options_media_screen_message">Нажмите + для выбора из галереи изображений. Нажмите и удерживайте, чтобы добавить данные из других приложений.</string>
+    <string name="press_and_hold_to_select_and_edit_multiple_media">Нажмите и удерживайте, чтобы выбрать и редактировать несколько файлов.</string>
+    <string name="once_uploaded_you_will_not_be_able_to_edit_media">После загрузки вы не сможете редактировать медиа.</string>
+    <string name="edit_media_info">Данные файла</string>
+    <string name="add_a_location_optional"><i>Местоположение (по желанию)</i></string>
+    <string name="add_notes_optional"><i>Примечания (по желанию)</i></string>
     <string name="skip">Пропустить</string>
-    <string name="lbl_retry">Повторить</string>
 
+
+    <string name="upload_unsuccessful">Загрузка не удалась</string>
+    <string name="upload_unsuccessful_description">Загрузка невозможна, ошибка сессии. Пожалуйста, попробуйте снова или обратитесь в службу поддержки.</string>
+
+
+    <string name="edit_media">Редактировать файлы</string>
+
+    <string name="camera">Камера</string>
+    <string name="photo_gallery">Фотогалерея</string>
     <string name="files">Файлы</string>
 
-</resources>
+    <!-- Internet Archive Settings -->
+    <string name="label_email">Email</string>
+    <string name="label_screen_name">Screen Name</string>
+    <string name="label_create_login">Создать </string>
+    <string name="prompt_no_account">Нет аккаунта\?</string>
+    <string name="action_continue">Продолжить</string>
+
+    <!-- DWeb Strings -->
+    <string name="dweb_create_group_screen_title">Назовите свою группу и выберите имя пользователя</string>
+    <string name="dweb_create_group_screen_description">Группа в хранилище DWeb похожа на сервер, а имя пользователя играет роль вашей папки в группе. Вы сможете загружать медиафайлы под этим именем пользователя.</string>
+    <string name="dweb_create_group_group_name"><i>Название вашей группы</i></string>
+    <string name="dweb_create_group_user_name"><i>Ваше имя в этой группе</i></string>
+    <string name="dweb_join_group_screen_title">Выберите имя пользователя для этой группы</string>
+    <string name="dweb_join_group_screen_description">Группа в хранилище DWeb похожа на сервер, а имя пользователя играет роль вашей папки в этой группе. Вы сможете загружать медиафайлы под этим именем пользователя.</string>
+    <string name="dweb_join_group_group_name">Название группы</string>
+    <string name="dweb_join_group_repo_name">Ваше имя в этой группе</string>
+
+    <string name="dweb_share_qr_code">Поделиться QR-кодом</string>
+
+    <string name="pref_title_secure">Безопасность</string>
+    <string name="pref_title_archive">Архивирование</string>
+    <string name="pref_title_privacy_policy">Условия и приватность</string>
+    <string name="pref_title_media_servers">Медиасерверы</string>
+    <string name="pref_title_media_folders">Архивные папки</string>
+    <string name="pref_summary_media_servers">Настройки ваших серверов</string>
+    <string name="pref_summary_media_folders">Управление архивными папками</string>
+    <string name="pref_summary_privacy_policy">Условия использования и Политика приватности</string>
+
+    <!-- General -->
+    <string name="label_success_title">Успешно!</string>
+    <string name="label_warning_title">Внимание!</string>
+    <string name="label_info_title">Информация!</string>
+    <string name="label_got_it">OK</string>
+
+    <!-- Create New Folder -->
+    <string name="create_folder_ok_message">Вы успешно добавили папку.</string>
+    <string name="msg_edit_server_success">Вы успешно изменили настройки сервера.</string>
+    <string name="expand">Открыть</string>
+    <string name="lbl_no_servers">Серверы еще не добавлены.</string>
+    <string name="lbl_no_archived_folders">Архивные папки не найдены.</string>
+    <string name="error_no_internet">Нет подключения к Интернету</string>
+    <string name="save_by_open_archive">Save от OpenArchive</string>
+    <string name="discover_the_save_app">Подробнее</string>
+
+    </resources>
