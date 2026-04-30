@@ -59,7 +59,9 @@ class SnowbirdGroupViewModel(
         viewModelScope.launch {
             _groupState.value = GroupState.Loading
             try {
-                val result = processingTracker.trackProcessingWithTimeout(60_000, "fetch_groups") {
+                // Use longer timeout for refresh operations that may need to download collections from peers
+                val timeoutMs = if (forceRefresh) 120_000L else 60_000L
+                val result = processingTracker.trackProcessingWithTimeout(timeoutMs, "fetch_groups") {
                     repository.fetchGroups(forceRefresh)
                 }
 

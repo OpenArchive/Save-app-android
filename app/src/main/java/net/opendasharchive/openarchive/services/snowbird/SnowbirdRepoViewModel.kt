@@ -90,20 +90,37 @@ class SnowbirdRepoViewModel(
 
                     is SnowbirdResult.Success<RefreshGroupResponse> -> {
                         AppLogger.i("Group content refreshed successfully")
-                        //TODO: Save Repo List and Media List to DB
 
-                        // Get existing repos for group
+                        // Only persist refresh data for repos that belong to this group.
+                        val allowedRepoIds: Set<String> = run {
+                            val fromNetwork = repository.fetchRepos(groupKey, forceRefresh = true)
+                            when (fromNetwork) {
+                                is SnowbirdResult.Success -> fromNetwork.value.map { it.key }.toSet()
+                                is SnowbirdResult.Error -> {
+                                    AppLogger.w("Unable to fetch repos for scoping refresh; falling back to local DB scope: ${fromNetwork.error.friendlyMessage}")
+                                    SnowbirdRepo.getAllForGroupKey(groupKey).map { it.key }.toSet()
+                                }
+                            }
+                        }
+
                         val existingRepos = SnowbirdRepo.getAllForGroupKey(groupKey)
                         val existingReposMap = existingRepos.associateBy { it.key }
 
-                        result.value.refreshedRepos.forEach  { repoData ->
+                        val repoErrors = mutableListOf<String>()
 
-                            // Log repo errors if any
-                            if (!repoData.error.isNullOrEmpty()) {
-                                AppLogger.e("Error refreshing repo ${repoData.repoId}: ${repoData.error}")
+                        result.value.refreshedRepos.forEach  { repoData ->
+                            if (allowedRepoIds.isNotEmpty() && !allowedRepoIds.contains(repoData.repoId)) {
+                                AppLogger.e("Refresh returned repo outside group scope. groupKey=$groupKey repoId=${repoData.repoId} name=${repoData.name}")
+                                return@forEach
                             }
 
-                            // Update or create repo
+                            if (!repoData.error.isNullOrEmpty()) {
+                                val bucket = classifyRefreshError(repoData.error)
+                                val msg = "Repo ${repoData.name} (${repoData.repoId}): $bucket — ${repoData.error}"
+                                repoErrors.add(msg)
+                                AppLogger.e(msg)
+                            }
+
                             val snowbirdRepo = existingReposMap[repoData.repoId] ?: repoData.toRepo().apply {
                                 this.groupKey = groupKey
                             }
@@ -113,29 +130,34 @@ class SnowbirdRepoViewModel(
                                 permissions = if (repoData.canWrite) "READ_WRITE" else "READ_ONLY"
                             }.save()
 
-                            // Get existing files for this repo
                             val existingFiles = SnowbirdFileItem.findBy(groupKey, repoData.repoId)
                             val existingFilesMap = existingFiles.associateBy { it.name }
 
-                            // Process all files (not just refreshed ones)
                             repoData.allFiles.forEach { fileName ->
                                 val existingFile = existingFilesMap[fileName]
 
                                 if (existingFile == null) {
-                                    // Create new file if it doesn't exist
                                     SnowbirdFileItem(
                                         name = fileName,
                                         repoKey = repoData.repoId,
                                         groupKey = groupKey,
                                     ).save()
-                                } else {
-                                    // Update existing file without overwriting with null
-                                    // Note: The refresh API doesn't provide file details,
-                                    // so we just maintain the existing file record
                                 }
                             }
                         }
-                        _repoState.value = RepoState.RefreshGroupContentSuccess
+
+                        // Surface per-repo refresh failures while keeping persisted updates.
+                        if (repoErrors.isNotEmpty()) {
+                            val summary = repoErrors.take(8).joinToString("\n")
+                            val suffix = if (repoErrors.size > 8) "\n… and ${repoErrors.size - 8} more" else ""
+                            _repoState.value = RepoState.Error(
+                                SnowbirdError.GeneralError(
+                                    "Some repositories failed to refresh:\n$summary$suffix\n\n(Types: DHT_DISCOVERY vs PEER_DOWNLOAD vs UNKNOWN)"
+                                )
+                            )
+                        } else {
+                            _repoState.value = RepoState.RefreshGroupContentSuccess
+                        }
                         fetchRepos(groupKey = groupKey)
                     }
                 }
@@ -143,6 +165,15 @@ class SnowbirdRepoViewModel(
             } catch (e: TimeoutCancellationException) {
                 _repoState.value = RepoState.Error(SnowbirdError.TimedOut)
             }
+        }
+    }
+
+    private fun classifyRefreshError(message: String): String {
+        val m = message.lowercase()
+        return when {
+            "dht" in m || "repo root hash" in m -> "DHT_DISCOVERY"
+            "download from any peer" in m || "any peer" in m -> "PEER_DOWNLOAD"
+            else -> "UNKNOWN"
         }
     }
 }

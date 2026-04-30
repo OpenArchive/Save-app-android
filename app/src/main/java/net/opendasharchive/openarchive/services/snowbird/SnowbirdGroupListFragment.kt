@@ -51,7 +51,8 @@ class SnowbirdGroupListFragment : BaseSnowbirdFragment() {
         setupRecyclerView()
         initializeViewModelObservers()
 
-        snowbirdGroupViewModel.fetchGroups()
+        // Use network on first load so new memberships appear without restart.
+        snowbirdGroupViewModel.fetchGroups(forceRefresh = true)
     }
 
     private fun setupSwipeRefresh() {
