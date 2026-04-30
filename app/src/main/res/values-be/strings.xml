@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="title_activity_first_start">Першы запуск</string>
+    <string name="action_settings">Налады</string>
+    <string name="internet_archive">Internet Archive</string>
+    <string name="internet_archive_description">Запампуйце свае медыяфайлы на бясплатны публічны акаўнт у Інтэрнэт-архіве.</string>
+    <string name="dweb_title">Сховішча DWeb</string>
+    <string name="dweb_description">Падлучыцца да дэцэнтралізаванага вэбу</string>
+    <string name="servers">Серверы</string>
+    <string name="add_server">Дадаць сервер</string>
+    <string name="lbl_rename_folder">Перайменаваць тэчку</string>
+    <string name="lbl_select_media">Выбраць медыяфайл</string>
+    <string name="lbl_remove_folder">Выдаліць тэчку</string>
+    <string name="popup_archive_folder">Заархіваваць тэчку</string>
+    <string name="popup_remove_folder">Выдаліць тэчку з прыкладання</string>
+    <string name="folder_empty_warning">Імя тэчкі не павінна заставацца пустым</string>
+    <string name="folder_rename_success">Тэчка перайменаваная</string>
+    <string name="folder_not_found">Тэчка не знойдзеная</string>
+    <string name="folder_removed">Тэчка выдаленая.</string>
+    <string name="folder_archived">Тэчка паспяхова заархіваваная.</string>
+    <string name="content_picker_label">Дадаць медыяфайл з</string>
+    <string name="disable_passcode_dialog_title">Адлучыць пароль</string>
+    <string name="disable_passcode_dialog_msg">Вы ўпэўненыя, што хочаце адлучыць пароль\?</string>
+    <string name="tor_disabled_title">Onion-маршрутызацыя ў распрацоўцы</string>
+    <string name="tor_disabled_message">Гэтая функцыя на дадзены момант знаходзіцца ў распрацоўцы. Пакуль што вы можаце выкарыстоўваць Orbot або любы VPN на ваш выбар, каб падвысіць канфідэнцыйнасць і бяспеку.</string>
+    <string name="tor_download_btn_label">Спампаваць Orbot</string>
+
+
+    <!-- Errors -->
+
+    <!-- Server -->
+    <string name="lbl_Cancel">Скасаваць</string>
+    <string name="lbl_ok">OK</string>
+    <string name="lbl_confirm">Пацвердзіць</string>
+    <string name="lbl_remove">Выдаліць</string>
+    <string name="lbl_retry">Паспрабуйце яшчэ раз</string>
+
+    <string name="license_label">Ліцэнзія</string>
+    <string name="info_license_cc0">Адмяніць усе абмежаванні, патрабаванні і пазначэнне аўтарства (CC0).</string>
+    <string name="info_license_deriv">Дазволіць кожнаму перарабляць і дзяліцца\?</string>
+    <string name="info_license_sharealike">Патрабаваць ад іх дзяліцца, як вы\?</string>
+    <string name="info_license_comm">Дазволіць камерцыйнае выкарыстанне\?</string>
+
+    <string name="menu_delete">Выдаліць медыя</string>
+    <string name="menu_delete_desc">Гэты медыяфайл будзе выдалены з Save. Ён застанецца на серверы і ў вашай праграме \"Фота\".</string>
+
+    <string name="hint_flag">Націсніце, каб пазначыць важны кантэнт</string>
+    <string name="answer_yes">Так</string>
+    <string name="answer_no">Не</string>
+
+    <string name="action_cancel">Скасаваць</string>
+
+    <string name="error">Памылка</string>
+
+    <string name="prefs_use_tor_title">Улучыць onion-маршрутызацыю </string>
+    <string name="prefs_use_tor_summary">Перадача даных толькі праз сетку Tor</string>
+
+    <string name="prefs_use_proofmode_title">Улучыць рэжым праверкі </string>
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode — гэта спосаб палепшыць аўтэнтыфікацыю і праверку мультымедыйнага кантэнту.<a href=\"%1$s\"><u> Больш даведацца тут.</u></a>]]></string>
+
+    <string name="proof_mode_warning_text"><![CDATA[
+Каб спраўдзіць месца запісу вашых медыяфайлаў, ProofMode збірае даныя з бліжэйшых сотавых вышак для пацверджання вашага месцазнаходжання. Каб дадаць дакладнасці і кантэксту, ён стварае асобны файл метаданых да вашых медыяфайлаў*. Для збору гэтай інфармацыі iOS патрабуецца доступ да месцазнаходжання.<br/><br/>
+<b>*Ні <i>Save</i>, ні <i>OpenArchive</i> не змогуць атрымаць доступ да гэтых даных пра месцазнаходжанне або захоўваць іх, яны будуць даступныя толькі тым, хто мае доступ да файлаў серверу.</b>
+]]>\n</string>
+
+    <string name="prefs_share_proofmode_title">Уліковы запіс у ProofMode</string>
+    <string name="prefs_share_proofmode_summary">Падзяліцца публічным ключом ProofMode</string>
+
+
+    <!-- Strings for ProofMode Activity -->
+    <string name="phone_permission_required">Патрабуецца дазвол на доступ да месцазнаходжання</string>
+
+    <!-- Strings for nearby sharing -->
+
+    <!-- Strings related to login -->
+    <string name="prompt_username"><i>Імя карыстальніка</i></string>
+    <string name="prompt_email">Эл. пошта</string>
+    <string name="prompt_password"><i>Пароль</i></string>
+
+    <string name="label_username">\@string/prompt_email</string>
+    <string name="placeholder_email_or_username">Увядзіце email або імя карыстальніка</string>
+    <string name="label_password">\@string/prompt_password</string>
+    <string name="placeholder_password">Увядзіце пароль</string>
+
+    <string name="action_sign_in_short">Зарэгістравацца</string>
+    <string name="error_incorrect_username_or_password">Няправільнае імя карыстальніка ці пароль</string>
+    <string name="error_incorrect_email_or_password">Няправільны email ці пароль</string>
+    <string name="error_field_required">Гэтае поле абавязковае для запаўнення</string>
+
+    <string name="importing_media">Імпартаванне медыяфайлаў...</string>
+
+    <string name="title_welcome">Вітаем!</string>
+
+    <string name="action_privacy">Палітыка канфідэнцыйнасці</string>
+    <string name="action_about">Пра %s</string>
+    <string name="add_a_folder">Дадаць тэчку</string>
+    <string name="browse_existing_folders">Прагледзець наяўныя папкі</string>
+    <string name="browse_existing">Прагледзець наяўныя</string>
+    <string name="title_activity_upload_manager">Менеджар запамповак</string>
+
+    <string name="uploads">Запампоўкі</string>
+    <string name="upload_manager_screen_title">Рэдагаваць чарговасць</string>
+    <string name="upload_manager_screen_subtitle">Запампоўка прыпыненая</string>
+    <string name="uploading">Запампоўка…</string>
+    <string name="uploading_left">Запампоўка… (засталося %d)</string>
+    <string name="uploads_notification_descriptions">Такія апавяшчэнні з\'яўляюцца, пакуль прыкладанне запампоўвае медыяфайлы.</string>
+
+    <string name="action_upload">Запампаваць</string>
+<!-- Passcode Settings -->
+    <string name="multiple_failed_attempts_message">Прыкладанне заблакаванае з прычыны некалькіх няўдалых спробаў. Калі ласка, паспрабуйце зноў пазней.</string>
+    <string name="passcode_not_set">Пароль не зададзены</string>
+    <string name="passcode_remaining_attempts">Няправільны пароль. Засталося %1$d спробаў.</string>
+    <string name="passcode_too_many_failed_attempts">Занадта шмат няўдалых спробаў. Прыкладанне заблакаванае.</string>
+
+    <string name="passcode_lock_app">Заблакаваць прыкладанне з дапамогай паролю</string>
+    <string name="enter_passcode">Увядзіце свой код доступу</string>
+    <string name="passcode_do_not_match">Код доступу не супадае. Паспрабуйце зноў.</string>
+
+    <string name="confirm_passcode">Пацвердзіць код доступу</string>
+    <string name="set_passcode">Задаць код доступу</string>
+    <string name="set_passcode_warning">Абавязкова запомніце гэты PIN-код. Калі вы яго забудзеце, вам давядзецца пераўсталяваць прыкладанне, і ўсе даныя ў ім будуць выдаленыя.</string>
+
+
+    <!-- Strings related to Settings -->
+
+    <string name="tap_to_add">Націсніце кнопку ніжэй, каб дадаць медыяфайл</string>
+    <string name="tap_to_add_folder">Націсніце кнопку ніжэй, каб дадаць тэчку</string>
+    <string name="tap_to_add_server">Націсніце кнопку ніжэй, каб дадаць сервер</string>
+    <string name="to_get_started_connect_to_a_server_to_store_your_media">Каб пачаць, падлучыцеся да сервера для захоўвання вашых медыяфайлаў.</string>
+    <string name="to_get_started_more_hint_dweb">Вы можаце ў любы час дадаць некалькі прыватных сервераў і \nадзін ІА-акаўнт або адзін DWeb-сховішча акаўнт</string>
+    <string name="to_get_started_more_hint">Вы можаце ў любы час дадаць некалькі прыватных сервераў і \nадзін ІА-акаўнт.</string>
+    <string name="send_directly_to_a_private_server">Злучыцца з абароненым \nсерверам WebDAV</string>
+    <string name="upload_to_the_internet_archive">Злучыцца з бясплатным \nпублічным серверам</string>
+    <string name="save_connects_to_webdav_compatible_servers_only_such_as_nextcloud_and_owncloud">Злучыцца з серверамі, сумяшчальнымі з WebDAV, напрыклад, з Nexcloud ці ownCloud.</string>
+    <string name="action_next">Наступная частка</string>
+    <string name="action_done">Гатова</string>
+    <string name="status_flagged">Важны кантэнт</string>
+    <string name="select_where_to_store_your_media">Абярыце новую або існую тэчку для захавання медыяфайлаў.</string>
+    <string name="you_have_successfully_connected_to_a_private_server">Вы паспяхова падлучыліся да прыватнага сервера!</string>
+    <string name="you_have_successfully_connected_to_the_internet_archive">Вы паспяхова падлучыліся да Internet Archive!</string>
+    <string name="you_have_successfully_created_dweb">Вы паспяхова стварылі групу праз DWeb-сховішча!</string>
+    <string name="you_have_successfully_joined_dweb">Вы паспяхова далучыліся да групы праз DWeb-сховішча!</string>
+    <string name="create_a_new_folder">Стварыць новую тэчку</string>
+    <string name="create_new_folder_title">Калі ласка, назавіце сваю тэчку</string>
+    <string name="create_new_folder_subtitle">Гэтая тэчка будзе створаная на вашым серверы і дададзеная ў Save</string>
+    <string name="create_new_folder_hint"><i>Увесці назву тэчкі</i></string>
+    <string name="edit">Рэдагаваць</string>
+    <string name="menu_done">Гатова</string>
+    <string name="remove_from_app">Выдаліць з прыкладання</string>
+    <string name="action_remove_project">Вы ўпэўненыя, што хочаце выдаліць гэты праект\?</string>
+    <string name="action_archive_project">Заархіваваць праект</string>
+    <string name="action_unarchive_project">Разархіваваць праект</string>
+    <string name="new_folder">Новая тэчка</string>
+    <string name="please_do_not_include_special_characters_in_the_name">Калі ласка, не дадавайце ў імя спецыяльныя сімвалы.</string>
+    <string name="are_you_sure_you_want_to_remove_this_server_from_the_app">Вы ўпэўненыя, што хочаце выдаліць гэты сервер з прыкладання\?</string>
+    <string name="folder_name_already_exists">Такое Імя тэчкі ўжо існуе</string>
+    <string name="metadata">Метаданыя</string>
+    <string name="web_dav_host_error">Сервер з пазначаным імем вузла не знойдзены.</string>
+
+    <string name="btn_lbl_remove_media">Выдаліць медыяфайл</string>
+    <string name="popup_flag_title">Пазначыць сцяжком важны кантэнт</string>
+    <string name="popup_flag_desc">Калі вы пазначаеце элемент сцяжком, ён перамяшчаецца ў падтэчку ўнутры абранай тэчкі на прыватным серверы.</string>
+    <string name="set_creative_commons_license_for_all_folders_on_this_server">Наладзіць ліцэнзіі Creative Commons для тэчак на гэтым серверы.</string>
+    <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Наладзіць аднолькавыя ліцэнзіі Creative Commons для ЎСІХ тэчак на гэтым серверы.</string>
+    <string name="you_already_have_a_server_with_these_credentials">У вас ужо ёсць сервер з такімі ўліковымі данымі.</string>
+
+
+    <!-- Space Setup -->
+    <string name="space_setup_title">Выбраць сервер</string>
+    <!-- WebDAV related strings -->
+    <string name="private_server">Прыватны сервер</string>
+
+    <string name="unsaved_changes">Незахаваныя змены!</string>
+    <string name="do_you_want_to_save">Вы хочаце захаваць\?</string>
+    <string name="lbl_save">Захаваць</string>
+    <string name="lbl_discard">Адмяніць</string>
+
+    <!-- WebDAV setup License -->
+    <string name="name_your_server">Назавіце свой сервер і выберыце ліцэнзію</string>
+    <string name="choose_license">Выбраць ліцэнзію</string>
+
+    <!-- Space Setup Success -->
+    <string name="space_setup_success_title">Усталёўка завершаная</string>
+
+    <!-- Upload Manager Bottom Sheet -->
+    <string name="edit_queue">Рэдагаваць чарговасць</string>
+    <string name="uploading_is_paused">Запампоўка прыпыненая</string>
+
+    <!-- Clean Insights measurement -->
+    <string name="server_name_optional"><i>Імя сервера (па жаданні)</i></string>
+    <string name="add_another_account">Дадаць сервер</string>
+    <string name="biometrics_title">Разблакаваць  ключ ProofMode</string>
+    <string name="folders">Тэчкі</string>
+    <string name="create_folder_name">Стварыць назву тэчкі</string>
+    <string name="folder_name">Імя тэчкі</string>
+    <string name="create">Стварыць</string>
+    <string name="add">Дадаць</string>
+    <string name="no_more_folders">Няма (больш) тэчак</string>
+
+    <string name="back">Назад</string>
+    <string name="my_media">Мае медыяфайлы</string>
+    <string name="server_info">Інфармацыя пра сервер</string>
+    <string name="enter_url"><i>Увесці адрас URL</i></string>
+    <string name="account">Акаўнт</string>
+    <string name="general">Агульныя</string>
+    <string name="only_upload_media_when_you_are_connected_to_wi_fi">Запампоўваць медыяфайлы толькі пры падлучэнні да Wi-Fi</string>
+    <string name="security">Бяспека</string>
+    <string name="proofmode">ProofMode</string>
+    <string name="no_webbrowser_found_error">Ніводная праграма не можа апрацаваць гэты запыт. Калі ласка, усталюйце вэб-браўзер.</string>
+
+    <string name="intro_text_secure">Бяспечна адпраўляйце свае медыяфайлы на прыватныя серверы і блакуйце прыкладанне з дапамогай PIN-коду.</string>
+    <string name="intro_text_archive"><![CDATA[Запампоўвайце медыяфайлы ў Nextcloud або Internet Archive, каб іх надзейна, бяспечна і ўпарадкавана захоўваць на працягу доўгага часу. <br><br>Выбраць <a href=\"%1$s\"><u> ліцэнзію Creative Commons.</u></a>]]></string>
+
+    <string name="intro_text_verify"><![CDATA[Аўтэнтыфікуйце і праверце свае медыяфайлы з дапамогай хэшаў SHA256 і <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
+    <string name="intro_text_encrypt"><![CDATA[<b><i>Save </i></b>заўсёды запампоўвае даныя праз TLS (Transport Layer Security - Бяспека транспартнага ўзроўню), каб абараніць вашыя медыяфайлы падчас перадачы. <br>Для дадатковага павышэння ўзроўню бяспекі актывуйце <a href=\"%1$s\"><u>Tor</u></a>, каб прадухіліць перахоп вашых медыяфайлаў падчас перадачы іх з вашага тэлефона на сервер.]]></string>
+    <string name="next">Наступная частка</string>
+    <string name="done">Гатова</string>
+    <string name="secure_mobile_media_preservation">Бяспечнае захаванне мабільных медыяфайлаў</string>
+    <string name="get_started">Пачаць</string>
+    <string name="archived_folders">Архіўныя тэчкі</string>
+    <string name="view_archived_folders">Праглядзець архіўныя тэчкі</string>
+    <string name="learn_more_about_creative_commons">Больш падрабязна пра Creative Commons.</string>
+    <string name="refresh">Абнавіць</string>
+    <string name="is_video">ёсць відэа</string>
+    <string name="preview_media">Папярэдні прагляд запампоўкі</string>
+    <string name="add_more">Дадаць яшчэ</string>
+    <string name="select_all">Абраць Усё</string>
+    <string name="deselect_all">Адмяніць выбар усяго</string>
+    <string name="lbl_got_it">Гатова</string>
+    <string name="do_not_show_me_this_again">Не паказваць больш мне гэта </string>
+    <string name="edit_multiple">Рэдагаваць некалькі элементаў</string>
+    <string name="press_and_hold_options_media_screen_title">Дадаць медыя</string>
+    <string name="press_and_hold_options_media_screen_message">Націсніце +, каб выбраць выяву з галерэі, або націсніце і ўтрымлівайце, каб дадаць медыяфайлы з іншых праграмаў.</string>
+    <string name="press_and_hold_to_select_and_edit_multiple_media">Націсніце і ўтрымлівайце, каб выбраць і рэдагаваць некалькі медыяфайлаў.</string>
+    <string name="once_uploaded_you_will_not_be_able_to_edit_media">Пасля запампоўкі вы не зможаце рэдагаваць медыя.</string>
+    <string name="edit_media_info">Рэдагаваць інфармацыю пра медыя</string>
+    <string name="add_a_location_optional"><i>Дадаць месцазнаходжанне (па жаданні)</i></string>
+    <string name="add_notes_optional"><i>Дадаць нататкі (па жаданні)</i></string>
+    <string name="skip">Прапусціць</string>
+
+
+    <string name="upload_unsuccessful">Запампоўка не ўдалася</string>
+    <string name="upload_unsuccessful_description">Не ўдалося запампаваць праз памылку сеансу. Паспрабуйце ізноў або звярніцеся ў службу падтрымкі.</string>
+
+
+    <string name="edit_media">Рэдагаваць медыяфайл</string>
+
+    <string name="camera">Камера</string>
+    <string name="photo_gallery">Фотагалерэя</string>
+    <string name="files">Файлы</string>
+
+    <!-- Internet Archive Settings -->
+    <string name="label_email">Email</string>
+    <string name="label_screen_name">Псеўданім</string>
+    <string name="label_create_login">Стварыць акаўнт</string>
+    <string name="prompt_no_account">Няма акаўнту\?</string>
+    <string name="action_continue">Працягнуць</string>
+
+    <!-- DWeb Strings -->
+    <string name="dweb_create_group_screen_title">Назавіце сваю групу і выберыце імя карыстальніка</string>
+    <string name="dweb_create_group_screen_description">Група ў DWeb-сховішчы падобная на сервер, а імя карыстальніка выконвае ролю вашай тэчкі ў гэтай групе. Вы зможаце запампоўваць медыяфайлы пад гэтым імем карыстальніка.</string>
+    <string name="dweb_create_group_group_name"><i>Імя вашай групы</i></string>
+    <string name="dweb_create_group_user_name"><i>Ваша імя ў гэтай групе</i></string>
+    <string name="dweb_join_group_screen_title">Выбраць імя карыстальніка для гэтай групы</string>
+    <string name="dweb_join_group_screen_description">Група ў DWeb-сховішчы падобная на сервер, а імя карыстальніка выконвае ролю вашай тэчкі ў гэтай групе. Вы зможаце запампоўваць медыяфайлы пад гэтым імем карыстальніка.</string>
+    <string name="dweb_join_group_group_name">Імя групы</string>
+    <string name="dweb_join_group_repo_name">Ваша імя ў гэтай групе</string>
+
+    <string name="dweb_share_qr_code">Падзяліцца QR-кодам</string>
+
+    <string name="pref_title_secure">Бяспечны</string>
+    <string name="pref_title_archive">Архіў</string>
+    <string name="pref_title_privacy_policy">Умовы карыстання і канфідэнцыйнасць</string>
+    <string name="pref_title_media_servers">Серверы медыя</string>
+    <string name="pref_title_media_folders">Архіўныя тэчкі</string>
+    <string name="pref_summary_media_servers">Кіраваць сваімі серверамі</string>
+    <string name="pref_summary_media_folders">Кіраваць сваімі архіўнымі тэчкамі</string>
+    <string name="pref_summary_privacy_policy">Азнаёміцца з нашымі Умовамі карыстання і Палітыкай канфідэнцыйнасці</string>
+
+    <!-- General -->
+    <string name="label_success_title">Паспяхова!</string>
+    <string name="label_warning_title">Увага!</string>
+    <string name="label_info_title">Інфармацыя!</string>
+    <string name="label_got_it">Гатова</string>
+
+    <!-- Create New Folder -->
+    <string name="create_folder_ok_message">Тэчка паспяхова дададзеная.</string>
+    <string name="msg_edit_server_success">Вы паспяхова змянілі налады сервера.</string>
+    <string name="expand">Разгарнуць</string>
+    <string name="lbl_no_servers">Ніводнага серверу яшчэ не дададзена.</string>
+    <string name="lbl_no_archived_folders">Архіўныя тэчкі не знойдзеныя</string>
+    <string name="error_no_internet">Няма інтэрнэту</string>
+    <string name="save_by_open_archive">Захаваць з дапамогай OpenArchive</string>
+    <string name="discover_the_save_app">Даведацца больш</string>
+
+    </resources>

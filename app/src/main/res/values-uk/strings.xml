@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-    <string name="title_activity_first_start">Перший початок</string>
+    <string name="title_activity_first_start">Початок</string>
     <string name="action_settings">Налаштування</string>
     <string name="internet_archive">Сервіс Internet Archive</string>
     <string name="internet_archive_description">Вивантажуйте ваші медіафайли на безплатний публічний обліковий запис Internet Archive.</string>
-    <string name="dweb_title">Сервіс DWeb</string>
-    <string name="dweb_description">Під\'єднатись до\nдецентралізованого інтернету</string>
+    <string name="dweb_title">Сховище DWeb</string>
+    <string name="dweb_description">Під\'єднатись до децентралізованого інтернету</string>
     <string name="servers">Сервери</string>
     <string name="add_server">Додати сервер</string>
     <string name="lbl_rename_folder">Перейменувати теку</string>
@@ -17,12 +17,14 @@
     <string name="folder_rename_success">Теку перейменовано</string>
     <string name="folder_not_found">Теку не знайдено</string>
     <string name="folder_removed">Теку видалено</string>
+    <string name="folder_archived">Тека успішно архівована...</string>
     <string name="content_picker_label">Додати медіафайли з</string>
     <string name="disable_passcode_dialog_title">Вимкнути код доступу</string>
     <string name="disable_passcode_dialog_msg">Ви впевнені, що хочете вимкнути застосування коду доступу\?</string>
     <string name="tor_disabled_title">Маршрутизація через Onion у процесі розробки</string>
     <string name="tor_disabled_message">Ця можливість знаходиться на стадії розробки. Зараз ви можете використати Orbot або будь-який VPN на ваш розсуд для підвищення приватності та безпеки.</string>
     <string name="tor_download_btn_label">Завантажити Orbot</string>
+
 
     <!-- Errors -->
 
@@ -53,10 +55,25 @@
     <string name="prefs_use_tor_title">Увімкнути маршрутизацію через Onion</string>
     <string name="prefs_use_tor_summary">Передавати лише через мережу Tor</string>
 
+    <string name="prefs_use_proofmode_title">Увімкнути ProofMode</string>
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode — це система, яка дозволяє автентифікацію та перевірку вмісту мультимедія. <a href=\"%1$s\"><u>Більше дізнайтесь тут.</u></a>]]></string>
+
+    <string name="proof_mode_warning_text"><![CDATA[
+Щоб допомогти перевірити, де саме було створено ваш медіафайл, ProofMode збирає дані від найближчих стільникових веж для підтвердження вашого місцеперебування. Для підвищення правдивості та надання контексту застосунок додає окремий файл метаданих до вашого медіа*. Android вимагає доступу до даних про місцеперебування для отримання цієї інформації.<br/><br/>
+<b>*Ані <i>Save</i>, ані <i>OpenArchive</i> не матимуть доступу до цих даних про місцеперебування та не зможуть їх зберігати. Вони будуть доступні лише особам, які мають доступ до серверних файлів.</b>
+]]>\n</string>
+
+    <string name="prefs_share_proofmode_title">Ідентифікатор ProofMode</string>
+    <string name="prefs_share_proofmode_summary">Поширити публічний ключ ProofMode</string>
+
+
+    <!-- Strings for ProofMode Activity -->
+    <string name="phone_permission_required">Потрібен дозвіл на отримання місцеперебування</string>
+
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
-    <string name="prompt_username"><i>Ім\'я користувача</i></string>
+    <string name="prompt_username"><i>Ім'я користувача</i></string>
     <string name="prompt_email">Ел. пошта</string>
     <string name="prompt_password"><i>Пароль</i></string>
 
@@ -103,13 +120,14 @@
     <string name="set_passcode">Встановити код доступу</string>
     <string name="set_passcode_warning">Запам’ятайте цей код доступу. У разі його втрати потрібно буде виконати скидання застосунку, після чого всі внутрішні дані буде безповоротно видалено.</string>
 
+
     <!-- Strings related to Settings -->
 
     <string name="tap_to_add">Торкніться кнопки нижче для додавання медіафайлів</string>
     <string name="tap_to_add_folder">Торкніться кнопки нижче для додавання теки</string>
     <string name="tap_to_add_server">Торкніться кнопки нижче для додавання сервера</string>
     <string name="to_get_started_connect_to_a_server_to_store_your_media">Щоб розпочати, під’єднайтесь до сервера для збереження медіа.</string>
-    <string name="to_get_started_more_hint_dweb">Ви в будь-який момент можете додавати різні приватні сервери та \nодин обліковий запис Internet Archive або DWeb.</string>
+    <string name="to_get_started_more_hint_dweb">Ви можете додати декілька приватних серверів та\nодин обліковий запис ІА або сховища DWeb в будь-який момент.</string>
     <string name="to_get_started_more_hint">Ви в будь-який момент можете додавати різні приватні сервери та \nодин обліковий запис Internet Archive.</string>
     <string name="send_directly_to_a_private_server">Під\'єднатись до захищеного\nWebDAV серверу</string>
     <string name="upload_to_the_internet_archive">Під\'єднатись до безплатного\nпублічного сервера</string>
@@ -120,6 +138,8 @@
     <string name="select_where_to_store_your_media">Оберіть нову або вже наявну теку для збереження у неї ваших файлів.</string>
     <string name="you_have_successfully_connected_to_a_private_server">Ви успішно під’єднались до приватного сервера!</string>
     <string name="you_have_successfully_connected_to_the_internet_archive">Ви успішно під’єднались до Internet Archive!</string>
+    <string name="you_have_successfully_created_dweb">Ви успішно створили групу через сховище DWeb!</string>
+    <string name="you_have_successfully_joined_dweb">Ви успішно під’єднались до групи через сховище DWeb!</string>
     <string name="create_a_new_folder">Створити нову теку</string>
     <string name="create_new_folder_title">Будь ласка, введіть назву теки</string>
     <string name="create_new_folder_subtitle">Цю теку буде створено на вашому сервері та додано до Save.</string>
@@ -142,6 +162,9 @@
     <string name="popup_flag_desc">Коли ви позначаєте елемент, він поміщається до підтеки у вибраній теці проєкту на приватному сервері.</string>
     <string name="set_creative_commons_license_for_all_folders_on_this_server">Встановити ліцензування Creative Commons для тек на цьому сервері.</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Задайте однакову ліцензію Creative Commons для ВСІХ тек на цьому сервері.</string>
+    <string name="you_already_have_a_server_with_these_credentials">У вас уже є сервер із цими обліковими даними.</string>
+
+
     <!-- Space Setup -->
     <string name="space_setup_title">Обрати сервер</string>
     <!-- WebDAV related strings -->
@@ -164,9 +187,9 @@
     <string name="uploading_is_paused">Вивантаження призупинено</string>
 
     <!-- Clean Insights measurement -->
-    <string name="server_name_optional"><i>Назва сервера (необов\'язково)</i></string>
+    <string name="server_name_optional"><i>Назва сервера (необов'язково)</i></string>
     <string name="add_another_account">Додати новий сервер</string>
-    <string name="biometrics_title">Unlock with Biometrics</string>
+    <string name="biometrics_title">Розблокувати ключ ProofMode</string>
     <string name="folders">Теки</string>
     <string name="create_folder_name">Створити назву теки</string>
     <string name="folder_name">Назва теки</string>
@@ -182,18 +205,19 @@
     <string name="general">Загальні</string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Вивантажувати медіа тільки, коли ви під\'єднані до Wi-Fi</string>
     <string name="security">Безпека</string>
+    <string name="proofmode">ProofMode</string>
     <string name="no_webbrowser_found_error">Жоден застосунок не може обробити цей запит. Будь ласка, встановіть веббраузер.</string>
 
     <string name="intro_text_secure">Безпечно надсилайте медіафайли до приватних серверів та блокуйте застосунок кодом доступу.</string>
     <string name="intro_text_archive"><![CDATA[Завантажуйте медіафайли до Nextcloud або Internet Archive, щоб зберігати їх перевірюваними, захищеними та впорядкованими у довгостроковій перспективі.<br><br>Обирайте <a href=\"%1$s\"><u>Ліцензування Creative Commons.</u></a>]]></string>
 
-    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href="%1$s"><u>C2PA content credentials.</u></a>]]></string>
+    <string name="intro_text_verify"><![CDATA[Автентифікуйте та підтверджуйте свої медіафайли хешами sha256 та <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
     <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> завжди вивантажує файли за допомогою TLS (Протокол захисту транспортного рівня) для захисту ваших медіафайлів під час передавання.<br>Для додаткового підвищення безпеки, увімкніть <a href=\"%1$s\"><u>Tor</u></a> для запобігання перехопленню ваших медіафайлів під час передавання з телефону на сервер.]]></string>
     <string name="next">Вперед</string>
     <string name="done">Готово</string>
     <string name="secure_mobile_media_preservation">Схоронність медіафайлів на мобільних пристроях</string>
     <string name="get_started">Розпочати</string>
-    <string name="archived_folders">Архівовані папки</string>
+    <string name="archived_folders">Архівовані теки</string>
     <string name="view_archived_folders">Переглянути архівовані папки</string>
     <string name="learn_more_about_creative_commons">Дізнатися більше про Creative Commons.</string>
     <string name="refresh">Оновити</string>
@@ -209,16 +233,15 @@
     <string name="press_and_hold_options_media_screen_message">Торкніться + для вибору файлів з Галереї або натисніть та утримуйте для додавання медіафайлів з інших застосунків.</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">Натисніть та тримайте для обрання та редагування декількох медіафайлів.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Після вивантаження медіафайлів втрачається можливість їхнього редагування</string>
-    <string name="proceed_to_upload">Перейти до вивантаження</string>
-    <string name="actually_let_me_edit">Власне, я відредагую сам</string>
     <string name="edit_media_info">Редагувати дані медіафайлу</string>
-    <string name="bulk_edit_media_info">Масове редагування медіаінформації</string>
-    <string name="add_a_location_optional"><i>Додати місцеперебування (необов\'язково)</i></string>
-    <string name="add_notes_optional"><i>Додати примітки (необов\'язково)</i></string>
+    <string name="add_a_location_optional"><i>Додати місцеперебування (необов'язково)</i></string>
+    <string name="add_notes_optional"><i>Додати примітки (необов'язково)</i></string>
     <string name="skip">Пропустити</string>
+
 
     <string name="upload_unsuccessful">Не вдалось вивантажити</string>
     <string name="upload_unsuccessful_description">Не вдалось завантажити через помилку сесії; будь ласка, спробуйте знову або зв\'яжіться з підтримкою.</string>
+
 
     <string name="edit_media">Редагувати медіафайл</string>
 
@@ -231,6 +254,19 @@
     <string name="label_screen_name">Назва екрану</string>
     <string name="label_create_login">Створити</string>
     <string name="prompt_no_account">Немає облікового запису\?</string>
+    <string name="action_continue">Продовжити</string>
+
+    <!-- DWeb Strings -->
+    <string name="dweb_create_group_screen_title">Оберіть назву для групи та власне ім\'я</string>
+    <string name="dweb_create_group_screen_description">Група у сховищі DWeb подібна до сервера, а ім\'я користувача слугує вашою особистою текою в межах цієї групи. Ви зможете завантажувати медіафайли під цим іменем користувача.</string>
+    <string name="dweb_create_group_group_name"><i>Назва вашої групи</i></string>
+    <string name="dweb_create_group_user_name"><i>Ваше ім'я в цій групі</i></string>
+    <string name="dweb_join_group_screen_title">Оберіть ім\'я користувача для цієї групи</string>
+    <string name="dweb_join_group_screen_description">Група у сховищі DWeb подібна до сервера, а ім\'я користувача слугує вашою особистою текою в межах цієї групи. Ви зможете завантажувати медіафайли під цим іменем користувача.</string>
+    <string name="dweb_join_group_group_name">Назва групи</string>
+    <string name="dweb_join_group_repo_name">Ваше ім\'я в цій групі</string>
+
+    <string name="dweb_share_qr_code">Поділитись QR-кодом</string>
 
     <string name="pref_title_secure">Захищайте</string>
     <string name="pref_title_archive">Архівуйте</string>

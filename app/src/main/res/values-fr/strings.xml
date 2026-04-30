@@ -2,10 +2,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="title_activity_first_start">Lancement initial</string>
     <string name="action_settings">Paramètres</string>
-    <string name="internet_archive">Internet Archive</string>
+    <string name="internet_archive">« Internet Archive »</string>
     <string name="internet_archive_description">Téléversez vos médias vers un compte public gratuit sur internet Archive.</string>
-    <string name="dweb_title">Service DWeb</string>
-    <string name="dweb_description">Connectez-vous\nau web décentralisé</string>
+    <string name="dweb_title">Stockage DWeb</string>
+    <string name="dweb_description">Connectez-vous au Web décentralisé</string>
     <string name="servers">Serveurs</string>
     <string name="add_server">Ajouter un serveur</string>
     <string name="lbl_rename_folder">Renommer le dossier</string>
@@ -17,6 +17,7 @@
     <string name="folder_rename_success">Le dossier a été renommé</string>
     <string name="folder_not_found">Le dossier est introuvable</string>
     <string name="folder_removed">Le dossier a été supprimé</string>
+    <string name="folder_archived">Le dossier a été archivé avec succès.</string>
     <string name="content_picker_label">Ajouter des médias depuis</string>
     <string name="disable_passcode_dialog_title">Désactiver le code d’accès</string>
     <string name="disable_passcode_dialog_msg">Voulez-vous vraiment désactiver le code d’accès \?</string>
@@ -24,11 +25,12 @@
     <string name="tor_disabled_message">Cette fonctionnalité est actuellement en phase de développement. En attendant, pour améliorer le niveau de confidentialité et de sécurité de vos communications, vous pouvez utiliser Orbot ou n\'importe quel autre VPN de votre choix.</string>
     <string name="tor_download_btn_label">Télécharger Orbot</string>
 
+
     <!-- Errors -->
 
     <!-- Server -->
     <string name="lbl_Cancel">Annuler</string>
-    <string name="lbl_ok">Valider</string>
+    <string name="lbl_ok">Fonctionne</string>
     <string name="lbl_confirm">Confirmer</string>
     <string name="lbl_remove">Supprimer</string>
     <string name="lbl_retry">Réessayer</string>
@@ -53,11 +55,26 @@
     <string name="prefs_use_tor_title">Activer le routage en oinon</string>
     <string name="prefs_use_tor_summary">Ne transférer que par le Réseau Tor</string>
 
+    <string name="prefs_use_proofmode_title">Activer ProofMode</string>
+    <string name="prefs_use_proofmode_description"><![CDATA[ProofMode est un moyen d\'améliorer l\'authentification et la vérification du contenu multimédia. <a href=\"%1$s\"><u>Pour en savoir plus cliquez ici.</u></a>]]></string>
+
+    <string name="proof_mode_warning_text"><![CDATA[
+Pour vous permettre de vérifier où votre média a été enregistré, ProofMode recueille des données auprès des tours satellites situées à proximité et ce afin de confirmer votre position. Pour renforcer la crédibilité et le contexte de votre média, ProofMode ajoute un fichier de métadonnées indépendant à votre média*. À savoir: Android nécessite l\'accès à votre position pour recueillir ces informations.<br/><br/>
+<b>*Ni <i>Save </i>ni<i> OpenArchive</i> ne pourront accéder à ces données de localisation ni les stocker. Seules les personnes ayant accès aux fichiers du serveur pourront le faire.
+]]>\n</string>
+
+    <string name="prefs_share_proofmode_title">Identité ProofMode</string>
+    <string name="prefs_share_proofmode_summary">Partager la clé publique ProofMode </string>
+
+
+    <!-- Strings for ProofMode Activity -->
+    <string name="phone_permission_required">L’autorisation de localisation est nécessaire</string>
+
     <!-- Strings for nearby sharing -->
 
     <!-- Strings related to login -->
     <string name="prompt_username"><i>Nom d’utilisateur</i></string>
-    <string name="prompt_email">Courriel</string>
+    <string name="prompt_email">Addresse courriel</string>
     <string name="prompt_password"><i>Mot de passe</i></string>
 
     <string name="label_username">\@string/prompt_email</string>
@@ -103,13 +120,14 @@
     <string name="set_passcode">Définir le code d’accès</string>
     <string name="set_passcode_warning">Mémorisez ce code. Si vous l’oubliez, vous devrez réinitialiser l’appli et toutes les données seront effacées.</string>
 
+
     <!-- Strings related to Settings -->
 
     <string name="tap_to_add">Toucher le bouton ci-dessous pour ajouter un média</string>
     <string name="tap_to_add_folder">Toucher le bouton ci-dessous pour ajouter un dossier</string>
     <string name="tap_to_add_server">Toucher le bouton ci-dessous pour ajouter un serveur</string>
     <string name="to_get_started_connect_to_a_server_to_store_your_media">Pour commencer, connectez-vous à un serveur afin d\'y stocker vos médias.</string>
-    <string name="to_get_started_more_hint_dweb">Vous pouvez à tout moment ajouter plusieurs\nserveurs privés et un compte de serveur IA ou DWeb.</string>
+    <string name="to_get_started_more_hint_dweb">Vous pouvez à tout moment ajouter plusieurs serveurs privés ainsi qu\'un compte IA ou un Stockage DWeb </string>
     <string name="to_get_started_more_hint">Vous pouvez à tout moment ajouter plusieurs\nserveurs privés et un compte de serveur IA.</string>
     <string name="send_directly_to_a_private_server">Connectez-vous à un serveur\nWebDAV sécurisé</string>
     <string name="upload_to_the_internet_archive">Connectez-vous à un serveur\npublic gratuit</string>
@@ -120,6 +138,8 @@
     <string name="select_where_to_store_your_media">Choisissez un dossier nouveau ou existant pour y enregistrer votre média.</string>
     <string name="you_have_successfully_connected_to_a_private_server">La connexion au serveur privé est établie</string>
     <string name="you_have_successfully_connected_to_the_internet_archive">La connexion à « Internet Archive » est établie</string>
+    <string name="you_have_successfully_created_dweb">Vous avez créé un groupe via le Stockage DWeb !</string>
+    <string name="you_have_successfully_joined_dweb">Vous avez rejoint un groupe via le Stockage DWeb !</string>
     <string name="create_a_new_folder">Créer un nouveau dossier</string>
     <string name="create_new_folder_title">Nommez votre dossier</string>
     <string name="create_new_folder_subtitle">Ce dossier sera créé sur votre serveur et ajouté à Save.</string>
@@ -142,6 +162,9 @@
     <string name="popup_flag_desc">Quand vous marquez un élément, il est acheminé dans un sous-dossier du dossier du projet choisi sur le serveur privé.</string>
     <string name="set_creative_commons_license_for_all_folders_on_this_server">Attribuer des licences « Creative Commons » aux dossiers de ce serveur.</string>
     <string name="set_the_same_creative_commons_license_for_all_folders_on_this_server">Attribuer la même licence « Creative Commons » à TOUS les dossiers de ce serveur.</string>
+    <string name="you_already_have_a_server_with_these_credentials">Un serveur est déjà défini avec ces identifiants.</string>
+
+
     <!-- Space Setup -->
     <string name="space_setup_title">Choisir un serveur</string>
     <!-- WebDAV related strings -->
@@ -166,7 +189,7 @@
     <!-- Clean Insights measurement -->
     <string name="server_name_optional"><i>Nom du serveur (facultatif)</i></string>
     <string name="add_another_account">Ajouter un nouveau serveur</string>
-    <string name="biometrics_title">Unlock with Biometrics</string>
+    <string name="biometrics_title">Déverrouiller la clé ProofMode</string>
     <string name="folders">Dossiers</string>
     <string name="create_folder_name">Créer un nom de dossier</string>
     <string name="folder_name">Nom du dossier</string>
@@ -181,13 +204,14 @@
     <string name="account">Compte</string>
     <string name="general">Général</string>
     <string name="only_upload_media_when_you_are_connected_to_wi_fi">Téléverser les médias par Wi-Fi seulement</string>
-    <string name="security">Securité</string>
+    <string name="security">Sécurité</string>
+    <string name="proofmode">ProofMode</string>
     <string name="no_webbrowser_found_error">Aucune appli ne peut traiter cette demande. Installez un navigateur Web.</string>
 
     <string name="intro_text_secure">Envoyez vos médias vers des serveurs privés en toute sécurité et verrouillez l’appli avec un code.</string>
     <string name="intro_text_archive"><![CDATA[Téléversez vos médias sur Nextcloud ou Internet Archive afin qu\'ils restent vérifiables, sécurisés et organisés à long terme.<br><br>Choisissez<a href=\"%1$s\"><u> une licence Creative Commons.</u></a>]]></string>
 
-    <string name="intro_text_verify"><![CDATA[Authenticate and verify your media with sha256 hashes and <a href="%1$s"><u>C2PA content credentials.</u></a>]]></string>
+    <string name="intro_text_verify"><![CDATA[Authentifiez et vérifiez vos médias grâce aux hachages sha256 et <a href=\"%1$s\"><u>ProofMode.</u></a>]]></string>
     <string name="intro_text_encrypt"><![CDATA[<b><i>Save</i></b> télécharge toujours via TLS (Transport Layer Security) pour protéger vos médias pendant leur transit.<br>Pour renforcer davantage la sécurité, activez <a href=\"%1$s\"><u>Tor</u></a> afin d\'empêcher l\'interception de vos médias entre votre téléphone et le serveur.]]></string>
     <string name="next">Suivant</string>
     <string name="done">Terminé</string>
@@ -209,16 +233,15 @@
     <string name="press_and_hold_options_media_screen_message">Touchez + pour choisir dans la photothèque ou touchez et maintenez pour ajouter des médias d’autres applis.</string>
     <string name="press_and_hold_to_select_and_edit_multiple_media">Maintenez la touche enfoncée pour sélectionner et modifier plusieurs contenus multimédias.</string>
     <string name="once_uploaded_you_will_not_be_able_to_edit_media">Une fois téléversé, vous ne pourrez plus le modifier.</string>
-    <string name="proceed_to_upload">Procéder au téléversement</string>
-    <string name="actually_let_me_edit">En fait, laissez-moi éditer</string>
     <string name="edit_media_info">Modifier les renseignements du média</string>
-    <string name="bulk_edit_media_info">Modifier en masse les infos relatives aux médias</string>
     <string name="add_a_location_optional"><i>Ajouter un emplacement (facultatif)</i></string>
     <string name="add_notes_optional"><i>Ajouter des notes (facultatif)</i></string>
     <string name="skip">Ignorer</string>
 
+
     <string name="upload_unsuccessful">Échec de téléchargement</string>
     <string name="upload_unsuccessful_description">Échec de téléversement causé par une erreur de session. Réessayez ou contactez l’assistance.</string>
+
 
     <string name="edit_media">Modifier le média</string>
 
@@ -231,6 +254,19 @@
     <string name="label_screen_name">Nom affiché</string>
     <string name="label_create_login">Créer un compte</string>
     <string name="prompt_no_account">Pas de compte \?</string>
+    <string name="action_continue">Poursuivre</string>
+
+    <!-- DWeb Strings -->
+    <string name="dweb_create_group_screen_title">Nommez votre groupe et choisissez un nom d\'utilisateur.</string>
+    <string name="dweb_create_group_screen_description">Un groupe sur le Stockage DWeb est comparable à un serveur. Votre nom d\'utilisateur sert de dossier personnel où vous pourrez téléverser vos contenus médias.</string>
+    <string name="dweb_create_group_group_name"><i>Votre groupe</i></string>
+    <string name="dweb_create_group_user_name"><i>Votre nom au sein du groupe</i></string>
+    <string name="dweb_join_group_screen_title">Choisissez un nom d\'utilisateur pour ce groupe.</string>
+    <string name="dweb_join_group_screen_description">Un groupe sur le Stockage DWeb est comparable à un serveur. Votre nom d\'utilisateur sert de dossier personnel où vous pourrez téléverser vos contenus médias.</string>
+    <string name="dweb_join_group_group_name">Votre groupe</string>
+    <string name="dweb_join_group_repo_name">Votre nom au sein du groupe</string>
+
+    <string name="dweb_share_qr_code">Partagez le code QR</string>
 
     <string name="pref_title_secure">Sécuriser</string>
     <string name="pref_title_archive">Archiver</string>
