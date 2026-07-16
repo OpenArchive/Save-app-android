@@ -56,7 +56,7 @@ android {
 
     namespace = "net.opendasharchive.openarchive"
 
-    compileSdk = 36
+    compileSdk = 37
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -66,7 +66,7 @@ android {
     defaultConfig {
         applicationId = "net.opendasharchive.openarchive"
         minSdk = 29
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 30043
         versionName = "4.0.5"
         multiDexEnabled = true
@@ -108,6 +108,7 @@ android {
 
         // Distribution dimension
         create("gms") {
+            isDefault = true
             dimension = "distribution"
             buildConfigField("boolean", "IS_GMS_BUILD", "true")
             buildConfigField("boolean", "IS_FOSS_BUILD", "false")
@@ -127,6 +128,7 @@ android {
 
         // Environment dimension
         create("dev") {
+            isDefault = true
             dimension = "env"
             versionNameSuffix = "-dev"
             applicationIdSuffix = ".debug"

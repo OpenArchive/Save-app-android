@@ -3,7 +3,7 @@ package net.opendasharchive.openarchive.db
 import android.annotation.SuppressLint
 import androidx.room3.Database
 import androidx.room3.RoomDatabase
-import androidx.room3.TypeConverters
+import androidx.room3.ColumnTypeConverters
 import androidx.room3.AutoMigration
 import androidx.room3.DeleteColumn
 import androidx.room3.migration.AutoMigrationSpec
@@ -38,7 +38,7 @@ import androidx.room3.migration.AutoMigrationSpec
     version = 4,
     exportSchema = true
 )
-@TypeConverters(Converters::class)
+@ColumnTypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun vaultDao(): VaultDao
     abstract fun archiveDao(): ArchiveDao

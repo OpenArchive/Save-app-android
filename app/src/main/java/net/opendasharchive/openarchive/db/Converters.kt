@@ -1,6 +1,6 @@
 package net.opendasharchive.openarchive.db
 
-import androidx.room3.TypeConverter
+import androidx.room3.ColumnTypeConverter
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -10,26 +10,26 @@ import net.opendasharchive.openarchive.core.domain.EvidenceStatus
 import kotlin.time.Instant
 
 class Converters {
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromTimestamp(value: Long?): LocalDateTime? {
         return value?.let {
             Instant.fromEpochMilliseconds(it).toLocalDateTime(TimeZone.currentSystemDefault())
         }
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun dateToTimestamp(date: LocalDateTime?): Long? {
         return date?.toInstant(TimeZone.currentSystemDefault())?.toEpochMilliseconds()
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromVaultType(value: VaultType): Int = when (value) {
         VaultType.PRIVATE_SERVER -> 0
         VaultType.INTERNET_ARCHIVE -> 1
         VaultType.DWEB_STORAGE -> 5
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toVaultType(value: Int): VaultType = when (value) {
         0 -> VaultType.PRIVATE_SERVER
         1 -> VaultType.INTERNET_ARCHIVE
@@ -37,10 +37,10 @@ class Converters {
         else -> VaultType.PRIVATE_SERVER
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromEvidenceStatus(value: EvidenceStatus): Int = value.id
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toEvidenceStatus(value: Int): EvidenceStatus = when (value) {
         0 -> EvidenceStatus.NEW
         1 -> EvidenceStatus.LOCAL
