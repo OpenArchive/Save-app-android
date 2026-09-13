@@ -18,6 +18,8 @@ jobs:
   detekt:
     name: Static Code Analysis with Detekt
     runs-on: ubuntu-latest
+    env:
+      ORG_GRADLE_JAVA_INSTALLATIONS_AUTO_DOWNLOAD: "false"
 
     steps:
     # ✅ Step 1: Checkout Repository

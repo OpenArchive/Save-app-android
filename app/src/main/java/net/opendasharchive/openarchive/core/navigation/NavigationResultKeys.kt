@@ -1,7 +1,7 @@
 package net.opendasharchive.openarchive.core.navigation
 
 /**
- * Constants for result keys used in [ResultEventBus] and [ResultEffect].
+ * Constants for result keys used in [ResultEventBus] and [androidx.navigation3.runtime.result.ResultEffect].
  */
 object NavigationResultKeys {
     const val QR_SCAN_RESULT = "qr_scan_result"

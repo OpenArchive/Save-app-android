@@ -11,7 +11,7 @@ kotlin {
 
 android {
     namespace = "net.opendasharchive.openarchive.analytics"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 29

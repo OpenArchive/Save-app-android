@@ -6,8 +6,8 @@ import androidx.room3.Relation
 data class VaultWithDweb(
     @Embedded val vault: VaultEntity,
     @Relation(
-        parentColumn = "id",
-        entityColumn = "vaultId"
+        parentColumns = ["id"],
+        entityColumns = ["vaultId"]
     )
     val dwebMetadata: VaultDwebEntity?
 )
@@ -15,8 +15,8 @@ data class VaultWithDweb(
 data class ArchiveWithDweb(
     @Embedded val archive: ArchiveEntity,
     @Relation(
-        parentColumn = "id",
-        entityColumn = "archiveId"
+        parentColumns = ["id"],
+        entityColumns = ["archiveId"]
     )
     val dwebMetadata: ArchiveDwebEntity?
 )
@@ -24,8 +24,8 @@ data class ArchiveWithDweb(
 data class EvidenceWithDweb(
     @Embedded val evidence: EvidenceEntity,
     @Relation(
-        parentColumn = "id",
-        entityColumn = "evidenceId"
+        parentColumns = ["id"],
+        entityColumns = ["evidenceId"]
     )
     val dwebMetadata: EvidenceDwebEntity?
 )

@@ -14,9 +14,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.result.LocalResultEventBus
 import net.opendasharchive.openarchive.R
 import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
-import net.opendasharchive.openarchive.core.navigation.ResultEventBus
 import net.opendasharchive.openarchive.features.main.ui.AppRoute
 import net.opendasharchive.openarchive.features.main.ui.Navigator
 import net.opendasharchive.openarchive.features.settings.passcode.components.DefaultScaffold
@@ -202,9 +202,10 @@ fun EntryProviderScope<AppRoute>.snowbirdEntries(
     }
 
     entry<AppRoute.SnowbirdQRScannerRoute> { route ->
+        val resultEventBus = LocalResultEventBus.current
         QRScannerScreen(
             onQrCodeScanned = { result ->
-                ResultEventBus.sendResult(
+                resultEventBus.sendResult(
                     resultKey = NavigationResultKeys.QR_SCAN_RESULT,
                     result = result
                 )

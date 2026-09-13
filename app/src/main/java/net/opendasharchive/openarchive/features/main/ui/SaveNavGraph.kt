@@ -6,7 +6,6 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,6 +22,8 @@ import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDe
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.runtime.result.rememberResultEventBus
+import androidx.navigation3.runtime.result.rememberResultEventBusNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import kotlinx.coroutines.launch
 import net.opendasharchive.openarchive.R
@@ -30,10 +31,7 @@ import net.opendasharchive.openarchive.analytics.api.AnalyticsManager
 import net.opendasharchive.openarchive.analytics.api.session.SessionTracker
 import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.logger.AppLogger
-import net.opendasharchive.openarchive.core.navigation.LocalResultEventBus
 import net.opendasharchive.openarchive.core.navigation.NavigationResultKeys
-import net.opendasharchive.openarchive.core.navigation.ResultEventBus
-import net.opendasharchive.openarchive.core.navigation.rememberResultStore
 import net.opendasharchive.openarchive.core.presentation.components.TextActionButton
 import net.opendasharchive.openarchive.db.sugar.Space
 import net.opendasharchive.openarchive.features.core.dialog.DialogHost
@@ -92,8 +90,7 @@ fun SaveNavGraph(
 ) {
     val analyticsManager: AnalyticsManager = koinInject()
     val sessionTracker: SessionTracker = koinInject()
-    val resultBus = ResultEventBus
-    val resultStore = rememberResultStore()
+    val resultBus = rememberResultEventBus()
     val passcodeFlowState: PasscodeFlowState = koinInject()
     val passcodeGate: PasscodeGate = koinInject()
     val isLocked by passcodeGate.locked.collectAsStateWithLifecycle()
@@ -126,18 +123,17 @@ fun SaveNavGraph(
 
     DialogHost(dialogManager)
 
-    CompositionLocalProvider(LocalResultEventBus provides resultBus) {
-
-        NavDisplay(
-            modifier = Modifier.fillMaxSize(),
-            backStack = navigator.backstack,
-            entryDecorators = listOf(
-                // Add the default decorators for managing scenes and saving state
-                rememberSaveableStateHolderNavEntryDecorator(),
-                // Then add the view model store decorator
-                rememberViewModelStoreNavEntryDecorator(),
-                rememberAnalyticsNavEntryDecorator(analyticsManager, sessionTracker)
-            ),
+    NavDisplay(
+        modifier = Modifier.fillMaxSize(),
+        backStack = navigator.backstack,
+        entryDecorators = listOf(
+            // Add the default decorators for managing scenes and saving state
+            rememberSaveableStateHolderNavEntryDecorator(),
+            // Then add the view model store and result decorators
+            rememberViewModelStoreNavEntryDecorator(),
+            rememberResultEventBusNavEntryDecorator(resultBus),
+            rememberAnalyticsNavEntryDecorator(analyticsManager, sessionTracker)
+        ),
             transitionSpec = {
                 // Slide in from right when navigating forward
                 slideInHorizontally(initialOffsetX = { it }) togetherWith
@@ -153,7 +149,7 @@ fun SaveNavGraph(
                 slideInHorizontally(initialOffsetX = { -it }) togetherWith
                         slideOutHorizontally(targetOffsetX = { it })
             },
-            entryProvider = entryProvider {
+        entryProvider = entryProvider {
 
                 entry<AppRoute.HomeRoute> { route ->
 
@@ -559,8 +555,7 @@ fun SaveNavGraph(
                 // Snowbird feature entries
                 snowbirdEntries(navigator)
             }
-        )
-    }
+    )
 }
 
 
