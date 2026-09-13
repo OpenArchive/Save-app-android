@@ -5,8 +5,8 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
-import net.opendasharchive.openarchive.core.domain.VaultType
 import net.opendasharchive.openarchive.core.domain.EvidenceStatus
+import net.opendasharchive.openarchive.core.domain.VaultType
 import kotlin.time.Instant
 
 class Converters {
